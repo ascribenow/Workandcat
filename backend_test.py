@@ -168,19 +168,20 @@ class CATBackendTester:
         return False
 
     def test_question_creation(self):
-        """Test question creation (requires authentication)"""
+        """Test question creation with LLM enrichment (requires authentication)"""
         if not self.admin_token:
             print("❌ Skipping question creation - no admin token")
             return False
             
         question_data = {
-            "text": "What is 2 + 2?",
-            "options": ["2", "3", "4", "5"],
-            "correct_answer": "4",
-            "explanation": "Basic addition: 2 + 2 = 4",
-            "category": "Arithmetic",
-            "sub_category": "Percentages",
-            "year": 2024
+            "stem": "A train travels 120 km in 2 hours. What is its speed in km/h?",
+            "answer": "60",
+            "solution_approach": "Speed = Distance / Time",
+            "detailed_solution": "Speed = 120 km / 2 hours = 60 km/h",
+            "hint_category": "Arithmetic",
+            "hint_subcategory": "Time–Speed–Distance (TSD)",
+            "tags": ["speed", "distance", "time"],
+            "source": "Test Admin"
         }
         
         headers = {
@@ -188,11 +189,255 @@ class CATBackendTester:
             'Authorization': f'Bearer {self.admin_token}'
         }
         
-        success, response = self.run_test("Create Question (Admin)", "POST", "questions", 200, question_data, headers)
-        if success and 'question' in response:
-            self.sample_question_id = response['question']['id']
+        success, response = self.run_test("Create Question with LLM Enrichment", "POST", "questions", 200, question_data, headers)
+        if success and 'question_id' in response:
+            self.sample_question_id = response['question_id']
             print(f"   Created question ID: {self.sample_question_id}")
+            print(f"   Status: {response.get('status')}")
             return True
+        return False
+
+    def test_diagnostic_system(self):
+        """Test 25-question diagnostic system"""
+        if not self.student_token:
+            print("❌ Skipping diagnostic test - no student token")
+            return False
+
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {self.student_token}'
+        }
+
+        # Start diagnostic
+        success, response = self.run_test("Start Diagnostic", "POST", "diagnostic/start", 200, {}, headers)
+        if not success or 'diagnostic_id' not in response:
+            return False
+        
+        self.diagnostic_id = response['diagnostic_id']
+        print(f"   Diagnostic ID: {self.diagnostic_id}")
+        print(f"   Total questions: {response.get('total_questions')}")
+        print(f"   Estimated time: {response.get('estimated_time_minutes')} minutes")
+
+        # Get diagnostic questions
+        success, response = self.run_test("Get Diagnostic Questions", "GET", f"diagnostic/{self.diagnostic_id}/questions", 200, None, headers)
+        if not success or 'questions' not in response:
+            return False
+        
+        questions = response['questions']
+        print(f"   Retrieved {len(questions)} questions")
+        
+        if len(questions) == 0:
+            print("   ⚠️ No questions available for diagnostic")
+            return False
+
+        # Submit answers for first few questions (simulate diagnostic)
+        for i, question in enumerate(questions[:3]):  # Test first 3 questions
+            answer_data = {
+                "diagnostic_id": self.diagnostic_id,
+                "question_id": question['id'],
+                "user_answer": "A",  # Simulate answer
+                "time_sec": 45,
+                "context": "diagnostic",
+                "hint_used": False
+            }
+            
+            success, response = self.run_test(f"Submit Diagnostic Answer {i+1}", "POST", "diagnostic/submit-answer", 200, answer_data, headers)
+            if success:
+                print(f"   Answer {i+1} correct: {response.get('correct')}")
+            else:
+                return False
+
+        # Complete diagnostic (with limited answers)
+        success, response = self.run_test("Complete Diagnostic", "POST", f"diagnostic/{self.diagnostic_id}/complete", 200, {}, headers)
+        if success:
+            print(f"   Diagnostic completed")
+            if 'track_recommendation' in response:
+                print(f"   Track recommendation: {response.get('track_recommendation')}")
+            return True
+        
+        return False
+
+    def test_mcq_generation(self):
+        """Test MCQ generation functionality"""
+        # This is tested implicitly in diagnostic questions
+        # MCQ options should be generated for each question
+        if not self.student_token or not self.diagnostic_id:
+            print("❌ Skipping MCQ generation test - missing prerequisites")
+            return False
+
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {self.student_token}'
+        }
+
+        # Get diagnostic questions to verify MCQ options are generated
+        success, response = self.run_test("Verify MCQ Options Generation", "GET", f"diagnostic/{self.diagnostic_id}/questions", 200, None, headers)
+        if success and 'questions' in response:
+            questions = response['questions']
+            if len(questions) > 0:
+                first_question = questions[0]
+                if 'options' in first_question and first_question['options']:
+                    print(f"   MCQ options generated: {list(first_question['options'].keys())}")
+                    return True
+                else:
+                    print("   ❌ No MCQ options found in questions")
+                    return False
+        
+        return False
+
+    def test_study_planner(self):
+        """Test 90-day study planning system"""
+        if not self.student_token:
+            print("❌ Skipping study planner test - no student token")
+            return False
+
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {self.student_token}'
+        }
+
+        # Create study plan
+        plan_data = {
+            "track": "Beginner",
+            "daily_minutes_weekday": 30,
+            "daily_minutes_weekend": 60
+        }
+        
+        success, response = self.run_test("Create Study Plan", "POST", "study-plan", 200, plan_data, headers)
+        if not success or 'plan_id' not in response:
+            return False
+        
+        self.plan_id = response['plan_id']
+        print(f"   Plan ID: {self.plan_id}")
+        print(f"   Track: {response.get('track')}")
+        print(f"   Start date: {response.get('start_date')}")
+
+        # Get today's plan
+        success, response = self.run_test("Get Today's Plan", "GET", "study-plan/today", 200, None, headers)
+        if success:
+            plan_units = response.get('plan_units', [])
+            print(f"   Today's plan units: {len(plan_units)}")
+            return True
+        
+        return False
+
+    def test_session_management(self):
+        """Test study session management"""
+        if not self.student_token:
+            print("❌ Skipping session management test - no student token")
+            return False
+
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {self.student_token}'
+        }
+
+        # Start session
+        session_data = {
+            "target_minutes": 30
+        }
+        
+        success, response = self.run_test("Start Study Session", "POST", "session/start", 200, session_data, headers)
+        if not success or 'session_id' not in response:
+            return False
+        
+        self.session_id = response['session_id']
+        print(f"   Session ID: {self.session_id}")
+
+        # Get next question
+        success, response = self.run_test("Get Next Question", "GET", f"session/{self.session_id}/next-question", 200, None, headers)
+        if success:
+            question = response.get('question')
+            if question:
+                print(f"   Next question ID: {question.get('id')}")
+                
+                # Submit answer
+                answer_data = {
+                    "question_id": question['id'],
+                    "user_answer": "A",
+                    "time_sec": 60,
+                    "context": "daily",
+                    "hint_used": False
+                }
+                
+                success, response = self.run_test("Submit Session Answer", "POST", f"session/{self.session_id}/submit-answer", 200, answer_data, headers)
+                if success:
+                    print(f"   Answer correct: {response.get('correct')}")
+                    print(f"   Attempt number: {response.get('attempt_no')}")
+                    return True
+            else:
+                print("   No questions available for session")
+                return True  # This might be expected if no questions are available
+        
+        return False
+
+    def test_mastery_tracking(self):
+        """Test EWMA-based mastery tracking"""
+        if not self.student_token:
+            print("❌ Skipping mastery tracking test - no student token")
+            return False
+
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {self.student_token}'
+        }
+
+        # Get mastery dashboard
+        success, response = self.run_test("Get Mastery Dashboard", "GET", "dashboard/mastery", 200, None, headers)
+        if success:
+            mastery_data = response.get('mastery', [])
+            print(f"   Mastery topics tracked: {len(mastery_data)}")
+            
+            if len(mastery_data) > 0:
+                first_topic = mastery_data[0]
+                print(f"   Sample topic: {first_topic.get('topic')}")
+                print(f"   Mastery %: {first_topic.get('mastery_pct')}")
+            
+            return True
+        
+        return False
+
+    def test_progress_dashboard(self):
+        """Test progress dashboard and analytics"""
+        if not self.student_token:
+            print("❌ Skipping progress dashboard test - no student token")
+            return False
+
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {self.student_token}'
+        }
+
+        # Get progress dashboard
+        success, response = self.run_test("Get Progress Dashboard", "GET", "dashboard/progress", 200, None, headers)
+        if success:
+            print(f"   Total sessions: {response.get('total_sessions')}")
+            print(f"   Total minutes: {response.get('total_minutes')}")
+            print(f"   Current streak: {response.get('current_streak')}")
+            print(f"   Sessions this week: {response.get('sessions_this_week')}")
+            return True
+        
+        return False
+
+    def test_auth_me_endpoint(self):
+        """Test /auth/me endpoint"""
+        if not self.student_token:
+            print("❌ Skipping auth/me test - no student token")
+            return False
+
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {self.student_token}'
+        }
+
+        success, response = self.run_test("Get Current User Info", "GET", "auth/me", 200, None, headers)
+        if success:
+            print(f"   User ID: {response.get('id')}")
+            print(f"   Email: {response.get('email')}")
+            print(f"   Full name: {response.get('full_name')}")
+            print(f"   Is admin: {response.get('is_admin')}")
+            return True
+        
         return False
 
     def test_get_questions(self):
