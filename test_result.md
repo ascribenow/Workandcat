@@ -294,14 +294,11 @@ metadata:
 
 test_plan:
   current_focus:
-    - "LLM Enrichment Pipeline"
     - "Diagnostic System"
-    - "MCQ Generator"
-    - "Admin Statistics"
+    - "Session Management"
   stuck_tasks:
-    - "LLM Enrichment Pipeline"
     - "Diagnostic System"
-    - "MCQ Generator"
+    - "Session Management"
   test_all: false
   test_priority: "high_first"
 
