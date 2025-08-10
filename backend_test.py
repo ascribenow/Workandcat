@@ -262,12 +262,17 @@ class CATBackendTester:
         return False
 
     def test_analytics(self):
-        """Test analytics endpoint"""
-        if not self.student_user:
-            print("❌ Skipping analytics test - missing student user")
+        """Test analytics endpoint (requires authentication)"""
+        if not self.student_user or not self.student_token:
+            print("❌ Skipping analytics test - missing student user or token")
             return False
 
-        success, response = self.run_test("Get Analytics", "GET", f"analytics/{self.student_user['id']}", 200)
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {self.student_token}'
+        }
+
+        success, response = self.run_test("Get Analytics", "GET", f"analytics/{self.student_user['id']}", 200, None, headers)
         if success:
             print(f"   Total questions attempted: {response.get('total_questions_attempted')}")
             print(f"   Overall accuracy: {response.get('overall_accuracy')}%")
