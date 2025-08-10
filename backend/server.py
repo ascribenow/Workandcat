@@ -296,13 +296,34 @@ async def create_question(
 ):
     """Create a new question with LLM enrichment"""
     try:
+        # Find the appropriate topic for this question
+        subcategory = question_data.hint_subcategory or "Time–Speed–Distance (TSD)"
+        topic_result = await db.execute(
+            select(Topic).where(Topic.name == subcategory)
+        )
+        topic = topic_result.scalar_one_or_none()
+        
+        if not topic:
+            # If subcategory topic not found, try to find by parent category
+            category = question_data.hint_category or "Arithmetic"
+            topic_result = await db.execute(
+                select(Topic).where(Topic.name == category, Topic.parent_id.is_(None))
+            )
+            parent_topic = topic_result.scalar_one_or_none()
+            
+            if parent_topic:
+                topic = parent_topic
+            else:
+                raise HTTPException(status_code=400, detail=f"Topic not found for category: {category}, subcategory: {subcategory}")
+        
         # Create basic question first
         question = Question(
+            topic_id=topic.id,  # Set the topic_id
             stem=question_data.stem,
             answer=question_data.answer,
             solution_approach=question_data.solution_approach or "",
             detailed_solution=question_data.detailed_solution or "",
-            subcategory=question_data.hint_subcategory or "Time–Speed–Distance (TSD)",
+            subcategory=subcategory,
             tags=question_data.tags,
             source=question_data.source,
             is_active=False  # Will be activated after enrichment
