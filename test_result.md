@@ -143,9 +143,9 @@ backend:
         
   - task: "Diagnostic System"
     implemented: true
-    working: true
+    working: false
     file: "backend/diagnostic_system.py"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
     needs_retesting: false
     status_history:
@@ -158,6 +158,9 @@ backend:
       - working: true
         agent: "main"
         comment: "Fixed question matching with fallback logic and duplicate prevention. 25-question diagnostic system now working with questions being found and served correctly."
+      - working: false
+        agent: "testing"
+        comment: "❌ CRITICAL ISSUE: Diagnostic system partially working but fails on completion. Can start diagnostic, get 25 questions, submit answers, but completion endpoint fails with async error: 'greenlet_spawn has not been called; can't call await_only() here'. This prevents users from getting diagnostic results and track recommendations."
         
   - task: "MCQ Generator"
     implemented: true
