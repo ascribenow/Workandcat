@@ -4,7 +4,7 @@ import json
 from datetime import datetime
 
 class CATBackendTester:
-    def __init__(self, base_url="https://26caaca9-c218-45fa-a703-95fa1fa6ab9d.preview.emergentagent.com/api"):
+    def __init__(self, base_url="https://b790d23a-a4f2-4e77-8cb7-3425ba31166e.preview.emergentagent.com/api"):
         self.base_url = base_url
         self.student_user = None
         self.admin_user = None

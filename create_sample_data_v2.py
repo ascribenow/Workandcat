@@ -539,7 +539,7 @@ async def main():
         logger.info("   👨‍💼 Admin: sumedhprabhu18@gmail.com / admin2025")
         logger.info("   🧑‍🎓 Student: student@catprep.com / student123")
         logger.info("\n🌐 Access the app at:")
-        logger.info("   https://26caaca9-c218-45fa-a703-95fa1fa6ab9d.preview.emergentagent.com")
+        logger.info("   https://b790d23a-a4f2-4e77-8cb7-3425ba31166e.preview.emergentagent.com")
         
     except Exception as e:
         logger.error(f"❌ Error in sample data creation: {e}")

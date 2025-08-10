@@ -74,7 +74,7 @@ if __name__ == "__main__":
             print("   Email: sumedhprabhu18@gmail.com")
             print("   Password: admin2025")
             print("\n🌐 Access the app at:")
-            print("   https://26caaca9-c218-45fa-a703-95fa1fa6ab9d.preview.emergentagent.com")
+            print("   https://b790d23a-a4f2-4e77-8cb7-3425ba31166e.preview.emergentagent.com")
         else:
             print("\n❌ Admin access test failed")
     else:
