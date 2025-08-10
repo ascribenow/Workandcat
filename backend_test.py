@@ -149,7 +149,11 @@ class CATBackendTester:
         return False
 
     def test_question_creation(self):
-        """Test question creation"""
+        """Test question creation (requires authentication)"""
+        if not self.admin_token:
+            print("❌ Skipping question creation - no admin token")
+            return False
+            
         question_data = {
             "text": "What is 2 + 2?",
             "options": ["2", "3", "4", "5"],
@@ -160,7 +164,12 @@ class CATBackendTester:
             "year": 2024
         }
         
-        success, response = self.run_test("Create Question", "POST", "questions", 200, question_data)
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {self.admin_token}'
+        }
+        
+        success, response = self.run_test("Create Question (Admin)", "POST", "questions", 200, question_data, headers)
         if success and 'question' in response:
             self.sample_question_id = response['question']['id']
             print(f"   Created question ID: {self.sample_question_id}")
