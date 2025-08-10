@@ -102,24 +102,44 @@ class CATBackendTester:
             "password": "student123"
         }
         
-        success, response = self.run_test("Student Login", "POST", "login", 200, student_login)
-        if success and 'user' in response:
+        success, response = self.run_test("Student Login", "POST", "auth/login", 200, student_login)
+        if success and 'user' in response and 'access_token' in response:
             self.student_user = response['user']
+            self.student_token = response['access_token']
             print(f"   Logged in student: {self.student_user['name']}")
+            print(f"   Student is admin: {self.student_user.get('is_admin', False)}")
         else:
             return False
 
-        # Test admin login
+        # Test admin login with the specific admin credentials
         admin_login = {
-            "email": "admin@catprep.com",
-            "password": "admin123"
+            "email": "sumedhprabhu18@gmail.com",
+            "password": "admin2025"
         }
         
-        success, response = self.run_test("Admin Login", "POST", "login", 200, admin_login)
-        if success and 'user' in response:
+        success, response = self.run_test("Admin Login", "POST", "auth/login", 200, admin_login)
+        if success and 'user' in response and 'access_token' in response:
             self.admin_user = response['user']
+            self.admin_token = response['access_token']
             print(f"   Logged in admin: {self.admin_user['name']}")
+            print(f"   Admin is admin: {self.admin_user.get('is_admin', False)}")
             return True
+        else:
+            # Try to register admin first if login fails
+            admin_register = {
+                "email": "sumedhprabhu18@gmail.com",
+                "name": "Admin User",
+                "password": "admin2025"
+            }
+            
+            success, response = self.run_test("Admin Registration", "POST", "auth/register", 200, admin_register)
+            if success and 'user' in response and 'access_token' in response:
+                self.admin_user = response['user']
+                self.admin_token = response['access_token']
+                print(f"   Registered and logged in admin: {self.admin_user['name']}")
+                print(f"   Admin is admin: {self.admin_user.get('is_admin', False)}")
+                return True
+        
         return False
 
     def test_question_creation(self):
