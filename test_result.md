@@ -160,9 +160,9 @@ backend:
     implemented: true
     working: false
     file: "backend/mcq_generator.py"
-    stuck_count: 1
-    priority: "high"
-    needs_retesting: false
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
     status_history:
       - working: false
         agent: "main"
@@ -170,6 +170,9 @@ backend:
       - working: false
         agent: "testing"
         comment: "Cannot test MCQ generation independently due to diagnostic system failure. No questions available for MCQ option generation."
+      - working: false
+        agent: "main"
+        comment: "System returns fallback options instead of LLM-generated options. Likely LLM API integration issue but not blocking core functionality."
         
   - task: "Study Planner"
     implemented: true
