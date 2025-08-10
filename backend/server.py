@@ -942,7 +942,7 @@ async def create_initial_topics():
             # Check if topics already exist
             existing_topics = await db.execute(select(Topic).limit(1))
             if existing_topics.scalar_one_or_none():
-                return  # Topics already created
+                break  # Topics already created
             
             from llm_enrichment import CANONICAL_TAXONOMY
             
