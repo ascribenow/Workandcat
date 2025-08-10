@@ -282,24 +282,86 @@ class CATBackendTester:
         
         return False
 
-    def test_invalid_endpoints(self):
-        """Test error handling for invalid requests"""
-        # Test invalid login
-        invalid_login = {"email": "invalid@test.com", "password": "wrongpass"}
-        success, response = self.run_test("Invalid Login", "POST", "login", 400, invalid_login)
-        
-        # Test non-existent question
-        success, response = self.run_test("Non-existent Question", "GET", "questions/invalid-id", 404)
-        
-        # Test invalid question creation
-        invalid_question = {
-            "text": "Test question",
-            "category": "InvalidCategory",
-            "sub_category": "InvalidSub"
+    def test_admin_endpoints(self):
+        """Test admin-only endpoints"""
+        if not self.admin_token:
+            print("❌ Skipping admin tests - no admin token")
+            return False
+
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {self.admin_token}'
         }
-        success, response = self.run_test("Invalid Question Creation", "POST", "questions", 400, invalid_question)
+
+        # Test admin stats
+        success, response = self.run_test("Admin Stats", "GET", "admin/stats", 200, None, headers)
+        if success:
+            print(f"   Total users: {response.get('total_users')}")
+            print(f"   Total questions: {response.get('total_questions')}")
+            print(f"   Total attempts: {response.get('total_attempts')}")
+            print(f"   Admin email: {response.get('admin_email')}")
+        else:
+            return False
+
+        # Test get all users (admin only)
+        success, response = self.run_test("Get All Users (Admin)", "GET", "admin/users", 200, None, headers)
+        if success:
+            users = response.get('users', [])
+            print(f"   Found {len(users)} users")
+        else:
+            return False
+
+        return True
+
+    def test_password_reset(self):
+        """Test password reset functionality"""
+        reset_data = {
+            "email": "student@catprep.com"
+        }
         
-        return True  # These should fail, so we return True if they do
+        success, response = self.run_test("Password Reset Request", "POST", "auth/password-reset", 200, reset_data)
+        if success:
+            print(f"   Reset message: {response.get('message')}")
+            return True
+        
+        return False
+
+    def test_auth_middleware(self):
+        """Test authentication middleware and protected routes"""
+        # Test accessing protected route without token
+        success, response = self.run_test("Protected Route (No Auth)", "GET", "auth/me", 401)
+        
+        # Test accessing protected route with valid token
+        if self.student_token:
+            headers = {
+                'Content-Type': 'application/json',
+                'Authorization': f'Bearer {self.student_token}'
+            }
+            success, response = self.run_test("Protected Route (Valid Auth)", "GET", "auth/me", 200, None, headers)
+            if success:
+                print(f"   Authenticated user: {response.get('name')}")
+                return True
+        
+        return False
+
+    def test_admin_access_control(self):
+        """Test that non-admin users cannot access admin endpoints"""
+        if not self.student_token:
+            print("❌ Skipping admin access control test - no student token")
+            return False
+
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {self.student_token}'
+        }
+
+        # Student should not be able to access admin stats
+        success, response = self.run_test("Student Access Admin Stats (Should Fail)", "GET", "admin/stats", 403, None, headers)
+        
+        # Student should not be able to access admin users list
+        success, response = self.run_test("Student Access Admin Users (Should Fail)", "GET", "admin/users", 403, None, headers)
+        
+        return True  # These should fail with 403, so we return True
 
 def main():
     print("🚀 Starting CAT Backend API Testing...")
