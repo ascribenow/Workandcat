@@ -202,9 +202,9 @@ class CATBackendTester:
         return success
 
     def test_progress_tracking(self):
-        """Test progress tracking"""
-        if not self.student_user or not self.sample_question_id:
-            print("❌ Skipping progress test - missing student user or question ID")
+        """Test progress tracking (requires authentication)"""
+        if not self.student_user or not self.sample_question_id or not self.student_token:
+            print("❌ Skipping progress test - missing student user, question ID, or token")
             return False
 
         progress_data = {
@@ -214,7 +214,12 @@ class CATBackendTester:
             "time_taken": 30
         }
         
-        success, response = self.run_test("Submit Answer", "POST", "progress", 200, progress_data)
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {self.student_token}'
+        }
+        
+        success, response = self.run_test("Submit Answer", "POST", "progress", 200, progress_data, headers)
         if not success:
             return False
 
@@ -222,7 +227,7 @@ class CATBackendTester:
         print(f"   Correct answer: {response.get('correct_answer')}")
 
         # Test get user progress
-        success, response = self.run_test("Get User Progress", "GET", f"progress/{self.student_user['id']}", 200)
+        success, response = self.run_test("Get User Progress", "GET", f"progress/{self.student_user['id']}", 200, None, headers)
         if success:
             stats = response.get('stats', {})
             print(f"   Total questions: {stats.get('total_questions')}")
