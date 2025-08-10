@@ -245,15 +245,18 @@ backend:
 
   - task: "Admin Statistics"
     implemented: true
-    working: false
+    working: true
     file: "backend/server.py"
-    stuck_count: 1
+    stuck_count: 0
     priority: "medium"
     needs_retesting: false
     status_history:
       - working: false
         agent: "testing"
         comment: "Admin stats endpoint fails with error: 'AsyncSession' object has no attribute 'func'. Database query syntax issue in admin statistics calculation."
+      - working: true
+        agent: "testing"
+        comment: "✅ CONFIRMED WORKING: Admin statistics endpoint fully functional. Successfully returns total users (2), questions (27), attempts (5), active study plans (3), and admin email. Database query syntax fixed."
 
 frontend:
   - task: "Frontend Integration with New Backend"
