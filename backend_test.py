@@ -2,6 +2,7 @@ import requests
 import sys
 import json
 from datetime import datetime
+import time
 
 class CATBackendTester:
     def __init__(self, base_url="https://b790d23a-a4f2-4e77-8cb7-3425ba31166e.preview.emergentagent.com/api"):
@@ -13,6 +14,9 @@ class CATBackendTester:
         self.tests_run = 0
         self.tests_passed = 0
         self.sample_question_id = None
+        self.diagnostic_id = None
+        self.session_id = None
+        self.plan_id = None
 
     def run_test(self, name, method, endpoint, expected_status, data=None, headers=None):
         """Run a single API test"""
