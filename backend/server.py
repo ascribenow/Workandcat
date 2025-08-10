@@ -331,6 +331,11 @@ async def submit_answer(progress_data: UserProgress):
 async def get_user_progress(user_id: str):
     progress = await db.user_progress.find({"user_id": user_id}).to_list(length=None)
     
+    # Remove ObjectId for JSON serialization
+    for p in progress:
+        if "_id" in p:
+            del p["_id"]
+    
     # Calculate stats
     total_questions = len(progress)
     correct_answers = sum(1 for p in progress if p["is_correct"])
