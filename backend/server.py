@@ -582,7 +582,7 @@ async def submit_session_answer(
             select(Attempt).where(
                 Attempt.user_id == current_user.id,
                 Attempt.question_id == attempt_data.question_id
-            ).order_by(desc(Attempt.attempt_no))
+            ).order_by(desc(Attempt.attempt_no)).limit(1)
         )
         last_attempt = existing_attempts.scalar_one_or_none()
         attempt_no = (last_attempt.attempt_no + 1) if last_attempt else 1
