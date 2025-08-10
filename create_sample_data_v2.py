@@ -12,6 +12,7 @@ from database import (
     get_database, init_database, User, Topic, Question, 
     DiagnosticSet, DiagnosticSetQuestion, Mastery
 )
+from sqlalchemy import select, func
 from auth_service import AuthService
 from llm_enrichment import LLMEnrichmentPipeline, CANONICAL_TAXONOMY
 from diagnostic_system import DiagnosticSystem
