@@ -1,7 +1,7 @@
-from fastapi import FastAPI, APIRouter, HTTPException, UploadFile, File, Form
+from fastapi import FastAPI, APIRouter, HTTPException, UploadFile, File, Form, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, EmailStr
 from typing import List, Optional, Dict, Any
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -10,10 +10,12 @@ import os
 import uuid
 import logging
 import json
-import bcrypt
 from emergentintegrations.llm.chat import LlmChat, UserMessage
 from docx import Document
 import io
+
+# Import our professional auth service
+from auth_service import AuthService, User, UserCreate, UserLogin, TokenResponse, require_auth, require_admin, ADMIN_EMAIL
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -25,6 +27,9 @@ db = client[os.environ['DB_NAME']]
 
 # LLM Chat setup
 llm_api_key = os.environ.get('EMERGENT_LLM_KEY')
+
+# Initialize Auth Service
+auth_service = AuthService(db)
 
 # Canonical Taxonomy (Locked)
 CANONICAL_TAXONOMY = {
@@ -69,29 +74,10 @@ CANONICAL_TAXONOMY = {
     }
 }
 
-app = FastAPI()
+app = FastAPI(title="CAT Preparation API", version="2.0.0", description="Professional CAT Prep Platform with Firebase Auth")
 api_router = APIRouter(prefix="/api")
 
-# Models
-class User(BaseModel):
-    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    email: str
-    name: str
-    password_hash: str
-    is_admin: bool = False
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    study_plan_start_date: Optional[datetime] = None
-
-class UserCreate(BaseModel):
-    email: str
-    name: str
-    password: str
-    is_admin: bool = False
-
-class UserLogin(BaseModel):
-    email: str
-    password: str
-
+# Updated Models
 class Question(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     text: str
@@ -108,6 +94,7 @@ class Question(BaseModel):
     question_type: str  # MCQ/NAT
     year: Optional[int] = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_by: Optional[str] = None  # User ID who created the question
 
 class QuestionCreate(BaseModel):
     text: str
@@ -136,6 +123,9 @@ class StudyPlan(BaseModel):
     completed_questions: List[str] = []
     score: Optional[float] = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
+
+class PasswordResetRequest(BaseModel):
+    email: EmailStr
 
 # LLM Question Analysis
 async def analyze_question_with_llm(question_text: str, category: str, sub_category: str) -> Dict[str, Any]:
@@ -196,61 +186,52 @@ RETURN ONLY A JSON with these exact keys:
             "question_type": "MCQ"
         }
 
-# Auth helpers
-def hash_password(password: str) -> str:
-    return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-
-def verify_password(password: str, password_hash: str) -> bool:
-    return bcrypt.checkpw(password.encode('utf-8'), password_hash.encode('utf-8'))
-
 # Routes
 @api_router.get("/")
 async def root():
-    return {"message": "CAT Preparation API"}
+    return {"message": "CAT Preparation API v2.0", "admin_email": ADMIN_EMAIL}
 
 @api_router.get("/taxonomy")
 async def get_taxonomy():
     """Get canonical taxonomy"""
     return {"taxonomy": CANONICAL_TAXONOMY}
 
-# User Management
-@api_router.post("/register")
+# Professional Authentication Routes
+@api_router.post("/auth/register", response_model=TokenResponse)
 async def register_user(user_data: UserCreate):
-    # Check if user exists
-    existing_user = await db.users.find_one({"email": user_data.email})
-    if existing_user:
-        raise HTTPException(status_code=400, detail="Email already registered")
-    
-    # Create user
-    user = User(
-        email=user_data.email,
-        name=user_data.name,
-        password_hash=hash_password(user_data.password),
-        is_admin=user_data.is_admin
-    )
-    
-    await db.users.insert_one(user.model_dump())
-    return {"message": "User registered successfully", "user_id": user.id}
+    """Register a new user with professional authentication"""
+    return await auth_service.register_user(user_data)
 
-@api_router.post("/login")
+@api_router.post("/auth/login", response_model=TokenResponse)
 async def login_user(login_data: UserLogin):
-    user = await db.users.find_one({"email": login_data.email})
-    if not user or not verify_password(login_data.password, user["password_hash"]):
-        raise HTTPException(status_code=400, detail="Invalid credentials")
-    
-    return {
-        "message": "Login successful",
-        "user": {
-            "id": user["id"],
-            "email": user["email"],
-            "name": user["name"],
-            "is_admin": user["is_admin"]
-        }
-    }
+    """Login user with professional authentication"""
+    return await auth_service.login_user(login_data)
 
-# Question Management
+@api_router.post("/auth/password-reset")
+async def request_password_reset(reset_data: PasswordResetRequest):
+    """Request password reset"""
+    return await auth_service.reset_password_request(reset_data.email)
+
+@api_router.get("/auth/me", response_model=User)
+async def get_current_user_info(current_user: User = Depends(require_auth)):
+    """Get current user information"""
+    return current_user
+
+# Legacy auth routes for backward compatibility
+@api_router.post("/register")
+async def legacy_register(user_data: UserCreate):
+    """Legacy register endpoint"""
+    return await register_user(user_data)
+
+@api_router.post("/login") 
+async def legacy_login(login_data: UserLogin):
+    """Legacy login endpoint"""
+    return await login_user(login_data)
+
+# Question Management (Protected Routes)
 @api_router.post("/questions")
-async def create_question(question_data: QuestionCreate):
+async def create_question(question_data: QuestionCreate, current_user: User = Depends(require_auth)):
+    """Create a new question (authenticated users only)"""
     # Validate category and sub-category
     if question_data.category not in CANONICAL_TAXONOMY:
         raise HTTPException(status_code=400, detail="Invalid category")
@@ -272,6 +253,7 @@ async def create_question(question_data: QuestionCreate):
         category=question_data.category,
         sub_category=question_data.sub_category,
         year=question_data.year,
+        created_by=current_user.id,
         **analysis
     )
     
@@ -285,6 +267,7 @@ async def get_questions(
     difficulty: Optional[str] = None,
     limit: int = 50
 ):
+    """Get questions (public access for practice)"""
     filter_query = {}
     if category:
         filter_query["category"] = category
@@ -302,6 +285,7 @@ async def get_questions(
 
 @api_router.get("/questions/{question_id}")
 async def get_question(question_id: str):
+    """Get specific question"""
     question = await db.questions.find_one({"id": question_id})
     if not question:
         raise HTTPException(status_code=404, detail="Question not found")
@@ -309,9 +293,14 @@ async def get_question(question_id: str):
         del question["_id"]
     return {"question": question}
 
-# Progress Tracking
+# Progress Tracking (Protected)
 @api_router.post("/progress")
-async def submit_answer(progress_data: UserProgress):
+async def submit_answer(progress_data: UserProgress, current_user: User = Depends(require_auth)):
+    """Submit answer (authenticated users only)"""
+    # Ensure user can only submit for themselves
+    if progress_data.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Can only submit answers for yourself")
+    
     # Check if answer is correct
     question = await db.questions.find_one({"id": progress_data.question_id})
     if not question:
@@ -328,7 +317,11 @@ async def submit_answer(progress_data: UserProgress):
     }
 
 @api_router.get("/progress/{user_id}")
-async def get_user_progress(user_id: str):
+async def get_user_progress(user_id: str, current_user: User = Depends(require_auth)):
+    """Get user progress (users can only access their own progress, admins can access all)"""
+    if user_id != current_user.id and not current_user.is_admin:
+        raise HTTPException(status_code=403, detail="Access denied")
+    
     progress = await db.user_progress.find({"user_id": user_id}).to_list(length=None)
     
     # Remove ObjectId for JSON serialization
@@ -350,21 +343,14 @@ async def get_user_progress(user_id: str):
         }
     }
 
-# Study Plan Generation
+# Study Plan Generation (Protected)
 @api_router.post("/study-plan/{user_id}")
-async def generate_study_plan(user_id: str):
-    """Generate 90-day study plan for user"""
-    user = await db.users.find_one({"id": user_id})
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+async def generate_study_plan(user_id: str, current_user: User = Depends(require_auth)):
+    """Generate 90-day study plan (users can only generate for themselves)"""
+    if user_id != current_user.id and not current_user.is_admin:
+        raise HTTPException(status_code=403, detail="Access denied")
     
     start_date = datetime.utcnow()
-    
-    # Update user's study plan start date
-    await db.users.update_one(
-        {"id": user_id},
-        {"$set": {"study_plan_start_date": start_date}}
-    )
     
     # Generate plans for 90 days
     all_questions = await db.questions.find().to_list(length=None)
@@ -392,7 +378,11 @@ async def generate_study_plan(user_id: str):
     return {"message": "90-day study plan generated successfully"}
 
 @api_router.get("/study-plan/{user_id}")
-async def get_study_plan(user_id: str, day: Optional[int] = None):
+async def get_study_plan(user_id: str, current_user: User = Depends(require_auth), day: Optional[int] = None):
+    """Get study plan (users can only access their own)"""
+    if user_id != current_user.id and not current_user.is_admin:
+        raise HTTPException(status_code=403, detail="Access denied")
+    
     filter_query = {"user_id": user_id}
     if day:
         filter_query["day"] = day
@@ -404,10 +394,43 @@ async def get_study_plan(user_id: str, day: Optional[int] = None):
             del plan["_id"]
     return {"study_plans": plans}
 
-# PYQ Upload (Word Document)
-@api_router.post("/upload-pyq")
-async def upload_pyq(file: UploadFile = File(...), year: int = Form(...)):
-    """Upload PYQ as Word document and extract questions"""
+# Analytics (Protected)
+@api_router.get("/analytics/{user_id}")
+async def get_analytics(user_id: str, current_user: User = Depends(require_auth)):
+    """Get detailed analytics (users can only access their own)"""
+    if user_id != current_user.id and not current_user.is_admin:
+        raise HTTPException(status_code=403, detail="Access denied")
+    
+    progress = await db.user_progress.find({"user_id": user_id}).to_list(length=None)
+    
+    # Category-wise performance
+    category_stats = {}
+    for p in progress:
+        question = await db.questions.find_one({"id": p["question_id"]})
+        if question:
+            cat = question["category"]
+            if cat not in category_stats:
+                category_stats[cat] = {"total": 0, "correct": 0}
+            category_stats[cat]["total"] += 1
+            if p["is_correct"]:
+                category_stats[cat]["correct"] += 1
+    
+    # Calculate accuracy for each category
+    for cat in category_stats:
+        total = category_stats[cat]["total"]
+        correct = category_stats[cat]["correct"]
+        category_stats[cat]["accuracy"] = round((correct / total * 100) if total > 0 else 0, 2)
+    
+    return {
+        "category_performance": category_stats,
+        "total_questions_attempted": len(progress),
+        "overall_accuracy": round(sum(1 for p in progress if p["is_correct"]) / len(progress) * 100 if progress else 0, 2)
+    }
+
+# Admin-only Routes
+@api_router.post("/admin/upload-pyq")
+async def upload_pyq(file: UploadFile = File(...), year: int = Form(...), current_user: User = Depends(require_admin)):
+    """Upload PYQ as Word document (admin only)"""
     if not file.filename.endswith(('.docx', '.doc')):
         raise HTTPException(status_code=400, detail="Only Word documents are allowed")
     
@@ -479,6 +502,7 @@ Return JSON array with this structure:
                         category=q_data['category'],
                         sub_category=q_data['sub_category'],
                         year=year,
+                        created_by=current_user.id,
                         **analysis
                     )
                     
@@ -496,35 +520,36 @@ Return JSON array with this structure:
         logging.error(f"PYQ upload error: {e}")
         raise HTTPException(status_code=500, detail=f"Error processing document: {str(e)}")
 
-# Analytics
-@api_router.get("/analytics/{user_id}")
-async def get_analytics(user_id: str):
-    """Get detailed analytics for user"""
-    progress = await db.user_progress.find({"user_id": user_id}).to_list(length=None)
-    
-    # Category-wise performance
-    category_stats = {}
-    for p in progress:
-        question = await db.questions.find_one({"id": p["question_id"]})
-        if question:
-            cat = question["category"]
-            if cat not in category_stats:
-                category_stats[cat] = {"total": 0, "correct": 0}
-            category_stats[cat]["total"] += 1
-            if p["is_correct"]:
-                category_stats[cat]["correct"] += 1
-    
-    # Calculate accuracy for each category
-    for cat in category_stats:
-        total = category_stats[cat]["total"]
-        correct = category_stats[cat]["correct"]
-        category_stats[cat]["accuracy"] = round((correct / total * 100) if total > 0 else 0, 2)
+@api_router.get("/admin/users")
+async def get_all_users(current_user: User = Depends(require_admin)):
+    """Get all users (admin only)"""
+    users = await db.users.find({}, {"password_hash": 0}).to_list(length=None)
+    for user in users:
+        if "_id" in user:
+            del user["_id"]
+    return {"users": users}
+
+@api_router.get("/admin/stats")
+async def get_admin_stats(current_user: User = Depends(require_admin)):
+    """Get admin dashboard stats"""
+    total_users = await db.users.count_documents({})
+    total_questions = await db.questions.count_documents({})
+    total_attempts = await db.user_progress.count_documents({})
     
     return {
-        "category_performance": category_stats,
-        "total_questions_attempted": len(progress),
-        "overall_accuracy": round(sum(1 for p in progress if p["is_correct"]) / len(progress) * 100 if progress else 0, 2)
+        "total_users": total_users,
+        "total_questions": total_questions,
+        "total_attempts": total_attempts,
+        "admin_email": ADMIN_EMAIL
     }
+
+# Legacy routes for backward compatibility
+@api_router.post("/upload-pyq")
+async def legacy_upload_pyq(file: UploadFile = File(...), year: int = Form(...)):
+    """Legacy PYQ upload (will check for admin via legacy auth)"""
+    # This would need additional admin check logic for legacy compatibility
+    # For now, we'll redirect to the admin route
+    raise HTTPException(status_code=401, detail="Please use /api/admin/upload-pyq with proper authentication")
 
 # Include router
 app.include_router(api_router)
@@ -542,6 +567,12 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
+
+# Startup event
+@app.on_event("startup")
+async def startup_event():
+    logger.info("🚀 CAT Preparation API v2.0 Started")
+    logger.info(f"📧 Admin Email: {ADMIN_EMAIL}")
 
 @app.on_event("shutdown")
 async def shutdown_db_client():
