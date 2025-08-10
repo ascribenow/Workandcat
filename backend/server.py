@@ -294,6 +294,10 @@ async def get_questions(
         filter_query["difficulty_level"] = difficulty
     
     questions = await db.questions.find(filter_query).limit(limit).to_list(length=None)
+    # Convert ObjectId to string for JSON serialization
+    for question in questions:
+        if "_id" in question:
+            del question["_id"]
     return {"questions": questions}
 
 @api_router.get("/questions/{question_id}")
