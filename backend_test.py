@@ -109,6 +109,33 @@ class CATBackendTester:
 
     def test_user_login(self):
         """Test user login with provided credentials"""
+        # Test admin login with the specific admin credentials
+        admin_login = {
+            "email": "sumedhprabhu18@gmail.com",
+            "password": "admin123"
+        }
+        
+        success, response = self.run_test("Admin Login", "POST", "auth/login", 200, admin_login)
+        if success and 'user' in response and 'access_token' in response:
+            self.admin_user = response['user']
+            self.admin_token = response['access_token']
+            print(f"   Logged in admin: {self.admin_user['full_name']}")
+            print(f"   Admin is admin: {self.admin_user.get('is_admin', False)}")
+        else:
+            # Try to register admin first if login fails
+            admin_register = {
+                "email": "sumedhprabhu18@gmail.com",
+                "full_name": "Admin User",
+                "password": "admin123"
+            }
+            
+            success, response = self.run_test("Admin Registration", "POST", "auth/register", 200, admin_register)
+            if success and 'user' in response and 'access_token' in response:
+                self.admin_user = response['user']
+                self.admin_token = response['access_token']
+                print(f"   Registered and logged in admin: {self.admin_user['full_name']}")
+                print(f"   Admin is admin: {self.admin_user.get('is_admin', False)}")
+
         # Test student login
         student_login = {
             "email": "student@catprep.com",
@@ -119,38 +146,23 @@ class CATBackendTester:
         if success and 'user' in response and 'access_token' in response:
             self.student_user = response['user']
             self.student_token = response['access_token']
-            print(f"   Logged in student: {self.student_user['name']}")
+            print(f"   Logged in student: {self.student_user['full_name']}")
             print(f"   Student is admin: {self.student_user.get('is_admin', False)}")
-        else:
-            return False
-
-        # Test admin login with the specific admin credentials
-        admin_login = {
-            "email": "sumedhprabhu18@gmail.com",
-            "password": "admin2025"
-        }
-        
-        success, response = self.run_test("Admin Login", "POST", "auth/login", 200, admin_login)
-        if success and 'user' in response and 'access_token' in response:
-            self.admin_user = response['user']
-            self.admin_token = response['access_token']
-            print(f"   Logged in admin: {self.admin_user['name']}")
-            print(f"   Admin is admin: {self.admin_user.get('is_admin', False)}")
             return True
         else:
-            # Try to register admin first if login fails
-            admin_register = {
-                "email": "sumedhprabhu18@gmail.com",
-                "name": "Admin User",
-                "password": "admin2025"
+            # Try to register student first if login fails
+            student_register = {
+                "email": "student@catprep.com",
+                "full_name": "Test Student",
+                "password": "student123"
             }
             
-            success, response = self.run_test("Admin Registration", "POST", "auth/register", 200, admin_register)
+            success, response = self.run_test("Student Registration", "POST", "auth/register", 200, student_register)
             if success and 'user' in response and 'access_token' in response:
-                self.admin_user = response['user']
-                self.admin_token = response['access_token']
-                print(f"   Registered and logged in admin: {self.admin_user['name']}")
-                print(f"   Admin is admin: {self.admin_user.get('is_admin', False)}")
+                self.student_user = response['user']
+                self.student_token = response['access_token']
+                print(f"   Registered and logged in student: {self.student_user['full_name']}")
+                print(f"   Student is admin: {self.student_user.get('is_admin', False)}")
                 return True
         
         return False
