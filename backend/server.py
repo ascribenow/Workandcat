@@ -969,6 +969,7 @@ async def create_initial_topics():
             
             await db.commit()
             logger.info("Created initial topics from canonical taxonomy")
+            break
             
     except Exception as e:
         logger.error(f"Error creating initial topics: {e}")
