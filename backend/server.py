@@ -398,6 +398,10 @@ async def get_study_plan(user_id: str, day: Optional[int] = None):
         filter_query["day"] = day
     
     plans = await db.study_plans.find(filter_query).sort("day", 1).to_list(length=None)
+    # Remove ObjectId for JSON serialization
+    for plan in plans:
+        if "_id" in plan:
+            del plan["_id"]
     return {"study_plans": plans}
 
 # PYQ Upload (Word Document)
