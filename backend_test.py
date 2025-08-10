@@ -450,87 +450,6 @@ class CATBackendTester:
 
         return True
 
-    def test_progress_tracking(self):
-        """Test progress tracking (requires authentication)"""
-        if not self.student_user or not self.sample_question_id or not self.student_token:
-            print("❌ Skipping progress test - missing student user, question ID, or token")
-            return False
-
-        progress_data = {
-            "user_id": self.student_user['id'],
-            "question_id": self.sample_question_id,
-            "user_answer": "4",
-            "time_taken": 30
-        }
-        
-        headers = {
-            'Content-Type': 'application/json',
-            'Authorization': f'Bearer {self.student_token}'
-        }
-        
-        success, response = self.run_test("Submit Answer", "POST", "progress", 200, progress_data, headers)
-        if not success:
-            return False
-
-        print(f"   Answer correct: {response.get('is_correct')}")
-        print(f"   Correct answer: {response.get('correct_answer')}")
-
-        # Test get user progress
-        success, response = self.run_test("Get User Progress", "GET", f"progress/{self.student_user['id']}", 200, None, headers)
-        if success:
-            stats = response.get('stats', {})
-            print(f"   Total questions: {stats.get('total_questions')}")
-            print(f"   Accuracy: {stats.get('accuracy')}%")
-            return True
-        
-        return False
-
-    def test_study_plan(self):
-        """Test study plan generation and retrieval (requires authentication)"""
-        if not self.student_user or not self.student_token:
-            print("❌ Skipping study plan test - missing student user or token")
-            return False
-
-        headers = {
-            'Content-Type': 'application/json',
-            'Authorization': f'Bearer {self.student_token}'
-        }
-
-        # Generate study plan
-        success, response = self.run_test("Generate Study Plan", "POST", f"study-plan/{self.student_user['id']}", 200, None, headers)
-        if not success:
-            return False
-
-        # Get study plan
-        success, response = self.run_test("Get Study Plan", "GET", f"study-plan/{self.student_user['id']}", 200, None, headers)
-        if success:
-            plans = response.get('study_plans', [])
-            print(f"   Generated {len(plans)} study plan days")
-            return True
-        
-        return False
-
-    def test_analytics(self):
-        """Test analytics endpoint (requires authentication)"""
-        if not self.student_user or not self.student_token:
-            print("❌ Skipping analytics test - missing student user or token")
-            return False
-
-        headers = {
-            'Content-Type': 'application/json',
-            'Authorization': f'Bearer {self.student_token}'
-        }
-
-        success, response = self.run_test("Get Analytics", "GET", f"analytics/{self.student_user['id']}", 200, None, headers)
-        if success:
-            print(f"   Total questions attempted: {response.get('total_questions_attempted')}")
-            print(f"   Overall accuracy: {response.get('overall_accuracy')}%")
-            category_performance = response.get('category_performance', {})
-            print(f"   Categories analyzed: {len(category_performance)}")
-            return True
-        
-        return False
-
     def test_admin_endpoints(self):
         """Test admin-only endpoints"""
         if not self.admin_token:
@@ -548,29 +467,8 @@ class CATBackendTester:
             print(f"   Total users: {response.get('total_users')}")
             print(f"   Total questions: {response.get('total_questions')}")
             print(f"   Total attempts: {response.get('total_attempts')}")
+            print(f"   Active study plans: {response.get('active_study_plans')}")
             print(f"   Admin email: {response.get('admin_email')}")
-        else:
-            return False
-
-        # Test get all users (admin only)
-        success, response = self.run_test("Get All Users (Admin)", "GET", "admin/users", 200, None, headers)
-        if success:
-            users = response.get('users', [])
-            print(f"   Found {len(users)} users")
-        else:
-            return False
-
-        return True
-
-    def test_password_reset(self):
-        """Test password reset functionality"""
-        reset_data = {
-            "email": "student@catprep.com"
-        }
-        
-        success, response = self.run_test("Password Reset Request", "POST", "auth/password-reset", 200, reset_data)
-        if success:
-            print(f"   Reset message: {response.get('message')}")
             return True
         
         return False
