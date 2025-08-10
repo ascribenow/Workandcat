@@ -288,16 +288,17 @@ class DiagnosticSystem:
             if not diagnostic:
                 raise ValueError("Diagnostic not found")
             
-            # Get questions in order
+            # Get questions in order with topic information
             questions_result = await db.execute(
-                select(Question, DiagnosticSetQuestion.seq)
+                select(Question, DiagnosticSetQuestion.seq, Topic.name.label('topic_name'))
                 .join(DiagnosticSetQuestion, Question.id == DiagnosticSetQuestion.question_id)
+                .join(Topic, Question.topic_id == Topic.id)
                 .where(DiagnosticSetQuestion.set_id == diagnostic.set_id)
                 .order_by(DiagnosticSetQuestion.seq)
             )
             
             questions_data = []
-            for question, seq in questions_result.fetchall():
+            for question, seq, topic_name in questions_result.fetchall():
                 # Get expected time for this difficulty
                 expected_time = self.diagnostic_blueprint["time_targets"].get(question.difficulty_band, 150)
                 
@@ -305,7 +306,7 @@ class DiagnosticSystem:
                     "id": str(question.id),
                     "sequence": seq,
                     "stem": question.stem,
-                    "category": question.topic.name if question.topic else "Unknown",
+                    "category": topic_name or "Unknown",
                     "subcategory": question.subcategory,
                     "difficulty_band": question.difficulty_band,
                     "expected_time_sec": expected_time,
