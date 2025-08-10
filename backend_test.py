@@ -70,28 +70,34 @@ class CATBackendTester:
         return False
 
     def test_user_registration(self):
-        """Test user registration"""
+        """Test user registration with new auth system"""
         # Test student registration
         student_data = {
             "email": f"test_student_{datetime.now().strftime('%H%M%S')}@test.com",
             "name": "Test Student",
-            "password": "testpass123",
-            "is_admin": False
+            "password": "testpass123"
         }
         
-        success, response = self.run_test("Student Registration", "POST", "register", 200, student_data)
-        if not success:
+        success, response = self.run_test("Student Registration", "POST", "auth/register", 200, student_data)
+        if success and 'user' in response and 'access_token' in response:
+            print(f"   Registered student: {response['user']['name']}")
+            print(f"   Student is admin: {response['user'].get('is_admin', False)}")
+        else:
             return False
 
-        # Test admin registration
+        # Test that admin email gets admin privileges automatically
         admin_data = {
-            "email": f"test_admin_{datetime.now().strftime('%H%M%S')}@test.com",
-            "name": "Test Admin",
-            "password": "testpass123",
-            "is_admin": True
+            "email": "sumedhprabhu18@gmail.com",
+            "name": "Admin Test User",
+            "password": "admin2025"
         }
         
-        success, response = self.run_test("Admin Registration", "POST", "register", 200, admin_data)
+        success, response = self.run_test("Admin Auto-Detection", "POST", "auth/register", 200, admin_data)
+        if success and 'user' in response:
+            is_admin = response['user'].get('is_admin', False)
+            print(f"   Admin auto-detection: {is_admin}")
+            return is_admin  # Should be True for admin email
+        
         return success
 
     def test_user_login(self):
