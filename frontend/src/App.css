@@ -1,38 +1,245 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 .App {
-    text-align: center;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+      'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+      sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
-.App-logo {
-    height: 40vmin;
-    pointer-events: none;
+/* Custom styles for the CAT prep app */
+.question-card {
+    @apply bg-white p-6 rounded-lg shadow-sm border border-gray-200;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-    .App-logo {
-        animation: App-logo-spin infinite 20s linear;
+.option-button {
+    @apply w-full text-left p-3 rounded-md border border-gray-300 hover:bg-gray-50 transition-colors;
+}
+
+.option-button:hover {
+    @apply border-blue-300 bg-blue-50;
+}
+
+.option-button.selected {
+    @apply border-blue-500 bg-blue-50 ring-2 ring-blue-500 ring-opacity-50;
+}
+
+.option-button.correct {
+    @apply border-green-500 bg-green-50 text-green-800;
+}
+
+.option-button.incorrect {
+    @apply border-red-500 bg-red-50 text-red-800;
+}
+
+.category-badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+
+.category-badge.arithmetic {
+    @apply bg-blue-100 text-blue-800;
+}
+
+.category-badge.algebra {
+    @apply bg-green-100 text-green-800;
+}
+
+.category-badge.geometry {
+    @apply bg-yellow-100 text-yellow-800;
+}
+
+.category-badge.number-system {
+    @apply bg-purple-100 text-purple-800;
+}
+
+.category-badge.modern-math {
+    @apply bg-indigo-100 text-indigo-800;
+}
+
+.difficulty-badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+
+.difficulty-badge.easy {
+    @apply bg-green-100 text-green-800;
+}
+
+.difficulty-badge.medium {
+    @apply bg-yellow-100 text-yellow-800;
+}
+
+.difficulty-badge.difficult {
+    @apply bg-red-100 text-red-800;
+}
+
+.progress-bar {
+    @apply w-full bg-gray-200 rounded-full h-2.5;
+}
+
+.progress-fill {
+    @apply bg-blue-600 h-2.5 rounded-full transition-all duration-300 ease-in-out;
+}
+
+.stats-card {
+    @apply bg-white p-4 rounded-lg shadow-sm border border-gray-200;
+}
+
+.performance-good {
+    @apply text-green-600 font-semibold;
+}
+
+.performance-average {
+    @apply text-yellow-600 font-semibold;
+}
+
+.performance-poor {
+    @apply text-red-600 font-semibold;
+}
+
+/* Animation for correct/incorrect feedback */
+.feedback-enter {
+    @apply opacity-0 transform scale-95;
+}
+
+.feedback-enter-active {
+    @apply opacity-100 transform scale-100 transition-all duration-200 ease-in-out;
+}
+
+.feedback-correct {
+    @apply bg-green-50 border-green-200 text-green-800;
+}
+
+.feedback-incorrect {
+    @apply bg-red-50 border-red-200 text-red-800;
+}
+
+/* Loading states */
+.loading-spinner {
+    @apply inline-block h-4 w-4 animate-spin rounded-full border-2 border-solid border-current border-r-transparent;
+}
+
+/* Responsive design utilities */
+@media (max-width: 640px) {
+    .question-card {
+        @apply p-4;
+    }
+    
+    .stats-grid {
+        @apply grid-cols-1;
     }
 }
 
-.App-header {
-    background-color: #0f0f10;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    font-size: calc(10px + 2vmin);
-    color: white;
+/* Focus styles for accessibility */
+.focus-visible:focus {
+    @apply ring-2 ring-blue-500 ring-opacity-75 ring-offset-2;
 }
 
-.App-link {
-    color: #61dafb;
+/* Custom scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
 }
 
-@keyframes App-logo-spin {
-    from {
-        transform: rotate(0deg);
+.custom-scrollbar::-webkit-scrollbar-track {
+    @apply bg-gray-100 rounded-full;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-gray-400 rounded-full;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-600;
+}
+
+/* Study plan calendar styling */
+.calendar-day {
+    @apply w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium cursor-pointer transition-colors;
+}
+
+.calendar-day.today {
+    @apply bg-blue-600 text-white;
+}
+
+.calendar-day.completed {
+    @apply bg-green-100 text-green-800 border-2 border-green-300;
+}
+
+.calendar-day.pending {
+    @apply bg-gray-100 text-gray-600 hover:bg-gray-200;
+}
+
+.calendar-day.future {
+    @apply text-gray-400;
+}
+
+/* Admin panel specific styles */
+.admin-table {
+    @apply min-w-full divide-y divide-gray-200;
+}
+
+.admin-table th {
+    @apply px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider;
+}
+
+.admin-table td {
+    @apply px-6 py-4 whitespace-nowrap text-sm text-gray-900;
+}
+
+/* File upload styling */
+.file-upload-area {
+    @apply border-2 border-gray-300 border-dashed rounded-lg p-6 text-center hover:border-gray-400 transition-colors;
+}
+
+.file-upload-area.dragover {
+    @apply border-blue-500 bg-blue-50;
+}
+
+/* Notification styles */
+.notification {
+    @apply fixed top-4 right-4 max-w-sm w-full bg-white shadow-lg rounded-lg pointer-events-auto ring-1 ring-black ring-opacity-5 z-50;
+}
+
+.notification.success {
+    @apply border-l-4 border-green-400;
+}
+
+.notification.error {
+    @apply border-l-4 border-red-400;
+}
+
+.notification.warning {
+    @apply border-l-4 border-yellow-400;
+}
+
+.notification.info {
+    @apply border-l-4 border-blue-400;
+}
+
+/* Dark mode support (optional) */
+@media (prefers-color-scheme: dark) {
+    .dark-mode {
+        @apply bg-gray-900 text-white;
     }
-    to {
-        transform: rotate(360deg);
+    
+    .dark-mode .question-card {
+        @apply bg-gray-800 border-gray-700;
+    }
+    
+    .dark-mode .stats-card {
+        @apply bg-gray-800 border-gray-700;
+    }
+}
+
+/* Print styles */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    
+    .question-card {
+        @apply shadow-none border border-gray-300;
     }
 }
