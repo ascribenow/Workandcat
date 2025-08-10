@@ -358,7 +358,7 @@ async def create_questions():
             
             # Check if questions already exist
             existing_count = await db.scalar(
-                select(db.func.count(Question.id))
+                select(func.count(Question.id))
             )
             
             if existing_count > 0:
