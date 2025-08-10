@@ -136,9 +136,9 @@ class DiagnosticSystem:
             raise
     
     async def _find_diagnostic_question(self, db: AsyncSession, category: str, subcategory: str, difficulty: str) -> Question:
-        """Find a question matching the diagnostic criteria"""
+        """Find a question matching the diagnostic criteria with fallback options"""
         try:
-            # Get questions from the specified category, subcategory, and difficulty
+            # First try exact match
             result = await db.execute(
                 select(Question)
                 .join(Question.topic)
@@ -151,7 +151,68 @@ class DiagnosticSystem:
                 .limit(1)
             )
             
-            return result.scalar_one_or_none()
+            question = result.scalar_one_or_none()
+            if question:
+                return question
+            
+            # Fallback 1: Try with different difficulty (Difficult -> Medium -> Easy)
+            fallback_difficulties = []
+            if difficulty == "Difficult":
+                fallback_difficulties = ["Medium", "Easy"]
+            elif difficulty == "Medium":
+                fallback_difficulties = ["Easy", "Difficult"]
+            else:  # Easy
+                fallback_difficulties = ["Medium", "Difficult"]
+                
+            for fallback_difficulty in fallback_difficulties:
+                result = await db.execute(
+                    select(Question)
+                    .join(Question.topic)
+                    .where(
+                        Question.subcategory == subcategory,
+                        Question.difficulty_band == fallback_difficulty,
+                        Question.is_active == True
+                    )
+                    .order_by(Question.importance_index.desc())
+                    .limit(1)
+                )
+                
+                question = result.scalar_one_or_none()
+                if question:
+                    logger.warning(f"Using fallback difficulty {fallback_difficulty} for {subcategory} (wanted {difficulty})")
+                    return question
+            
+            # Fallback 2: Try any question from the same category
+            result = await db.execute(
+                select(Question)
+                .join(Question.topic)
+                .where(
+                    Topic.name == category,
+                    Question.is_active == True
+                )
+                .order_by(Question.importance_index.desc())
+                .limit(1)
+            )
+            
+            question = result.scalar_one_or_none()
+            if question:
+                logger.warning(f"Using fallback question from category {category} for {subcategory} ({difficulty})")
+                return question
+            
+            # Fallback 3: Any active question
+            result = await db.execute(
+                select(Question)
+                .where(Question.is_active == True)
+                .order_by(Question.importance_index.desc())
+                .limit(1)
+            )
+            
+            question = result.scalar_one_or_none()
+            if question:
+                logger.warning(f"Using fallback question (any active) for {subcategory} ({difficulty})")
+                return question
+                
+            return None
             
         except Exception as e:
             logger.error(f"Error finding diagnostic question: {e}")
