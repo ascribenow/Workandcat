@@ -237,18 +237,23 @@ class CATBackendTester:
         return False
 
     def test_study_plan(self):
-        """Test study plan generation and retrieval"""
-        if not self.student_user:
-            print("❌ Skipping study plan test - missing student user")
+        """Test study plan generation and retrieval (requires authentication)"""
+        if not self.student_user or not self.student_token:
+            print("❌ Skipping study plan test - missing student user or token")
             return False
 
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {self.student_token}'
+        }
+
         # Generate study plan
-        success, response = self.run_test("Generate Study Plan", "POST", f"study-plan/{self.student_user['id']}", 200)
+        success, response = self.run_test("Generate Study Plan", "POST", f"study-plan/{self.student_user['id']}", 200, None, headers)
         if not success:
             return False
 
         # Get study plan
-        success, response = self.run_test("Get Study Plan", "GET", f"study-plan/{self.student_user['id']}", 200)
+        success, response = self.run_test("Get Study Plan", "GET", f"study-plan/{self.student_user['id']}", 200, None, headers)
         if success:
             plans = response.get('study_plans', [])
             print(f"   Generated {len(plans)} study plan days")
