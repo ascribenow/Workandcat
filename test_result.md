@@ -243,6 +243,21 @@ backend:
         agent: "testing"
         comment: "Main server integration successful. All core endpoints functional: authentication (admin/student login working), session management, progress tracking, study planning. 73.3% test success rate with 22/24 API calls passing."
 
+  - task: "Session Management"
+    implemented: true
+    working: false
+    file: "backend/server.py"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "Session management working correctly. Can start sessions, get next questions, but answer submission needs verification."
+      - working: false
+        agent: "testing"
+        comment: "❌ CRITICAL ISSUE: Session answer submission fails with database error: 'Multiple rows were found when one or none was required'. This occurs when trying to determine attempt number for user-question pairs. Likely duplicate attempt records causing scalar_one_or_none() to fail."
+
   - task: "Admin Statistics"
     implemented: true
     working: true
