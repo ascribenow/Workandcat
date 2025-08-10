@@ -214,33 +214,32 @@ class AuthService:
         return {"message": "If the email exists, a password reset link has been sent"}
 
 # Dependency functions
-async def get_auth_service(db) -> AuthService:
+async def get_auth_service() -> AuthService:
     """Get auth service instance"""
+    from server import db  # Import db from server module
     return AuthService(db)
 
 async def get_current_user(
-    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
-    db = None
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security)
 ) -> Optional[User]:
     """Get current authenticated user"""
     if not credentials:
         return None
     
-    auth_service = AuthService(db)
+    auth_service = await get_auth_service()
     try:
         return await auth_service.get_current_user(credentials.credentials)
     except HTTPException:
         return None
 
 async def require_auth(
-    credentials: HTTPAuthorizationCredentials = Depends(security),
-    db = None
+    credentials: HTTPAuthorizationCredentials = Depends(security)
 ) -> User:
     """Require authenticated user"""
     if not credentials:
         raise HTTPException(status_code=401, detail="Authentication required")
     
-    auth_service = AuthService(db)
+    auth_service = await get_auth_service()
     return await auth_service.get_current_user(credentials.credentials)
 
 async def require_admin(
