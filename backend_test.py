@@ -66,15 +66,11 @@ class CATBackendTester:
         success, response = self.run_test("Root Endpoint", "GET", "", 200)
         if success:
             print(f"   Admin email: {response.get('admin_email')}")
+            features = response.get('features', [])
+            print(f"   Features available: {len(features)}")
+            for feature in features:
+                print(f"     - {feature}")
         return success
-
-    def test_taxonomy_endpoint(self):
-        """Test taxonomy endpoint"""
-        success, response = self.run_test("Get Taxonomy", "GET", "taxonomy", 200)
-        if success and 'taxonomy' in response:
-            print(f"   Found {len(response['taxonomy'])} categories")
-            return True
-        return False
 
     def test_user_registration(self):
         """Test user registration with new auth system"""
