@@ -248,8 +248,9 @@ async def complete_diagnostic(
     try:
         # Get all attempts for this diagnostic
         attempts_result = await db.execute(
-            select(Attempt)
-            .join(Question)
+            select(Attempt, Question, Topic.name.label('topic_name'))
+            .join(Question, Attempt.question_id == Question.id)
+            .join(Topic, Question.topic_id == Topic.id)
             .where(
                 Attempt.user_id == current_user.id,
                 Attempt.context == "diagnostic"
@@ -258,22 +259,16 @@ async def complete_diagnostic(
             .limit(25)  # Get last 25 attempts
         )
         
-        attempts = attempts_result.scalars().all()
-        
         # Convert to diagnostic format
         attempt_data = []
-        for attempt in attempts:
-            # Get question details
-            question_result = await db.execute(select(Question).where(Question.id == attempt.question_id))
-            question = question_result.scalar_one_or_none()
-            
-            if question:
+        for attempt, question, topic_name in attempts_result.fetchall():
+            if attempt.user_id:
                 attempt_data.append({
                     "correct": attempt.correct,
                     "time_sec": attempt.time_sec,
                     "difficulty_band": question.difficulty_band,
                     "subcategory": question.subcategory,
-                    "category": question.topic.name if question.topic else "Unknown"
+                    "category": topic_name or "Unknown"
                 })
         
         # Complete diagnostic
