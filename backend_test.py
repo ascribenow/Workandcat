@@ -94,7 +94,7 @@ class CATBackendTester:
         # Test admin login with the specific admin credentials
         admin_login = {
             "email": "sumedhprabhu18@gmail.com",
-            "password": "admin123"
+            "password": "admin2025"
         }
         
         success, response = self.run_test("Admin Login", "POST", "auth/login", 200, admin_login)
@@ -108,7 +108,7 @@ class CATBackendTester:
             admin_register = {
                 "email": "sumedhprabhu18@gmail.com",
                 "full_name": "Admin User",
-                "password": "admin123"
+                "password": "admin2025"
             }
             
             success, response = self.run_test("Admin Registration", "POST", "auth/register", 200, admin_register)
