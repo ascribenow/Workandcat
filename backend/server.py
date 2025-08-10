@@ -938,7 +938,7 @@ async def startup_event():
 async def create_initial_topics():
     """Create initial topic structure from canonical taxonomy"""
     try:
-        async with get_database() as db:
+        async for db in get_database():
             # Check if topics already exist
             existing_topics = await db.execute(select(Topic).limit(1))
             if existing_topics.scalar_one_or_none():
