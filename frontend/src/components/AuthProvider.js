@@ -1,0 +1,176 @@
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import axios from 'axios';
+
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const API = `${BACKEND_URL}/api`;
+
+// Create Auth Context
+const AuthContext = createContext();
+
+// Custom hook to use auth context
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};
+
+// Auth Provider Component
+export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
+  const [token, setToken] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  // Initialize auth state
+  useEffect(() => {
+    const initAuth = async () => {
+      try {
+        const storedToken = localStorage.getItem('cat_prep_token');
+        const storedUser = localStorage.getItem('cat_prep_user');
+
+        if (storedToken && storedUser) {
+          const userData = JSON.parse(storedUser);
+          
+          // Verify token is still valid
+          try {
+            const response = await axios.get(`${API}/auth/me`, {
+              headers: { Authorization: `Bearer ${storedToken}` }
+            });
+            
+            setToken(storedToken);
+            setUser(response.data);
+            
+            // Set default authorization header
+            axios.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
+          } catch (error) {
+            // Token is invalid, clear storage
+            localStorage.removeItem('cat_prep_token');
+            localStorage.removeItem('cat_prep_user');
+          }
+        }
+      } catch (error) {
+        console.error('Auth initialization error:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    initAuth();
+  }, []);
+
+  // Login function
+  const login = async (email, password) => {
+    try {
+      const response = await axios.post(`${API}/auth/login`, {
+        email,
+        password
+      });
+
+      const { access_token, user: userData } = response.data;
+
+      // Store in localStorage
+      localStorage.setItem('cat_prep_token', access_token);
+      localStorage.setItem('cat_prep_user', JSON.stringify(userData));
+
+      // Set auth state
+      setToken(access_token);
+      setUser(userData);
+
+      // Set default authorization header
+      axios.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
+
+      return { success: true, user: userData };
+    } catch (error) {
+      const message = error.response?.data?.detail || 'Login failed';
+      return { success: false, error: message };
+    }
+  };
+
+  // Register function
+  const register = async (name, email, password) => {
+    try {
+      const response = await axios.post(`${API}/auth/register`, {
+        name,
+        email,
+        password
+      });
+
+      const { access_token, user: userData } = response.data;
+
+      // Store in localStorage
+      localStorage.setItem('cat_prep_token', access_token);
+      localStorage.setItem('cat_prep_user', JSON.stringify(userData));
+
+      // Set auth state
+      setToken(access_token);
+      setUser(userData);
+
+      // Set default authorization header
+      axios.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
+
+      return { success: true, user: userData };
+    } catch (error) {
+      const message = error.response?.data?.detail || 'Registration failed';
+      return { success: false, error: message };
+    }
+  };
+
+  // Logout function
+  const logout = () => {
+    // Clear localStorage
+    localStorage.removeItem('cat_prep_token');
+    localStorage.removeItem('cat_prep_user');
+
+    // Clear auth state
+    setToken(null);
+    setUser(null);
+
+    // Remove default authorization header
+    delete axios.defaults.headers.common['Authorization'];
+  };
+
+  // Request password reset
+  const requestPasswordReset = async (email) => {
+    try {
+      await axios.post(`${API}/auth/password-reset`, { email });
+      return { success: true, message: 'Password reset email sent' };
+    } catch (error) {
+      const message = error.response?.data?.detail || 'Failed to send reset email';
+      return { success: false, error: message };
+    }
+  };
+
+  // Check if user is admin
+  const isAdmin = () => {
+    return user?.is_admin || false;
+  };
+
+  // Check if user is authenticated
+  const isAuthenticated = () => {
+    return !!(token && user);
+  };
+
+  const value = {
+    user,
+    token,
+    loading,
+    login,
+    register,
+    logout,
+    requestPasswordReset,
+    isAdmin,
+    isAuthenticated,
+    // Utility functions
+    getUserId: () => user?.id,
+    getUserName: () => user?.name,
+    getUserEmail: () => user?.email,
+    isEmailVerified: () => user?.email_verified || false
+  };
+
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
