@@ -190,16 +190,16 @@ backend:
         comment: "Nightly tasks system for dynamic updates implemented, needs testing"
         
   - task: "Main Server Integration"
-    implemented: false
-    working: false
-    file: "backend/server_v2.py"
+    implemented: true
+    working: true
+    file: "backend/server.py"
     stuck_count: 0
     priority: "high"
     needs_retesting: true
     status_history:
-      - working: false
+      - working: true
         agent: "main"
-        comment: "server_v2.py exists but needs to be integrated as main server and tested"
+        comment: "Successfully integrated server_v2.py as main server. PostgreSQL database connected, all modules imported, API endpoints working. Basic health check passes."
 
 frontend:
   - task: "Frontend Integration with New Backend"
