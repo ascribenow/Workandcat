@@ -116,78 +116,99 @@ backend:
       - working: true
         agent: "main"
         comment: "PostgreSQL database initialized with all 15+ tables and relationships"
+      - working: true
+        agent: "testing"
+        comment: "Database connectivity confirmed. All tables accessible and functional."
         
   - task: "LLM Enrichment Pipeline"
     implemented: true
     working: false
     file: "backend/llm_enrichment.py"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: false
         agent: "main"
         comment: "Module created with 4-factor difficulty scoring and Emergent LLM integration, needs testing"
+      - working: false
+        agent: "testing"
+        comment: "Critical issue: Question creation fails with topic_id null constraint violation. LLM enrichment cannot assign proper topic_id during question creation. Error: null value in column 'topic_id' violates not-null constraint."
         
   - task: "Diagnostic System"
     implemented: true
     working: false
     file: "backend/diagnostic_system.py"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: false
         agent: "main"
         comment: "25-question diagnostic system with capability scoring implemented, needs testing"
+      - working: false
+        agent: "testing"
+        comment: "Critical issue: Diagnostic blueprint expects 'Difficult' questions but database only contains 'Easy' and 'Medium' difficulty bands. No questions returned for diagnostic (0/25 questions). Mismatch between diagnostic blueprint and actual question data."
         
   - task: "MCQ Generator"
     implemented: true
     working: false
     file: "backend/mcq_generator.py"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: false
         agent: "main"
         comment: "Real-time MCQ generation with misconception-based distractors, needs testing"
+      - working: false
+        agent: "testing"
+        comment: "Cannot test MCQ generation independently due to diagnostic system failure. No questions available for MCQ option generation."
         
   - task: "Study Planner"
     implemented: true
-    working: false
+    working: true
     file: "backend/study_planner.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: false
         agent: "main"
         comment: "90-day planning with three tracks and retry intervals implemented, needs testing"
+      - working: true
+        agent: "testing"
+        comment: "Study planner working correctly. Successfully creates 90-day plans, generates daily plan units, and integrates with session management. Track determination functional."
         
   - task: "Mastery Tracker"
     implemented: true
-    working: false
+    working: true
     file: "backend/mastery_tracker.py"
     stuck_count: 0
     priority: "medium"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: false
         agent: "main"
         comment: "EWMA-based mastery tracking system implemented, needs testing"
+      - working: true
+        agent: "testing"
+        comment: "EWMA-based mastery tracking functional. Successfully tracks mastery percentages, accuracy by difficulty, and exposure scores across 5 topics. Updates correctly after attempts."
         
   - task: "Background Jobs"
     implemented: true
-    working: false
+    working: true
     file: "backend/background_jobs.py"
     stuck_count: 0
     priority: "medium"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: false
         agent: "main"
         comment: "Nightly tasks system for dynamic updates implemented, needs testing"
+      - working: true
+        agent: "testing"
+        comment: "Background job system functional. Question enrichment queued as background tasks, async processing working correctly."
         
   - task: "Main Server Integration"
     implemented: true
@@ -195,11 +216,26 @@ backend:
     file: "backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: true
         agent: "main"
         comment: "Successfully integrated server_v2.py as main server. PostgreSQL database connected, all modules imported, API endpoints working. Basic health check passes."
+      - working: true
+        agent: "testing"
+        comment: "Main server integration successful. All core endpoints functional: authentication (admin/student login working), session management, progress tracking, study planning. 73.3% test success rate with 22/24 API calls passing."
+
+  - task: "Admin Statistics"
+    implemented: true
+    working: false
+    file: "backend/server.py"
+    stuck_count: 1
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "Admin stats endpoint fails with error: 'AsyncSession' object has no attribute 'func'. Database query syntax issue in admin statistics calculation."
 
 frontend:
   - task: "Frontend Integration with New Backend"
@@ -217,19 +253,24 @@ frontend:
 metadata:
   created_by: "main_agent"
   version: "2.0"
-  test_sequence: 1
+  test_sequence: 2
   run_ui: false
 
 test_plan:
   current_focus:
-    - "Main Server Integration"
     - "LLM Enrichment Pipeline"
     - "Diagnostic System"
     - "MCQ Generator"
-  stuck_tasks: []
+    - "Admin Statistics"
+  stuck_tasks:
+    - "LLM Enrichment Pipeline"
+    - "Diagnostic System"
+    - "MCQ Generator"
   test_all: false
   test_priority: "high_first"
 
 agent_communication:
   - agent: "main"
     message: "Backend integration phase complete! Successfully integrated server_v2.py as main server with all modules. PostgreSQL database connected, basic API endpoints working. Sample data creation in progress. Ready for comprehensive backend testing."
+  - agent: "testing"
+    message: "Backend testing completed. Core functionality working (73.3% success rate): Authentication system fully functional with admin/student login, study planning and session management working, mastery tracking operational. Critical issues identified: 1) LLM enrichment fails due to topic_id constraint violation during question creation, 2) Diagnostic system blueprint mismatch - expects 'Difficult' questions but only 'Easy'/'Medium' available, 3) Admin stats endpoint has database query syntax error. MCQ generation cannot be tested due to diagnostic system failure. Recommend fixing topic assignment in LLM enrichment and updating diagnostic blueprint to match available difficulty bands."
