@@ -138,9 +138,12 @@ class DiagnosticSystem:
             await db.rollback()
             raise
     
-    async def _find_diagnostic_question(self, db: AsyncSession, category: str, subcategory: str, difficulty: str) -> Question:
+    async def _find_diagnostic_question(self, db: AsyncSession, category: str, subcategory: str, difficulty: str, used_question_ids: set = None) -> Question:
         """Find a question matching the diagnostic criteria with fallback options"""
         try:
+            if used_question_ids is None:
+                used_question_ids = set()
+            
             # First try exact match
             result = await db.execute(
                 select(Question)
@@ -148,7 +151,8 @@ class DiagnosticSystem:
                 .where(
                     Question.subcategory == subcategory,
                     Question.difficulty_band == difficulty,
-                    Question.is_active == True
+                    Question.is_active == True,
+                    ~Question.id.in_(used_question_ids) if used_question_ids else True
                 )
                 .order_by(Question.importance_index.desc())
                 .limit(1)
@@ -174,7 +178,8 @@ class DiagnosticSystem:
                     .where(
                         Question.subcategory == subcategory,
                         Question.difficulty_band == fallback_difficulty,
-                        Question.is_active == True
+                        Question.is_active == True,
+                        ~Question.id.in_(used_question_ids) if used_question_ids else True
                     )
                     .order_by(Question.importance_index.desc())
                     .limit(1)
@@ -191,7 +196,8 @@ class DiagnosticSystem:
                 .join(Question.topic)
                 .where(
                     Topic.name == category,
-                    Question.is_active == True
+                    Question.is_active == True,
+                    ~Question.id.in_(used_question_ids) if used_question_ids else True
                 )
                 .order_by(Question.importance_index.desc())
                 .limit(1)
@@ -205,7 +211,10 @@ class DiagnosticSystem:
             # Fallback 3: Any active question
             result = await db.execute(
                 select(Question)
-                .where(Question.is_active == True)
+                .where(
+                    Question.is_active == True,
+                    ~Question.id.in_(used_question_ids) if used_question_ids else True
+                )
                 .order_by(Question.importance_index.desc())
                 .limit(1)
             )
