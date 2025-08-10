@@ -256,7 +256,6 @@ async def create_topics():
     async for db in get_database():
         try:
             # Check if topics already exist
-            from sqlalchemy import select, func
             existing_count = await db.scalar(
                 select(func.count(Topic.id))
             )
