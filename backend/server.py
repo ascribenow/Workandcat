@@ -927,8 +927,9 @@ async def startup_event():
     logger.info("📚 Topics initialized")
     
     # Create diagnostic set if needed
-    async with get_database() as db:
+    async for db in get_database():
         await diagnostic_system.create_diagnostic_set(db)
+        break
     logger.info("🎯 Diagnostic system initialized")
     
     logger.info(f"📧 Admin Email: {ADMIN_EMAIL}")
