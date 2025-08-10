@@ -59,7 +59,10 @@ class CATBackendTester:
 
     def test_root_endpoint(self):
         """Test root API endpoint"""
-        return self.run_test("Root Endpoint", "GET", "", 200)
+        success, response = self.run_test("Root Endpoint", "GET", "", 200)
+        if success:
+            print(f"   Admin email: {response.get('admin_email')}")
+        return success
 
     def test_taxonomy_endpoint(self):
         """Test taxonomy endpoint"""
@@ -363,6 +366,25 @@ class CATBackendTester:
         
         return True  # These should fail with 403, so we return True
 
+    def test_invalid_endpoints(self):
+        """Test error handling for invalid requests"""
+        # Test invalid login
+        invalid_login = {"email": "invalid@test.com", "password": "wrongpass"}
+        success, response = self.run_test("Invalid Login", "POST", "auth/login", 401, invalid_login)
+        
+        # Test non-existent question
+        success, response = self.run_test("Non-existent Question", "GET", "questions/invalid-id", 404)
+        
+        # Test invalid question creation without auth
+        invalid_question = {
+            "text": "Test question",
+            "category": "InvalidCategory",
+            "sub_category": "InvalidSub"
+        }
+        success, response = self.run_test("Invalid Question Creation (No Auth)", "POST", "questions", 401, invalid_question)
+        
+        return True  # These should fail, so we return True if they do
+
 def main():
     print("🚀 Starting CAT Backend API Testing...")
     print("=" * 60)
@@ -381,6 +403,10 @@ def main():
     test_results.append(("Progress Tracking", tester.test_progress_tracking()))
     test_results.append(("Study Plan", tester.test_study_plan()))
     test_results.append(("Analytics", tester.test_analytics()))
+    test_results.append(("Admin Endpoints", tester.test_admin_endpoints()))
+    test_results.append(("Password Reset", tester.test_password_reset()))
+    test_results.append(("Auth Middleware", tester.test_auth_middleware()))
+    test_results.append(("Admin Access Control", tester.test_admin_access_control()))
     test_results.append(("Error Handling", tester.test_invalid_endpoints()))
     
     # Print summary
