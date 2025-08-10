@@ -137,6 +137,9 @@ backend:
       - working: true
         agent: "main"
         comment: "Fixed topic_id constraint violation by properly finding and setting topic_id during question creation. Question creation with enrichment now working."
+      - working: true
+        agent: "testing"
+        comment: "✅ CONFIRMED WORKING: Question creation with LLM enrichment fully functional. Successfully creates questions with proper topic_id assignment and queues background enrichment. API endpoint POST /api/questions working correctly."
         
   - task: "Diagnostic System"
     implemented: true
