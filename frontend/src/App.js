@@ -2,89 +2,258 @@ import React, { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import axios from "axios";
 import "./App.css";
+import { AuthProvider, useAuth } from "./components/AuthProvider";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
-// Components
-const Login = ({ onLogin }) => {
-  const [formData, setFormData] = useState({ email: "", password: "" });
+// Professional Login Component
+const Login = () => {
+  const [formData, setFormData] = useState({ email: "", password: "", name: "" });
   const [isRegister, setIsRegister] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [showPasswordReset, setShowPasswordReset] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
+  const [resetMessage, setResetMessage] = useState("");
+
+  const { login, register, requestPasswordReset } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError("");
+
     try {
-      const endpoint = isRegister ? "/register" : "/login";
-      const response = await axios.post(`${API}${endpoint}`, formData);
-      
+      let result;
       if (isRegister) {
-        alert("Registration successful! Please login.");
-        setIsRegister(false);
+        result = await register(formData.name, formData.email, formData.password);
       } else {
-        onLogin(response.data.user);
+        result = await login(formData.email, formData.password);
+      }
+
+      if (!result.success) {
+        setError(result.error);
       }
     } catch (error) {
-      alert(error.response?.data?.detail || "Authentication failed");
+      setError("An unexpected error occurred");
+    } finally {
+      setLoading(false);
     }
   };
 
-  return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <div className="max-w-md w-full space-y-8">
-        <div className="text-center">
-          <h2 className="text-3xl font-bold text-gray-900">
-            CAT Preparation Platform
-          </h2>
-          <p className="mt-2 text-sm text-gray-600">
-            {isRegister ? "Create your account" : "Sign in to your account"}
-          </p>
+  const handlePasswordReset = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+    setResetMessage("");
+
+    const result = await requestPasswordReset(resetEmail);
+    if (result.success) {
+      setResetMessage(result.message);
+      setShowPasswordReset(false);
+    } else {
+      setError(result.error);
+    }
+    setLoading(false);
+  };
+
+  if (showPasswordReset) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center px-4">
+        <div className="max-w-md w-full">
+          <div className="bg-white rounded-lg shadow-xl p-8">
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-bold text-gray-900">Reset Password</h2>
+              <p className="mt-2 text-sm text-gray-600">
+                Enter your email to receive reset instructions
+              </p>
+            </div>
+
+            <form onSubmit={handlePasswordReset} className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Email</label>
+                <input
+                  type="email"
+                  value={resetEmail}
+                  onChange={(e) => setResetEmail(e.target.value)}
+                  className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  required
+                />
+              </div>
+
+              {error && (
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+                  {error}
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+              >
+                {loading ? "Sending..." : "Send Reset Email"}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setShowPasswordReset(false)}
+                className="w-full text-center text-sm text-blue-600 hover:text-blue-500"
+              >
+                Back to Login
+              </button>
+            </form>
+          </div>
         </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          {isRegister && (
-            <input
-              type="text"
-              placeholder="Full Name"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-              onChange={(e) => setFormData({...formData, name: e.target.value})}
-              required
-            />
-          )}
-          <input
-            type="email"
-            placeholder="Email"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md"
-            value={formData.email}
-            onChange={(e) => setFormData({...formData, email: e.target.value})}
-            required
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md"
-            value={formData.password}
-            onChange={(e) => setFormData({...formData, password: e.target.value})}
-            required
-          />
-          <button
-            type="submit"
-            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
-          >
-            {isRegister ? "Register" : "Sign In"}
-          </button>
-          <button
-            type="button"
-            onClick={() => setIsRegister(!isRegister)}
-            className="w-full text-center text-sm text-blue-600 hover:text-blue-500"
-          >
-            {isRegister ? "Already have an account? Sign in" : "Need an account? Register"}
-          </button>
-        </form>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center px-4">
+      <div className="max-w-md w-full">
+        <div className="bg-white rounded-lg shadow-xl p-8">
+          <div className="text-center mb-8">
+            <div className="mx-auto h-12 w-12 bg-blue-600 rounded-lg flex items-center justify-center mb-4">
+              <svg className="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+              </svg>
+            </div>
+            <h2 className="text-3xl font-bold text-gray-900">CAT Preparation Platform</h2>
+            <p className="mt-2 text-sm text-gray-600">
+              {isRegister ? "Create your account" : "Sign in to your account"}
+            </p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {isRegister && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Full Name</label>
+                <input
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) => setFormData({...formData, name: e.target.value})}
+                  className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  required
+                />
+              </div>
+            )}
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Email</label>
+              <input
+                type="email"
+                value={formData.email}
+                onChange={(e) => setFormData({...formData, email: e.target.value})}
+                className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Password</label>
+              <input
+                type="password"
+                value={formData.password}
+                onChange={(e) => setFormData({...formData, password: e.target.value})}
+                className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                required
+                minLength="6"
+              />
+            </div>
+
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+                {error}
+              </div>
+            )}
+
+            {resetMessage && (
+              <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded">
+                {resetMessage}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+            >
+              {loading ? "Please wait..." : (isRegister ? "Create Account" : "Sign In")}
+            </button>
+
+            <div className="text-center space-y-2">
+              <button
+                type="button"
+                onClick={() => setIsRegister(!isRegister)}
+                className="text-sm text-blue-600 hover:text-blue-500"
+              >
+                {isRegister ? "Already have an account? Sign in" : "Need an account? Register"}
+              </button>
+              
+              {!isRegister && (
+                <div>
+                  <button
+                    type="button"
+                    onClick={() => setShowPasswordReset(true)}
+                    className="text-sm text-gray-500 hover:text-gray-700"
+                  >
+                    Forgot your password?
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Admin Info */}
+            <div className="mt-6 p-3 bg-blue-50 rounded-md">
+              <p className="text-xs text-blue-700">
+                <strong>Admin access:</strong> sumedhprabhu18@gmail.com
+              </p>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );
 };
 
-const Dashboard = ({ user, onLogout }) => {
+// Protected Route Component
+const ProtectedRoute = ({ children, adminOnly = false }) => {
+  const { isAuthenticated, isAdmin, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated()) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (adminOnly && !isAdmin()) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-900">Access Denied</h2>
+          <p className="mt-2 text-gray-600">You need admin privileges to access this page.</p>
+        </div>
+      </div>
+    );
+  }
+
+  return children;
+};
+
+// Dashboard Component
+const Dashboard = () => {
+  const { user, logout } = useAuth();
   const [analytics, setAnalytics] = useState(null);
   const [studyPlan, setStudyPlan] = useState([]);
 
@@ -127,13 +296,23 @@ const Dashboard = ({ user, onLogout }) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
-              <h1 className="text-xl font-semibold">CAT Prep Dashboard</h1>
+              <h1 className="text-xl font-semibold text-gray-900">CAT Prep Dashboard</h1>
+              {user.is_admin && (
+                <span className="ml-3 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                  Admin
+                </span>
+              )}
             </div>
             <div className="flex items-center space-x-4">
-              <span className="text-gray-700">Welcome, {user.name}</span>
+              <div className="text-sm text-gray-700">
+                <span className="font-medium">{user.name}</span>
+                {user.email_verified && (
+                  <span className="ml-2 text-green-600">✓</span>
+                )}
+              </div>
               <button
-                onClick={onLogout}
-                className="text-sm bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded"
+                onClick={logout}
+                className="text-sm bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded transition-colors"
               >
                 Logout
               </button>
@@ -143,22 +322,35 @@ const Dashboard = ({ user, onLogout }) => {
       </nav>
 
       <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        {/* Welcome Section */}
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold text-gray-900">Welcome back, {user.name}!</h2>
+          <p className="mt-1 text-sm text-gray-600">
+            Track your progress and continue your CAT preparation journey.
+          </p>
+        </div>
+
         {/* Study Plan Section */}
         <div className="bg-white overflow-hidden shadow rounded-lg mb-6">
           <div className="px-4 py-5 sm:p-6">
             <h3 className="text-lg font-medium text-gray-900 mb-4">90-Day Study Plan</h3>
             {studyPlan.length === 0 ? (
               <div className="text-center py-6">
+                <div className="mx-auto h-12 w-12 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+                  <svg className="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
                 <p className="text-gray-500 mb-4">No study plan generated yet</p>
                 <button
                   onClick={generateStudyPlan}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md"
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition-colors"
                 >
                   Generate Study Plan
                 </button>
               </div>
             ) : (
-              <div className="space-y-2">
+              <div className="space-y-4">
                 <p className="text-sm text-gray-600">
                   Your personalized 90-day journey to CAT success
                 </p>
@@ -226,7 +418,8 @@ const Dashboard = ({ user, onLogout }) => {
   );
 };
 
-const Practice = ({ user }) => {
+// Practice Component (keeping existing functionality)
+const Practice = () => {
   const [taxonomy, setTaxonomy] = useState({});
   const [questions, setQuestions] = useState([]);
   const [currentQuestion, setCurrentQuestion] = useState(null);
@@ -235,6 +428,8 @@ const Practice = ({ user }) => {
   const [userAnswer, setUserAnswer] = useState("");
   const [showResult, setShowResult] = useState(false);
   const [result, setResult] = useState(null);
+
+  const { user } = useAuth();
 
   useEffect(() => {
     fetchTaxonomy();
@@ -276,7 +471,7 @@ const Practice = ({ user }) => {
         user_id: user.id,
         question_id: currentQuestion.id,
         user_answer: userAnswer,
-        time_taken: 120 // Placeholder
+        time_taken: 120
       };
 
       const response = await axios.post(`${API}/progress`, progressData);
@@ -284,6 +479,7 @@ const Practice = ({ user }) => {
       setShowResult(true);
     } catch (error) {
       console.error("Error submitting answer:", error);
+      alert("Error submitting answer");
     }
   };
 
@@ -437,10 +633,12 @@ const Practice = ({ user }) => {
   );
 };
 
-const AdminPanel = ({ user }) => {
+// Admin Panel Component
+const AdminPanel = () => {
   const [questions, setQuestions] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [taxonomy, setTaxonomy] = useState({});
+  const [stats, setStats] = useState(null);
   const [questionForm, setQuestionForm] = useState({
     text: "",
     options: ["", "", "", ""],
@@ -451,9 +649,12 @@ const AdminPanel = ({ user }) => {
     year: new Date().getFullYear()
   });
 
+  const { user } = useAuth();
+
   useEffect(() => {
     fetchQuestions();
     fetchTaxonomy();
+    fetchStats();
   }, []);
 
   const fetchQuestions = async () => {
@@ -471,6 +672,15 @@ const AdminPanel = ({ user }) => {
       setTaxonomy(response.data.taxonomy);
     } catch (error) {
       console.error("Error fetching taxonomy:", error);
+    }
+  };
+
+  const fetchStats = async () => {
+    try {
+      const response = await axios.get(`${API}/admin/stats`);
+      setStats(response.data);
+    } catch (error) {
+      console.error("Error fetching stats:", error);
     }
   };
 
@@ -504,7 +714,7 @@ const AdminPanel = ({ user }) => {
     formData.append("year", "2024");
 
     try {
-      const response = await axios.post(`${API}/upload-pyq`, formData, {
+      const response = await axios.post(`${API}/admin/upload-pyq`, formData, {
         headers: { "Content-Type": "multipart/form-data" }
       });
       alert(response.data.message);
@@ -518,7 +728,10 @@ const AdminPanel = ({ user }) => {
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-900">Admin Panel</h1>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Admin Panel</h1>
+            <p className="text-sm text-gray-600">Welcome, {user.name} (Admin)</p>
+          </div>
           <button
             onClick={() => setShowForm(!showForm)}
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md"
@@ -526,6 +739,24 @@ const AdminPanel = ({ user }) => {
             {showForm ? "Cancel" : "Add Question"}
           </button>
         </div>
+
+        {/* Admin Stats */}
+        {stats && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div className="bg-white p-6 rounded-lg shadow">
+              <div className="text-2xl font-bold text-blue-600">{stats.total_users}</div>
+              <div className="text-sm text-gray-600">Total Users</div>
+            </div>
+            <div className="bg-white p-6 rounded-lg shadow">
+              <div className="text-2xl font-bold text-green-600">{stats.total_questions}</div>
+              <div className="text-sm text-gray-600">Total Questions</div>
+            </div>
+            <div className="bg-white p-6 rounded-lg shadow">
+              <div className="text-2xl font-bold text-purple-600">{stats.total_attempts}</div>
+              <div className="text-sm text-gray-600">Total Attempts</div>
+            </div>
+          </div>
+        )}
 
         {/* PYQ Upload */}
         <div className="bg-white p-6 rounded-lg shadow mb-6">
@@ -639,7 +870,7 @@ const AdminPanel = ({ user }) => {
           <div className="px-6 py-4 border-b">
             <h2 className="text-lg font-medium">Questions ({questions.length})</h2>
           </div>
-          <div className="divide-y divide-gray-200">
+          <div className="divide-y divide-gray-200 max-h-96 overflow-y-auto">
             {questions.map((question, index) => (
               <div key={question.id} className="px-6 py-4">
                 <div className="flex items-start justify-between">
@@ -674,79 +905,103 @@ const AdminPanel = ({ user }) => {
   );
 };
 
-// Main App
-const App = () => {
-  const [user, setUser] = useState(null);
+// Navigation Component
+const Navigation = () => {
+  const { user, logout, isAdmin } = useAuth();
   const [currentView, setCurrentView] = useState("dashboard");
 
-  const handleLogin = (userData) => {
-    setUser(userData);
-  };
+  const navItems = [
+    { key: "dashboard", label: "Dashboard", icon: "🏠" },
+    { key: "practice", label: "Practice", icon: "📝" },
+  ];
 
-  const handleLogout = () => {
-    setUser(null);
-    setCurrentView("dashboard");
-  };
-
-  if (!user) {
-    return <Login onLogin={handleLogin} />;
+  if (isAdmin()) {
+    navItems.push({ key: "admin", label: "Admin", icon: "⚙️" });
   }
 
   return (
-    <div className="App">
-      <BrowserRouter>
-        {/* Navigation */}
-        <nav className="bg-white shadow-sm border-b">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between h-16">
-              <div className="flex space-x-8">
+    <>
+      {/* Navigation */}
+      <nav className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between h-16">
+            <div className="flex space-x-8">
+              {navItems.map((item) => (
                 <button
-                  onClick={() => setCurrentView("dashboard")}
+                  key={item.key}
+                  onClick={() => setCurrentView(item.key)}
                   className={`inline-flex items-center px-1 pt-1 text-sm font-medium ${
-                    currentView === "dashboard" ? "text-blue-600 border-b-2 border-blue-500" : "text-gray-500 hover:text-gray-700"
+                    currentView === item.key 
+                      ? "text-blue-600 border-b-2 border-blue-500" 
+                      : "text-gray-500 hover:text-gray-700"
                   }`}
                 >
-                  Dashboard
+                  <span className="mr-2">{item.icon}</span>
+                  {item.label}
                 </button>
-                <button
-                  onClick={() => setCurrentView("practice")}
-                  className={`inline-flex items-center px-1 pt-1 text-sm font-medium ${
-                    currentView === "practice" ? "text-blue-600 border-b-2 border-blue-500" : "text-gray-500 hover:text-gray-700"
-                  }`}
-                >
-                  Practice
-                </button>
-                {user.is_admin && (
-                  <button
-                    onClick={() => setCurrentView("admin")}
-                    className={`inline-flex items-center px-1 pt-1 text-sm font-medium ${
-                      currentView === "admin" ? "text-blue-600 border-b-2 border-blue-500" : "text-gray-500 hover:text-gray-700"
-                    }`}
-                  >
+              ))}
+            </div>
+            <div className="flex items-center space-x-4">
+              <div className="text-sm text-gray-700">
+                <span className="font-medium">{user.name}</span>
+                {isAdmin() && (
+                  <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                     Admin
-                  </button>
+                  </span>
                 )}
               </div>
-              <div className="flex items-center space-x-4">
-                <span className="text-gray-700">Welcome, {user.name}</span>
-                <button
-                  onClick={handleLogout}
-                  className="text-sm bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded"
-                >
-                  Logout
-                </button>
-              </div>
+              <button
+                onClick={logout}
+                className="text-sm bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded transition-colors"
+              >
+                Logout
+              </button>
             </div>
           </div>
-        </nav>
+        </div>
+      </nav>
 
-        {/* Content */}
-        {currentView === "dashboard" && <Dashboard user={user} onLogout={handleLogout} />}
-        {currentView === "practice" && <Practice user={user} />}
-        {currentView === "admin" && user.is_admin && <AdminPanel user={user} />}
+      {/* Content */}
+      {currentView === "dashboard" && <Dashboard />}
+      {currentView === "practice" && <Practice />}
+      {currentView === "admin" && isAdmin() && <AdminPanel />}
+    </>
+  );
+};
+
+// Main App Component
+const AppContent = () => {
+  const { isAuthenticated, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated()) {
+    return <Login />;
+  }
+
+  return <Navigation />;
+};
+
+// Root App Component
+function App() {
+  return (
+    <div className="App">
+      <BrowserRouter>
+        <AuthProvider>
+          <AppContent />
+        </AuthProvider>
       </BrowserRouter>
     </div>
   );
-};
+}
 
 export default App;
