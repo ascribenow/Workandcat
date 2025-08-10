@@ -124,7 +124,7 @@ class UserProgress(BaseModel):
     question_id: str
     attempted_at: datetime = Field(default_factory=datetime.utcnow)
     user_answer: str
-    is_correct: bool
+    is_correct: Optional[bool] = None
     time_taken: int  # seconds
     
 class StudyPlan(BaseModel):
