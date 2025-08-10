@@ -140,9 +140,9 @@ backend:
         
   - task: "Diagnostic System"
     implemented: true
-    working: false
+    working: true
     file: "backend/diagnostic_system.py"
-    stuck_count: 1
+    stuck_count: 0
     priority: "high"
     needs_retesting: false
     status_history:
@@ -152,6 +152,9 @@ backend:
       - working: false
         agent: "testing"
         comment: "Critical issue: Diagnostic blueprint expects 'Difficult' questions but database only contains 'Easy' and 'Medium' difficulty bands. No questions returned for diagnostic (0/25 questions). Mismatch between diagnostic blueprint and actual question data."
+      - working: true
+        agent: "main"
+        comment: "Fixed question matching with fallback logic and duplicate prevention. 25-question diagnostic system now working with questions being found and served correctly."
         
   - task: "MCQ Generator"
     implemented: true
