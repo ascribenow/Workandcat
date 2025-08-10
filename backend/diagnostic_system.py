@@ -8,7 +8,7 @@ import uuid
 from typing import Dict, List, Any, Tuple
 from datetime import datetime
 import logging
-from database import DiagnosticSet, DiagnosticSetQuestion, Diagnostic, User, Question
+from database import DiagnosticSet, DiagnosticSetQuestion, Diagnostic, User, Question, Topic
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
