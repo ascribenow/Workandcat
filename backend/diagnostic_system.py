@@ -108,11 +108,13 @@ class DiagnosticSystem:
             
             # Create diagnostic set questions
             question_count = 0
+            used_question_ids = set()  # Track used questions to avoid duplicates
+            
             for category, category_data in self.diagnostic_blueprint["distribution"].items():
                 for question_spec in category_data["questions"]:
                     # Find a suitable question for this specification
                     question = await self._find_diagnostic_question(
-                        db, category, question_spec["subcategory"], question_spec["difficulty"]
+                        db, category, question_spec["subcategory"], question_spec["difficulty"], used_question_ids
                     )
                     
                     if question:
@@ -122,6 +124,7 @@ class DiagnosticSystem:
                             seq=question_spec["seq"]
                         )
                         db.add(diagnostic_set_question)
+                        used_question_ids.add(question.id)  # Mark question as used
                         question_count += 1
                     else:
                         logger.warning(f"No question found for {category} -> {question_spec['subcategory']} ({question_spec['difficulty']})")
