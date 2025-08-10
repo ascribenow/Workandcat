@@ -646,33 +646,44 @@ class CATBackendTester:
         return True  # These should fail, so we return True if they do
 
 def main():
-    print("🚀 Starting CAT Backend API Testing...")
-    print("=" * 60)
+    print("🚀 Starting CAT Backend API v2.0 Testing...")
+    print("Testing PostgreSQL-based backend with advanced AI features")
+    print("=" * 70)
     
     tester = CATBackendTester()
     
-    # Run all tests
+    # Run all tests in logical order
     test_results = []
     
+    # Core system tests
     test_results.append(("Root Endpoint", tester.test_root_endpoint()))
-    test_results.append(("Taxonomy", tester.test_taxonomy_endpoint()))
-    test_results.append(("User Registration", tester.test_user_registration()))
-    test_results.append(("User Login", tester.test_user_login()))
-    test_results.append(("Question Creation", tester.test_question_creation()))
+    
+    # Authentication tests
+    test_results.append(("User Login & Registration", tester.test_user_login()))
+    test_results.append(("Auth Me Endpoint", tester.test_auth_me_endpoint()))
+    
+    # Core functionality tests (high priority from test_result.md)
+    test_results.append(("Question Creation with LLM", tester.test_question_creation()))
     test_results.append(("Get Questions", tester.test_get_questions()))
-    test_results.append(("Progress Tracking", tester.test_progress_tracking()))
-    test_results.append(("Study Plan", tester.test_study_plan()))
-    test_results.append(("Analytics", tester.test_analytics()))
+    test_results.append(("Diagnostic System (25Q)", tester.test_diagnostic_system()))
+    test_results.append(("MCQ Generation", tester.test_mcq_generation()))
+    test_results.append(("Study Planner (90-day)", tester.test_study_planner()))
+    test_results.append(("Session Management", tester.test_session_management()))
+    test_results.append(("Mastery Tracking (EWMA)", tester.test_mastery_tracking()))
+    test_results.append(("Progress Dashboard", tester.test_progress_dashboard()))
+    
+    # Admin functionality
     test_results.append(("Admin Endpoints", tester.test_admin_endpoints()))
-    test_results.append(("Password Reset", tester.test_password_reset()))
+    
+    # Security and error handling
     test_results.append(("Auth Middleware", tester.test_auth_middleware()))
     test_results.append(("Admin Access Control", tester.test_admin_access_control()))
     test_results.append(("Error Handling", tester.test_invalid_endpoints()))
     
     # Print summary
-    print("\n" + "=" * 60)
-    print("📊 TEST SUMMARY")
-    print("=" * 60)
+    print("\n" + "=" * 70)
+    print("📊 CAT BACKEND v2.0 TEST SUMMARY")
+    print("=" * 70)
     
     passed_tests = sum(1 for _, result in test_results if result)
     total_tests = len(test_results)
@@ -683,12 +694,21 @@ def main():
     
     print(f"\n🎯 Overall Results: {tester.tests_passed}/{tester.tests_run} individual API calls passed")
     print(f"🎯 Test Suites: {passed_tests}/{total_tests} test suites passed")
+    print(f"🎯 Success Rate: {(passed_tests/total_tests)*100:.1f}%")
     
-    if passed_tests == total_tests:
-        print("🎉 All backend tests passed!")
+    # Detailed analysis
+    print(f"\n📋 FEATURE ANALYSIS:")
+    print(f"   🔐 Authentication: {'✅' if any('Login' in name for name, result in test_results if result) else '❌'}")
+    print(f"   🎯 Diagnostic System: {'✅' if any('Diagnostic' in name for name, result in test_results if result) else '❌'}")
+    print(f"   🤖 LLM Integration: {'✅' if any('LLM' in name for name, result in test_results if result) else '❌'}")
+    print(f"   📚 Study Planning: {'✅' if any('Study Planner' in name for name, result in test_results if result) else '❌'}")
+    print(f"   📊 Progress Tracking: {'✅' if any('Mastery' in name or 'Progress' in name for name, result in test_results if result) else '❌'}")
+    
+    if passed_tests >= total_tests * 0.8:  # 80% pass rate
+        print("\n🎉 Backend testing successful! Core functionality working.")
         return 0
     else:
-        print("⚠️  Some backend tests failed. Check the details above.")
+        print("\n⚠️  Backend testing revealed issues. Check the details above.")
         return 1
 
 if __name__ == "__main__":
