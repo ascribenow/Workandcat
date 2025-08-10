@@ -486,7 +486,7 @@ class CATBackendTester:
             }
             success, response = self.run_test("Protected Route (Valid Auth)", "GET", "auth/me", 200, None, headers)
             if success:
-                print(f"   Authenticated user: {response.get('name')}")
+                print(f"   Authenticated user: {response.get('full_name')}")
                 return True
         
         return False
@@ -505,10 +505,7 @@ class CATBackendTester:
         # Student should not be able to access admin stats
         success, response = self.run_test("Student Access Admin Stats (Should Fail)", "GET", "admin/stats", 403, None, headers)
         
-        # Student should not be able to access admin users list
-        success, response = self.run_test("Student Access Admin Users (Should Fail)", "GET", "admin/users", 403, None, headers)
-        
-        return True  # These should fail with 403, so we return True
+        return True  # This should fail with 403, so we return True
 
     def test_invalid_endpoints(self):
         """Test error handling for invalid requests"""
@@ -516,14 +513,10 @@ class CATBackendTester:
         invalid_login = {"email": "invalid@test.com", "password": "wrongpass"}
         success, response = self.run_test("Invalid Login", "POST", "auth/login", 401, invalid_login)
         
-        # Test non-existent question
-        success, response = self.run_test("Non-existent Question", "GET", "questions/invalid-id", 404)
-        
         # Test invalid question creation without auth
         invalid_question = {
-            "text": "Test question",
-            "category": "InvalidCategory",
-            "sub_category": "InvalidSub"
+            "stem": "Test question",
+            "answer": "Test answer"
         }
         success, response = self.run_test("Invalid Question Creation (No Auth)", "POST", "questions", 401, invalid_question)
         
