@@ -305,6 +305,8 @@ async def get_question(question_id: str):
     question = await db.questions.find_one({"id": question_id})
     if not question:
         raise HTTPException(status_code=404, detail="Question not found")
+    if "_id" in question:
+        del question["_id"]
     return {"question": question}
 
 # Progress Tracking
