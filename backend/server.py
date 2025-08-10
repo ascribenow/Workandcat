@@ -735,10 +735,10 @@ async def get_admin_stats(
     """Get admin dashboard statistics"""
     try:
         # Count various entities
-        users_count = await db.scalar(select(db.func.count(User.id)))
-        questions_count = await db.scalar(select(db.func.count(Question.id)))
-        attempts_count = await db.scalar(select(db.func.count(Attempt.id)))
-        active_plans_count = await db.scalar(select(db.func.count(Plan.id)).where(Plan.status == "active"))
+        users_count = await db.scalar(select(func.count(User.id)))
+        questions_count = await db.scalar(select(func.count(Question.id)))
+        attempts_count = await db.scalar(select(func.count(Attempt.id)))
+        active_plans_count = await db.scalar(select(func.count(Plan.id)).where(Plan.status == "active"))
         
         return {
             "total_users": users_count,
