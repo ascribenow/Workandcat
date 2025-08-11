@@ -620,12 +620,13 @@ def main():
     
     # Core functionality tests (high priority from test_result.md)
     test_results.append(("Question Creation with LLM", tester.test_question_creation()))
+    test_results.append(("Background Jobs System", tester.test_background_jobs_system()))
     test_results.append(("Get Questions", tester.test_get_questions()))
     test_results.append(("Diagnostic System (25Q)", tester.test_diagnostic_system()))
     test_results.append(("MCQ Generation", tester.test_mcq_generation()))
     test_results.append(("Study Planner (90-day)", tester.test_study_planner()))
     test_results.append(("Session Management", tester.test_session_management()))
-    test_results.append(("Mastery Tracking (EWMA)", tester.test_mastery_tracking()))
+    test_results.append(("Enhanced Mastery Dashboard", tester.test_mastery_tracking()))
     test_results.append(("Progress Dashboard", tester.test_progress_dashboard()))
     
     # Admin functionality
