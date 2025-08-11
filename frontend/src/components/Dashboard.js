@@ -139,7 +139,7 @@ export const Dashboard = () => {
           </div>
 
           {/* Quick Actions */}
-          <div className="grid md:grid-cols-4 gap-4 mb-8">
+          <div className="grid md:grid-cols-2 gap-4 mb-8">
             <button
               onClick={() => setCurrentView('diagnostic')}
               className="bg-blue-600 hover:bg-blue-700 text-white p-6 rounded-lg text-center transition-colors"
@@ -156,24 +156,6 @@ export const Dashboard = () => {
               <div className="text-2xl mb-2">⚡</div>
               <div className="font-semibold">Quick Practice</div>
               <div className="text-sm opacity-80">30 minutes</div>
-            </button>
-            
-            <button
-              onClick={() => setCurrentView('study-plan')}
-              className="bg-purple-600 hover:bg-purple-700 text-white p-6 rounded-lg text-center transition-colors"
-            >
-              <div className="text-2xl mb-2">📅</div>
-              <div className="font-semibold">Study Plan</div>
-              <div className="text-sm opacity-80">90-day journey</div>
-            </button>
-            
-            <button
-              onClick={() => startQuickSession(60)}
-              className="bg-orange-600 hover:bg-orange-700 text-white p-6 rounded-lg text-center transition-colors"
-            >
-              <div className="text-2xl mb-2">🔥</div>
-              <div className="font-semibold">Deep Practice</div>
-              <div className="text-sm opacity-80">60 minutes</div>
             </button>
           </div>
 
