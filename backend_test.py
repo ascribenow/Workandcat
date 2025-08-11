@@ -179,8 +179,30 @@ class CATBackendTester:
             return True
         return False
 
+    def test_diagnostic_status_endpoint(self):
+        """Test the FIXED diagnostic status endpoint - CRITICAL TEST"""
+        if not self.student_token:
+            print("❌ Skipping diagnostic status test - no student token")
+            return False
+
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {self.student_token}'
+        }
+
+        # Test the fixed diagnostic status endpoint
+        success, response = self.run_test("CRITICAL: Diagnostic Status Check (FIXED)", "GET", "user/diagnostic-status", 200, None, headers)
+        if success:
+            print(f"   ✅ FIXED: Diagnostic status endpoint working with completed_at.isnot(None)")
+            print(f"   Has completed diagnostic: {response.get('has_completed')}")
+            print(f"   User ID: {response.get('user_id')}")
+            return True
+        else:
+            print(f"   ❌ CRITICAL: Diagnostic status endpoint still failing after fix")
+            return False
+
     def test_diagnostic_system(self):
-        """Test 25-question diagnostic system"""
+        """Test 25-question diagnostic system with focus on critical fixes"""
         if not self.student_token:
             print("❌ Skipping diagnostic test - no student token")
             return False
@@ -189,6 +211,12 @@ class CATBackendTester:
             'Content-Type': 'application/json',
             'Authorization': f'Bearer {self.student_token}'
         }
+
+        # First test the diagnostic status endpoint (critical fix)
+        status_success = self.test_diagnostic_status_endpoint()
+        if not status_success:
+            print("   ❌ CRITICAL: Diagnostic status endpoint failed - blocking issue")
+            return False
 
         # Start diagnostic
         success, response = self.run_test("Start Diagnostic", "POST", "diagnostic/start", 200, {}, headers)
@@ -213,7 +241,7 @@ class CATBackendTester:
             return False
 
         # Submit answers for first few questions (simulate diagnostic)
-        for i, question in enumerate(questions[:3]):  # Test first 3 questions
+        for i, question in enumerate(questions[:5]):  # Test first 5 questions
             answer_data = {
                 "diagnostic_id": self.diagnostic_id,
                 "question_id": question['id'],
@@ -232,12 +260,19 @@ class CATBackendTester:
         # Complete diagnostic (with limited answers)
         success, response = self.run_test("Complete Diagnostic", "POST", f"diagnostic/{self.diagnostic_id}/complete", 200, {}, headers)
         if success:
-            print(f"   Diagnostic completed")
+            print(f"   ✅ CRITICAL: Diagnostic completion working after async fix")
             if 'track_recommendation' in response:
                 print(f"   Track recommendation: {response.get('track_recommendation')}")
+            
+            # Test diagnostic status again after completion
+            success2, response2 = self.run_test("Diagnostic Status After Completion", "GET", "user/diagnostic-status", 200, None, headers)
+            if success2:
+                print(f"   ✅ Status after completion: {response2.get('has_completed')}")
+            
             return True
-        
-        return False
+        else:
+            print(f"   ❌ CRITICAL: Diagnostic completion still failing")
+            return False
 
     def test_mcq_generation(self):
         """Test MCQ generation functionality"""
