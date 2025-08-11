@@ -403,6 +403,29 @@ const AdminPanel = () => {
     }
   };
 
+  const handleExportQuestions = async () => {
+    try {
+      const response = await axios.get(`${API}/admin/export-questions-csv`, {
+        responseType: 'blob'
+      });
+      
+      // Create blob and download
+      const blob = new Blob([response.data], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `cat_questions_export_${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      
+      alert('Questions exported successfully!');
+    } catch (error) {
+      alert('Error exporting questions: ' + (error.response?.data?.detail || 'Unknown error'));
+    }
+  };
+
   const handleQuestionSubmit = async (e) => {
     e.preventDefault();
     try {
