@@ -124,29 +124,103 @@ Generate 4 MCQ options with misconception-based distractors."""
                 "correct": "A"
             }
     
-    def shuffle_options(self, options: Dict[str, str]) -> Dict[str, str]:
-        """Shuffle option labels A-D"""
+    async def generate_shuffled_options(self, question_stem: str, correct_answer: str, 
+                                      subcategory: str = "General") -> Dict[str, str]:
+        """
+        Generate MCQ options with v1.3 shuffling requirements
+        Always shuffle non-correct options; correct answer position randomized
+        """
+        try:
+            # Generate basic options first
+            basic_options = await self.generate_options(question_stem, correct_answer, subcategory)
+            
+            # Apply v1.3 shuffling logic
+            shuffled_options = self.shuffle_options_v13(basic_options)
+            
+            return shuffled_options
+            
+        except Exception as e:
+            logger.error(f"Error generating shuffled options: {e}")
+            return self.get_fallback_shuffled_options(correct_answer)
+    
+    def shuffle_options_v13(self, options: Dict[str, str]) -> Dict[str, str]:
+        """
+        Apply v1.3 shuffling rules:
+        - Always shuffle non-correct options
+        - Randomize correct answer position
+        """
         import random
         
-        # Extract options and correct answer
-        option_values = [options["A"], options["B"], options["C"], options["D"]]
-        correct_value = options[options["correct"]]
+        try:
+            # Extract the correct answer value
+            correct_label = options["correct"]
+            correct_value = options[correct_label]
+            
+            # Get all option values
+            all_values = [options["A"], options["B"], options["C"], options["D"]]
+            
+            # Remove correct answer from list for shuffling
+            incorrect_values = [v for v in all_values if v != correct_value]
+            
+            # Shuffle the incorrect options
+            random.shuffle(incorrect_values)
+            
+            # Randomly choose position for correct answer (0-3)
+            correct_position = random.randint(0, 3)
+            
+            # Build new option list with correct answer in random position
+            final_values = []
+            incorrect_index = 0
+            
+            for i in range(4):
+                if i == correct_position:
+                    final_values.append(correct_value)
+                else:
+                    final_values.append(incorrect_values[incorrect_index])
+                    incorrect_index += 1
+            
+            # Create final options dict
+            labels = ["A", "B", "C", "D"]
+            shuffled_options = {}
+            
+            for i, label in enumerate(labels):
+                shuffled_options[label] = final_values[i]
+            
+            # Set correct label
+            shuffled_options["correct"] = labels[correct_position]
+            
+            logger.info(f"Shuffled options - correct answer now at position {labels[correct_position]}")
+            return shuffled_options
+            
+        except Exception as e:
+            logger.error(f"Error in v1.3 shuffling: {e}")
+            return options  # Return original if shuffling fails
+    
+    def get_fallback_shuffled_options(self, correct_answer: str) -> Dict[str, str]:
+        """
+        Provide fallback shuffled options when generation fails
+        """
+        import random
         
-        # Shuffle
-        random.shuffle(option_values)
+        # Generate plausible incorrect options
+        fallback_options = [
+            f"Incorrect option 1",
+            f"Incorrect option 2", 
+            f"Incorrect option 3"
+        ]
         
-        # Rebuild with shuffled positions
-        shuffled = {
-            "A": option_values[0],
-            "B": option_values[1], 
-            "C": option_values[2],
-            "D": option_values[3]
-        }
+        # Insert correct answer at random position
+        correct_position = random.randint(0, 3)
+        all_options = fallback_options.copy()
+        all_options.insert(correct_position, correct_answer)
         
-        # Find new position of correct answer
-        for label, value in shuffled.items():
-            if value == correct_value:
-                shuffled["correct"] = label
-                break
+        # Build options dict
+        labels = ["A", "B", "C", "D"]
+        options = {}
         
-        return shuffled
+        for i, label in enumerate(labels):
+            options[label] = all_options[i]
+        
+        options["correct"] = labels[correct_position]
+        
+        return options
