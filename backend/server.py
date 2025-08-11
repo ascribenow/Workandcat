@@ -91,7 +91,6 @@ async def root():
         "message": "CAT Preparation Platform v2.0",
         "admin_email": ADMIN_EMAIL,
         "features": [
-            "25-Question Diagnostic System",
             "Advanced LLM Enrichment",
             "Mastery Tracking",
             "90-Day Study Planning",
