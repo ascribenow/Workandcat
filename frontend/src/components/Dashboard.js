@@ -86,51 +86,77 @@ export const Dashboard = () => {
     });
   };
 
-  const renderNavigation = () => (
-    <nav className="bg-white shadow-sm border-b">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
-          <div className="flex space-x-8">
-            {[
-              { key: 'dashboard', label: 'Dashboard', icon: '🏠' },
-              { key: 'study-plan', label: 'Study Plan', icon: '📅' },
-              ...(isAdmin() ? [{ key: 'admin', label: 'Admin', icon: '⚙️' }] : [])
-            ].map((item) => (
-              <button
-                key={item.key}
-                onClick={() => setCurrentView(item.key)}
-                className={`inline-flex items-center px-1 pt-1 text-sm font-medium ${
-                  currentView === item.key 
-                    ? "text-blue-600 border-b-2 border-blue-500" 
-                    : "text-gray-500 hover:text-gray-700"
-                }`}
-              >
-                <span className="mr-2">{item.icon}</span>
-                {item.label}
-              </button>
-            ))}
-          </div>
-          
-          <div className="flex items-center space-x-4">
-            <div className="text-sm text-gray-700">
-              <span className="font-medium">{user.name}</span>
-              {isAdmin() && (
-                <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                  Admin
-                </span>
-              )}
+  const renderNavigation = () => {
+    // Admin gets no navigation - direct admin panel only
+    if (isAdmin()) {
+      return (
+        <nav className="bg-white shadow-sm border-b">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between h-16">
+              <div className="flex items-center">
+                <h1 className="text-xl font-semibold text-gray-900">CAT Prep Admin Panel</h1>
+              </div>
+              <div className="flex items-center space-x-4">
+                <div className="text-sm text-gray-700">
+                  <span className="font-medium">{user.name}</span>
+                  <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                    Admin
+                  </span>
+                </div>
+                <button
+                  onClick={logout}
+                  className="text-sm bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded transition-colors"
+                >
+                  Logout
+                </button>
+              </div>
             </div>
-            <button
-              onClick={logout}
-              className="text-sm bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded transition-colors"
-            >
-              Logout
-            </button>
+          </div>
+        </nav>
+      );
+    }
+    
+    // Regular users get normal navigation
+    return (
+      <nav className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between h-16">
+            <div className="flex space-x-8">
+              {[
+                { key: 'dashboard', label: 'Dashboard', icon: '🏠' },
+                { key: 'study-plan', label: 'Study Plan', icon: '📅' }
+              ].map((item) => (
+                <button
+                  key={item.key}
+                  onClick={() => setCurrentView(item.key)}
+                  className={`inline-flex items-center px-1 pt-1 text-sm font-medium ${
+                    currentView === item.key 
+                      ? "text-blue-600 border-b-2 border-blue-500" 
+                      : "text-gray-500 hover:text-gray-700"
+                  }`}
+                >
+                  <span className="mr-2">{item.icon}</span>
+                  {item.label}
+                </button>
+              ))}
+            </div>
+            
+            <div className="flex items-center space-x-4">
+              <div className="text-sm text-gray-700">
+                <span className="font-medium">{user.name}</span>
+              </div>
+              <button
+                onClick={logout}
+                className="text-sm bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded transition-colors"
+              >
+                Logout
+              </button>
+            </div>
           </div>
         </div>
-      </div>
-    </nav>
-  );
+      </nav>
+    );
+  };
 
   const renderDashboard = () => {
     if (loading) {
