@@ -677,9 +677,9 @@ test_plan:
 
   - task: "Enhanced Nightly Engine Integration"
     implemented: true
-    working: true
+    working: false
     file: "backend/background_jobs.py"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
     needs_retesting: false
     status_history:
@@ -692,6 +692,9 @@ test_plan:
       - working: true
         agent: "testing"
         comment: "✅ ENHANCED NIGHTLY ENGINE INTEGRATION VERIFICATION COMPLETE: Comprehensive testing confirms 77.8% success rate (7/9 tests passed). SCENARIO B PASSED ✅: Enhanced nightly processing scheduler properly integrated - background job scheduler working, enhanced processing components ready and functional, EWMA mastery updates operational, formula integration at 100% (7/7 questions), database integration working. SCENARIO A PARTIAL ✅: Background enrichment queuing works correctly (status: 'enrichment_queued') without async context manager errors, but question creation blocked by database schema constraint (subcategory VARCHAR(20) limit). SCENARIO C NEEDS IMPROVEMENT ⚠️: Canonical category mapping working but insufficient diversity (only 1 canonical category found vs expected multiple). CORE FUNCTIONALITY: Enhanced nightly processing components are ready and functional, background job scheduler integrated successfully, async context manager fix working for background enrichment."
+      - working: false
+        agent: "testing"
+        comment: "❌ COMPREHENSIVE CANONICAL TAXONOMY VALIDATION FAILED: Final comprehensive testing reveals critical issues blocking Enhanced Nightly Engine Integration. CANONICAL TAXONOMY COVERAGE: Only 1/5 canonical categories found (A-Arithmetic), only 4/36 expected subcategories found. EWMA MASTERY CALCULATIONS: Insufficient indicators (1/4 required), mastery calculations not responsive with α=0.6. CATEGORY PROGRESS TRACKING: Categories showing as 'Unknown' instead of canonical taxonomy format, insufficient tracking coverage. DATABASE SCHEMA CONSTRAINT: Still blocking question creation with 'value too long for type character varying(20)' error for subcategory field. NIGHTLY ENGINE INTEGRATION: 58.3% overall success rate (7/12 tests), canonical taxonomy success only 25.0% (1/4), nightly engine success 66.7% (2/3). CRITICAL BLOCKER: Database schema constraint prevents creation of questions with canonical taxonomy names, blocking full implementation of Enhanced Nightly Engine with complete canonical taxonomy support."
 
 agent_communication:
   - agent: "testing"
