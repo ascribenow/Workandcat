@@ -681,16 +681,59 @@ async def get_mastery_dashboard(
                         'mastery_percentage': float(subcat_data.avg_accuracy or 0)
                     })
             
-            # Determine if this is a main category or subcategory based on parent_id
+            # Determine category with canonical taxonomy format
             category_name = topic_name
+            canonical_category = "Unknown"
+            
             if parent_id:
-                # This is a child topic, get parent name as category
+                # This is a child topic, get parent name and format as canonical category
                 parent_result = await db.execute(
-                    select(Topic.name).where(Topic.id == parent_id)
+                    select(Topic.name, Topic.category).where(Topic.id == parent_id)
                 )
-                parent_name = parent_result.scalar_one_or_none()
-                if parent_name:
+                parent_record = parent_result.first()
+                if parent_record:
+                    parent_name, parent_category = parent_record
                     category_name = parent_name
+                    # Format as canonical taxonomy
+                    if parent_category == 'A':
+                        canonical_category = "A-Arithmetic"
+                    elif parent_category == 'B':
+                        canonical_category = "B-Algebra"
+                    elif parent_category == 'C':
+                        canonical_category = "C-Geometry"
+                    elif parent_category == 'D':
+                        canonical_category = "D-Number System"
+                    elif parent_category == 'E':
+                        canonical_category = "E-Modern Math"
+                    else:
+                        # Fallback based on parent name
+                        if 'arithmetic' in parent_name.lower() or 'percentage' in parent_name.lower():
+                            canonical_category = "A-Arithmetic"
+                        elif 'algebra' in parent_name.lower() or 'equation' in parent_name.lower():
+                            canonical_category = "B-Algebra"
+                        elif 'geometry' in parent_name.lower() or 'triangle' in parent_name.lower():
+                            canonical_category = "C-Geometry"
+                        elif 'number' in parent_name.lower() or 'divisib' in parent_name.lower():
+                            canonical_category = "D-Number System"
+                        elif 'modern' in parent_name.lower() or 'probability' in parent_name.lower():
+                            canonical_category = "E-Modern Math"
+                        else:
+                            canonical_category = f"A-{parent_name}"  # Default to A- prefix
+            else:
+                # This is a main topic, determine canonical category from topic name
+                topic_lower = topic_name.lower()
+                if 'arithmetic' in topic_lower or 'percentage' in topic_lower or 'time' in topic_lower:
+                    canonical_category = "A-Arithmetic"
+                elif 'algebra' in topic_lower or 'equation' in topic_lower or 'progression' in topic_lower:
+                    canonical_category = "B-Algebra"
+                elif 'geometry' in topic_lower or 'triangle' in topic_lower or 'circle' in topic_lower:
+                    canonical_category = "C-Geometry"
+                elif 'number' in topic_lower or 'divisib' in topic_lower or 'hcf' in topic_lower:
+                    canonical_category = "D-Number System"
+                elif 'modern' in topic_lower or 'probability' in topic_lower or 'permutation' in topic_lower:
+                    canonical_category = "E-Modern Math"
+                else:
+                    canonical_category = f"A-{topic_name}"  # Default with topic name
             
             mastery_data.append({
                 'topic_name': topic_name,
