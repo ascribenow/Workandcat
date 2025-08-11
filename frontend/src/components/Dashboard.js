@@ -46,17 +46,23 @@ export const Dashboard = () => {
   };
 
   const fetchDashboardData = async () => {
-    setLoading(true);
     try {
-      // Fetch mastery dashboard
-      const masteryResponse = await axios.get(`${API}/dashboard/mastery`);
+      setLoading(true);
+      
+      // Fetch mastery data with detailed progress
+      const masteryResponse = await axios.get(`${API}/api/dashboard/mastery`, {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+      });
       setMasteryData(masteryResponse.data);
 
-      // Fetch progress dashboard
-      const progressResponse = await axios.get(`${API}/dashboard/progress`);
+      // Fetch overall progress data
+      const progressResponse = await axios.get(`${API}/api/dashboard/progress`, {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+      });
       setProgressData(progressResponse.data);
-    } catch (err) {
-      console.error('Error fetching dashboard data:', err);
+      
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
     } finally {
       setLoading(false);
     }
