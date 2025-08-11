@@ -21,16 +21,21 @@ export const Dashboard = () => {
     const checkDiagnosticAndLoadDashboard = async () => {
       if (currentView === 'dashboard') {
         // Check if user has completed diagnostic
-        const diagnosticResponse = await axios.get(`${API}/user/diagnostic-status`);
-        const hasCompletedDiagnostic = diagnosticResponse.data.has_completed;
-        
-        if (hasCompletedDiagnostic) {
-          // User has completed diagnostic, show regular dashboard
-          fetchDashboardData();
-        } else {
-          // New user, show diagnostic first
-          setCurrentView('diagnostic');
+        try {
+          const diagnosticResponse = await axios.get(`${API}/user/diagnostic-status`);
+          const hasCompletedDiagnostic = diagnosticResponse.data.has_completed;
+          
+          if (!hasCompletedDiagnostic) {
+            // New user, show diagnostic first
+            setCurrentView('diagnostic');
+            return;
+          }
+        } catch (err) {
+          console.error('Error checking diagnostic status:', err);
         }
+        
+        // User has completed diagnostic, show regular dashboard
+        fetchDashboardData();
       }
     };
     
