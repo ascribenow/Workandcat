@@ -82,7 +82,7 @@ class AuthService:
             return payload
         except jwt.ExpiredSignatureError:
             raise HTTPException(status_code=401, detail="Token has expired")
-        except jwt.JWTError:
+        except jwt.InvalidTokenError:
             raise HTTPException(status_code=401, detail="Invalid token")
     
     async def register_user_v2(self, user_data: UserCreate, db: AsyncSession) -> TokenResponse:
