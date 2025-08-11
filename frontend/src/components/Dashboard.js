@@ -276,6 +276,8 @@ export const Dashboard = () => {
     switch (currentView) {
       case 'diagnostic':
         return <DiagnosticSystem />;
+      case 'study-plan':
+        return <StudyPlanSystem />;
       case 'session':
         return <SessionSystem sessionId={activeSessionId} onSessionEnd={handleSessionEnd} />;
       case 'admin':
@@ -283,8 +285,6 @@ export const Dashboard = () => {
           return <AdminPanel />;
         }
         return renderDashboard();
-      case 'practice':
-        return <PracticeSystem />;
       default:
         return renderDashboard();
     }
