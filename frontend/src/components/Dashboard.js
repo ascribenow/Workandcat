@@ -27,6 +27,24 @@ export const Dashboard = () => {
     loadDashboard();
   }, [currentView]);
 
+  const getCategoryColor = (category) => {
+    const colors = {
+      'A': 'bg-blue-100 text-blue-800',
+      'B': 'bg-green-100 text-green-800', 
+      'C': 'bg-purple-100 text-purple-800',
+      'D': 'bg-orange-100 text-orange-800',
+      'E': 'bg-pink-100 text-pink-800'
+    };
+    return colors[category] || 'bg-gray-100 text-gray-800';
+  };
+
+  const getMasteryColor = (percentage) => {
+    if (percentage >= 85) return 'bg-green-500';
+    if (percentage >= 60) return 'bg-blue-500';
+    if (percentage >= 40) return 'bg-yellow-500';
+    return 'bg-red-500';
+  };
+
   const fetchDashboardData = async () => {
     setLoading(true);
     try {
