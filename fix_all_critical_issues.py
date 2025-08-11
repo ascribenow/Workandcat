@@ -76,7 +76,7 @@ async def fix_database_schema():
         # Verify changes
         print("   🔍 Verifying schema changes...")
         result = await connection.execute(text("""
-            SELECT column_name, character_maximum_length
+            SELECT table_name, column_name, character_maximum_length
             FROM information_schema.columns 
             WHERE table_name IN ('questions', 'pyq_questions') 
             AND column_name IN ('subcategory', 'type_of_question')
