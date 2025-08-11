@@ -11,6 +11,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, and_, or_, desc, func
 import logging
 import math
+from formulas import (
+    calculate_ewma_mastery,
+    calculate_learning_impact,
+    calculate_preparedness_ambition,
+    apply_mastery_decay,
+    normalize_score
+)
 
 logger = logging.getLogger(__name__)
 
