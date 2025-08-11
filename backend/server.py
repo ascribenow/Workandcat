@@ -349,7 +349,7 @@ async def create_question(
         question = Question(
             topic_id=topic.id,  # Set the topic_id
             subcategory=subcategory,
-            type_of_question=question_data.get('type_of_question', ''),  # New canonical taxonomy field
+            type_of_question=question_data.type_of_question or '',  # New canonical taxonomy field
             stem=question_data.stem,
             answer=question_data.answer,
             solution_approach=question_data.solution_approach or "",
