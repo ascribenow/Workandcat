@@ -376,7 +376,7 @@ class PYQFiles(Base):
     processing_status = Column(String(20), default="pending")
     file_size = Column(BigInteger)
     storage_path = Column(Text)
-    metadata = Column(JSON)
+    file_metadata = Column(JSON)
     
     # Indexes for efficient queries
     __table_args__ = (
