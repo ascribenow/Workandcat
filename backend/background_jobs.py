@@ -577,6 +577,40 @@ class BackgroundJobProcessor:
 # Global instance
 job_processor = None
 
+from enhanced_nightly_engine import EnhancedNightlyEngine, ensure_preparedness_table
+
+# Initialize enhanced nightly engine
+enhanced_nightly_engine = EnhancedNightlyEngine()
+
+async def enhanced_nightly_processing_job():
+    """
+    Enhanced nightly processing job implementing all 8 feedback requirements
+    Runs deterministic, auditable nightly updates with proper error handling
+    """
+    logger.info("🌙 Starting enhanced nightly processing job")
+    
+    try:
+        # Ensure required tables exist
+        await ensure_preparedness_table()
+        
+        # Run comprehensive nightly processing
+        result = await enhanced_nightly_engine.run_nightly_processing()
+        
+        if result["success"]:
+            logger.info(f"✅ Enhanced nightly processing completed successfully: {result}")
+            logger.info(f"📊 Statistics: {result.get('statistics', {})}")
+        else:
+            logger.error(f"❌ Enhanced nightly processing failed: {result.get('error', 'Unknown error')}")
+            
+        return result
+        
+    except Exception as e:
+        logger.error(f"❌ Enhanced nightly processing job failed: {e}")
+        import traceback
+        traceback.print_exc()
+        return {"success": False, "error": str(e)}
+
+
 def start_background_processing(llm_api_key: str):
     """Start background job processing"""
     global job_processor
