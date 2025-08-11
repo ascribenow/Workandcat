@@ -583,13 +583,16 @@ test_plan:
     implemented: true
     working: false
     file: "backend/server.py"
-    stuck_count: 1
+    stuck_count: 2
     priority: "high"
     needs_retesting: false
     status_history:
       - working: false
         agent: "testing"
         comment: "❌ DETAILED PROGRESS DASHBOARD PARTIALLY WORKING: Enhanced mastery dashboard returns detailed_progress data (18 entries found) ✅, but missing proper category structure. Issues found: 1) Categories showing as 'None' instead of canonical taxonomy categories (A-E), 2) Only 0 canonical taxonomy categories found vs expected 3+, 3) Subcategories and question types properly populated (18 each) ✅, 4) Difficulty breakdown working (Easy: 7, Medium: 14, Hard: 4) ✅, 5) Mastery thresholds properly categorized (all 18 items in 'Needs focus <60%') ✅. Core functionality working but category mapping needs improvement for full canonical taxonomy integration."
+      - working: false
+        agent: "testing"
+        comment: "❌ CRITICAL REFINEMENT 1 FAILED: Category mapping bug NOT FULLY FIXED. Categories still showing as 'Arithmetic' instead of canonical 'A-Arithmetic', 'B-Algebra' format in mastery dashboard. Detailed progress shows 'Unknown' categories instead of proper A-E taxonomy. Core functionality working with 18 progress entries, proper difficulty breakdown (Easy: 7, Medium: 14, Hard: 4), and mastery thresholds, but category mapping remains broken. This is a stuck task requiring main agent attention."
 
   - task: "MCQ Options Generation"
     implemented: true
