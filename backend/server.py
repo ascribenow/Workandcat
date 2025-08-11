@@ -544,11 +544,35 @@ async def get_next_question(
         if not session:
             raise HTTPException(status_code=404, detail="Session not found")
         
-        # Use study planner to get next question
+        # Try to use study planner to get next question
         next_question = await study_planner.get_next_question(db, str(current_user.id), session_id)
         
+        # CRITICAL FIX: If study planner fails, use fallback question selection
         if not next_question:
-            return {"question": None, "message": "No more questions for this session"}
+            logger.warning(f"Study planner returned no questions for session {session_id}, using fallback selection")
+            
+            # Fallback: Get any available active question
+            fallback_result = await db.execute(
+                select(Question).where(
+                    Question.is_active == True
+                ).order_by(desc(Question.importance_index)).limit(1)
+            )
+            fallback_question = fallback_result.scalar_one_or_none()
+            
+            if fallback_question:
+                next_question = {
+                    "id": str(fallback_question.id),
+                    "stem": fallback_question.stem,
+                    "subcategory": fallback_question.subcategory,
+                    "difficulty_band": fallback_question.difficulty_band,
+                    "importance_index": float(fallback_question.importance_index) if fallback_question.importance_index else 0,
+                    "unit_id": None,
+                    "unit_kind": "fallback"
+                }
+                logger.info(f"Using fallback question {fallback_question.id} for session {session_id}")
+            else:
+                logger.error(f"No questions available at all for session {session_id}")
+                return {"question": None, "message": "No more questions for this session"}
         
         # Generate MCQ options
         options = await mcq_generator.generate_options(
