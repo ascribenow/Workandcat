@@ -1364,27 +1364,31 @@ def main():
     test_results.append(("Root Endpoint", tester.test_root_endpoint()))
     test_results.append(("User Login & Registration", tester.test_user_login()))
     
-    # CANONICAL TAXONOMY COMPREHENSIVE TESTING
-    print("\n🎯 CANONICAL TAXONOMY IMPLEMENTATION TESTING - PRIMARY FOCUS")
+    # CRITICAL FIXES VERIFICATION - PRIMARY FOCUS
+    print("\n🎯 CRITICAL FIXES VERIFICATION - 100% SUCCESS RATE TARGET")
     print("=" * 70)
     
-    # 1. Canonical Taxonomy Implementation
-    test_results.append(("1. Canonical Taxonomy Implementation", tester.test_canonical_taxonomy_implementation()))
+    # CRITICAL FIX 1: Database Schema Constraint
+    test_results.append(("CRITICAL FIX 1: Database Schema Constraint", tester.test_critical_fix_1_database_schema()))
     
-    # 2. Enhanced LLM Enrichment Pipeline
-    test_results.append(("2. Enhanced LLM Enrichment Pipeline", tester.test_enhanced_llm_enrichment_pipeline()))
+    # CRITICAL FIX 2: 25Q Diagnostic Distribution  
+    test_results.append(("CRITICAL FIX 2: 25Q Diagnostic Distribution", tester.test_critical_fix_2_diagnostic_distribution()))
     
-    # 3. Updated Diagnostic System (25Q Blueprint)
-    test_results.append(("3. Diagnostic System (25Q Blueprint)", tester.test_diagnostic_system_25q_blueprint()))
+    # CRITICAL FIX 3: Formula Integration ≥60%
+    test_results.append(("CRITICAL FIX 3: Formula Integration ≥60%", tester.test_critical_fix_3_formula_integration()))
     
-    # 4. Enhanced Mastery System
-    test_results.append(("4. Enhanced Mastery System", tester.test_enhanced_mastery_system_canonical()))
+    print("\n📋 COMPREHENSIVE SYSTEM VERIFICATION")
+    print("=" * 50)
     
-    # 5. PDF Upload Support
-    test_results.append(("5. PDF Upload Support", tester.test_pdf_upload_support()))
-    
-    # 6. Formula Integration Verification
-    test_results.append(("6. Formula Integration Verification", tester.test_formula_integration_verification()))
+    # Additional comprehensive tests
+    test_results.append(("Enhanced Mastery Dashboard", tester.test_mastery_tracking()))
+    test_results.append(("Diagnostic System Complete Flow", tester.test_diagnostic_system()))
+    test_results.append(("MCQ Generation", tester.test_mcq_generation()))
+    test_results.append(("Study Planner (90-day)", tester.test_study_planner()))
+    test_results.append(("Session Management", tester.test_session_management()))
+    test_results.append(("Admin Functionality", tester.test_admin_endpoints()))
+    test_results.append(("Background Jobs System", tester.test_background_jobs_system()))
+    test_results.append(("Authentication & Authorization", tester.test_auth_middleware()))
     
     print("\n📋 ADDITIONAL SYSTEM VERIFICATION")
     print("=" * 40)
