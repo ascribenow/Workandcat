@@ -7,7 +7,7 @@ from fastapi import FastAPI, APIRouter, HTTPException, UploadFile, File, Form, D
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, and_, or_, desc, asc, func, case
+from sqlalchemy import select, and_, or_, desc, asc, func, case, text
 from pydantic import BaseModel, Field, EmailStr
 from typing import List, Optional, Dict, Any
 from datetime import datetime, timedelta, date
