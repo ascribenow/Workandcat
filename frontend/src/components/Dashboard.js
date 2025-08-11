@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from './AuthProvider';
-import { DiagnosticSystem } from './DiagnosticSystem';
 import { StudyPlanSystem } from './StudyPlanSystem';
 import { SessionSystem } from './SessionSystem';
 
