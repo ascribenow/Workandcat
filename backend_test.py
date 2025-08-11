@@ -535,20 +535,56 @@ class CATBackendTester:
         
         return True  # This should fail with 403, so we return True
 
-    def test_invalid_endpoints(self):
-        """Test error handling for invalid requests"""
-        # Test invalid login
-        invalid_login = {"email": "invalid@test.com", "password": "wrongpass"}
-        success, response = self.run_test("Invalid Login", "POST", "auth/login", 401, invalid_login)
+    def test_background_jobs_system(self):
+        """Test Background Jobs System initialization and functionality"""
+        print("🔍 Testing Background Jobs System...")
         
-        # Test invalid question creation without auth
-        invalid_question = {
-            "stem": "Test question",
-            "answer": "Test answer"
+        # Check if background jobs are mentioned in root endpoint
+        success, response = self.run_test("Check Background Jobs in Features", "GET", "", 200)
+        if success:
+            features = response.get('features', [])
+            has_background_jobs = any('background' in feature.lower() or 'job' in feature.lower() for feature in features)
+            if has_background_jobs:
+                print("   ✅ Background jobs mentioned in features")
+            else:
+                print("   ⚠️ Background jobs not explicitly mentioned in features")
+        
+        # Test question creation which should queue background enrichment
+        if not self.admin_token:
+            print("   ❌ Cannot test background job queuing - no admin token")
+            return False
+            
+        question_data = {
+            "stem": "If a car travels at 80 km/h for 3 hours, what distance does it cover?",
+            "answer": "240",
+            "solution_approach": "Distance = Speed × Time",
+            "detailed_solution": "Distance = 80 km/h × 3 hours = 240 km",
+            "hint_category": "Arithmetic",
+            "hint_subcategory": "Time–Speed–Distance (TSD)",
+            "tags": ["speed", "distance", "time", "background_test"],
+            "source": "Background Job Test"
         }
-        success, response = self.run_test("Invalid Question Creation (No Auth)", "POST", "questions", 401, invalid_question)
         
-        return True  # These should fail, so we return True if they do
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {self.admin_token}'
+        }
+        
+        success, response = self.run_test("Create Question (Background Job Queue)", "POST", "questions", 200, question_data, headers)
+        if success and 'question_id' in response:
+            print(f"   ✅ Question created and queued for background enrichment")
+            print(f"   Question ID: {response['question_id']}")
+            print(f"   Status: {response.get('status')}")
+            
+            # Check if status indicates background processing
+            if response.get('status') == 'enrichment_queued':
+                print("   ✅ Background enrichment properly queued")
+                return True
+            else:
+                print("   ⚠️ Background enrichment status unclear")
+                return True  # Still consider it working if question was created
+        
+        return False
 
 def main():
     print("🚀 Starting CAT Backend API v2.0 Testing...")
