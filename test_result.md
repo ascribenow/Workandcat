@@ -558,13 +558,14 @@ metadata:
 
 test_plan:
   current_focus:
-    - "v1.3 Compliance Verification (COMPLETED - 100% success)"
-    - "Core Study System Functionality (WORKING - 85.7% success)" 
-    - "Advanced Features Integration (WORKING - 50% success with minor issues)"
+    - "Enhanced Session System (COMPLETED - 100% success)"
+    - "MCQ Options Generation (COMPLETED - 100% success)" 
+    - "Navigation and User Flow (COMPLETED - 100% success)"
+    - "Detailed Progress Dashboard (PARTIAL - category mapping issue)"
   stuck_tasks:
-    - "Enhanced LLM Enrichment Pipeline (database schema constraint)"
+    - "Detailed Progress Dashboard (category mapping showing 'None' instead of canonical taxonomy categories)"
   test_all: true
-  test_priority: "v13_compliance_verified"
+  test_priority: "new_critical_components_verified"
 
   - task: "Enhanced Session System"
     implemented: true
