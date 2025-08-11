@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 class MasteryTracker:
     def __init__(self):
         # EWMA (Exponentially Weighted Moving Average) parameters
-        self.ewma_alpha = 0.3  # Learning rate for new attempts
+        self.ewma_alpha = 0.6  # Updated to v1.3 spec (was 0.3)
         self.time_decay_factor = 0.95  # Daily decay factor for mastery
         self.min_attempts_for_stability = 3  # Minimum attempts for stable mastery
         
