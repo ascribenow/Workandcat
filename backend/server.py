@@ -121,6 +121,138 @@ async def get_current_user_info(current_user: User = Depends(require_auth)):
         "created_at": current_user.created_at.isoformat()
     }
 
+# Import adaptive session engine
+from adaptive_session_engine import AdaptiveSessionEngine
+
+# Initialize adaptive engine
+adaptive_engine = AdaptiveSessionEngine()
+
+@api_router.post("/sessions/adaptive/start")
+async def start_adaptive_session(
+    current_user: User = Depends(require_auth),
+    db: AsyncSession = Depends(get_database)
+):
+    """Start a new adaptive session with EWMA-based question selection"""
+    try:
+        # Get adaptively selected questions based on user mastery
+        adaptive_questions = await adaptive_engine.get_adaptive_session_questions(
+            db, str(current_user.id), target_count=15
+        )
+        
+        if not adaptive_questions:
+            raise HTTPException(status_code=404, detail="No suitable questions found for adaptive session")
+        
+        # Create session record
+        session = Session(
+            user_id=current_user.id,
+            started_at=datetime.utcnow(),
+            units=[q["id"] for q in adaptive_questions]  # Store question IDs
+        )
+        
+        db.add(session)
+        await db.flush()
+        
+        # Store session questions in a temporary way (could use Redis in production)
+        session_questions = {
+            str(session.id): {
+                "questions": adaptive_questions,
+                "current_index": 0,
+                "total_questions": len(adaptive_questions),
+                "user_id": str(current_user.id)
+            }
+        }
+        
+        # In a real system, this would be stored in Redis or session storage
+        # For now, we'll get the first question immediately
+        first_question = adaptive_questions[0]
+        
+        await db.commit()
+        
+        return {
+            "session_id": str(session.id),
+            "total_questions": len(adaptive_questions),
+            "first_question": {
+                "id": first_question["id"],
+                "topic_name": first_question["topic_name"],
+                "subcategory": first_question["subcategory"],
+                "difficulty_band": first_question["difficulty_band"],
+                "mastery_category": first_question["mastery_category"],
+                "adaptive_score": first_question["adaptive_score"]
+            },
+            "adaptive_info": {
+                "session_type": "adaptive",
+                "based_on_mastery": True,
+                "selection_algorithm": "EWMA-based"
+            },
+            "message": "Adaptive session started with mastery-based question selection"
+        }
+        
+    except Exception as e:
+        logger.error(f"Error starting adaptive session: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@api_router.get("/sessions/adaptive/{session_id}/next")
+async def get_next_adaptive_question(
+    session_id: str,
+    current_user: User = Depends(require_auth),
+    db: AsyncSession = Depends(get_database)
+):
+    """Get next question in adaptive session with full question data"""
+    try:
+        # Get session
+        session_result = await db.execute(
+            select(Session).where(Session.id == session_id, Session.user_id == current_user.id)
+        )
+        session = session_result.scalar_one_or_none()
+        
+        if not session:
+            raise HTTPException(status_code=404, detail="Session not found")
+        
+        # Get adaptive questions again (in production, this would be cached)
+        adaptive_questions = await adaptive_engine.get_adaptive_session_questions(
+            db, str(current_user.id), target_count=15
+        )
+        
+        if not adaptive_questions:
+            return {"question": None, "session_complete": True}
+        
+        # For simplicity, return a random question from adaptive set
+        # In production, you'd track session progress
+        question_data = random.choice(adaptive_questions)
+        
+        # Get full question details
+        question_result = await db.execute(
+            select(Question).where(Question.id == question_data["id"])
+        )
+        question = question_result.scalar_one_or_none()
+        
+        if not question:
+            raise HTTPException(status_code=404, detail="Question not found")
+        
+        return {
+            "question": {
+                "id": str(question.id),
+                "stem": question.stem,
+                "subcategory": question.subcategory,
+                "difficulty_band": question.difficulty_band,
+                "type_of_question": question.type_of_question
+            },
+            "adaptive_info": {
+                "mastery_score": question_data["mastery_score"],
+                "mastery_category": question_data["mastery_category"],
+                "adaptive_score": question_data["adaptive_score"],
+                "topic_name": question_data["topic_name"],
+                "selection_reason": f"Selected for {question_data['mastery_category']} mastery level"
+            },
+            "session_complete": False
+        }
+        
+    except Exception as e:
+        logger.error(f"Error getting next adaptive question: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 # Question Answer Submission
 
 @api_router.post("/submit-answer")
