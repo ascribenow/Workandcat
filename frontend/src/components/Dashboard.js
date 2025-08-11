@@ -17,28 +17,14 @@ export const Dashboard = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const checkDiagnosticAndLoadDashboard = async () => {
+    const loadDashboard = async () => {
       if (currentView === 'dashboard') {
-        // Check if user has completed diagnostic
-        try {
-          const diagnosticResponse = await axios.get(`${API}/user/diagnostic-status`);
-          const hasCompletedDiagnostic = diagnosticResponse.data.has_completed;
-          
-          if (!hasCompletedDiagnostic) {
-            // New user, show diagnostic first
-            setCurrentView('diagnostic');
-            return;
-          }
-        } catch (err) {
-          console.error('Error checking diagnostic status:', err);
-        }
-        
-        // User has completed diagnostic, show regular dashboard
+        // Directly show regular dashboard for all users
         fetchDashboardData();
       }
     };
     
-    checkDiagnosticAndLoadDashboard();
+    loadDashboard();
   }, [currentView]);
 
   const fetchDashboardData = async () => {
