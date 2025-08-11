@@ -737,7 +737,7 @@ async def get_mastery_dashboard(
             
             mastery_data.append({
                 'topic_name': topic_name,
-                'category_name': category_name,  # Add category information
+                'category_name': canonical_category,  # Now formatted as A-Arithmetic, B-Algebra, etc.
                 'mastery_percentage': float(mastery.mastery_pct * 100),  # Convert to percentage
                 'accuracy_score': float(mastery.accuracy_easy * 100),  # Convert to percentage
                 'speed_score': float(mastery.accuracy_med * 100),    # Convert to percentage  
