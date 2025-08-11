@@ -73,9 +73,9 @@ class LLMEnrichmentPipeline:
         combined = f"{stem}_{source}"
         return hashlib.sha256(combined.encode()).hexdigest()
         
-    async def categorize_question(self, stem: str, hint_category: str = None, hint_subcategory: str = None) -> Tuple[str, str]:
+    async def categorize_question(self, stem: str, hint_category: str = None, hint_subcategory: str = None) -> Tuple[str, str, str]:
         """
-        Step 1: Categorize question strictly from canonical taxonomy
+        Step 1: Categorize question strictly from canonical taxonomy including type_of_question
         """
         try:
             system_message = f"""You are an expert CAT question classifier. Classify the given quantitative aptitude question into the EXACT canonical taxonomy.
@@ -85,16 +85,18 @@ CANONICAL TAXONOMY (LOCKED - USE EXACT LABELS):
 
 RULES:
 1. Use ONLY the exact category and sub-category names from the taxonomy above
-2. No out-of-vocabulary categories allowed
-3. If admin hints are provided, use them as priors but verify correctness
-4. Return ONLY a JSON object with exact matches
+2. Select the most specific type_of_question from the sub-category options
+3. No out-of-vocabulary categories allowed
+4. If admin hints are provided, use them as priors but verify correctness
+5. Return ONLY a JSON object with exact matches
 
 Admin hints: Category="{hint_category}", Sub-category="{hint_subcategory}"
 
 RETURN FORMAT:
 {{
   "category": "exact_category_name",
-  "subcategory": "exact_subcategory_name",
+  "subcategory": "exact_subcategory_name", 
+  "type_of_question": "exact_type_from_subcategory_list",
   "confidence": 0.0-1.0
 }}"""
 
@@ -110,18 +112,21 @@ RETURN FORMAT:
             result = json.loads(response)
             category = result.get("category")
             subcategory = result.get("subcategory")
+            type_of_question = result.get("type_of_question")
             
             # Validate against taxonomy
-            if category in CANONICAL_TAXONOMY and subcategory in CANONICAL_TAXONOMY[category]:
-                return category, subcategory
+            if (category in CANONICAL_TAXONOMY and 
+                subcategory in CANONICAL_TAXONOMY[category] and
+                type_of_question in CANONICAL_TAXONOMY[category][subcategory]):
+                return category, subcategory, type_of_question
             else:
-                logger.warning(f"Invalid categorization: {category}, {subcategory}")
-                # Fallback to first category if invalid
-                return "Arithmetic", "Time–Speed–Distance (TSD)"
+                logger.warning(f"Invalid categorization: {category}, {subcategory}, {type_of_question}")
+                # Fallback to first options if invalid
+                return "Arithmetic", "Time–Speed–Distance (TSD)", "Basic TSD"
                 
         except Exception as e:
             logger.error(f"Categorization error: {e}")
-            return "Arithmetic", "Time–Speed–Distance (TSD)"
+            return "Arithmetic", "Time–Speed–Distance (TSD)", "Basic TSD"
     
     async def generate_solutions(self, stem: str, answer: str, category: str, subcategory: str) -> Tuple[str, str]:
         """
