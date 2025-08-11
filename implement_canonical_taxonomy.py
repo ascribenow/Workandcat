@@ -325,45 +325,83 @@ async def main():
             else:
                 raise e
         
-        # Step 4: Clear existing topics and insert canonical taxonomy
+        # Step 4: Implement canonical taxonomy structure (preserving existing data)
         print("4. Implementing canonical taxonomy structure...")
         
-        # Clear existing topics
-        await connection.execute(text("DELETE FROM topics"))
-        print("   🗑️ Cleared existing topics")
+        # First, check existing topics count
+        existing_count = await connection.scalar(text("SELECT COUNT(*) FROM topics"))
+        print(f"   📊 Found {existing_count} existing topics")
         
-        # Insert canonical taxonomy
+        # Get all existing topics to map them
+        existing_topics = await connection.execute(text("SELECT id, name FROM topics"))
+        existing_topic_names = {row.name: row.id for row in existing_topics.fetchall()}
+        
+        # Insert canonical taxonomy (skip if already exists)
         topic_count = 0
+        updated_count = 0
+        
         for category_code, category_data in CANONICAL_TAXONOMY.items():
-            # Insert main category
+            # Insert/Update main category
             category_id = f"cat-{category_code.lower()}"
-            await connection.execute(text("""
-                INSERT INTO topics (id, name, slug, section, centrality, category, parent_id)
-                VALUES (:id, :name, :slug, 'Quantitative Aptitude', 1.0, :category, NULL)
-            """), {
-                'id': category_id,
-                'name': category_data['name'],
-                'slug': category_data['name'].lower().replace(' ', '-').replace('&', 'and'),
-                'category': category_code
-            })
-            topic_count += 1
+            category_name = category_data['name']
             
-            # Insert subcategories
-            for subcat_code, subcat_data in category_data['subcategories'].items():
-                subcat_id = f"subcat-{category_code.lower()}-{subcat_code}"
+            if category_name in existing_topic_names:
+                # Update existing category
+                await connection.execute(text("""
+                    UPDATE topics SET category = :category, parent_id = NULL 
+                    WHERE id = :id
+                """), {
+                    'category': category_code,
+                    'id': existing_topic_names[category_name]
+                })
+                updated_count += 1
+            else:
+                # Insert new category
                 await connection.execute(text("""
                     INSERT INTO topics (id, name, slug, section, centrality, category, parent_id)
-                    VALUES (:id, :name, :slug, 'Quantitative Aptitude', 0.8, :category, :parent_id)
+                    VALUES (:id, :name, :slug, 'Quantitative Aptitude', 1.0, :category, NULL)
                 """), {
-                    'id': subcat_id,
-                    'name': subcat_data['name'],
-                    'slug': subcat_data['name'].lower().replace(' ', '-').replace('&', 'and').replace('–', '-'),
-                    'category': category_code,
-                    'parent_id': category_id
+                    'id': category_id,
+                    'name': category_name,
+                    'slug': category_name.lower().replace(' ', '-').replace('&', 'and'),
+                    'category': category_code
                 })
                 topic_count += 1
+            
+            # Insert/Update subcategories
+            for subcat_code, subcat_data in category_data['subcategories'].items():
+                subcat_id = f"subcat-{category_code.lower()}-{subcat_code}"
+                subcat_name = subcat_data['name']
+                
+                # Use existing category ID if it was found, otherwise use new category_id
+                parent_topic_id = existing_topic_names.get(category_name, category_id)
+                
+                if subcat_name in existing_topic_names:
+                    # Update existing subcategory
+                    await connection.execute(text("""
+                        UPDATE topics SET category = :category, parent_id = :parent_id 
+                        WHERE id = :id
+                    """), {
+                        'category': category_code,
+                        'parent_id': parent_topic_id,
+                        'id': existing_topic_names[subcat_name]
+                    })
+                    updated_count += 1
+                else:
+                    # Insert new subcategory
+                    await connection.execute(text("""
+                        INSERT INTO topics (id, name, slug, section, centrality, category, parent_id)
+                        VALUES (:id, :name, :slug, 'Quantitative Aptitude', 0.8, :category, :parent_id)
+                    """), {
+                        'id': subcat_id,
+                        'name': subcat_name,
+                        'slug': subcat_name.lower().replace(' ', '-').replace('&', 'and').replace('–', '-'),
+                        'category': category_code,
+                        'parent_id': parent_topic_id
+                    })
+                    topic_count += 1
         
-        print(f"   ✅ Inserted {topic_count} canonical taxonomy topics")
+        print(f"   ✅ Inserted {topic_count} new topics, updated {updated_count} existing topics")
         
         # Step 5: Create lookup table for type_of_question mapping
         print("5. Creating type_of_question lookup data...")
