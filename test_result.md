@@ -363,11 +363,9 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Student User Flow"
-    - "Frontend Integration with New Backend"
+    - "Diagnostic System"
   stuck_tasks:
-    - "Student User Flow"
-    - "Frontend Integration with New Backend"
+    - "Diagnostic System"
   test_all: false
   test_priority: "high_first"
 
