@@ -675,7 +675,12 @@ async def get_mastery_dashboard(
                 select(
                     Question.subcategory,
                     func.count(Attempt.id).label('attempts_count'),
-                    func.avg(case((Attempt.correct == True, 100), else_=0)).label('avg_accuracy')
+                    func.avg(
+                        case(
+                            (Attempt.correct == True, 100),
+                            else_=0
+                        )
+                    ).label('avg_accuracy')
                 )
                 .join(Attempt, Question.id == Attempt.question_id)
                 .where(
