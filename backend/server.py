@@ -157,7 +157,7 @@ async def submit_answer(
         await db.commit()
         
         # Update mastery tracking
-        await mastery_tracker.update_mastery(db, current_user.id, attempt)
+        await mastery_tracker.update_mastery_after_attempt(db, attempt)
         
         # Return feedback
         return {
