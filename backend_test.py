@@ -456,6 +456,9 @@ class CATBackendTester:
                             print("   ✅ Plan units now available")
                             for i, unit in enumerate(plan_units[:2]):
                                 print(f"     Unit {i+1}: {unit.get('unit_kind')} - Target: {unit.get('target_count')}")
+                                payload = unit.get('generated_payload', {})
+                                question_ids = payload.get('question_ids', [])
+                                print(f"     Unit {i+1} has {len(question_ids)} question IDs in payload")
                         else:
                             print("   ❌ Still no plan units - plan generation issue")
                             return False
@@ -469,6 +472,13 @@ class CATBackendTester:
                 print("   ✅ Plan units are available for today")
                 for i, unit in enumerate(plan_units[:2]):
                     print(f"     Unit {i+1}: {unit.get('unit_kind')} - Target: {unit.get('target_count')}")
+                    payload = unit.get('generated_payload', {})
+                    question_ids = payload.get('question_ids', [])
+                    print(f"     Unit {i+1} has {len(question_ids)} question IDs in payload")
+                    if len(question_ids) == 0:
+                        print("     ❌ CRITICAL: Plan unit has no question IDs - this explains the issue!")
+                    else:
+                        print(f"     ✅ Plan unit has question IDs: {question_ids[:3]}...")
         else:
             print("   ❌ Failed to check study plan")
             return False
