@@ -72,6 +72,8 @@ export const Dashboard = () => {
     try {
       const response = await axios.post(`${API}/session/start`, {
         target_minutes: minutes
+      }, {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('cat_prep_token')}` }
       });
       setActiveSessionId(response.data.session_id);
       setCurrentView('session');
