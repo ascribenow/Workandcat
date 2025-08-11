@@ -19,7 +19,17 @@ export const Dashboard = () => {
 
   useEffect(() => {
     if (currentView === 'dashboard') {
-      fetchDashboardData();
+      // Check if user has completed diagnostic
+      const diagnosticResponse = await axios.get(`${API}/user/diagnostic-status`);
+      const hasCompletedDiagnostic = diagnosticResponse.data.has_completed;
+      
+      if (hasCompletedDiagnostic) {
+        // User has completed diagnostic, show regular dashboard
+        fetchDashboardData();
+      } else {
+        // New user, show diagnostic first
+        setCurrentView('diagnostic');
+      }
     }
   }, [currentView]);
 
