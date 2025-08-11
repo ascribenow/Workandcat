@@ -560,7 +560,8 @@ class CATBackendTester:
                     print(f"   ✅ Answer submitted successfully")
                     print(f"   Answer correct: {response.get('correct')}")
                     print(f"   Attempt number: {response.get('attempt_no')}")
-                    print(f"   Solution: {response.get('solution_approach', '')[:100]}...")
+                    solution = response.get('solution_approach', '') or ''
+                    print(f"   Solution: {solution[:100]}...")
                     
                     # STEP 5: Test getting next question after answer submission
                     print(f"\n   ➡️ STEP 5: Testing next question after answer submission...")
