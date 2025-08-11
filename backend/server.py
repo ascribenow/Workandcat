@@ -123,15 +123,15 @@ async def get_current_user_info(current_user: User = Depends(require_auth)):
         "created_at": current_user.created_at.isoformat()
     }
 
-# Diagnostic System Routes
+# Question Answer Submission
 
-@api_router.post("/diagnostic/submit-answer")
-async def submit_diagnostic_answer(
+@api_router.post("/submit-answer")
+async def submit_answer(
     attempt_data: AttemptSubmission,
     current_user: User = Depends(require_auth),
     db: AsyncSession = Depends(get_database)
 ):
-    """Submit answer for a diagnostic question"""
+    """Submit answer for a question"""
     try:
         # Get question to check correct answer
         result = await db.execute(select(Question).where(Question.id == attempt_data.question_id))
@@ -147,28 +147,32 @@ async def submit_diagnostic_answer(
         attempt = Attempt(
             user_id=current_user.id,
             question_id=attempt_data.question_id,
-            attempt_no=1,  # Diagnostic attempts are always attempt 1
+            attempt_no=1,  # Simple submission
             context=attempt_data.context,
             options={},  # Would store the actual options shown
             user_answer=attempt_data.user_answer,
             correct=is_correct,
-            time_sec=attempt_data.time_sec,
+            time_sec=attempt_data.time_sec or 0,
             hint_used=attempt_data.hint_used
         )
         
         db.add(attempt)
         await db.commit()
         
-        # Return feedback (but not solutions during diagnostic)
+        # Update mastery tracking
+        await mastery_tracker.update_mastery(db, current_user.id, attempt)
+        
+        # Return feedback
         return {
             "correct": is_correct,
             "message": "Answer submitted successfully",
-            "attempt_id": str(attempt.id)
+            "attempt_id": str(attempt.id),
+            "explanation": question.solution_approach if not is_correct else None
         }
         
     except Exception as e:
-        logger.error(f"Error submitting diagnostic answer: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"Error submitting answer: {e}")
+        raise HTTPException(status_code=500, detail="Error submitting answer")
 
 @api_router.post("/questions")
 async def create_question(
