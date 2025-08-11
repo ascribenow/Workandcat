@@ -75,7 +75,6 @@ export const Dashboard = () => {
             {[
               { key: 'dashboard', label: 'Dashboard', icon: '🏠' },
               { key: 'diagnostic', label: 'Diagnostic', icon: '🎯' },
-              { key: 'study-plan', label: 'Study Plan', icon: '📅' },
               { key: 'practice', label: 'Practice', icon: '📝' },
               ...(isAdmin() ? [{ key: 'admin', label: 'Admin', icon: '⚙️' }] : [])
             ].map((item) => (
