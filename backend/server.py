@@ -142,7 +142,7 @@ async def get_user_diagnostic_status(
             select(Diagnostic)
             .where(
                 Diagnostic.user_id == current_user.id,
-                Diagnostic.status == "completed"
+                Diagnostic.completed_at.isnot(None)
             )
             .limit(1)
         )
