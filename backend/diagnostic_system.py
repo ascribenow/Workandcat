@@ -17,64 +17,65 @@ logger = logging.getLogger(__name__)
 
 class DiagnosticSystem:
     def __init__(self):
-        # Fixed 25-Question Blueprint as per specification
+        # Get official 25-Question Blueprint from formulas
+        self.blueprint = get_diagnostic_blueprint()
+        
+        # Enhanced diagnostic structure with exact canonical taxonomy
         self.diagnostic_blueprint = {
             "name": "CAT QA Day-0 Diagnostic",
-            "total_questions": 25,
-            "time_targets": {
-                "Easy": 90,      # seconds
-                "Medium": 150,   # seconds  
-                "Difficult": 210 # seconds
-            },
+            "total_questions": self.blueprint["total_questions"],
+            "time_targets": self.blueprint["time_allocation"],
+            "category_distribution": self.blueprint["category_distribution"],
+            "difficulty_distribution": self.blueprint["difficulty_distribution"],
             "distribution": {
                 "Arithmetic": {
-                    "count": 7,
+                    "count": 8,  # As per canonical blueprint
                     "questions": [
                         {"subcategory": "Time–Speed–Distance (TSD)", "difficulty": "Medium", "seq": 1},
-                        {"subcategory": "Time–Speed–Distance (TSD)", "difficulty": "Difficult", "seq": 2, "note": "relative speed, multi-stage"},
+                        {"subcategory": "Time–Speed–Distance (TSD)", "difficulty": "Hard", "seq": 2, "note": "relative speed, multi-stage"},
                         {"subcategory": "Time & Work", "difficulty": "Easy", "seq": 3},
                         {"subcategory": "Ratio–Proportion–Variation", "difficulty": "Medium", "seq": 4},
                         {"subcategory": "Percentages", "difficulty": "Medium", "seq": 5, "note": "successive changes"},
                         {"subcategory": "Averages & Alligation", "difficulty": "Easy", "seq": 6},
-                        {"subcategory": "Profit–Loss–Discount (PLD)", "difficulty": "Difficult", "seq": 7, "note": "compound/stacked"}
+                        {"subcategory": "Profit–Loss–Discount (PLD)", "difficulty": "Hard", "seq": 7, "note": "compound/stacked"},
+                        {"subcategory": "Simple & Compound Interest (SI–CI)", "difficulty": "Easy", "seq": 8}
                     ]
                 },
                 "Algebra": {
-                    "count": 6,
+                    "count": 5,  # As per canonical blueprint
                     "questions": [
-                        {"subcategory": "Linear Equations", "difficulty": "Easy", "seq": 8, "note": "Linear & Quadratic"},
-                        {"subcategory": "Quadratic Equations", "difficulty": "Difficult", "seq": 9, "note": "parameterized system"},
-                        {"subcategory": "Inequalities", "difficulty": "Medium", "seq": 10, "note": "Inequalities/Mod/Absolute"},
-                        {"subcategory": "Progressions", "difficulty": "Medium", "seq": 11, "note": "AP/GP"},
-                        {"subcategory": "Functions & Graphs", "difficulty": "Difficult", "seq": 12, "note": "domain/range trap"},
-                        {"subcategory": "Logarithms & Exponents", "difficulty": "Medium", "seq": 13}
+                        {"subcategory": "Linear Equations", "difficulty": "Easy", "seq": 9, "note": "Linear & Quadratic"},
+                        {"subcategory": "Quadratic Equations", "difficulty": "Hard", "seq": 10, "note": "parameterized system"},
+                        {"subcategory": "Inequalities", "difficulty": "Medium", "seq": 11, "note": "Inequalities/Mod/Absolute"},
+                        {"subcategory": "Progressions", "difficulty": "Medium", "seq": 12, "note": "AP/GP"},
+                        {"subcategory": "Functions & Graphs", "difficulty": "Hard", "seq": 13, "note": "domain/range trap"}
                     ]
                 },
                 "Geometry & Mensuration": {
-                    "count": 6,
+                    "count": 6,  # As per canonical blueprint
                     "questions": [
                         {"subcategory": "Triangles", "difficulty": "Medium", "seq": 14, "note": "ratio properties"},
                         {"subcategory": "Circles", "difficulty": "Medium", "seq": 15, "note": "algebra + geometry"},
                         {"subcategory": "Polygons", "difficulty": "Easy", "seq": 16},
-                        {"subcategory": "Coordinate Geometry", "difficulty": "Difficult", "seq": 17, "note": "slope+distance combo"},
+                        {"subcategory": "Coordinate Geometry", "difficulty": "Hard", "seq": 17, "note": "slope+distance combo"},
                         {"subcategory": "Mensuration (2D & 3D)", "difficulty": "Medium", "seq": 18},
                         {"subcategory": "Triangles", "difficulty": "Easy", "seq": 19, "note": "Similarity"}
                     ]
                 },
                 "Number System": {
-                    "count": 3,
+                    "count": 3,  # As per canonical blueprint
                     "questions": [
                         {"subcategory": "Divisibility", "difficulty": "Easy", "seq": 20, "note": "Divisibility–Factors"},
                         {"subcategory": "Remainders & Modular Arithmetic", "difficulty": "Medium", "seq": 21, "note": "Remainders/CRT"},
-                        {"subcategory": "Digit Properties", "difficulty": "Difficult", "seq": 22}
+                        {"subcategory": "Digit Properties", "difficulty": "Hard", "seq": 22}
                     ]
                 },
                 "Modern Math": {
-                    "count": 3,
+                    "count": 3,  # As per canonical blueprint
                     "questions": [
                         {"subcategory": "Permutation–Combination (P&C)", "difficulty": "Medium", "seq": 23},
                         {"subcategory": "Probability", "difficulty": "Medium", "seq": 24, "note": "conditional"},
-                        {"subcategory": "Set Theory & Venn Diagrams", "difficulty": "Difficult", "seq": 25, "note": "3-set constrained"}
+                        {"subcategory": "Set Theory & Venn Diagrams", "difficulty": "Hard", "seq": 25, "note": "3-set constrained"}
                     ]
                 }
             }
