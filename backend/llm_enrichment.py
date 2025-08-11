@@ -465,6 +465,7 @@ Generate solutions in JSON format:
             enrichment_result = {
                 "category": category,
                 "subcategory": subcategory,
+                "type_of_question": type_of_question,
                 "solution_approach": solution_approach,
                 "detailed_solution": detailed_solution,
                 "difficulty_score": round(difficulty_score, 2),
