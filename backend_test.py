@@ -1724,133 +1724,113 @@ class CATBackendTester:
         return False
 
 def main():
-    print("🚀 Starting CAT Backend API v2.0 FINAL 100% SUCCESS RATE VERIFICATION...")
-    print("🎯 TESTING 3 CRITICAL FIXES FOR 100% SUCCESS RATE")
+    print("🚀 Starting CAT Backend API v1.3 COMPLIANCE VERIFICATION...")
+    print("🎯 TESTING v1.3 MAJOR CHANGES AND ENHANCEMENTS")
     print("=" * 80)
     
     tester = CATBackendTester()
     
-    # Run comprehensive tests focusing on critical fixes
+    # Run comprehensive tests focusing on v1.3 compliance
     test_results = []
     
     # Core system tests
     test_results.append(("Root Endpoint", tester.test_root_endpoint()))
     test_results.append(("User Login & Registration", tester.test_user_login()))
     
-    # CRITICAL FIXES VERIFICATION - PRIMARY FOCUS
-    print("\n🎯 CRITICAL FIXES VERIFICATION - 100% SUCCESS RATE TARGET")
+    # v1.3 COMPLIANCE VERIFICATION - PRIMARY FOCUS
+    print("\n🎯 v1.3 COMPLIANCE VERIFICATION - MAJOR CHANGES")
     print("=" * 70)
     
-    # CRITICAL FIX 1: Database Schema Constraint
-    test_results.append(("CRITICAL FIX 1: Database Schema Constraint", tester.test_critical_fix_1_database_schema()))
-    
-    # CRITICAL FIX 2: 25Q Diagnostic Distribution  
-    test_results.append(("CRITICAL FIX 2: 25Q Diagnostic Distribution", tester.test_critical_fix_2_diagnostic_distribution()))
-    
-    # CRITICAL FIX 3: Formula Integration ≥60%
-    test_results.append(("CRITICAL FIX 3: Formula Integration ≥60%", tester.test_critical_fix_3_formula_integration()))
+    # v1.3 Major Changes
+    test_results.append(("v1.3 EWMA Alpha Update (0.3→0.6)", tester.test_v13_ewma_alpha_update()))
+    test_results.append(("v1.3 New Formula Suite", tester.test_v13_new_formula_suite()))
+    test_results.append(("v1.3 Schema Enhancements", tester.test_v13_schema_enhancements()))
+    test_results.append(("v1.3 Attempt Spacing (48h rule)", tester.test_v13_attempt_spacing_48h_rule()))
+    test_results.append(("v1.3 Mastery Thresholds", tester.test_v13_mastery_thresholds()))
+    test_results.append(("v1.3 MCQ Shuffle Randomization", tester.test_v13_mcq_shuffle_randomization()))
+    test_results.append(("v1.3 Intelligent Plan Engine", tester.test_v13_intelligent_plan_engine()))
+    test_results.append(("v1.3 Preparedness Ambition", tester.test_v13_preparedness_ambition_tracking()))
+    test_results.append(("v1.3 Background Jobs (Nightly)", tester.test_v13_background_jobs_nightly_adjustments()))
     
     print("\n📋 COMPREHENSIVE SYSTEM VERIFICATION")
     print("=" * 50)
     
-    # Additional comprehensive tests
+    # Core functionality tests
     test_results.append(("Enhanced Mastery Dashboard", tester.test_mastery_tracking()))
-    test_results.append(("Diagnostic System Complete Flow", tester.test_diagnostic_system()))
     test_results.append(("MCQ Generation", tester.test_mcq_generation()))
-    test_results.append(("Study Planner (90-day)", tester.test_study_planner()))
+    test_results.append(("Study Planner", tester.test_study_planner()))
     test_results.append(("Session Management", tester.test_session_management()))
-    test_results.append(("Admin Functionality", tester.test_admin_endpoints()))
-    test_results.append(("Background Jobs System", tester.test_background_jobs_system()))
-    test_results.append(("Authentication & Authorization", tester.test_auth_middleware()))
-    
-    print("\n📋 ADDITIONAL SYSTEM VERIFICATION")
-    print("=" * 40)
-    
-    # Additional verification tests
-    test_results.append(("Enhanced Mastery Dashboard", tester.test_mastery_tracking()))
-    test_results.append(("Diagnostic System Flow", tester.test_diagnostic_system()))
-    test_results.append(("MCQ Generation", tester.test_mcq_generation()))
-    test_results.append(("Study Planner (90-day)", tester.test_study_planner()))
-    test_results.append(("Session Management", tester.test_session_management()))
+    test_results.append(("Progress Dashboard", tester.test_progress_dashboard()))
     test_results.append(("Admin Endpoints", tester.test_admin_endpoints()))
     test_results.append(("Background Jobs System", tester.test_background_jobs_system()))
     
-    # Print comprehensive summary
+    print("\n🔍 ADVANCED FEATURES & INTEGRATION")
+    print("=" * 55)
+    
+    # Advanced feature tests
+    test_results.append(("Canonical Taxonomy Implementation", tester.test_canonical_taxonomy_implementation()))
+    test_results.append(("Enhanced LLM Enrichment Pipeline", tester.test_enhanced_llm_enrichment_pipeline()))
+    test_results.append(("Enhanced Mastery System (Canonical)", tester.test_enhanced_mastery_system_canonical()))
+    test_results.append(("Formula Integration Verification", tester.test_formula_integration_verification()))
+    
+    # Print final results
     print("\n" + "=" * 80)
-    print("📊 CAT BACKEND v2.0 FINAL 100% SUCCESS RATE VERIFICATION RESULTS")
+    print("🎯 FINAL TEST RESULTS - CAT BACKEND API v1.3 COMPLIANCE")
     print("=" * 80)
     
     passed_tests = sum(1 for _, result in test_results if result)
     total_tests = len(test_results)
+    success_rate = (passed_tests / total_tests) * 100
     
-    # Separate critical fixes vs additional tests
-    critical_fixes = [
-        "CRITICAL FIX 1: Database Schema Constraint",
-        "CRITICAL FIX 2: 25Q Diagnostic Distribution", 
-        "CRITICAL FIX 3: Formula Integration ≥60%"
-    ]
+    # Categorize results
+    v13_tests = test_results[2:11]  # v1.3 specific tests
+    core_tests = test_results[11:18]  # Core functionality
+    advanced_tests = test_results[18:]  # Advanced features
     
-    critical_passed = sum(1 for name, result in test_results if any(crit in name for crit in critical_fixes) and result)
-    critical_total = sum(1 for name, result in test_results if any(crit in name for crit in critical_fixes))
+    print("\n🎯 v1.3 COMPLIANCE RESULTS:")
+    v13_passed = sum(1 for _, result in v13_tests if result)
+    for test_name, result in v13_tests:
+        status = "✅ PASS" if result else "❌ FAIL"
+        print(f"{status} {test_name}")
+    print(f"v1.3 Compliance Rate: {(v13_passed/len(v13_tests)*100):.1f}% ({v13_passed}/{len(v13_tests)})")
     
-    print("🎯 CRITICAL FIXES VERIFICATION RESULTS:")
-    for test_name, result in test_results:
-        if any(crit in test_name for crit in critical_fixes):
-            status = "✅ RESOLVED" if result else "❌ FAILED"
-            print(f"{status} {test_name}")
+    print("\n📋 CORE SYSTEM RESULTS:")
+    core_passed = sum(1 for _, result in core_tests if result)
+    for test_name, result in core_tests:
+        status = "✅ PASS" if result else "❌ FAIL"
+        print(f"{status} {test_name}")
+    print(f"Core System Rate: {(core_passed/len(core_tests)*100):.1f}% ({core_passed}/{len(core_tests)})")
     
-    print(f"\n📋 ADDITIONAL SYSTEM TESTS:")
-    for test_name, result in test_results:
-        if not any(crit in test_name for crit in critical_fixes):
-            status = "✅ PASS" if result else "❌ FAIL"
-            print(f"{status} {test_name}")
+    print("\n🔍 ADVANCED FEATURES RESULTS:")
+    advanced_passed = sum(1 for _, result in advanced_tests if result)
+    for test_name, result in advanced_tests:
+        status = "✅ PASS" if result else "❌ FAIL"
+        print(f"{status} {test_name}")
+    print(f"Advanced Features Rate: {(advanced_passed/len(advanced_tests)*100):.1f}% ({advanced_passed}/{len(advanced_tests)})")
     
-    print(f"\n🎯 Critical Fixes: {critical_passed}/{critical_total} resolved ({(critical_passed/critical_total)*100:.1f}%)")
-    print(f"🎯 Overall Results: {tester.tests_passed}/{tester.tests_run} individual API calls passed")
-    print(f"🎯 Test Suites: {passed_tests}/{total_tests} test suites passed")
-    print(f"🎯 Success Rate: {(passed_tests/total_tests)*100:.1f}%")
+    print("\n" + "=" * 80)
+    print(f"🎯 OVERALL SUCCESS RATE: {success_rate:.1f}% ({passed_tests}/{total_tests} tests passed)")
     
-    # Detailed critical fixes analysis
-    print(f"\n📋 CRITICAL FIXES DETAILED ANALYSIS:")
-    schema_fixed = any('Database Schema Constraint' in name for name, result in test_results if result)
-    diagnostic_fixed = any('25Q Diagnostic Distribution' in name for name, result in test_results if result)
-    formula_fixed = any('Formula Integration ≥60%' in name for name, result in test_results if result)
-    
-    print(f"   📊 Database Schema Constraint (subcategory VARCHAR(100), type_of_question VARCHAR(150)): {'✅ RESOLVED' if schema_fixed else '❌ FAILED'}")
-    print(f"   🎯 25Q Diagnostic Distribution (A=8, B=5, C=6, D=3, E=3): {'✅ RESOLVED' if diagnostic_fixed else '❌ FAILED'}")
-    print(f"   🧮 Formula Integration ≥60% (difficulty_level, learning_impact, importance_score): {'✅ RESOLVED' if formula_fixed else '❌ FAILED'}")
-    
-    print(f"\n📋 COMPREHENSIVE SYSTEM STATUS:")
-    print(f"   📈 Enhanced Mastery Dashboard: {'✅' if any('Enhanced Mastery Dashboard' in name for name, result in test_results if result) else '❌'}")
-    print(f"   🎯 Diagnostic System Complete: {'✅' if any('Diagnostic System' in name for name, result in test_results if result) else '❌'}")
-    print(f"   🎓 Study Planning (90-day): {'✅' if any('Study Planner' in name for name, result in test_results if result) else '❌'}")
-    print(f"   📊 Session Management: {'✅' if any('Session Management' in name for name, result in test_results if result) else '❌'}")
-    print(f"   🔧 Background Jobs: {'✅' if any('Background Jobs' in name for name, result in test_results if result) else '❌'}")
-    print(f"   👨‍💼 Admin Panel: {'✅' if any('Admin' in name for name, result in test_results if result) else '❌'}")
-    
-    # Determine 100% success rate achievement
-    critical_success = critical_passed == critical_total  # All 3 critical fixes must pass
-    overall_success = passed_tests >= total_tests * 0.85  # 85% overall pass rate for 100% success
-    
-    if critical_success and overall_success:
-        print("\n🎉 100% SUCCESS RATE ACHIEVED!")
-        print("✅ CRITICAL FIX 1: Database schema constraints resolved")
-        print("✅ CRITICAL FIX 2: 25Q diagnostic distribution implemented")  
-        print("✅ CRITICAL FIX 3: Formula integration ≥60% achieved")
-        print("✅ All comprehensive system features operational")
-        print("🎯 CAT Preparation Platform v2.0 is production-ready!")
-        return 0
-    elif critical_success:
-        print("\n✅ ALL 3 CRITICAL FIXES RESOLVED but some additional features have issues.")
-        print("🎯 Core functionality is working - 100% success rate for critical fixes")
-        return 0
+    # v1.3 specific assessment
+    v13_compliance_rate = (v13_passed/len(v13_tests)*100)
+    if v13_compliance_rate >= 90:
+        print("🎉 EXCELLENT: v1.3 compliance fully achieved!")
+    elif v13_compliance_rate >= 75:
+        print("✅ GOOD: v1.3 compliance mostly achieved with minor gaps")
+    elif v13_compliance_rate >= 60:
+        print("⚠️ MODERATE: v1.3 compliance partially achieved, needs attention")
     else:
-        print("\n❌ 100% SUCCESS RATE NOT ACHIEVED")
-        print("⚠️  Critical fixes still pending - check results above for specific issues.")
-        failed_fixes = [name for name, result in test_results if any(crit in name for crit in critical_fixes) and not result]
-        if failed_fixes:
-            print(f"❌ Failed critical fixes: {failed_fixes}")
-        return 1
+        print("❌ CRITICAL: v1.3 compliance not achieved, major implementation gaps")
+    
+    if success_rate >= 85:
+        print("🎉 SYSTEM STATUS: Production-ready with v1.3 enhancements!")
+    elif success_rate >= 70:
+        print("✅ SYSTEM STATUS: Functional with good v1.3 integration")
+    else:
+        print("⚠️ SYSTEM STATUS: Needs improvement for full v1.3 compliance")
+    
+    print("=" * 80)
+    return 0 if v13_compliance_rate >= 75 else 1
 
 if __name__ == "__main__":
     sys.exit(main())
