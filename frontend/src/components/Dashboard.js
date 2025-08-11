@@ -76,7 +76,7 @@ export const Dashboard = () => {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('cat_prep_token')}` }
       });
       setActiveSessionId(response.data.session_id);
-      setCurrentView('session');
+      // Don't set view here - let the button handler do it after session is started
     } catch (err) {
       console.error('Error starting session:', err);
       alert('Failed to start session');
