@@ -546,18 +546,20 @@ frontend:
 
 metadata:
   created_by: "main_agent"
-  version: "7.0"
-  test_sequence: 7
+  version: "8.0"
+  test_sequence: 8
   run_ui: false
   v13_compliance_verified: true
   v13_compliance_rate: "100.0%"
-  overall_success_rate: "58.3%"
-  canonical_taxonomy_success_rate: "25.0%"
-  nightly_engine_success_rate: "66.7%"
-  critical_blocker: "database_schema_constraint_subcategory_varchar_20"
+  overall_success_rate: "69.2%"
+  canonical_taxonomy_success_rate: "0.0%"
+  nightly_engine_success_rate: "0.0%"
+  critical_blocker: "database_schema_constraint_subcategory_varchar_20_NOT_FIXED"
   production_ready: false
   final_verification_complete: true
   comprehensive_canonical_testing_complete: true
+  schema_fix_claim_verified: false
+  schema_fix_status: "NOT_IMPLEMENTED"
 
 test_plan:
   current_focus:
