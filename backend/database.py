@@ -148,6 +148,7 @@ class PYQQuestion(Base):
     paper_id = Column(UUID(as_uuid=True), ForeignKey('pyq_papers.id'), nullable=False)
     topic_id = Column(UUID(as_uuid=True), ForeignKey('topics.id'), nullable=False)
     subcategory = Column(Text, nullable=False)
+    type_of_question = Column(String(150))  # Specific question type within subcategory
     stem = Column(Text, nullable=False)
     answer = Column(Text, nullable=False)
     tags = Column(ARRAY(String), default=list)
