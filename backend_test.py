@@ -479,6 +479,29 @@ class CATBackendTester:
                         print("     ❌ CRITICAL: Plan unit has no question IDs - this explains the issue!")
                     else:
                         print(f"     ✅ Plan unit has question IDs: {question_ids[:3]}...")
+                        
+                        # Check if the first question ID actually exists and is active
+                        if question_ids:
+                            first_question_id = question_ids[0]
+                            print(f"     🔍 Checking if question {first_question_id} exists and is active...")
+                            success, response = self.run_test("Check Plan Unit Question", "GET", f"questions?limit=50", 200, None, headers)
+                            if success:
+                                all_questions = response.get('questions', [])
+                                found_question = None
+                                for q in all_questions:
+                                    if q.get('id') == first_question_id:
+                                        found_question = q
+                                        break
+                                
+                                if found_question:
+                                    print(f"     ✅ Question found: {found_question.get('stem', '')[:50]}...")
+                                    print(f"     Question active: {found_question.get('is_active', 'unknown')}")
+                                    print(f"     Question subcategory: {found_question.get('subcategory')}")
+                                else:
+                                    print(f"     ❌ CRITICAL: Question {first_question_id} not found in active questions!")
+                                    print("     This explains why get_next_question returns None")
+                            else:
+                                print("     ❌ Failed to check question existence")
         else:
             print("   ❌ Failed to check study plan")
             return False
