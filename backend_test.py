@@ -4028,14 +4028,33 @@ def run_comprehensive_canonical_taxonomy_tests():
     print("=" * 80)
     return canonical_passed, nightly_passed, len(canonical_tests), len(nightly_engine_tests)
 
-if __name__ == "__main__":
-    print("🌙 ENHANCED NIGHTLY ENGINE INTEGRATION - FINAL COMPREHENSIVE TEST")
-    print("Testing after claimed database schema constraint fix")
+def run_critical_session_investigation_main():
+    """Main function to run critical session investigation"""
+    print("🚨 CRITICAL SESSION INVESTIGATION - MAIN EXECUTION")
+    print("Investigating: Student session UI shows 'Session Complete!' immediately")
     print("=" * 80)
     
     tester = CATBackendTester()
     
-    # Run the focused Enhanced Nightly Engine Integration test
-    success = tester.run_enhanced_nightly_engine_tests_only()
+    # Run the critical session investigation
+    success = tester.run_critical_session_investigation()
     
-    sys.exit(0 if success else 1)
+    return success
+
+if __name__ == "__main__":
+    # Check if we should run the critical session investigation
+    import sys
+    if len(sys.argv) > 1 and sys.argv[1] == "session":
+        success = run_critical_session_investigation_main()
+        sys.exit(0 if success else 1)
+    else:
+        print("🌙 ENHANCED NIGHTLY ENGINE INTEGRATION - FINAL COMPREHENSIVE TEST")
+        print("Testing after claimed database schema constraint fix")
+        print("=" * 80)
+        
+        tester = CATBackendTester()
+        
+        # Run the focused Enhanced Nightly Engine Integration test
+        success = tester.run_enhanced_nightly_engine_tests_only()
+        
+        sys.exit(0 if success else 1)
