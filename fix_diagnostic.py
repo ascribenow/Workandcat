@@ -13,7 +13,7 @@ backend_path = Path(__file__).parent / 'backend'
 sys.path.insert(0, str(backend_path))
 
 from database import get_database, Diagnostic
-from sqlalchemy import select
+from sqlalchemy import select, func
 
 async def main():
     print("🔧 Fixing diagnostic system...")
