@@ -3218,6 +3218,44 @@ class CATBackendTester:
         
         return True
 
+    def run_enhanced_nightly_engine_tests_only(self):
+        """Run only Enhanced Nightly Engine Integration tests - PRIORITY FOCUS"""
+        print("🌙 ENHANCED NIGHTLY ENGINE INTEGRATION - FINAL VALIDATION")
+        print(f"   Base URL: {self.base_url}")
+        print("   Testing after claimed database schema constraint fix")
+        print("=" * 80)
+        
+        # Essential setup
+        self.test_root_endpoint()
+        self.test_user_login()
+        
+        # Core Enhanced Nightly Engine Integration Test
+        success = self.test_enhanced_nightly_engine_integration_final()
+        
+        # Supporting tests for context
+        self.test_background_jobs_system()
+        self.test_canonical_taxonomy_implementation()
+        self.test_mastery_tracking()
+        
+        # Print focused results
+        print("\n" + "=" * 80)
+        print("🌙 ENHANCED NIGHTLY ENGINE INTEGRATION TESTING COMPLETE")
+        print(f"   Tests Run: {self.tests_run}")
+        print(f"   Tests Passed: {self.tests_passed}")
+        print(f"   Success Rate: {(self.tests_passed/self.tests_run)*100:.1f}%")
+        
+        if success:
+            print("🎉 ENHANCED NIGHTLY ENGINE INTEGRATION SUCCESSFUL!")
+            print("   ✅ Database schema constraint resolved")
+            print("   ✅ Canonical taxonomy implementation working")
+            print("   ✅ Background job processing functional")
+            print("   ✅ Mastery dashboard displays canonical categories")
+        else:
+            print("❌ ENHANCED NIGHTLY ENGINE INTEGRATION FAILED")
+            print("   Critical issues remain that block full implementation")
+        
+        return success
+
 def main():
     print("🚀 Starting CAT Backend API Testing - Focus on New Critical Components...")
     print("🎯 TESTING NEWLY ADDED CRITICAL COMPONENTS")
