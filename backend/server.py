@@ -77,6 +77,13 @@ class StudyPlanRequest(BaseModel):
     daily_minutes_weekday: int = 30
     daily_minutes_weekend: int = 60
 
+class AttemptSubmission(BaseModel):
+    question_id: str
+    user_answer: str
+    context: str = "daily"
+    time_sec: Optional[int] = None
+    hint_used: bool = False
+
 # Core API Routes
 
 @api_router.get("/")
