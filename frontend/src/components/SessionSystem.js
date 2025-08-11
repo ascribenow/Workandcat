@@ -115,12 +115,19 @@ export const SessionSystem = ({ sessionId: propSessionId, onSessionEnd }) => {
       setResult(response.data);
       setShowResult(true);
       
+      // Update local session stats
+      setSessionStats(prev => ({
+        questions_attempted: prev.questions_attempted + 1,
+        accuracy: response.data.correct ? 
+          Math.round(((prev.accuracy * prev.questions_attempted) + 100) / (prev.questions_attempted + 1)) :
+          Math.round((prev.accuracy * prev.questions_attempted) / (prev.questions_attempted + 1)),
+        total_time: prev.total_time + (timeSpent / 60) // Convert to minutes
+      }));
+      
       // Clear timer
       if (timerRef.current) {
         clearInterval(timerRef.current);
       }
-      
-      // Remove fetchSessionStats() call since the endpoint doesn't exist
     } catch (err) {
       setError('Failed to submit answer');
       console.error('Answer submission error:', err);
