@@ -8,11 +8,11 @@
 
 ## 📋 **IMPLEMENTATION PHASES**
 
-### **Phase 1: Core Logic Fixes** ⏳
-- [ ] Update EWMA alpha from 0.3 to 0.6
-- [ ] Add attempt spacing rules (48-hour rule)
-- [ ] Add mastery thresholds (≥85%, 60-84%, <60%)
-- [ ] Update formulas.py with new formula suite
+### **Phase 1: Core Logic Fixes** ✅
+- [x] Update EWMA alpha from 0.3 to 0.6
+- [x] Add attempt spacing rules (48-hour rule)
+- [x] Add mastery thresholds (≥85%, 60-84%, <60%)
+- [x] Update formulas.py with new formula suite
 
 ### **Phase 2: Database Schema Updates** ⏳
 - [ ] Add version_number to questions table
