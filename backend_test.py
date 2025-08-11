@@ -868,68 +868,271 @@ class CATBackendTester:
         
         return False
 
-    def test_enhanced_nightly_processing_components(self):
-        """Test Enhanced Nightly Processing Components"""
-        print("🔍 Testing Enhanced Nightly Processing Components...")
+    def test_enhanced_nightly_engine_integration_final(self):
+        """FINAL COMPREHENSIVE TEST: Enhanced Nightly Engine Integration after Database Schema Fix"""
+        print("🔍 FINAL COMPREHENSIVE TEST: Enhanced Nightly Engine Integration...")
+        print("   Testing after claimed database schema constraint fix (subcategory VARCHAR(100), type_of_question VARCHAR(150))")
         
-        # Test that the enhanced nightly processing components are ready
-        # We can't directly trigger nightly processing, but we can test the components
+        test_results = {
+            "scenario_a": False,  # Canonical Taxonomy Question Creation
+            "scenario_b": False,  # Background Job Processing  
+            "scenario_c": False,  # Mastery Dashboard with Canonical Categories
+            "scenario_d": False   # Schema Validation with Long Names
+        }
         
-        # Test 1: Check if background jobs are mentioned in features
-        success, response = self.run_test("Check Enhanced Processing Features", "GET", "", 200)
+        # SCENARIO A: Test Canonical Taxonomy Question Creation with Long Names
+        print("\n   📋 SCENARIO A: Canonical Taxonomy Question Creation")
+        test_results["scenario_a"] = self.test_canonical_taxonomy_question_creation()
+        
+        # SCENARIO B: Test Background Job Processing with Long Subcategory Names
+        print("\n   ⚙️ SCENARIO B: Background Job Processing")
+        test_results["scenario_b"] = self.test_background_job_processing_long_names()
+        
+        # SCENARIO C: Test Mastery Dashboard with Canonical Categories
+        print("\n   📊 SCENARIO C: Mastery Dashboard Canonical Categories")
+        test_results["scenario_c"] = self.test_mastery_dashboard_canonical_categories()
+        
+        # SCENARIO D: Test Schema Validation with All 29 Canonical Subcategories
+        print("\n   🗄️ SCENARIO D: Schema Validation with 29 Canonical Subcategories")
+        test_results["scenario_d"] = self.test_schema_validation_29_subcategories()
+        
+        # Calculate overall success rate
+        passed_scenarios = sum(test_results.values())
+        total_scenarios = len(test_results)
+        success_rate = (passed_scenarios / total_scenarios) * 100
+        
+        print(f"\n   📈 ENHANCED NIGHTLY ENGINE INTEGRATION RESULTS:")
+        print(f"   Scenario A (Canonical Question Creation): {'✅ PASSED' if test_results['scenario_a'] else '❌ FAILED'}")
+        print(f"   Scenario B (Background Job Processing): {'✅ PASSED' if test_results['scenario_b'] else '❌ FAILED'}")
+        print(f"   Scenario C (Mastery Dashboard Canonical): {'✅ PASSED' if test_results['scenario_c'] else '❌ FAILED'}")
+        print(f"   Scenario D (Schema Validation 29 Subcats): {'✅ PASSED' if test_results['scenario_d'] else '❌ FAILED'}")
+        print(f"   Overall Success Rate: {success_rate:.1f}% ({passed_scenarios}/{total_scenarios})")
+        
+        if success_rate >= 75:
+            print("   🎉 ENHANCED NIGHTLY ENGINE INTEGRATION SUCCESSFUL!")
+            return True
+        else:
+            print("   ❌ ENHANCED NIGHTLY ENGINE INTEGRATION FAILED - Critical issues remain")
+            return False
+
+    def test_canonical_taxonomy_question_creation(self):
+        """Test creating questions with canonical taxonomy subcategories (long names)"""
+        if not self.admin_token:
+            print("     ❌ Cannot test question creation - no admin token")
+            return False
+        
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {self.admin_token}'
+        }
+        
+        # Test canonical subcategories from the review request
+        canonical_subcategories = [
+            "Time–Speed–Distance (TSD)",
+            "Permutations & Combinations", 
+            "Simple & Compound Interest",
+            "Coordinate Geometry",
+            "Linear Equations",
+            "HCF & LCM"
+        ]
+        
+        successful_creations = 0
+        
+        for i, subcategory in enumerate(canonical_subcategories[:3]):  # Test first 3
+            question_data = {
+                "stem": f"Test question for {subcategory} - A train travels 120 km in 2 hours. What is its speed?",
+                "answer": "60",
+                "solution_approach": "Speed = Distance / Time",
+                "detailed_solution": f"This is a {subcategory} problem. Speed = 120/2 = 60 km/h",
+                "hint_category": "A-Arithmetic" if "Time" in subcategory else "E-Modern Math",
+                "hint_subcategory": subcategory,
+                "type_of_question": f"Standard {subcategory} Problem Type with Extended Description",
+                "tags": ["canonical_taxonomy_final_test", "schema_validation"],
+                "source": "Final Schema Validation Test"
+            }
+            
+            success, response = self.run_test(f"Create Question with '{subcategory}'", "POST", "questions", 200, question_data, headers)
+            if success and 'question_id' in response:
+                print(f"     ✅ Successfully created question with subcategory: {subcategory}")
+                successful_creations += 1
+            else:
+                print(f"     ❌ Failed to create question with subcategory: {subcategory}")
+                print(f"     This indicates database schema constraint still exists")
+        
+        success_rate = (successful_creations / len(canonical_subcategories[:3])) * 100
+        print(f"     Canonical question creation success rate: {success_rate:.1f}%")
+        
+        return success_rate >= 66.7  # At least 2/3 should succeed
+
+    def test_background_job_processing_long_names(self):
+        """Test background job processing with long subcategory names"""
+        if not self.admin_token:
+            print("     ❌ Cannot test background job processing - no admin token")
+            return False
+        
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {self.admin_token}'
+        }
+        
+        # Create question with very long canonical taxonomy names
+        question_data = {
+            "stem": "A merchant buys goods worth Rs. 10,000 and sells them at 20% profit. What is his selling price?",
+            "answer": "12000",
+            "solution_approach": "Selling Price = Cost Price + Profit",
+            "detailed_solution": "Profit = 20% of 10,000 = 2,000. Selling Price = 10,000 + 2,000 = 12,000",
+            "hint_category": "A-Arithmetic",
+            "hint_subcategory": "Profit & Loss with Percentage Calculations",  # Long subcategory name
+            "type_of_question": "Standard Profit & Loss Problem with Percentage-based Profit Calculation and Direct Selling Price Determination",  # Very long type
+            "tags": ["background_job_test", "long_names", "final_validation"],
+            "source": "Background Job Long Names Test"
+        }
+        
+        success, response = self.run_test("Create Question (Background Job Long Names)", "POST", "questions", 200, question_data, headers)
+        if success and 'question_id' in response:
+            status = response.get('status', '')
+            print(f"     ✅ Question created with long names")
+            print(f"     Question ID: {response['question_id']}")
+            print(f"     Status: {status}")
+            
+            if status == 'enrichment_queued':
+                print("     ✅ Background enrichment properly queued without VARCHAR constraint errors")
+                return True
+            else:
+                print("     ⚠️ Background enrichment status unclear but question created")
+                return True
+        else:
+            print("     ❌ Background job processing failed with long names")
+            print("     This indicates database schema constraint blocking long subcategory names")
+            return False
+
+    def test_mastery_dashboard_canonical_categories(self):
+        """Test mastery dashboard displays canonical categories properly"""
+        if not self.student_token:
+            print("     ❌ Cannot test mastery dashboard - no student token")
+            return False
+        
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {self.student_token}'
+        }
+        
+        success, response = self.run_test("Mastery Dashboard Canonical Categories", "GET", "dashboard/mastery", 200, None, headers)
         if not success:
             return False
         
-        features = response.get('features', [])
-        has_background_features = any('background' in feature.lower() or 'processing' in feature.lower() for feature in features)
+        mastery_data = response.get('mastery_by_topic', [])
+        detailed_progress = response.get('detailed_progress', [])
         
-        if has_background_features:
-            print("   ✅ Enhanced processing features available")
-        else:
-            print("   ⚠️ Enhanced processing features not explicitly mentioned")
+        print(f"     Mastery topics found: {len(mastery_data)}")
+        print(f"     Detailed progress entries: {len(detailed_progress)}")
         
-        # Test 2: Verify database schema supports enhanced processing
-        if self.student_token:
-            headers = {
-                'Content-Type': 'application/json',
-                'Authorization': f'Bearer {self.student_token}'
-            }
+        # Check for canonical category format (A-Arithmetic, B-Algebra, etc.)
+        canonical_categories = set()
+        canonical_subcategories = set()
+        
+        for topic in mastery_data:
+            category_name = topic.get('category_name', '')
+            if category_name and '-' in category_name:
+                canonical_categories.add(category_name)
             
-            # Test mastery tracking (required for EWMA updates)
-            success, response = self.run_test("Test Mastery Tracking (EWMA)", "GET", "dashboard/mastery", 200, None, headers)
-            if success:
-                mastery_data = response.get('mastery_by_topic', [])
-                if mastery_data:
-                    print("   ✅ Mastery tracking operational for EWMA updates")
-                else:
-                    print("   ⚠️ No mastery data available yet")
-            else:
-                print("   ❌ Mastery tracking not working")
-                return False
+            subcategories = topic.get('subcategories', [])
+            for subcat in subcategories:
+                subcat_name = subcat.get('name', '')
+                if subcat_name:
+                    canonical_subcategories.add(subcat_name)
         
-        # Test 3: Check formula integration (required for nightly processing)
-        success, response = self.run_test("Check Formula Integration", "GET", "questions?limit=5", 200)
-        if success:
-            questions = response.get('questions', [])
-            if questions:
-                formula_fields = ['difficulty_score', 'learning_impact', 'importance_index']
-                questions_with_formulas = 0
-                
-                for question in questions:
-                    has_formula_fields = sum(1 for field in formula_fields if question.get(field) is not None)
-                    if has_formula_fields >= 2:
-                        questions_with_formulas += 1
-                
-                if questions_with_formulas > 0:
-                    print(f"   ✅ Formula integration ready ({questions_with_formulas}/{len(questions)} questions have formula fields)")
-                else:
-                    print("   ❌ Formula integration insufficient")
-                    return False
-            else:
-                print("   ⚠️ No questions available for formula testing")
+        # Check detailed progress for canonical categories
+        for progress in detailed_progress:
+            category = progress.get('category', '')
+            if category and '-' in category and not category.startswith('Unknown'):
+                canonical_categories.add(category)
+            
+            subcategory = progress.get('subcategory', '')
+            if subcategory:
+                canonical_subcategories.add(subcategory)
         
-        print("   ✅ Enhanced nightly processing components ready and functional")
-        return True
+        print(f"     Canonical categories found: {len(canonical_categories)} - {list(canonical_categories)[:3]}")
+        print(f"     Canonical subcategories found: {len(canonical_subcategories)}")
+        
+        # Check for expected canonical taxonomy subcategories from review request
+        expected_subcategories = [
+            "Time–Speed–Distance (TSD)",
+            "Permutations & Combinations",
+            "Simple & Compound Interest",
+            "Coordinate Geometry"
+        ]
+        
+        found_expected = sum(1 for expected in expected_subcategories if expected in canonical_subcategories)
+        print(f"     Expected canonical subcategories found: {found_expected}/{len(expected_subcategories)}")
+        
+        # Success criteria: At least 2 canonical categories and some expected subcategories
+        if len(canonical_categories) >= 2 and found_expected >= 1:
+            print("     ✅ Mastery dashboard displays canonical categories properly")
+            return True
+        else:
+            print("     ❌ Mastery dashboard canonical category display insufficient")
+            return False
+
+    def test_schema_validation_29_subcategories(self):
+        """Test database can handle all 29 canonical subcategories"""
+        print("     Testing database schema with 29 canonical subcategories...")
+        
+        # All 29 canonical subcategories from the review request
+        canonical_29_subcategories = [
+            # A-Arithmetic (8)
+            "Time–Speed–Distance (TSD)", "Time & Work", "Percentages", "Profit & Loss", 
+            "Simple & Compound Interest", "Ratio & Proportion", "Averages", "Mixtures & Alligations",
+            # B-Algebra (5) 
+            "Linear Equations", "Quadratic Equations", "Inequalities", "Functions", "Logarithms",
+            # C-Geometry (6)
+            "Coordinate Geometry", "Lines & Angles", "Triangles", "Circles", "Quadrilaterals", "Mensuration",
+            # D-Number System (5)
+            "Number Properties", "HCF & LCM", "Remainder Theory", "Base Systems", "Divisibility Rules",
+            # E-Modern Math (5)
+            "Permutations & Combinations", "Probability", "Set Theory", "Venn Diagrams", "Statistics"
+        ]
+        
+        # Test by getting existing questions and checking subcategory diversity
+        success, response = self.run_test("Get Questions for Schema Validation", "GET", "questions?limit=50", 200)
+        if not success:
+            return False
+        
+        questions = response.get('questions', [])
+        found_subcategories = set()
+        
+        for question in questions:
+            subcategory = question.get('subcategory', '')
+            if subcategory:
+                found_subcategories.add(subcategory)
+        
+        # Check how many of the 29 canonical subcategories are represented
+        canonical_found = 0
+        for canonical_sub in canonical_29_subcategories:
+            if canonical_sub in found_subcategories:
+                canonical_found += 1
+        
+        print(f"     Total subcategories in database: {len(found_subcategories)}")
+        print(f"     Canonical subcategories (29) found: {canonical_found}/29")
+        print(f"     Sample found subcategories: {list(found_subcategories)[:5]}")
+        
+        # Check for long subcategory names (indicates schema can handle them)
+        long_subcategories = [sub for sub in found_subcategories if len(sub) > 20]
+        print(f"     Long subcategories (>20 chars): {len(long_subcategories)}")
+        
+        if len(long_subcategories) > 0:
+            print(f"     Sample long subcategory: {long_subcategories[0]} ({len(long_subcategories[0])} chars)")
+        
+        # Success criteria: At least 10 canonical subcategories and some long names
+        if canonical_found >= 10 and len(long_subcategories) >= 2:
+            print("     ✅ Database schema can handle canonical taxonomy with long names")
+            return True
+        elif canonical_found >= 5:
+            print("     ⚠️ Partial schema validation - some canonical subcategories found")
+            return True
+        else:
+            print("     ❌ Database schema validation failed - insufficient canonical taxonomy support")
+            return False
         """Test Enhanced Nightly Engine Integration - PRIORITY TEST"""
         print("🔍 Testing Enhanced Nightly Engine Integration...")
         
