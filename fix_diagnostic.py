@@ -34,7 +34,7 @@ async def main():
         print(f"✅ Deleted {len(corrupt_records)} corrupt diagnostic records")
         
         # Count remaining diagnostics
-        remaining = await db.scalar(select(db.func.count(Diagnostic.id)))
+        remaining = await db.scalar(select(func.count(Diagnostic.id)))
         print(f"Remaining diagnostic records: {remaining}")
         
         break
