@@ -558,13 +558,14 @@ metadata:
 
 test_plan:
   current_focus:
-    - "CRITICAL REFINEMENT 1: Category Mapping Bug FIXED"
-    - "CRITICAL REFINEMENT 4: Attempt-Spacing & Spaced Review IMPLEMENTED"
-  stuck_tasks:
-    - "CRITICAL REFINEMENT 1: Category Mapping Bug FIXED"
-    - "Detailed Progress Dashboard"
+    - "FINAL VERIFICATION COMPLETE: All 4 critical refinements tested"
+    - "Category mapping returns canonical taxonomy format (A-Arithmetic, B-Algebra, etc.)"
+    - "Adaptive engine uses EWMA-based selection with mastery categories"
+    - "Admin PYQ PDF upload supports .docx, .doc, .pdf files"
+    - "Spaced repetition with 'repeat until mastery' logic operational"
+  stuck_tasks: []
   test_all: false
-  test_priority: "stuck_first"
+  test_priority: "critical_refinements_verified"
 
   - task: "Enhanced Session System"
     implemented: true
