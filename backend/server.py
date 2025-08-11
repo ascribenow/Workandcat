@@ -1181,6 +1181,7 @@ async def enrich_question_background(question_id: str, hint_category: str = None
             
             await db.commit()
             logger.info(f"Question {question_id} enriched successfully")
+            break  # Exit the async for loop
             
     except Exception as e:
         logger.error(f"Error in background enrichment: {e}")
