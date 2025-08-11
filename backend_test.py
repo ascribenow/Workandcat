@@ -2607,8 +2607,19 @@ def main():
     test_results.append(("Root Endpoint", tester.test_root_endpoint()))
     test_results.append(("User Login & Registration", tester.test_user_login()))
     
-    # CRITICAL REFINEMENTS TESTING - HIGHEST PRIORITY
-    print("\n🎯 CRITICAL REFINEMENTS TESTING - HIGHEST PRIORITY")
+    # ENHANCED NIGHTLY ENGINE INTEGRATION - HIGHEST PRIORITY
+    print("\n🎯 ENHANCED NIGHTLY ENGINE INTEGRATION - HIGHEST PRIORITY")
+    print("=" * 70)
+    
+    # Focus on Enhanced Nightly Engine Integration from review request
+    nightly_engine_tests = [
+        ("Enhanced Nightly Engine Integration", tester.test_enhanced_nightly_engine_integration()),
+    ]
+    
+    test_results.extend(nightly_engine_tests)
+    
+    # CRITICAL REFINEMENTS TESTING - HIGH PRIORITY
+    print("\n🎯 CRITICAL REFINEMENTS TESTING - HIGH PRIORITY")
     print("=" * 70)
     
     # Focus on the 4 critical refinements from review request
