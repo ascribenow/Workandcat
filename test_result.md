@@ -558,14 +558,14 @@ metadata:
 
 test_plan:
   current_focus:
-    - "FINAL VERIFICATION COMPLETE: All 4 critical refinements tested"
-    - "Category mapping returns canonical taxonomy format (A-Arithmetic, B-Algebra, etc.)"
-    - "Adaptive engine uses EWMA-based selection with mastery categories"
-    - "Admin PYQ PDF upload supports .docx, .doc, .pdf files"
-    - "Spaced repetition with 'repeat until mastery' logic operational"
+    - "Enhanced Nightly Engine Integration - test scheduler and processing logic"
+    - "End-to-end canonical category/subcategory mapping validation"
+    - "EWMA mastery updates with deterministic difficulty recomputation"
+    - "Background job processing with all 8 feedback requirements"
+    - "Nightly processing audit trail and logging verification"
   stuck_tasks: []
   test_all: false
-  test_priority: "critical_refinements_verified"
+  test_priority: "enhanced_nightly_engine_integration"
 
   - task: "Enhanced Session System"
     implemented: true
