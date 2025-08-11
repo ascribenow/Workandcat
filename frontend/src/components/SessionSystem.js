@@ -12,7 +12,11 @@ export const SessionSystem = ({ sessionId: propSessionId, onSessionEnd }) => {
   const [userAnswer, setUserAnswer] = useState('');
   const [showResult, setShowResult] = useState(false);
   const [result, setResult] = useState(null);
-  const [sessionStats, setSessionStats] = useState({});
+  const [sessionStats, setSessionStats] = useState({
+    questions_attempted: 0,
+    accuracy: 0,
+    total_time: 0
+  });
   const [timeLeft, setTimeLeft] = useState(0);
   const [questionStartTime, setQuestionStartTime] = useState(null);
   const [loading, setLoading] = useState(false);
