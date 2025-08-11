@@ -572,9 +572,13 @@ async def get_mastery_dashboard(
                 'is_main_category': parent_id is None  # Flag to identify main categories
             })
         
+        # Get detailed progress data
+        detailed_progress = await get_detailed_progress_data(db, str(current_user.id))
+        
         return {
             'mastery_by_topic': mastery_data,
-            'total_topics': len(mastery_data)
+            'total_topics': len(mastery_data),
+            'detailed_progress': detailed_progress
         }
         
     except Exception as e:
