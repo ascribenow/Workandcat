@@ -1864,7 +1864,7 @@ class CATBackendTester:
         
         # Verify canonical taxonomy categories (A, B, C, D, E)
         canonical_categories = ['A-Arithmetic', 'B-Algebra', 'C-Geometry', 'D-Number System', 'E-Modern Math']
-        canonical_found = [cat for cat in categories_found if any(canonical in cat for canonical in ['Arithmetic', 'Algebra', 'Geometry', 'Number', 'Modern'])]
+        canonical_found = [cat for cat in categories_found if cat and any(canonical in str(cat) for canonical in ['Arithmetic', 'Algebra', 'Geometry', 'Number', 'Modern'])]
         
         print(f"   ✅ Canonical taxonomy categories: {len(canonical_found)} found")
         
