@@ -721,6 +721,85 @@ async def get_progress_dashboard(
 
 # Admin Routes
 
+@api_router.post("/admin/upload-questions-csv")
+async def upload_questions_csv(
+    file: UploadFile = File(...),
+    current_user: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_database)
+):
+    """Upload questions from CSV file"""
+    try:
+        if not file.filename.endswith('.csv'):
+            raise HTTPException(status_code=400, detail="File must be a CSV")
+            
+        # Read CSV content
+        import csv
+        import io
+        content = await file.read()
+        csv_data = content.decode('utf-8')
+        csv_reader = csv.DictReader(io.StringIO(csv_data))
+        
+        questions_created = 0
+        for row in csv_reader:
+            # Extract data from CSV row
+            stem = row.get('stem', '').strip()
+            answer = row.get('answer', '').strip()
+            category = row.get('category', '').strip()
+            subcategory = row.get('subcategory', '').strip()
+            source = row.get('source', '').strip()
+            
+            if not stem or not answer:
+                continue  # Skip rows without stem or answer
+                
+            # Find appropriate topic
+            topic_result = await db.execute(
+                select(Topic).where(Topic.name == subcategory)
+            )
+            topic = topic_result.scalar_one_or_none()
+            
+            if not topic:
+                # Try to find by parent category
+                topic_result = await db.execute(
+                    select(Topic).where(Topic.name == category, Topic.parent_id.is_(None))
+                )
+                topic = topic_result.scalar_one_or_none()
+                
+            if not topic:
+                # Create a default topic if none found
+                topic = Topic(
+                    name=subcategory or category or "General",
+                    description=f"Auto-created from CSV upload"
+                )
+                db.add(topic)
+                await db.flush()
+            
+            # Create question
+            question = Question(
+                topic_id=topic.id,
+                stem=stem,
+                answer=answer,
+                solution_approach="",
+                detailed_solution="",
+                subcategory=subcategory or category or "General",
+                tags=[],
+                source=source or "CSV Upload",
+                is_active=True
+            )
+            
+            db.add(question)
+            questions_created += 1
+            
+        await db.commit()
+        
+        return {
+            "message": f"Successfully uploaded {questions_created} questions from CSV",
+            "questions_created": questions_created
+        }
+        
+    except Exception as e:
+        logger.error(f"CSV upload error: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to upload CSV: {str(e)}")
+
 @api_router.post("/admin/pyq/upload")
 async def upload_pyq_document(
     file: UploadFile = File(...),
