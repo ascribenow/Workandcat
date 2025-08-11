@@ -394,8 +394,11 @@ class CATBackendTester:
         
         return False
 
-    def test_session_management(self):
-        """Test study session management"""
+    def test_session_management_critical_issue(self):
+        """Test study session management - CRITICAL ISSUE INVESTIGATION"""
+        print("🔍 CRITICAL INVESTIGATION: Session Management Issue")
+        print("   Problem: Session shows 'Session Complete!' immediately instead of displaying questions")
+        
         if not self.student_token:
             print("❌ Skipping session management test - no student token")
             return False
@@ -405,26 +408,64 @@ class CATBackendTester:
             'Authorization': f'Bearer {self.student_token}'
         }
 
-        # Start session
+        # STEP 1: Check if questions exist and are active
+        print("\n   📋 STEP 1: Checking question availability...")
+        success, response = self.run_test("Check Active Questions", "GET", "questions?limit=10", 200, None, headers)
+        if success:
+            questions = response.get('questions', [])
+            print(f"   Found {len(questions)} active questions")
+            if len(questions) == 0:
+                print("   ❌ CRITICAL: No active questions available - this explains 'Session Complete!'")
+                return False
+            else:
+                print("   ✅ Active questions are available")
+                for i, q in enumerate(questions[:3]):
+                    print(f"     Question {i+1}: {q.get('id')} - {q.get('subcategory')} - {q.get('difficulty_band')}")
+        else:
+            print("   ❌ Failed to check question availability")
+            return False
+
+        # STEP 2: Start session and verify session creation
+        print("\n   🚀 STEP 2: Starting session...")
         session_data = {
             "target_minutes": 30
         }
         
         success, response = self.run_test("Start Study Session", "POST", "session/start", 200, session_data, headers)
         if not success or 'session_id' not in response:
+            print("   ❌ CRITICAL: Session creation failed")
             return False
         
         self.session_id = response['session_id']
-        print(f"   Session ID: {self.session_id}")
+        print(f"   ✅ Session created successfully: {self.session_id}")
+        print(f"   Session started at: {response.get('started_at')}")
 
-        # Get next question
-        success, response = self.run_test("Get Next Question", "GET", f"session/{self.session_id}/next-question", 200, None, headers)
+        # STEP 3: Test the problematic next-question endpoint
+        print(f"\n   🎯 STEP 3: Testing /session/{self.session_id}/next-question endpoint...")
+        success, response = self.run_test("Get Next Question (CRITICAL TEST)", "GET", f"session/{self.session_id}/next-question", 200, None, headers)
+        
         if success:
             question = response.get('question')
+            message = response.get('message', '')
+            
+            print(f"   Response message: '{message}'")
+            
             if question:
-                print(f"   Next question ID: {question.get('id')}")
+                print(f"   ✅ SUCCESS: Question returned!")
+                print(f"   Question ID: {question.get('id')}")
+                print(f"   Question stem: {question.get('stem', '')[:100]}...")
+                print(f"   Subcategory: {question.get('subcategory')}")
+                print(f"   Difficulty: {question.get('difficulty_band')}")
                 
-                # Submit answer
+                # Check if MCQ options are included
+                options = question.get('options', {})
+                if options:
+                    print(f"   MCQ options available: {list(options.keys())}")
+                else:
+                    print("   ⚠️ No MCQ options in response")
+                
+                # STEP 4: Test answer submission
+                print(f"\n   📝 STEP 4: Testing answer submission...")
                 answer_data = {
                     "question_id": question['id'],
                     "user_answer": "A",
@@ -435,14 +476,41 @@ class CATBackendTester:
                 
                 success, response = self.run_test("Submit Session Answer", "POST", f"session/{self.session_id}/submit-answer", 200, answer_data, headers)
                 if success:
+                    print(f"   ✅ Answer submitted successfully")
                     print(f"   Answer correct: {response.get('correct')}")
                     print(f"   Attempt number: {response.get('attempt_no')}")
-                    return True
+                    print(f"   Solution: {response.get('solution_approach', '')[:100]}...")
+                    
+                    # STEP 5: Test getting next question after answer submission
+                    print(f"\n   ➡️ STEP 5: Testing next question after answer submission...")
+                    success, response = self.run_test("Get Second Question", "GET", f"session/{self.session_id}/next-question", 200, None, headers)
+                    if success:
+                        second_question = response.get('question')
+                        if second_question:
+                            print(f"   ✅ Second question available: {second_question.get('id')}")
+                            return True
+                        else:
+                            print(f"   ⚠️ No second question available: {response.get('message')}")
+                            return True  # First question worked, which is the main issue
+                    else:
+                        print("   ❌ Failed to get second question")
+                        return False
+                else:
+                    print("   ❌ Answer submission failed")
+                    return False
             else:
-                print("   No questions available for session")
-                return True  # This might be expected if no questions are available
-        
-        return False
+                print(f"   ❌ CRITICAL ISSUE CONFIRMED: No question returned!")
+                print(f"   This explains why frontend shows 'Session Complete!' immediately")
+                if message:
+                    print(f"   Backend message: '{message}'")
+                return False
+        else:
+            print("   ❌ CRITICAL: next-question endpoint failed completely")
+            return False
+
+    def test_session_management(self):
+        """Test study session management - wrapper for critical issue investigation"""
+        return self.test_session_management_critical_issue()
 
     def test_mastery_tracking(self):
         """Test Enhanced Mastery Dashboard with category/subcategory hierarchy"""
