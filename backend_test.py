@@ -72,20 +72,76 @@ class CATBackendTester:
                 print(f"     - {feature}")
         return success
 
-    def test_user_registration(self):
-        """Test user registration with new auth system"""
-        # Test student registration
-        student_data = {
-            "email": f"test_student_{datetime.now().strftime('%H%M%S')}@test.com",
-            "full_name": "Test Student",
-            "password": "testpass123"
+    def test_jwt_authentication_fix(self):
+        """Test JWT authentication with FIXED InvalidTokenError handling"""
+        print("🔍 Testing JWT Authentication Fix...")
+        
+        # Test with invalid token to verify error handling
+        invalid_headers = {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer invalid_token_here'
         }
         
-        success, response = self.run_test("Student Registration", "POST", "auth/register", 200, student_data)
-        if success and 'user' in response and 'access_token' in response:
-            print(f"   Registered student: {response['user']['full_name']}")
-            print(f"   Student is admin: {response['user'].get('is_admin', False)}")
-            return True
+        success, response = self.run_test("CRITICAL: JWT Invalid Token Handling (FIXED)", "GET", "auth/me", 401, None, invalid_headers)
+        if success:
+            print("   ✅ FIXED: JWT InvalidTokenError properly handled")
+        else:
+            print("   ❌ CRITICAL: JWT error handling still broken")
+            return False
+        
+        # Test with valid token
+        if self.student_token:
+            valid_headers = {
+                'Content-Type': 'application/json',
+                'Authorization': f'Bearer {self.student_token}'
+            }
+            success, response = self.run_test("JWT Valid Token", "GET", "auth/me", 200, None, valid_headers)
+            if success:
+                print("   ✅ Valid JWT token authentication working")
+                return True
+        
+        return False
+
+    def test_student_user_registration_flow(self):
+        """Test complete student user registration and flow - CRITICAL TEST"""
+        print("🔍 Testing Student User Registration Flow...")
+        
+        # Create a new student user with realistic data
+        timestamp = datetime.now().strftime('%H%M%S')
+        student_data = {
+            "email": f"new_student_{timestamp}@catprep.com",
+            "full_name": "Priya Sharma",
+            "password": "student2025"
+        }
+        
+        success, response = self.run_test("CRITICAL: New Student Registration", "POST", "auth/register", 200, student_data)
+        if not success or 'user' not in response or 'access_token' not in response:
+            print("   ❌ CRITICAL: Student registration failing - blocking new users")
+            return False
+        
+        new_student_token = response['access_token']
+        new_student_user = response['user']
+        
+        print(f"   ✅ New student registered: {new_student_user['full_name']}")
+        print(f"   Student email: {new_student_user['email']}")
+        print(f"   Is admin: {new_student_user.get('is_admin', False)}")
+        
+        # Test diagnostic status for new user (should be false)
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {new_student_token}'
+        }
+        
+        success, response = self.run_test("New Student Diagnostic Status", "GET", "user/diagnostic-status", 200, None, headers)
+        if success:
+            has_completed = response.get('has_completed', True)  # Default to True to catch issues
+            print(f"   New student has completed diagnostic: {has_completed}")
+            if not has_completed:
+                print("   ✅ New student correctly shows no completed diagnostic")
+                return True
+            else:
+                print("   ⚠️ New student incorrectly shows completed diagnostic")
+                return False
         
         return False
 
