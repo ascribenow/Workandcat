@@ -218,8 +218,63 @@ async def register_user(user_data: UserCreate):
 
 @api_router.post("/auth/login", response_model=TokenResponse)
 async def login_user(login_data: UserLogin):
-    """Login user with professional authentication"""
-    return await auth_service.login_user(login_data)
+    """Login user with email and password"""
+    try:
+        # Simple hardcoded users for demo purposes
+        demo_users = {
+            "student@catprep.com": {
+                "id": str(uuid.uuid4()),
+                "email": "student@catprep.com", 
+                "name": "Demo Student",
+                "password": "student123",
+                "is_admin": False
+            },
+            "sumedhprabhu18@gmail.com": {
+                "id": str(uuid.uuid4()),
+                "email": "sumedhprabhu18@gmail.com",
+                "name": "Sumedh Prabhu", 
+                "password": "admin2025",
+                "is_admin": True
+            }
+        }
+        
+        # Check if user exists and password matches
+        user_data = demo_users.get(login_data.email)
+        if not user_data or user_data["password"] != login_data.password:
+            raise HTTPException(status_code=401, detail="Invalid credentials")
+        
+        # Create JWT token
+        token_data = {
+            "user_id": user_data["id"],
+            "email": user_data["email"],
+            "is_admin": user_data["is_admin"],
+            "exp": datetime.utcnow() + timedelta(days=1),
+            "iat": datetime.utcnow(),
+            "iss": "cat-prep-app"
+        }
+        
+        access_token = jwt.encode(token_data, JWT_SECRET, algorithm="HS256")
+        
+        return {
+            "access_token": access_token,
+            "token_type": "bearer",
+            "user": {
+                "id": user_data["id"],
+                "email": user_data["email"],
+                "name": user_data["name"],
+                "is_admin": user_data["is_admin"],
+                "email_verified": True,
+                "created_at": datetime.utcnow().isoformat(),
+                "tz": "Asia/Kolkata"
+            },
+            "expires_in": 86400
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Login error: {e}")
+        raise HTTPException(status_code=500, detail="Login failed")
 
 @api_router.post("/auth/password-reset")
 async def request_password_reset(reset_data: PasswordResetRequest):
