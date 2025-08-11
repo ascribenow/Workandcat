@@ -51,13 +51,13 @@ export const Dashboard = () => {
       
       // Fetch mastery data with detailed progress
       const masteryResponse = await axios.get(`${API}/dashboard/mastery`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('cat_prep_token')}` }
       });
       setMasteryData(masteryResponse.data);
 
       // Fetch overall progress data
       const progressResponse = await axios.get(`${API}/dashboard/progress`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('cat_prep_token')}` }
       });
       setProgressData(progressResponse.data);
       
