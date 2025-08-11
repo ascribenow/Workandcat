@@ -100,7 +100,7 @@ export const StudyPlanSystem = () => {
             </div>
             <h1 className="text-3xl font-bold text-gray-900 mb-4">Create Your 90-Day Study Plan</h1>
             <p className="text-lg text-gray-600 mb-8">
-              Get a personalized study plan based on your diagnostic results and target preparation level
+              Get a personalized study plan based on your target preparation level and available time
             </p>
           </div>
 
