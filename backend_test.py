@@ -2770,7 +2770,7 @@ def main():
         print("⚠️ SYSTEM STATUS: Needs improvement for full functionality")
     
     print("=" * 80)
-    return 0 if critical_success_rate >= 75 else 1
+    return 0 if nightly_success_rate >= 75 else 1
 
 if __name__ == "__main__":
     sys.exit(main())
