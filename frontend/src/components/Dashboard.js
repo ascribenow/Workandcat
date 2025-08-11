@@ -534,7 +534,7 @@ const AdminPanel = () => {
                       <input
                         id="pyq-upload"
                         type="file"
-                        accept=".docx,.doc"
+                        accept=".docx,.doc,.pdf"
                         onChange={handlePYQUpload}
                         disabled={uploading}
                         className="hidden"
