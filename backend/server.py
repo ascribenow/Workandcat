@@ -29,7 +29,7 @@ db = client[os.environ['DB_NAME']]
 llm_api_key = os.environ.get('EMERGENT_LLM_KEY')
 
 # Initialize Auth Service
-auth_service = AuthService(db)
+auth_service = AuthService()
 
 # Canonical Taxonomy (Locked)
 CANONICAL_TAXONOMY = {
