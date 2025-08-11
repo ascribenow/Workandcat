@@ -660,16 +660,23 @@ async def get_mastery_dashboard(
 ):
     """Get user's mastery dashboard with category and subcategory progress"""
     try:
-        # Get mastery data by topic
+        # Get mastery data by topic with parent topic information for category structure
         result = await db.execute(
-            select(Mastery, Topic.name.label('topic_name'))
+            select(
+                Mastery, 
+                Topic.name.label('topic_name'),
+                Topic.parent_id,
+                func.coalesce(Topic.parent_id.is_(None), True).label('is_parent_topic')
+            )
             .join(Topic, Mastery.topic_id == Topic.id)
             .where(Mastery.user_id == current_user.id)
             .order_by(Topic.name)
         )
         
+        mastery_records = result.fetchall()
         mastery_data = []
-        for mastery, topic_name in result.fetchall():
+        
+        for mastery, topic_name, parent_id, is_parent_topic in mastery_records:
             # Get subcategory data for this topic
             subcategory_result = await db.execute(
                 select(
@@ -692,21 +699,35 @@ async def get_mastery_dashboard(
             
             subcategories = []
             for subcat_data in subcategory_result.fetchall():
-                subcategories.append({
-                    'name': subcat_data.subcategory,
-                    'attempts_count': subcat_data.attempts_count or 0,
-                    'mastery_percentage': float(subcat_data.avg_accuracy or 0)
-                })
+                if subcat_data.subcategory:  # Only include if subcategory exists
+                    subcategories.append({
+                        'name': subcat_data.subcategory,
+                        'attempts_count': subcat_data.attempts_count or 0,
+                        'mastery_percentage': float(subcat_data.avg_accuracy or 0)
+                    })
+            
+            # Determine if this is a main category or subcategory based on parent_id
+            category_name = topic_name
+            if parent_id:
+                # This is a child topic, get parent name as category
+                parent_result = await db.execute(
+                    select(Topic.name).where(Topic.id == parent_id)
+                )
+                parent_name = parent_result.scalar_one_or_none()
+                if parent_name:
+                    category_name = parent_name
             
             mastery_data.append({
                 'topic_name': topic_name,
-                'mastery_percentage': float(mastery.mastery_pct),
-                'accuracy_score': float(mastery.accuracy_easy),
-                'speed_score': float(mastery.accuracy_med),
-                'stability_score': float(mastery.accuracy_hard),
-                'questions_attempted': mastery.exposure_score,
+                'category_name': category_name,  # Add category information
+                'mastery_percentage': float(mastery.mastery_pct * 100),  # Convert to percentage
+                'accuracy_score': float(mastery.accuracy_easy * 100),  # Convert to percentage
+                'speed_score': float(mastery.accuracy_med * 100),    # Convert to percentage  
+                'stability_score': float(mastery.accuracy_hard * 100), # Convert to percentage
+                'questions_attempted': int(mastery.exposure_score),
                 'last_attempt_date': mastery.last_updated.isoformat() if mastery.last_updated else None,
-                'subcategories': subcategories
+                'subcategories': subcategories,
+                'is_main_category': parent_id is None  # Flag to identify main categories
             })
         
         return {
