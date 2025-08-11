@@ -721,6 +721,93 @@ async def get_progress_dashboard(
 
 # Admin Routes
 
+@api_router.get("/admin/export-questions-csv")
+async def export_questions_csv(
+    current_user: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_database)
+):
+    """Export all questions as CSV with all columns"""
+    try:
+        from fastapi.responses import StreamingResponse
+        import csv
+        import io
+        from datetime import datetime
+        
+        # Get all questions with topic information
+        result = await db.execute(
+            select(Question, Topic.name.label('topic_name'))
+            .join(Topic, Question.topic_id == Topic.id)
+            .order_by(Question.created_at.desc())
+        )
+        
+        questions_data = result.fetchall()
+        
+        # Create CSV in memory
+        output = io.StringIO()
+        writer = csv.writer(output)
+        
+        # Write header with all columns from the outline
+        header = [
+            'id',
+            'stem',
+            'answer',
+            'solution_approach',
+            'detailed_solution', 
+            'category',
+            'subcategory',
+            'difficulty_band',
+            'importance_index',
+            'learning_impact',
+            'composite_score',
+            'transformation_score',
+            'trick_misleading',
+            'tags',
+            'source',
+            'is_active',
+            'created_at',
+            'updated_at'
+        ]
+        writer.writerow(header)
+        
+        # Write question data
+        for question, topic_name in questions_data:
+            row = [
+                str(question.id),
+                question.stem or '',
+                question.answer or '',
+                question.solution_approach or '',
+                question.detailed_solution or '',
+                topic_name or '',
+                question.subcategory or '',
+                question.difficulty_band or '',
+                float(question.importance_index) if question.importance_index else '',
+                float(question.learning_impact) if question.learning_impact else '',
+                float(question.composite_score) if question.composite_score else '',
+                float(question.transformation_score) if question.transformation_score else '',
+                float(question.trick_misleading) if question.trick_misleading else '',
+                ','.join(question.tags) if question.tags else '',
+                question.source or '',
+                str(question.is_active),
+                question.created_at.isoformat() if question.created_at else '',
+                question.updated_at.isoformat() if question.updated_at else ''
+            ]
+            writer.writerow(row)
+        
+        # Prepare response
+        output.seek(0)
+        
+        return StreamingResponse(
+            io.BytesIO(output.getvalue().encode('utf-8')),
+            media_type="text/csv",
+            headers={
+                "Content-Disposition": f"attachment; filename=cat_questions_export_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+            }
+        )
+        
+    except Exception as e:
+        logger.error(f"Questions export error: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to export questions: {str(e)}")
+
 @api_router.post("/admin/upload-questions-csv")
 async def upload_questions_csv(
     file: UploadFile = File(...),
