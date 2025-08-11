@@ -529,7 +529,7 @@ const AdminPanel = () => {
     formData.append('year', '2024');
 
     try {
-      const response = await axios.post(`${API}/api/admin/pyq/upload`, formData, {
+      const response = await axios.post(`${API}/admin/pyq/upload`, formData, {
         headers: { 
           'Content-Type': 'multipart/form-data',
           'Authorization': `Bearer ${localStorage.getItem('token')}`
