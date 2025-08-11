@@ -423,21 +423,21 @@ frontend:
 
 metadata:
   created_by: "main_agent"
-  version: "2.0"
-  test_sequence: 2
+  version: "3.0"
+  test_sequence: 3
   run_ui: false
 
 test_plan:
   current_focus:
-    - "Enhanced LLM Enrichment Pipeline"
-    - "Diagnostic System"
-    - "Formula Integration"
+    - "Database Schema Constraint Fix (CRITICAL)"
+    - "25Q Diagnostic Distribution Implementation (CRITICAL)"
+    - "Formula Integration ≥60% Achievement (CRITICAL)"
   stuck_tasks:
     - "Enhanced LLM Enrichment Pipeline"
     - "Diagnostic System"
     - "Formula Integration"
   test_all: false
-  test_priority: "high_first"
+  test_priority: "critical_fixes_first"
 
 agent_communication:
   - agent: "main"
