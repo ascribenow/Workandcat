@@ -327,8 +327,6 @@ export const Dashboard = () => {
     
     // Regular users
     switch (currentView) {
-      case 'diagnostic':
-        return <DiagnosticSystem />;
       case 'study-plan':
         return <StudyPlanSystem />;
       case 'session':
