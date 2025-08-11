@@ -2266,8 +2266,22 @@ def main():
     test_results.append(("Root Endpoint", tester.test_root_endpoint()))
     test_results.append(("User Login & Registration", tester.test_user_login()))
     
-    # NEW CRITICAL COMPONENTS TESTING - PRIMARY FOCUS
-    print("\n🎯 NEW CRITICAL COMPONENTS TESTING - MAIN FOCUS")
+    # CRITICAL REFINEMENTS TESTING - HIGHEST PRIORITY
+    print("\n🎯 CRITICAL REFINEMENTS TESTING - HIGHEST PRIORITY")
+    print("=" * 70)
+    
+    # Focus on the 4 critical refinements from review request
+    critical_refinement_tests = [
+        ("CRITICAL 1: Category Mapping Bug FIXED", tester.test_critical_refinement_1_category_mapping()),
+        ("CRITICAL 2: Adaptive Engine Hooks IMPLEMENTED", tester.test_critical_refinement_2_adaptive_engine()),
+        ("CRITICAL 3: Admin PYQ PDF Upload VERIFIED", tester.test_critical_refinement_3_admin_pyq_pdf_upload()),
+        ("CRITICAL 4: Attempt-Spacing & Spaced Review IMPLEMENTED", tester.test_critical_refinement_4_spaced_repetition()),
+    ]
+    
+    test_results.extend(critical_refinement_tests)
+    
+    # NEW CRITICAL COMPONENTS TESTING - SECONDARY FOCUS
+    print("\n🎯 NEW CRITICAL COMPONENTS TESTING - SECONDARY FOCUS")
     print("=" * 70)
     
     # Focus on the newly added critical components from review request
