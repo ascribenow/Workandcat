@@ -143,7 +143,10 @@ export const Dashboard = () => {
                 Dashboard
               </button>
               <button
-                onClick={() => setCurrentView('session')}
+                onClick={() => {
+                  setCurrentView('session');
+                  startQuickSession(30); // Start a 30-minute session
+                }}
                 className={`inline-flex items-center px-1 pt-1 text-sm font-medium border-b-2 ${
                   currentView === 'session' 
                     ? 'text-blue-600 border-blue-500' 
