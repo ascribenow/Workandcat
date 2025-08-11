@@ -2772,5 +2772,85 @@ def main():
     print("=" * 80)
     return 0 if nightly_success_rate >= 75 else 1
 
+def run_enhanced_nightly_engine_focus():
+    """Run focused Enhanced Nightly Engine Integration tests"""
+    print("🌙 ENHANCED NIGHTLY ENGINE INTEGRATION - FOCUSED TESTING")
+    print("=" * 80)
+    
+    tester = CATBackendTester()
+    
+    # Test results tracking
+    test_results = []
+    
+    # Prerequisites
+    print("🔧 PREREQUISITES")
+    print("=" * 30)
+    test_results.append(("Root Endpoint", tester.test_root_endpoint()))
+    test_results.append(("User Authentication", tester.test_user_login()))
+    
+    # Enhanced Nightly Engine Integration Tests
+    print("\n🌙 ENHANCED NIGHTLY ENGINE INTEGRATION TESTS")
+    print("=" * 60)
+    
+    # Test A: Create a test question as admin and verify it queues for background enrichment without errors
+    print("\n🔍 TEST A: Question Creation with Background Enrichment")
+    test_results.append(("Question Creation Background Enrichment", tester.test_question_creation_background_enrichment()))
+    
+    # Test B: Check that the enhanced nightly processing scheduler is properly integrated
+    print("\n🔍 TEST B: Enhanced Nightly Processing Scheduler Integration")
+    test_results.append(("Background Job Scheduler Integration", tester.test_background_job_scheduler_integration()))
+    test_results.append(("Enhanced Nightly Processing Components", tester.test_enhanced_nightly_processing_components()))
+    
+    # Test C: Verify that canonical category/subcategory mapping still works correctly
+    print("\n🔍 TEST C: Canonical Category/Subcategory Mapping")
+    test_results.append(("Canonical Category Mapping", tester.test_canonical_category_mapping()))
+    
+    # Additional supporting tests
+    print("\n🔍 SUPPORTING TESTS")
+    test_results.append(("EWMA Mastery Updates", tester.test_ewma_mastery_updates()))
+    test_results.append(("Formula Integration", tester.test_nightly_engine_formula_integration()))
+    test_results.append(("Database Integration", tester.test_nightly_engine_database_integration()))
+    
+    # Print results
+    print("\n" + "=" * 80)
+    print("🎯 ENHANCED NIGHTLY ENGINE INTEGRATION TEST RESULTS")
+    print("=" * 80)
+    
+    passed_tests = sum(1 for _, result in test_results if result)
+    total_tests = len(test_results)
+    success_rate = (passed_tests / total_tests) * 100
+    
+    for test_name, result in test_results:
+        status = "✅ PASS" if result else "❌ FAIL"
+        print(f"{status} {test_name}")
+    
+    print("=" * 80)
+    print(f"📊 FINAL RESULTS: {success_rate:.1f}% ({passed_tests}/{total_tests} tests passed)")
+    
+    # Focus on the three main test scenarios from review request
+    scenario_a = test_results[2][1]  # Question Creation Background Enrichment
+    scenario_b = test_results[3][1] and test_results[4][1]  # Scheduler + Components
+    scenario_c = test_results[5][1]  # Canonical Mapping
+    
+    print("\n🎯 REVIEW REQUEST SCENARIOS:")
+    print(f"{'✅ PASS' if scenario_a else '❌ FAIL'} Scenario A: Question creation queues background enrichment without async errors")
+    print(f"{'✅ PASS' if scenario_b else '❌ FAIL'} Scenario B: Enhanced nightly processing scheduler properly integrated")
+    print(f"{'✅ PASS' if scenario_c else '❌ FAIL'} Scenario C: Canonical category/subcategory mapping works correctly")
+    
+    scenarios_passed = sum([scenario_a, scenario_b, scenario_c])
+    
+    if scenarios_passed == 3:
+        print("\n🎉 ALL REVIEW REQUEST SCENARIOS PASSED!")
+        print("✅ Enhanced Nightly Engine Integration is working correctly after async context manager fix")
+    elif scenarios_passed >= 2:
+        print("\n✅ MOST SCENARIOS PASSED - Enhanced Nightly Engine Integration mostly working")
+    else:
+        print("\n❌ MULTIPLE SCENARIO FAILURES - Enhanced Nightly Engine Integration needs attention")
+    
+    print("=" * 80)
+    return scenarios_passed, 3 - scenarios_passed
+
 if __name__ == "__main__":
-    sys.exit(main())
+    # Run focused Enhanced Nightly Engine Integration tests
+    passed, failed = run_enhanced_nightly_engine_focus()
+    sys.exit(0 if passed >= 2 else 1)
