@@ -3286,6 +3286,36 @@ class CATBackendTester:
         
         return True
 
+    def run_critical_session_investigation(self):
+        """Run critical session investigation for the specific issue reported"""
+        print("=" * 80)
+        print("🚨 CRITICAL SESSION INVESTIGATION")
+        print("Problem: Student session UI shows 'Session Complete!' immediately")
+        print("Focus: /session/{id}/next-question endpoint not returning questions")
+        print("=" * 80)
+        
+        # Ensure we have student authentication
+        if not self.student_token:
+            print("🔑 Authenticating student user...")
+            if not self.test_user_login():
+                print("❌ CRITICAL: Cannot authenticate student - investigation blocked")
+                return False
+        
+        # Run the critical session test
+        success = self.test_session_management_critical_issue()
+        
+        print("\n" + "=" * 80)
+        if success:
+            print("✅ CRITICAL SESSION INVESTIGATION RESULT: ISSUE RESOLVED")
+            print("   The /session/{id}/next-question endpoint is working correctly")
+            print("   Questions are being returned properly")
+        else:
+            print("❌ CRITICAL SESSION INVESTIGATION RESULT: ISSUE CONFIRMED")
+            print("   The /session/{id}/next-question endpoint has problems")
+            print("   This explains why frontend shows 'Session Complete!' immediately")
+        print("=" * 80)
+        
+        return success
     def run_enhanced_nightly_engine_tests_only(self):
         """Run only Enhanced Nightly Engine Integration tests - PRIORITY FOCUS"""
         print("🌙 ENHANCED NIGHTLY ENGINE INTEGRATION - FINAL VALIDATION")
