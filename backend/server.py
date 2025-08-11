@@ -33,6 +33,7 @@ from diagnostic_system import DiagnosticSystem
 from mcq_generator import MCQGenerator
 from study_planner import StudyPlanner
 from mastery_tracker import MasteryTracker
+from background_jobs import start_background_processing, stop_background_processing
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
