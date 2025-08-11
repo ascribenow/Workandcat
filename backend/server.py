@@ -658,33 +658,60 @@ async def get_mastery_dashboard(
     current_user: User = Depends(require_auth),
     db: AsyncSession = Depends(get_database)
 ):
-    """Get mastery dashboard data"""
+    """Get user's mastery dashboard with category and subcategory progress"""
     try:
-        # Get user's mastery data
-        mastery_result = await db.execute(
-            select(Mastery, Topic)
+        # Get mastery data by topic
+        result = await db.execute(
+            select(Mastery, Topic.name.label('topic_name'))
             .join(Topic, Mastery.topic_id == Topic.id)
             .where(Mastery.user_id == current_user.id)
+            .order_by(Topic.name)
         )
         
         mastery_data = []
-        for mastery, topic in mastery_result.fetchall():
+        for mastery, topic_name in result.fetchall():
+            # Get subcategory data for this topic
+            subcategory_result = await db.execute(
+                select(
+                    Question.subcategory,
+                    func.count(Attempt.id).label('attempts_count'),
+                    func.avg(case((Attempt.correct == True, 100), else_=0)).label('avg_accuracy')
+                )
+                .join(Attempt, Question.id == Attempt.question_id)
+                .where(
+                    Question.topic_id == mastery.topic_id,
+                    Attempt.user_id == current_user.id
+                )
+                .group_by(Question.subcategory)
+            )
+            
+            subcategories = []
+            for subcat_data in subcategory_result.fetchall():
+                subcategories.append({
+                    'name': subcat_data.subcategory,
+                    'attempts_count': subcat_data.attempts_count or 0,
+                    'mastery_percentage': float(subcat_data.avg_accuracy or 0)
+                })
+            
             mastery_data.append({
-                "topic": topic.name,
-                "subcategory": topic.slug,
-                "mastery_pct": float(mastery.mastery_pct),
-                "accuracy_easy": float(mastery.accuracy_easy),
-                "accuracy_med": float(mastery.accuracy_med),
-                "accuracy_hard": float(mastery.accuracy_hard),
-                "exposure_score": float(mastery.exposure_score),
-                "last_updated": mastery.last_updated.isoformat()
+                'topic_name': topic_name,
+                'mastery_percentage': float(mastery.mastery_pct),
+                'accuracy_score': float(mastery.accuracy_easy),
+                'speed_score': float(mastery.accuracy_med),
+                'stability_score': float(mastery.accuracy_hard),
+                'questions_attempted': mastery.exposure_score,
+                'last_attempt_date': mastery.last_updated.isoformat() if mastery.last_updated else None,
+                'subcategories': subcategories
             })
         
-        return {"mastery": mastery_data}
+        return {
+            'mastery_by_topic': mastery_data,
+            'total_topics': len(mastery_data)
+        }
         
     except Exception as e:
-        logger.error(f"Error getting mastery dashboard: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"Error fetching mastery dashboard: {e}")
+        return {'mastery_by_topic': [], 'total_topics': 0}
 
 @api_router.get("/dashboard/progress")
 async def get_progress_dashboard(
