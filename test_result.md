@@ -366,9 +366,8 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Diagnostic System"
-  stuck_tasks:
-    - "Diagnostic System"
+    - "Enhanced Mastery Dashboard Frontend"
+  stuck_tasks: []
   test_all: false
   test_priority: "high_first"
 
