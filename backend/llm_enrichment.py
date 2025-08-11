@@ -427,9 +427,9 @@ Generate solutions in JSON format:
         try:
             logger.info(f"Starting enrichment for question: {stem[:50]}...")
             
-            # Step 1: Categorization
-            category, subcategory = await self.categorize_question(stem, hint_category, hint_subcategory)
-            logger.info(f"Categorized: {category} -> {subcategory}")
+            # Step 1: Categorization with type_of_question
+            category, subcategory, type_of_question = await self.categorize_question(stem, hint_category, hint_subcategory)
+            logger.info(f"Categorized: {category} -> {subcategory} -> {type_of_question}")
             
             # Step 2: Solutions
             solution_approach, detailed_solution = await self.generate_solutions(stem, answer, category, subcategory)
