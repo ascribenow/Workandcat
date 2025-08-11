@@ -66,6 +66,7 @@ class QuestionCreateRequest(BaseModel):
     detailed_solution: Optional[str] = None
     hint_category: Optional[str] = None
     hint_subcategory: Optional[str] = None
+    type_of_question: Optional[str] = None  # New canonical taxonomy field
     tags: List[str] = []
     source: str = "Admin"
 
