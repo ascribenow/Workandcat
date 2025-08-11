@@ -299,6 +299,12 @@ export const Dashboard = () => {
 
   // Render current view
   const renderContent = () => {
+    // Admin always sees admin panel
+    if (isAdmin()) {
+      return <AdminPanel />;
+    }
+    
+    // Regular users
     switch (currentView) {
       case 'diagnostic':
         return <DiagnosticSystem />;
@@ -306,11 +312,6 @@ export const Dashboard = () => {
         return <StudyPlanSystem />;
       case 'session':
         return <SessionSystem sessionId={activeSessionId} onSessionEnd={handleSessionEnd} />;
-      case 'admin':
-        if (isAdmin()) {
-          return <AdminPanel />;
-        }
-        return renderDashboard();
       default:
         return renderDashboard();
     }
