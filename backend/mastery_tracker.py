@@ -340,3 +340,182 @@ class MasteryTracker:
             weak_difficulties.append("Difficult")
         
         return weak_difficulties
+    
+    # =====================================================
+    # v1.3 COMPLIANCE METHODS
+    # =====================================================
+    
+    def get_mastery_category_v13(self, mastery_score: float) -> str:
+        """
+        Categorize mastery score based on v1.3 feedback thresholds
+        Mastered (≥85%), On track (60–84%), Needs focus (<60%)
+        """
+        from formulas import get_mastery_category
+        return get_mastery_category(mastery_score)
+    
+    async def create_mastery_history_entry(self, db: AsyncSession, user_id: str, subcategory: str, mastery_score: float):
+        """
+        Store daily mastery history as per v1.3 requirements
+        """
+        try:
+            from database import MasteryHistory
+            from datetime import date
+            
+            # Create new history entry
+            history_entry = MasteryHistory(
+                user_id=user_id,
+                subcategory=subcategory,
+                mastery_score=mastery_score,
+                recorded_date=date.today()
+            )
+            
+            db.add(history_entry)
+            await db.flush()
+            
+            logger.info(f"Created mastery history entry for user {user_id}, subcategory {subcategory}: {mastery_score}")
+            
+        except Exception as e:
+            logger.error(f"Error creating mastery history entry: {e}")
+    
+    async def calculate_preparedness_ambition_v13(self, db: AsyncSession, user_id: str, plan_start_date: datetime, target_date: datetime) -> float:
+        """
+        Calculate preparedness ambition from t-1 to t+90 as per v1.3 feedback
+        """
+        try:
+            # Get current mastery levels for all topics
+            mastery_query = select(Mastery).where(Mastery.user_id == user_id)
+            mastery_result = await db.execute(mastery_query)
+            masteries = mastery_result.scalars().all()
+            
+            if not masteries:
+                return 0.0  # No mastery data available
+            
+            # Calculate current average mastery (t-1)
+            current_avg_mastery = sum(float(m.mastery_pct or 0) for m in masteries) / len(masteries)
+            
+            # Target mastery by day 90 (aspirational - e.g., 85% across all topics)
+            target_mastery = 0.85
+            
+            # Calculate days from plan start to target
+            days_to_target = (target_date - plan_start_date).days
+            days_to_target = max(days_to_target, 90)  # At least 90 days
+            
+            # Preparedness ambition = improvement needed from current to target
+            improvement_needed = target_mastery - current_avg_mastery
+            preparedness_ambition = max(0.0, improvement_needed)
+            
+            # Normalize based on timeline (more ambition if less time)
+            time_pressure_factor = 90.0 / days_to_target  # More pressure if less than 90 days
+            preparedness_ambition *= time_pressure_factor
+            
+            return min(preparedness_ambition, 1.0)  # Cap at 1.0
+            
+        except Exception as e:
+            logger.error(f"Error calculating preparedness ambition: {e}")
+            return 0.0
+    
+    async def apply_v13_mastery_thresholds(self, db: AsyncSession, user_id: str) -> Dict[str, List[str]]:
+        """
+        Apply v1.3 mastery thresholds to categorize topics
+        Returns dict with 'mastered', 'on_track', 'needs_focus' lists
+        """
+        try:
+            # Get all mastery records for user
+            mastery_query = select(Mastery, Topic.name).join(Topic, Mastery.topic_id == Topic.id).where(Mastery.user_id == user_id)
+            mastery_result = await db.execute(mastery_query)
+            mastery_records = mastery_result.all()
+            
+            categorized = {
+                "mastered": [],    # ≥85%
+                "on_track": [],    # 60-84%
+                "needs_focus": []  # <60%
+            }
+            
+            for mastery, topic_name in mastery_records:
+                mastery_score = float(mastery.mastery_pct or 0)
+                category = self.get_mastery_category_v13(mastery_score)
+                
+                topic_info = {
+                    "name": topic_name,
+                    "mastery_percentage": round(mastery_score * 100, 1),
+                    "category": category
+                }
+                
+                if category == "Mastered":
+                    categorized["mastered"].append(topic_info)
+                elif category == "On track":
+                    categorized["on_track"].append(topic_info)
+                else:
+                    categorized["needs_focus"].append(topic_info)
+            
+            return categorized
+            
+        except Exception as e:
+            logger.error(f"Error applying v1.3 mastery thresholds: {e}")
+            return {"mastered": [], "on_track": [], "needs_focus": []}
+    
+    async def update_mastery_with_v13_formulas(self, db: AsyncSession, user_id: str, question_id: str, attempt: Attempt):
+        """
+        Update mastery using v1.3 compliant formulas and store history
+        """
+        try:
+            from formulas import calculate_ewma_mastery
+            
+            # Get question details
+            question_result = await db.execute(select(Question, Topic.name).join(Topic).where(Question.id == question_id))
+            question, topic_name = question_result.first()
+            
+            if not question:
+                return
+            
+            # Get current mastery
+            mastery_query = select(Mastery).where(
+                and_(Mastery.user_id == user_id, Mastery.topic_id == question.topic_id)
+            )
+            mastery_result = await db.execute(mastery_query)
+            mastery = mastery_result.scalar_one_or_none()
+            
+            # Calculate new performance score
+            performance_score = 1.0 if attempt.correct else 0.0
+            
+            # Time efficiency factor
+            expected_time = self.target_times.get(question.difficulty_band, 150)
+            time_efficiency = min(expected_time / max(attempt.time_sec, 1), 1.0)
+            performance_score *= time_efficiency
+            
+            if mastery:
+                # Update existing mastery using v1.3 EWMA (α=0.6)
+                current_mastery = float(mastery.mastery_pct or 0)
+                new_mastery = calculate_ewma_mastery(
+                    current_mastery, 
+                    performance_score, 
+                    alpha=0.6  # v1.3 specification
+                )
+                mastery.mastery_pct = new_mastery
+            else:
+                # Create new mastery record
+                from database import Mastery
+                mastery = Mastery(
+                    user_id=user_id,
+                    topic_id=question.topic_id,
+                    mastery_pct=performance_score,
+                    exposure_score=1.0,
+                    accuracy_easy=1.0 if question.difficulty_band == "Easy" and attempt.correct else 0.0,
+                    accuracy_med=1.0 if question.difficulty_band == "Medium" and attempt.correct else 0.0,
+                    accuracy_hard=1.0 if question.difficulty_band == "Hard" and attempt.correct else 0.0,
+                    efficiency_score=time_efficiency
+                )
+                db.add(mastery)
+                new_mastery = performance_score
+            
+            await db.flush()
+            
+            # Store mastery history entry
+            await self.create_mastery_history_entry(
+                db, user_id, question.subcategory, new_mastery
+            )
+            
+            logger.info(f"Updated mastery for user {user_id}, topic {topic_name}: {new_mastery:.3f}")
+            
+        except Exception as e:
+            logger.error(f"Error updating mastery with v1.3 formulas: {e}")
