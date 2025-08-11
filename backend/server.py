@@ -128,6 +128,37 @@ async def login_user(login_data: UserLogin, db: AsyncSession = Depends(get_datab
     auth_service = AuthService()
     return await auth_service.login_user_v2(login_data, db)
 
+@api_router.get("/user/diagnostic-status")
+async def get_user_diagnostic_status(
+    current_user: User = Depends(require_auth),
+    db: AsyncSession = Depends(get_database)
+):
+    """Check if user has completed a diagnostic"""
+    try:
+        # Check if user has any completed diagnostic
+        result = await db.execute(
+            select(Diagnostic)
+            .where(
+                Diagnostic.user_id == current_user.id,
+                Diagnostic.status == "completed"
+            )
+            .limit(1)
+        )
+        
+        completed_diagnostic = result.scalar_one_or_none()
+        
+        return {
+            "has_completed": completed_diagnostic is not None,
+            "user_id": str(current_user.id)
+        }
+        
+    except Exception as e:
+        logger.error(f"Error checking diagnostic status: {e}")
+        return {
+            "has_completed": False,
+            "user_id": str(current_user.id)
+        }
+
 @api_router.get("/auth/me")
 async def get_current_user_info(current_user: User = Depends(require_auth)):
     return {
