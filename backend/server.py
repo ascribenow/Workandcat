@@ -957,14 +957,20 @@ async def upload_pyq_document(
     current_user: User = Depends(require_admin),
     db: AsyncSession = Depends(get_database)
 ):
-    """Upload PYQ Word document for processing"""
+    """Upload PYQ document (Word or PDF) for processing"""
     try:
-        if not file.filename.endswith(('.docx', '.doc')):
-            raise HTTPException(status_code=400, detail="Only Word documents are allowed")
+        # Support both PDF and Word documents as per specification
+        allowed_extensions = ('.docx', '.doc', '.pdf')
+        if not file.filename.endswith(allowed_extensions):
+            raise HTTPException(
+                status_code=400, 
+                detail="Only Word documents (.docx, .doc) and PDF files (.pdf) are allowed"
+            )
         
         # Store file
         file_content = await file.read()
-        storage_key = f"pyq_{year}_{slot or 'unknown'}_{uuid.uuid4()}.docx"
+        file_extension = file.filename.split('.')[-1]
+        storage_key = f"pyq_{year}_{slot or 'unknown'}_{uuid.uuid4()}.{file_extension}"
         
         # Create ingestion record
         ingestion = PYQIngestion(
