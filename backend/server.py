@@ -23,13 +23,11 @@ import io
 
 # Import our modules
 from database import (
-    get_database, init_database, User, Question, Topic, Diagnostic, 
-    DiagnosticSet, Attempt, Mastery, Plan, PlanUnit, Session,
+    get_database, init_database, User, Question, Topic, Attempt, Mastery, Plan, PlanUnit, Session,
     PYQIngestion, PYQPaper, PYQQuestion, QuestionOption
 )
 from auth_service import AuthService, UserCreate, UserLogin, TokenResponse, require_auth, require_admin, ADMIN_EMAIL
 from llm_enrichment import LLMEnrichmentPipeline
-from diagnostic_system import DiagnosticSystem
 from mcq_generator import MCQGenerator
 from study_planner import StudyPlanner
 from mastery_tracker import MasteryTracker
@@ -44,7 +42,6 @@ EMERGENT_LLM_KEY = os.getenv("EMERGENT_LLM_KEY")
 
 # Initialize services
 llm_pipeline = LLMEnrichmentPipeline(EMERGENT_LLM_KEY)
-diagnostic_system = DiagnosticSystem()
 mcq_generator = MCQGenerator(EMERGENT_LLM_KEY)
 study_planner = StudyPlanner()
 mastery_tracker = MasteryTracker()
@@ -69,30 +66,6 @@ class QuestionCreateRequest(BaseModel):
     type_of_question: Optional[str] = None  # New canonical taxonomy field
     tags: List[str] = []
     source: str = "Admin"
-
-class DiagnosticStartResponse(BaseModel):
-    diagnostic_id: str
-    total_questions: int
-    estimated_time_minutes: int
-    instructions: str
-
-class QuestionResponse(BaseModel):
-    id: str
-    sequence: int
-    stem: str
-    category: str
-    subcategory: str
-    difficulty_band: str
-    expected_time_sec: int
-    options: Optional[Dict[str, str]] = None  # Generated on demand
-
-class AttemptSubmission(BaseModel):
-    diagnostic_id: Optional[str] = None
-    question_id: str
-    user_answer: str
-    time_sec: int
-    context: str = "diagnostic"  # diagnostic|daily|sandbox
-    hint_used: bool = False
 
 class SessionStart(BaseModel):
     plan_unit_ids: Optional[List[str]] = None
@@ -131,37 +104,6 @@ async def login_user(login_data: UserLogin, db: AsyncSession = Depends(get_datab
     auth_service = AuthService()
     return await auth_service.login_user_v2(login_data, db)
 
-@api_router.get("/user/diagnostic-status")
-async def get_user_diagnostic_status(
-    current_user: User = Depends(require_auth),
-    db: AsyncSession = Depends(get_database)
-):
-    """Check if user has completed a diagnostic"""
-    try:
-        # Check if user has any completed diagnostic
-        result = await db.execute(
-            select(Diagnostic)
-            .where(
-                Diagnostic.user_id == current_user.id,
-                Diagnostic.completed_at.isnot(None)
-            )
-            .limit(1)
-        )
-        
-        completed_diagnostic = result.scalar_one_or_none()
-        
-        return {
-            "has_completed": completed_diagnostic is not None,
-            "user_id": str(current_user.id)
-        }
-        
-    except Exception as e:
-        logger.error(f"Error checking diagnostic status: {e}")
-        return {
-            "has_completed": False,
-            "user_id": str(current_user.id)
-        }
-
 @api_router.get("/auth/me")
 async def get_current_user_info(current_user: User = Depends(require_auth)):
     return {
@@ -173,59 +115,6 @@ async def get_current_user_info(current_user: User = Depends(require_auth)):
     }
 
 # Diagnostic System Routes
-
-@api_router.post("/diagnostic/start", response_model=DiagnosticStartResponse)
-async def start_diagnostic(
-    current_user: User = Depends(require_auth),
-    db: AsyncSession = Depends(get_database)
-):
-    """Start a new 25-question diagnostic session"""
-    try:
-        # Ensure diagnostic set exists
-        diagnostic_set = await diagnostic_system.create_diagnostic_set(db)
-        
-        # Start diagnostic for user
-        diagnostic = await diagnostic_system.start_diagnostic(db, str(current_user.id))
-        
-        return DiagnosticStartResponse(
-            diagnostic_id=str(diagnostic.id),
-            total_questions=25,
-            estimated_time_minutes=60,  # 25 questions * ~2.5 min average
-            instructions="This is a comprehensive 25-question diagnostic to assess your current CAT preparation level. Take your time and do your best on each question."
-        )
-        
-    except Exception as e:
-        logger.error(f"Error starting diagnostic: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-@api_router.get("/diagnostic/{diagnostic_id}/questions")
-async def get_diagnostic_questions(
-    diagnostic_id: str,
-    current_user: User = Depends(require_auth),
-    db: AsyncSession = Depends(get_database)
-):
-    """Get the 25 diagnostic questions in order"""
-    try:
-        questions = await diagnostic_system.get_diagnostic_questions(db, diagnostic_id)
-        
-        # Generate MCQ options for each question
-        questions_with_options = []
-        for question_data in questions:
-            # Generate options using MCQ generator
-            options = await mcq_generator.generate_options(
-                question_data["stem"],
-                question_data["subcategory"],
-                question_data["difficulty_band"]
-            )
-            
-            question_data["options"] = options
-            questions_with_options.append(question_data)
-        
-        return {"questions": questions_with_options}
-        
-    except Exception as e:
-        logger.error(f"Error getting diagnostic questions: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
 
 @api_router.post("/diagnostic/submit-answer")
 async def submit_diagnostic_answer(
@@ -271,50 +160,6 @@ async def submit_diagnostic_answer(
     except Exception as e:
         logger.error(f"Error submitting diagnostic answer: {e}")
         raise HTTPException(status_code=500, detail=str(e))
-
-@api_router.post("/diagnostic/{diagnostic_id}/complete")
-async def complete_diagnostic(
-    diagnostic_id: str,
-    current_user: User = Depends(require_auth),
-    db: AsyncSession = Depends(get_database)
-):
-    """Complete diagnostic and get results"""
-    try:
-        # Get all attempts for this diagnostic
-        attempts_result = await db.execute(
-            select(Attempt, Question, Topic.name.label('topic_name'))
-            .join(Question, Attempt.question_id == Question.id)
-            .join(Topic, Question.topic_id == Topic.id)
-            .where(
-                Attempt.user_id == current_user.id,
-                Attempt.context == "diagnostic"
-            )
-            .order_by(Attempt.created_at.desc())
-            .limit(25)  # Get last 25 attempts
-        )
-        
-        # Convert to diagnostic format
-        attempt_data = []
-        for attempt, question, topic_name in attempts_result.fetchall():
-            if attempt.user_id:
-                attempt_data.append({
-                    "correct": attempt.correct,
-                    "time_sec": attempt.time_sec,
-                    "difficulty_band": question.difficulty_band,
-                    "subcategory": question.subcategory,
-                    "category": topic_name or "Unknown"
-                })
-        
-        # Complete diagnostic
-        result = await diagnostic_system.complete_diagnostic(db, diagnostic_id, attempt_data)
-        
-        return result
-        
-    except Exception as e:
-        logger.error(f"Error completing diagnostic: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-# Question Management Routes
 
 @api_router.post("/questions")
 async def create_question(
