@@ -271,13 +271,16 @@ backend:
     implemented: true
     working: false
     file: "backend/formulas.py"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
     needs_retesting: false
     status_history:
       - working: false
         agent: "testing"
         comment: "❌ FORMULA INTEGRATION INSUFFICIENT: Only 25% of expected formula integration found. Most questions missing formula-computed fields (difficulty_score, learning_impact, importance_index). EWMA mastery tracking working (✅), but question enrichment not applying formulas properly. Expected: calculate_difficulty_level, calculate_frequency_band, calculate_importance_level, calculate_learning_impact formulas integrated into question creation and enrichment pipeline. Current: Questions created without formula-computed scoring."
+      - working: false
+        agent: "testing"
+        comment: "❌ FINAL CANONICAL TAXONOMY TESTING: Formula integration verification FAILED with only 25.0% integration vs required 60%+. Comprehensive analysis: 1) Questions missing formula-computed fields: difficulty_score=0/5, learning_impact=0/5, importance_index=0/5 questions have these fields populated, 2) EWMA mastery tracking formulas working correctly (✅), 3) NAT format handling assumed working (✅), 4) Background job queuing works but enrichment not applying formulas. CRITICAL ISSUE: Question enrichment pipeline not populating formula-computed fields during LLM enrichment process. This affects question scoring, difficulty assessment, and learning impact calculation throughout the system."
 
   - task: "Enhanced Mastery Dashboard"
     implemented: true
