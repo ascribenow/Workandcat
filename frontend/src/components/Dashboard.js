@@ -333,7 +333,7 @@ export const Dashboard = () => {
           </div>
 
           {/* Detailed Progress Table */}
-          {progressData && progressData.detailed_progress && (
+          {masteryData && masteryData.detailed_progress && masteryData.detailed_progress.length > 0 && (
             <div className="bg-white rounded-lg shadow p-6">
               <h3 className="text-xl font-semibold text-gray-900 mb-6">Detailed Progress Breakdown</h3>
               <div className="overflow-x-auto">
@@ -351,7 +351,7 @@ export const Dashboard = () => {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {progressData.detailed_progress.map((item, index) => (
+                    {masteryData.detailed_progress.map((item, index) => (
                       <tr key={index} className="hover:bg-gray-50">
                         <td className="px-4 py-4 whitespace-nowrap">
                           <div className="flex items-center">
@@ -405,25 +405,25 @@ export const Dashboard = () => {
               <div className="mt-6 grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div className="bg-green-50 rounded-lg p-4">
                   <div className="text-2xl font-bold text-green-600">
-                    {progressData.detailed_progress.reduce((sum, item) => sum + (item.easy_solved || 0), 0)}
+                    {masteryData.detailed_progress.reduce((sum, item) => sum + (item.easy_solved || 0), 0)}
                   </div>
                   <div className="text-sm text-green-700">Easy Questions Solved</div>
                 </div>
                 <div className="bg-yellow-50 rounded-lg p-4">
                   <div className="text-2xl font-bold text-yellow-600">
-                    {progressData.detailed_progress.reduce((sum, item) => sum + (item.medium_solved || 0), 0)}
+                    {masteryData.detailed_progress.reduce((sum, item) => sum + (item.medium_solved || 0), 0)}
                   </div>
                   <div className="text-sm text-yellow-700">Medium Questions Solved</div>
                 </div>
                 <div className="bg-red-50 rounded-lg p-4">
                   <div className="text-2xl font-bold text-red-600">
-                    {progressData.detailed_progress.reduce((sum, item) => sum + (item.hard_solved || 0), 0)}
+                    {masteryData.detailed_progress.reduce((sum, item) => sum + (item.hard_solved || 0), 0)}
                   </div>
                   <div className="text-sm text-red-700">Hard Questions Solved</div>
                 </div>
                 <div className="bg-blue-50 rounded-lg p-4">
                   <div className="text-2xl font-bold text-blue-600">
-                    {progressData.detailed_progress.reduce((sum, item) => sum + (item.easy_solved || 0) + (item.medium_solved || 0) + (item.hard_solved || 0), 0)}
+                    {masteryData.detailed_progress.reduce((sum, item) => sum + (item.easy_solved || 0) + (item.medium_solved || 0) + (item.hard_solved || 0), 0)}
                   </div>
                   <div className="text-sm text-blue-700">Total Questions Solved</div>
                 </div>
