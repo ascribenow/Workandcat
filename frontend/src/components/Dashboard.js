@@ -156,24 +156,15 @@ export const Dashboard = () => {
             </p>
           </div>
 
-          {/* Quick Actions */}
-          <div className="grid md:grid-cols-2 gap-4 mb-8">
+          {/* Quick Actions - Only for users who completed diagnostic */}
+          <div className="grid md:grid-cols-1 gap-4 mb-8">
             <button
-              onClick={() => setCurrentView('diagnostic')}
+              onClick={() => setCurrentView('study-plan')}
               className="bg-blue-600 hover:bg-blue-700 text-white p-6 rounded-lg text-center transition-colors"
             >
-              <div className="text-2xl mb-2">🎯</div>
-              <div className="font-semibold">Take Diagnostic</div>
-              <div className="text-sm opacity-80">Assess your level</div>
-            </button>
-            
-            <button
-              onClick={() => startQuickSession(30)}
-              className="bg-green-600 hover:bg-green-700 text-white p-6 rounded-lg text-center transition-colors"
-            >
-              <div className="text-2xl mb-2">⚡</div>
-              <div className="font-semibold">Quick Practice</div>
-              <div className="text-sm opacity-80">30 minutes</div>
+              <div className="text-2xl mb-2">📅</div>
+              <div className="font-semibold">Study Plan</div>
+              <div className="text-sm opacity-80">Your personalized learning journey</div>
             </button>
           </div>
 
