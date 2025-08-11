@@ -1205,6 +1205,13 @@ async def startup_event():
         break
     logger.info("🎯 Diagnostic system initialized")
     
+    # Start background job processing
+    if EMERGENT_LLM_KEY:
+        start_background_processing(EMERGENT_LLM_KEY)
+        logger.info("⏰ Background job processing started")
+    else:
+        logger.warning("⚠️ Background jobs not started - missing EMERGENT_LLM_KEY")
+    
     logger.info(f"📧 Admin Email: {ADMIN_EMAIL}")
     logger.info("✅ CAT Preparation Platform v2.0 Ready!")
 
