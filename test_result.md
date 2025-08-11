@@ -425,6 +425,8 @@ test_plan:
     - "Formula Integration"
   stuck_tasks:
     - "Enhanced LLM Enrichment Pipeline"
+    - "Diagnostic System"
+    - "Formula Integration"
   test_all: false
   test_priority: "high_first"
 
