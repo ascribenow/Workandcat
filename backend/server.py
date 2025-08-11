@@ -24,7 +24,7 @@ import io
 # Import our modules
 from database import (
     get_database, init_database, User, Question, Topic, Attempt, Mastery, Plan, PlanUnit, Session,
-    PYQIngestion, PYQPaper, PYQQuestion, QuestionOption
+    PYQIngestion, PYQPaper, PYQQuestion, QuestionOption, Diagnostic
 )
 from auth_service import AuthService, UserCreate, UserLogin, TokenResponse, require_auth, require_admin, ADMIN_EMAIL
 from llm_enrichment import LLMEnrichmentPipeline
@@ -32,6 +32,7 @@ from mcq_generator import MCQGenerator
 from study_planner import StudyPlanner
 from mastery_tracker import MasteryTracker
 from background_jobs import start_background_processing, stop_background_processing
+from diagnostic_system import DiagnosticSystem
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
