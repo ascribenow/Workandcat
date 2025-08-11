@@ -930,6 +930,7 @@ async def upload_questions_csv(
                 solution_approach="",
                 detailed_solution="",
                 subcategory=subcategory or category or "General",
+                type_of_question="",  # Empty for CSV uploads, can be enriched later
                 tags=[],
                 source=source or "CSV Upload",
                 is_active=True
