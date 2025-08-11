@@ -85,7 +85,8 @@ async def fix_database_schema():
         
         print("   Updated schema:")
         for row in result.fetchall():
-            print(f"      {row.column_name}: VARCHAR({row.character_maximum_length}) ✅")
+            table_name, column_name, max_length = row
+            print(f"      {table_name}.{column_name}: VARCHAR({max_length}) ✅")
         
         print("✅ ISSUE 1 RESOLVED: Database schema constraints fixed")
 
