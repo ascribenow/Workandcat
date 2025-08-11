@@ -104,6 +104,8 @@ export const SessionSystem = ({ sessionId: propSessionId, onSessionEnd }) => {
         time_sec: timeSpent,
         context: 'daily',
         hint_used: false
+      }, {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('cat_prep_token')}` }
       });
 
       setResult(response.data);
