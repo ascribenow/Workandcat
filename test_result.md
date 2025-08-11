@@ -154,7 +154,7 @@ backend:
     implemented: true
     working: false
     file: "backend/diagnostic_system.py"
-    stuck_count: 2
+    stuck_count: 3
     priority: "high"
     needs_retesting: false
     status_history:
