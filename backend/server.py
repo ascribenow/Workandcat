@@ -1234,12 +1234,13 @@ async def process_pyq_document(ingestion_id: str, file_content: bytes):
             
             await db.commit()
             logger.info(f"PYQ document {ingestion_id} processed successfully")
+            break  # Exit the async for loop
             
     except Exception as e:
         logger.error(f"Error processing PYQ document: {e}")
         # Update ingestion status to failed
         try:
-            async with get_database() as db:
+            async for db in get_database():
                 result = await db.execute(select(PYQIngestion).where(PYQIngestion.id == ingestion_id))
                 ingestion = result.scalar_one_or_none()
                 if ingestion:
