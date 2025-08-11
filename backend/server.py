@@ -72,7 +72,7 @@ class SessionStart(BaseModel):
     target_minutes: Optional[int] = 30
 
 class StudyPlanRequest(BaseModel):
-    track: Optional[str] = None  # Will be determined from diagnostic if not provided
+    track: str = "Beginner"  # Default track since no diagnostic
     daily_minutes_weekday: int = 30
     daily_minutes_weekend: int = 60
 
