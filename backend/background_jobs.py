@@ -33,12 +33,12 @@ class BackgroundJobProcessor:
     def start_scheduler(self):
         """Start the background job scheduler"""
         try:
-            # Schedule nightly jobs at 2 AM
+            # Schedule enhanced nightly jobs at 2 AM
             self.scheduler.add_job(
-                self.nightly_processing_job,
+                enhanced_nightly_processing_job,
                 CronTrigger(hour=2, minute=0),
-                id='nightly_processing',
-                name='Nightly Processing Job'
+                id='enhanced_nightly_processing',
+                name='Enhanced Nightly Processing Job'
             )
             
             # Schedule mastery decay calculation every 6 hours
