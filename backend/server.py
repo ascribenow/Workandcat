@@ -261,7 +261,7 @@ async def login_user(login_data: UserLogin):
             "user": {
                 "id": user_data["id"],
                 "email": user_data["email"],
-                "name": user_data["name"],
+                "full_name": user_data["name"],
                 "is_admin": user_data["is_admin"],
                 "email_verified": True,
                 "created_at": datetime.utcnow().isoformat(),
