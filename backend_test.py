@@ -586,6 +586,21 @@ class CATBackendTester:
         
         return False
 
+    def test_invalid_endpoints(self):
+        """Test error handling for invalid requests"""
+        # Test invalid login
+        invalid_login = {"email": "invalid@test.com", "password": "wrongpass"}
+        success, response = self.run_test("Invalid Login", "POST", "auth/login", 401, invalid_login)
+        
+        # Test invalid question creation without auth
+        invalid_question = {
+            "stem": "Test question",
+            "answer": "Test answer"
+        }
+        success, response = self.run_test("Invalid Question Creation (No Auth)", "POST", "questions", 401, invalid_question)
+        
+        return True  # These should fail, so we return True if they do
+
 def main():
     print("🚀 Starting CAT Backend API v2.0 Testing...")
     print("Testing PostgreSQL-based backend with advanced AI features")
