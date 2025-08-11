@@ -302,16 +302,10 @@ export const DiagnosticSystem = () => {
 
           <div className="text-center">
             <button
-              onClick={resetDiagnostic}
+              onClick={() => window.location.reload()}
               className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg text-lg font-semibold transition-colors mr-4"
             >
-              Return to Dashboard
-            </button>
-            <button
-              onClick={() => window.location.href = '/study-plan'}
-              className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg text-lg font-semibold transition-colors"
-            >
-              Generate Study Plan
+              Go to Study Plan
             </button>
           </div>
         </div>
