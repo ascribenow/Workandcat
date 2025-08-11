@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "CAT Quantitative Aptitude preparation application with complete rebuild from MongoDB to PostgreSQL featuring advanced AI scoring, 25-question diagnostic system, mastery tracking, 90-day study planning, and real-time MCQ generation"
+user_problem_statement: "CAT Quantitative Aptitude preparation application with focus on formula integration and core study system (diagnostic functionality removed as requested by user)"
 
 backend:
   - task: "PostgreSQL Database Setup"
