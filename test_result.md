@@ -377,8 +377,12 @@ metadata:
   run_ui: false
 
 test_plan:
-  current_focus: []
-  stuck_tasks: []
+  current_focus:
+    - "Enhanced LLM Enrichment Pipeline"
+    - "Diagnostic System"
+    - "Formula Integration"
+  stuck_tasks:
+    - "Enhanced LLM Enrichment Pipeline"
   test_all: false
   test_priority: "high_first"
 
