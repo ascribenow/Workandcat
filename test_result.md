@@ -122,9 +122,9 @@ backend:
         
   - task: "LLM Enrichment Pipeline"
     implemented: true
-    working: true
+    working: false
     file: "backend/llm_enrichment.py"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
     needs_retesting: false
     status_history:
@@ -140,6 +140,9 @@ backend:
       - working: true
         agent: "testing"
         comment: "✅ CONFIRMED WORKING: Question creation with LLM enrichment fully functional. Successfully creates questions with proper topic_id assignment and queues background enrichment. API endpoint POST /api/questions working correctly."
+      - working: false
+        agent: "testing"
+        comment: "❌ CRITICAL DATABASE SCHEMA ISSUE: Enhanced LLM enrichment fails due to subcategory field constraint. Database schema limits subcategory to varchar(20) but canonical taxonomy requires longer names like 'Time–Speed–Distance (TSD)' (25+ chars). Error: 'value too long for type character varying(20)'. This blocks canonical taxonomy implementation. ROOT CAUSE: Database schema needs subcategory field length increased from varchar(20) to varchar(50) or longer to support canonical taxonomy subcategory names."
         
   - task: "Diagnostic System"
     implemented: true
