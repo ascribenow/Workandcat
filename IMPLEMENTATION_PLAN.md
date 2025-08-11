@@ -14,12 +14,12 @@
 - [x] Add mastery thresholds (≥85%, 60-84%, <60%)
 - [x] Update formulas.py with new formula suite
 
-### **Phase 2: Database Schema Updates** ⏳
-- [ ] Add version_number to questions table
-- [ ] Create mastery_history table
-- [ ] Add preparedness_target to plans table
-- [ ] Add last_attempt_date to attempts table
-- [ ] Create pyq_files table
+### **Phase 2: Database Schema Updates** ✅
+- [x] Add version_number to questions table
+- [x] Create mastery_history table
+- [x] Add preparedness_target to plans table
+- [x] Add last_attempt_date to attempts table
+- [x] Create pyq_files table
 
 ### **Phase 3: Enhanced Algorithms & Business Logic** ⏳
 - [ ] Implement preparedness ambition calculation
