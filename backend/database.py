@@ -51,6 +51,7 @@ class Question(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     topic_id = Column(UUID(as_uuid=True), ForeignKey('topics.id'), nullable=False)
     subcategory = Column(Text, nullable=False)
+    type_of_question = Column(String(150))  # Specific question type within subcategory
     
     # Core question content
     stem = Column(Text, nullable=False)
