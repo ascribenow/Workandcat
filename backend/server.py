@@ -1189,7 +1189,7 @@ async def enrich_question_background(question_id: str, hint_category: str = None
 async def process_pyq_document(ingestion_id: str, file_content: bytes):
     """Background task to process PYQ document"""
     try:
-        async with get_database() as db:
+        async for db in get_database():
             # Get ingestion record
             result = await db.execute(select(PYQIngestion).where(PYQIngestion.id == ingestion_id))
             ingestion = result.scalar_one_or_none()
