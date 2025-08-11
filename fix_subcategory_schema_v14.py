@@ -7,6 +7,8 @@ Increases subcategory field from VARCHAR(20) to VARCHAR(100) to support canonica
 import asyncio
 import logging
 from sqlalchemy import text
+import sys
+sys.path.append('/app/backend')
 from database import get_database
 
 # Configure logging
