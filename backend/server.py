@@ -29,6 +29,9 @@ db = client[os.environ['DB_NAME']]
 # LLM Chat setup
 llm_api_key = os.environ.get('EMERGENT_LLM_KEY')
 
+# JWT Secret for token signing
+JWT_SECRET = os.environ.get('JWT_SECRET', 'your-secret-key-change-in-production')
+
 # Initialize Auth Service
 auth_service = AuthService()
 
