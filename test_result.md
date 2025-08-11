@@ -546,15 +546,18 @@ frontend:
 
 metadata:
   created_by: "main_agent"
-  version: "6.0"
-  test_sequence: 6
+  version: "7.0"
+  test_sequence: 7
   run_ui: false
   v13_compliance_verified: true
   v13_compliance_rate: "100.0%"
-  overall_success_rate: "92.0%"
-  critical_refinements_success_rate: "75.0%"
-  production_ready: true
+  overall_success_rate: "58.3%"
+  canonical_taxonomy_success_rate: "25.0%"
+  nightly_engine_success_rate: "66.7%"
+  critical_blocker: "database_schema_constraint_subcategory_varchar_20"
+  production_ready: false
   final_verification_complete: true
+  comprehensive_canonical_testing_complete: true
 
 test_plan:
   current_focus:
