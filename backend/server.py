@@ -32,7 +32,6 @@ from mcq_generator import MCQGenerator
 from study_planner import StudyPlanner
 from mastery_tracker import MasteryTracker
 from background_jobs import start_background_processing, stop_background_processing
-from diagnostic_system import DiagnosticSystem
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -46,7 +45,6 @@ llm_pipeline = LLMEnrichmentPipeline(EMERGENT_LLM_KEY)
 mcq_generator = MCQGenerator(EMERGENT_LLM_KEY)
 study_planner = StudyPlanner()
 mastery_tracker = MasteryTracker()
-diagnostic_system = DiagnosticSystem()
 
 app = FastAPI(
     title="CAT Preparation Platform v2.0",
