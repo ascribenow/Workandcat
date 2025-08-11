@@ -10,6 +10,7 @@ import os
 import uuid
 import logging
 import json
+import jwt
 from emergentintegrations.llm.chat import LlmChat, UserMessage
 from docx import Document
 import io
