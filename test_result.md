@@ -592,6 +592,9 @@ test_plan:
       - working: false
         agent: "testing"
         comment: "❌ CRITICAL REFINEMENT 1 FAILED: Category mapping bug NOT FULLY FIXED. Categories still showing as 'Arithmetic' instead of canonical 'A-Arithmetic', 'B-Algebra' format in mastery dashboard. Detailed progress shows 'Unknown' categories instead of proper A-E taxonomy. Core functionality working with 18 progress entries, proper difficulty breakdown (Easy: 7, Medium: 14, Hard: 4), and mastery thresholds, but category mapping remains broken. This is a stuck task requiring main agent attention."
+      - working: false
+        agent: "testing"
+        comment: "❌ DETAILED PROGRESS DASHBOARD ISSUES: Found 18 detailed progress entries with proper structure ✅, but categories still showing as 'Unknown' instead of canonical taxonomy (A-Arithmetic, B-Algebra, etc.). Subcategories (18) and question types (18) properly populated ✅. Difficulty breakdown working (Easy: 7, Medium: 14, Hard: 4) ✅. Mastery thresholds correctly categorized (all 18 in 'Needs focus <60%') ✅. Core functionality operational but category mapping needs fixing for full canonical taxonomy integration."
 
   - task: "MCQ Options Generation"
     implemented: true
