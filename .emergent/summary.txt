@@ -1,35 +1,33 @@
 <analysis>
-The previous AI engineer initiated development of a CAT preparation application based on an initial product outline, employing a FastAPI backend with MongoDB and a React frontend. The initial phase focused on setting up a basic question bank, study plan, and authentication. A key bug related to MongoDB ObjectId serialization was identified and fixed. Following this, the user requested an authentication system upgrade, leading to Firebase integration and hardcoded admin access. A critical pivot occurred when the user provided a *new*, significantly more detailed product outline, rendering the existing implementation a solid MVP/prototype. The AI engineer performed a thorough gap analysis, identifying major architectural and feature disparities (e.g., MongoDB to PostgreSQL, basic AI to advanced 4-factor scoring, missing diagnostic/mastery systems). The user explicitly chose a Complete Rebuild to match the full specification. The AI engineer has since started this rebuild, migrating to PostgreSQL, establishing a new database schema, and creating numerous core backend modules for advanced features like LLM enrichment, diagnostic, MCQ generation, study planning, mastery tracking, and background jobs. The system is in a transitional state, with backend infrastructure for the rebuild largely established but pending full integration and frontend updates.
+The previous AI engineer successfully transitioned a CAT preparation MVP from MongoDB/FastAPI/React to a robust PostgreSQL/FastAPI/React production system. Key achievements include comprehensive backend re-engineering with SQLAlchemy for 15+ tables, implementing core AI modules (LLM enrichment, diagnostic, MCQ generation, study planning, mastery tracking), and resolving numerous backend bugs. Frontend efforts focused on integrating with the new backend and adapting the UI for specific user flows (admin/student dashboards, diagnostic, study plan). The work progressed through fixing initial integration issues, enhancing the mastery dashboard, integrating background jobs, and then addressing critical issues identified through testing, such as database schema constraints, JWT errors, and diagnostic system discrepancies. The latest work involved a deep dive into resolving persistent issues with formula integration, diagnostic question distribution, and difficulty representation, aiming for a 100% success rate, which are still in progress.
 </analysis>
 
 <product_requirements>
-The overall product is a comprehensive CAT Quantitative Aptitude preparation application. Initially, it was envisioned with a 90-day optimization focus, three database systems (Question Bank, PYQ, User Preparedness), a canonical taxonomy (5 main categories, 28 sub-categories), and metadata for questions. Admin features included PDF upload for PYQ ingestion.
-
-The updated, definitive product outline dictates a production-ready system with significantly advanced features:
-- **Database:** PostgreSQL with 15+ interconnected tables (, , , , , etc.).
-- **AI Scoring:** Sophisticated 4-factor difficulty formula (, ).
-- **Diagnostic System:** A 25-question fixed-blueprint diagnostic with capability scoring (, , ).
-- **Study Planning:** Advanced system with three tracks (Beginner/Intermediate/Good), rolling , daily 30-minute minimums, and budget management.
-- **Attempt Management:** Max 3 attempts per question with specific retry intervals and hint support.
-- **Background Processing:** Nightly jobs for dynamic Learning Impact, Mastery percentage updates, and frequency analysis.
-- **MCQ Generation:** Real-time, on-demand option generation with misconception-based distractors.
-- **Authentication:** Professional system, with a hardcoded admin email for password reset (specifically ).
-- **UI:** Minimalistic student and admin interfaces.
+The product is a comprehensive CAT Quantitative Aptitude preparation application, aiming to provide a personalized and adaptive learning experience. It has evolved from an MVP to a production-ready system.
+**Core Requirements:**
+*   **Database:** PostgreSQL with 15+ interconnected tables (Users, Questions, Topics, Attempts, Mastery, Plans).
+*   **AI Scoring:** 4-factor difficulty formula for questions; LLM enrichment for question analysis and scoring.
+*   **Diagnostic System:** A fixed 25-question diagnostic test for new users, leading to a personalized study plan; not re-offered to returning users. Must have specific category/subcategory/difficulty distribution.
+*   **Study Planning:** Automated, adaptive system with three tracks, rolling plan units, daily minimums, and budget management; no manual selection for students.
+*   **Attempt Management:** Max 3 attempts per question with retry intervals and hint support.
+*   **Background Processing:** Nightly jobs for dynamic Learning Impact and Mastery percentage updates.
+*   **MCQ Generation:** Real-time, on-demand option generation with distractors.
+*   **Authentication:** Professional system with hardcoded admin access ().
+*   **UI:** Minimalistic student interface (Dashboard, Study Plan, Practice) and a streamlined admin interface (PYQ Upload, Question Upload (single/CSV), Questions Export).
+*   **Taxonomy:** Canonical QA taxonomy (Arithmetic, Algebra, Geometry & Mensuration, Number System, Modern Math) with 29 subcategories and a  column.
+*   **File Uploads:** Support for .docx, .doc, and .pdf for PYQ uploads.
 </product_requirements>
 
 <key_technical_concepts>
-- **Full-stack Application:** React.js frontend, FastAPI backend.
-- **Database:** Initial: MongoDB; Current/Rebuild: PostgreSQL with SQLAlchemy.
-- **Authentication:** Firebase Authentication (simplified for MVP), JWT for API access.
-- **AI Integration:** Emergent LLM Key for question analysis, classification, and scoring.
-- **Containerization:** Kubernetes environment, Supervisor for process management.
-- **Development Tools:** yarn install v1.22.22
+-   **Full-stack Application:** React.js (frontend) and FastAPI (backend).
+-   **Database:** PostgreSQL with SQLAlchemy ORM (transitioned from MongoDB).
+-   **Authentication:** JWT for API access, integrated with PostgreSQL users.
+-   **AI Integration:** Universal Emergent LLM Key for question analysis, scoring, and enrichment.
+-   **Containerization:** Kubernetes environment, Supervisor for process management.
+-   **Development Tools:** yarn install v1.22.22
 [1/4] Resolving packages...
-[2/4] Fetching packages...
-[3/4] Linking dependencies...
-[4/4] Building fresh packages...
-success Saved lockfile.
-Done in 0.43s. for frontend, 
+success Already up-to-date.
+Done in 0.19s. (frontend), 
 Usage:   
   pip <command> [options]
 
@@ -104,7 +102,8 @@ General Options:
   --use-feature <feature>     Enable new functionality, that may be backward
                               incompatible.
   --use-deprecated <feature>  Enable deprecated functionality, that will be
-                              removed in the future. for backend,  for API testing.
+                              removed in the future. (backend).
+-   **Background Jobs:** APScheduler for nightly tasks.
 </key_technical_concepts>
 
 <code_architecture>
@@ -112,52 +111,77 @@ The application follows a standard full-stack architecture with a React frontend
 
 
 
-**Key Files and Changes:**
-- : Initially, this was the main FastAPI application. It contained API routes for basic functions like  and . It was updated multiple times for the initial build, including fixing the MongoDB ObjectID serialization issue and integrating the Firebase authentication system.
-- : Contains environment variables. Initially configured for MongoDB (), it has been updated to include PostgreSQL connection details (, , , , ).
-- : Python dependencies. Updated to include , , , and  to support Firebase authentication and PostgreSQL integration.
-- : The main React component. It was initially a basic setup. Significant changes were made to integrate the new Firebase authentication system by wrapping the application with  and managing user login/logout states. It will require further updates to integrate with the new PostgreSQL backend.
-- : Global styles. A basic styling file that received updates for a minimal, clean UI.
-- : **NEW** file. Implemented to handle user authentication, including Firebase integration for user registration, login, and token generation/validation. It has been updated to work with PostgreSQL users.
-- : **NEW** file. Contains the Firebase client-side configuration for the React application.
-- : **NEW** file. Provides a React Context for authentication, managing user state and making authentication functions available throughout the application.
-- : A script used to populate the initial MongoDB database with sample users and questions.
-- : A script used to create and test admin user login after the Firebase authentication system was integrated.
-- : **NEW** file. Crucial for the rebuild, this defines the PostgreSQL connection using SQLAlchemy and sets up all 15+ database models (e.g., , , , , ).
-- : **NEW** file. Designed to implement the advanced 4-factor difficulty scoring and other LLM-powered question enrichment algorithms.
-- : **NEW** file. Contains the logic for the 25-question diagnostic tests and capability scoring.
-- : **NEW** file. Responsible for generating real-time MCQ options with distractors.
-- : **NEW** file. Implements the sophisticated study plan generation algorithms, including the three tracks and daily plan units.
-- : **NEW** file. Handles the EWMA-based mastery percentage tracking with time decay.
-- : **NEW** file. Intended for nightly tasks such as dynamic Learning Impact calculation and mastery percentage updates.
-- : **NEW** file. This is intended to be the main FastAPI application for the rebuilt system, integrating all the new backend modules and advanced features defined in the new product outline.
-- : **NEW** file. A script for populating the new PostgreSQL database with sample data according to the updated schema.
+-   : The main FastAPI application.
+    -   **Importance:** Central hub for all API routes, integrating various backend modules. Manages startup/shutdown events, authentication, and core business logic endpoints.
+    -   **Changes:**  setup, fixed  for DB sessions, fixed  assignment, corrected admin stats query, debugged diagnostic completion and session answer submission. Added CSV upload/export, temporarily simplified login, then reverted. Enhanced  to distinguish categories/subcategories based on Topic hierarchy. Integrated  initialization in startup/shutdown events. Updated PYQ upload endpoint to support PDF files.
+-   : Defines all SQLAlchemy models and handles PostgreSQL connection.
+    -   **Importance:** Establishes the entire PostgreSQL schema, including , , , , , , , , , etc.
+    -   **Changes:** Defined 15+ models.  model now includes  for hierarchical categorization and  field for A/B/C/D/E classification.  and  models now include  column (VARCHAR(150)).  model changed from  to  for completion tracking.
+-   : Environment variables for backend services.
+    -   **Importance:** Stores sensitive information like PostgreSQL connection details and local testing URLs.
+    -   **Changes:** Updated to include PostgreSQL details and temporary local frontend URLs for testing.
+-   : Authentication logic.
+    -   **Importance:** Handles user authentication, JWT token generation, and validation for PostgreSQL users.
+    -   **Changes:** Updated to work with PostgreSQL user models. Fixed  to  for PyJWT version compatibility.
+-   : Logic for the 25-question diagnostic test.
+    -   **Importance:** Manages question selection for the diagnostic, ensuring a fixed blueprint and preventing duplicates.
+    -   **Changes:** Made question matching more flexible, ensured 25-question blueprint (8+5+6+3+3), updated difficulty terminology from Difficult to Hard. Integrated formulas from .
+-   : LLM-powered question scoring and enrichment.
+    -   **Importance:** Applies AI algorithms for question difficulty, topic, and other metadata extraction.
+    -   **Changes:** Integrated canonical taxonomy into enrichment process. Enhanced  to determine and include  and use new formulas.
+-   : EWMA-based mastery tracking.
+    -   **Importance:** Calculates and tracks student mastery based on performance and time decay.
+    -   **Changes:** Updated to use new EWMA formulas and preparedness ambition calculations from .
+-   : Contains logic for nightly tasks.
+    -   **Importance:** Manages scheduled updates, mastery decay, and study plan extensions.
+    -   **Changes:** Functionality was already well-implemented; integration into  startup/shutdown was added.
+-   : **NEW** file.
+    -   **Importance:** Centralizes all computational formulas for difficulty, frequency, importance, learning impact, EWMA mastery, preparedness ambition, NAT validation, attempt spacing, and diagnostic blueprint.
+    -   **Changes:** Created to encapsulate 10 major formulas.
+-   : Main React component.
+    -   **Importance:** Handles overall routing, authentication context, and renders main UI components like Dashboard and AdminPanel.
+    -   **Changes:** Heavily modified to integrate new authentication context, render  and , manage view states for student/admin flow (diagnostic for new users, study plan for returning users).
+-   : Main user dashboard and includes admin functions.
+    -   **Importance:** Displays student progress (mastery, study plan) and provides admin functionalities.
+    -   **Changes:** Redesigned for student progress (Category, Sub Category, Progress %). Admin section refined to only show PYQ Upload (with PDF support now), Question Upload (single/CSV), and CSV Export. Updated file type acceptance for PYQ upload to include .
+-   : Script to populate PostgreSQL database.
+    -   **Importance:** Populates initial data for testing and development.
+    -   **Changes:** Fixed SQL syntax and  during execution.
+-   : **NEW** script.
+    -   **Importance:** Helper script to check and potentially populate diagnostic set.
+    -   **Changes:** Created to verify diagnostic set population; fixed to handle composite primary keys.
+-   : **NEW** script.
+    -   **Importance:** Helper script to clean corrupt diagnostic records.
+    -   **Changes:** Created to remove diagnostic entries with null ; fixed SQLAlchemy  attribute error.
+-    / : **NEW** scripts.
+    -   **Importance:** Helper scripts to alter database schema.
+    -   **Changes:** Created to increase VARCHAR length for subcategory and other relevant columns.
+-   : **NEW** script.
+    -   **Importance:** Script to populate the database with the predefined canonical taxonomy.
+    -   **Changes:** Created to update or insert topics according to the canonical taxonomy, handling foreign key constraints.
+-   : **NEW** script.
+    -   **Importance:** Script to add missing columns required for formula integration to the Question table.
+    -   **Changes:** Created to add , , ,  columns; fixed  reference issue.
+-   : **NEW** file.
+    -   **Importance:** Documentation for system architecture and database schema.
+    -   **Changes:** Created to visually represent the 3-tier architecture, database schema, data flows, and key components. Updated to include canonical taxonomy, formulas, correct diagnostic blueprint, and acceptance criteria.
 </code_architecture>
 
 <pending_tasks>
-- Full integration of all new backend modules (, , , , , ) into .
-- Complete implementation of background jobs (e.g., scheduling nightly tasks).
-- Comprehensive frontend implementation to integrate with all the new advanced APIs and features (dashboard, question bank, practice interface, admin panel, analytics, diagnostic system UI).
-- End-to-end testing of the fully rebuilt application with all new features.
+-   Complete implementation of formula integration (current test success rate is 37%, needs ≥60%).
+-   Fix 25-question diagnostic distribution (currently 17/25 questions are Unknown category).
+-   Fix missing proper difficulty distribution (currently 100% Medium, 0% Easy/Hard).
 </pending_tasks>
 
 <current_work>
-The immediate focus before this summary request was on the Complete Rebuild phase, specifically establishing the core backend infrastructure and database. The AI engineer has successfully:
-1.  **Migrated the database setup from MongoDB to PostgreSQL**: This involved installing PostgreSQL on the system, updating the  file with PostgreSQL connection details, and creating  which defines the SQLAlchemy models for all 15+ tables required by the new specification (e.g., , , , , ). The database was successfully initialized.
-2.  **Created numerous new backend modules**: These modules are designed to implement the advanced features from the second product outline. This includes:
-    *    for advanced AI scoring.
-    *    for the 25-question diagnostic.
-    *    for real-time MCQ option generation.
-    *    for sophisticated study plan creation.
-    *    for progress tracking.
-    *    for nightly processing tasks.
-    *   , intended as the new main FastAPI application to house all these integrated features.
-3.  **Updated authentication for PostgreSQL**: The existing  was modified to work with the PostgreSQL database.
-4.  **Prepared for data population**: A new script  was created to populate the PostgreSQL database.
+Immediately prior to this summary, the AI engineer was focused on resolving three critical issues that were preventing the application from achieving a 100% success rate in comprehensive testing:
+1.  **Formula Integration:** The backend's formula calculations, particularly for scoring, were not fully integrated, showing a low success rate (37% against a target of ≥60%). This means core AI-powered metrics are not being computed correctly.
+2.  **25-Question Diagnostic Distribution:** The diagnostic test, which is crucial for new user onboarding and study plan generation, had incorrect question distribution, with 17 out of 25 questions falling into an Unknown category. This indicates a problem with how questions are categorized or selected for the diagnostic set, directly impacting the personalized learning experience.
+3.  **Missing Proper Difficulty Distribution:** All questions in the diagnostic were incorrectly categorized as Medium difficulty, with 0% in Easy or Hard categories. This suggests an issue with the difficulty assignment or retrieval logic, impacting the adaptive nature of the test.
 
-The current state reflects a significant backend transformation, setting the foundation for the complex features required by the final specification. The database is initialized, and core logical modules are in place, awaiting full integration into the main server and subsequent frontend development.
+To address these, the AI engineer previously created and ran scripts like , , and . However, the latest comprehensive test results (Chat Message 327) indicate these issues *persist*, despite previous attempts at fixing them. The last action taken was creating a new script  (Chat Message 330) to implement what are now considered the REAL fixes for these lingering problems, acknowledging that previous solutions were insufficient.
 </current_work>
 
 <optional_next_step>
-Integrate all new backend modules into  to expose the advanced APIs for the frontend.
+Execute the  script to resolve the remaining critical issues.
 </optional_next_step>
