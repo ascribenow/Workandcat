@@ -3893,11 +3893,13 @@ def run_comprehensive_canonical_taxonomy_tests():
     return canonical_passed, nightly_passed, len(canonical_tests), len(nightly_engine_tests)
 
 if __name__ == "__main__":
-    # Run comprehensive canonical taxonomy validation tests
-    canonical_passed, nightly_passed, canonical_total, nightly_total = run_comprehensive_canonical_taxonomy_tests()
+    print("🌙 ENHANCED NIGHTLY ENGINE INTEGRATION - FINAL COMPREHENSIVE TEST")
+    print("Testing after claimed database schema constraint fix")
+    print("=" * 80)
     
-    # Success criteria: At least 75% success in both canonical taxonomy and nightly engine
-    canonical_success = (canonical_passed / canonical_total) >= 0.75 if canonical_total > 0 else False
-    nightly_success = (nightly_passed / nightly_total) >= 0.75 if nightly_total > 0 else False
+    tester = CATBackendTester()
     
-    sys.exit(0 if (canonical_success and nightly_success) else 1)
+    # Run the focused Enhanced Nightly Engine Integration test
+    success = tester.run_enhanced_nightly_engine_tests_only()
+    
+    sys.exit(0 if success else 1)
