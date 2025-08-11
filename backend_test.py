@@ -2703,12 +2703,26 @@ def main():
         print(f"{status} {test_name}")
     print(f"Prerequisite Rate: {(prereq_passed/len(prerequisite_tests)*100):.1f}% ({prereq_passed}/{len(prerequisite_tests)})")
     
-    print("\n🎯 NEW CRITICAL COMPONENTS RESULTS:")
+    print("\n🎯 ENHANCED NIGHTLY ENGINE RESULTS:")
+    nightly_passed = sum(1 for _, result in nightly_engine_tests if result)
+    for test_name, result in nightly_engine_tests:
+        status = "✅ PASS" if result else "❌ FAIL"
+        print(f"{status} {test_name}")
+    print(f"Nightly Engine Rate: {(nightly_passed/len(nightly_engine_tests)*100):.1f}% ({nightly_passed}/{len(nightly_engine_tests)})")
+    
+    print("\n🎯 CRITICAL REFINEMENTS RESULTS:")
     critical_passed = sum(1 for _, result in critical_tests if result)
     for test_name, result in critical_tests:
         status = "✅ PASS" if result else "❌ FAIL"
         print(f"{status} {test_name}")
-    print(f"Critical Components Rate: {(critical_passed/len(critical_tests)*100):.1f}% ({critical_passed}/{len(critical_tests)})")
+    print(f"Critical Refinements Rate: {(critical_passed/len(critical_tests)*100):.1f}% ({critical_passed}/{len(critical_tests)})")
+    
+    print("\n🎯 NEW CRITICAL COMPONENTS RESULTS:")
+    new_component_passed = sum(1 for _, result in new_component_tests if result)
+    for test_name, result in new_component_tests:
+        status = "✅ PASS" if result else "❌ FAIL"
+        print(f"{status} {test_name}")
+    print(f"New Components Rate: {(new_component_passed/len(new_component_tests)*100):.1f}% ({new_component_passed}/{len(new_component_tests)})")
     
     print("\n📋 SUPPORTING BACKEND RESULTS:")
     support_passed = sum(1 for _, result in supporting_tests if result)
