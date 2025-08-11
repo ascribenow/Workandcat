@@ -543,6 +543,179 @@ def apply_mastery_decay(
     min_retention = 0.1 * current_mastery
     return max(min_retention, decayed_mastery)
 
+def calculate_frequency_score(occurrences_in_pyq_last_10_years: int, total_pyq_count: int) -> float:
+    """
+    Calculate frequency score based on PYQ occurrences as per v1.3 feedback
+    F = (occurrences_in_PYQ_last_10_years) / (total_PYQ_count)
+    
+    Args:
+        occurrences_in_pyq_last_10_years: Number of times this topic appeared in last 10 years
+        total_pyq_count: Total number of PYQ questions in database
+        
+    Returns:
+        Frequency score (0.0-1.0)
+    """
+    if total_pyq_count == 0:
+        return 0.0
+    
+    frequency_score = occurrences_in_pyq_last_10_years / total_pyq_count
+    return min(frequency_score, 1.0)  # Cap at 1.0
+
+
+def calculate_importance_score_v13(frequency_score: float, difficulty_score: float, w1: float = 0.6, w2: float = 0.4) -> float:
+    """
+    Calculate importance score as per v1.3 feedback specification
+    I = (w1 * F + w2 * D), where w1 = 0.6, w2 = 0.4
+    
+    Args:
+        frequency_score: Frequency score from calculate_frequency_score
+        difficulty_score: Difficulty score from calculate_difficulty_level
+        w1: Weight for frequency (default 0.6)
+        w2: Weight for difficulty (default 0.4)
+        
+    Returns:
+        Importance score (0.0-1.0)
+    """
+    importance_score = (w1 * frequency_score) + (w2 * difficulty_score)
+    return min(importance_score, 1.0)  # Cap at 1.0
+
+
+def calculate_learning_impact_v13(importance_score: float, difficulty_adjustment_factor: float = 1.0) -> float:
+    """
+    Calculate learning impact score as per v1.3 feedback specification
+    LI = I * difficulty_adjustment_factor
+    
+    Args:
+        importance_score: Importance score from calculate_importance_score_v13
+        difficulty_adjustment_factor: Multiplier for difficulty adjustment (default 1.0)
+        
+    Returns:
+        Learning impact score
+    """
+    learning_impact = importance_score * difficulty_adjustment_factor
+    return learning_impact
+
+
+def calculate_difficulty_score_v13(historical_success_rate: float, time_taken: float, deviation_from_avg_time: float) -> float:
+    """
+    Calculate difficulty score as per v1.3 feedback specification
+    D = f(historical_success_rate, time_taken, deviation_from_avg_time)
+    
+    Args:
+        historical_success_rate: Success rate across all users (0.0-1.0)
+        time_taken: Average time taken to solve (seconds)
+        deviation_from_avg_time: How much this deviates from average (seconds)
+        
+    Returns:
+        Difficulty score (0.0-1.0)
+    """
+    # Invert success rate for difficulty (low success = high difficulty)
+    success_difficulty = 1.0 - historical_success_rate
+    
+    # Normalize time factor (assume 300 seconds = max difficulty)
+    time_difficulty = min(time_taken / 300.0, 1.0)
+    
+    # Deviation factor (higher deviation = more unpredictable = more difficult)
+    deviation_difficulty = min(abs(deviation_from_avg_time) / 120.0, 1.0)  # 2 minutes max deviation
+    
+    # Weighted combination
+    difficulty_score = (
+        success_difficulty * 0.5 +
+        time_difficulty * 0.3 +
+        deviation_difficulty * 0.2
+    )
+    
+    return min(difficulty_score, 1.0)
+
+
+# =====================================================
+# MASTERY THRESHOLDS (v1.3 REQUIREMENT)
+# =====================================================
+
+def get_mastery_category(mastery_score: float) -> str:
+    """
+    Categorize mastery score based on v1.3 feedback thresholds
+    Mastered (≥85%), On track (60–84%), Needs focus (<60%)
+    
+    Args:
+        mastery_score: Mastery percentage (0.0-1.0)
+        
+    Returns:
+        Category string: "Mastered", "On track", or "Needs focus"
+    """
+    percentage = mastery_score * 100
+    
+    if percentage >= 85:
+        return "Mastered"
+    elif percentage >= 60:
+        return "On track"
+    else:
+        return "Needs focus"
+
+
+def get_mastery_thresholds() -> Dict[str, float]:
+    """
+    Return mastery thresholds as defined in v1.3 feedback
+    
+    Returns:
+        Dictionary with threshold definitions
+    """
+    return {
+        "mastered_threshold": 0.85,      # ≥85%
+        "on_track_threshold": 0.60,      # 60-84%
+        "needs_focus_threshold": 0.0     # <60%
+    }
+
+
+# =====================================================
+# ATTEMPT SPACING RULES (v1.3 REQUIREMENT) 
+# =====================================================
+
+def can_attempt_question(last_attempt_date: datetime, incorrect_attempts_count: int, hours_since_last: float = None) -> bool:
+    """
+    Check if user can attempt a question based on v1.3 spacing rules
+    Rule: No repeat of same question within 48 hours unless answered incorrectly twice
+    
+    Args:
+        last_attempt_date: When the question was last attempted
+        incorrect_attempts_count: Number of incorrect attempts for this question
+        hours_since_last: Hours since last attempt (optional, calculated if not provided)
+        
+    Returns:
+        Boolean indicating if attempt is allowed
+    """
+    if last_attempt_date is None:
+        return True  # First attempt always allowed
+    
+    # Calculate hours since last attempt if not provided
+    if hours_since_last is None:
+        time_diff = datetime.utcnow() - last_attempt_date
+        hours_since_last = time_diff.total_seconds() / 3600
+    
+    # If answered incorrectly twice, can attempt anytime
+    if incorrect_attempts_count >= 2:
+        return True
+    
+    # Otherwise, must wait 48 hours
+    return hours_since_last >= 48
+
+
+def get_next_attempt_time(last_attempt_date: datetime, incorrect_attempts_count: int) -> datetime:
+    """
+    Calculate when the next attempt can be made
+    
+    Args:
+        last_attempt_date: When the question was last attempted
+        incorrect_attempts_count: Number of incorrect attempts
+        
+    Returns:
+        Datetime when next attempt is allowed
+    """
+    if incorrect_attempts_count >= 2:
+        return datetime.utcnow()  # Can attempt immediately
+    
+    return last_attempt_date + timedelta(hours=48)
+
 
 # =====================================================
 # UTILITY FUNCTIONS
