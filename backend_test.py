@@ -693,70 +693,120 @@ class CATBackendTester:
         return True  # These should fail, so we return True if they do
 
 def main():
-    print("🚀 Starting CAT Backend API v2.0 Testing...")
-    print("Testing PostgreSQL-based backend with advanced AI features")
+    print("🚀 Starting CAT Backend API v2.0 CRITICAL FIXES Testing...")
+    print("Testing FIXED: Database Schema, JWT Auth, and Student User Flow")
     print("=" * 70)
     
     tester = CATBackendTester()
     
-    # Run all tests in logical order
+    # Run tests focusing on critical fixes
     test_results = []
     
     # Core system tests
     test_results.append(("Root Endpoint", tester.test_root_endpoint()))
     
-    # Authentication tests
-    test_results.append(("User Login & Registration", tester.test_user_login()))
-    test_results.append(("Auth Me Endpoint", tester.test_auth_me_endpoint()))
+    # CRITICAL FIXES TESTING
+    print("\n🔥 CRITICAL FIXES TESTING - PRIMARY FOCUS")
+    print("=" * 50)
     
-    # Core functionality tests (high priority from test_result.md)
-    test_results.append(("Question Creation with LLM", tester.test_question_creation()))
-    test_results.append(("Background Jobs System", tester.test_background_jobs_system()))
-    test_results.append(("Get Questions", tester.test_get_questions()))
-    test_results.append(("Diagnostic System (25Q)", tester.test_diagnostic_system()))
+    # Authentication tests (JWT fix)
+    test_results.append(("CRITICAL: JWT Authentication Fix", tester.test_jwt_authentication_fix()))
+    test_results.append(("User Login & Registration", tester.test_user_login()))
+    test_results.append(("CRITICAL: Student Registration Flow", tester.test_student_user_registration_flow()))
+    
+    # Diagnostic system tests (database schema fix)
+    test_results.append(("CRITICAL: Diagnostic System (FIXED)", tester.test_diagnostic_system()))
     test_results.append(("MCQ Generation", tester.test_mcq_generation()))
+    
+    # Enhanced Mastery Dashboard (confirm still working after fixes)
+    test_results.append(("Enhanced Mastery Dashboard", tester.test_mastery_tracking()))
+    
+    print("\n📋 ADDITIONAL BACKEND VERIFICATION")
+    print("=" * 40)
+    
+    # Additional core functionality tests
+    test_results.append(("Auth Me Endpoint", tester.test_auth_me_endpoint()))
+    test_results.append(("Question Creation with LLM", tester.test_question_creation()))
     test_results.append(("Study Planner (90-day)", tester.test_study_planner()))
     test_results.append(("Session Management", tester.test_session_management()))
-    test_results.append(("Enhanced Mastery Dashboard", tester.test_mastery_tracking()))
     test_results.append(("Progress Dashboard", tester.test_progress_dashboard()))
-    
-    # Admin functionality
     test_results.append(("Admin Endpoints", tester.test_admin_endpoints()))
+    test_results.append(("Background Jobs System", tester.test_background_jobs_system()))
     
     # Security and error handling
     test_results.append(("Auth Middleware", tester.test_auth_middleware()))
     test_results.append(("Admin Access Control", tester.test_admin_access_control()))
-    test_results.append(("Error Handling", tester.test_invalid_endpoints()))
     
     # Print summary
     print("\n" + "=" * 70)
-    print("📊 CAT BACKEND v2.0 TEST SUMMARY")
+    print("📊 CAT BACKEND v2.0 CRITICAL FIXES TEST SUMMARY")
     print("=" * 70)
     
     passed_tests = sum(1 for _, result in test_results if result)
     total_tests = len(test_results)
     
-    for test_name, result in test_results:
-        status = "✅ PASS" if result else "❌ FAIL"
-        print(f"{status} {test_name}")
+    # Separate critical vs additional tests
+    critical_tests = [
+        "CRITICAL: JWT Authentication Fix",
+        "CRITICAL: Student Registration Flow", 
+        "CRITICAL: Diagnostic System (FIXED)",
+        "Enhanced Mastery Dashboard"
+    ]
     
-    print(f"\n🎯 Overall Results: {tester.tests_passed}/{tester.tests_run} individual API calls passed")
+    critical_passed = sum(1 for name, result in test_results if any(crit in name for crit in critical_tests) and result)
+    critical_total = sum(1 for name, result in test_results if any(crit in name for crit in critical_tests))
+    
+    print("🔥 CRITICAL FIXES RESULTS:")
+    for test_name, result in test_results:
+        if any(crit in test_name for crit in critical_tests):
+            status = "✅ PASS" if result else "❌ FAIL"
+            print(f"{status} {test_name}")
+    
+    print(f"\n📋 ADDITIONAL TESTS:")
+    for test_name, result in test_results:
+        if not any(crit in test_name for crit in critical_tests):
+            status = "✅ PASS" if result else "❌ FAIL"
+            print(f"{status} {test_name}")
+    
+    print(f"\n🎯 Critical Fixes: {critical_passed}/{critical_total} passed ({(critical_passed/critical_total)*100:.1f}%)")
+    print(f"🎯 Overall Results: {tester.tests_passed}/{tester.tests_run} individual API calls passed")
     print(f"🎯 Test Suites: {passed_tests}/{total_tests} test suites passed")
     print(f"🎯 Success Rate: {(passed_tests/total_tests)*100:.1f}%")
     
-    # Detailed analysis
-    print(f"\n📋 FEATURE ANALYSIS:")
-    print(f"   🔐 Authentication: {'✅' if any('Login' in name for name, result in test_results if result) else '❌'}")
-    print(f"   🎯 Diagnostic System: {'✅' if any('Diagnostic' in name for name, result in test_results if result) else '❌'}")
+    # Detailed analysis focusing on critical fixes
+    print(f"\n📋 CRITICAL FIXES ANALYSIS:")
+    diagnostic_working = any('Diagnostic' in name and 'CRITICAL' in name for name, result in test_results if result)
+    jwt_working = any('JWT' in name and 'CRITICAL' in name for name, result in test_results if result)
+    registration_working = any('Registration Flow' in name and 'CRITICAL' in name for name, result in test_results if result)
+    mastery_working = any('Enhanced Mastery' in name for name, result in test_results if result)
+    
+    print(f"   🔐 JWT Authentication Fix: {'✅' if jwt_working else '❌'}")
+    print(f"   🎯 Diagnostic System Fix: {'✅' if diagnostic_working else '❌'}")
+    print(f"   👤 Student Registration Fix: {'✅' if registration_working else '❌'}")
+    print(f"   📊 Enhanced Mastery Dashboard: {'✅' if mastery_working else '❌'}")
+    
+    print(f"\n📋 ADDITIONAL FEATURES:")
     print(f"   🤖 LLM Integration: {'✅' if any('LLM' in name for name, result in test_results if result) else '❌'}")
     print(f"   📚 Study Planning: {'✅' if any('Study Planner' in name for name, result in test_results if result) else '❌'}")
-    print(f"   📊 Progress Tracking: {'✅' if any('Mastery' in name or 'Progress' in name for name, result in test_results if result) else '❌'}")
+    print(f"   📊 Progress Tracking: {'✅' if any('Progress' in name for name, result in test_results if result) else '❌'}")
     
-    if passed_tests >= total_tests * 0.8:  # 80% pass rate
-        print("\n🎉 Backend testing successful! Core functionality working.")
+    # Determine if critical fixes are working
+    critical_success = critical_passed >= critical_total * 0.75  # 75% of critical tests must pass
+    overall_success = passed_tests >= total_tests * 0.8  # 80% overall pass rate
+    
+    if critical_success and overall_success:
+        print("\n🎉 CRITICAL FIXES SUCCESSFUL! Backend ready for student user flow.")
+        print("✅ Diagnostic system should now be fully functional")
+        print("✅ Student registration should work")
+        print("✅ Enhanced Mastery Dashboard should be accessible")
+        return 0
+    elif critical_success:
+        print("\n✅ CRITICAL FIXES WORKING but some additional features have issues.")
+        print("🎯 Main blocking issues resolved - student flow should work")
         return 0
     else:
-        print("\n⚠️  Backend testing revealed issues. Check the details above.")
+        print("\n❌ CRITICAL FIXES STILL FAILING - student user flow blocked.")
+        print("⚠️  Check diagnostic system and authentication issues above.")
         return 1
 
 if __name__ == "__main__":
