@@ -729,7 +729,6 @@ async def export_questions_csv(
 ):
     """Export all questions as CSV with all columns"""
     try:
-        from fastapi.responses import StreamingResponse
         import csv
         import io
         from datetime import datetime
