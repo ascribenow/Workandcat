@@ -683,7 +683,7 @@ test_plan:
     implemented: true
     working: false
     file: "backend/background_jobs.py"
-    stuck_count: 1
+    stuck_count: 2
     priority: "high"
     needs_retesting: false
     status_history:
@@ -699,6 +699,9 @@ test_plan:
       - working: false
         agent: "testing"
         comment: "❌ COMPREHENSIVE CANONICAL TAXONOMY VALIDATION FAILED: Final comprehensive testing reveals critical issues blocking Enhanced Nightly Engine Integration. CANONICAL TAXONOMY COVERAGE: Only 1/5 canonical categories found (A-Arithmetic), only 4/36 expected subcategories found. EWMA MASTERY CALCULATIONS: Insufficient indicators (1/4 required), mastery calculations not responsive with α=0.6. CATEGORY PROGRESS TRACKING: Categories showing as 'Unknown' instead of canonical taxonomy format, insufficient tracking coverage. DATABASE SCHEMA CONSTRAINT: Still blocking question creation with 'value too long for type character varying(20)' error for subcategory field. NIGHTLY ENGINE INTEGRATION: 58.3% overall success rate (7/12 tests), canonical taxonomy success only 25.0% (1/4), nightly engine success 66.7% (2/3). CRITICAL BLOCKER: Database schema constraint prevents creation of questions with canonical taxonomy names, blocking full implementation of Enhanced Nightly Engine with complete canonical taxonomy support."
+      - working: false
+        agent: "testing"
+        comment: "❌ FINAL COMPREHENSIVE VALIDATION FAILED: Enhanced Nightly Engine Integration testing after claimed database schema fix reveals the fix was NOT implemented. CRITICAL FINDINGS: 1) Database schema constraint STILL EXISTS - 'value too long for type character varying(20)' error when creating questions with canonical taxonomy subcategories like 'Time–Speed–Distance (TSD)', 2) Question creation with canonical taxonomy names FAILS completely (0/3 attempts successful), 3) Background job processing with long names FAILS due to schema constraint, 4) Only 4/29 canonical subcategories found in database vs required ALL 29, 5) Mastery dashboard shows insufficient canonical category coverage (1/5 categories). CONCLUSION: The review request claimed 'subcategory VARCHAR(100) and type_of_question VARCHAR(150)' but testing confirms the database schema constraint was never actually applied. Enhanced Nightly Engine Integration remains BLOCKED by the original database schema constraint issue."
 
 agent_communication:
   - agent: "testing"
