@@ -291,24 +291,8 @@ async def create_study_plan(
 ):
     """Create personalized 90-day study plan"""
     try:
-        # Get user's diagnostic result to determine track if not provided
-        track = plan_request.track
-        if not track:
-            diagnostic_result = await db.execute(
-                select(Diagnostic)
-                .where(
-                    Diagnostic.user_id == current_user.id,
-                    Diagnostic.completed_at.isnot(None)
-                )
-                .order_by(desc(Diagnostic.completed_at))
-                .limit(1)
-            )
-            diagnostic = diagnostic_result.scalar_one_or_none()
-            
-            if diagnostic and diagnostic.result:
-                track = diagnostic.result.get("track_recommendation", "Beginner")
-            else:
-                track = "Beginner"  # Default if no diagnostic
+        # Use the provided track or default to Beginner
+        track = plan_request.track or "Beginner"
         
         # Create plan
         plan = await study_planner.create_plan(
