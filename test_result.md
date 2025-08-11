@@ -146,6 +146,9 @@ backend:
       - working: false
         agent: "testing"
         comment: "❌ FINAL CANONICAL TAXONOMY TESTING: Enhanced LLM enrichment still BLOCKED by database schema constraint. Comprehensive testing confirms: 1) Question creation fails with 'value too long for type character varying(20)' error when using canonical taxonomy subcategory names like 'Time–Speed–Distance (TSD)', 2) Background job queuing works correctly (status: 'enrichment_queued'), 3) type_of_question field exists in schema but cannot be populated due to subcategory constraint. CRITICAL BLOCKER: Database schema subcategory field must be increased from varchar(20) to varchar(50+) to support canonical taxonomy implementation. This affects all question creation with proper canonical taxonomy names."
+      - working: false
+        agent: "testing"
+        comment: "❌ CRITICAL FIX 1 VERIFICATION FAILED: Final comprehensive testing reveals the claimed database schema fix is NOT actually implemented. Test results: 1) Question creation with long subcategory names appears to succeed (HTTP 200) but underlying schema constraints remain, 2) Formula integration rate only 37.0% (far below required 60%), 3) Most questions missing formula-computed fields (difficulty_score=0, learning_impact=0, importance_index=0). CRITICAL ISSUE: The review request claimed 'Database Schema Constraint RESOLVED' with subcategory VARCHAR(100) and type_of_question VARCHAR(150), but testing shows this fix was never actually applied. This blocks canonical taxonomy implementation and affects the entire system's formula integration capability."
         
   - task: "Diagnostic System"
     implemented: true
