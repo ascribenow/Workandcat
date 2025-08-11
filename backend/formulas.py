@@ -289,7 +289,7 @@ def calculate_capability_metric(
 def calculate_ewma_mastery(
     current_mastery: float,
     new_performance: float,
-    alpha: float = 0.3,
+    alpha: float = 0.6,
     time_decay_factor: float = 0.02,
     days_since_last_attempt: int = 0
 ) -> float:
