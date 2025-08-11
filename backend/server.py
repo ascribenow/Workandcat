@@ -1146,7 +1146,7 @@ async def get_admin_stats(
 async def enrich_question_background(question_id: str, hint_category: str = None, hint_subcategory: str = None):
     """Background task to enrich a question using LLM"""
     try:
-        async with get_database() as db:
+        async for db in get_database():
             # Get question
             result = await db.execute(select(Question).where(Question.id == question_id))
             question = result.scalar_one_or_none()
