@@ -166,12 +166,12 @@ class DiagnosticSystem:
             
             # Fallback 1: Try with different difficulty (Difficult -> Medium -> Easy)
             fallback_difficulties = []
-            if difficulty == "Difficult":
+            if difficulty == "Hard":
                 fallback_difficulties = ["Medium", "Easy"]
             elif difficulty == "Medium":
-                fallback_difficulties = ["Easy", "Difficult"]
+                fallback_difficulties = ["Easy", "Hard"]
             else:  # Easy
-                fallback_difficulties = ["Medium", "Difficult"]
+                fallback_difficulties = ["Medium", "Hard"]
                 
             for fallback_difficulty in fallback_difficulties:
                 result = await db.execute(
