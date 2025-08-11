@@ -535,7 +535,7 @@ const AdminPanel = () => {
       const response = await axios.post(`${API}/admin/pyq/upload`, formData, {
         headers: { 
           'Content-Type': 'multipart/form-data',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${localStorage.getItem('cat_prep_token')}`
         }
       });
       alert('PYQ uploaded successfully!');
