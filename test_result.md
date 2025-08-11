@@ -429,9 +429,9 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Database Schema Constraint Fix (CRITICAL)"
-    - "25Q Diagnostic Distribution Implementation (CRITICAL)"
-    - "Formula Integration ≥60% Achievement (CRITICAL)"
+    - "Formula Integration ≥60% Achievement (COMPLETED - 64%)"
+    - "Core Study System Functionality" 
+    - "Diagnostic Functionality REMOVED per user request"
   stuck_tasks:
     - "Enhanced LLM Enrichment Pipeline"
     - "Diagnostic System"
