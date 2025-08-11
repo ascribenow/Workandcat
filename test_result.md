@@ -360,9 +360,11 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Enhanced Mastery Dashboard"
-    - "Background Jobs"
-  stuck_tasks: []
+    - "Student User Flow"
+    - "Frontend Integration with New Backend"
+  stuck_tasks:
+    - "Student User Flow"
+    - "Frontend Integration with New Backend"
   test_all: false
   test_priority: "high_first"
 
