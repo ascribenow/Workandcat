@@ -746,7 +746,7 @@ async def export_questions_csv(
         output = io.StringIO()
         writer = csv.writer(output)
         
-        # Write header with all columns from the outline
+        # Write header with all actual columns from the database
         header = [
             'id',
             'stem',
@@ -755,17 +755,20 @@ async def export_questions_csv(
             'detailed_solution', 
             'category',
             'subcategory',
+            'difficulty_score',
             'difficulty_band',
-            'importance_index',
+            'frequency_band',
+            'frequency_notes',
             'learning_impact',
-            'composite_score',
-            'transformation_score',
-            'trick_misleading',
+            'learning_impact_band',
+            'importance_index',
+            'importance_band',
+            'video_url',
             'tags',
             'source',
+            'version',
             'is_active',
-            'created_at',
-            'updated_at'
+            'created_at'
         ]
         writer.writerow(header)
         
@@ -779,17 +782,20 @@ async def export_questions_csv(
                 question.detailed_solution or '',
                 topic_name or '',
                 question.subcategory or '',
+                float(question.difficulty_score) if question.difficulty_score else '',
                 question.difficulty_band or '',
-                float(question.importance_index) if question.importance_index else '',
+                question.frequency_band or '',
+                question.frequency_notes or '',
                 float(question.learning_impact) if question.learning_impact else '',
-                float(question.composite_score) if question.composite_score else '',
-                float(question.transformation_score) if question.transformation_score else '',
-                float(question.trick_misleading) if question.trick_misleading else '',
+                question.learning_impact_band or '',
+                float(question.importance_index) if question.importance_index else '',
+                question.importance_band or '',
+                question.video_url or '',
                 ','.join(question.tags) if question.tags else '',
                 question.source or '',
+                question.version or 1,
                 str(question.is_active),
-                question.created_at.isoformat() if question.created_at else '',
-                question.updated_at.isoformat() if question.updated_at else ''
+                question.created_at.isoformat() if question.created_at else ''
             ]
             writer.writerow(row)
         
