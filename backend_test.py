@@ -2690,9 +2690,11 @@ def main():
     
     # Categorize results
     prerequisite_tests = test_results[0:2]  # Core prerequisite tests
-    critical_tests = test_results[2:6]  # NEW critical components
-    supporting_tests = test_results[6:12]  # Supporting functionality
-    v13_tests = test_results[12:]  # v1.3 compliance
+    nightly_engine_tests = test_results[2:3]  # Enhanced Nightly Engine Integration
+    critical_tests = test_results[3:7]  # Critical refinements
+    new_component_tests = test_results[7:11]  # NEW critical components
+    supporting_tests = test_results[11:17]  # Supporting functionality
+    v13_tests = test_results[17:]  # v1.3 compliance
     
     print("\n🔧 PREREQUISITE RESULTS:")
     prereq_passed = sum(1 for _, result in prerequisite_tests if result)
