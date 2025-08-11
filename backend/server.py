@@ -586,26 +586,44 @@ async def get_mastery_dashboard(
         return {'mastery_by_topic': [], 'total_topics': 0}
 
 async def get_detailed_progress_data(db: AsyncSession, user_id: str) -> List[Dict]:
-    """Get detailed progress breakdown by category/subcategory/difficulty"""
+    """Get detailed progress breakdown by category/subcategory/difficulty with FIXED category mapping"""
     try:
-        # Query to get comprehensive progress data
+        # Query to get comprehensive progress data with PROPER category mapping
         progress_query = text("""
             SELECT 
-                t.category,
+                CASE 
+                    WHEN t.category = 'A' THEN 'A-Arithmetic'
+                    WHEN t.category = 'B' THEN 'B-Algebra' 
+                    WHEN t.category = 'C' THEN 'C-Geometry'
+                    WHEN t.category = 'D' THEN 'D-Number System'
+                    WHEN t.category = 'E' THEN 'E-Modern Math'
+                    ELSE COALESCE(t.category, 'Unknown')
+                END as category,
                 q.subcategory,
-                q.type_of_question,
+                COALESCE(q.type_of_question, 'General') as type_of_question,
                 q.difficulty_band,
                 COUNT(DISTINCT q.id) as total_questions,
                 COUNT(DISTINCT CASE WHEN a.correct = true THEN a.question_id END) as solved_questions,
                 AVG(CASE WHEN a.correct = true THEN 1.0 ELSE 0.0 END) as accuracy_rate,
-                COALESCE(m.mastery_pct, 0) as mastery_percentage
+                COALESCE(AVG(m.mastery_pct * 100), 0) as mastery_percentage
             FROM questions q
             JOIN topics t ON q.topic_id = t.id
             LEFT JOIN attempts a ON q.id = a.question_id AND a.user_id = :user_id
             LEFT JOIN mastery m ON t.id = m.topic_id AND m.user_id = :user_id
             WHERE q.is_active = true
-            GROUP BY t.category, q.subcategory, q.type_of_question, q.difficulty_band, m.mastery_pct
-            ORDER BY t.category, q.subcategory, q.type_of_question, q.difficulty_band
+            GROUP BY 
+                CASE 
+                    WHEN t.category = 'A' THEN 'A-Arithmetic'
+                    WHEN t.category = 'B' THEN 'B-Algebra' 
+                    WHEN t.category = 'C' THEN 'C-Geometry'
+                    WHEN t.category = 'D' THEN 'D-Number System'
+                    WHEN t.category = 'E' THEN 'E-Modern Math'
+                    ELSE COALESCE(t.category, 'Unknown')
+                END,
+                q.subcategory, 
+                COALESCE(q.type_of_question, 'General'), 
+                q.difficulty_band
+            ORDER BY category, q.subcategory, type_of_question, q.difficulty_band
         """)
         
         result = await db.execute(progress_query, {"user_id": user_id})
@@ -615,20 +633,20 @@ async def get_detailed_progress_data(db: AsyncSession, user_id: str) -> List[Dic
         progress_map = {}
         
         for row in progress_rows:
-            key = f"{row.category}_{row.subcategory}_{row.type_of_question or 'General'}"
+            key = f"{row.category}_{row.subcategory}_{row.type_of_question}"
             
             if key not in progress_map:
                 progress_map[key] = {
                     "category": row.category,
                     "subcategory": row.subcategory,
-                    "question_type": row.type_of_question or "General",
+                    "question_type": row.type_of_question,
                     "easy_total": 0,
                     "easy_solved": 0,
                     "medium_total": 0,
                     "medium_solved": 0,
                     "hard_total": 0,
                     "hard_solved": 0,
-                    "mastery_percentage": float(row.mastery_percentage or 0) * 100
+                    "mastery_percentage": float(row.mastery_percentage or 0)
                 }
             
             difficulty = row.difficulty_band or "Medium"
@@ -645,7 +663,10 @@ async def get_detailed_progress_data(db: AsyncSession, user_id: str) -> List[Dic
                 progress_map[key]["medium_total"] += total_questions
                 progress_map[key]["medium_solved"] += solved_questions
         
-        return list(progress_map.values())
+        # Sort by canonical category order
+        sorted_progress = sorted(progress_map.values(), key=lambda x: (x["category"], x["subcategory"], x["question_type"]))
+        
+        return sorted_progress
         
     except Exception as e:
         logger.error(f"Error getting detailed progress data: {e}")
