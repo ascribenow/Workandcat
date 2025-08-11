@@ -281,8 +281,6 @@ export const Dashboard = () => {
     switch (currentView) {
       case 'diagnostic':
         return <DiagnosticSystem />;
-      case 'study-plan':
-        return <StudyPlanSystem />;
       case 'session':
         return <SessionSystem sessionId={activeSessionId} onSessionEnd={handleSessionEnd} />;
       case 'admin':
