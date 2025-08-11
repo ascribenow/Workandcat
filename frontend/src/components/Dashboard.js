@@ -125,10 +125,28 @@ export const Dashboard = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex space-x-8">
-              <div className="inline-flex items-center px-1 pt-1 text-sm font-medium text-blue-600 border-b-2 border-blue-500">
+              <button
+                onClick={() => setCurrentView('dashboard')}
+                className={`inline-flex items-center px-1 pt-1 text-sm font-medium border-b-2 ${
+                  currentView === 'dashboard' 
+                    ? 'text-blue-600 border-blue-500' 
+                    : 'text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
                 <span className="mr-2">🏠</span>
-                Progress Dashboard
-              </div>
+                Dashboard
+              </button>
+              <button
+                onClick={() => setCurrentView('session')}
+                className={`inline-flex items-center px-1 pt-1 text-sm font-medium border-b-2 ${
+                  currentView === 'session' 
+                    ? 'text-blue-600 border-blue-500' 
+                    : 'text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                <span className="mr-2">📝</span>
+                Practice Session
+              </button>
             </div>
             
             <div className="flex items-center space-x-4">
