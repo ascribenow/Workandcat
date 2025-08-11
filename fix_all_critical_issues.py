@@ -163,32 +163,43 @@ async def fix_diagnostic_distribution():
             
             if len(questions) < target_count:
                 print(f"      ⚠️  Only found {len(questions)} questions for category {category} (need {target_count})")
-                # Create placeholder questions if needed
-                for i in range(target_count - len(questions)):
-                    # Create a sample question for this category
-                    sample_question = Question(
-                        topic_id=uuid.uuid4(),  # This will need to be fixed with proper topic
-                        subcategory=f"Sample {category}",
-                        type_of_question=f"Basic {category}",
-                        stem=f"Sample {category} question {i+1} - This is a placeholder question for category {category}.",
-                        answer="Sample Answer",
-                        difficulty_band="Medium",
-                        is_active=True,
-                        source="Diagnostic Placeholder"
-                    )
-                    db.add(sample_question)
-                    await db.flush()
-                    
-                    # Add to diagnostic set
-                    diagnostic_question = DiagnosticSetQuestion(
-                        set_id=diag_set.id,
-                        question_id=sample_question.id,
-                        seq=seq
-                    )
-                    db.add(diagnostic_question)
-                    seq += 1
-                    questions_added += 1
-                    print(f"         Created placeholder question {seq-1} for category {category}")
+                
+                # Get a sample topic from this category to use for placeholder questions
+                topic_result = await db.execute(text("""
+                    SELECT id, name FROM topics WHERE category = :category LIMIT 1
+                """), {"category": category})
+                
+                sample_topic = topic_result.fetchone()
+                if sample_topic:
+                    sample_topic_id = sample_topic.id
+                    # Create placeholder questions if needed
+                    for i in range(target_count - len(questions)):
+                        # Create a sample question for this category
+                        sample_question = Question(
+                            topic_id=sample_topic_id,  # Use real topic ID
+                            subcategory=f"Sample {category}",
+                            type_of_question=f"Basic {category}",
+                            stem=f"Sample {category} question {i+1} - This is a placeholder question for category {category}.",
+                            answer="Sample Answer",
+                            difficulty_band="Medium",
+                            is_active=True,
+                            source="Diagnostic Placeholder"
+                        )
+                        db.add(sample_question)
+                        await db.flush()
+                        
+                        # Add to diagnostic set
+                        diagnostic_question = DiagnosticSetQuestion(
+                            set_id=diag_set.id,
+                            question_id=sample_question.id,
+                            seq=seq
+                        )
+                        db.add(diagnostic_question)
+                        seq += 1
+                        questions_added += 1
+                        print(f"         Created placeholder question {seq-1} for category {category}")
+                else:
+                    print(f"      ❌ No topics found for category {category}")
             else:
                 # Add actual questions
                 for question in questions[:target_count]:
