@@ -44,7 +44,17 @@ async def run_schema_migrations():
                     recorded_date DATE NOT NULL,
                     created_at TIMESTAMP DEFAULT NOW()
                 );
+            """
+        },
+        {
+            "name": "Create mastery_history indexes",
+            "sql": """
                 CREATE INDEX IF NOT EXISTS idx_mastery_history_user_date ON mastery_history (user_id, recorded_date);
+            """
+        },
+        {
+            "name": "Create mastery_history subcategory index",
+            "sql": """
                 CREATE INDEX IF NOT EXISTS idx_mastery_history_subcategory ON mastery_history (subcategory);
             """
         },
@@ -61,7 +71,17 @@ async def run_schema_migrations():
                     storage_path TEXT,
                     metadata JSON
                 );
+            """
+        },
+        {
+            "name": "Create pyq_files year index",
+            "sql": """
                 CREATE INDEX IF NOT EXISTS idx_pyq_files_year ON pyq_files (year);
+            """
+        },
+        {
+            "name": "Create pyq_files status index", 
+            "sql": """
                 CREATE INDEX IF NOT EXISTS idx_pyq_files_status ON pyq_files (processing_status);
             """
         },
