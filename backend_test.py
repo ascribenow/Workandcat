@@ -354,7 +354,7 @@ class CATBackendTester:
         return False
 
     def test_mastery_tracking(self):
-        """Test EWMA-based mastery tracking"""
+        """Test Enhanced Mastery Dashboard with category/subcategory hierarchy"""
         if not self.student_token:
             print("❌ Skipping mastery tracking test - no student token")
             return False
@@ -364,16 +364,48 @@ class CATBackendTester:
             'Authorization': f'Bearer {self.student_token}'
         }
 
-        # Get mastery dashboard
-        success, response = self.run_test("Get Mastery Dashboard", "GET", "dashboard/mastery", 200, None, headers)
+        # Get enhanced mastery dashboard
+        success, response = self.run_test("Get Enhanced Mastery Dashboard", "GET", "dashboard/mastery", 200, None, headers)
         if success:
-            mastery_data = response.get('mastery', [])
+            mastery_data = response.get('mastery_by_topic', [])
+            total_topics = response.get('total_topics', 0)
             print(f"   Mastery topics tracked: {len(mastery_data)}")
+            print(f"   Total topics: {total_topics}")
             
             if len(mastery_data) > 0:
                 first_topic = mastery_data[0]
-                print(f"   Sample topic: {first_topic.get('topic')}")
-                print(f"   Mastery %: {first_topic.get('mastery_pct')}")
+                print(f"   Sample topic: {first_topic.get('topic_name')}")
+                print(f"   Category name: {first_topic.get('category_name')}")
+                print(f"   Is main category: {first_topic.get('is_main_category')}")
+                print(f"   Mastery %: {first_topic.get('mastery_percentage')}")
+                print(f"   Accuracy score: {first_topic.get('accuracy_score')}")
+                print(f"   Speed score: {first_topic.get('speed_score')}")
+                print(f"   Stability score: {first_topic.get('stability_score')}")
+                print(f"   Questions attempted: {first_topic.get('questions_attempted')}")
+                
+                # Check subcategories
+                subcategories = first_topic.get('subcategories', [])
+                print(f"   Subcategories: {len(subcategories)}")
+                if subcategories:
+                    print(f"   Sample subcategory: {subcategories[0].get('name')}")
+                    print(f"   Subcategory mastery %: {subcategories[0].get('mastery_percentage')}")
+                
+                # Verify percentage format (should be 0-100, not 0-1)
+                mastery_pct = first_topic.get('mastery_percentage', 0)
+                if mastery_pct > 1:
+                    print(f"   ✅ Percentages properly converted to 0-100 format")
+                else:
+                    print(f"   ⚠️ Percentages might still be in 0-1 format")
+                
+                # Verify required fields are present
+                required_fields = ['topic_name', 'category_name', 'is_main_category', 
+                                 'mastery_percentage', 'accuracy_score', 'speed_score', 'stability_score']
+                missing_fields = [field for field in required_fields if field not in first_topic]
+                if not missing_fields:
+                    print(f"   ✅ All required fields present in response")
+                else:
+                    print(f"   ❌ Missing fields: {missing_fields}")
+                    return False
             
             return True
         
