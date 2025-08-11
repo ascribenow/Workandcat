@@ -113,8 +113,7 @@ async def populate_formula_values():
                     UPDATE questions 
                     SET difficulty_level = :difficulty_level,
                         importance_score = :importance_score,
-                        learning_impact = :learning_impact,
-                        updated_at = NOW()
+                        learning_impact = :learning_impact
                     WHERE id = :question_id
                 """), {
                     "question_id": question.id,
