@@ -24,7 +24,7 @@ import io
 # Import our modules
 from database import (
     get_database, init_database, User, Question, Topic, Attempt, Mastery, Plan, PlanUnit, Session,
-    PYQIngestion, PYQPaper, PYQQuestion, QuestionOption, Diagnostic
+    PYQIngestion, PYQPaper, PYQQuestion, QuestionOption
 )
 from auth_service import AuthService, UserCreate, UserLogin, TokenResponse, require_auth, require_admin, ADMIN_EMAIL
 from llm_enrichment import LLMEnrichmentPipeline
