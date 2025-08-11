@@ -86,27 +86,36 @@ async def run_schema_migrations():
             """
         },
         {
-            "name": "Add PYQ frequency tracking to questions",
-            "sql": """
-                ALTER TABLE questions ADD COLUMN IF NOT EXISTS pyq_occurrences_last_10_years INTEGER DEFAULT 0;
-                ALTER TABLE questions ADD COLUMN IF NOT EXISTS total_pyq_count INTEGER DEFAULT 0;
-                ALTER TABLE questions ADD COLUMN IF NOT EXISTS frequency_score NUMERIC(3,2);
-            """
+            "name": "Add PYQ frequency tracking to questions - occurrences",
+            "sql": "ALTER TABLE questions ADD COLUMN IF NOT EXISTS pyq_occurrences_last_10_years INTEGER DEFAULT 0;"
         },
         {
-            "name": "Add v1.3 formula fields to questions",
-            "sql": """
-                ALTER TABLE questions ADD COLUMN IF NOT EXISTS importance_score_v13 NUMERIC(5,2);
-                ALTER TABLE questions ADD COLUMN IF NOT EXISTS learning_impact_v13 NUMERIC(5,2);
-                ALTER TABLE questions ADD COLUMN IF NOT EXISTS difficulty_score_v13 NUMERIC(3,2);
-            """
+            "name": "Add PYQ frequency tracking to questions - total count",
+            "sql": "ALTER TABLE questions ADD COLUMN IF NOT EXISTS total_pyq_count INTEGER DEFAULT 0;"
         },
         {
-            "name": "Update attempts table for spacing rules",
-            "sql": """
-                ALTER TABLE attempts ADD COLUMN IF NOT EXISTS incorrect_count INTEGER DEFAULT 0;
-                CREATE INDEX IF NOT EXISTS idx_attempts_spacing ON attempts (user_id, question_id, last_attempt_date);
-            """
+            "name": "Add PYQ frequency tracking to questions - frequency score",
+            "sql": "ALTER TABLE questions ADD COLUMN IF NOT EXISTS frequency_score NUMERIC(3,2);"
+        },
+        {
+            "name": "Add v1.3 importance score to questions",
+            "sql": "ALTER TABLE questions ADD COLUMN IF NOT EXISTS importance_score_v13 NUMERIC(5,2);"
+        },
+        {
+            "name": "Add v1.3 learning impact to questions",
+            "sql": "ALTER TABLE questions ADD COLUMN IF NOT EXISTS learning_impact_v13 NUMERIC(5,2);"
+        },
+        {
+            "name": "Add v1.3 difficulty score to questions",
+            "sql": "ALTER TABLE questions ADD COLUMN IF NOT EXISTS difficulty_score_v13 NUMERIC(3,2);"
+        },
+        {
+            "name": "Add incorrect count to attempts table",
+            "sql": "ALTER TABLE attempts ADD COLUMN IF NOT EXISTS incorrect_count INTEGER DEFAULT 0;"
+        },
+        {
+            "name": "Create attempts spacing index",
+            "sql": "CREATE INDEX IF NOT EXISTS idx_attempts_spacing ON attempts (user_id, question_id, last_attempt_date);"
         }
     ]
     
