@@ -116,8 +116,7 @@ export const SessionSystem = ({ sessionId: propSessionId, onSessionEnd }) => {
         clearInterval(timerRef.current);
       }
       
-      // Update session stats
-      await fetchSessionStats();
+      // Remove fetchSessionStats() call since the endpoint doesn't exist
     } catch (err) {
       setError('Failed to submit answer');
       console.error('Answer submission error:', err);
