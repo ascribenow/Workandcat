@@ -50,7 +50,9 @@ export const SessionSystem = ({ sessionId: propSessionId, onSessionEnd }) => {
     setLoading(true);
     setError('');
     try {
-      const response = await axios.get(`${API}/session/${sessionId}/next-question`);
+      const response = await axios.get(`${API}/session/${sessionId}/next-question`, {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('cat_prep_token')}` }
+      });
       setCurrentQuestion(response.data.question);
       setQuestionStartTime(Date.now());
       setUserAnswer('');
@@ -77,7 +79,9 @@ export const SessionSystem = ({ sessionId: propSessionId, onSessionEnd }) => {
 
   const fetchSessionStats = async () => {
     try {
-      const response = await axios.get(`${API}/session/${sessionId}/stats`);
+      const response = await axios.get(`${API}/session/${sessionId}/stats`, {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('cat_prep_token')}` }
+      });
       setSessionStats(response.data);
     } catch (err) {
       console.error('Error fetching session stats:', err);
