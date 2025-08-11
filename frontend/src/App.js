@@ -126,7 +126,7 @@ const Login = () => {
               {isRegister ? "Create your account" : "Sign in to your account"}
             </p>
             <p className="mt-1 text-xs text-blue-600">
-              Advanced AI-powered preparation with diagnostic assessment
+              Advanced AI-powered preparation with personalized study plans
             </p>
           </div>
 
