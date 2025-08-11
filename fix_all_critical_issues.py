@@ -29,7 +29,7 @@ async def fix_database_schema():
         # Check current schema
         print("   📊 Checking current subcategory field length...")
         result = await connection.execute(text("""
-            SELECT column_name, character_maximum_length, data_type
+            SELECT table_name, column_name, character_maximum_length, data_type
             FROM information_schema.columns 
             WHERE table_name IN ('questions', 'pyq_questions') 
             AND column_name IN ('subcategory', 'type_of_question')
@@ -39,8 +39,9 @@ async def fix_database_schema():
         print("   Current schema:")
         current_lengths = {}
         for row in result.fetchall():
-            print(f"      {row.table_name}.{row.column_name}: {row.data_type}({row.character_maximum_length})")
-            current_lengths[f"{row.table_name}.{row.column_name}"] = row.character_maximum_length
+            table_name, column_name, max_length, data_type = row
+            print(f"      {table_name}.{column_name}: {data_type}({max_length})")
+            current_lengths[f"{table_name}.{column_name}"] = max_length
         
         # Fix questions table
         if current_lengths.get('questions.subcategory', 0) < 100:
