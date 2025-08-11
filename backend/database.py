@@ -347,6 +347,44 @@ async def get_db_session() -> AsyncSession:
             await session.close()
 
 
+class MasteryHistory(Base):
+    """Store daily mastery history per user per subcategory (v1.3 requirement)"""
+    __tablename__ = "mastery_history"
+    
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    subcategory = Column(String(100), nullable=False)
+    mastery_score = Column(Numeric(3, 2))
+    recorded_date = Column(Date, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    
+    # Indexes for efficient queries
+    __table_args__ = (
+        Index('idx_mastery_history_user_date', 'user_id', 'recorded_date'),
+        Index('idx_mastery_history_subcategory', 'subcategory'),
+    )
+
+
+class PYQFiles(Base):
+    """Track uploaded PYQ files and their processing status (v1.3 requirement)"""
+    __tablename__ = "pyq_files"
+    
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    filename = Column(Text, nullable=False)
+    year = Column(Integer)
+    upload_date = Column(DateTime(timezone=True), server_default=func.now())
+    processing_status = Column(String(20), default="pending")
+    file_size = Column(BigInteger)
+    storage_path = Column(Text)
+    metadata = Column(JSON)
+    
+    # Indexes for efficient queries
+    __table_args__ = (
+        Index('idx_pyq_files_year', 'year'),
+        Index('idx_pyq_files_status', 'processing_status'),
+    )
+
+
 async def init_database():
     """Initialize database with tables"""
     async with engine.begin() as conn:
