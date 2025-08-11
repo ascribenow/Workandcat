@@ -425,6 +425,54 @@ class CATBackendTester:
             print("   ❌ Failed to check question availability")
             return False
 
+        # STEP 1.5: Check if user has an active study plan
+        print("\n   📅 STEP 1.5: Checking study plan availability...")
+        success, response = self.run_test("Check Today's Plan", "GET", "study-plan/today", 200, None, headers)
+        if success:
+            plan_units = response.get('plan_units', [])
+            print(f"   Found {len(plan_units)} plan units for today")
+            if len(plan_units) == 0:
+                print("   ⚠️ CRITICAL FINDING: No plan units for today - this is likely the root cause!")
+                print("   The get_next_question method requires active plan units to return questions")
+                
+                # Try to create a study plan
+                print("   🔧 ATTEMPTING FIX: Creating study plan...")
+                plan_data = {
+                    "track": "Beginner",
+                    "daily_minutes_weekday": 30,
+                    "daily_minutes_weekend": 60
+                }
+                
+                success, response = self.run_test("Create Study Plan", "POST", "study-plan", 200, plan_data, headers)
+                if success:
+                    print(f"   ✅ Study plan created: {response.get('plan_id')}")
+                    
+                    # Check plan units again
+                    success, response = self.run_test("Check Today's Plan After Creation", "GET", "study-plan/today", 200, None, headers)
+                    if success:
+                        plan_units = response.get('plan_units', [])
+                        print(f"   Now found {len(plan_units)} plan units for today")
+                        if len(plan_units) > 0:
+                            print("   ✅ Plan units now available")
+                            for i, unit in enumerate(plan_units[:2]):
+                                print(f"     Unit {i+1}: {unit.get('unit_kind')} - Target: {unit.get('target_count')}")
+                        else:
+                            print("   ❌ Still no plan units - plan generation issue")
+                            return False
+                    else:
+                        print("   ❌ Failed to check plan units after creation")
+                        return False
+                else:
+                    print("   ❌ Failed to create study plan")
+                    return False
+            else:
+                print("   ✅ Plan units are available for today")
+                for i, unit in enumerate(plan_units[:2]):
+                    print(f"     Unit {i+1}: {unit.get('unit_kind')} - Target: {unit.get('target_count')}")
+        else:
+            print("   ❌ Failed to check study plan")
+            return False
+
         # STEP 2: Start session and verify session creation
         print("\n   🚀 STEP 2: Starting session...")
         session_data = {
