@@ -22,6 +22,10 @@ async def run_schema_migrations():
     
     migrations = [
         {
+            "name": "Enable UUID extension",
+            "sql": "CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\";"
+        },
+        {
             "name": "Add version_number to questions table",
             "sql": "ALTER TABLE questions ADD COLUMN IF NOT EXISTS version_number INTEGER DEFAULT 1;"
         },
