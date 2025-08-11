@@ -2741,16 +2741,25 @@ def main():
     print("\n" + "=" * 80)
     print(f"🎯 OVERALL SUCCESS RATE: {success_rate:.1f}% ({passed_tests}/{total_tests} tests passed)")
     
-    # Critical components assessment (main focus)
+    # Enhanced Nightly Engine assessment (main focus)
+    nightly_success_rate = (nightly_passed/len(nightly_engine_tests)*100)
+    if nightly_success_rate >= 100:
+        print("🎉 EXCELLENT: Enhanced Nightly Engine Integration working perfectly!")
+    elif nightly_success_rate >= 75:
+        print("✅ GOOD: Enhanced Nightly Engine mostly working with minor issues")
+    else:
+        print("❌ CRITICAL: Enhanced Nightly Engine Integration not working, major issues")
+    
+    # Critical components assessment
     critical_success_rate = (critical_passed/len(critical_tests)*100)
     if critical_success_rate >= 100:
-        print("🎉 EXCELLENT: All new critical components working perfectly!")
+        print("🎉 EXCELLENT: All critical refinements working perfectly!")
     elif critical_success_rate >= 75:
-        print("✅ GOOD: Most new critical components working with minor issues")
+        print("✅ GOOD: Most critical refinements working with minor issues")
     elif critical_success_rate >= 50:
-        print("⚠️ MODERATE: Some new critical components working, needs attention")
+        print("⚠️ MODERATE: Some critical refinements working, needs attention")
     else:
-        print("❌ CRITICAL: New critical components not working, major issues")
+        print("❌ CRITICAL: Critical refinements not working, major issues")
     
     # Overall system assessment
     if success_rate >= 85:
