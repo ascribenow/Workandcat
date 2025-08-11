@@ -496,6 +496,12 @@ const AdminPanel = () => {
               <div>
                 <div className="flex justify-between items-center mb-8">
                   <h2 className="text-2xl font-semibold text-gray-900">Question Upload</h2>
+                  <button
+                    onClick={() => handleExportQuestions()}
+                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-medium flex items-center"
+                  >
+                    📊 Export All Questions (CSV)
+                  </button>
                 </div>
 
                 {/* Upload Type Selection */}
