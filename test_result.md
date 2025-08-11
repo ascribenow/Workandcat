@@ -558,14 +558,13 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Enhanced Session System (COMPLETED - 100% success)"
-    - "MCQ Options Generation (COMPLETED - 100% success)" 
-    - "Navigation and User Flow (COMPLETED - 100% success)"
-    - "Detailed Progress Dashboard (PARTIAL - category mapping issue)"
+    - "CRITICAL REFINEMENT 1: Category Mapping Bug FIXED"
+    - "CRITICAL REFINEMENT 4: Attempt-Spacing & Spaced Review IMPLEMENTED"
   stuck_tasks:
-    - "Detailed Progress Dashboard (category mapping showing 'None' instead of canonical taxonomy categories)"
-  test_all: true
-  test_priority: "new_critical_components_verified"
+    - "CRITICAL REFINEMENT 1: Category Mapping Bug FIXED"
+    - "Detailed Progress Dashboard"
+  test_all: false
+  test_priority: "stuck_first"
 
   - task: "Enhanced Session System"
     implemented: true
