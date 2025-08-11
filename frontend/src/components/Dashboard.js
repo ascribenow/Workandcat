@@ -331,6 +331,7 @@ const AdminPanel = () => {
   const [activeTab, setActiveTab] = useState('pyq-upload');
   const [questions, setQuestions] = useState([]);
   const [showQuestionForm, setShowQuestionForm] = useState(false);
+  const [questionUploadType, setQuestionUploadType] = useState('single'); // 'single' or 'csv'
   const [uploading, setUploading] = useState(false);
   const [questionForm, setQuestionForm] = useState({
     stem: "",
@@ -380,6 +381,28 @@ const AdminPanel = () => {
     }
   };
 
+  const handleCSVUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    setUploading(true);
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await axios.post(`${API}/admin/upload-questions-csv`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      alert('Questions CSV uploaded successfully!');
+      event.target.value = ''; // Reset file input
+      fetchQuestions(); // Refresh questions list
+    } catch (error) {
+      alert('Error uploading CSV: ' + (error.response?.data?.detail || 'Unknown error'));
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleQuestionSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -403,178 +426,224 @@ const AdminPanel = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto py-8 px-4">
-      <div className="bg-white rounded-lg shadow-lg">
-        {/* Header */}
-        <div className="border-b px-6 py-4">
-          <h1 className="text-2xl font-bold text-gray-900">Admin Panel</h1>
-          <p className="text-sm text-gray-600">Welcome, {user.name} (Admin)</p>
-        </div>
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-6xl mx-auto py-8 px-4">
+        <div className="bg-white rounded-lg shadow-lg">
+          {/* Tabs */}
+          <div className="border-b">
+            <nav className="flex space-x-8 px-6">
+              <button
+                onClick={() => setActiveTab('pyq-upload')}
+                className={`py-4 text-lg font-medium ${
+                  activeTab === 'pyq-upload' 
+                    ? 'text-blue-600 border-b-2 border-blue-500' 
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                📄 PYQ Upload
+              </button>
+              <button
+                onClick={() => setActiveTab('questions')}
+                className={`py-4 text-lg font-medium ${
+                  activeTab === 'questions' 
+                    ? 'text-blue-600 border-b-2 border-blue-500' 
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                ❓ Question Upload
+              </button>
+            </nav>
+          </div>
 
-        {/* Tabs */}
-        <div className="border-b">
-          <nav className="flex space-x-8 px-6">
-            <button
-              onClick={() => setActiveTab('pyq-upload')}
-              className={`py-4 text-sm font-medium ${
-                activeTab === 'pyq-upload' 
-                  ? 'text-blue-600 border-b-2 border-blue-500' 
-                  : 'text-gray-500 hover:text-gray-700'
-              }`}
-            >
-              📄 PYQ Upload
-            </button>
-            <button
-              onClick={() => setActiveTab('questions')}
-              className={`py-4 text-sm font-medium ${
-                activeTab === 'questions' 
-                  ? 'text-blue-600 border-b-2 border-blue-500' 
-                  : 'text-gray-500 hover:text-gray-700'
-              }`}
-            >
-              ❓ Question Management
-            </button>
-          </nav>
-        </div>
-
-        {/* Tab Content */}
-        <div className="p-6">
-          {activeTab === 'pyq-upload' && (
-            <div className="max-w-2xl">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Upload PYQ Files</h2>
-              <p className="text-gray-600 mb-6">
-                Upload previous year question papers in Word document format (.docx, .doc)
-              </p>
-              
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-                <div className="mb-4">
-                  <svg className="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
-                    <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                </div>
-                <div className="mb-4">
-                  <label htmlFor="pyq-upload" className="cursor-pointer">
-                    <span className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium">
-                      {uploading ? 'Uploading...' : 'Select PYQ File'}
-                    </span>
-                    <input
-                      id="pyq-upload"
-                      type="file"
-                      accept=".docx,.doc"
-                      onChange={handlePYQUpload}
-                      disabled={uploading}
-                      className="hidden"
-                    />
-                  </label>
-                </div>
-                <p className="text-sm text-gray-500">
-                  Supported formats: .docx, .doc
-                </p>
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'questions' && (
-            <div>
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-semibold text-gray-900">Question Management</h2>
-                <button
-                  onClick={() => setShowQuestionForm(!showQuestionForm)}
-                  className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium"
-                >
-                  {showQuestionForm ? 'Cancel' : 'Add Question'}
-                </button>
-              </div>
-
-              {showQuestionForm && (
-                <div className="bg-gray-50 p-6 rounded-lg mb-6">
-                  <form onSubmit={handleQuestionSubmit} className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">Question Stem</label>
-                      <textarea
-                        value={questionForm.stem}
-                        onChange={(e) => setQuestionForm({...questionForm, stem: e.target.value})}
-                        className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-                        rows="4"
-                        required
+          {/* Tab Content */}
+          <div className="p-8">
+            {activeTab === 'pyq-upload' && (
+              <div className="max-w-3xl">
+                <h2 className="text-2xl font-semibold text-gray-900 mb-6">Upload PYQ Files</h2>
+                
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center">
+                  <div className="mb-6">
+                    <svg className="mx-auto h-16 w-16 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                      <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </div>
+                  <div className="mb-6">
+                    <label htmlFor="pyq-upload" className="cursor-pointer">
+                      <span className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg text-lg font-medium">
+                        {uploading ? 'Uploading...' : 'Select PYQ File'}
+                      </span>
+                      <input
+                        id="pyq-upload"
+                        type="file"
+                        accept=".docx,.doc"
+                        onChange={handlePYQUpload}
+                        disabled={uploading}
+                        className="hidden"
                       />
+                    </label>
+                  </div>
+                  <p className="text-gray-600">
+                    Upload previous year question papers in Word document format
+                  </p>
+                  <p className="text-sm text-gray-500 mt-2">
+                    Supported formats: .docx, .doc
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'questions' && (
+              <div>
+                <div className="flex justify-between items-center mb-8">
+                  <h2 className="text-2xl font-semibold text-gray-900">Question Upload</h2>
+                </div>
+
+                {/* Upload Type Selection */}
+                <div className="mb-8">
+                  <div className="grid md:grid-cols-2 gap-6">
+                    {/* Single Question */}
+                    <div className="border-2 border-gray-200 rounded-lg p-6 text-center">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-4">Single Question</h3>
+                      <p className="text-gray-600 mb-6">Add one question at a time using the form</p>
+                      <button
+                        onClick={() => {
+                          setQuestionUploadType('single');
+                          setShowQuestionForm(true);
+                        }}
+                        className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium"
+                      >
+                        Add Question
+                      </button>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700">Answer</label>
+                    {/* CSV Upload */}
+                    <div className="border-2 border-gray-200 rounded-lg p-6 text-center">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-4">CSV Upload</h3>
+                      <p className="text-gray-600 mb-6">Upload multiple questions from CSV file</p>
+                      <label htmlFor="csv-upload" className="cursor-pointer">
+                        <span className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-medium inline-block">
+                          {uploading ? 'Uploading...' : 'Upload CSV'}
+                        </span>
                         <input
-                          type="text"
-                          value={questionForm.answer}
-                          onChange={(e) => setQuestionForm({...questionForm, answer: e.target.value})}
-                          className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                          id="csv-upload"
+                          type="file"
+                          accept=".csv"
+                          onChange={handleCSVUpload}
+                          disabled={uploading}
+                          className="hidden"
+                        />
+                      </label>
+                      <p className="text-sm text-gray-500 mt-2">
+                        Format: stem,answer,category,subcategory,source
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Single Question Form */}
+                {showQuestionForm && questionUploadType === 'single' && (
+                  <div className="bg-gray-50 p-6 rounded-lg mb-8">
+                    <div className="flex justify-between items-center mb-4">
+                      <h3 className="text-lg font-semibold text-gray-900">Add Single Question</h3>
+                      <button
+                        onClick={() => setShowQuestionForm(false)}
+                        className="text-gray-500 hover:text-gray-700"
+                      >
+                        ✕ Cancel
+                      </button>
+                    </div>
+                    
+                    <form onSubmit={handleQuestionSubmit} className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">Question Stem</label>
+                        <textarea
+                          value={questionForm.stem}
+                          onChange={(e) => setQuestionForm({...questionForm, stem: e.target.value})}
+                          className="mt-1 block w-full border border-gray-300 rounded-md p-3"
+                          rows="4"
                           required
+                          placeholder="Enter the question text here..."
                         />
                       </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700">Answer</label>
+                          <input
+                            type="text"
+                            value={questionForm.answer}
+                            onChange={(e) => setQuestionForm({...questionForm, answer: e.target.value})}
+                            className="mt-1 block w-full border border-gray-300 rounded-md p-3"
+                            required
+                            placeholder="e.g., 42 or Option A"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700">Source</label>
+                          <input
+                            type="text"
+                            value={questionForm.source}
+                            onChange={(e) => setQuestionForm({...questionForm, source: e.target.value})}
+                            className="mt-1 block w-full border border-gray-300 rounded-md p-3"
+                            placeholder="e.g., CAT 2023, Mock Test"
+                          />
+                        </div>
+                      </div>
+
                       <div>
-                        <label className="block text-sm font-medium text-gray-700">Source</label>
-                        <input
-                          type="text"
-                          value={questionForm.source}
-                          onChange={(e) => setQuestionForm({...questionForm, source: e.target.value})}
-                          className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-                          placeholder="e.g., CAT 2023, Mock Test"
+                        <label className="block text-sm font-medium text-gray-700">Solution Approach</label>
+                        <textarea
+                          value={questionForm.solution_approach}
+                          onChange={(e) => setQuestionForm({...questionForm, solution_approach: e.target.value})}
+                          className="mt-1 block w-full border border-gray-300 rounded-md p-3"
+                          rows="3"
+                          placeholder="Explain the approach to solve this question..."
                         />
                       </div>
-                    </div>
 
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">Solution Approach</label>
-                      <textarea
-                        value={questionForm.solution_approach}
-                        onChange={(e) => setQuestionForm({...questionForm, solution_approach: e.target.value})}
-                        className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-                        rows="2"
-                      />
-                    </div>
+                      <button
+                        type="submit"
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-medium text-lg"
+                      >
+                        Create Question
+                      </button>
+                    </form>
+                  </div>
+                )}
 
-                    <button
-                      type="submit"
-                      className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium"
-                    >
-                      Create Question
-                    </button>
-                  </form>
-                </div>
-              )}
-
-              {/* Questions List */}
-              <div className="bg-white border rounded-lg">
-                <div className="px-4 py-3 border-b bg-gray-50">
-                  <h3 className="font-medium text-gray-900">
-                    Questions ({questions.length})
-                  </h3>
-                </div>
-                <div className="divide-y divide-gray-200 max-h-96 overflow-y-auto">
-                  {questions.map((question, index) => (
-                    <div key={question.id} className="px-4 py-4">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <p className="text-sm text-gray-900 mb-2">{question.stem}</p>
-                          <div className="flex items-center space-x-2">
-                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                              {question.subcategory}
-                            </span>
-                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                              {question.difficulty_band || 'Unrated'}
-                            </span>
-                            <span className="text-xs text-gray-500">
-                              Answer: {question.answer}
-                            </span>
+                {/* Questions List */}
+                <div className="bg-white border rounded-lg">
+                  <div className="px-6 py-4 border-b bg-gray-50">
+                    <h3 className="text-lg font-medium text-gray-900">
+                      All Questions ({questions.length})
+                    </h3>
+                  </div>
+                  <div className="divide-y divide-gray-200 max-h-96 overflow-y-auto">
+                    {questions.map((question, index) => (
+                      <div key={question.id} className="px-6 py-4">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <p className="text-sm text-gray-900 mb-2">{question.stem}</p>
+                            <div className="flex items-center space-x-2">
+                              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                {question.subcategory}
+                              </span>
+                              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                {question.difficulty_band || 'Unrated'}
+                              </span>
+                              <span className="text-xs text-gray-500">
+                                Answer: {question.answer}
+                              </span>
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
     </div>
