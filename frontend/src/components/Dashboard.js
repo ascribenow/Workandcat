@@ -542,10 +542,10 @@ const AdminPanel = () => {
                     </label>
                   </div>
                   <p className="text-gray-600">
-                    Upload previous year question papers in Word document format
+                    Upload previous year question papers in Word or PDF format
                   </p>
                   <p className="text-sm text-gray-500 mt-2">
-                    Supported formats: .docx, .doc
+                    Supported formats: .docx, .doc, .pdf
                   </p>
                 </div>
               </div>
