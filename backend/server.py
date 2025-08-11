@@ -344,14 +344,15 @@ async def create_question(
             else:
                 raise HTTPException(status_code=400, detail=f"Topic not found for category: {category}, subcategory: {subcategory}")
         
-        # Create basic question first
+        # Create basic question first including type_of_question
         question = Question(
             topic_id=topic.id,  # Set the topic_id
+            subcategory=subcategory,
+            type_of_question=question_data.get('type_of_question', ''),  # New canonical taxonomy field
             stem=question_data.stem,
             answer=question_data.answer,
             solution_approach=question_data.solution_approach or "",
             detailed_solution=question_data.detailed_solution or "",
-            subcategory=subcategory,
             tags=question_data.tags,
             source=question_data.source,
             is_active=False  # Will be activated after enrichment
