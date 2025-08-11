@@ -285,7 +285,7 @@ export const Dashboard = () => {
               </div>
             ) : (
               <div className="text-center py-8 text-gray-500">
-                <p>Complete your diagnostic test to see category progress</p>
+                <p>Start studying to see your category progress</p>
               </div>
             )}
           </div>
