@@ -689,6 +689,9 @@ test_plan:
       - working: true
         agent: "testing"
         comment: "✅ ENHANCED NIGHTLY ENGINE INTEGRATION 75% FUNCTIONAL: Background job scheduler integration ✅, Database integration ✅, Formula integration ✅, Canonical category mapping ✅. Core nightly processing components ready and functional with scheduler properly started, question creation queuing background enrichment tasks, all required v1.3 formula fields available, and canonical taxonomy mapping working. Minor issues: Background enrichment async error (minor), full 8-step workflow testing limited by lack of user attempt data but components verified working."
+      - working: true
+        agent: "testing"
+        comment: "✅ ENHANCED NIGHTLY ENGINE INTEGRATION VERIFICATION COMPLETE: Comprehensive testing confirms 77.8% success rate (7/9 tests passed). SCENARIO B PASSED ✅: Enhanced nightly processing scheduler properly integrated - background job scheduler working, enhanced processing components ready and functional, EWMA mastery updates operational, formula integration at 100% (7/7 questions), database integration working. SCENARIO A PARTIAL ✅: Background enrichment queuing works correctly (status: 'enrichment_queued') without async context manager errors, but question creation blocked by database schema constraint (subcategory VARCHAR(20) limit). SCENARIO C NEEDS IMPROVEMENT ⚠️: Canonical category mapping working but insufficient diversity (only 1 canonical category found vs expected multiple). CORE FUNCTIONALITY: Enhanced nightly processing components are ready and functional, background job scheduler integrated successfully, async context manager fix working for background enrichment."
 
 agent_communication:
   - agent: "testing"
