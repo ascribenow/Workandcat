@@ -164,7 +164,7 @@ export const Dashboard = () => {
         <div className="min-h-screen bg-gray-50 flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-            <p className="mt-4 text-gray-600">Loading dashboard...</p>
+            <p className="mt-4 text-gray-600">Loading your progress...</p>
           </div>
         </div>
       );
@@ -177,23 +177,11 @@ export const Dashboard = () => {
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900">Welcome back, {user.name}!</h1>
             <p className="mt-2 text-gray-600">
-              Continue your CAT preparation journey. Track your progress and stay consistent.
+              Track your CAT preparation progress across all categories
             </p>
           </div>
 
-          {/* Quick Actions - Only for users who completed diagnostic */}
-          <div className="grid md:grid-cols-1 gap-4 mb-8">
-            <button
-              onClick={() => setCurrentView('study-plan')}
-              className="bg-blue-600 hover:bg-blue-700 text-white p-6 rounded-lg text-center transition-colors"
-            >
-              <div className="text-2xl mb-2">📅</div>
-              <div className="font-semibold">Study Plan</div>
-              <div className="text-sm opacity-80">Your personalized learning journey</div>
-            </button>
-          </div>
-
-          {/* Progress Overview */}
+          {/* Progress Overview Cards */}
           {progressData && (
             <div className="grid md:grid-cols-4 gap-6 mb-8">
               <div className="bg-white p-6 rounded-lg shadow">
@@ -221,53 +209,114 @@ export const Dashboard = () => {
               </div>
               
               <div className="bg-white p-6 rounded-lg shadow">
-                <div className="text-3xl font-bold text-yellow-600">{progressData.avg_session_time || 0}min</div>
-                <div className="text-sm text-gray-600">Avg Session</div>
+                <div className="text-3xl font-bold text-yellow-600">{Math.round(progressData.days_remaining || 90)}</div>
+                <div className="text-sm text-gray-600">Days Remaining</div>
                 <div className="text-xs text-gray-500 mt-1">
-                  Last: {progressData.last_session_date ? formatDate(progressData.last_session_date) : 'Never'}
+                  Out of 90-day plan
                 </div>
               </div>
             </div>
           )}
 
-          {/* Mastery Progress */}
-          {masteryData && masteryData.mastery_by_topic && masteryData.mastery_by_topic.length > 0 && (
-            <div className="bg-white rounded-lg shadow p-6 mb-8">
-              <h3 className="text-xl font-semibold text-gray-900 mb-6">Mastery Progress by Topic</h3>
-              <div className="space-y-4">
-                {masteryData.mastery_by_topic.map((topic) => (
-                  <div key={topic.topic_name} className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="font-medium text-gray-900">{topic.topic_name}</span>
-                        <span className={`text-sm font-semibold ${
-                          topic.mastery_percentage > 80 ? 'text-green-600' :
-                          topic.mastery_percentage > 60 ? 'text-yellow-600' :
-                          'text-red-600'
-                        }`}>
-                          {Math.round(topic.mastery_percentage)}%
-                        </span>
+          {/* Category Progress Dashboard */}
+          <div className="bg-white rounded-lg shadow p-6 mb-8">
+            <h3 className="text-xl font-semibold text-gray-900 mb-6">Category Progress (90-Day Plan)</h3>
+            
+            {masteryData && masteryData.mastery_by_topic && masteryData.mastery_by_topic.length > 0 ? (
+              <div className="space-y-6">
+                {masteryData.mastery_by_topic.map((categoryData) => {
+                  // Calculate progress percentage based on current day vs 90-day target
+                  const currentDay = progressData?.current_day || 1;
+                  const targetDay = 90;
+                  const timeProgress = Math.min(100, (currentDay / targetDay) * 100);
+                  const performanceProgress = categoryData.mastery_percentage || 0;
+                  
+                  // Overall progress combines time and performance
+                  const overallProgress = Math.min(100, (timeProgress * 0.3) + (performanceProgress * 0.7));
+                  
+                  return (
+                    <div key={categoryData.topic_name} className="border border-gray-200 rounded-lg p-4">
+                      <div className="flex justify-between items-start mb-4">
+                        <div>
+                          <h4 className="font-semibold text-gray-900 text-lg">{categoryData.topic_name}</h4>
+                          <p className="text-sm text-gray-600">
+                            {categoryData.questions_attempted} questions • Last practiced: {categoryData.last_attempt_date ? formatDate(categoryData.last_attempt_date) : 'Not started'}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <div className={`text-2xl font-bold ${
+                            overallProgress > 80 ? 'text-green-600' :
+                            overallProgress > 60 ? 'text-blue-600' :
+                            overallProgress > 40 ? 'text-yellow-600' :
+                            'text-red-600'
+                          }`}>
+                            {Math.round(overallProgress)}%
+                          </div>
+                          <div className="text-xs text-gray-500">Progress</div>
+                        </div>
                       </div>
-                      <div className="w-full bg-gray-200 rounded-full h-3">
-                        <div 
-                          className={`h-3 rounded-full transition-all duration-300 ${
-                            topic.mastery_percentage > 80 ? 'bg-green-500' :
-                            topic.mastery_percentage > 60 ? 'bg-yellow-500' :
-                            'bg-red-500'
-                          }`}
-                          style={{ width: `${Math.max(5, topic.mastery_percentage)}%` }}
-                        ></div>
-                      </div>
-                      <div className="flex justify-between text-xs text-gray-500 mt-1">
-                        <span>{topic.questions_attempted} questions attempted</span>
-                        <span>Last practiced: {topic.last_attempt_date ? formatDate(topic.last_attempt_date) : 'Never'}</span>
+                      
+                      {/* Subcategories */}
+                      {categoryData.subcategories && categoryData.subcategories.length > 0 && (
+                        <div className="space-y-3">
+                          <h5 className="text-sm font-medium text-gray-700">Subcategories:</h5>
+                          {categoryData.subcategories.map((subcat, index) => {
+                            const subcatProgress = Math.min(100, (subcat.mastery_percentage || 0));
+                            return (
+                              <div key={index} className="flex items-center justify-between py-2 px-3 bg-gray-50 rounded">
+                                <span className="text-sm text-gray-800">{subcat.name}</span>
+                                <div className="flex items-center space-x-2">
+                                  <div className="w-24 bg-gray-200 rounded-full h-2">
+                                    <div 
+                                      className={`h-2 rounded-full transition-all duration-300 ${
+                                        subcatProgress > 80 ? 'bg-green-500' :
+                                        subcatProgress > 60 ? 'bg-blue-500' :
+                                        subcatProgress > 40 ? 'bg-yellow-500' :
+                                        'bg-red-500'
+                                      }`}
+                                      style={{ width: `${subcatProgress}%` }}
+                                    ></div>
+                                  </div>
+                                  <span className="text-xs text-gray-600 w-10 text-right">{Math.round(subcatProgress)}%</span>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                      
+                      {/* Overall Progress Bar */}
+                      <div className="mt-4">
+                        <div className="flex justify-between text-sm text-gray-600 mb-2">
+                          <span>Overall Progress</span>
+                          <span>{Math.round(overallProgress)}% Complete</span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-3">
+                          <div 
+                            className={`h-3 rounded-full transition-all duration-500 ${
+                              overallProgress > 80 ? 'bg-green-500' :
+                              overallProgress > 60 ? 'bg-blue-500' :
+                              overallProgress > 40 ? 'bg-yellow-500' :
+                              'bg-red-500'
+                            }`}
+                            style={{ width: `${overallProgress}%` }}
+                          ></div>
+                        </div>
+                        <div className="flex justify-between text-xs text-gray-500 mt-1">
+                          <span>Day {currentDay} of 90</span>
+                          <span>{Math.round(performanceProgress)}% Mastery</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
-            </div>
-          )}
+            ) : (
+              <div className="text-center py-8 text-gray-500">
+                <p>Complete your diagnostic test to see category progress</p>
+              </div>
+            )}
+          </div>
 
           {/* Recent Activity */}
           {progressData && progressData.recent_sessions && progressData.recent_sessions.length > 0 && (
