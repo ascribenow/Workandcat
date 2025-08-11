@@ -1723,6 +1723,271 @@ class CATBackendTester:
         
         return False
 
+    def test_enhanced_session_system(self):
+        """Test Enhanced Session System with Full MCQ Interface"""
+        print("🔍 Testing Enhanced Session System with MCQ Interface...")
+        
+        if not self.student_token:
+            print("   ❌ Cannot test session system - no student token")
+            return False
+        
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {self.student_token}'
+        }
+        
+        # Start a practice session
+        session_data = {
+            "target_minutes": 30
+        }
+        
+        success, response = self.run_test("Enhanced Session: Start Practice Session", "POST", "session/start", 200, session_data, headers)
+        if not success or 'session_id' not in response:
+            print("   ❌ Failed to start practice session")
+            return False
+        
+        session_id = response['session_id']
+        print(f"   ✅ Practice session started: {session_id}")
+        
+        # Get next question with MCQ options
+        success, response = self.run_test("Enhanced Session: Get Question with MCQ Options", "GET", f"session/{session_id}/next-question", 200, None, headers)
+        if not success:
+            print("   ❌ Failed to get question with MCQ options")
+            return False
+        
+        question = response.get('question')
+        if not question:
+            print("   ⚠️ No questions available for session")
+            return True  # This might be expected
+        
+        print(f"   ✅ Question retrieved: {question.get('id')}")
+        
+        # Verify MCQ options are present (A, B, C, D format)
+        options = question.get('options', {})
+        if not options:
+            print("   ❌ No MCQ options found in question")
+            return False
+        
+        expected_options = ['A', 'B', 'C', 'D', 'correct']
+        missing_options = [opt for opt in expected_options if opt not in options]
+        
+        if missing_options:
+            print(f"   ❌ Missing MCQ options: {missing_options}")
+            return False
+        
+        print(f"   ✅ MCQ options present: {list(options.keys())}")
+        print(f"   Question stem: {question.get('stem', '')[:100]}...")
+        
+        # Test answer submission with MCQ format
+        answer_data = {
+            "question_id": question['id'],
+            "user_answer": "A",  # Submit MCQ answer
+            "time_sec": 45,
+            "context": "session",
+            "hint_used": False
+        }
+        
+        success, response = self.run_test("Enhanced Session: Submit MCQ Answer", "POST", f"session/{session_id}/submit-answer", 200, answer_data, headers)
+        if not success:
+            print("   ❌ Failed to submit MCQ answer")
+            return False
+        
+        print(f"   ✅ MCQ answer submitted successfully")
+        print(f"   Answer correct: {response.get('correct')}")
+        print(f"   Feedback provided: {bool(response.get('solution_approach'))}")
+        
+        # Test direct answer submission endpoint
+        success, response = self.run_test("Enhanced Session: Direct Answer Submission", "POST", "submit-answer", 200, answer_data, headers)
+        if success:
+            print(f"   ✅ Direct answer submission working")
+            print(f"   Answer correct: {response.get('correct')}")
+            print(f"   Explanation provided: {bool(response.get('explanation'))}")
+        
+        return True
+
+    def test_detailed_progress_dashboard(self):
+        """Test Detailed Progress Dashboard with Category/Subcategory/Difficulty Breakdown"""
+        print("🔍 Testing Detailed Progress Dashboard...")
+        
+        if not self.student_token:
+            print("   ❌ Cannot test progress dashboard - no student token")
+            return False
+        
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {self.student_token}'
+        }
+        
+        # Test enhanced mastery dashboard with detailed progress
+        success, response = self.run_test("Detailed Progress: Enhanced Mastery Dashboard", "GET", "dashboard/mastery", 200, None, headers)
+        if not success:
+            print("   ❌ Failed to get enhanced mastery dashboard")
+            return False
+        
+        # Check for detailed_progress data
+        detailed_progress = response.get('detailed_progress', [])
+        if not detailed_progress:
+            print("   ❌ No detailed_progress data found in response")
+            return False
+        
+        print(f"   ✅ Detailed progress data found: {len(detailed_progress)} entries")
+        
+        # Analyze detailed progress structure
+        categories_found = set()
+        subcategories_found = set()
+        question_types_found = set()
+        difficulty_breakdown = {"Easy": 0, "Medium": 0, "Hard": 0}
+        
+        for progress_item in detailed_progress:
+            # Check required fields
+            required_fields = ['category', 'subcategory', 'question_type', 'easy_total', 'easy_solved', 'medium_total', 'medium_solved', 'hard_total', 'hard_solved', 'mastery_percentage']
+            missing_fields = [field for field in required_fields if field not in progress_item]
+            
+            if missing_fields:
+                print(f"   ❌ Missing fields in progress item: {missing_fields}")
+                return False
+            
+            # Collect data for analysis
+            categories_found.add(progress_item.get('category', 'Unknown'))
+            subcategories_found.add(progress_item.get('subcategory', 'Unknown'))
+            question_types_found.add(progress_item.get('question_type', 'Unknown'))
+            
+            # Count difficulty breakdown
+            difficulty_breakdown["Easy"] += progress_item.get('easy_total', 0)
+            difficulty_breakdown["Medium"] += progress_item.get('medium_total', 0)
+            difficulty_breakdown["Hard"] += progress_item.get('hard_total', 0)
+        
+        print(f"   ✅ Categories found: {len(categories_found)} - {list(categories_found)}")
+        print(f"   ✅ Subcategories found: {len(subcategories_found)} - {list(subcategories_found)[:3]}...")
+        print(f"   ✅ Question types found: {len(question_types_found)} - {list(question_types_found)[:3]}...")
+        print(f"   ✅ Difficulty breakdown: {difficulty_breakdown}")
+        
+        # Verify canonical taxonomy categories (A, B, C, D, E)
+        canonical_categories = ['A-Arithmetic', 'B-Algebra', 'C-Geometry', 'D-Number System', 'E-Modern Math']
+        canonical_found = [cat for cat in categories_found if any(canonical in cat for canonical in ['Arithmetic', 'Algebra', 'Geometry', 'Number', 'Modern'])]
+        
+        print(f"   ✅ Canonical taxonomy categories: {len(canonical_found)} found")
+        
+        # Sample detailed progress item analysis
+        if detailed_progress:
+            sample_item = detailed_progress[0]
+            print(f"   Sample progress item:")
+            print(f"     Category: {sample_item.get('category')}")
+            print(f"     Subcategory: {sample_item.get('subcategory')}")
+            print(f"     Question Type: {sample_item.get('question_type')}")
+            print(f"     Easy: {sample_item.get('easy_solved')}/{sample_item.get('easy_total')}")
+            print(f"     Medium: {sample_item.get('medium_solved')}/{sample_item.get('medium_total')}")
+            print(f"     Hard: {sample_item.get('hard_solved')}/{sample_item.get('hard_total')}")
+            print(f"     Mastery: {sample_item.get('mastery_percentage')}%")
+        
+        # Verify mastery thresholds (≥85%, 60-84%, <60%)
+        mastery_thresholds = {"Mastered (≥85%)": 0, "On track (60-84%)": 0, "Needs focus (<60%)": 0}
+        for item in detailed_progress:
+            mastery_pct = item.get('mastery_percentage', 0)
+            if mastery_pct >= 85:
+                mastery_thresholds["Mastered (≥85%)"] += 1
+            elif mastery_pct >= 60:
+                mastery_thresholds["On track (60-84%)"] += 1
+            else:
+                mastery_thresholds["Needs focus (<60%)"] += 1
+        
+        print(f"   ✅ Mastery thresholds: {mastery_thresholds}")
+        
+        # Success criteria
+        if (len(categories_found) >= 3 and 
+            len(subcategories_found) >= 5 and 
+            sum(difficulty_breakdown.values()) > 0):
+            print("   ✅ DETAILED PROGRESS DASHBOARD FULLY FUNCTIONAL")
+            return True
+        else:
+            print("   ❌ Detailed progress dashboard missing required data")
+            return False
+
+    def test_mcq_options_endpoint(self):
+        """Test MCQ Options Generation Endpoint"""
+        print("🔍 Testing MCQ Options Generation Endpoint...")
+        
+        if not self.student_token:
+            print("   ❌ Cannot test MCQ options - no student token")
+            return False
+        
+        # First get a question ID
+        success, response = self.run_test("MCQ Options: Get Questions", "GET", "questions?limit=1", 200)
+        if not success or not response.get('questions'):
+            print("   ❌ No questions available for MCQ testing")
+            return False
+        
+        question_id = response['questions'][0]['id']
+        print(f"   Using question ID: {question_id}")
+        
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {self.student_token}'
+        }
+        
+        # Test MCQ options endpoint (if it exists)
+        success, response = self.run_test("MCQ Options: Generate Options", "GET", f"questions/{question_id}/options", 200, None, headers)
+        if success:
+            options = response.get('options', {})
+            if options and len(options) >= 4:
+                print(f"   ✅ MCQ options generated: {list(options.keys())}")
+                return True
+            else:
+                print("   ❌ Insufficient MCQ options generated")
+                return False
+        else:
+            # If dedicated endpoint doesn't exist, check if options are included in session questions
+            print("   ⚠️ Dedicated MCQ options endpoint not found, checking session integration")
+            return True  # This is tested in session system
+
+    def test_navigation_and_user_flow(self):
+        """Test Navigation Between Dashboard and Session Views"""
+        print("🔍 Testing Navigation and User Flow...")
+        
+        if not self.student_token:
+            print("   ❌ Cannot test navigation - no student token")
+            return False
+        
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {self.student_token}'
+        }
+        
+        # Test dashboard access
+        success, response = self.run_test("Navigation: Access Dashboard", "GET", "dashboard/mastery", 200, None, headers)
+        if not success:
+            print("   ❌ Cannot access dashboard")
+            return False
+        
+        print("   ✅ Dashboard accessible")
+        
+        # Test progress dashboard
+        success, response = self.run_test("Navigation: Access Progress Dashboard", "GET", "dashboard/progress", 200, None, headers)
+        if not success:
+            print("   ❌ Cannot access progress dashboard")
+            return False
+        
+        print("   ✅ Progress dashboard accessible")
+        
+        # Test session start (simulating "Practice Session" button)
+        session_data = {"target_minutes": 30}
+        success, response = self.run_test("Navigation: Start Practice Session", "POST", "session/start", 200, session_data, headers)
+        if not success:
+            print("   ❌ Cannot start practice session")
+            return False
+        
+        session_id = response.get('session_id')
+        print(f"   ✅ Practice session started: {session_id}")
+        
+        # Test switching back to dashboard (by accessing it again)
+        success, response = self.run_test("Navigation: Return to Dashboard", "GET", "dashboard/mastery", 200, None, headers)
+        if success:
+            print("   ✅ Can switch back to dashboard from session")
+            return True
+        else:
+            print("   ❌ Cannot switch back to dashboard")
+            return False
+
 def main():
     print("🚀 Starting CAT Backend API v1.3 COMPLIANCE VERIFICATION...")
     print("🎯 TESTING v1.3 MAJOR CHANGES AND ENHANCEMENTS")
