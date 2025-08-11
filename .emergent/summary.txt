@@ -1,187 +1,101 @@
 <analysis>
-The previous AI engineer successfully transitioned a CAT preparation MVP from MongoDB/FastAPI/React to a robust PostgreSQL/FastAPI/React production system. Key achievements include comprehensive backend re-engineering with SQLAlchemy for 15+ tables, implementing core AI modules (LLM enrichment, diagnostic, MCQ generation, study planning, mastery tracking), and resolving numerous backend bugs. Frontend efforts focused on integrating with the new backend and adapting the UI for specific user flows (admin/student dashboards, diagnostic, study plan). The work progressed through fixing initial integration issues, enhancing the mastery dashboard, integrating background jobs, and then addressing critical issues identified through testing, such as database schema constraints, JWT errors, and diagnostic system discrepancies. The latest work involved a deep dive into resolving persistent issues with formula integration, diagnostic question distribution, and difficulty representation, aiming for a 100% success rate, which are still in progress.
+The previous AI engineer successfully migrated a CAT preparation MVP from MongoDB/FastAPI/React to a PostgreSQL-based production system. This involved extensive backend re-engineering, including SQLAlchemy integration for 15+ tables and the implementation of core AI modules for question enrichment, study planning, and mastery tracking. Initial work focused on fixing critical integration issues and bugs related to diagnostic systems and formula integration, and explicitly removing diagnostic functionality per user request. Subsequently, the engineer addressed a comprehensive feedback document, implementing new formulas, enhancing the database schema, refining core business logic (e.g., attempt spacing, mastery thresholds), and adding a much-needed interactive student session and detailed progress dashboard. The latest work involves a deep dive into refining the nightly processing engine based on new user feedback, specifically updating the deterministic difficulty formula and setting up an enhanced background job engine.
 </analysis>
 
 <product_requirements>
-The product is a comprehensive CAT Quantitative Aptitude preparation application, aiming to provide a personalized and adaptive learning experience. It has evolved from an MVP to a production-ready system.
-**Core Requirements:**
-*   **Database:** PostgreSQL with 15+ interconnected tables (Users, Questions, Topics, Attempts, Mastery, Plans).
-*   **AI Scoring:** 4-factor difficulty formula for questions; LLM enrichment for question analysis and scoring.
-*   **Diagnostic System:** A fixed 25-question diagnostic test for new users, leading to a personalized study plan; not re-offered to returning users. Must have specific category/subcategory/difficulty distribution.
-*   **Study Planning:** Automated, adaptive system with three tracks, rolling plan units, daily minimums, and budget management; no manual selection for students.
-*   **Attempt Management:** Max 3 attempts per question with retry intervals and hint support.
-*   **Background Processing:** Nightly jobs for dynamic Learning Impact and Mastery percentage updates.
-*   **MCQ Generation:** Real-time, on-demand option generation with distractors.
-*   **Authentication:** Professional system with hardcoded admin access ().
-*   **UI:** Minimalistic student interface (Dashboard, Study Plan, Practice) and a streamlined admin interface (PYQ Upload, Question Upload (single/CSV), Questions Export).
-*   **Taxonomy:** Canonical QA taxonomy (Arithmetic, Algebra, Geometry & Mensuration, Number System, Modern Math) with 29 subcategories and a  column.
-*   **File Uploads:** Support for .docx, .doc, and .pdf for PYQ uploads.
+The application is a comprehensive CAT Quantitative Aptitude preparation platform designed for personalized and adaptive learning. Initially an MVP, it transitioned to a PostgreSQL/FastAPI/React stack. Key features include: a PostgreSQL backend with 15+ tables, AI-powered question scoring using a 4-factor difficulty formula and LLM enrichment. An adaptive study planning system offers three tracks, rolling units, and daily minimums without manual student selection. Attempt management limits questions to 3 tries with retry intervals. Nightly background jobs update learning impact and mastery. MCQ generation is real-time with distractors. Authentication uses JWT, with hardcoded admin access. The UI is minimalistic for students (Dashboard, Study Plan, Practice) and streamlined for admin (PYQ/Question Upload, Export), supporting .docx, .doc, and .pdf. A canonical QA taxonomy categorizes content into 5 main categories and 29 subcategories. Initially, a 25-question diagnostic test was a core feature for new users, but this functionality was explicitly removed per user request. The system also includes detailed progress tracking by category, subcategory, and question type, including questions solved by difficulty level.
 </product_requirements>
 
 <key_technical_concepts>
--   **Full-stack Application:** React.js (frontend) and FastAPI (backend).
--   **Database:** PostgreSQL with SQLAlchemy ORM (transitioned from MongoDB).
--   **Authentication:** JWT for API access, integrated with PostgreSQL users.
--   **AI Integration:** Universal Emergent LLM Key for question analysis, scoring, and enrichment.
--   **Containerization:** Kubernetes environment, Supervisor for process management.
--   **Development Tools:** yarn install v1.22.22
-[1/4] Resolving packages...
-success Already up-to-date.
-Done in 0.19s. (frontend), 
-Usage:   
-  pip <command> [options]
-
-Commands:
-  install                     Install packages.
-  download                    Download packages.
-  uninstall                   Uninstall packages.
-  freeze                      Output installed packages in requirements format.
-  inspect                     Inspect the python environment.
-  list                        List installed packages.
-  show                        Show information about installed packages.
-  check                       Verify installed packages have compatible dependencies.
-  config                      Manage local and global configuration.
-  search                      Search PyPI for packages.
-  cache                       Inspect and manage pip's wheel cache.
-  index                       Inspect information available from package indexes.
-  wheel                       Build wheels from your requirements.
-  hash                        Compute hashes of package archives.
-  completion                  A helper command used for command completion.
-  debug                       Show information useful for debugging.
-  help                        Show help for commands.
-
-General Options:
-  -h, --help                  Show help.
-  --debug                     Let unhandled exceptions propagate outside the
-                              main subroutine, instead of logging them to
-                              stderr.
-  --isolated                  Run pip in an isolated mode, ignoring
-                              environment variables and user configuration.
-  --require-virtualenv        Allow pip to only run in a virtual environment;
-                              exit with an error otherwise.
-  --python <python>           Run pip with the specified Python interpreter.
-  -v, --verbose               Give more output. Option is additive, and can be
-                              used up to 3 times.
-  -V, --version               Show version and exit.
-  -q, --quiet                 Give less output. Option is additive, and can be
-                              used up to 3 times (corresponding to WARNING,
-                              ERROR, and CRITICAL logging levels).
-  --log <path>                Path to a verbose appending log.
-  --no-input                  Disable prompting for input.
-  --keyring-provider <keyring_provider>
-                              Enable the credential lookup via the keyring
-                              library if user input is allowed. Specify which
-                              mechanism to use [disabled, import, subprocess].
-                              (default: disabled)
-  --proxy <proxy>             Specify a proxy in the form
-                              scheme://[user:passwd@]proxy.server:port.
-  --retries <retries>         Maximum number of retries each connection should
-                              attempt (default 5 times).
-  --timeout <sec>             Set the socket timeout (default 15 seconds).
-  --exists-action <action>    Default action when a path already exists:
-                              (s)witch, (i)gnore, (w)ipe, (b)ackup, (a)bort.
-  --trusted-host <hostname>   Mark this host or host:port pair as trusted,
-                              even though it does not have valid or any HTTPS.
-  --cert <path>               Path to PEM-encoded CA certificate bundle. If
-                              provided, overrides the default. See 'SSL
-                              Certificate Verification' in pip documentation
-                              for more information.
-  --client-cert <path>        Path to SSL client certificate, a single file
-                              containing the private key and the certificate
-                              in PEM format.
-  --cache-dir <dir>           Store the cache data in <dir>.
-  --no-cache-dir              Disable the cache.
-  --disable-pip-version-check
-                              Don't periodically check PyPI to determine
-                              whether a new version of pip is available for
-                              download. Implied with --no-index.
-  --no-color                  Suppress colored output.
-  --no-python-version-warning
-                              Silence deprecation warnings for upcoming
-                              unsupported Pythons.
-  --use-feature <feature>     Enable new functionality, that may be backward
-                              incompatible.
-  --use-deprecated <feature>  Enable deprecated functionality, that will be
-                              removed in the future. (backend).
+-   **Full-stack:** React.js (frontend), FastAPI (backend).
+-   **Database:** PostgreSQL with SQLAlchemy ORM (migrated from MongoDB).
+-   **Authentication:** JWT for API access.
+-   **AI/LLM:** Universal Emergent LLM Key for question analysis, scoring, and enrichment.
+-   **Containerization:** Kubernetes, Supervisor for process management.
 -   **Background Jobs:** APScheduler for nightly tasks.
+-   **Learning Algorithms:** EWMA for mastery, spaced repetition, adaptive question selection.
 </key_technical_concepts>
 
 <code_architecture>
-The application follows a standard full-stack architecture with a React frontend and a FastAPI backend.
+The application follows a standard full-stack architecture.
 
 
 
--   : The main FastAPI application.
-    -   **Importance:** Central hub for all API routes, integrating various backend modules. Manages startup/shutdown events, authentication, and core business logic endpoints.
-    -   **Changes:**  setup, fixed  for DB sessions, fixed  assignment, corrected admin stats query, debugged diagnostic completion and session answer submission. Added CSV upload/export, temporarily simplified login, then reverted. Enhanced  to distinguish categories/subcategories based on Topic hierarchy. Integrated  initialization in startup/shutdown events. Updated PYQ upload endpoint to support PDF files.
--   : Defines all SQLAlchemy models and handles PostgreSQL connection.
-    -   **Importance:** Establishes the entire PostgreSQL schema, including , , , , , , , , , etc.
-    -   **Changes:** Defined 15+ models.  model now includes  for hierarchical categorization and  field for A/B/C/D/E classification.  and  models now include  column (VARCHAR(150)).  model changed from  to  for completion tracking.
--   : Environment variables for backend services.
-    -   **Importance:** Stores sensitive information like PostgreSQL connection details and local testing URLs.
-    -   **Changes:** Updated to include PostgreSQL details and temporary local frontend URLs for testing.
--   : Authentication logic.
-    -   **Importance:** Handles user authentication, JWT token generation, and validation for PostgreSQL users.
-    -   **Changes:** Updated to work with PostgreSQL user models. Fixed  to  for PyJWT version compatibility.
--   : Logic for the 25-question diagnostic test.
-    -   **Importance:** Manages question selection for the diagnostic, ensuring a fixed blueprint and preventing duplicates.
-    -   **Changes:** Made question matching more flexible, ensured 25-question blueprint (8+5+6+3+3), updated difficulty terminology from Difficult to Hard. Integrated formulas from .
--   : LLM-powered question scoring and enrichment.
-    -   **Importance:** Applies AI algorithms for question difficulty, topic, and other metadata extraction.
-    -   **Changes:** Integrated canonical taxonomy into enrichment process. Enhanced  to determine and include  and use new formulas.
+-   : Main FastAPI application.
+    -   **Importance:** Central API hub.
+    -   **Changes:** Heavily refactored: diagnostic logic/endpoints removed;  setup; fixed ; integrated background jobs; enhanced ; added  endpoint for detailed analytics; updated PYQ upload path ( to ).
+-   : SQLAlchemy models and PostgreSQL connection.
+    -   **Importance:** Defines the entire PostgreSQL schema.
+    -   **Changes:** Defined 15+ models; added  and  to ;  and  have ;  replaced  with  (though diagnostic was later removed). Added  and  models.
+-   : Centralizes computational formulas.
+    -   **Importance:** Core logic for difficulty, mastery, etc.
+    -   **Changes:** Created to encapsulate 10+ formulas; EWMA alpha updated from 0.3 to 0.6; new formulas for , ,  added;  replaced with .
 -   : EWMA-based mastery tracking.
-    -   **Importance:** Calculates and tracks student mastery based on performance and time decay.
-    -   **Changes:** Updated to use new EWMA formulas and preparedness ambition calculations from .
--   : Contains logic for nightly tasks.
-    -   **Importance:** Manages scheduled updates, mastery decay, and study plan extensions.
-    -   **Changes:** Functionality was already well-implemented; integration into  startup/shutdown was added.
+    -   **Importance:** Tracks student mastery.
+    -   **Changes:** Updated to use EWMA alpha 0.6 and new preparedness ambition formulas; added mastery threshold categorization (, , ).
+-   : Real-time MCQ option generation.
+    -   **Importance:** Provides answer choices.
+    -   **Changes:** Enhanced with shuffle logic for options and randomized correct answer position.
 -   : **NEW** file.
-    -   **Importance:** Centralizes all computational formulas for difficulty, frequency, importance, learning impact, EWMA mastery, preparedness ambition, NAT validation, attempt spacing, and diagnostic blueprint.
-    -   **Changes:** Created to encapsulate 10 major formulas.
+    -   **Importance:** Manages adaptive question selection based on EWMA mastery.
+    -   **Changes:** Created to ensure sessions are optimally challenging rather than random.
+-   : **NEW** file.
+    -   **Importance:** Implements spaced review logic.
+    -   **Changes:** Created to enforce repeat until mastery and 48-hour retry rules.
+-   : **NEW** file.
+    -   **Importance:** Comprehensive nightly processing engine.
+    -   **Changes:** Created to address critical gaps in background processing, including updated difficulty formulas and plan adjustments.
 -   : Main React component.
-    -   **Importance:** Handles overall routing, authentication context, and renders main UI components like Dashboard and AdminPanel.
-    -   **Changes:** Heavily modified to integrate new authentication context, render  and , manage view states for student/admin flow (diagnostic for new users, study plan for returning users).
--   : Main user dashboard and includes admin functions.
-    -   **Importance:** Displays student progress (mastery, study plan) and provides admin functionalities.
-    -   **Changes:** Redesigned for student progress (Category, Sub Category, Progress %). Admin section refined to only show PYQ Upload (with PDF support now), Question Upload (single/CSV), and CSV Export. Updated file type acceptance for PYQ upload to include .
--   : Script to populate PostgreSQL database.
-    -   **Importance:** Populates initial data for testing and development.
-    -   **Changes:** Fixed SQL syntax and  during execution.
+    -   **Importance:** Handles routing and authentication.
+    -   **Changes:** Heavily modified for new auth, / rendering; diagnostic references removed.
+-   : User dashboard/admin functions.
+    -   **Importance:** Displays progress and admin tools.
+    -   **Changes:** Redesigned for student progress; admin section refined for PYQ/Question Upload/Export; detailed progress table added with category/subcategory/difficulty breakdown; Session navigation button added; diagnostic references removed.
+-   : Student session interface.
+    -   **Importance:** Core MCQ practice interface.
+    -   **Changes:** Existing file refined to provide full MCQ interface, timer, progress tracking, answer submission, feedback, and question metadata display.
+-   : Study plan logic.
+    -   **Importance:** Manages student study plans.
+    -   **Changes:** Diagnostic references removed.
 -   : **NEW** script.
-    -   **Importance:** Helper script to check and potentially populate diagnostic set.
-    -   **Changes:** Created to verify diagnostic set population; fixed to handle composite primary keys.
+    -   **Importance:** Sets up PostgreSQL schema.
+    -   **Changes:** Created and used to initialize the database after PostgreSQL installation.
 -   : **NEW** script.
-    -   **Importance:** Helper script to clean corrupt diagnostic records.
-    -   **Changes:** Created to remove diagnostic entries with null ; fixed SQLAlchemy  attribute error.
--    / : **NEW** scripts.
-    -   **Importance:** Helper scripts to alter database schema.
-    -   **Changes:** Created to increase VARCHAR length for subcategory and other relevant columns.
+    -   **Importance:** Applies specific fixes for formula calculations.
+    -   **Changes:** Created and executed to achieve 64% formula integration.
 -   : **NEW** script.
-    -   **Importance:** Script to populate the database with the predefined canonical taxonomy.
-    -   **Changes:** Created to update or insert topics according to the canonical taxonomy, handling foreign key constraints.
+    -   **Importance:** Automates removal of diagnostic code.
+    -   **Changes:** Created to systematically remove diagnostic-related imports, endpoints, and logic from the backend.
 -   : **NEW** script.
-    -   **Importance:** Script to add missing columns required for formula integration to the Question table.
-    -   **Changes:** Created to add , , ,  columns; fixed  reference issue.
+    -   **Importance:** Alters database schema to V1.3.
+    -   **Changes:** Created to add , , , , and  tables/columns. Fixed to handle UUID extension and multi-command SQL.
 -   : **NEW** file.
-    -   **Importance:** Documentation for system architecture and database schema.
-    -   **Changes:** Created to visually represent the 3-tier architecture, database schema, data flows, and key components. Updated to include canonical taxonomy, formulas, correct diagnostic blueprint, and acceptance criteria.
+    -   **Importance:** Comprehensive technical summary.
+    -   **Changes:** Created to detail architecture, schema, formulas, and project status.
+-   : **NEW** file.
+    -   **Importance:** HTML version of the review document for easier access.
+    -   **Changes:** Created based on the markdown document.
+-   : **NEW** file.
+    -   **Importance:** Explains session storage and nightly update mechanism.
+    -   **Changes:** Created to document the technical flow of how session data powers learning adaptations.
 </code_architecture>
 
 <pending_tasks>
--   Complete implementation of formula integration (current test success rate is 37%, needs ≥60%).
--   Fix 25-question diagnostic distribution (currently 17/25 questions are Unknown category).
--   Fix missing proper difficulty distribution (currently 100% Medium, 0% Easy/Hard).
+-   Integrate the  into the existing  to utilize the new nightly processing logic.
+-   Run end-to-end tests for all canonical categories/subcategories to confirm accurate mapping and mastery updates following the recent fixes.
 </pending_tasks>
 
 <current_work>
-Immediately prior to this summary, the AI engineer was focused on resolving three critical issues that were preventing the application from achieving a 100% success rate in comprehensive testing:
-1.  **Formula Integration:** The backend's formula calculations, particularly for scoring, were not fully integrated, showing a low success rate (37% against a target of ≥60%). This means core AI-powered metrics are not being computed correctly.
-2.  **25-Question Diagnostic Distribution:** The diagnostic test, which is crucial for new user onboarding and study plan generation, had incorrect question distribution, with 17 out of 25 questions falling into an Unknown category. This indicates a problem with how questions are categorized or selected for the diagnostic set, directly impacting the personalized learning experience.
-3.  **Missing Proper Difficulty Distribution:** All questions in the diagnostic were incorrectly categorized as Medium difficulty, with 0% in Easy or Hard categories. This suggests an issue with the difficulty assignment or retrieval logic, impacting the adaptive nature of the test.
+Immediately prior to this summary request, the AI engineer was focused on addressing a new set of feedback related to refining the **nightly update logic**. This feedback highlighted that while current data capture, EWMA mastery, plan regeneration, and difficulty recomputation were functioning, 8 critical gaps needed to be addressed in the nightly processing system.
 
-To address these, the AI engineer previously created and ran scripts like , , and . However, the latest comprehensive test results (Chat Message 327) indicate these issues *persist*, despite previous attempts at fixing them. The last action taken was creating a new script  (Chat Message 330) to implement what are now considered the REAL fixes for these lingering problems, acknowledging that previous solutions were insufficient.
+The work currently in progress involves:
+1.  **Deterministic Difficulty Formula Update**: The  function in  has been replaced with a more deterministic  function. This change ensures a precise and consistent calculation of question difficulty, crucial for adaptive learning.
+    
+2.  **Enhanced Nightly Processing Engine Creation**: A new file, , has been created. This script is intended to house the comprehensive logic for the refined nightly processing, incorporating all 8 identified fixes from the latest feedback.
+
+The next immediate step is to integrate this newly created  into the existing  to ensure these refinements are part of the scheduled nightly updates. This ensures the system continuously learns and adapts based on the most precise algorithms.
 </current_work>
 
 <optional_next_step>
-Execute the  script to resolve the remaining critical issues.
+Integrate the  into  to apply the refined nightly processing.
 </optional_next_step>

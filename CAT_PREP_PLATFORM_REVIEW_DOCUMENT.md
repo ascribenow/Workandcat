@@ -552,7 +552,7 @@ JWT_SECRET=cat-prep-2025-secure-jwt-key-sumedhprabhu18
 CORS_ORIGINS=*
 
 # Frontend (.env)  
-REACT_APP_BACKEND_URL=https://[domain].preview.emergentagent.com
+REACT_APP_BACKEND_URL=https://118f8c4c-e08a-4d0b-90a2-6f88b95454b1.preview.emergentagent.com
 WDS_SOCKET_PORT=443
 ```
 
