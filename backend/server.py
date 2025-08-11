@@ -1215,6 +1215,16 @@ async def startup_event():
     logger.info(f"📧 Admin Email: {ADMIN_EMAIL}")
     logger.info("✅ CAT Preparation Platform v2.0 Ready!")
 
+@app.on_event("shutdown")
+async def shutdown_event():
+    logger.info("🛑 CAT Preparation Platform v2.0 Shutting down...")
+    
+    # Stop background job processing
+    stop_background_processing()
+    logger.info("⏰ Background job processing stopped")
+    
+    logger.info("✅ CAT Preparation Platform v2.0 Shutdown complete!")
+
 async def create_initial_topics():
     """Create initial topic structure from canonical taxonomy"""
     try:
