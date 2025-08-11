@@ -116,29 +116,16 @@ export const Dashboard = () => {
       );
     }
     
-    // Regular users get normal navigation
+    // Regular users get simplified navigation (no manual study plan selection)
     return (
       <nav className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex space-x-8">
-              {[
-                { key: 'dashboard', label: 'Dashboard', icon: '🏠' },
-                { key: 'study-plan', label: 'Study Plan', icon: '📅' }
-              ].map((item) => (
-                <button
-                  key={item.key}
-                  onClick={() => setCurrentView(item.key)}
-                  className={`inline-flex items-center px-1 pt-1 text-sm font-medium ${
-                    currentView === item.key 
-                      ? "text-blue-600 border-b-2 border-blue-500" 
-                      : "text-gray-500 hover:text-gray-700"
-                  }`}
-                >
-                  <span className="mr-2">{item.icon}</span>
-                  {item.label}
-                </button>
-              ))}
+              <div className="inline-flex items-center px-1 pt-1 text-sm font-medium text-blue-600 border-b-2 border-blue-500">
+                <span className="mr-2">🏠</span>
+                Progress Dashboard
+              </div>
             </div>
             
             <div className="flex items-center space-x-4">
