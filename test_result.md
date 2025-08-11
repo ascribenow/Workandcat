@@ -146,9 +146,9 @@ backend:
         
   - task: "Diagnostic System"
     implemented: true
-    working: true
+    working: false
     file: "backend/diagnostic_system.py"
-    stuck_count: 1
+    stuck_count: 2
     priority: "high"
     needs_retesting: false
     status_history:
@@ -173,6 +173,9 @@ backend:
       - working: true
         agent: "testing"
         comment: "🎉 DIAGNOSTIC SYSTEM FULLY FIXED! Root cause identified and resolved: Diagnostic set had 0 questions because no questions matched the diagnostic blueprint subcategories. Created 24 diagnostic questions with correct subcategory names (Time–Speed–Distance (TSD), Time & Work, Percentages, etc.) and added them to diagnostic set. Complete end-to-end testing successful: ✅ Start diagnostic (25 questions), ✅ Retrieve 24 questions with proper subcategories and difficulty bands, ✅ Submit answers, ✅ Complete diagnostic with capability scoring and track recommendation, ✅ MCQ options generated correctly, ✅ Diagnostic status endpoint working with completed_at.isnot(None). Student user flow now fully operational from registration → diagnostic → mastery dashboard."
+      - working: false
+        agent: "testing"
+        comment: "❌ CANONICAL TAXONOMY DIAGNOSTIC ISSUES: 1) Only 24/25 questions retrieved, 2) All questions from A-Arithmetic category only (should be A=8, B=5, C=6, D=3, E=3 distribution), 3) Still using 'Difficult' terminology instead of 'Hard' as specified, 4) No 'Hard' difficulty questions found in diagnostic set. Diagnostic blueprint not following canonical taxonomy 5-category distribution. This prevents proper capability assessment across all mathematical domains."
         
   - task: "MCQ Generator"
     implemented: true
