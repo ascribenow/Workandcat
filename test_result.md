@@ -315,11 +315,9 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Diagnostic System"
-    - "Session Management"
-  stuck_tasks:
-    - "Diagnostic System"
-    - "Session Management"
+    - "Enhanced Mastery Dashboard"
+    - "Background Jobs"
+  stuck_tasks: []
   test_all: false
   test_priority: "high_first"
 
