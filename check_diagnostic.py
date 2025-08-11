@@ -73,7 +73,7 @@ async def main():
                 
                 if new_set:
                     new_count = await db.scalar(
-                        select(func.count(DiagnosticSetQuestion.id))
+                        select(func.count(DiagnosticSetQuestion.set_id))
                         .where(DiagnosticSetQuestion.set_id == new_set.id)
                     )
                     print(f"✅ New diagnostic set created with {new_count} questions")
