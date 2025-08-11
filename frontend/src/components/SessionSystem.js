@@ -81,17 +81,6 @@ export const SessionSystem = ({ sessionId: propSessionId, onSessionEnd }) => {
     }
   };
 
-  const fetchSessionStats = async () => {
-    try {
-      const response = await axios.get(`${API}/session/${sessionId}/stats`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('cat_prep_token')}` }
-      });
-      setSessionStats(response.data);
-    } catch (err) {
-      console.error('Error fetching session stats:', err);
-    }
-  };
-
   const submitAnswer = async () => {
     if (!userAnswer.trim()) {
       alert('Please select an answer');
