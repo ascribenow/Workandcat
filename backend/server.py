@@ -1247,6 +1247,7 @@ async def process_pyq_document(ingestion_id: str, file_content: bytes):
                     ingestion.parse_status = "failed"
                     ingestion.parse_log = str(e)
                     await db.commit()
+                break  # Exit the async for loop
         except:
             pass
 
