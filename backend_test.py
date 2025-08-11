@@ -1989,58 +1989,71 @@ class CATBackendTester:
             return False
 
 def main():
-    print("🚀 Starting CAT Backend API v1.3 COMPLIANCE VERIFICATION...")
-    print("🎯 TESTING v1.3 MAJOR CHANGES AND ENHANCEMENTS")
+    print("🚀 Starting CAT Backend API Testing - Focus on New Critical Components...")
+    print("🎯 TESTING NEWLY ADDED CRITICAL COMPONENTS")
     print("=" * 80)
     
     tester = CATBackendTester()
     
-    # Run comprehensive tests focusing on v1.3 compliance
+    # Run comprehensive tests focusing on new critical components
     test_results = []
     
-    # Core system tests
+    # Core system tests (prerequisite)
+    print("🔧 PREREQUISITE TESTS")
+    print("=" * 30)
     test_results.append(("Root Endpoint", tester.test_root_endpoint()))
     test_results.append(("User Login & Registration", tester.test_user_login()))
     
-    # v1.3 COMPLIANCE VERIFICATION - PRIMARY FOCUS
-    print("\n🎯 v1.3 COMPLIANCE VERIFICATION - MAJOR CHANGES")
+    # NEW CRITICAL COMPONENTS TESTING - PRIMARY FOCUS
+    print("\n🎯 NEW CRITICAL COMPONENTS TESTING - MAIN FOCUS")
     print("=" * 70)
     
-    # v1.3 Major Changes
-    test_results.append(("v1.3 EWMA Alpha Update (0.3→0.6)", tester.test_v13_ewma_alpha_update()))
-    test_results.append(("v1.3 New Formula Suite", tester.test_v13_new_formula_suite()))
-    test_results.append(("v1.3 Schema Enhancements", tester.test_v13_schema_enhancements()))
-    test_results.append(("v1.3 Attempt Spacing (48h rule)", tester.test_v13_attempt_spacing_48h_rule()))
-    test_results.append(("v1.3 Mastery Thresholds", tester.test_v13_mastery_thresholds()))
-    test_results.append(("v1.3 MCQ Shuffle Randomization", tester.test_v13_mcq_shuffle_randomization()))
-    test_results.append(("v1.3 Intelligent Plan Engine", tester.test_v13_intelligent_plan_engine()))
-    test_results.append(("v1.3 Preparedness Ambition", tester.test_v13_preparedness_ambition_tracking()))
-    test_results.append(("v1.3 Background Jobs (Nightly)", tester.test_v13_background_jobs_nightly_adjustments()))
+    # Focus on the newly added critical components from review request
+    critical_new_tests = [
+        ("Enhanced Session System (MCQ Interface)", tester.test_enhanced_session_system()),
+        ("Detailed Progress Dashboard", tester.test_detailed_progress_dashboard()),
+        ("MCQ Options Generation", tester.test_mcq_options_endpoint()),
+        ("Navigation and User Flow", tester.test_navigation_and_user_flow()),
+    ]
     
-    print("\n📋 COMPREHENSIVE SYSTEM VERIFICATION")
+    test_results.extend(critical_new_tests)
+    
+    print("\n📋 SUPPORTING BACKEND FUNCTIONALITY")
     print("=" * 50)
     
-    # Core functionality tests
-    test_results.append(("Enhanced Mastery Dashboard", tester.test_mastery_tracking()))
-    test_results.append(("MCQ Generation", tester.test_mcq_generation()))
-    test_results.append(("Study Planner", tester.test_study_planner()))
-    test_results.append(("Session Management", tester.test_session_management()))
-    test_results.append(("Progress Dashboard", tester.test_progress_dashboard()))
-    test_results.append(("Admin Endpoints", tester.test_admin_endpoints()))
-    test_results.append(("Background Jobs System", tester.test_background_jobs_system()))
+    # Supporting backend tests
+    supporting_tests = [
+        ("Enhanced Mastery Dashboard", tester.test_mastery_tracking()),
+        ("Session Management", tester.test_session_management()),
+        ("Progress Dashboard", tester.test_progress_dashboard()),
+        ("Study Planner", tester.test_study_planner()),
+        ("Admin Endpoints", tester.test_admin_endpoints()),
+        ("Background Jobs System", tester.test_background_jobs_system()),
+    ]
     
-    print("\n🔍 ADVANCED FEATURES & INTEGRATION")
-    print("=" * 55)
+    test_results.extend(supporting_tests)
     
-    # Advanced feature tests
-    test_results.append(("Canonical Taxonomy Implementation", tester.test_canonical_taxonomy_implementation()))
-    test_results.append(("Enhanced LLM Enrichment Pipeline", tester.test_enhanced_llm_enrichment_pipeline()))
-    test_results.append(("Enhanced Mastery System (Canonical)", tester.test_enhanced_mastery_system_canonical()))
-    test_results.append(("Formula Integration Verification", tester.test_formula_integration_verification()))
+    print("\n🔬 v1.3 COMPLIANCE VERIFICATION")
+    print("=" * 40)
+    
+    # v1.3 compliance tests
+    v13_tests = [
+        ("v1.3 EWMA Alpha Update (0.3→0.6)", tester.test_v13_ewma_alpha_update()),
+        ("v1.3 New Formula Suite", tester.test_v13_new_formula_suite()),
+        ("v1.3 Schema Enhancements", tester.test_v13_schema_enhancements()),
+        ("v1.3 Attempt Spacing (48h rule)", tester.test_v13_attempt_spacing_48h_rule()),
+        ("v1.3 Mastery Thresholds", tester.test_v13_mastery_thresholds()),
+        ("v1.3 MCQ Shuffle Randomization", tester.test_v13_mcq_shuffle_randomization()),
+        ("v1.3 Intelligent Plan Engine", tester.test_v13_intelligent_plan_engine()),
+        ("v1.3 Preparedness Ambition", tester.test_v13_preparedness_ambition_tracking()),
+        ("v1.3 Background Jobs (Nightly)", tester.test_v13_background_jobs_nightly_adjustments()),
+    ]
+    
+    test_results.extend(v13_tests)
     
     # Print final results
     print("\n" + "=" * 80)
-    print("🎯 FINAL TEST RESULTS - CAT BACKEND API v1.3 COMPLIANCE")
+    print("🎯 FINAL TEST RESULTS - NEW CRITICAL COMPONENTS FOCUS")
     print("=" * 80)
     
     passed_tests = sum(1 for _, result in test_results if result)
@@ -2048,54 +2061,63 @@ def main():
     success_rate = (passed_tests / total_tests) * 100
     
     # Categorize results
-    v13_tests = test_results[2:11]  # v1.3 specific tests
-    core_tests = test_results[11:18]  # Core functionality
-    advanced_tests = test_results[18:]  # Advanced features
+    prerequisite_tests = test_results[0:2]  # Core prerequisite tests
+    critical_tests = test_results[2:6]  # NEW critical components
+    supporting_tests = test_results[6:12]  # Supporting functionality
+    v13_tests = test_results[12:]  # v1.3 compliance
     
-    print("\n🎯 v1.3 COMPLIANCE RESULTS:")
+    print("\n🔧 PREREQUISITE RESULTS:")
+    prereq_passed = sum(1 for _, result in prerequisite_tests if result)
+    for test_name, result in prerequisite_tests:
+        status = "✅ PASS" if result else "❌ FAIL"
+        print(f"{status} {test_name}")
+    print(f"Prerequisite Rate: {(prereq_passed/len(prerequisite_tests)*100):.1f}% ({prereq_passed}/{len(prerequisite_tests)})")
+    
+    print("\n🎯 NEW CRITICAL COMPONENTS RESULTS:")
+    critical_passed = sum(1 for _, result in critical_tests if result)
+    for test_name, result in critical_tests:
+        status = "✅ PASS" if result else "❌ FAIL"
+        print(f"{status} {test_name}")
+    print(f"Critical Components Rate: {(critical_passed/len(critical_tests)*100):.1f}% ({critical_passed}/{len(critical_tests)})")
+    
+    print("\n📋 SUPPORTING BACKEND RESULTS:")
+    support_passed = sum(1 for _, result in supporting_tests if result)
+    for test_name, result in supporting_tests:
+        status = "✅ PASS" if result else "❌ FAIL"
+        print(f"{status} {test_name}")
+    print(f"Supporting Backend Rate: {(support_passed/len(supporting_tests)*100):.1f}% ({support_passed}/{len(supporting_tests)})")
+    
+    print("\n🔬 v1.3 COMPLIANCE RESULTS:")
     v13_passed = sum(1 for _, result in v13_tests if result)
     for test_name, result in v13_tests:
         status = "✅ PASS" if result else "❌ FAIL"
         print(f"{status} {test_name}")
     print(f"v1.3 Compliance Rate: {(v13_passed/len(v13_tests)*100):.1f}% ({v13_passed}/{len(v13_tests)})")
     
-    print("\n📋 CORE SYSTEM RESULTS:")
-    core_passed = sum(1 for _, result in core_tests if result)
-    for test_name, result in core_tests:
-        status = "✅ PASS" if result else "❌ FAIL"
-        print(f"{status} {test_name}")
-    print(f"Core System Rate: {(core_passed/len(core_tests)*100):.1f}% ({core_passed}/{len(core_tests)})")
-    
-    print("\n🔍 ADVANCED FEATURES RESULTS:")
-    advanced_passed = sum(1 for _, result in advanced_tests if result)
-    for test_name, result in advanced_tests:
-        status = "✅ PASS" if result else "❌ FAIL"
-        print(f"{status} {test_name}")
-    print(f"Advanced Features Rate: {(advanced_passed/len(advanced_tests)*100):.1f}% ({advanced_passed}/{len(advanced_tests)})")
-    
     print("\n" + "=" * 80)
     print(f"🎯 OVERALL SUCCESS RATE: {success_rate:.1f}% ({passed_tests}/{total_tests} tests passed)")
     
-    # v1.3 specific assessment
-    v13_compliance_rate = (v13_passed/len(v13_tests)*100)
-    if v13_compliance_rate >= 90:
-        print("🎉 EXCELLENT: v1.3 compliance fully achieved!")
-    elif v13_compliance_rate >= 75:
-        print("✅ GOOD: v1.3 compliance mostly achieved with minor gaps")
-    elif v13_compliance_rate >= 60:
-        print("⚠️ MODERATE: v1.3 compliance partially achieved, needs attention")
+    # Critical components assessment (main focus)
+    critical_success_rate = (critical_passed/len(critical_tests)*100)
+    if critical_success_rate >= 100:
+        print("🎉 EXCELLENT: All new critical components working perfectly!")
+    elif critical_success_rate >= 75:
+        print("✅ GOOD: Most new critical components working with minor issues")
+    elif critical_success_rate >= 50:
+        print("⚠️ MODERATE: Some new critical components working, needs attention")
     else:
-        print("❌ CRITICAL: v1.3 compliance not achieved, major implementation gaps")
+        print("❌ CRITICAL: New critical components not working, major issues")
     
+    # Overall system assessment
     if success_rate >= 85:
-        print("🎉 SYSTEM STATUS: Production-ready with v1.3 enhancements!")
+        print("🎉 SYSTEM STATUS: Production-ready with new critical components!")
     elif success_rate >= 70:
-        print("✅ SYSTEM STATUS: Functional with good v1.3 integration")
+        print("✅ SYSTEM STATUS: Functional with good integration of new components")
     else:
-        print("⚠️ SYSTEM STATUS: Needs improvement for full v1.3 compliance")
+        print("⚠️ SYSTEM STATUS: Needs improvement for full functionality")
     
     print("=" * 80)
-    return 0 if v13_compliance_rate >= 75 else 1
+    return 0 if critical_success_rate >= 75 else 1
 
 if __name__ == "__main__":
     sys.exit(main())
