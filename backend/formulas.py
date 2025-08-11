@@ -596,36 +596,142 @@ def calculate_learning_impact_v13(importance_score: float, difficulty_adjustment
     return learning_impact
 
 
-def calculate_difficulty_score_v13(historical_success_rate: float, time_taken: float, deviation_from_avg_time: float) -> float:
+def calculate_difficulty_score_deterministic(historical_success_rate: float, avg_time_seconds: float, 
+                                           attempt_frequency: int, topic_centrality: float) -> Tuple[float, str, Dict]:
     """
-    Calculate difficulty score as per v1.3 feedback specification
-    D = f(historical_success_rate, time_taken, deviation_from_avg_time)
+    Deterministic difficulty calculation with auditable components as per feedback requirements
     
-    Args:
-        historical_success_rate: Success rate across all users (0.0-1.0)
-        time_taken: Average time taken to solve (seconds)
-        deviation_from_avg_time: How much this deviates from average (seconds)
-        
     Returns:
-        Difficulty score (0.0-1.0)
+        Tuple of (difficulty_score, difficulty_band, raw_components)
     """
-    # Invert success rate for difficulty (low success = high difficulty)
-    success_difficulty = 1.0 - historical_success_rate
+    # Raw component scores (auditable)
+    accuracy_component = 1.0 - historical_success_rate  # Higher difficulty = lower success
+    time_component = min(avg_time_seconds / 300.0, 1.0)  # Normalize to 5 minutes max
+    frequency_component = min(attempt_frequency / 100.0, 1.0)  # Normalize to 100 attempts max
+    centrality_component = 1.0 - topic_centrality  # Higher centrality = easier access
     
-    # Normalize time factor (assume 300 seconds = max difficulty)
-    time_difficulty = min(time_taken / 300.0, 1.0)
+    # Raw components for audit trail
+    raw_components = {
+        "accuracy_component": round(accuracy_component, 4),
+        "time_component": round(time_component, 4), 
+        "frequency_component": round(frequency_component, 4),
+        "centrality_component": round(centrality_component, 4),
+        "weights": {
+            "accuracy": 0.5,
+            "time": 0.3,
+            "frequency": 0.1,
+            "centrality": 0.1
+        }
+    }
     
-    # Deviation factor (higher deviation = more unpredictable = more difficult)
-    deviation_difficulty = min(abs(deviation_from_avg_time) / 120.0, 1.0)  # 2 minutes max deviation
-    
-    # Weighted combination
+    # Deterministic weighted combination (fixed formula)
     difficulty_score = (
-        success_difficulty * 0.5 +
-        time_difficulty * 0.3 +
-        deviation_difficulty * 0.2
+        accuracy_component * 0.5 +      # 50% weight on success rate
+        time_component * 0.3 +          # 30% weight on time taken
+        frequency_component * 0.1 +     # 10% weight on attempt frequency
+        centrality_component * 0.1      # 10% weight on topic centrality
     )
     
-    return min(difficulty_score, 1.0)
+    # Deterministic banding
+    if difficulty_score < 0.33:
+        difficulty_band = "Easy"
+    elif difficulty_score < 0.67:
+        difficulty_band = "Medium"
+    else:
+        difficulty_band = "Hard"
+    
+    return difficulty_score, difficulty_band, raw_components
+
+
+def calculate_learning_impact_blended(li_static: float, ctu_score: float, retention_rate: float,
+                                    misconception_richness: float, time_to_skill: float) -> Tuple[float, str]:
+    """
+    Learning Impact with 0.60 static / 0.40 dynamic blend as per feedback requirements
+    
+    Args:
+        li_static: Static learning impact score
+        ctu_score: Cross-topic uplift score
+        retention_rate: User retention rate for this topic
+        misconception_richness: Diversity of error patterns
+        time_to_skill: Time efficiency in skill acquisition
+        
+    Returns:
+        Tuple of (blended_li_score, li_band)
+    """
+    # Dynamic LI components (last N days data)
+    dynamic_components = {
+        "cross_topic_uplift": ctu_score,
+        "retention": retention_rate,
+        "misconception_richness": misconception_richness,
+        "time_to_skill": time_to_skill
+    }
+    
+    # Calculate dynamic LI (weighted average of dynamic components)
+    li_dynamic = (
+        ctu_score * 0.3 +
+        retention_rate * 0.25 +
+        misconception_richness * 0.25 +
+        (1.0 - time_to_skill) * 0.2  # Invert time_to_skill (faster = higher impact)
+    )
+    
+    # Apply 60/40 blend as specified
+    li_blended = 0.60 * li_static + 0.40 * li_dynamic
+    
+    # Band determination
+    if li_blended < 0.4:
+        li_band = "Low"
+    elif li_blended < 0.7:
+        li_band = "Medium"
+    else:
+        li_band = "High"
+    
+    return li_blended, li_band
+
+
+def calculate_importance_index_fixed(freq_score: float, difficulty_normalized: float, 
+                                   learning_impact: float) -> Tuple[float, str]:
+    """
+    Importance index with fixed weighting: 0.50*Freq + 0.25*Difficulty + 0.25*LI
+    """
+    importance_score = (
+        freq_score * 0.50 +
+        difficulty_normalized * 0.25 +
+        learning_impact * 0.25
+    )
+    
+    # Band determination
+    if importance_score < 0.4:
+        importance_band = "Low"
+    elif importance_score < 0.7:
+        importance_band = "Medium"
+    else:
+        importance_band = "High"
+    
+    return importance_score, importance_band
+
+
+def calculate_preparedness_delta(current_mastery: Dict[str, float], previous_mastery: Dict[str, float],
+                               importance_weights: Dict[str, float]) -> float:
+    """
+    Calculate t-1 preparedness ambition (importance-weighted mastery change vs yesterday)
+    """
+    total_weighted_change = 0.0
+    total_weight = 0.0
+    
+    for topic, current_score in current_mastery.items():
+        if topic in previous_mastery and topic in importance_weights:
+            mastery_change = current_score - previous_mastery[topic]
+            weight = importance_weights[topic]
+            
+            total_weighted_change += mastery_change * weight
+            total_weight += weight
+    
+    if total_weight > 0:
+        preparedness_delta = total_weighted_change / total_weight
+    else:
+        preparedness_delta = 0.0
+    
+    return preparedness_delta
 
 
 # =====================================================
