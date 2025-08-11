@@ -444,13 +444,13 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Frontend Diagnostic Removal (INCOMPLETE - needs cleanup)"
-    - "Core Study System Functionality (WORKING)" 
-    - "Diagnostic Functionality REMOVED per user request (backend done, frontend pending)"
+    - "v1.3 Compliance Verification (COMPLETED - 100% success)"
+    - "Core Study System Functionality (WORKING - 85.7% success)" 
+    - "Advanced Features Integration (WORKING - 50% success with minor issues)"
   stuck_tasks:
-    - "Frontend Integration with New Backend"
-  test_all: false
-  test_priority: "diagnostic_cleanup_first"
+    - "Enhanced LLM Enrichment Pipeline (database schema constraint)"
+  test_all: true
+  test_priority: "v13_compliance_verified"
 
 agent_communication:
   - agent: "main"
