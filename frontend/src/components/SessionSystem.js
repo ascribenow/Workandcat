@@ -22,7 +22,7 @@ export const SessionSystem = ({ sessionId: propSessionId, onSessionEnd }) => {
   useEffect(() => {
     if (sessionId) {
       fetchNextQuestion();
-      fetchSessionStats();
+      // Remove fetchSessionStats() call since the endpoint doesn't exist
     }
   }, [sessionId]);
 
