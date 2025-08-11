@@ -93,8 +93,7 @@ export const Dashboard = () => {
           <div className="flex space-x-8">
             {[
               { key: 'dashboard', label: 'Dashboard', icon: '🏠' },
-              { key: 'diagnostic', label: 'Diagnostic', icon: '🎯' },
-              { key: 'practice', label: 'Practice', icon: '📝' },
+              { key: 'study-plan', label: 'Study Plan', icon: '📅' },
               ...(isAdmin() ? [{ key: 'admin', label: 'Admin', icon: '⚙️' }] : [])
             ].map((item) => (
               <button
