@@ -249,6 +249,30 @@ backend:
         agent: "testing"
         comment: "✅ CONFIRMED WORKING: Background jobs system fully functional. Server logs show 'Background job processing started' on startup. Question creation properly queues background enrichment tasks with status 'enrichment_queued'. Scheduler initializes correctly and integrates with server lifecycle."
         
+  - task: "Canonical Taxonomy Implementation"
+    implemented: true
+    working: true
+    file: "backend/database.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ CANONICAL TAXONOMY IMPLEMENTATION SUCCESSFUL: Database schema supports canonical taxonomy with proper fields (subcategory, type_of_question, difficulty_band, importance_index, learning_impact). Found 3+ categories (A-Arithmetic, D-Number System, E-Modern Math) with 9+ subcategories including Time–Speed–Distance (TSD), Percentages, Probability, etc. Questions have proper canonical taxonomy fields. Database structure supports 5 categories (A, B, C, D, E) with 29 subcategories as specified."
+        
+  - task: "Formula Integration"
+    implemented: true
+    working: false
+    file: "backend/formulas.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "❌ FORMULA INTEGRATION INSUFFICIENT: Only 25% of expected formula integration found. Most questions missing formula-computed fields (difficulty_score, learning_impact, importance_index). EWMA mastery tracking working (✅), but question enrichment not applying formulas properly. Expected: calculate_difficulty_level, calculate_frequency_band, calculate_importance_level, calculate_learning_impact formulas integrated into question creation and enrichment pipeline. Current: Questions created without formula-computed scoring."
+
   - task: "Enhanced Mastery Dashboard"
     implemented: true
     working: true
@@ -263,6 +287,9 @@ backend:
       - working: true
         agent: "testing"
         comment: "✅ CONFIRMED WORKING: Enhanced Mastery Dashboard fully functional. SQL syntax fixed, case() function working correctly. Category/subcategory hierarchy properly implemented with Topic parent_id relationships. Percentages correctly converted to 0-100 format for frontend display. Response structure includes all required fields: category_name, is_main_category flag, mastery_percentage, accuracy_score, speed_score, stability_score. Subcategory data filtering working (only includes if subcategory exists). API endpoint /api/dashboard/mastery returns proper JSON structure with mastery_by_topic array and total_topics count."
+      - working: true
+        agent: "testing"
+        comment: "✅ CANONICAL TAXONOMY INTEGRATION CONFIRMED: Enhanced mastery system working with canonical taxonomy. Found 20+ canonical features including category_name, is_main_category, subcategories array, and formula-integrated fields (mastery_percentage, accuracy_score, speed_score, stability_score). Proper 0-100% formatting, 5 topics tracked with 5 subcategories per topic. Canonical hierarchy fully functional."
         
   - task: "Main Server Integration"
     implemented: true
