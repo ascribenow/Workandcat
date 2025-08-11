@@ -444,15 +444,13 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Formula Integration ≥60% Achievement (COMPLETED - 64%)"
-    - "Core Study System Functionality" 
-    - "Diagnostic Functionality REMOVED per user request"
+    - "Frontend Diagnostic Removal (INCOMPLETE - needs cleanup)"
+    - "Core Study System Functionality (WORKING)" 
+    - "Diagnostic Functionality REMOVED per user request (backend done, frontend pending)"
   stuck_tasks:
-    - "Enhanced LLM Enrichment Pipeline"
-    - "Diagnostic System"
-    - "Formula Integration"
+    - "Frontend Integration with New Backend"
   test_all: false
-  test_priority: "critical_fixes_first"
+  test_priority: "diagnostic_cleanup_first"
 
 agent_communication:
   - agent: "main"
