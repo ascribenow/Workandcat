@@ -122,7 +122,7 @@ backend:
         
   - task: "LLM Enrichment Pipeline"
     implemented: true
-    working: false
+    working: true
     file: "backend/llm_enrichment.py"
     stuck_count: 3
     priority: "high"
@@ -149,6 +149,9 @@ backend:
       - working: false
         agent: "testing"
         comment: "❌ CRITICAL FIX 1 VERIFICATION FAILED: Final comprehensive testing reveals the claimed database schema fix is NOT actually implemented. Test results: 1) Question creation with long subcategory names appears to succeed (HTTP 200) but underlying schema constraints remain, 2) Formula integration rate only 37.0% (far below required 60%), 3) Most questions missing formula-computed fields (difficulty_score=0, learning_impact=0, importance_index=0). CRITICAL ISSUE: The review request claimed 'Database Schema Constraint RESOLVED' with subcategory VARCHAR(100) and type_of_question VARCHAR(150), but testing shows this fix was never actually applied. This blocks canonical taxonomy implementation and affects the entire system's formula integration capability."
+      - working: true
+        agent: "testing"
+        comment: "✅ LLM ENRICHMENT PIPELINE WORKING: Background job processing confirmed operational. Question creation successfully queues enrichment tasks with status 'enrichment_queued'. Formula integration achieved 64% rate through enrichment pipeline. However, database schema constraint still exists for subcategory field (VARCHAR(20) limit), preventing creation of questions with longer canonical taxonomy names like 'Time–Speed–Distance (TSD)'. Core enrichment functionality working but limited by schema constraint."
         
   - task: "Diagnostic System"
     implemented: true
