@@ -143,9 +143,9 @@ backend:
         
   - task: "Diagnostic System"
     implemented: true
-    working: true
+    working: false
     file: "backend/diagnostic_system.py"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
     needs_retesting: false
     status_history:
@@ -164,6 +164,9 @@ backend:
       - working: true
         agent: "main"
         comment: "FIXED: Async error in diagnostic completion. Fixed lazy loading issue by properly joining Topic table in the query. Diagnostic system now fully functional from start to completion."
+      - working: false
+        agent: "testing"
+        comment: "❌ CRITICAL ISSUE IDENTIFIED: Diagnostic status endpoint fix (completed_at.isnot(None)) is working correctly ✅. However, diagnostic system cannot retrieve questions due to database schema constraint: subcategory field has varchar(20) limit but diagnostic blueprint requires longer names like 'Time–Speed–Distance (TSD)' (25 chars). Questions are created but remain inactive (is_active=false) until LLM enrichment completes. This blocks the entire student user flow at the diagnostic step. ROOT CAUSE: Database schema needs subcategory field length increased from varchar(20) to varchar(50) or longer, OR diagnostic blueprint needs shorter subcategory names."
         
   - task: "MCQ Generator"
     implemented: true
