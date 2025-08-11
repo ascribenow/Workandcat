@@ -1050,11 +1050,11 @@ async def startup_event():
     await create_initial_topics()
     logger.info("📚 Topics initialized")
     
-    # Create diagnostic set if needed
-    async for db in get_database():
-        await diagnostic_system.create_diagnostic_set(db)
-        break
-    logger.info("🎯 Diagnostic system initialized")
+    # Create diagnostic set if needed - DISABLED
+    # async for db in get_database():
+    #     await diagnostic_system.create_diagnostic_set(db)
+    #     break
+    # logger.info("🎯 Diagnostic system initialized")
     
     # Start background job processing
     if EMERGENT_LLM_KEY:
