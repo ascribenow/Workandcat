@@ -165,7 +165,7 @@ export const StudyPlanSystem = () => {
 
           <div className="text-center">
             <p className="text-sm text-gray-500">
-              Tip: Take the diagnostic assessment first for personalized track recommendation
+              Tip: Choose your track based on your current preparation level and available study time
             </p>
           </div>
         </div>
