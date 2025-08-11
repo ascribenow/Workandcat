@@ -558,14 +558,15 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Enhanced Nightly Engine Integration - test scheduler and processing logic"
-    - "End-to-end canonical category/subcategory mapping validation"
-    - "EWMA mastery updates with deterministic difficulty recomputation"
-    - "Background job processing with all 8 feedback requirements"
-    - "Nightly processing audit trail and logging verification"
-  stuck_tasks: []
+    - "Database schema constraint resolution - subcategory VARCHAR(20) to VARCHAR(50+)"
+    - "Complete canonical taxonomy implementation with all 5 categories and 29 subcategories"
+    - "EWMA mastery calculations optimization with α=0.6"
+    - "Category progress tracking enhancement for canonical taxonomy display"
+    - "Enhanced Nightly Engine Integration completion after schema fix"
+  stuck_tasks:
+    - "Enhanced Nightly Engine Integration - blocked by database schema constraint"
   test_all: false
-  test_priority: "enhanced_nightly_engine_integration"
+  test_priority: "database_schema_constraint_resolution"
 
   - task: "Enhanced Session System"
     implemented: true
