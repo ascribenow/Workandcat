@@ -581,6 +581,73 @@ async def get_mastery_dashboard(
         logger.error(f"Error fetching mastery dashboard: {e}")
         return {'mastery_by_topic': [], 'total_topics': 0}
 
+async def get_detailed_progress_data(db: AsyncSession, user_id: str) -> List[Dict]:
+    """Get detailed progress breakdown by category/subcategory/difficulty"""
+    try:
+        # Query to get comprehensive progress data
+        progress_query = text("""
+            SELECT 
+                t.category,
+                q.subcategory,
+                q.type_of_question,
+                q.difficulty_band,
+                COUNT(DISTINCT q.id) as total_questions,
+                COUNT(DISTINCT CASE WHEN a.correct = true THEN a.question_id END) as solved_questions,
+                AVG(CASE WHEN a.correct = true THEN 1.0 ELSE 0.0 END) as accuracy_rate,
+                COALESCE(m.mastery_pct, 0) as mastery_percentage
+            FROM questions q
+            JOIN topics t ON q.topic_id = t.id
+            LEFT JOIN attempts a ON q.id = a.question_id AND a.user_id = :user_id
+            LEFT JOIN mastery m ON t.id = m.topic_id AND m.user_id = :user_id
+            WHERE q.is_active = true
+            GROUP BY t.category, q.subcategory, q.type_of_question, q.difficulty_band, m.mastery_pct
+            ORDER BY t.category, q.subcategory, q.type_of_question, q.difficulty_band
+        """)
+        
+        result = await db.execute(progress_query, {"user_id": user_id})
+        progress_rows = result.fetchall()
+        
+        # Group by subcategory and organize by difficulty
+        progress_map = {}
+        
+        for row in progress_rows:
+            key = f"{row.category}_{row.subcategory}_{row.type_of_question or 'General'}"
+            
+            if key not in progress_map:
+                progress_map[key] = {
+                    "category": row.category,
+                    "subcategory": row.subcategory,
+                    "question_type": row.type_of_question or "General",
+                    "easy_total": 0,
+                    "easy_solved": 0,
+                    "medium_total": 0,
+                    "medium_solved": 0,
+                    "hard_total": 0,
+                    "hard_solved": 0,
+                    "mastery_percentage": float(row.mastery_percentage or 0) * 100
+                }
+            
+            difficulty = row.difficulty_band or "Medium"
+            total_questions = int(row.total_questions or 0)
+            solved_questions = int(row.solved_questions or 0)
+            
+            if difficulty == "Easy":
+                progress_map[key]["easy_total"] += total_questions
+                progress_map[key]["easy_solved"] += solved_questions
+            elif difficulty == "Hard":
+                progress_map[key]["hard_total"] += total_questions
+                progress_map[key]["hard_solved"] += solved_questions
+            else:  # Medium or unknown
+                progress_map[key]["medium_total"] += total_questions
+                progress_map[key]["medium_solved"] += solved_questions
+        
+        return list(progress_map.values())
+        
+    except Exception as e:
+        logger.error(f"Error getting detailed progress data: {e}")
+        return []
+
+
 @api_router.get("/dashboard/progress")
 async def get_progress_dashboard(
     current_user: User = Depends(require_auth),
