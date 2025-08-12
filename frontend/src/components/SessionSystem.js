@@ -135,17 +135,34 @@ export const SessionSystem = ({ sessionId: propSessionId, onSessionEnd }) => {
       const response = await axios.get(`${API}/session/${sessionId}/next-question`, {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('cat_prep_token')}` }
       });
-      setCurrentQuestion(response.data.question);
-      setQuestionStartTime(Date.now());
-      setUserAnswer('');
-      setShowResult(false);
-      setResult(null);
-      setImageLoading(false);
-      setImageLoadFailed(false);
-      setRetryCount(0); // Reset retry count for new question
       
-      if (response.data.question?.expected_time_sec) {
-        setTimeLeft(response.data.question.expected_time_sec);
+      if (response.data.question) {
+        const question = response.data.question;
+        
+        // Pre-load image if question has one
+        if (question.has_image && question.image_url) {
+          const imageLoaded = await handleImagePreload(question.image_url);
+          
+          if (!imageLoaded) {
+            // Image failed to load after retry, question was blocked
+            // fetchNextQuestion will be called again from blockQuestionFromSessions
+            return;
+          }
+        }
+        
+        // Only set question if image loaded successfully (or no image)
+        setCurrentQuestion(question);
+        setQuestionStartTime(Date.now());
+        setUserAnswer('');
+        setShowResult(false);
+        setResult(null);
+        setImageLoading(false);
+        setImageLoadFailed(false);
+        setRetryCount(0);
+        
+        if (question.expected_time_sec) {
+          setTimeLeft(question.expected_time_sec);
+        }
       }
     } catch (err) {
       if (err.response?.status === 404) {
