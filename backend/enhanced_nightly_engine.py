@@ -470,9 +470,96 @@ class EnhancedNightlyEngine:
     
     async def refresh_frequency_bands(self, db: AsyncSession) -> List[Dict]:
         """
-        Step 4: Refresh frequency bands from PYQ rolling 10-year window
+        Step 4: Refresh frequency bands using LLM-powered conceptual pattern analysis
         """
         try:
+            frequency_updates = []
+            
+            if self.frequency_analyzer is None:
+                # Fallback to simple frequency calculation
+                return await self._fallback_frequency_calculation(db)
+            
+            # Get active questions from question bank
+            questions_result = await db.execute(
+                select(Question).where(Question.is_active == True).limit(100)  # Process in batches
+            )
+            questions = questions_result.scalars().all()
+            
+            if not questions:
+                logger.warning("No active questions found for frequency calculation")
+                return []
+            
+            logger.info(f"🔍 Starting conceptual frequency analysis for {len(questions)} questions")
+            
+            # Use conceptual frequency analyzer
+            frequency_results = await self.frequency_analyzer.batch_calculate_frequencies(
+                db, questions, years_window=self.frequency_window_years
+            )
+            
+            # Update questions with conceptual frequency data
+            for question in questions:
+                question_id = str(question.id)
+                
+                if question_id in frequency_results:
+                    freq_data = frequency_results[question_id]
+                    frequency_score = freq_data.get("frequency_score", 0.0)
+                    conceptual_matches = freq_data.get("conceptual_matches", 0)
+                    total_analyzed = freq_data.get("total_pyq_analyzed", 0)
+                    top_concepts = freq_data.get("top_matching_concepts", [])
+                    analysis_method = freq_data.get("analysis_method", "conceptual")
+                    
+                    # Update question with enriched frequency data
+                    question.frequency_score = frequency_score
+                    question.pyq_conceptual_matches = conceptual_matches
+                    question.total_pyq_analyzed = total_analyzed
+                    question.top_matching_concepts = top_concepts[:5]  # Store top 5 concepts
+                    question.frequency_analysis_method = analysis_method
+                    question.frequency_last_updated = datetime.utcnow()
+                    
+                    # Store pattern analysis if available
+                    if "pattern_keywords" in freq_data:
+                        question.pattern_keywords = freq_data["pattern_keywords"][:10]  # Top 10 keywords
+                    if "solution_approach" in freq_data:
+                        question.pattern_solution_approach = freq_data["solution_approach"]
+                    
+                    frequency_updates.append({
+                        "question_id": question_id,
+                        "subcategory": question.subcategory,
+                        "frequency_score": frequency_score,
+                        "conceptual_matches": conceptual_matches,
+                        "total_pyq_analyzed": total_analyzed,
+                        "analysis_method": analysis_method,
+                        "top_concepts": top_concepts
+                    })
+                    
+                    logger.debug(f"✅ Updated question {question_id[:8]}... - Freq: {frequency_score:.3f}, Matches: {conceptual_matches}")
+                else:
+                    logger.warning(f"❌ No frequency data for question {question_id}")
+            
+            await db.flush()
+            
+            # Log summary statistics
+            if frequency_updates:
+                avg_freq = sum(u["frequency_score"] for u in frequency_updates) / len(frequency_updates)
+                total_matches = sum(u["conceptual_matches"] for u in frequency_updates)
+                logger.info(f"📊 Conceptual frequency analysis complete:")
+                logger.info(f"   • Questions processed: {len(frequency_updates)}")
+                logger.info(f"   • Average frequency score: {avg_freq:.3f}")
+                logger.info(f"   • Total conceptual matches found: {total_matches}")
+            
+            return frequency_updates
+            
+        except Exception as e:
+            logger.error(f"❌ Error in conceptual frequency analysis: {e}")
+            # Fallback to simple calculation
+            return await self._fallback_frequency_calculation(db)
+    
+    async def _fallback_frequency_calculation(self, db: AsyncSession) -> List[Dict]:
+        """
+        Fallback to simple subcategory-based frequency calculation
+        """
+        try:
+            logger.info("🔄 Using fallback frequency calculation (subcategory-based)")
             frequency_updates = []
             
             # Calculate frequency scores based on PYQ data from last 10 years
@@ -509,7 +596,8 @@ class EnhancedNightlyEngine:
                         UPDATE questions 
                         SET frequency_score = :freq_score,
                             pyq_occurrences_last_10_years = :occurrences,
-                            total_pyq_count = :total_count
+                            total_pyq_count = :total_count,
+                            frequency_analysis_method = 'subcategory_fallback'
                         WHERE subcategory = :subcategory AND is_active = true
                     """),
                     {
@@ -524,14 +612,15 @@ class EnhancedNightlyEngine:
                     "subcategory": subcategory,
                     "frequency_score": freq_score,
                     "pyq_occurrences": occurrences,
-                    "total_pyq_count": total_count
+                    "total_pyq_count": total_count,
+                    "analysis_method": "subcategory_fallback"
                 })
             
             await db.flush()
             return frequency_updates
             
         except Exception as e:
-            logger.error(f"Error refreshing frequency bands: {e}")
+            logger.error(f"Error in fallback frequency calculation: {e}")
             return []
     
     async def recompute_difficulty_deterministic(self, db: AsyncSession, 
