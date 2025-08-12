@@ -59,6 +59,11 @@ class Question(Base):
     solution_approach = Column(Text, nullable=True)
     detailed_solution = Column(Text, nullable=True)
     
+    # Image support
+    has_image = Column(Boolean, default=False)
+    image_url = Column(Text, nullable=True)
+    image_alt_text = Column(Text, nullable=True)
+    
     # LLM-computed scores
     difficulty_score = Column(Numeric(3, 2), nullable=True)  # 1-5
     difficulty_band = Column(String(20), nullable=True)  # Easy|Medium|Difficult
