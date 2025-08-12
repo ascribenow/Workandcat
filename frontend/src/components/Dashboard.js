@@ -1059,10 +1059,24 @@ const AdminPanel = () => {
 
                       <button
                         type="submit"
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-medium text-lg"
+                        disabled={questionPublishBlocked}
+                        className={`px-8 py-3 rounded-lg font-medium text-lg ${
+                          questionPublishBlocked 
+                            ? 'bg-gray-400 cursor-not-allowed text-white' 
+                            : 'bg-blue-600 hover:bg-blue-700 text-white'
+                        }`}
                       >
-                        Create Question (LLM will generate answer & solution)
+                        {questionPublishBlocked 
+                          ? '❌ Cannot Publish - Fix Image First' 
+                          : 'Create Question (LLM will generate answer & solution)'
+                        }
                       </button>
+                      
+                      {questionPublishBlocked && (
+                        <p className="text-sm text-red-600 mt-2 text-center">
+                          Question publishing is blocked until image loads successfully
+                        </p>
+                      )}
                     </form>
                   </div>
                 )}
