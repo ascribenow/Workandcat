@@ -595,7 +595,6 @@ const AdminPanel = () => {
         tags: [],
         source: ""
       });
-      fetchQuestions();
     } catch (error) {
       alert('Error creating question: ' + (error.response?.data?.detail || 'Unknown error'));
     }
