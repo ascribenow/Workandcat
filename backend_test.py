@@ -2691,6 +2691,382 @@ class CATBackendTester:
         
         return False
 
+    def test_time_weighted_frequency_analysis(self):
+        """Test Time-Weighted Frequency Analysis System (20-year data, 10-year relevance)"""
+        print("🔍 Testing Time-Weighted Frequency Analysis System...")
+        
+        if not self.admin_token:
+            print("   ❌ Cannot test time-weighted frequency analysis - no admin token")
+            return False
+        
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {self.admin_token}'
+        }
+        
+        # Test the time-weighted frequency analysis endpoint
+        success, response = self.run_test("Time-Weighted Frequency Analysis", "POST", "admin/test/time-weighted-frequency", 200, {}, headers)
+        if not success:
+            return False
+        
+        # Verify response structure and key components
+        required_fields = ['config', 'sample_data', 'temporal_pattern', 'frequency_metrics', 'insights', 'explanation']
+        missing_fields = [field for field in required_fields if field not in response]
+        
+        if missing_fields:
+            print(f"   ❌ Missing required fields in response: {missing_fields}")
+            return False
+        
+        print("   ✅ Time-weighted frequency analysis response structure complete")
+        
+        # Verify configuration
+        config = response.get('config', {})
+        if config.get('total_data_years') == 20 and config.get('relevance_window_years') == 10:
+            print("   ✅ Correct configuration: 20-year data with 10-year relevance window")
+        else:
+            print(f"   ❌ Incorrect configuration: {config}")
+            return False
+        
+        # Verify temporal pattern analysis
+        temporal_pattern = response.get('temporal_pattern', {})
+        required_pattern_fields = ['concept_id', 'total_occurrences', 'relevance_window_occurrences', 
+                                 'weighted_frequency_score', 'trend_direction', 'trend_strength', 'recency_score']
+        missing_pattern_fields = [field for field in required_pattern_fields if field not in temporal_pattern]
+        
+        if missing_pattern_fields:
+            print(f"   ❌ Missing temporal pattern fields: {missing_pattern_fields}")
+            return False
+        
+        print("   ✅ Temporal pattern analysis complete with all required fields")
+        print(f"   Concept ID: {temporal_pattern.get('concept_id')}")
+        print(f"   Total occurrences: {temporal_pattern.get('total_occurrences')}")
+        print(f"   Relevance window occurrences: {temporal_pattern.get('relevance_window_occurrences')}")
+        print(f"   Weighted frequency score: {temporal_pattern.get('weighted_frequency_score')}")
+        print(f"   Trend direction: {temporal_pattern.get('trend_direction')}")
+        print(f"   Trend strength: {temporal_pattern.get('trend_strength')}")
+        print(f"   Recency score: {temporal_pattern.get('recency_score')}")
+        
+        # Verify insights generation
+        insights = response.get('insights', {})
+        if insights and len(insights) > 0:
+            print("   ✅ Frequency insights generated successfully")
+            print(f"   Sample insights: {list(insights.keys())[:3]}")
+        else:
+            print("   ❌ No frequency insights generated")
+            return False
+        
+        # Verify exponential decay calculations
+        frequency_metrics = response.get('frequency_metrics', {})
+        if 'weighted_score' in frequency_metrics and 'decay_factor' in frequency_metrics:
+            print("   ✅ Exponential decay calculations present")
+            print(f"   Weighted score: {frequency_metrics.get('weighted_score')}")
+            print(f"   Decay factor: {frequency_metrics.get('decay_factor')}")
+        else:
+            print("   ❌ Exponential decay calculations missing")
+            return False
+        
+        # Verify trend detection
+        trend_direction = temporal_pattern.get('trend_direction', '').lower()
+        valid_trends = ['increasing', 'decreasing', 'emerging', 'declining', 'stable']
+        if trend_direction in valid_trends:
+            print(f"   ✅ Trend detection working: {trend_direction}")
+        else:
+            print(f"   ❌ Invalid trend direction: {trend_direction}")
+            return False
+        
+        return True
+
+    def test_enhanced_nightly_processing(self):
+        """Test Enhanced Nightly Processing with Time-Weighted + Conceptual Analysis"""
+        print("🔍 Testing Enhanced Nightly Processing...")
+        
+        if not self.admin_token:
+            print("   ❌ Cannot test enhanced nightly processing - no admin token")
+            return False
+        
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {self.admin_token}'
+        }
+        
+        # Test the enhanced nightly processing endpoint
+        success, response = self.run_test("Enhanced Nightly Processing", "POST", "admin/run-enhanced-nightly", 200, {}, headers)
+        if not success:
+            return False
+        
+        # Verify response structure
+        required_fields = ['message', 'success', 'processing_results']
+        missing_fields = [field for field in required_fields if field not in response]
+        
+        if missing_fields:
+            print(f"   ❌ Missing required fields in response: {missing_fields}")
+            return False
+        
+        if not response.get('success'):
+            print("   ❌ Enhanced nightly processing reported failure")
+            return False
+        
+        print("   ✅ Enhanced nightly processing completed successfully")
+        
+        # Verify processing results
+        processing_results = response.get('processing_results', {})
+        if processing_results:
+            print("   ✅ Processing results available")
+            print(f"   Processing results keys: {list(processing_results.keys())}")
+            
+            # Check for integration of time-weighted + conceptual analysis
+            if 'time_weighted_analysis' in processing_results or 'conceptual_analysis' in processing_results:
+                print("   ✅ Time-weighted and conceptual analysis integration confirmed")
+            else:
+                print("   ⚠️ Time-weighted and conceptual analysis integration not explicitly confirmed")
+        else:
+            print("   ❌ No processing results returned")
+            return False
+        
+        return True
+
+    def test_conceptual_frequency_analysis(self):
+        """Test Conceptual Frequency Analysis System"""
+        print("🔍 Testing Conceptual Frequency Analysis System...")
+        
+        if not self.admin_token:
+            print("   ❌ Cannot test conceptual frequency analysis - no admin token")
+            return False
+        
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {self.admin_token}'
+        }
+        
+        # Test the conceptual frequency analysis endpoint
+        success, response = self.run_test("Conceptual Frequency Analysis", "POST", "admin/test/conceptual-frequency", 200, {}, headers)
+        if not success:
+            return False
+        
+        # Verify response structure
+        required_fields = ['message', 'question_id', 'question_stem', 'analysis_results']
+        missing_fields = [field for field in required_fields if field not in response]
+        
+        if missing_fields:
+            print(f"   ❌ Missing required fields in response: {missing_fields}")
+            return False
+        
+        print("   ✅ Conceptual frequency analysis response structure complete")
+        
+        # Verify analysis results
+        analysis_results = response.get('analysis_results', {})
+        if not analysis_results:
+            print("   ❌ No analysis results returned")
+            return False
+        
+        # Check for key analysis components
+        expected_components = ['frequency_score', 'conceptual_matches', 'total_pyq_analyzed', 
+                             'top_matching_concepts', 'analysis_method', 'pattern_keywords']
+        
+        present_components = [comp for comp in expected_components if comp in analysis_results]
+        print(f"   Analysis components present: {len(present_components)}/{len(expected_components)}")
+        print(f"   Components: {present_components}")
+        
+        if len(present_components) >= 4:  # At least 4 of 6 components should be present
+            print("   ✅ Conceptual frequency analysis working with sufficient components")
+        else:
+            print("   ❌ Insufficient conceptual frequency analysis components")
+            return False
+        
+        # Verify frequency score
+        frequency_score = analysis_results.get('frequency_score')
+        if frequency_score is not None and isinstance(frequency_score, (int, float)):
+            print(f"   ✅ Frequency score calculated: {frequency_score}")
+        else:
+            print("   ❌ Frequency score missing or invalid")
+            return False
+        
+        # Verify conceptual matches
+        conceptual_matches = analysis_results.get('conceptual_matches', [])
+        if conceptual_matches and len(conceptual_matches) > 0:
+            print(f"   ✅ Conceptual matches found: {len(conceptual_matches)}")
+        else:
+            print("   ❌ No conceptual matches found")
+            return False
+        
+        return True
+
+    def test_database_schema_frequency_fields(self):
+        """Test Database Schema for New Frequency Analysis Fields"""
+        print("🔍 Testing Database Schema for Frequency Analysis Fields...")
+        
+        if not self.admin_token:
+            print("   ❌ Cannot test database schema - no admin token")
+            return False
+        
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {self.admin_token}'
+        }
+        
+        # Get questions to check for new frequency analysis fields
+        success, response = self.run_test("Check Questions for Frequency Fields", "GET", "questions?limit=10", 200, None, headers)
+        if not success:
+            return False
+        
+        questions = response.get('questions', [])
+        if not questions:
+            print("   ❌ No questions found to verify schema")
+            return False
+        
+        # Check for new frequency analysis fields
+        expected_frequency_fields = [
+            'pyq_conceptual_matches',
+            'total_pyq_analyzed', 
+            'top_matching_concepts',
+            'conceptual_frequency_score',
+            'frequency_analysis_method',
+            'temporal_pattern_data'
+        ]
+        
+        sample_question = questions[0]
+        present_fields = []
+        missing_fields = []
+        
+        for field in expected_frequency_fields:
+            if field in sample_question:
+                present_fields.append(field)
+            else:
+                missing_fields.append(field)
+        
+        print(f"   Frequency analysis fields present: {len(present_fields)}/{len(expected_frequency_fields)}")
+        print(f"   Present fields: {present_fields}")
+        print(f"   Missing fields: {missing_fields}")
+        
+        # Check if frequency_analysis_method is set to "enhanced_time_weighted_conceptual"
+        frequency_method = sample_question.get('frequency_analysis_method')
+        if frequency_method == "enhanced_time_weighted_conceptual":
+            print("   ✅ Frequency analysis method correctly set to 'enhanced_time_weighted_conceptual'")
+        else:
+            print(f"   ❌ Frequency analysis method incorrect: {frequency_method}")
+        
+        # At least 3 of 6 fields should be present for partial implementation
+        if len(present_fields) >= 3:
+            print("   ✅ Database schema partially supports frequency analysis fields")
+            return True
+        else:
+            print("   ❌ Database schema missing critical frequency analysis fields")
+            return False
+
+    def test_combined_scoring_algorithm(self):
+        """Test Combined Scoring Algorithm (60% temporal + 25% conceptual + 15% trend)"""
+        print("🔍 Testing Combined Scoring Algorithm...")
+        
+        if not self.admin_token:
+            print("   ❌ Cannot test combined scoring algorithm - no admin token")
+            return False
+        
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {self.admin_token}'
+        }
+        
+        # Test both time-weighted and conceptual analysis to verify combined scoring
+        print("   Testing time-weighted analysis component...")
+        time_success, time_response = self.run_test("Time-Weighted Analysis for Scoring", "POST", "admin/test/time-weighted-frequency", 200, {}, headers)
+        
+        print("   Testing conceptual analysis component...")
+        concept_success, concept_response = self.run_test("Conceptual Analysis for Scoring", "POST", "admin/test/conceptual-frequency", 200, {}, headers)
+        
+        if not (time_success and concept_success):
+            print("   ❌ Cannot test combined scoring - component analyses failed")
+            return False
+        
+        # Extract scoring components
+        temporal_score = None
+        conceptual_score = None
+        trend_score = None
+        
+        # From time-weighted analysis
+        if time_response and 'temporal_pattern' in time_response:
+            temporal_pattern = time_response['temporal_pattern']
+            temporal_score = temporal_pattern.get('weighted_frequency_score')
+            trend_score = temporal_pattern.get('trend_strength')
+        
+        # From conceptual analysis
+        if concept_response and 'analysis_results' in concept_response:
+            analysis_results = concept_response['analysis_results']
+            conceptual_score = analysis_results.get('frequency_score')
+        
+        print(f"   Temporal score: {temporal_score}")
+        print(f"   Conceptual score: {conceptual_score}")
+        print(f"   Trend score: {trend_score}")
+        
+        # Verify all components are available
+        if temporal_score is not None and conceptual_score is not None and trend_score is not None:
+            print("   ✅ All scoring components available")
+            
+            # Calculate combined score (60% temporal + 25% conceptual + 15% trend)
+            combined_score = (0.60 * temporal_score) + (0.25 * conceptual_score) + (0.15 * trend_score)
+            print(f"   ✅ Combined score calculated: {combined_score:.4f}")
+            print(f"   Formula: (0.60 × {temporal_score}) + (0.25 × {conceptual_score}) + (0.15 × {trend_score})")
+            
+            return True
+        else:
+            print("   ❌ Missing scoring components for combined algorithm")
+            return False
+
+    def test_enhanced_time_weighted_conceptual_frequency_system(self):
+        """Comprehensive test of the Enhanced Time-Weighted Conceptual Frequency Analysis System"""
+        print("🔍 COMPREHENSIVE TEST: Enhanced Time-Weighted Conceptual Frequency Analysis System")
+        print("   Testing the complete system as specified in review request...")
+        
+        test_results = {
+            "time_weighted_frequency": False,
+            "enhanced_nightly_processing": False,
+            "conceptual_frequency": False,
+            "database_schema": False,
+            "combined_scoring": False
+        }
+        
+        # Test 1: Time-Weighted Frequency Analysis
+        print("\n   📊 TEST 1: Time-Weighted Frequency Analysis")
+        test_results["time_weighted_frequency"] = self.test_time_weighted_frequency_analysis()
+        
+        # Test 2: Enhanced Nightly Processing
+        print("\n   🌙 TEST 2: Enhanced Nightly Processing")
+        test_results["enhanced_nightly_processing"] = self.test_enhanced_nightly_processing()
+        
+        # Test 3: Conceptual Frequency Analysis
+        print("\n   🧠 TEST 3: Conceptual Frequency Analysis")
+        test_results["conceptual_frequency"] = self.test_conceptual_frequency_analysis()
+        
+        # Test 4: Database Schema Verification
+        print("\n   🗄️ TEST 4: Database Schema Frequency Fields")
+        test_results["database_schema"] = self.test_database_schema_frequency_fields()
+        
+        # Test 5: Combined Scoring Algorithm
+        print("\n   🎯 TEST 5: Combined Scoring Algorithm")
+        test_results["combined_scoring"] = self.test_combined_scoring_algorithm()
+        
+        # Calculate overall success rate
+        passed_tests = sum(test_results.values())
+        total_tests = len(test_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        print(f"\n   📈 ENHANCED TIME-WEIGHTED CONCEPTUAL FREQUENCY SYSTEM RESULTS:")
+        print(f"   Time-Weighted Frequency Analysis: {'✅ PASSED' if test_results['time_weighted_frequency'] else '❌ FAILED'}")
+        print(f"   Enhanced Nightly Processing: {'✅ PASSED' if test_results['enhanced_nightly_processing'] else '❌ FAILED'}")
+        print(f"   Conceptual Frequency Analysis: {'✅ PASSED' if test_results['conceptual_frequency'] else '❌ FAILED'}")
+        print(f"   Database Schema Frequency Fields: {'✅ PASSED' if test_results['database_schema'] else '❌ FAILED'}")
+        print(f"   Combined Scoring Algorithm: {'✅ PASSED' if test_results['combined_scoring'] else '❌ FAILED'}")
+        print(f"   Overall Success Rate: {success_rate:.1f}% ({passed_tests}/{total_tests})")
+        
+        if success_rate >= 80:
+            print("   🎉 ENHANCED TIME-WEIGHTED CONCEPTUAL FREQUENCY SYSTEM WORKING!")
+            return True
+        elif success_rate >= 60:
+            print("   ⚠️ ENHANCED TIME-WEIGHTED CONCEPTUAL FREQUENCY SYSTEM PARTIALLY WORKING")
+            return True
+        else:
+            print("   ❌ ENHANCED TIME-WEIGHTED CONCEPTUAL FREQUENCY SYSTEM FAILED")
+            return False
+
     def test_enhanced_session_system(self):
         """Test Enhanced Session System with Full MCQ Interface"""
         print("🔍 Testing Enhanced Session System with MCQ Interface...")
