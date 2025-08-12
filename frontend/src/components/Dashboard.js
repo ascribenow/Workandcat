@@ -849,10 +849,8 @@ const AdminPanel = () => {
                       <p className="text-gray-600 mb-6">Add one question at a time using the form</p>
                       <button
                         onClick={() => {
-                          console.log('Add Question button clicked');
                           setQuestionUploadType('single');
                           setShowQuestionForm(true);
-                          console.log('State should now be: showQuestionForm=true, questionUploadType=single');
                         }}
                         className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium"
                       >
