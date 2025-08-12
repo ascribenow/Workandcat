@@ -356,7 +356,7 @@ export const SessionSystem = ({ sessionId: propSessionId, onSessionEnd }) => {
           {currentQuestion.has_image && (
             <div className="mb-6">
               <div className="bg-gray-50 rounded-lg p-4 inline-block max-w-full">
-                {!imageError && currentQuestion.image_url ? (
+                {!imageLoadFailed && currentQuestion.image_url ? (
                   <img 
                     src={currentQuestion.image_url} 
                     alt={currentQuestion.image_alt_text || "Question diagram"}
