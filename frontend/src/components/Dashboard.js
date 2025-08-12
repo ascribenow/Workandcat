@@ -777,12 +777,37 @@ const AdminPanel = () => {
                       </button>
                     </div>
 
-                    {/* CSV Upload with Google Drive Images */}
+                    {/* CSV Upload with Google Drive Images - Simplified Format */}
                     <div className="border-2 border-gray-200 rounded-lg p-6">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-4">CSV Upload with Images</h3>
-                      <p className="text-gray-600 mb-4">Upload multiple questions from CSV file with Google Drive image support</p>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-4">CSV Upload - Simplified Format</h3>
+                      <p className="text-gray-600 mb-4">Upload questions with minimal data - LLM generates everything else automatically</p>
                       
-                      {/* Google Drive Instructions */}
+                      {/* LLM Auto-Generation Info */}
+                      <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+                        <div className="flex items-start">
+                          <div className="flex-shrink-0">
+                            <svg className="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                            </svg>
+                          </div>
+                          <div className="ml-3">
+                            <h4 className="text-sm font-medium text-green-800">🤖 Complete LLM Auto-Generation</h4>
+                            <div className="text-sm text-green-700 mt-1">
+                              <p className="mb-2">Just provide the question text - LLM automatically generates:</p>
+                              <ul className="list-disc list-inside space-y-1 text-xs">
+                                <li><strong>Answer</strong> - Correct solution to the question</li>
+                                <li><strong>Category & Subcategory</strong> - Proper CAT taxonomy classification</li>
+                                <li><strong>Solutions</strong> - Step-by-step solution approach and detailed explanation</li>
+                                <li><strong>Difficulty Analysis</strong> - AI-powered difficulty scoring and band classification</li>
+                                <li><strong>Learning Metrics</strong> - Importance index, learning impact, frequency band</li>
+                                <li><strong>Tags</strong> - Relevant topic tags for search and organization</li>
+                              </ul>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* CSV Format Info */}
                       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
                         <div className="flex items-start">
                           <div className="flex-shrink-0">
@@ -791,14 +816,14 @@ const AdminPanel = () => {
                             </svg>
                           </div>
                           <div className="ml-3">
-                            <h4 className="text-sm font-medium text-blue-800">Google Drive Image Support</h4>
+                            <h4 className="text-sm font-medium text-blue-800">📋 Simplified CSV Format</h4>
                             <div className="text-sm text-blue-700 mt-1">
-                              <p className="mb-2">Include images by adding these columns to your CSV:</p>
+                              <p className="mb-2">CSV columns needed:</p>
                               <ul className="list-disc list-inside space-y-1 text-xs">
-                                <li><strong>image_url</strong>: Google Drive share link (e.g., https://drive.google.com/file/d/FILE_ID/view)</li>
-                                <li><strong>image_alt_text</strong>: Description for accessibility (optional)</li>
+                                <li><strong>stem</strong> - Question text (Required)</li>
+                                <li><strong>image_url</strong> - Google Drive share link (Optional)</li>
                               </ul>
-                              <p className="mt-2 text-xs">The system will automatically download and store images from Google Drive links.</p>
+                              <p className="mt-2 text-xs">Example: "A train travels 120 km in 2 hours. Find the speed.","https://drive.google.com/file/d/FILE_ID/view"</p>
                             </div>
                           </div>
                         </div>
@@ -807,7 +832,7 @@ const AdminPanel = () => {
                       <div className="text-center">
                         <label htmlFor="csv-upload" className="cursor-pointer">
                           <span className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-medium inline-block">
-                            {uploading ? 'Uploading...' : 'Upload CSV'}
+                            {uploading ? 'Uploading & Processing...' : 'Upload CSV'}
                           </span>
                           <input
                             id="csv-upload"
@@ -819,9 +844,9 @@ const AdminPanel = () => {
                           />
                         </label>
                         <div className="text-sm text-gray-500 mt-3 space-y-1">
-                          <p><strong>Required:</strong> stem, answer, category, subcategory</p>
-                          <p><strong>Optional:</strong> source, image_url (Google Drive), image_alt_text</p>
-                          <p className="text-xs text-gray-400">Supports JPEG, PNG, GIF images from Google Drive</p>
+                          <p><strong>Required:</strong> stem (question text)</p>
+                          <p><strong>Optional:</strong> image_url (Google Drive link)</p>
+                          <p className="text-xs text-gray-400">🤖 LLM generates: answers, categories, solutions, difficulty, tags</p>
                         </div>
                       </div>
                     </div>
