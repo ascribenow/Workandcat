@@ -74,6 +74,18 @@ class Question(Base):
     importance_index = Column(Numeric(5, 2), nullable=True)  # 0-100
     importance_band = Column(String(20), nullable=True)
     
+    # Enhanced conceptual frequency analysis fields
+    frequency_score = Column(Numeric(5, 4), default=0.0)  # New enhanced frequency score
+    pyq_conceptual_matches = Column(Integer, default=0)
+    total_pyq_analyzed = Column(Integer, default=0)
+    top_matching_concepts = Column(ARRAY(String), default=list)
+    frequency_analysis_method = Column(String(50), default='subcategory')
+    frequency_last_updated = Column(DateTime, nullable=True)
+    pattern_keywords = Column(ARRAY(String), default=list)
+    pattern_solution_approach = Column(Text, nullable=True)
+    pyq_occurrences_last_10_years = Column(Integer, default=0)
+    total_pyq_count = Column(Integer, default=0)
+    
     # Metadata
     video_url = Column(Text, nullable=True)
     tags = Column(ARRAY(String), default=list)
