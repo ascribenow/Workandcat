@@ -257,16 +257,28 @@ export const SessionSystem = ({ sessionId: propSessionId, onSessionEnd }) => {
           </h2>
 
           {/* Question Image */}
-          {currentQuestion.has_image && currentQuestion.image_url && (
+          {currentQuestion.has_image && (
             <div className="mb-6">
               <div className="bg-gray-50 rounded-lg p-4 inline-block max-w-full">
-                <img 
-                  src={currentQuestion.image_url} 
-                  alt={currentQuestion.image_alt_text || "Question diagram"}
-                  className="max-w-full h-auto max-h-96 rounded-lg shadow-sm cursor-pointer hover:shadow-md transition-shadow"
-                  onClick={() => setImageZoomed(true)}
-                />
-                {currentQuestion.image_alt_text && (
+                {!imageError && currentQuestion.image_url ? (
+                  <img 
+                    src={currentQuestion.image_url} 
+                    alt={currentQuestion.image_alt_text || "Question diagram"}
+                    className="max-w-full h-auto max-h-96 rounded-lg shadow-sm cursor-pointer hover:shadow-md transition-shadow"
+                    onClick={() => setImageZoomed(true)}
+                    onError={() => setImageError(true)}
+                  />
+                ) : (
+                  <div className="bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+                    <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <p className="mt-2 text-sm text-gray-500">
+                      {currentQuestion.image_alt_text || "Image could not be loaded"}
+                    </p>
+                  </div>
+                )}
+                {currentQuestion.image_alt_text && !imageError && (
                   <p className="text-xs text-gray-500 mt-2 text-center italic">
                     {currentQuestion.image_alt_text}
                   </p>
