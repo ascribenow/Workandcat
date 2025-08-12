@@ -976,64 +976,74 @@ const AdminPanel = () => {
                         />
                       </div>
 
-                      {/* Image Upload Section */}
+                      {/* Image URL Input with Live Preview */}
                       <div className="border border-gray-200 rounded-lg p-4">
                         <label className="block text-sm font-medium text-gray-700 mb-3">Question Image (Optional)</label>
                         
-                        {!imagePreview ? (
-                          <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                            <div className="mb-4">
-                              <svg className="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
-                                <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
-                              </svg>
+                        <div className="space-y-4">
+                          {/* URL Input Field */}
+                          <div>
+                            <label htmlFor="image-url" className="block text-xs font-medium text-gray-600 mb-1">
+                              Google Drive Share Link or Direct Image URL
+                            </label>
+                            <input
+                              id="image-url"
+                              type="url"
+                              value={imageUrlInput}
+                              onChange={handleImageUrlChange}
+                              className="w-full border border-gray-300 rounded-md p-3 text-sm"
+                              placeholder="https://drive.google.com/file/d/FILE_ID/view or direct image URL"
+                            />
+                          </div>
+
+                          {/* Image Preview Area */}
+                          {imagePreviewLoading && (
+                            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                              <div className="flex items-center justify-center">
+                                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-600"></div>
+                                <span className="ml-2 text-sm text-gray-600">Loading image preview...</span>
+                              </div>
                             </div>
-                            <div className="mb-4">
-                              <label htmlFor="image-upload" className="cursor-pointer">
-                                <span className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium">
-                                  {uploadingImage ? 'Uploading...' : 'Upload Image'}
-                                </span>
-                                <input
-                                  id="image-upload"
-                                  type="file"
-                                  accept="image/*"
-                                  onChange={handleImageUpload}
-                                  disabled={uploadingImage}
-                                  className="hidden"
+                          )}
+
+                          {imagePreview && !imagePreviewLoading && (
+                            <div className="space-y-3">
+                              <div className="relative">
+                                <img 
+                                  src={imagePreview} 
+                                  alt="Image preview" 
+                                  className="max-w-full h-auto max-h-64 rounded-lg shadow-sm mx-auto border"
                                 />
-                              </label>
+                                <div className="absolute top-2 right-2 bg-green-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs">
+                                  ✓
+                                </div>
+                              </div>
+                              <p className="text-xs text-green-600 text-center">✅ Image loaded successfully - Question can be published</p>
                             </div>
-                            <p className="text-xs text-gray-500">
-                              Support: JPEG, PNG, GIF, BMP, WebP • Max size: 10MB
-                            </p>
-                          </div>
-                        ) : (
-                          <div className="space-y-3">
-                            <div className="relative">
-                              <img 
-                                src={imagePreview} 
-                                alt="Question image preview" 
-                                className="max-w-full h-auto max-h-64 rounded-lg shadow-sm mx-auto"
-                              />
-                              <button
-                                type="button"
-                                onClick={handleRemoveImage}
-                                className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm"
-                              >
-                                ×
-                              </button>
+                          )}
+
+                          {imagePreviewError && !imagePreviewLoading && (
+                            <div className="border-2 border-dashed border-red-300 bg-red-50 rounded-lg p-6 text-center">
+                              <div className="mb-2">
+                                <svg className="mx-auto h-8 w-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L3.314 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                                </svg>
+                              </div>
+                              <p className="text-sm text-red-600 font-medium">❌ Image Missing – Not Eligible for Serving</p>
+                              <p className="text-xs text-red-500 mt-1">Please check the URL or use a different image</p>
                             </div>
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700">Alt Text for Accessibility</label>
-                              <input
-                                type="text"
-                                value={questionForm.image_alt_text}
-                                onChange={(e) => setQuestionForm({...questionForm, image_alt_text: e.target.value})}
-                                className="mt-1 block w-full border border-gray-300 rounded-md p-2 text-sm"
-                                placeholder="Describe the image for screen readers"
-                              />
+                          )}
+
+                          {!imageUrlInput && !imagePreviewLoading && (
+                            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                              <svg className="mx-auto h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                              </svg>
+                              <p className="text-sm text-gray-500 mt-2">Enter an image URL above to see preview</p>
+                              <p className="text-xs text-gray-400 mt-1">Question will work without image</p>
                             </div>
-                          </div>
-                        )}
+                          )}
+                        </div>
                       </div>
 
                       <div>
