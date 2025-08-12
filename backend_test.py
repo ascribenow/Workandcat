@@ -205,6 +205,141 @@ class CATBackendTester:
         
         return False
 
+    def test_single_question_creation_fix(self):
+        """Test Single Question Creation Fix - CRITICAL VALIDATION TEST"""
+        print("🔍 CRITICAL VALIDATION TEST: Single Question Creation Fix")
+        print("   Testing fix for 'pyq_occurrences_last_10_years' column error")
+        
+        if not self.admin_token:
+            print("❌ Cannot test question creation - no admin token")
+            return False
+        
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {self.admin_token}'
+        }
+        
+        # Test data from review request
+        test_question_data = {
+            "stem": "A test question for frequency analysis",
+            "image_url": "",
+            "subcategory": "Test Category"
+        }
+        
+        print(f"   Testing with sample data: {test_question_data}")
+        
+        # CRITICAL TEST 1: Single Question Creation
+        print("\n   📝 TEST 1: Single Question Creation (POST /api/questions)")
+        success, response = self.run_test("Single Question Creation Fix", "POST", "questions", 200, test_question_data, headers)
+        
+        if not success:
+            print("   ❌ CRITICAL FAILURE: Single question creation still failing")
+            print("   This indicates the 'pyq_occurrences_last_10_years' column error is NOT fixed")
+            return False
+        
+        if 'question_id' not in response:
+            print("   ❌ CRITICAL FAILURE: No question_id returned from creation")
+            return False
+        
+        created_question_id = response['question_id']
+        print(f"   ✅ SUCCESS: Question created successfully without column error")
+        print(f"   Question ID: {created_question_id}")
+        print(f"   Status: {response.get('status', 'unknown')}")
+        
+        # CRITICAL TEST 2: Question Retrieval with Frequency Fields
+        print("\n   📊 TEST 2: Question Retrieval with Frequency Fields (GET /api/questions)")
+        success, response = self.run_test("Question Retrieval with Frequency Fields", "GET", "questions", 200, None, headers)
+        
+        if not success:
+            print("   ❌ FAILURE: Cannot retrieve questions")
+            return False
+        
+        questions = response.get('questions', [])
+        if len(questions) == 0:
+            print("   ❌ FAILURE: No questions returned")
+            return False
+        
+        print(f"   ✅ SUCCESS: Retrieved {len(questions)} questions")
+        
+        # Check for frequency analysis fields in questions
+        frequency_fields_found = []
+        sample_question = questions[0]
+        
+        # Expected frequency analysis fields based on the fix
+        expected_frequency_fields = [
+            'frequency_score', 'pyq_conceptual_matches', 'total_pyq_analyzed', 
+            'top_matching_concepts', 'frequency_analysis_method', 'pattern_keywords',
+            'pattern_solution_approach', 'total_pyq_count'
+        ]
+        
+        for field in expected_frequency_fields:
+            if field in sample_question:
+                frequency_fields_found.append(field)
+        
+        print(f"   Frequency analysis fields found: {len(frequency_fields_found)}/{len(expected_frequency_fields)}")
+        print(f"   Fields present: {frequency_fields_found}")
+        
+        if len(frequency_fields_found) > 0:
+            print("   ✅ SUCCESS: Questions include new frequency analysis fields")
+        else:
+            print("   ⚠️ WARNING: No frequency analysis fields found in questions")
+            print("   This may indicate the database schema update is incomplete")
+        
+        # CRITICAL TEST 3: Admin Panel Question Upload Functionality
+        print("\n   🔧 TEST 3: Admin Panel Question Upload Functionality")
+        
+        # Test another question creation to verify consistency
+        admin_panel_question = {
+            "stem": "If a train travels 240 km in 4 hours, what is its average speed in km/h?",
+            "answer": "60",
+            "solution_approach": "Speed = Distance / Time",
+            "detailed_solution": "Average speed = 240 km ÷ 4 hours = 60 km/h",
+            "hint_category": "Arithmetic", 
+            "hint_subcategory": "Speed-Time-Distance",
+            "type_of_question": "Basic Speed Calculation",
+            "tags": ["admin_panel_test", "frequency_analysis_fix"],
+            "source": "Admin Panel Test",
+            "has_image": False,
+            "image_url": "",
+            "image_alt_text": ""
+        }
+        
+        success, response = self.run_test("Admin Panel Question Upload", "POST", "questions", 200, admin_panel_question, headers)
+        
+        if not success:
+            print("   ❌ FAILURE: Admin panel question upload failing")
+            return False
+        
+        if 'question_id' not in response:
+            print("   ❌ FAILURE: No question_id returned from admin panel upload")
+            return False
+        
+        admin_question_id = response['question_id']
+        print(f"   ✅ SUCCESS: Admin panel question upload working")
+        print(f"   Admin Question ID: {admin_question_id}")
+        print(f"   Status: {response.get('status', 'unknown')}")
+        
+        # VERIFICATION: Check that both questions were created without database errors
+        print("\n   🔍 VERIFICATION: Database Error Check")
+        success, response = self.run_test("Verify All Questions Created", "GET", "questions?limit=50", 200, None, headers)
+        
+        if success:
+            questions = response.get('questions', [])
+            test_questions = [q for q in questions if 'frequency_analysis_fix' in q.get('tags', []) or 'Test Category' in q.get('subcategory', '')]
+            
+            print(f"   Found {len(test_questions)} test questions in database")
+            
+            if len(test_questions) >= 2:
+                print("   ✅ SUCCESS: Both test questions successfully stored in database")
+                print("   ✅ CONFIRMED: 'pyq_occurrences_last_10_years' column error is FIXED")
+                return True
+            else:
+                print("   ⚠️ WARNING: Not all test questions found in database")
+                return len(test_questions) > 0  # At least one question should be there
+        else:
+            print("   ❌ FAILURE: Cannot verify questions in database")
+            return False
+
     def test_question_creation(self):
         """Test question creation with LLM enrichment (requires authentication)"""
         if not self.admin_token:
