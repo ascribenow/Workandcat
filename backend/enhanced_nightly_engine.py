@@ -22,6 +22,11 @@ from formulas import (
     calculate_frequency_score
 )
 from conceptual_frequency_analyzer import ConceptualFrequencyAnalyzer
+from time_weighted_frequency_analyzer import (
+    TimeWeightedFrequencyAnalyzer, 
+    CAT_ANALYSIS_CONFIG,
+    TemporalPattern
+)
 
 logger = logging.getLogger(__name__)
 
