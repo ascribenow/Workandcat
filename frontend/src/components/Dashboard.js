@@ -549,7 +549,6 @@ const AdminPanel = () => {
       });
       alert('Questions CSV uploaded successfully!');
       event.target.value = ''; // Reset file input
-      fetchQuestions(); // Refresh questions list
     } catch (error) {
       alert('Error uploading CSV: ' + (error.response?.data?.detail || 'Unknown error'));
     } finally {
