@@ -1527,17 +1527,17 @@ async def enrich_question_background(question_id: str, hint_category: str = None
             
             logger.info(f"Starting complete LLM auto-generation for question {question_id}")
             
-            # Use complete auto-generation for CSV uploads
-            enrichment = LLMEnrichmentPipeline()
-            enrichment_data = await enrichment.complete_auto_generation(
-                question.stem, 
-                hint_category, 
-                hint_subcategory
+            # Use the global LLM enrichment pipeline instance (has API key)
+            enrichment_data = await llm_pipeline.enrich_question_completely(
+                question.stem,
+                image_url=question.image_url,
+                hint_category=hint_category,
+                hint_subcategory=hint_subcategory
             )
             
             # Update question with all generated data
             question.answer = enrichment_data["answer"]
-            question.solution_approach = enrichment_data["solution_approach"]
+            question.solution_approach = enrichment_data["solution_approach"] 
             question.detailed_solution = enrichment_data["detailed_solution"]
             question.subcategory = enrichment_data["subcategory"]
             question.type_of_question = enrichment_data["type_of_question"]
@@ -1546,8 +1546,8 @@ async def enrich_question_background(question_id: str, hint_category: str = None
             question.learning_impact = enrichment_data["learning_impact"]
             question.importance_index = enrichment_data["importance_index"]
             question.frequency_band = enrichment_data["frequency_band"]
-            question.tags = enrichment_data["tags"]
-            question.source = enrichment_data["source"]
+            question.tags = enrichment_data.get("tags", [])
+            question.source = enrichment_data.get("source", "LLM Generated")
             
             # Find and update topic based on LLM classification
             topic_result = await db.execute(
@@ -1556,35 +1556,43 @@ async def enrich_question_background(question_id: str, hint_category: str = None
             topic = topic_result.scalar_one_or_none()
             
             if not topic:
-                # Create new topic if it doesn't exist
-                topic = Topic(
-                    name=enrichment_data["subcategory"],
-                    description=f"Auto-created from LLM classification - {enrichment_data['category']}"
+                # Try to find by category
+                category_result = await db.execute(
+                    select(Topic).where(Topic.category == enrichment_data.get("category", "A"))
                 )
-                db.add(topic)
-                await db.flush()
+                topic = category_result.scalar_one_or_none()
+                
+                if not topic:
+                    # Use a default topic if none found
+                    default_result = await db.execute(
+                        select(Topic).where(Topic.name == "Arithmetic")
+                    )
+                    topic = default_result.scalar_one_or_none()
             
-            question.topic_id = topic.id
+            if topic:
+                question.topic_id = topic.id
+            
             question.is_active = True  # Activate after complete enrichment
             
             await db.commit()
-            logger.info(f"Question {question_id} enriched successfully with complete auto-generation")
+            logger.info(f"✅ Question {question_id} enriched successfully with LLM auto-generation")
             break  # Exit the async for loop
             
     except Exception as e:
-        logger.error(f"Error in background enrichment: {e}")
-        # Mark question as needing manual review
+        logger.error(f"❌ Error in background enrichment for question {question_id}: {e}")
+        # Mark question as failed enrichment but still make it active with placeholder content
         try:
             async for db in get_database():
                 result = await db.execute(select(Question).where(Question.id == question_id))
                 question = result.scalar_one_or_none()
                 if question:
-                    question.tags = question.tags + ["enrichment_failed", "manual_review_needed"]
-                    question.is_active = False  # Keep inactive until manual review
+                    question.is_active = True  # Make active even if enrichment failed
+                    question.tags = question.tags + ["enrichment_failed"] if question.tags else ["enrichment_failed"]
                     await db.commit()
+                    logger.warning(f"⚠️ Question {question_id} activated with enrichment failure flag")
                 break
-        except:
-            pass
+        except Exception as commit_error:
+            logger.error(f"Failed to mark question as enrichment failed: {commit_error}")
 
 async def process_pyq_document(ingestion_id: str, file_content: bytes):
     """Background task to process PYQ document"""
