@@ -71,14 +71,18 @@ api_router = APIRouter(prefix="/api")
 
 class QuestionCreateRequest(BaseModel):
     stem: str
-    answer: str
+    answer: Optional[str] = None  # Now optional since LLM can generate
     solution_approach: Optional[str] = None
     detailed_solution: Optional[str] = None
     hint_category: Optional[str] = None
     hint_subcategory: Optional[str] = None
-    type_of_question: Optional[str] = None  # New canonical taxonomy field
+    type_of_question: Optional[str] = None
     tags: List[str] = []
     source: str = "Admin"
+    # Image support fields
+    has_image: bool = False
+    image_url: Optional[str] = None
+    image_alt_text: Optional[str] = None
 
 class SessionStart(BaseModel):
     plan_unit_ids: Optional[List[str]] = None
