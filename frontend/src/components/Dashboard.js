@@ -518,6 +518,80 @@ const AdminPanel = () => {
 
 
 
+  const validateAndPreviewImage = async (url) => {
+    if (!url.trim()) {
+      setImagePreview(null);
+      setImagePreviewError(false);
+      setQuestionPublishBlocked(false);
+      setQuestionForm(prev => ({
+        ...prev,
+        has_image: false,
+        image_url: "",
+        image_alt_text: ""
+      }));
+      return;
+    }
+
+    setImagePreviewLoading(true);
+    setImagePreviewError(false);
+    
+    try {
+      // Create a promise to test image loading
+      const imageLoadPromise = new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = () => reject(new Error('Image failed to load'));
+        img.src = url;
+      });
+
+      // Wait for image to load with timeout
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Image load timeout')), 10000)
+      );
+
+      await Promise.race([imageLoadPromise, timeoutPromise]);
+      
+      // Image loaded successfully
+      setImagePreview(url);
+      setImagePreviewError(false);
+      setQuestionPublishBlocked(false);
+      setQuestionForm(prev => ({
+        ...prev,
+        has_image: true,
+        image_url: url,
+        image_alt_text: prev.image_alt_text || 'Question diagram'
+      }));
+      
+    } catch (error) {
+      console.error('Image preview error:', error);
+      setImagePreview(null);
+      setImagePreviewError(true);
+      setQuestionPublishBlocked(true);
+      setQuestionForm(prev => ({
+        ...prev,
+        has_image: false,
+        image_url: "",
+        image_alt_text: ""
+      }));
+    } finally {
+      setImagePreviewLoading(false);
+    }
+  };
+
+  const handleImageUrlChange = (e) => {
+    const url = e.target.value;
+    setImageUrlInput(url);
+    
+    // Debounce the validation to avoid too many requests
+    if (window.imageValidationTimeout) {
+      clearTimeout(window.imageValidationTimeout);
+    }
+    
+    window.imageValidationTimeout = setTimeout(() => {
+      validateAndPreviewImage(url);
+    }, 1000);
+  };
+
   const handleImageUpload = async (event) => {
     const file = event.target.files[0];
     if (!file) return;
