@@ -178,12 +178,14 @@ class StudyPlanner:
                 if needed_count == 0:
                     continue
                 
-                # Get questions of this difficulty for the topic
+                # Get questions of this difficulty for the topic (excluding broken images)
                 questions_result = await db.execute(
                     select(Question).where(
                         Question.topic_id == topic_id,
                         Question.difficulty_band == difficulty,
-                        Question.is_active == True
+                        Question.is_active == True,
+                        # Exclude questions with broken images
+                        ~Question.tags.any("broken_image")
                     ).order_by(desc(Question.importance_index)).limit(needed_count * 2)  # Get extras for filtering
                 )
                 questions = questions_result.scalars().all()
