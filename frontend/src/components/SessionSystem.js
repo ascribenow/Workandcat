@@ -54,6 +54,80 @@ export const SessionSystem = ({ sessionId: propSessionId, onSessionEnd }) => {
     };
   }, [questionStartTime, showResult, currentQuestion]);
 
+  const handleImagePreload = async (imageUrl) => {
+    if (!imageUrl) return true; // No image to load
+    
+    return new Promise((resolve) => {
+      setImageLoading(true);
+      
+      const img = new Image();
+      
+      img.onload = () => {
+        setImageLoading(false);
+        setImageLoadFailed(false);
+        resolve(true);
+      };
+      
+      img.onerror = async () => {
+        if (retryCount < 1) {
+          // Retry once
+          setRetryCount(prev => prev + 1);
+          console.log(`Image load failed, retrying... (attempt ${retryCount + 2}/2)`);
+          
+          // Wait 1 second before retry
+          setTimeout(() => {
+            const retryImg = new Image();
+            retryImg.onload = () => {
+              setImageLoading(false);
+              setImageLoadFailed(false);
+              resolve(true);
+            };
+            retryImg.onerror = () => {
+              setImageLoading(false);
+              setImageLoadFailed(true);
+              // Block this question from future sessions
+              blockQuestionFromSessions(currentQuestion.id);
+              resolve(false);
+            };
+            retryImg.src = imageUrl;
+          }, 1000);
+        } else {
+          setImageLoading(false);
+          setImageLoadFailed(true);
+          // Block this question from future sessions
+          blockQuestionFromSessions(currentQuestion.id);
+          resolve(false);
+        }
+      };
+      
+      img.src = imageUrl;
+    });
+  };
+
+  const blockQuestionFromSessions = async (questionId) => {
+    try {
+      // Report the broken image question to backend
+      await fetch(`${API}/sessions/report-broken-image`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('cat_prep_token')}`
+        },
+        body: JSON.stringify({ question_id: questionId })
+      });
+      
+      console.log(`Question ${questionId} blocked from future sessions due to image load failure`);
+      
+      // Get next question immediately
+      await fetchNextQuestion();
+      
+    } catch (error) {
+      console.error('Error blocking question:', error);
+      // Still try to get next question even if blocking fails
+      await fetchNextQuestion();
+    }
+  };
+
   const fetchNextQuestion = async () => {
     setLoading(true);
     setError('');
