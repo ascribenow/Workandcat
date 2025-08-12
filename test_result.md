@@ -569,19 +569,20 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Enhanced Conceptual Frequency Analysis System - database schema updates needed"
-    - "Database schema constraint resolution - subcategory VARCHAR(20) to VARCHAR(50+)"
+    - "Enhanced Time-Weighted Conceptual Frequency Analysis System - database schema updates critical"
+    - "Database schema updates for frequency analysis fields (frequency_score, pyq_conceptual_matches, etc.)"
     - "Complete canonical taxonomy implementation with all 5 categories and 29 subcategories"
     - "EWMA mastery calculations optimization with α=0.6"
     - "Category progress tracking enhancement for canonical taxonomy display"
     - "Enhanced Nightly Engine Integration completion after schema fix"
     - "Google Drive Image Integration for CSV bulk uploads"
   stuck_tasks:
-    - "Enhanced Conceptual Frequency Analysis System - database schema missing conceptual frequency fields"
+    - "Enhanced Time-Weighted Conceptual Frequency Analysis System - database schema missing ALL frequency analysis fields"
+    - "Conceptual Frequency Analysis endpoint - blocked by missing database columns"
     - "Enhanced Nightly Engine Integration - blocked by database schema constraint"
     - "Google Drive Image Integration - blocked by database schema constraint and CSV upload issues"
   test_all: false
-  test_priority: "conceptual_frequency_database_schema_updates"
+  test_priority: "frequency_analysis_database_schema_critical"
 
   - task: "Enhanced Conceptual Frequency Analysis System"
     implemented: true
