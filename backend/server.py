@@ -1078,7 +1078,7 @@ async def upload_questions_csv(
             
             # Find a default topic (LLM will classify properly during enrichment)
             topic_result = await db.execute(
-                select(Topic).where(Topic.name == "General").first()
+                select(Topic).where(Topic.name == "General")
             )
             topic = topic_result.scalar_one_or_none()
             
