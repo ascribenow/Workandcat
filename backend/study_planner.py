@@ -197,11 +197,13 @@ class StudyPlanner:
             
             # Fill remaining slots if needed
             while len(selected_questions) < target_count:
-                # Get any available questions
+                # Get any available questions (excluding broken images)
                 remaining_result = await db.execute(
                     select(Question).where(
                         Question.topic_id == topic_id,
                         Question.is_active == True,
+                        # Exclude questions with broken images
+                        ~Question.tags.any("broken_image"),
                         ~Question.id.in_([uuid.UUID(qid) for qid in selected_questions])
                     ).order_by(desc(Question.importance_index)).limit(1)
                 )
