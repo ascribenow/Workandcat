@@ -5,7 +5,8 @@ Comprehensive production-ready server with all advanced features
 
 from fastapi import FastAPI, APIRouter, HTTPException, UploadFile, File, Form, Depends, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, and_, or_, desc, asc, func, case, text
 from pydantic import BaseModel, Field, EmailStr
@@ -19,6 +20,8 @@ import logging
 import json
 import asyncio
 import random
+import shutil
+import mimetypes
 from docx import Document
 import io
 
