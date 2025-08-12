@@ -508,20 +508,7 @@ const AdminPanel = () => {
     source: ""
   });
 
-  useEffect(() => {
-    if (activeTab === 'questions') {
-      fetchQuestions();
-    }
-  }, [activeTab]);
 
-  const fetchQuestions = async () => {
-    try {
-      const response = await axios.get(`${API}/questions`);
-      setQuestions(response.data.questions || []);
-    } catch (err) {
-      console.error('Error fetching questions:', err);
-    }
-  };
 
   const handlePYQUpload = async (event) => {
     const file = event.target.files[0];
