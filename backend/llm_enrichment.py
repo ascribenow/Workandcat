@@ -73,6 +73,159 @@ class LLMEnrichmentPipeline:
         combined = f"{stem}_{source}"
         return hashlib.sha256(combined.encode()).hexdigest()
         
+    async def complete_auto_generation(self, stem: str, hint_category: str = None, hint_subcategory: str = None) -> Dict[str, Any]:
+        """
+        Complete auto-generation for CSV uploads with only stem and optional image
+        Generates: answer, solutions, classification, difficulty, etc.
+        """
+        try:
+            logger.info(f"Starting complete auto-generation for question: {stem[:50]}...")
+            
+            # Step 1: Generate answer first
+            answer = await self.generate_answer(stem)
+            logger.info(f"Generated answer: {answer}")
+            
+            # Step 2: Classify the question
+            category, subcategory, type_of_question = await self.categorize_question(stem, hint_category, hint_subcategory)
+            logger.info(f"Classification: {category} -> {subcategory} -> {type_of_question}")
+            
+            # Step 3: Generate solutions
+            solution_approach, detailed_solution = await self.generate_solutions(stem, answer, category, subcategory)
+            logger.info(f"Generated solutions")
+            
+            # Step 4: Compute difficulty
+            difficulty_score, difficulty_band, difficulty_components = self.compute_difficulty_score(
+                stem, solution_approach, category, subcategory
+            )
+            logger.info(f"Difficulty: {difficulty_band} ({difficulty_score:.2f})")
+            
+            # Step 5: Calculate other metrics using existing formulas
+            learning_impact = calculate_learning_impact(category, subcategory, difficulty_score)
+            importance_index = calculate_importance_level(difficulty_score, category, subcategory)
+            frequency_band = calculate_frequency_band(category, subcategory)
+            
+            # Step 6: Generate tags based on content
+            tags = self._generate_tags(stem, category, subcategory, type_of_question)
+            
+            # Return complete enrichment data
+            enrichment_data = {
+                "answer": answer,
+                "solution_approach": solution_approach,
+                "detailed_solution": detailed_solution,
+                "category": category,
+                "subcategory": subcategory,
+                "type_of_question": type_of_question,
+                "difficulty_score": difficulty_score,
+                "difficulty_band": difficulty_band,
+                "learning_impact": learning_impact,
+                "importance_index": importance_index,
+                "frequency_band": frequency_band,
+                "tags": tags,
+                "source": "LLM Auto-Generated",
+                "enrichment_completed": True
+            }
+            
+            logger.info(f"Complete auto-generation successful for question")
+            return enrichment_data
+            
+        except Exception as e:
+            logger.error(f"Complete auto-generation failed: {e}")
+            # Return minimal fallback data
+            return {
+                "answer": "Answer generation failed - manual review needed",
+                "solution_approach": "Standard problem-solving approach",
+                "detailed_solution": "Detailed solution pending manual review",
+                "category": "Arithmetic",
+                "subcategory": "Time–Speed–Distance (TSD)",
+                "type_of_question": "Basic TSD",
+                "difficulty_score": 2.5,
+                "difficulty_band": "Medium",
+                "learning_impact": 0.5,
+                "importance_index": 0.5,
+                "frequency_band": "Medium",
+                "tags": ["auto_generation_failed", "manual_review_needed"],
+                "source": "LLM Auto-Generation (Failed)",
+                "enrichment_completed": False
+            }
+    
+    async def generate_answer(self, stem: str) -> str:
+        """
+        Generate the correct answer for a question stem
+        """
+        try:
+            system_message = """You are an expert CAT exam solver. Generate the correct, concise answer for the given question.
+
+Rules:
+1. Provide only the final answer (number, expression, or choice)
+2. Be precise and accurate
+3. Use standard mathematical notation
+4. For multiple choice, provide the option letter and value (e.g., "C) 25")
+5. For numerical answers, include units if applicable"""
+
+            chat = LlmChat(
+                api_key=self.llm_api_key,
+                session_id=f"answer_{uuid.uuid4()}",
+                system_message=system_message
+            ).with_model("openai", "gpt-4o")
+
+            user_message = UserMessage(text=f"Question: {stem}")
+            response = await chat.send_message(user_message)
+            
+            # Clean and validate the answer
+            answer = response.strip()
+            if len(answer) > 200:  # Answers should be concise
+                answer = answer[:200] + "..."
+                
+            return answer
+            
+        except Exception as e:
+            logger.error(f"Answer generation error: {e}")
+            return "Answer generation failed"
+    
+    def _generate_tags(self, stem: str, category: str, subcategory: str, type_of_question: str) -> list:
+        """
+        Generate relevant tags based on question content
+        """
+        tags = ["llm_generated", "auto_enriched"]
+        
+        # Add category-based tags
+        tags.append(category.lower().replace(" ", "_"))
+        tags.append(subcategory.lower().replace(" ", "_").replace("–", "_"))
+        
+        # Add content-based tags
+        stem_lower = stem.lower()
+        if "train" in stem_lower:
+            tags.append("trains")
+        if "speed" in stem_lower:
+            tags.append("speed")
+        if "time" in stem_lower:
+            tags.append("time")
+        if "distance" in stem_lower:
+            tags.append("distance")
+        if "triangle" in stem_lower:
+            tags.append("triangles")
+        if "circle" in stem_lower:
+            tags.append("circles")
+        if "percentage" in stem_lower or "%" in stem_lower:
+            tags.append("percentages")
+        if "profit" in stem_lower or "loss" in stem_lower:
+            tags.append("profit_loss")
+        if "interest" in stem_lower:
+            tags.append("interest")
+        if "ratio" in stem_lower:
+            tags.append("ratios")
+        if "work" in stem_lower:
+            tags.append("work")
+        if "age" in stem_lower:
+            tags.append("ages")
+        if "mixture" in stem_lower:
+            tags.append("mixtures")
+        
+        # Remove duplicates and limit to reasonable number
+        tags = list(set(tags))[:10]
+        
+        return tags
+
     async def categorize_question(self, stem: str, hint_category: str = None, hint_subcategory: str = None) -> Tuple[str, str, str]:
         """
         Step 1: Categorize question strictly from canonical taxonomy including type_of_question
