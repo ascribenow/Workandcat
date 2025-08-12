@@ -56,6 +56,15 @@ app = FastAPI(
     description="Complete production-ready CAT preparation platform with advanced AI features"
 )
 
+# Image upload configuration
+UPLOAD_DIR = Path(__file__).parent / "uploads" / "images"
+UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+ALLOWED_IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp", ".svg"}
+MAX_IMAGE_SIZE = 10 * 1024 * 1024  # 10MB
+
+# Mount static files for serving uploaded images
+app.mount("/uploads", StaticFiles(directory=str(UPLOAD_DIR.parent)), name="uploads")
+
 api_router = APIRouter(prefix="/api")
 
 # Pydantic Models for API
