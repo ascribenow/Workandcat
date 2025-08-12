@@ -753,6 +753,9 @@ const AdminPanel = () => {
       });
       setSelectedImage(null);
       setImagePreview(null);
+      setImageUrlInput('');
+      setImagePreviewError(false);
+      setQuestionPublishBlocked(false);
     } catch (error) {
       alert('Error creating question: ' + (error.response?.data?.detail || 'Unknown error'));
     }
