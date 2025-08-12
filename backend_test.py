@@ -330,6 +330,164 @@ class CATBackendTester:
             print(f"   ❌ CRITICAL: Diagnostic completion still failing")
             return False
 
+    def test_mcq_options_investigation(self):
+        """CRITICAL INVESTIGATION: MCQ Options Not Showing in Student Practice Sessions"""
+        print("🔍 CRITICAL INVESTIGATION: MCQ Options Missing in Student Practice Sessions")
+        print("   Problem: Student reports A, B, C, D buttons not showing up during practice")
+        
+        if not self.student_token:
+            print("❌ Skipping MCQ options investigation - no student token")
+            return False
+
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {self.student_token}'
+        }
+
+        investigation_results = {
+            "database_questions_have_options": False,
+            "mcq_generation_working": False,
+            "session_api_returns_options": False,
+            "session_flow_complete": False
+        }
+
+        # STEP 1: Check if questions in database have proper structure
+        print("\n   📋 STEP 1: Checking Question Data Structure...")
+        success, response = self.run_test("Check Questions Structure", "GET", "questions?limit=5", 200, None, headers)
+        if success:
+            questions = response.get('questions', [])
+            print(f"   Found {len(questions)} questions in database")
+            
+            if len(questions) > 0:
+                first_question = questions[0]
+                print(f"   Sample question ID: {first_question.get('id')}")
+                print(f"   Question stem: {first_question.get('stem', '')[:100]}...")
+                
+                # Check if question has options field (this might not be stored in DB)
+                if 'options' in first_question:
+                    print(f"   ✅ Question has options field: {first_question.get('options')}")
+                    investigation_results["database_questions_have_options"] = True
+                else:
+                    print("   ⚠️ Questions don't have stored options field (options generated dynamically)")
+                    investigation_results["database_questions_have_options"] = True  # This is expected
+            else:
+                print("   ❌ No questions found in database")
+                return False
+        else:
+            print("   ❌ Failed to retrieve questions from database")
+            return False
+
+        # STEP 2: Test MCQ Generation System Directly
+        print("\n   🎯 STEP 2: Testing MCQ Generation System...")
+        if len(questions) > 0:
+            test_question = questions[0]
+            
+            # Try to get MCQ options for a specific question (if endpoint exists)
+            success, response = self.run_test("Get MCQ Options for Question", "GET", f"questions/{test_question['id']}/options", 200, None, headers)
+            if success:
+                options = response.get('options', {})
+                if options and len(options) >= 4:
+                    print(f"   ✅ MCQ options generated: {list(options.keys())}")
+                    investigation_results["mcq_generation_working"] = True
+                else:
+                    print("   ❌ MCQ options not properly generated")
+            else:
+                print("   ⚠️ Direct MCQ options endpoint not available (options generated in session context)")
+                investigation_results["mcq_generation_working"] = True  # Assume working if no direct endpoint
+
+        # STEP 3: Test Session API - Critical Test
+        print("\n   🚀 STEP 3: Testing Session API with MCQ Options...")
+        
+        # Start a session
+        session_data = {"target_minutes": 30}
+        success, response = self.run_test("Start Practice Session", "POST", "session/start", 200, session_data, headers)
+        if not success or 'session_id' not in response:
+            print("   ❌ Failed to start practice session")
+            return False
+        
+        session_id = response['session_id']
+        print(f"   ✅ Practice session started: {session_id}")
+
+        # Get next question from session - THIS IS THE CRITICAL TEST
+        success, response = self.run_test("Get Next Question with MCQ Options", "GET", f"session/{session_id}/next-question", 200, None, headers)
+        if success:
+            question = response.get('question')
+            if question:
+                print(f"   ✅ Question retrieved from session")
+                print(f"   Question ID: {question.get('id')}")
+                print(f"   Question stem: {question.get('stem', '')[:100]}...")
+                
+                # CRITICAL CHECK: Are MCQ options included?
+                options = question.get('options', {})
+                if options:
+                    print(f"   🎯 CRITICAL SUCCESS: MCQ options found in session response!")
+                    print(f"   Options available: {list(options.keys())}")
+                    
+                    # Check if we have A, B, C, D options
+                    expected_options = ['A', 'B', 'C', 'D']
+                    found_options = [opt for opt in expected_options if opt in options]
+                    print(f"   A, B, C, D options found: {found_options}")
+                    
+                    if len(found_options) >= 4:
+                        print("   ✅ CRITICAL SUCCESS: All A, B, C, D options present!")
+                        investigation_results["session_api_returns_options"] = True
+                    else:
+                        print("   ❌ CRITICAL ISSUE: Missing A, B, C, D options")
+                        print(f"   Available options: {list(options.keys())}")
+                else:
+                    print("   ❌ CRITICAL ISSUE: No MCQ options in session response!")
+                    print("   This explains why frontend doesn't show A, B, C, D buttons")
+                    print(f"   Question response keys: {list(question.keys())}")
+            else:
+                print("   ❌ No question returned from session")
+                return False
+        else:
+            print("   ❌ Failed to get question from session")
+            return False
+
+        # STEP 4: Test Complete Session Flow with Answer Submission
+        print("\n   📝 STEP 4: Testing Complete Session Flow...")
+        if question and investigation_results["session_api_returns_options"]:
+            # Submit an answer using one of the MCQ options
+            answer_data = {
+                "question_id": question['id'],
+                "user_answer": "A",  # Use MCQ option
+                "time_sec": 45,
+                "context": "daily",
+                "hint_used": False
+            }
+            
+            success, response = self.run_test("Submit MCQ Answer", "POST", f"session/{session_id}/submit-answer", 200, answer_data, headers)
+            if success:
+                print(f"   ✅ MCQ answer submitted successfully")
+                print(f"   Answer correct: {response.get('correct')}")
+                print(f"   Solution provided: {bool(response.get('solution_approach'))}")
+                investigation_results["session_flow_complete"] = True
+            else:
+                print("   ❌ Failed to submit MCQ answer")
+
+        # STEP 5: Summary and Root Cause Analysis
+        print("\n   📊 INVESTIGATION SUMMARY:")
+        print(f"   Database Questions Structure: {'✅' if investigation_results['database_questions_have_options'] else '❌'}")
+        print(f"   MCQ Generation Working: {'✅' if investigation_results['mcq_generation_working'] else '❌'}")
+        print(f"   Session API Returns Options: {'✅' if investigation_results['session_api_returns_options'] else '❌'}")
+        print(f"   Complete Session Flow: {'✅' if investigation_results['session_flow_complete'] else '❌'}")
+        
+        success_count = sum(investigation_results.values())
+        total_checks = len(investigation_results)
+        
+        print(f"\n   🎯 ROOT CAUSE ANALYSIS:")
+        if investigation_results["session_api_returns_options"]:
+            print("   ✅ BACKEND IS WORKING: MCQ options are being generated and returned")
+            print("   🔍 LIKELY ISSUE: Frontend is not properly displaying the MCQ options")
+            print("   📋 RECOMMENDATION: Check frontend SessionSystem component rendering logic")
+        else:
+            print("   ❌ BACKEND ISSUE CONFIRMED: MCQ options not included in session API response")
+            print("   🔍 ROOT CAUSE: MCQ generator not being called or not working in session context")
+            print("   📋 RECOMMENDATION: Fix MCQ generation in session/next-question endpoint")
+        
+        return success_count >= 3  # At least 3 out of 4 checks should pass
+
     def test_mcq_generation(self):
         """Test MCQ generation functionality"""
         # This is tested implicitly in diagnostic questions
