@@ -584,6 +584,115 @@ Generate solutions in JSON format:
         
         return default_videos.get(subcategory, "https://youtube.com/watch?v=cat_prep_general")
     
+    async def enrich_question_completely(self, 
+                                    stem: str, 
+                                    image_url: str = None,
+                                    hint_category: str = None, 
+                                    hint_subcategory: str = None) -> Dict[str, Any]:
+        """
+        Complete auto-generation of all question fields from just the stem and optional image
+        This is the method called by background tasks for single question enrichment
+        """
+        try:
+            logger.info(f"Starting complete question enrichment for: {stem[:100]}...")
+            
+            # Step 1: Generate answer using LLM
+            answer = await self.generate_answer(stem, image_url)
+            logger.info(f"Generated answer: {answer}")
+            
+            # Step 2: Use the full enrichment pipeline
+            enrichment_result = await self.enrich_question(
+                stem=stem,
+                answer=answer,
+                source="Admin",
+                hint_category=hint_category,
+                hint_subcategory=hint_subcategory,
+                image_url=image_url
+            )
+            
+            # Return the complete enriched data
+            return {
+                "answer": answer,
+                "solution_approach": enrichment_result.get("solution_approach", ""),
+                "detailed_solution": enrichment_result.get("detailed_solution", ""),
+                "category": enrichment_result.get("category", hint_category or "Arithmetic"),
+                "subcategory": enrichment_result.get("subcategory", hint_subcategory or "Basic Math"),
+                "type_of_question": enrichment_result.get("type_of_question", "General"),
+                "difficulty_score": enrichment_result.get("difficulty_score", 0.5),
+                "difficulty_band": enrichment_result.get("difficulty_band", "Medium"),
+                "learning_impact": enrichment_result.get("learning_impact", 50.0),
+                "importance_index": enrichment_result.get("importance_index", 50.0),
+                "frequency_band": enrichment_result.get("frequency_band", "Medium"),
+                "tags": enrichment_result.get("tags", ["llm_generated"]),
+                "source": "LLM Generated"
+            }
+            
+        except Exception as e:
+            logger.error(f"Error in complete question enrichment: {e}")
+            # Return basic fallback data
+            return {
+                "answer": "Answer could not be generated",
+                "solution_approach": "Manual solution required",
+                "detailed_solution": "Detailed solution could not be generated",
+                "category": hint_category or "Arithmetic",
+                "subcategory": hint_subcategory or "Basic Math", 
+                "type_of_question": "General",
+                "difficulty_score": 0.5,
+                "difficulty_band": "Medium",
+                "learning_impact": 50.0,
+                "importance_index": 50.0,
+                "frequency_band": "Medium",
+                "tags": ["enrichment_failed", "manual_review_needed"],
+                "source": "LLM Generation Failed"
+            }
+    
+    async def generate_answer(self, stem: str, image_url: str = None) -> str:
+        """
+        Generate just the answer for a given question stem
+        """
+        try:
+            system_message = """You are an expert CAT quantitative aptitude problem solver. 
+Given a question, provide ONLY the final numerical answer or short answer.
+
+RULES:
+1. Provide ONLY the answer - no explanation, no working
+2. For numerical answers, provide just the number
+3. For multiple choice, provide just the letter (A, B, C, D)
+4. For word answers, keep it very brief (1-3 words max)
+5. If it's a speed problem, give answer in specified units (km/h, m/s, etc.)"""
+
+            chat = LlmChat(
+                api_key=self.llm_api_key,
+                session_id=f"answer_{uuid.uuid4()}",
+                system_message=system_message
+            ).with_model("claude", "claude-3-5-sonnet-20241022")
+
+            user_content = f"Question: {stem}"
+            if image_url:
+                user_content += f"\nImage: {image_url}"
+                
+            user_message = UserMessage(text=user_content)
+            response = await chat.send_message(user_message)
+            
+            # Clean up the response to just get the answer
+            answer = response.strip()
+            
+            # Remove common prefixes that might be added
+            prefixes_to_remove = [
+                "Answer:", "The answer is:", "Final answer:", 
+                "Solution:", "Result:", "Therefore,", "Hence,", "So,"
+            ]
+            
+            for prefix in prefixes_to_remove:
+                if answer.startswith(prefix):
+                    answer = answer[len(prefix):].strip()
+            
+            return answer[:50]  # Limit answer length
+            
+        except Exception as e:
+            logger.error(f"Error generating answer: {e}")
+            return "Answer generation failed"
+
     async def enrich_question(self, stem: str, answer: str, source: str = "Admin", 
                             hint_category: str = None, hint_subcategory: str = None,
                             pyq_data: Dict = None, curated_videos: Dict = None) -> Dict[str, Any]:
