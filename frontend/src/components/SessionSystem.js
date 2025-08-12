@@ -362,7 +362,7 @@ export const SessionSystem = ({ sessionId: propSessionId, onSessionEnd }) => {
                     alt={currentQuestion.image_alt_text || "Question diagram"}
                     className="max-w-full h-auto max-h-96 rounded-lg shadow-sm cursor-pointer hover:shadow-md transition-shadow"
                     onClick={() => setImageZoomed(true)}
-                    onError={() => setImageError(true)}
+                    onError={() => setImageLoadFailed(true)}
                   />
                 ) : (
                   <div className="bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
