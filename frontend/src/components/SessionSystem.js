@@ -254,6 +254,52 @@ export const SessionSystem = ({ sessionId: propSessionId, onSessionEnd }) => {
             {currentQuestion.stem}
           </h2>
 
+          {/* Question Image */}
+          {currentQuestion.has_image && currentQuestion.image_url && (
+            <div className="mb-6">
+              <div className="bg-gray-50 rounded-lg p-4 inline-block max-w-full">
+                <img 
+                  src={currentQuestion.image_url} 
+                  alt={currentQuestion.image_alt_text || "Question diagram"}
+                  className="max-w-full h-auto max-h-96 rounded-lg shadow-sm cursor-pointer hover:shadow-md transition-shadow"
+                  onClick={() => setImageZoomed(true)}
+                />
+                {currentQuestion.image_alt_text && (
+                  <p className="text-xs text-gray-500 mt-2 text-center italic">
+                    {currentQuestion.image_alt_text}
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Image Zoom Modal */}
+          {imageZoomed && (
+            <div 
+              className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4"
+              onClick={() => setImageZoomed(false)}
+            >
+              <div className="relative max-w-full max-h-full">
+                <img 
+                  src={currentQuestion.image_url} 
+                  alt={currentQuestion.image_alt_text || "Question diagram (enlarged)"}
+                  className="max-w-full max-h-full object-contain"
+                />
+                <button
+                  onClick={() => setImageZoomed(false)}
+                  className="absolute top-4 right-4 bg-black bg-opacity-50 text-white rounded-full w-10 h-10 flex items-center justify-center hover:bg-opacity-75 transition-opacity"
+                >
+                  ×
+                </button>
+                {currentQuestion.image_alt_text && (
+                  <div className="absolute bottom-4 left-4 right-4 bg-black bg-opacity-50 text-white text-sm p-2 rounded">
+                    {currentQuestion.image_alt_text}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* MCQ Options */}
           {currentQuestion.options && (
             <div className="space-y-3 mb-6">
