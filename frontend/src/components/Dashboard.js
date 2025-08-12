@@ -499,13 +499,10 @@ const AdminPanel = () => {
   const [uploading, setUploading] = useState(false);
   const [questionForm, setQuestionForm] = useState({
     stem: "",
-    answer: "",
-    solution_approach: "",
     detailed_solution: "",
     hint_category: "",
     hint_subcategory: "",
-    tags: [],
-    source: ""
+    tags: []
   });
 
 
