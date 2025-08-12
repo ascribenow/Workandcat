@@ -584,13 +584,10 @@ const AdminPanel = () => {
       setShowQuestionForm(false);
       setQuestionForm({
         stem: "",
-        answer: "",
-        solution_approach: "",
         detailed_solution: "",
         hint_category: "",
         hint_subcategory: "",
-        tags: [],
-        source: ""
+        tags: []
       });
     } catch (error) {
       alert('Error creating question: ' + (error.response?.data?.detail || 'Unknown error'));
