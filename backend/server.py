@@ -1387,6 +1387,79 @@ async def test_conceptual_frequency_analysis(
         logger.error(f"Error in conceptual frequency test: {e}")
         raise HTTPException(status_code=500, detail=f"Test failed: {str(e)}")
 
+@api_router.post("/admin/test/time-weighted-frequency")
+async def test_time_weighted_frequency_analysis(
+    current_user: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_database)
+):
+    """Test time-weighted frequency analysis (20-year data, 10-year relevance)"""
+    try:
+        from time_weighted_frequency_analyzer import TimeWeightedFrequencyAnalyzer, CAT_ANALYSIS_CONFIG
+        
+        # Initialize time-weighted analyzer
+        time_analyzer = TimeWeightedFrequencyAnalyzer(CAT_ANALYSIS_CONFIG)
+        
+        # Get sample temporal data for analysis
+        current_year = datetime.now().year
+        
+        # Create sample yearly occurrence data (simulating 20 years of PYQ data)
+        sample_yearly_occurrences = {
+            2024: 8, 2023: 6, 2022: 7, 2021: 5, 2020: 9,  # Last 5 years (high relevance)
+            2019: 4, 2018: 6, 2017: 8, 2016: 3, 2015: 5,  # Next 5 years (medium relevance) 
+            2014: 2, 2013: 4, 2012: 3, 2011: 2, 2010: 1,  # Older data (lower relevance)
+            2009: 2, 2008: 1, 2007: 1, 2006: 0, 2005: 1   # Very old data (minimal relevance)
+        }
+        
+        sample_total_pyq_per_year = {year: 100 for year in sample_yearly_occurrences.keys()}  # Assume 100 questions per year
+        
+        # Run time-weighted analysis
+        temporal_pattern = time_analyzer.create_temporal_pattern(
+            concept_id="Time-Speed-Distance_Basic_Speed_Calculation",
+            yearly_occurrences=sample_yearly_occurrences,
+            total_pyq_count_per_year=sample_total_pyq_per_year
+        )
+        
+        # Generate insights
+        insights = time_analyzer.generate_frequency_insights(temporal_pattern)
+        
+        # Calculate different frequency metrics
+        frequency_metrics = time_analyzer.calculate_time_weighted_frequency(
+            sample_yearly_occurrences, sample_total_pyq_per_year
+        )
+        
+        return {
+            "message": "Time-weighted frequency analysis test completed",
+            "config": {
+                "total_data_years": CAT_ANALYSIS_CONFIG.total_data_years,
+                "relevance_window_years": CAT_ANALYSIS_CONFIG.relevance_window_years,
+                "decay_rate": CAT_ANALYSIS_CONFIG.decay_rate
+            },
+            "sample_data": {
+                "yearly_occurrences": sample_yearly_occurrences,
+                "data_span": f"{min(sample_yearly_occurrences.keys())}-{max(sample_yearly_occurrences.keys())}"
+            },
+            "temporal_pattern": {
+                "concept_id": temporal_pattern.concept_id,
+                "total_occurrences": temporal_pattern.total_occurrences,
+                "relevance_window_occurrences": temporal_pattern.relevance_window_occurrences,
+                "weighted_frequency_score": temporal_pattern.weighted_frequency_score,
+                "trend_direction": temporal_pattern.trend_direction,
+                "trend_strength": temporal_pattern.trend_strength,
+                "recency_score": temporal_pattern.recency_score
+            },
+            "frequency_metrics": frequency_metrics,
+            "insights": insights,
+            "explanation": {
+                "approach": "Uses 20 years of PYQ data but emphasizes last 10 years for relevance scoring",
+                "weighting": "Recent years get exponentially higher weights in frequency calculation",
+                "trend_analysis": "Detects if topic frequency is increasing, stable, or decreasing over time"
+            }
+        }
+        
+    except Exception as e:
+        logger.error(f"Error in time-weighted frequency test: {e}")
+        raise HTTPException(status_code=500, detail=f"Test failed: {str(e)}")
+
 @api_router.post("/admin/run-enhanced-nightly") 
 async def run_enhanced_nightly_processing(
     current_user: User = Depends(require_admin)
