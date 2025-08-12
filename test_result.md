@@ -574,8 +574,10 @@ test_plan:
     - "EWMA mastery calculations optimization with α=0.6"
     - "Category progress tracking enhancement for canonical taxonomy display"
     - "Enhanced Nightly Engine Integration completion after schema fix"
+    - "Google Drive Image Integration for CSV bulk uploads"
   stuck_tasks:
     - "Enhanced Nightly Engine Integration - blocked by database schema constraint"
+    - "Google Drive Image Integration - blocked by database schema constraint and CSV upload issues"
   test_all: false
   test_priority: "database_schema_constraint_resolution"
 
