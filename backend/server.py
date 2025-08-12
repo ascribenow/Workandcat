@@ -1130,6 +1130,19 @@ async def upload_questions_csv(
         # Start background enrichment for all created questions
         logger.info("Starting background LLM enrichment for all uploaded questions...")
         
+        # Get all questions created in this batch for enrichment
+        recent_questions = await db.execute(
+            select(Question).where(
+                Question.source == "CSV Upload - Simplified Format",
+                Question.is_active == False  # Only unprocessed questions
+            ).order_by(desc(Question.created_at)).limit(len(processed_rows))
+        )
+        
+        # Queue background enrichment tasks
+        for question in recent_questions.scalars():
+            # Use asyncio to run background enrichment (in production, use Celery or similar)
+            asyncio.create_task(enrich_question_background(str(question.id)))
+        
         logger.info(f"Simplified CSV upload completed: {questions_created} questions created, {images_processed} with images")
         
         return {
