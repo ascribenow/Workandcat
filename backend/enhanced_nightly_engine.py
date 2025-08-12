@@ -30,7 +30,7 @@ class EnhancedNightlyEngine:
     Production-ready nightly processing engine implementing all feedback requirements
     """
     
-    def __init__(self):
+    def __init__(self, llm_pipeline=None):
         self.ewma_alpha = 0.6  # v1.3 specification
         self.frequency_window_years = 10  # PYQ rolling window
         self.plan_guardrails = {
@@ -40,6 +40,14 @@ class EnhancedNightlyEngine:
             "retry_quota_per_day": 5,
             "hard_questions_max_pct": 0.3
         }
+        
+        # Initialize conceptual frequency analyzer
+        if llm_pipeline:
+            self.frequency_analyzer = ConceptualFrequencyAnalyzer(llm_pipeline)
+            logger.info("✅ Conceptual Frequency Analyzer initialized with LLM")
+        else:
+            self.frequency_analyzer = None
+            logger.warning("⚠️  No LLM provided - falling back to simple frequency calculation")
     
     async def run_nightly_processing(self, target_date: datetime = None) -> Dict:
         """
