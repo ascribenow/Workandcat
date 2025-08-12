@@ -6,14 +6,22 @@ Adds new columns to support LLM-powered conceptual frequency analysis
 
 import asyncio
 import os
+from pathlib import Path
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy import text
 import logging
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv(Path(__file__).parent.parent / "backend" / ".env")
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    raise ValueError("DATABASE_URL environment variable not found")
+
 ASYNC_DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://")
 
 async def migrate_conceptual_frequency_schema():
