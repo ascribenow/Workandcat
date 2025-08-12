@@ -72,6 +72,19 @@ class LLMEnrichmentPipeline:
         """Generate hash for deduplication/versioning"""
         combined = f"{stem}_{source}"
         return hashlib.sha256(combined.encode()).hexdigest()
+    
+    async def analyze_text(self, prompt: str) -> str:
+        """
+        Generic LLM text analysis method for conceptual frequency analysis
+        """
+        try:
+            llm = LlmChat(api_key=self.llm_api_key)
+            messages = [UserMessage(content=prompt)]
+            response = await llm.achat(messages=messages, model="claude-3-5-sonnet-20241022")
+            return response.message.content
+        except Exception as e:
+            logger.error(f"Error in LLM analyze_text: {e}")
+            return "{}"  # Return empty JSON on error
         
     async def complete_auto_generation(self, stem: str, hint_category: str = None, hint_subcategory: str = None) -> Dict[str, Any]:
         """
