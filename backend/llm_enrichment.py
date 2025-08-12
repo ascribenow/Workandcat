@@ -591,49 +591,63 @@ Generate solutions in JSON format:
                                     hint_subcategory: str = None) -> Dict[str, Any]:
         """
         Complete auto-generation of all question fields from just the stem and optional image
-        This is the method called by background tasks for single question enrichment
+        Uses LLM if available, fallback pattern recognition if LLM fails
         """
         try:
             logger.info(f"Starting complete question enrichment for: {stem[:100]}...")
             
-            # Step 1: Generate answer using LLM
-            answer = await self.generate_answer(stem, image_url)
-            logger.info(f"Generated answer: {answer}")
-            
-            # Step 2: Use the full enrichment pipeline
-            enrichment_result = await self.enrich_question(
-                stem=stem,
-                answer=answer,
-                source="Admin",
-                hint_category=hint_category,
-                hint_subcategory=hint_subcategory,
-                image_url=image_url
-            )
-            
-            # Return the complete enriched data
-            return {
-                "answer": answer,
-                "solution_approach": enrichment_result.get("solution_approach", ""),
-                "detailed_solution": enrichment_result.get("detailed_solution", ""),
-                "category": enrichment_result.get("category", hint_category or "Arithmetic"),
-                "subcategory": enrichment_result.get("subcategory", hint_subcategory or "Basic Math"),
-                "type_of_question": enrichment_result.get("type_of_question", "General"),
-                "difficulty_score": enrichment_result.get("difficulty_score", 0.5),
-                "difficulty_band": enrichment_result.get("difficulty_band", "Medium"),
-                "learning_impact": enrichment_result.get("learning_impact", 50.0),
-                "importance_index": enrichment_result.get("importance_index", 50.0),
-                "frequency_band": enrichment_result.get("frequency_band", "Medium"),
-                "tags": enrichment_result.get("tags", ["llm_generated"]),
-                "source": "LLM Generated"
-            }
+            # First try LLM-based enrichment
+            try:
+                # Step 1: Generate answer using LLM
+                answer = await self.generate_answer(stem, image_url)
+                logger.info(f"Generated answer: {answer}")
+                
+                # Step 2: Use the full enrichment pipeline
+                enrichment_result = await self.enrich_question(
+                    stem=stem,
+                    answer=answer,
+                    source="Admin",
+                    hint_category=hint_category,
+                    hint_subcategory=hint_subcategory,
+                    image_url=image_url
+                )
+                
+                # Return the complete enriched data
+                return {
+                    "answer": answer,
+                    "solution_approach": enrichment_result.get("solution_approach", ""),
+                    "detailed_solution": enrichment_result.get("detailed_solution", ""),
+                    "category": enrichment_result.get("category", hint_category or "Arithmetic"),
+                    "subcategory": enrichment_result.get("subcategory", hint_subcategory or "Basic Math"),
+                    "type_of_question": enrichment_result.get("type_of_question", "General"),
+                    "difficulty_score": enrichment_result.get("difficulty_score", 0.5),
+                    "difficulty_band": enrichment_result.get("difficulty_band", "Medium"),
+                    "learning_impact": enrichment_result.get("learning_impact", 50.0),
+                    "importance_index": enrichment_result.get("importance_index", 50.0),
+                    "frequency_band": enrichment_result.get("frequency_band", "Medium"),
+                    "tags": enrichment_result.get("tags", ["llm_generated"]),
+                    "source": "LLM Generated"
+                }
+                
+            except Exception as llm_error:
+                logger.warning(f"LLM enrichment failed, using fallback: {llm_error}")
+                
+                # Import and use fallback enricher
+                from fallback_enricher import FallbackEnricher
+                
+                fallback_enricher = FallbackEnricher()
+                fallback_result = fallback_enricher.enrich_question(stem)
+                
+                logger.info(f"✅ Fallback enrichment successful: {fallback_result['answer']}")
+                return fallback_result
             
         except Exception as e:
-            logger.error(f"Error in complete question enrichment: {e}")
-            # Return basic fallback data
+            logger.error(f"Complete enrichment failed (both LLM and fallback): {e}")
+            # Last resort fallback data
             return {
-                "answer": "Answer could not be generated",
+                "answer": "Unable to generate",
                 "solution_approach": "Manual solution required",
-                "detailed_solution": "Detailed solution could not be generated",
+                "detailed_solution": "Please solve manually or contact support",
                 "category": hint_category or "Arithmetic",
                 "subcategory": hint_subcategory or "Basic Math", 
                 "type_of_question": "General",
@@ -643,7 +657,7 @@ Generate solutions in JSON format:
                 "importance_index": 50.0,
                 "frequency_band": "Medium",
                 "tags": ["enrichment_failed", "manual_review_needed"],
-                "source": "LLM Generation Failed"
+                "source": "Fallback Generation Failed"
             }
     
     async def generate_answer(self, stem: str, image_url: str = None) -> str:
