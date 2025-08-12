@@ -5,7 +5,7 @@ from datetime import datetime
 import time
 
 class CATBackendTester:
-    def __init__(self, base_url="https://prepgenius.preview.emergentagent.com/api"):
+    def __init__(self, base_url="https://0e5c3b36-1fe7-4c37-a353-4fcd0baed094.preview.emergentagent.com/api"):
         self.base_url = base_url
         self.student_user = None
         self.admin_user = None
