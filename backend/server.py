@@ -24,6 +24,7 @@ import shutil
 import mimetypes
 from docx import Document
 import io
+from google_drive_utils import GoogleDriveImageFetcher
 
 # Import our modules
 from database import (
