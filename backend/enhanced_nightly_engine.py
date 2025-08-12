@@ -664,6 +664,208 @@ class EnhancedNightlyEngine:
             logger.error(f"Error in fallback frequency calculation: {e}")
             return []
     
+    async def _get_temporal_data_for_subcategory(self, db: AsyncSession, subcategory: str) -> Dict:
+        """
+        Get yearly occurrence data for a subcategory from PYQ database
+        """
+        try:
+            current_year = datetime.now().year
+            start_year = current_year - self.total_data_years
+            
+            # Query to get yearly occurrences for this subcategory
+            temporal_query = text("""
+                SELECT 
+                    EXTRACT(YEAR FROM pyq.created_at) as year,
+                    COUNT(pyq.id) as occurrences,
+                    (SELECT COUNT(*) 
+                     FROM pyq_questions p2 
+                     WHERE EXTRACT(YEAR FROM p2.created_at) = EXTRACT(YEAR FROM pyq.created_at)
+                    ) as total_pyq_that_year
+                FROM pyq_questions pyq
+                WHERE pyq.subcategory = :subcategory
+                    AND pyq.created_at >= :start_date
+                GROUP BY EXTRACT(YEAR FROM pyq.created_at)
+                ORDER BY year
+            """)
+            
+            start_date = datetime(start_year, 1, 1)
+            result = await db.execute(temporal_query, {
+                "subcategory": subcategory,
+                "start_date": start_date
+            })
+            
+            yearly_occurrences = {}
+            total_pyq_per_year = {}
+            
+            for row in result.fetchall():
+                year = int(row.year)
+                yearly_occurrences[year] = row.occurrences
+                total_pyq_per_year[year] = row.total_pyq_that_year
+            
+            # Fill in missing years with zero occurrences
+            for year in range(start_year, current_year + 1):
+                if year not in yearly_occurrences:
+                    yearly_occurrences[year] = 0
+                if year not in total_pyq_per_year:
+                    total_pyq_per_year[year] = 1  # Avoid division by zero
+            
+            return {
+                "yearly_occurrences": yearly_occurrences,
+                "total_pyq_per_year": total_pyq_per_year
+            }
+            
+        except Exception as e:
+            logger.error(f"Error getting temporal data for {subcategory}: {e}")
+            return {
+                "yearly_occurrences": {},
+                "total_pyq_per_year": {}
+            }
+    
+    def _combine_conceptual_and_temporal_scores(self, 
+                                               conceptual_score: float,
+                                               temporal_pattern: TemporalPattern) -> float:
+        """
+        Combine conceptual similarity score with time-weighted temporal analysis
+        
+        Weighting:
+        - 60% Time-weighted frequency (emphasizes last 10 years)
+        - 25% Conceptual similarity (LLM-based pattern matching)
+        - 15% Trend and recency factors
+        """
+        try:
+            # Base time-weighted score (primary factor)
+            time_weighted_score = temporal_pattern.weighted_frequency_score
+            
+            # Trend adjustment factor
+            trend_adjustment = 1.0
+            if temporal_pattern.trend_direction == "increasing":
+                trend_adjustment = 1.0 + (0.2 * temporal_pattern.trend_strength)
+            elif temporal_pattern.trend_direction == "decreasing":
+                trend_adjustment = 1.0 - (0.1 * temporal_pattern.trend_strength)
+            elif temporal_pattern.trend_direction == "emerging":
+                trend_adjustment = 1.3  # Boost emerging topics
+            elif temporal_pattern.trend_direction == "declining":
+                trend_adjustment = 0.8  # Reduce declining topics
+            
+            # Recency boost
+            recency_factor = 1.0 + (0.1 * temporal_pattern.recency_score)
+            
+            # Combined final score
+            final_score = (
+                0.60 * time_weighted_score * trend_adjustment +  # Time-weighted with trend
+                0.25 * conceptual_score +                        # LLM conceptual matching
+                0.15 * temporal_pattern.recency_score            # Recency factor
+            ) * recency_factor
+            
+            # Cap the final score
+            return min(1.0, max(0.0, final_score))
+            
+        except Exception as e:
+            logger.error(f"Error combining scores: {e}")
+            return max(conceptual_score, temporal_pattern.weighted_frequency_score) * 0.5
+    
+    async def _time_weighted_frequency_calculation(self, db: AsyncSession) -> List[Dict]:
+        """
+        Time-weighted frequency calculation without LLM conceptual analysis
+        Uses 20-year data with 10-year relevance weighting
+        """
+        try:
+            logger.info("🔄 Using time-weighted frequency calculation (no LLM conceptual analysis)")
+            frequency_updates = []
+            
+            current_year = datetime.now().year
+            start_year = current_year - self.total_data_years
+            
+            # Get all subcategories and their temporal patterns
+            temporal_query = text("""
+                SELECT 
+                    q.subcategory,
+                    q.type_of_question,
+                    EXTRACT(YEAR FROM pyq.created_at) as year,
+                    COUNT(pyq.id) as occurrences,
+                    (SELECT COUNT(*) 
+                     FROM pyq_questions p2 
+                     WHERE EXTRACT(YEAR FROM p2.created_at) = EXTRACT(YEAR FROM pyq.created_at)
+                    ) as total_pyq_that_year
+                FROM questions q
+                LEFT JOIN pyq_questions pyq ON q.subcategory = pyq.subcategory
+                    AND pyq.created_at >= :start_date
+                WHERE q.is_active = true
+                GROUP BY q.subcategory, q.type_of_question, EXTRACT(YEAR FROM pyq.created_at)
+                ORDER BY q.subcategory, year
+            """)
+            
+            start_date = datetime(start_year, 1, 1)
+            result = await db.execute(temporal_query, {"start_date": start_date})
+            
+            # Process temporal data by subcategory
+            subcategory_data = {}
+            for row in result.fetchall():
+                key = f"{row.subcategory}_{row.type_of_question or 'general'}"
+                if key not in subcategory_data:
+                    subcategory_data[key] = {"yearly_occurrences": {}, "total_pyq_per_year": {}}
+                
+                if row.year:
+                    year = int(row.year)
+                    subcategory_data[key]["yearly_occurrences"][year] = row.occurrences or 0
+                    subcategory_data[key]["total_pyq_per_year"][year] = row.total_pyq_that_year or 1
+            
+            # Analyze each subcategory with time weighting
+            for key, temporal_data in subcategory_data.items():
+                if not temporal_data["yearly_occurrences"]:
+                    continue
+                
+                # Create temporal pattern
+                temporal_pattern = self.time_weighted_analyzer.create_temporal_pattern(
+                    concept_id=key,
+                    yearly_occurrences=temporal_data["yearly_occurrences"],
+                    total_pyq_count_per_year=temporal_data["total_pyq_per_year"]
+                )
+                
+                # Generate insights
+                insights = self.time_weighted_analyzer.generate_frequency_insights(temporal_pattern)
+                
+                # Update all questions in this subcategory
+                subcategory = key.split('_')[0]
+                await db.execute(
+                    text("""
+                        UPDATE questions 
+                        SET frequency_score = :freq_score,
+                            pyq_occurrences_last_10_years = :relevance_occurrences,
+                            total_pyq_count = :total_occurrences,
+                            frequency_analysis_method = 'time_weighted_temporal',
+                            frequency_last_updated = NOW()
+                        WHERE subcategory = :subcategory AND is_active = true
+                    """),
+                    {
+                        "freq_score": temporal_pattern.weighted_frequency_score,
+                        "relevance_occurrences": temporal_pattern.relevance_window_occurrences,
+                        "total_occurrences": temporal_pattern.total_occurrences,
+                        "subcategory": subcategory
+                    }
+                )
+                
+                frequency_updates.append({
+                    "subcategory": subcategory,
+                    "frequency_score": temporal_pattern.weighted_frequency_score,
+                    "temporal_pattern": {
+                        "trend": temporal_pattern.trend_direction,
+                        "trend_strength": temporal_pattern.trend_strength,
+                        "recency_score": temporal_pattern.recency_score,
+                        "total_occurrences": temporal_pattern.total_occurrences,
+                        "relevance_window_occurrences": temporal_pattern.relevance_window_occurrences
+                    },
+                    "insights": insights,
+                    "analysis_method": "time_weighted_temporal"
+                })
+            
+            await db.flush()
+            return frequency_updates
+            
+        except Exception as e:
+            logger.error(f"Error in time-weighted frequency calculation: {e}")
+            return []
+    
     async def recompute_difficulty_deterministic(self, db: AsyncSession, 
                                                attempts_data: List[Dict]) -> List[Dict]:
         """
