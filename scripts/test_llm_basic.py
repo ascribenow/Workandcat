@@ -39,7 +39,8 @@ async def test_llm_basic():
         
         chat = LlmChat(
             api_key=llm_api_key,
-            session_id="test_session"
+            session_id="test_session",
+            system_message="You are a helpful math tutor."
         ).with_model("claude", "claude-3-5-sonnet-20241022")
         
         user_message = UserMessage(text="What is 200 divided by 4?")
