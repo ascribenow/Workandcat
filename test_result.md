@@ -581,21 +581,19 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Single Question Creation Fix - COMPLETED ✅"
-    - "Enhanced Time-Weighted Conceptual Frequency Analysis System - database schema updates critical"
-    - "Database schema updates for frequency analysis fields (frequency_score, pyq_conceptual_matches, etc.)"
-    - "Complete canonical taxonomy implementation with all 5 categories and 29 subcategories"
-    - "EWMA mastery calculations optimization with α=0.6"
-    - "Category progress tracking enhancement for canonical taxonomy display"
-    - "Enhanced Nightly Engine Integration completion after schema fix"
-    - "Google Drive Image Integration for CSV bulk uploads"
+    - "LLM Enrichment Pipeline - CRITICAL FAILURE: Fallback system not implemented"
+    - "Question creation failing due to LLM API connectivity issues"
+    - "Background enrichment jobs queued but never executing"
+    - "Immediate enrichment endpoint returning HTTP 500 errors"
+    - "Mathematical pattern recognition fallback system needs implementation"
   stuck_tasks:
+    - "LLM Enrichment Pipeline - stuck_count: 5, LLM API connectivity failure blocking all content generation"
     - "Enhanced Time-Weighted Conceptual Frequency Analysis System - database schema missing ALL frequency analysis fields"
     - "Conceptual Frequency Analysis endpoint - blocked by missing database columns"
     - "Enhanced Nightly Engine Integration - blocked by database schema constraint"
     - "Google Drive Image Integration - blocked by database schema constraint and CSV upload issues"
   test_all: false
-  test_priority: "single_question_creation_fix_completed"
+  test_priority: "llm_enrichment_fallback_system_critical"
 
   - task: "Enhanced Conceptual Frequency Analysis System"
     implemented: true
