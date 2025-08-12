@@ -22,7 +22,9 @@ export const SessionSystem = ({ sessionId: propSessionId, onSessionEnd }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [imageZoomed, setImageZoomed] = useState(false);
-  const [imageError, setImageError] = useState(false);
+  const [imageLoading, setImageLoading] = useState(false);
+  const [imageLoadFailed, setImageLoadFailed] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
   const timerRef = useRef(null);
 
   useEffect(() => {
