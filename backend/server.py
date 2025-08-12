@@ -1072,6 +1072,12 @@ async def upload_questions_csv(
             image_url = row.get('image_url', '').strip() if row.get('image_url') else None
             image_alt_text = row.get('image_alt_text', '').strip() if row.get('image_alt_text') else None
             
+            # Auto-set has_image based on successful image download
+            if image_url and image_url.startswith('/uploads/images/'):
+                has_image = True  # Image was successfully downloaded and stored locally
+            else:
+                has_image = False  # No image or download failed
+            
             if not stem:
                 logger.warning(f"Row {i+1}: Skipping - missing question stem")
                 continue  # Skip rows without stem
