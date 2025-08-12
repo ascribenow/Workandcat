@@ -1,17 +1,17 @@
 <analysis>
-The previous AI engineer successfully migrated a CAT preparation MVP from MongoDB/FastAPI/React to a PostgreSQL-based production system. This involved extensive backend re-engineering, including SQLAlchemy integration for 15+ tables and the implementation of core AI modules for question enrichment, study planning, and mastery tracking. Initial work focused on fixing critical integration issues and bugs related to diagnostic systems and formula integration, and explicitly removing diagnostic functionality per user request. Subsequently, the engineer addressed a comprehensive feedback document, implementing new formulas, enhancing the database schema, refining core business logic (e.g., attempt spacing, mastery thresholds), and adding a much-needed interactive student session and detailed progress dashboard. The latest work involves a deep dive into refining the nightly processing engine based on new user feedback, specifically updating the deterministic difficulty formula and setting up an enhanced background job engine.
+The previous AI engineer successfully migrated the CAT preparation platform from a MongoDB/FastAPI/React MVP to a PostgreSQL-based production system. Initial efforts involved backend re-engineering, SQLAlchemy integration, and fixing critical bugs, explicitly removing diagnostic functionality. Subsequent work addressed comprehensive feedback, including new formulas, schema enhancements, core business logic refinements, and the addition of interactive student sessions and a detailed progress dashboard. Significant recent tasks focused on refining the nightly processing engine, updating the deterministic difficulty formula, and establishing an enhanced background job engine. The engineer then implemented comprehensive image support, transitioning from local file uploads to Google Drive link integration for bulk CSV uploads, with LLM auto-enrichment of questions. Most recently, the engineer addressed and resolved various UI issues, including the interactive student session and ensured all buttons were functional, though a critical bug remains where the Add Question form in the admin panel is not opening.
 </analysis>
 
 <product_requirements>
-The application is a comprehensive CAT Quantitative Aptitude preparation platform designed for personalized and adaptive learning. Initially an MVP, it transitioned to a PostgreSQL/FastAPI/React stack. Key features include: a PostgreSQL backend with 15+ tables, AI-powered question scoring using a 4-factor difficulty formula and LLM enrichment. An adaptive study planning system offers three tracks, rolling units, and daily minimums without manual student selection. Attempt management limits questions to 3 tries with retry intervals. Nightly background jobs update learning impact and mastery. MCQ generation is real-time with distractors. Authentication uses JWT, with hardcoded admin access. The UI is minimalistic for students (Dashboard, Study Plan, Practice) and streamlined for admin (PYQ/Question Upload, Export), supporting .docx, .doc, and .pdf. A canonical QA taxonomy categorizes content into 5 main categories and 29 subcategories. Initially, a 25-question diagnostic test was a core feature for new users, but this functionality was explicitly removed per user request. The system also includes detailed progress tracking by category, subcategory, and question type, including questions solved by difficulty level.
+The CAT Quantitative Aptitude preparation platform is designed for personalized and adaptive learning, transitioning from an MVP to a robust PostgreSQL/FastAPI/React stack. Core features include a PostgreSQL backend with 15+ tables, AI-powered question scoring (4-factor difficulty, LLM enrichment), and an adaptive study planning system offering three tracks with rolling units and daily minimums. The system limits question attempts to three with retry intervals, and nightly background jobs update learning impact and mastery. MCQ generation is real-time with distractors. Authentication uses JWT with hardcoded admin access. The UI is streamlined for students (Dashboard, Study Plan, Practice) and admins (PYQ/Question Upload, Export for .docx, .doc, .pdf). A canonical QA taxonomy categorizes content into 5 main categories and 29 subcategories. Initially, a 25-question diagnostic test was present but explicitly removed. Detailed progress tracking by category, subcategory, and question type is included. Recent additions include comprehensive image support via Google Drive links for bulk CSV uploads, with LLM auto-generation of question details, and a strict policy against serving image-based questions without working images.
 </product_requirements>
 
 <key_technical_concepts>
 -   **Full-stack:** React.js (frontend), FastAPI (backend).
--   **Database:** PostgreSQL with SQLAlchemy ORM (migrated from MongoDB).
+-   **Database:** PostgreSQL with SQLAlchemy ORM.
 -   **Authentication:** JWT for API access.
 -   **AI/LLM:** Universal Emergent LLM Key for question analysis, scoring, and enrichment.
--   **Containerization:** Kubernetes, Supervisor for process management.
+-   **Containerization:** Kubernetes, Supervisor.
 -   **Background Jobs:** APScheduler for nightly tasks.
 -   **Learning Algorithms:** EWMA for mastery, spaced repetition, adaptive question selection.
 </key_technical_concepts>
@@ -21,59 +21,61 @@ The application follows a standard full-stack architecture.
 
 
 
--   : Main FastAPI application.
-    -   **Importance:** Central API hub.
-    -   **Changes:** Heavily refactored: diagnostic logic/endpoints removed;  setup; fixed ; integrated background jobs; enhanced ; added  endpoint for detailed analytics; updated PYQ upload path ( to ).
+-   : Main FastAPI application, central API hub.
+    -   **Changes:** Diagnostic logic removed; CORSMiddleware setup; fixed startup_event; integrated background jobs; enhanced ; added ; updated PYQ upload path. Recently, it was updated to include image upload endpoints (, ) with static file serving, handle new image fields in question creation/retrieval, process Google Drive URLs for CSV uploads, and include  endpoint. Fixed async context manager issues for background tasks.
 -   : SQLAlchemy models and PostgreSQL connection.
-    -   **Importance:** Defines the entire PostgreSQL schema.
-    -   **Changes:** Defined 15+ models; added  and  to ;  and  have ;  replaced  with  (though diagnostic was later removed). Added  and  models.
+    -   **Changes:** Defined 15+ models; added  and  to ;  and  have ;  replaced  with  (later removed). Added  and  models. Most recently,  (boolean),  (string), and  (string) fields were added to the  model.  and  columns were updated to  and  respectively for canonical taxonomy support.
 -   : Centralizes computational formulas.
-    -   **Importance:** Core logic for difficulty, mastery, etc.
-    -   **Changes:** Created to encapsulate 10+ formulas; EWMA alpha updated from 0.3 to 0.6; new formulas for , ,  added;  replaced with .
+    -   **Changes:** Created to encapsulate 10+ formulas; EWMA alpha updated; new , ,  added;  replaced with .
 -   : EWMA-based mastery tracking.
-    -   **Importance:** Tracks student mastery.
-    -   **Changes:** Updated to use EWMA alpha 0.6 and new preparedness ambition formulas; added mastery threshold categorization (, , ).
+    -   **Changes:** Updated to use EWMA alpha 0.6 and new preparedness ambition formulas; added mastery threshold categorization.
 -   : Real-time MCQ option generation.
-    -   **Importance:** Provides answer choices.
     -   **Changes:** Enhanced with shuffle logic for options and randomized correct answer position.
 -   : **NEW** file.
     -   **Importance:** Manages adaptive question selection based on EWMA mastery.
-    -   **Changes:** Created to ensure sessions are optimally challenging rather than random.
+    -   **Changes:** Created for optimal session challenge.
 -   : **NEW** file.
     -   **Importance:** Implements spaced review logic.
-    -   **Changes:** Created to enforce repeat until mastery and 48-hour retry rules.
+    -   **Changes:** Created for repeat until mastery and 48-hour retry rules.
 -   : **NEW** file.
     -   **Importance:** Comprehensive nightly processing engine.
-    -   **Changes:** Created to address critical gaps in background processing, including updated difficulty formulas and plan adjustments.
+    -   **Changes:** Created to address critical gaps in background processing, including updated difficulty formulas and plan adjustments. Integrated into .
+-   : **NEW** file.
+    -   **Importance:** Utility to handle Google Drive links for image fetching.
+    -   **Changes:** Created to convert Google Drive share links to direct download URLs for image ingestion.
+-   :
+    -   **Changes:** Added a new method  for comprehensive auto-generation of all missing question fields by the LLM (answer, category, subcategory, solution, difficulty, etc.) based on just the stem and image URL.
+-   :
+    -   **Changes:** Updated question selection logic to include a fallback mechanism to ensure questions are always returned and to exclude questions marked with broken_image tags.
 -   : Main React component.
-    -   **Importance:** Handles routing and authentication.
-    -   **Changes:** Heavily modified for new auth, / rendering; diagnostic references removed.
+    -   **Changes:** Modified for new auth, / rendering; diagnostic references removed.
 -   : User dashboard/admin functions.
-    -   **Importance:** Displays progress and admin tools.
-    -   **Changes:** Redesigned for student progress; admin section refined for PYQ/Question Upload/Export; detailed progress table added with category/subcategory/difficulty breakdown; Session navigation button added; diagnostic references removed.
+    -   **Changes:** Redesigned for student progress; admin section refined for PYQ/Question Upload/Export; detailed progress table added; Session button added; diagnostic references removed. The All Questions section was removed from the admin panel. Single question upload form updated to remove answer, source, solution approach fields, replaced drag-drop image upload with URL input, added live preview, and enabled publish blocking for broken images. CSV upload section updated to reflect simplified format and Google Drive support.
 -   : Student session interface.
-    -   **Importance:** Core MCQ practice interface.
-    -   **Changes:** Existing file refined to provide full MCQ interface, timer, progress tracking, answer submission, feedback, and question metadata display.
--   : Study plan logic.
-    -   **Importance:** Manages student study plans.
-    -   **Changes:** Diagnostic references removed.
+    -   **Changes:** Refined for full MCQ interface, timer, progress tracking, answer submission, feedback, and question metadata. Added image display with zoom functionality, pre-loading logic, retry mechanism, and question blocking (no fallback display).
 -   : **NEW** script.
     -   **Importance:** Sets up PostgreSQL schema.
-    -   **Changes:** Created and used to initialize the database after PostgreSQL installation.
+    -   **Changes:** Created and used to initialize the database.
 -   : **NEW** script.
     -   **Importance:** Applies specific fixes for formula calculations.
     -   **Changes:** Created and executed to achieve 64% formula integration.
 -   : **NEW** script.
     -   **Importance:** Automates removal of diagnostic code.
-    -   **Changes:** Created to systematically remove diagnostic-related imports, endpoints, and logic from the backend.
+    -   **Changes:** Created to systematically remove diagnostic-related imports, endpoints, and logic.
 -   : **NEW** script.
     -   **Importance:** Alters database schema to V1.3.
-    -   **Changes:** Created to add , , , , and  tables/columns. Fixed to handle UUID extension and multi-command SQL.
+    -   **Changes:** Created to add , , , , and  tables/columns. Fixed UUID extension and multi-command SQL.
+-   : **NEW** script.
+    -   **Importance:** Fixes database schema VARCHAR constraints for  and .
+    -   **Changes:** Created and modified to use direct  commands to extend string lengths to support canonical taxonomy.
+-   : **NEW** script.
+    -   **Importance:** Adds image-related columns to the  table.
+    -   **Changes:** Created to add , , .
 -   : **NEW** file.
     -   **Importance:** Comprehensive technical summary.
     -   **Changes:** Created to detail architecture, schema, formulas, and project status.
 -   : **NEW** file.
-    -   **Importance:** HTML version of the review document for easier access.
+    -   **Importance:** HTML version of the review document.
     -   **Changes:** Created based on the markdown document.
 -   : **NEW** file.
     -   **Importance:** Explains session storage and nightly update mechanism.
@@ -81,21 +83,17 @@ The application follows a standard full-stack architecture.
 </code_architecture>
 
 <pending_tasks>
--   Integrate the  into the existing  to utilize the new nightly processing logic.
--   Run end-to-end tests for all canonical categories/subcategories to confirm accurate mapping and mastery updates following the recent fixes.
+-   Fix the Add Question button not opening the single question upload form in the Admin Panel.
 </pending_tasks>
 
 <current_work>
-Immediately prior to this summary request, the AI engineer was focused on addressing a new set of feedback related to refining the **nightly update logic**. This feedback highlighted that while current data capture, EWMA mastery, plan regeneration, and difficulty recomputation were functioning, 8 critical gaps needed to be addressed in the nightly processing system.
+Immediately prior to this summary request, the AI engineer was addressing a user-reported critical issue: the Add Question button in the admin panel's single question upload section was not working. The user explicitly stated, There is no box to enter the text of the question and no box for the image URL input....
 
-The work currently in progress involves:
-1.  **Deterministic Difficulty Formula Update**: The  function in  has been replaced with a more deterministic  function. This change ensures a precise and consistent calculation of question difficulty, crucial for adaptive learning.
-    
-2.  **Enhanced Nightly Processing Engine Creation**: A new file, , has been created. This script is intended to house the comprehensive logic for the refined nightly processing, incorporating all 8 identified fixes from the latest feedback.
+The AI engineer's initial investigation (Chat 428, 430) incorrectly concluded that the button was functional but the form submission might be problematic. After the user re-reported the issue (Chat 460), the engineer re-evaluated with a screenshot (Chat 462). This revealed the root cause: the Add Question button **is not opening a form at all**. The input fields previously detected were merely existing elements on the page, not part of a dynamically opened form or modal.
 
-The next immediate step is to integrate this newly created  into the existing  to ensure these refinements are part of the scheduled nightly updates. This ensures the system continuously learns and adapts based on the most precise algorithms.
+The work currently in progress is to investigate the  component to understand why the Add Question button fails to trigger the form display.
 </current_work>
 
 <optional_next_step>
-Integrate the  into  to apply the refined nightly processing.
+Investigate and fix the logic in  that should open the Add Question form.
 </optional_next_step>

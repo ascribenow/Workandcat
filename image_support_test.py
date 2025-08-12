@@ -16,7 +16,7 @@ from datetime import datetime
 import time
 
 class ImageSupportTester:
-    def __init__(self, base_url="https://118f8c4c-e08a-4d0b-90a2-6f88b95454b1.preview.emergentagent.com/api"):
+    def __init__(self, base_url="https://prepgenius.preview.emergentagent.com/api"):
         self.base_url = base_url
         self.admin_token = None
         self.student_token = None

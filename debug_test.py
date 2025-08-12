@@ -2,7 +2,7 @@ import requests
 import json
 
 # Test the specific failing endpoints
-base_url = "https://118f8c4c-e08a-4d0b-90a2-6f88b95454b1.preview.emergentagent.com/api"
+base_url = "https://prepgenius.preview.emergentagent.com/api"
 
 # Login as student first
 login_data = {
