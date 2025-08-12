@@ -422,6 +422,10 @@ async def get_questions(
                 "difficulty_score": float(q.difficulty_score) if q.difficulty_score else None,
                 "importance_index": float(q.importance_index) if q.importance_index else None,
                 "learning_impact": float(q.learning_impact) if q.learning_impact else None,
+                # Image support fields
+                "has_image": q.has_image,
+                "image_url": q.image_url,
+                "image_alt_text": q.image_alt_text,
                 "created_at": q.created_at.isoformat()
             })
         
