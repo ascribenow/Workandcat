@@ -1,6 +1,7 @@
 """
 Background Jobs and Nightly Processing for CAT Preparation Platform
 Implements scheduled tasks for mastery updates, plan extensions, and LI computation
+Enhanced with LLM-powered conceptual frequency analysis
 """
 
 import asyncio
@@ -20,6 +21,7 @@ from database import (
 from mastery_tracker import MasteryTracker
 from study_planner import StudyPlanner
 from llm_enrichment import LLMEnrichmentPipeline
+from enhanced_nightly_engine import EnhancedNightlyEngine
 
 logger = logging.getLogger(__name__)
 
