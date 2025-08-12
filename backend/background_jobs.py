@@ -85,6 +85,36 @@ class BackgroundJobProcessor:
         except Exception as e:
             logger.error(f"Error stopping scheduler: {e}")
     
+    async def enhanced_nightly_processing_job(self):
+        """
+        Enhanced nightly processing job with LLM-powered conceptual frequency analysis
+        """
+        logger.info("🌙 Starting enhanced nightly processing job with conceptual frequency analysis")
+        
+        try:
+            # Run comprehensive nightly processing using the enhanced engine
+            result = await self.enhanced_nightly_engine.run_nightly_processing()
+            
+            if result.get("success", True):  # Default to success if no explicit status
+                logger.info(f"✅ Enhanced nightly processing completed successfully")
+                logger.info(f"📊 Processing Statistics:")
+                logger.info(f"   • Attempts processed: {result.get('attempts_processed', 0)}")
+                logger.info(f"   • Mastery updates: {result.get('mastery_updates', 0)}")
+                logger.info(f"   • Frequency updates (conceptual): {result.get('frequency_updates', 0)}")
+                logger.info(f"   • Difficulty updates: {result.get('difficulty_updates', 0)}")
+                logger.info(f"   • Importance updates: {result.get('importance_updates', 0)}")
+                logger.info(f"   • Plan updates: {result.get('plan_updates', 0)}")
+            else:
+                logger.error(f"❌ Enhanced nightly processing failed: {result.get('error', 'Unknown error')}")
+                
+            return result
+            
+        except Exception as e:
+            logger.error(f"❌ Enhanced nightly processing job failed: {e}")
+            import traceback
+            traceback.print_exc()
+            return {"success": False, "error": str(e)}
+    
     async def nightly_processing_job(self):
         """Main nightly processing job - runs all maintenance tasks"""
         logger.info("Starting nightly processing job")
