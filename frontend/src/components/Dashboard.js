@@ -935,7 +935,6 @@ const AdminPanel = () => {
                 </div>
 
                 {/* Single Question Form */}
-                {console.log('Form rendering check:', { showQuestionForm, questionUploadType })}
                 {showQuestionForm && questionUploadType === 'single' && (
                   <div className="bg-gray-50 p-6 rounded-lg mb-8">
                     <div className="flex justify-between items-center mb-4">
