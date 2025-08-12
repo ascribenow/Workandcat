@@ -777,26 +777,53 @@ const AdminPanel = () => {
                       </button>
                     </div>
 
-                    {/* CSV Upload */}
-                    <div className="border-2 border-gray-200 rounded-lg p-6 text-center">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-4">CSV Upload</h3>
-                      <p className="text-gray-600 mb-6">Upload multiple questions from CSV file</p>
-                      <label htmlFor="csv-upload" className="cursor-pointer">
-                        <span className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-medium inline-block">
-                          {uploading ? 'Uploading...' : 'Upload CSV'}
-                        </span>
-                        <input
-                          id="csv-upload"
-                          type="file"
-                          accept=".csv"
-                          onChange={handleCSVUpload}
-                          disabled={uploading}
-                          className="hidden"
-                        />
-                      </label>
-                      <p className="text-sm text-gray-500 mt-2">
-                        Format: stem,answer,category,subcategory,source
-                      </p>
+                    {/* CSV Upload with Google Drive Images */}
+                    <div className="border-2 border-gray-200 rounded-lg p-6">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-4">CSV Upload with Images</h3>
+                      <p className="text-gray-600 mb-4">Upload multiple questions from CSV file with Google Drive image support</p>
+                      
+                      {/* Google Drive Instructions */}
+                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                        <div className="flex items-start">
+                          <div className="flex-shrink-0">
+                            <svg className="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                            </svg>
+                          </div>
+                          <div className="ml-3">
+                            <h4 className="text-sm font-medium text-blue-800">Google Drive Image Support</h4>
+                            <div className="text-sm text-blue-700 mt-1">
+                              <p className="mb-2">Include images by adding these columns to your CSV:</p>
+                              <ul className="list-disc list-inside space-y-1 text-xs">
+                                <li><strong>image_url</strong>: Google Drive share link (e.g., https://drive.google.com/file/d/FILE_ID/view)</li>
+                                <li><strong>image_alt_text</strong>: Description for accessibility (optional)</li>
+                              </ul>
+                              <p className="mt-2 text-xs">The system will automatically download and store images from Google Drive links.</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="text-center">
+                        <label htmlFor="csv-upload" className="cursor-pointer">
+                          <span className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-medium inline-block">
+                            {uploading ? 'Uploading...' : 'Upload CSV'}
+                          </span>
+                          <input
+                            id="csv-upload"
+                            type="file"
+                            accept=".csv"
+                            onChange={handleCSVUpload}
+                            disabled={uploading}
+                            className="hidden"
+                          />
+                        </label>
+                        <div className="text-sm text-gray-500 mt-3 space-y-1">
+                          <p><strong>Required:</strong> stem, answer, category, subcategory</p>
+                          <p><strong>Optional:</strong> source, image_url (Google Drive), image_alt_text</p>
+                          <p className="text-xs text-gray-400">Supports JPEG, PNG, GIF images from Google Drive</p>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
