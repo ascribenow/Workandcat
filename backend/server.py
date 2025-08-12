@@ -1346,6 +1346,73 @@ async def upload_pyq_document(
         logger.error(f"Error uploading PYQ document: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+# Admin Test Endpoints for Conceptual Frequency Analysis
+
+@api_router.post("/admin/test/conceptual-frequency")
+async def test_conceptual_frequency_analysis(
+    current_user: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_database)
+):
+    """Test endpoint to manually trigger conceptual frequency analysis"""
+    try:
+        from conceptual_frequency_analyzer import ConceptualFrequencyAnalyzer
+        
+        # Initialize analyzer
+        frequency_analyzer = ConceptualFrequencyAnalyzer(llm_pipeline)
+        
+        # Get a sample question
+        result = await db.execute(
+            select(Question).where(Question.is_active == True).limit(1)
+        )
+        test_question = result.scalar_one_or_none()
+        
+        if not test_question:
+            raise HTTPException(status_code=404, detail="No active questions found for testing")
+        
+        logger.info(f"🧪 Testing conceptual frequency for question: {test_question.stem[:100]}...")
+        
+        # Run conceptual frequency analysis
+        freq_result = await frequency_analyzer.calculate_conceptual_frequency(
+            db, test_question, years_window=10
+        )
+        
+        return {
+            "message": "Conceptual frequency analysis test completed",
+            "question_id": str(test_question.id),
+            "question_stem": test_question.stem[:100] + "...",
+            "analysis_results": freq_result
+        }
+        
+    except Exception as e:
+        logger.error(f"Error in conceptual frequency test: {e}")
+        raise HTTPException(status_code=500, detail=f"Test failed: {str(e)}")
+
+@api_router.post("/admin/run-enhanced-nightly") 
+async def run_enhanced_nightly_processing(
+    current_user: User = Depends(require_admin)
+):
+    """Manually trigger enhanced nightly processing with conceptual frequency analysis"""
+    try:
+        from enhanced_nightly_engine import EnhancedNightlyEngine
+        
+        # Initialize enhanced nightly engine with LLM support
+        enhanced_engine = EnhancedNightlyEngine(llm_pipeline=llm_pipeline)
+        
+        logger.info("🌙 Starting manual enhanced nightly processing...")
+        
+        # Run the enhanced nightly processing
+        result = await enhanced_engine.run_nightly_processing()
+        
+        return {
+            "message": "Enhanced nightly processing completed",
+            "success": True,
+            "processing_results": result
+        }
+        
+    except Exception as e:
+        logger.error(f"Error in enhanced nightly processing: {e}")
+        raise HTTPException(status_code=500, detail=f"Processing failed: {str(e)}")
+
 @api_router.get("/admin/stats")
 async def get_admin_stats(
     current_user: User = Depends(require_admin),
