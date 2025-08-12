@@ -41,10 +41,10 @@ class BackgroundJobProcessor:
         try:
             # Schedule enhanced nightly jobs at 2 AM
             self.scheduler.add_job(
-                enhanced_nightly_processing_job,
+                self.enhanced_nightly_processing_job,
                 CronTrigger(hour=2, minute=0),
                 id='enhanced_nightly_processing',
-                name='Enhanced Nightly Processing Job'
+                name='Enhanced Nightly Processing Job with LLM'
             )
             
             # Schedule mastery decay calculation every 6 hours
