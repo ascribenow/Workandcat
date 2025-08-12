@@ -587,13 +587,16 @@ test_plan:
     implemented: true
     working: false
     file: "backend/server.py"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
     needs_retesting: false
     status_history:
       - working: false
         agent: "testing"
         comment: "⚠️ ENHANCED CONCEPTUAL FREQUENCY ANALYSIS PARTIALLY WORKING: Comprehensive testing reveals mixed results. ✅ WORKING COMPONENTS: 1) Conceptual frequency analysis endpoint (POST /api/admin/test/conceptual-frequency) functional and returns analysis results with frequency_score, conceptual_matches, total_pyq_analyzed, top_matching_concepts, analysis_method, pattern_keywords, and solution_approach, 2) Enhanced nightly processing endpoint (POST /api/admin/run-enhanced-nightly) functional and returns processing results with run_id, success status, processed_at timestamp, and statistics. ❌ MISSING COMPONENTS: 1) Database schema NOT updated with new conceptual frequency fields (pyq_conceptual_matches, total_pyq_analyzed, top_matching_concepts, conceptual_frequency_score) - questions table missing these fields, 2) LLM pattern analysis integration insufficient - only 0% of questions show signs of LLM conceptual analysis. CONCLUSION: Backend endpoints are implemented and working (100% API success rate), but database schema updates and full LLM integration are incomplete. The system can perform conceptual analysis but cannot persist results due to missing database fields."
+      - working: false
+        agent: "testing"
+        comment: "❌ ENHANCED TIME-WEIGHTED CONCEPTUAL FREQUENCY SYSTEM TESTING RESULTS: Comprehensive testing of the Enhanced Time-Weighted Conceptual Frequency Analysis System reveals critical database schema issues blocking full implementation. ✅ WORKING COMPONENTS: 1) Time-Weighted Frequency Analysis endpoint (POST /api/admin/test/time-weighted-frequency) FULLY FUNCTIONAL - correctly implements 20-year data with 10-year relevance weighting, exponential decay calculations, trend detection (stable/increasing/decreasing/emerging/declining), temporal pattern analysis with all required fields (concept_id, total_occurrences, relevance_window_occurrences, weighted_frequency_score, trend_direction, trend_strength, recency_score), and comprehensive frequency insights generation. 2) Enhanced Nightly Processing endpoint (POST /api/admin/run-enhanced-nightly) OPERATIONAL - successfully completes processing with run_id, success status, processed_at timestamp, and statistics. ❌ CRITICAL BLOCKER: Database schema missing frequency analysis fields - 'column questions.frequency_score does not exist' error prevents Conceptual Frequency Analysis endpoint from functioning. The backend code attempts to query frequency_score, pyq_conceptual_matches, total_pyq_analyzed, top_matching_concepts, frequency_analysis_method, and other new fields that don't exist in the database schema. OVERALL RESULTS: Time-Weighted Analysis ✅ PASSED, Enhanced Nightly Processing ✅ PASSED, Conceptual Analysis ❌ FAILED due to schema issues. System success rate: 33.3% (1/3 core components working). RECOMMENDATION: Database schema must be updated with all frequency analysis fields before the Enhanced Time-Weighted Conceptual Frequency Analysis System can be fully operational."
 
   - task: "Enhanced Session System"
     implemented: true
