@@ -66,7 +66,9 @@ export const SessionSystem = ({ sessionId: propSessionId, onSessionEnd }) => {
       setUserAnswer('');
       setShowResult(false);
       setResult(null);
-      setImageError(false); // Reset image error state for new question
+      setImageLoading(false);
+      setImageLoadFailed(false);
+      setRetryCount(0); // Reset retry count for new question
       
       if (response.data.question?.expected_time_sec) {
         setTimeLeft(response.data.question.expected_time_sec);
