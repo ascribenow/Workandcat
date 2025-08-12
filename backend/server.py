@@ -1097,6 +1097,86 @@ async def upload_questions_csv(
         logger.error(f"CSV upload error: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to upload CSV: {str(e)}")
 
+# Image Upload Endpoints
+
+@api_router.post("/admin/image/upload")
+async def upload_question_image(
+    file: UploadFile = File(...),
+    alt_text: Optional[str] = Form(None),
+    current_user: User = Depends(require_admin),
+):
+    """Upload an image for a question"""
+    try:
+        # Validate file type
+        file_extension = Path(file.filename).suffix.lower()
+        if file_extension not in ALLOWED_IMAGE_EXTENSIONS:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Invalid file type. Allowed types: {', '.join(ALLOWED_IMAGE_EXTENSIONS)}"
+            )
+        
+        # Validate file size
+        content = await file.read()
+        if len(content) > MAX_IMAGE_SIZE:
+            raise HTTPException(
+                status_code=400,
+                detail=f"File too large. Maximum size: {MAX_IMAGE_SIZE // (1024*1024)}MB"
+            )
+        
+        # Generate unique filename
+        file_id = str(uuid.uuid4())
+        filename = f"{file_id}{file_extension}"
+        file_path = UPLOAD_DIR / filename
+        
+        # Save file
+        with open(file_path, "wb") as f:
+            f.write(content)
+        
+        # Generate URL for accessing the image
+        image_url = f"/uploads/images/{filename}"
+        
+        logger.info(f"Image uploaded successfully: {filename} by {current_user.email}")
+        
+        return {
+            "message": "Image uploaded successfully",
+            "image_url": image_url,
+            "filename": filename,
+            "alt_text": alt_text,
+            "file_size": len(content)
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error uploading image: {e}")
+        raise HTTPException(status_code=500, detail="Failed to upload image")
+
+@api_router.delete("/admin/image/{filename}")
+async def delete_question_image(
+    filename: str,
+    current_user: User = Depends(require_admin),
+):
+    """Delete an uploaded image"""
+    try:
+        file_path = UPLOAD_DIR / filename
+        if not file_path.exists():
+            raise HTTPException(status_code=404, detail="Image not found")
+        
+        # Remove file
+        file_path.unlink()
+        
+        logger.info(f"Image deleted: {filename} by {current_user.email}")
+        
+        return {"message": "Image deleted successfully"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error deleting image: {e}")
+        raise HTTPException(status_code=500, detail="Failed to delete image")
+
+# PYQ Upload Endpoints
+
 @api_router.post("/admin/pyq/upload")
 async def upload_pyq_document(
     file: UploadFile = File(...),
