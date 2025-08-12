@@ -374,7 +374,7 @@ export const SessionSystem = ({ sessionId: propSessionId, onSessionEnd }) => {
                     </p>
                   </div>
                 )}
-                {currentQuestion.image_alt_text && !imageError && (
+                {currentQuestion.image_alt_text && !imageLoadFailed && (
                   <p className="text-xs text-gray-500 mt-2 text-center italic">
                     {currentQuestion.image_alt_text}
                   </p>
