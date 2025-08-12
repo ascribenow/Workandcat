@@ -594,8 +594,13 @@ const AdminPanel = () => {
         detailed_solution: "",
         hint_category: "",
         hint_subcategory: "",
-        tags: []
+        tags: [],
+        has_image: false,
+        image_url: "",
+        image_alt_text: ""
       });
+      setSelectedImage(null);
+      setImagePreview(null);
     } catch (error) {
       alert('Error creating question: ' + (error.response?.data?.detail || 'Unknown error'));
     }
