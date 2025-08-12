@@ -21,6 +21,7 @@ from formulas import (
     calculate_preparedness_delta,
     calculate_frequency_score
 )
+from conceptual_frequency_analyzer import ConceptualFrequencyAnalyzer
 
 logger = logging.getLogger(__name__)
 
