@@ -602,6 +602,18 @@ test_plan:
         agent: "testing"
         comment: "❌ FINAL ENHANCED TIME-WEIGHTED CONCEPTUAL FREQUENCY SYSTEM TESTING: After database schema fix claim, comprehensive testing reveals the database schema was NOT actually updated. CRITICAL FINDINGS: 1) Database schema STILL MISSING frequency analysis fields - 'column questions.pyq_occurrences_last_10_years does not exist' error blocks ALL question queries, 2) Time-Weighted Frequency Analysis endpoint ✅ WORKING PERFECTLY - correctly implements 20-year data with 10-year relevance weighting, exponential decay calculations, trend detection (stable/increasing/decreasing/emerging/declining), temporal pattern analysis with all required fields, 3) Enhanced Nightly Processing endpoint ✅ WORKING - successfully completes processing with run_id, success status, processed_at timestamp, and statistics, 4) Conceptual Frequency Analysis endpoint ❌ BLOCKED by database schema - cannot retrieve test questions due to missing pyq_occurrences_last_10_years column, 5) ALL question-related endpoints ❌ FAILING with same database schema error. SYSTEM SUCCESS RATE: 50.0% (2/4 tests passed). ROOT CAUSE: The review request claimed database schema fix for frequency analysis fields, but testing confirms the database schema was never actually updated. The backend code expects columns like pyq_occurrences_last_10_years, frequency_score, pyq_conceptual_matches, total_pyq_analyzed, top_matching_concepts, frequency_analysis_method, pattern_keywords, pattern_solution_approach, total_pyq_count that don't exist in the database. RECOMMENDATION: Database schema must be properly updated with ALL frequency analysis fields before the Enhanced Time-Weighted Conceptual Frequency Analysis System can be fully operational."
 
+  - task: "Single Question Creation Fix"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ SINGLE QUESTION CREATION FIX SUCCESSFUL: Comprehensive testing confirms the 'pyq_occurrences_last_10_years' column error has been RESOLVED. CRITICAL VALIDATION RESULTS: 1) Single Question Creation (POST /api/questions) ✅ WORKING - successfully created test question with sample data {'stem': 'A test question for frequency analysis', 'image_url': '', 'subcategory': 'Test Category'} without any database column errors, returned question_id and status 'enrichment_queued', 2) Question Retrieval (GET /api/questions) ✅ WORKING - successfully retrieves questions without database errors, 3) Admin Panel Question Upload ✅ WORKING - successfully created additional test question with full admin panel data including answer, solution_approach, detailed_solution, hint_category, hint_subcategory, type_of_question, tags, source, and image fields without any database errors. VERIFICATION COMPLETE: Multiple question creation attempts all successful with HTTP 200 responses and proper question_id generation. The database schema constraint that was causing 'pyq_occurrences_last_10_years' column errors has been fixed. Admin credentials (sumedhprabhu18@gmail.com / admin2025) working correctly for question creation. Single question creation functionality is now fully operational for admin users."
+
   - task: "Enhanced Session System"
     implemented: true
     working: true
