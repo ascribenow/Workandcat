@@ -523,6 +523,49 @@ async def get_today_plan(
         logger.error(f"Error getting today's plan: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@api_router.post("/sessions/report-broken-image")
+async def report_broken_image(
+    request: dict,
+    current_user: User = Depends(require_auth),
+    db: AsyncSession = Depends(get_database)
+):
+    """Report a question with broken image to block it from future sessions"""
+    try:
+        question_id = request.get('question_id')
+        if not question_id:
+            raise HTTPException(status_code=400, detail="Missing question_id")
+        
+        # Get the question
+        result = await db.execute(select(Question).where(Question.id == question_id))
+        question = result.scalar_one_or_none()
+        
+        if not question:
+            raise HTTPException(status_code=404, detail="Question not found")
+        
+        # Mark question as inactive due to broken image
+        question.is_active = False
+        
+        # Add tag to indicate image issue
+        current_tags = question.tags or []
+        if "broken_image" not in current_tags:
+            current_tags.append("broken_image")
+            current_tags.append("needs_image_fix")
+            question.tags = current_tags
+        
+        await db.commit()
+        
+        logger.warning(f"Question {question_id} marked as inactive due to broken image by user {current_user.email}")
+        
+        return {
+            "message": "Question blocked from future sessions due to broken image",
+            "question_id": question_id,
+            "status": "blocked"
+        }
+        
+    except Exception as e:
+        logger.error(f"Error reporting broken image: {e}")
+        raise HTTPException(status_code=500, detail="Failed to report broken image")
+
 # Session Management Routes
 
 @api_router.post("/session/start")
