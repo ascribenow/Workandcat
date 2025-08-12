@@ -494,7 +494,6 @@ export const Dashboard = () => {
 const AdminPanel = () => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('pyq-upload');
-  const [questions, setQuestions] = useState([]);
   const [showQuestionForm, setShowQuestionForm] = useState(false);
   const [questionUploadType, setQuestionUploadType] = useState('single'); // 'single' or 'csv'
   const [uploading, setUploading] = useState(false);
