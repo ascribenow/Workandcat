@@ -480,14 +480,16 @@ class EnhancedNightlyEngine:
     
     async def refresh_frequency_bands(self, db: AsyncSession) -> List[Dict]:
         """
-        Step 4: Refresh frequency bands using LLM-powered conceptual pattern analysis
+        Step 4: Enhanced frequency analysis with 20-year data and 10-year relevance weighting
         """
         try:
             frequency_updates = []
             
+            logger.info("🕐 Starting time-weighted frequency analysis (20yr data, 10yr relevance)")
+            
             if self.frequency_analyzer is None:
-                # Fallback to simple frequency calculation
-                return await self._fallback_frequency_calculation(db)
+                # Fallback to time-weighted analysis without LLM conceptual matching
+                return await self._time_weighted_frequency_calculation(db)
             
             # Get active questions from question bank
             questions_result = await db.execute(
@@ -496,73 +498,102 @@ class EnhancedNightlyEngine:
             questions = questions_result.scalars().all()
             
             if not questions:
-                logger.warning("No active questions found for frequency calculation")
+                logger.warning("⚠️  No active questions found for frequency calculation")
                 return []
             
-            logger.info(f"🔍 Starting conceptual frequency analysis for {len(questions)} questions")
+            logger.info(f"🔍 Starting enhanced frequency analysis for {len(questions)} questions")
             
-            # Use conceptual frequency analyzer
-            frequency_results = await self.frequency_analyzer.batch_calculate_frequencies(
-                db, questions, years_window=self.frequency_window_years
-            )
-            
-            # Update questions with conceptual frequency data
+            # Enhanced conceptual analysis with time weighting
             for question in questions:
-                question_id = str(question.id)
-                
-                if question_id in frequency_results:
-                    freq_data = frequency_results[question_id]
-                    frequency_score = freq_data.get("frequency_score", 0.0)
-                    conceptual_matches = freq_data.get("conceptual_matches", 0)
-                    total_analyzed = freq_data.get("total_pyq_analyzed", 0)
-                    top_concepts = freq_data.get("top_matching_concepts", [])
-                    analysis_method = freq_data.get("analysis_method", "conceptual")
+                try:
+                    # Get conceptual frequency from LLM analysis
+                    conceptual_result = await self.frequency_analyzer.calculate_conceptual_frequency(
+                        db, question, years_window=self.total_data_years  # Use full 20-year data
+                    )
                     
-                    # Update question with enriched frequency data
-                    question.frequency_score = frequency_score
-                    question.pyq_conceptual_matches = conceptual_matches
-                    question.total_pyq_analyzed = total_analyzed
-                    question.top_matching_concepts = top_concepts[:5]  # Store top 5 concepts
-                    question.frequency_analysis_method = analysis_method
+                    # Get temporal patterns for this question's subcategory
+                    temporal_data = await self._get_temporal_data_for_subcategory(
+                        db, question.subcategory
+                    )
+                    
+                    # Create temporal pattern analysis
+                    temporal_pattern = self.time_weighted_analyzer.create_temporal_pattern(
+                        concept_id=f"{question.subcategory}_{question.type_of_question or 'general'}",
+                        yearly_occurrences=temporal_data["yearly_occurrences"],
+                        total_pyq_count_per_year=temporal_data["total_pyq_per_year"]
+                    )
+                    
+                    # Combine conceptual analysis with temporal weighting
+                    final_frequency_score = self._combine_conceptual_and_temporal_scores(
+                        conceptual_score=conceptual_result.get("frequency_score", 0.0),
+                        temporal_pattern=temporal_pattern
+                    )
+                    
+                    # Generate insights
+                    insights = self.time_weighted_analyzer.generate_frequency_insights(temporal_pattern)
+                    
+                    # Update question with enhanced frequency data
+                    question.frequency_score = final_frequency_score
+                    question.pyq_conceptual_matches = conceptual_result.get("conceptual_matches", 0)
+                    question.total_pyq_analyzed = conceptual_result.get("total_pyq_analyzed", 0)
+                    question.top_matching_concepts = conceptual_result.get("top_matching_concepts", [])[:5]
+                    question.frequency_analysis_method = "enhanced_time_weighted_conceptual"
                     question.frequency_last_updated = datetime.utcnow()
                     
+                    # Store temporal analysis results
+                    question.pyq_occurrences_last_10_years = temporal_pattern.relevance_window_occurrences
+                    question.total_pyq_count = temporal_pattern.total_occurrences
+                    
                     # Store pattern analysis if available
-                    if "pattern_keywords" in freq_data:
-                        question.pattern_keywords = freq_data["pattern_keywords"][:10]  # Top 10 keywords
-                    if "solution_approach" in freq_data:
-                        question.pattern_solution_approach = freq_data["solution_approach"]
+                    if "pattern_keywords" in conceptual_result:
+                        question.pattern_keywords = conceptual_result["pattern_keywords"][:10]
+                    if "solution_approach" in conceptual_result:
+                        question.pattern_solution_approach = conceptual_result["solution_approach"]
                     
                     frequency_updates.append({
-                        "question_id": question_id,
+                        "question_id": str(question.id),
                         "subcategory": question.subcategory,
-                        "frequency_score": frequency_score,
-                        "conceptual_matches": conceptual_matches,
-                        "total_pyq_analyzed": total_analyzed,
-                        "analysis_method": analysis_method,
-                        "top_concepts": top_concepts
+                        "final_frequency_score": final_frequency_score,
+                        "conceptual_matches": conceptual_result.get("conceptual_matches", 0),
+                        "temporal_pattern": {
+                            "trend": temporal_pattern.trend_direction,
+                            "trend_strength": temporal_pattern.trend_strength,
+                            "recency_score": temporal_pattern.recency_score,
+                            "total_occurrences": temporal_pattern.total_occurrences,
+                            "relevance_window_occurrences": temporal_pattern.relevance_window_occurrences
+                        },
+                        "insights": insights,
+                        "analysis_method": "enhanced_time_weighted_conceptual"
                     })
                     
-                    logger.debug(f"✅ Updated question {question_id[:8]}... - Freq: {frequency_score:.3f}, Matches: {conceptual_matches}")
-                else:
-                    logger.warning(f"❌ No frequency data for question {question_id}")
+                    logger.debug(f"✅ Enhanced analysis for {question.id}: Score={final_frequency_score:.3f}, Trend={temporal_pattern.trend_direction}")
+                
+                except Exception as e:
+                    logger.error(f"❌ Error analyzing question {question.id}: {e}")
+                    continue
             
             await db.flush()
             
-            # Log summary statistics
+            # Log comprehensive summary
             if frequency_updates:
-                avg_freq = sum(u["frequency_score"] for u in frequency_updates) / len(frequency_updates)
-                total_matches = sum(u["conceptual_matches"] for u in frequency_updates)
-                logger.info(f"📊 Conceptual frequency analysis complete:")
+                avg_score = sum(u["final_frequency_score"] for u in frequency_updates) / len(frequency_updates)
+                trend_summary = {}
+                for update in frequency_updates:
+                    trend = update["temporal_pattern"]["trend"]
+                    trend_summary[trend] = trend_summary.get(trend, 0) + 1
+                
+                logger.info(f"📊 Enhanced time-weighted frequency analysis complete:")
                 logger.info(f"   • Questions processed: {len(frequency_updates)}")
-                logger.info(f"   • Average frequency score: {avg_freq:.3f}")
-                logger.info(f"   • Total conceptual matches found: {total_matches}")
+                logger.info(f"   • Average frequency score: {avg_score:.3f}")
+                logger.info(f"   • Trend distribution: {dict(trend_summary)}")
+                logger.info(f"   • Analysis method: Enhanced (20yr data, 10yr relevance)")
             
             return frequency_updates
             
         except Exception as e:
-            logger.error(f"❌ Error in conceptual frequency analysis: {e}")
-            # Fallback to simple calculation
-            return await self._fallback_frequency_calculation(db)
+            logger.error(f"❌ Error in enhanced frequency analysis: {e}")
+            # Fallback to time-weighted analysis
+            return await self._time_weighted_frequency_calculation(db)
     
     async def _fallback_frequency_calculation(self, db: AsyncSession) -> List[Dict]:
         """
