@@ -514,6 +514,80 @@ const AdminPanel = () => {
 
 
 
+  const handleImageUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/bmp', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      alert('Please select a valid image file (JPEG, PNG, GIF, BMP, WebP)');
+      return;
+    }
+
+    // Validate file size (10MB limit)
+    if (file.size > 10 * 1024 * 1024) {
+      alert('Image file must be less than 10MB');
+      return;
+    }
+
+    setUploadingImage(true);
+    setSelectedImage(file);
+
+    // Create preview
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setImagePreview(e.target.result);
+    };
+    reader.readAsDataURL(file);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('alt_text', questionForm.image_alt_text || '');
+
+      const response = await axios.post(`${API}/admin/image/upload`, formData, {
+        headers: { 
+          'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${localStorage.getItem('cat_prep_token')}`
+        }
+      });
+
+      // Update form with image data
+      setQuestionForm(prev => ({
+        ...prev,
+        has_image: true,
+        image_url: response.data.image_url
+      }));
+
+      alert('Image uploaded successfully!');
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      alert('Error uploading image: ' + (error.response?.data?.detail || 'Unknown error'));
+      setSelectedImage(null);
+      setImagePreview(null);
+      setQuestionForm(prev => ({
+        ...prev,
+        has_image: false,
+        image_url: "",
+        image_alt_text: ""
+      }));
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setSelectedImage(null);
+    setImagePreview(null);
+    setQuestionForm(prev => ({
+      ...prev,
+      has_image: false,
+      image_url: "",
+      image_alt_text: ""
+    }));
+  };
+
   const handlePYQUpload = async (event) => {
     const file = event.target.files[0];
     if (!file) return;
