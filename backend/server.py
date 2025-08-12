@@ -361,8 +361,8 @@ async def create_question(
             detailed_solution=question_data.detailed_solution or "",
             tags=question_data.tags,
             source=question_data.source,
-            # Image support fields
-            has_image=question_data.has_image,
+            # Auto-set has_image based on successful image download
+            has_image=bool(question_data.image_url and question_data.image_url.strip()),
             image_url=question_data.image_url,
             image_alt_text=question_data.image_alt_text,
             is_active=False  # Will be activated after enrichment
