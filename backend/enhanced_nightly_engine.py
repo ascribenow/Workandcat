@@ -37,7 +37,8 @@ class EnhancedNightlyEngine:
     
     def __init__(self, llm_pipeline=None):
         self.ewma_alpha = 0.6  # v1.3 specification
-        self.frequency_window_years = 10  # PYQ rolling window
+        self.frequency_window_years = 10  # PYQ rolling window for relevance
+        self.total_data_years = 20  # Total historical data storage
         self.plan_guardrails = {
             "min_daily_minutes": 15,
             "max_daily_minutes": 120, 
@@ -53,6 +54,10 @@ class EnhancedNightlyEngine:
         else:
             self.frequency_analyzer = None
             logger.warning("⚠️  No LLM provided - falling back to simple frequency calculation")
+        
+        # Initialize time-weighted frequency analyzer
+        self.time_weighted_analyzer = TimeWeightedFrequencyAnalyzer(CAT_ANALYSIS_CONFIG)
+        logger.info("✅ Time-Weighted Frequency Analyzer initialized (20yr data, 10yr relevance)")
     
     async def run_nightly_processing(self, target_date: datetime = None) -> Dict:
         """
