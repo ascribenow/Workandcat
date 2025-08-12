@@ -502,8 +502,15 @@ const AdminPanel = () => {
     detailed_solution: "",
     hint_category: "",
     hint_subcategory: "",
-    tags: []
+    tags: [],
+    // Image support fields
+    has_image: false,
+    image_url: "",
+    image_alt_text: ""
   });
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
 
 
 
