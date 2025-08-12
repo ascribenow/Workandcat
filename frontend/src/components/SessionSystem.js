@@ -21,6 +21,7 @@ export const SessionSystem = ({ sessionId: propSessionId, onSessionEnd }) => {
   const [questionStartTime, setQuestionStartTime] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [imageZoomed, setImageZoomed] = useState(false);
   const timerRef = useRef(null);
 
   useEffect(() => {
