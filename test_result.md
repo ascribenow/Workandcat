@@ -581,6 +581,18 @@ test_plan:
   test_all: false
   test_priority: "database_schema_constraint_resolution"
 
+  - task: "Enhanced Conceptual Frequency Analysis System"
+    implemented: true
+    working: false
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "⚠️ ENHANCED CONCEPTUAL FREQUENCY ANALYSIS PARTIALLY WORKING: Comprehensive testing reveals mixed results. ✅ WORKING COMPONENTS: 1) Conceptual frequency analysis endpoint (POST /api/admin/test/conceptual-frequency) functional and returns analysis results with frequency_score, conceptual_matches, total_pyq_analyzed, top_matching_concepts, analysis_method, pattern_keywords, and solution_approach, 2) Enhanced nightly processing endpoint (POST /api/admin/run-enhanced-nightly) functional and returns processing results with run_id, success status, processed_at timestamp, and statistics. ❌ MISSING COMPONENTS: 1) Database schema NOT updated with new conceptual frequency fields (pyq_conceptual_matches, total_pyq_analyzed, top_matching_concepts, conceptual_frequency_score) - questions table missing these fields, 2) LLM pattern analysis integration insufficient - only 0% of questions show signs of LLM conceptual analysis. CONCLUSION: Backend endpoints are implemented and working (100% API success rate), but database schema updates and full LLM integration are incomplete. The system can perform conceptual analysis but cannot persist results due to missing database fields."
+
   - task: "Enhanced Session System"
     implemented: true
     working: true
