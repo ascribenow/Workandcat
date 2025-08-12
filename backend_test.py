@@ -3502,6 +3502,7 @@ def main():
         ("Study Planner", tester.test_study_planner()),
         ("Admin Endpoints", tester.test_admin_endpoints()),
         ("Background Jobs System", tester.test_background_jobs_system()),
+        ("Google Drive Image Integration", tester.test_google_drive_image_integration()),
     ]
     
     test_results.extend(supporting_tests)
