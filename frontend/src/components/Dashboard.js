@@ -843,6 +843,66 @@ const AdminPanel = () => {
                         />
                       </div>
 
+                      {/* Image Upload Section */}
+                      <div className="border border-gray-200 rounded-lg p-4">
+                        <label className="block text-sm font-medium text-gray-700 mb-3">Question Image (Optional)</label>
+                        
+                        {!imagePreview ? (
+                          <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                            <div className="mb-4">
+                              <svg className="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+                              </svg>
+                            </div>
+                            <div className="mb-4">
+                              <label htmlFor="image-upload" className="cursor-pointer">
+                                <span className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium">
+                                  {uploadingImage ? 'Uploading...' : 'Upload Image'}
+                                </span>
+                                <input
+                                  id="image-upload"
+                                  type="file"
+                                  accept="image/*"
+                                  onChange={handleImageUpload}
+                                  disabled={uploadingImage}
+                                  className="hidden"
+                                />
+                              </label>
+                            </div>
+                            <p className="text-xs text-gray-500">
+                              Support: JPEG, PNG, GIF, BMP, WebP • Max size: 10MB
+                            </p>
+                          </div>
+                        ) : (
+                          <div className="space-y-3">
+                            <div className="relative">
+                              <img 
+                                src={imagePreview} 
+                                alt="Question image preview" 
+                                className="max-w-full h-auto max-h-64 rounded-lg shadow-sm mx-auto"
+                              />
+                              <button
+                                type="button"
+                                onClick={handleRemoveImage}
+                                className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm"
+                              >
+                                ×
+                              </button>
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700">Alt Text for Accessibility</label>
+                              <input
+                                type="text"
+                                value={questionForm.image_alt_text}
+                                onChange={(e) => setQuestionForm({...questionForm, image_alt_text: e.target.value})}
+                                className="mt-1 block w-full border border-gray-300 rounded-md p-2 text-sm"
+                                placeholder="Describe the image for screen readers"
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
                       <div>
                         <label className="block text-sm font-medium text-gray-700">Detailed Solution (Optional)</label>
                         <textarea
