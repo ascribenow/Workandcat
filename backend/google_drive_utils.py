@@ -168,13 +168,14 @@ class GoogleDriveImageFetcher:
     def process_csv_image_urls(csv_data: list, upload_dir: Path) -> list:
         """
         Process CSV data and fetch images from Google Drive URLs
+        Simplified format: only 'stem' and 'image_url' columns
         
         Args:
             csv_data: List of dictionaries containing question data
             upload_dir: Directory to save downloaded images
             
         Returns:
-            Updated CSV data with local image URLs
+            Updated CSV data with local image URLs and auto-generated alt text
         """
         processed_data = []
         
@@ -186,18 +187,28 @@ class GoogleDriveImageFetcher:
                 if image_url and GoogleDriveImageFetcher.validate_google_drive_url(image_url):
                     logger.info(f"Processing Google Drive image for row {i+1}: {image_url}")
                     
+                    # Auto-generate alt text based on question content
+                    stem = row.get('stem', '')
+                    auto_alt_text = f"Diagram for question {i+1}"
+                    if 'triangle' in stem.lower():
+                        auto_alt_text = "Triangle diagram"
+                    elif 'circle' in stem.lower():
+                        auto_alt_text = "Circle diagram" 
+                    elif 'train' in stem.lower() or 'speed' in stem.lower():
+                        auto_alt_text = "Speed and distance diagram"
+                    elif 'graph' in stem.lower() or 'chart' in stem.lower():
+                        auto_alt_text = "Graph or chart"
+                    
                     # Fetch image from Google Drive
-                    alt_text = row.get('image_alt_text', '').strip()
                     success, local_url, error = GoogleDriveImageFetcher.fetch_image_from_google_drive(
-                        image_url, upload_dir, alt_text
+                        image_url, upload_dir, auto_alt_text
                     )
                     
                     if success:
-                        # Update row with local image URL
+                        # Update row with local image URL and auto-generated fields
                         row['image_url'] = local_url
                         row['has_image'] = True
-                        if not row.get('image_alt_text'):
-                            row['image_alt_text'] = f"Question image {i+1}"
+                        row['image_alt_text'] = auto_alt_text
                         
                         logger.info(f"Successfully processed image for row {i+1}")
                     else:
@@ -212,11 +223,13 @@ class GoogleDriveImageFetcher:
                     logger.warning(f"Row {i+1} has non-Google Drive image URL: {image_url}")
                     row['has_image'] = False
                     row['image_url'] = None
+                    row['image_alt_text'] = None
                     
                 else:
                     # No image URL - set defaults
                     row['has_image'] = False
                     row['image_url'] = None
+                    row['image_alt_text'] = None
                     
                 processed_data.append(row)
                 
@@ -225,6 +238,7 @@ class GoogleDriveImageFetcher:
                 # Continue with row as-is
                 row['has_image'] = False
                 row['image_url'] = None
+                row['image_alt_text'] = None
                 processed_data.append(row)
         
         return processed_data
