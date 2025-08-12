@@ -25,7 +25,7 @@ async def test_llm_basic():
     """Test basic LLM API connectivity"""
     
     try:
-        from emergentintegrations import LlmChat, UserMessage
+        from emergentintegrations.llm.chat import LlmChat, UserMessage
         
         llm_api_key = os.getenv("EMERGENT_LLM_KEY")
         if not llm_api_key:
