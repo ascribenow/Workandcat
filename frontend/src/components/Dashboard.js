@@ -338,22 +338,23 @@ export const Dashboard = () => {
             )}
           </div>
 
-          {/* Detailed Progress Table */}
+          {/* Comprehensive Progress Table - All Canonical Taxonomy */}
           {masteryData && masteryData.detailed_progress && masteryData.detailed_progress.length > 0 && (
             <div className="bg-white rounded-lg shadow p-6">
-              <h3 className="text-xl font-semibold text-gray-900 mb-6">Detailed Progress Breakdown</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-6">Complete CAT Syllabus Progress</h3>
+              <p className="text-sm text-gray-600 mb-4">Your progress across all canonical taxonomy categories and subcategories</p>
+              
               <div className="overflow-x-auto">
                 <table className="min-w-full table-auto">
                   <thead>
                     <tr className="bg-gray-50">
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subcategory</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Question Type</th>
                       <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Easy</th>
                       <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Medium</th>
                       <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Hard</th>
-                      <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
-                      <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Mastery</th>
+                      <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Total Solved</th>
+                      <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Mastery Level</th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
@@ -361,43 +362,71 @@ export const Dashboard = () => {
                       <tr key={index} className="hover:bg-gray-50">
                         <td className="px-4 py-4 whitespace-nowrap">
                           <div className="flex items-center">
-                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getCategoryColor(item.category)}`}>
+                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getCategoryColor(item.category?.charAt(0))}`}>
                               {item.category}
                             </span>
                           </div>
                         </td>
-                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{item.subcategory}</td>
-                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-600">{item.question_type || 'General'}</td>
-                        <td className="px-4 py-4 whitespace-nowrap text-center">
-                          <span className="text-sm text-green-600 font-medium">{item.easy_solved || 0}</span>
-                          <span className="text-xs text-gray-400">/{item.easy_total || 0}</span>
+                        <td className="px-4 py-4 text-sm text-gray-900 max-w-xs">
+                          <div className="truncate" title={item.subcategory}>
+                            {item.subcategory}
+                          </div>
                         </td>
                         <td className="px-4 py-4 whitespace-nowrap text-center">
-                          <span className="text-sm text-yellow-600 font-medium">{item.medium_solved || 0}</span>
-                          <span className="text-xs text-gray-400">/{item.medium_total || 0}</span>
+                          <div className="text-sm">
+                            <span className="text-green-600 font-medium">{item.difficulty_breakdown?.Easy?.solved || 0}</span>
+                            <span className="text-xs text-gray-400">/{item.difficulty_breakdown?.Easy?.total || 0}</span>
+                          </div>
+                          {item.difficulty_breakdown?.Easy?.total > 0 && (
+                            <div className="text-xs text-gray-500">
+                              {Math.round((item.difficulty_breakdown.Easy.solved / item.difficulty_breakdown.Easy.total) * 100)}%
+                            </div>
+                          )}
                         </td>
                         <td className="px-4 py-4 whitespace-nowrap text-center">
-                          <span className="text-sm text-red-600 font-medium">{item.hard_solved || 0}</span>
-                          <span className="text-xs text-gray-400">/{item.hard_total || 0}</span>
+                          <div className="text-sm">
+                            <span className="text-yellow-600 font-medium">{item.difficulty_breakdown?.Medium?.solved || 0}</span>
+                            <span className="text-xs text-gray-400">/{item.difficulty_breakdown?.Medium?.total || 0}</span>
+                          </div>
+                          {item.difficulty_breakdown?.Medium?.total > 0 && (
+                            <div className="text-xs text-gray-500">
+                              {Math.round((item.difficulty_breakdown.Medium.solved / item.difficulty_breakdown.Medium.total) * 100)}%
+                            </div>
+                          )}
                         </td>
                         <td className="px-4 py-4 whitespace-nowrap text-center">
-                          <span className="text-sm font-medium text-gray-900">
-                            {(item.easy_solved || 0) + (item.medium_solved || 0) + (item.hard_solved || 0)}
-                          </span>
-                          <span className="text-xs text-gray-400">
-                            /{(item.easy_total || 0) + (item.medium_total || 0) + (item.hard_total || 0)}
-                          </span>
+                          <div className="text-sm">
+                            <span className="text-red-600 font-medium">{item.difficulty_breakdown?.Hard?.solved || 0}</span>
+                            <span className="text-xs text-gray-400">/{item.difficulty_breakdown?.Hard?.total || 0}</span>
+                          </div>
+                          {item.difficulty_breakdown?.Hard?.total > 0 && (
+                            <div className="text-xs text-gray-500">
+                              {Math.round((item.difficulty_breakdown.Hard.solved / item.difficulty_breakdown.Hard.total) * 100)}%
+                            </div>
+                          )}
                         </td>
                         <td className="px-4 py-4 whitespace-nowrap text-center">
-                          <div className="flex items-center justify-center">
-                            <div className="w-16 bg-gray-200 rounded-full h-2 mr-2">
+                          <div className="text-sm font-medium text-gray-900">
+                            {item.summary?.total_solved || 0}
+                          </div>
+                          <div className="text-xs text-gray-400">
+                            /{item.summary?.total_questions || 0} questions
+                          </div>
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap text-center">
+                          <div className="flex flex-col items-center">
+                            <div className="w-16 bg-gray-200 rounded-full h-2 mb-1">
                               <div 
-                                className={`h-2 rounded-full ${getMasteryColor(item.mastery_percentage)}`}
-                                style={{ width: `${Math.min(item.mastery_percentage || 0, 100)}%` }}
+                                className={`h-2 rounded-full ${getMasteryColor(item.summary?.mastery_percentage || 0)}`}
+                                style={{ width: `${Math.min(item.summary?.mastery_percentage || 0, 100)}%` }}
                               ></div>
                             </div>
-                            <span className="text-sm font-medium text-gray-900">
-                              {Math.round(item.mastery_percentage || 0)}%
+                            <span className={`text-xs font-medium px-2 py-1 rounded-full ${
+                              item.summary?.mastery_level === 'Mastered' ? 'bg-green-100 text-green-800' :
+                              item.summary?.mastery_level === 'On Track' ? 'bg-blue-100 text-blue-800' :
+                              'bg-red-100 text-red-800'
+                            }`}>
+                              {item.summary?.mastery_level || 'Needs Focus'}
                             </span>
                           </div>
                         </td>
@@ -407,31 +436,52 @@ export const Dashboard = () => {
                 </table>
               </div>
               
-              {/* Summary Stats */}
-              <div className="mt-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+              {/* Comprehensive Summary Stats */}
+              <div className="mt-6 grid grid-cols-2 md:grid-cols-5 gap-4">
                 <div className="bg-green-50 rounded-lg p-4">
                   <div className="text-2xl font-bold text-green-600">
-                    {masteryData.detailed_progress.reduce((sum, item) => sum + (item.easy_solved || 0), 0)}
+                    {masteryData.detailed_progress.reduce((sum, item) => sum + (item.difficulty_breakdown?.Easy?.solved || 0), 0)}
                   </div>
-                  <div className="text-sm text-green-700">Easy Questions Solved</div>
+                  <div className="text-sm text-green-700">Easy Solved</div>
+                  <div className="text-xs text-green-600 mt-1">
+                    /{masteryData.detailed_progress.reduce((sum, item) => sum + (item.difficulty_breakdown?.Easy?.total || 0), 0)} available
+                  </div>
                 </div>
                 <div className="bg-yellow-50 rounded-lg p-4">
                   <div className="text-2xl font-bold text-yellow-600">
-                    {masteryData.detailed_progress.reduce((sum, item) => sum + (item.medium_solved || 0), 0)}
+                    {masteryData.detailed_progress.reduce((sum, item) => sum + (item.difficulty_breakdown?.Medium?.solved || 0), 0)}
                   </div>
-                  <div className="text-sm text-yellow-700">Medium Questions Solved</div>
+                  <div className="text-sm text-yellow-700">Medium Solved</div>
+                  <div className="text-xs text-yellow-600 mt-1">
+                    /{masteryData.detailed_progress.reduce((sum, item) => sum + (item.difficulty_breakdown?.Medium?.total || 0), 0)} available
+                  </div>
                 </div>
                 <div className="bg-red-50 rounded-lg p-4">
                   <div className="text-2xl font-bold text-red-600">
-                    {masteryData.detailed_progress.reduce((sum, item) => sum + (item.hard_solved || 0), 0)}
+                    {masteryData.detailed_progress.reduce((sum, item) => sum + (item.difficulty_breakdown?.Hard?.solved || 0), 0)}
                   </div>
-                  <div className="text-sm text-red-700">Hard Questions Solved</div>
+                  <div className="text-sm text-red-700">Hard Solved</div>
+                  <div className="text-xs text-red-600 mt-1">
+                    /{masteryData.detailed_progress.reduce((sum, item) => sum + (item.difficulty_breakdown?.Hard?.total || 0), 0)} available
+                  </div>
                 </div>
                 <div className="bg-blue-50 rounded-lg p-4">
                   <div className="text-2xl font-bold text-blue-600">
-                    {masteryData.detailed_progress.reduce((sum, item) => sum + (item.easy_solved || 0) + (item.medium_solved || 0) + (item.hard_solved || 0), 0)}
+                    {masteryData.detailed_progress.reduce((sum, item) => sum + (item.summary?.total_solved || 0), 0)}
                   </div>
-                  <div className="text-sm text-blue-700">Total Questions Solved</div>
+                  <div className="text-sm text-blue-700">Total Solved</div>
+                  <div className="text-xs text-blue-600 mt-1">
+                    All Categories
+                  </div>
+                </div>
+                <div className="bg-purple-50 rounded-lg p-4">
+                  <div className="text-2xl font-bold text-purple-600">
+                    {masteryData.detailed_progress.filter(item => item.summary?.mastery_level === 'Mastered').length}
+                  </div>
+                  <div className="text-sm text-purple-700">Mastered Topics</div>
+                  <div className="text-xs text-purple-600 mt-1">
+                    /{masteryData.detailed_progress.length} total
+                  </div>
                 </div>
               </div>
             </div>
