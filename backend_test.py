@@ -8299,7 +8299,7 @@ def main():
         return 1
     
     # Test MCQ generation and session system
-    mcq_session_success = tester.test_mcq_generation_session_system()
+    mcq_session_success = tester.test_mcq_generation_fix_and_session_system()
     
     print("\n" + "=" * 70)
     print("RECOMMENDATIONS FOR MAIN AGENT")
