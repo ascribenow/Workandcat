@@ -8522,36 +8522,62 @@ def main():
         return success_rate >= 70
 
 def main():
-    """Main function for comprehensive testing"""
+    """Main function for complete CAT platform readiness testing"""
     tester = CATBackendTester()
     
-    print("🚀 Starting CAT Backend Testing Suite...")
+    print("🚀 STARTING COMPREHENSIVE CAT BACKEND TESTING")
     print("=" * 60)
     
-    # Test user authentication first
-    if not tester.test_user_login():
-        print("❌ Authentication failed - cannot proceed with other tests")
+    # First ensure we have authentication
+    print("\n🔐 AUTHENTICATION SETUP")
+    print("-" * 30)
+    
+    # Test admin login
+    admin_login = {
+        "email": "sumedhprabhu18@gmail.com",
+        "password": "admin2025"
+    }
+    
+    success, response = tester.run_test("Admin Login", "POST", "auth/login", 200, admin_login)
+    if success and 'access_token' in response:
+        tester.admin_token = response['access_token']
+        tester.admin_user = response['user']
+        print(f"✅ Admin authenticated: {tester.admin_user['full_name']}")
+    else:
+        print("❌ Admin authentication failed")
         return 1
     
-    # Test MCQ generation and session system
-    mcq_session_success = tester.test_mcq_generation_fix_and_session_system()
+    # Test student registration/login
+    timestamp = datetime.now().strftime('%H%M%S')
+    student_data = {
+        "email": f"test_student_{timestamp}@catprep.com",
+        "full_name": "Test Student",
+        "password": "student2025"
+    }
     
-    print("\n" + "=" * 70)
-    print("RECOMMENDATIONS FOR MAIN AGENT")
-    print("=" * 70)
+    success, response = tester.run_test("Student Registration", "POST", "auth/register", 200, student_data)
+    if success and 'access_token' in response:
+        tester.student_token = response['access_token']
+        tester.student_user = response['user']
+        print(f"✅ Student authenticated: {tester.student_user['full_name']}")
+    else:
+        print("❌ Student authentication failed")
+        return 1
     
-    if mcq_session_success:
-        print("✅ MCQ Generation Fix SUCCESSFUL - System is working correctly")
-        print("✅ 12-Question Session System OPERATIONAL")
-        print("📋 RECOMMENDATION: System is ready for production use")
+    # Run the complete platform readiness test
+    print("\n" + "=" * 80)
+    print("RUNNING COMPLETE CAT PLATFORM READINESS TEST")
+    print("=" * 80)
+    
+    platform_ready = tester.test_complete_cat_platform_readiness()
+    
+    if platform_ready:
+        print("\n🎉 CAT PLATFORM READINESS TEST COMPLETED SUCCESSFULLY!")
+        print("The complete CAT preparation platform is ready for production use")
         return 0
     else:
-        print("❌ MCQ Generation Fix FAILED - Critical issues identified")
-        print("🔧 CRITICAL ISSUE: MCQGenerator.generate_options() parameter mismatch")
-        print("📋 URGENT RECOMMENDATION: Fix MCQ generation method signature")
-        print("   - Check difficulty_band parameter in generate_options() method")
-        print("   - Verify all required parameters are passed correctly")
-        print("   - Test with proper parameter order: (stem, subcategory, difficulty_band, correct_answer)")
+        print("\n❌ CAT PLATFORM READINESS TEST IDENTIFIED ISSUES")
+        print("Please review the test results above for specific areas needing attention")
         return 1
 
 def main_sophisticated():
