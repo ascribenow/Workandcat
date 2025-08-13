@@ -193,8 +193,8 @@ class AdaptiveSessionLogic:
                 select(
                     Question.subcategory,
                     func.count(Attempt.id).label('total_attempts'),
-                    func.sum(func.cast(Attempt.correct, func.Integer)).label('correct_attempts'),
-                    func.avg(func.cast(Attempt.correct, func.Float)).label('accuracy')
+                    func.sum(case((Attempt.correct == True, 1), else_=0)).label('correct_attempts'),
+                    func.avg(case((Attempt.correct == True, 1.0), else_=0.0)).label('accuracy')
                 )
                 .join(Question, Attempt.question_id == Question.id)
                 .where(Attempt.user_id == user_id)
