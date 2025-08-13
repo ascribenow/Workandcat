@@ -243,6 +243,69 @@ class EnhancedNightlyEngine:
                 'error': str(e)
             }
     
+    async def get_pyq_temporal_data(self, db: AsyncSession, subcategory: str) -> Dict[str, Any]:
+        """
+        Get temporal PYQ data for a subcategory
+        """
+        try:
+            # Get PYQ questions for this subcategory with year information
+            pyq_query = await db.execute(
+                select(
+                    PYQPaper.year,
+                    func.count(PYQQuestion.id).label('question_count')
+                )
+                .join(PYQQuestion, PYQPaper.id == PYQQuestion.paper_id)
+                .where(PYQQuestion.subcategory == subcategory)
+                .group_by(PYQPaper.year)
+                .order_by(PYQPaper.year)
+            )
+            
+            yearly_occurrences = {}
+            for row in pyq_query:
+                yearly_occurrences[row.year] = row.question_count
+            
+            # Get total PYQ questions per year for normalization
+            total_query = await db.execute(
+                select(
+                    PYQPaper.year,
+                    func.count(PYQQuestion.id).label('total_count')
+                )
+                .join(PYQQuestion, PYQPaper.id == PYQQuestion.paper_id)
+                .group_by(PYQPaper.year)
+                .order_by(PYQPaper.year)
+            )
+            
+            total_pyq_per_year = {}
+            for row in total_query:
+                total_pyq_per_year[row.year] = row.total_count
+            
+            return {
+                'yearly_occurrences': yearly_occurrences,
+                'total_pyq_per_year': total_pyq_per_year
+            }
+            
+        except Exception as e:
+            logger.error(f"Error getting PYQ temporal data for {subcategory}: {e}")
+            return {
+                'yearly_occurrences': {},
+                'total_pyq_per_year': {}
+            }
+    
+    def determine_frequency_band(self, frequency_score: float) -> str:
+        """
+        Determine frequency band based on score
+        """
+        if frequency_score >= 0.8:
+            return 'Very High'
+        elif frequency_score >= 0.6:
+            return 'High'
+        elif frequency_score >= 0.4:
+            return 'Medium'
+        elif frequency_score >= 0.2:
+            return 'Low'
+        else:
+            return 'Very Low'
+    
     async def cleanup_inactive_questions(self, db: AsyncSession) -> Dict[str, Any]:
         """
         Clean up questions that should be inactive or have issues
