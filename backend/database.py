@@ -356,7 +356,7 @@ class Session(Base):
     started_at = Column(DateTime, default=datetime.utcnow)
     ended_at = Column(DateTime, nullable=True)
     duration_sec = Column(Integer, nullable=True)
-    units = Column(JSON, default=list)
+    units = Column(Text, default='[]')  # JSON string for SQLite compatibility
     notes = Column(Text, nullable=True)
     
     # Relationships
