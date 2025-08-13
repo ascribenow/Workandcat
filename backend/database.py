@@ -228,7 +228,7 @@ class UsageLog(Base):
     api_provider = Column(String(50), nullable=False)  # 'openai', 'anthropic', 'emergent'
     model_used = Column(String(100), nullable=False)  # 'gpt-4o', 'claude-3', etc.
     tokens_used = Column(Integer, default=0)  # Total tokens consumed
-    estimated_cost = Column(Float, default=0.0)  # Estimated cost in USD
+    estimated_cost = Column(Numeric(10, 4), default=0.0)  # Estimated cost in USD
     operation_type = Column(String(100), nullable=False)  # 'question_enrichment', 'mcq_options', etc.
     created_at = Column(DateTime, default=datetime.utcnow)
     metadata = Column(Text, default='{}')  # JSON string for additional data
