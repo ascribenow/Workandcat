@@ -615,7 +615,7 @@ job_processor = None
 
 from enhanced_nightly_engine import SimplifiedNightlyEngine, ensure_preparedness_table
 
-# Initialize enhanced nightly engine
+# Initialize simplified nightly engine
 enhanced_nightly_engine = SimplifiedNightlyEngine()
 
 async def enhanced_nightly_processing_job():
