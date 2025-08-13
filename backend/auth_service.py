@@ -208,17 +208,15 @@ async def get_current_user(
             return None
 
 async def require_auth(
-    credentials: HTTPAuthorizationCredentials = Depends(security)
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    db: AsyncSession = Depends(get_async_compatible_db)
 ) -> User:
     """Require authenticated user"""
     if not credentials:
         raise HTTPException(status_code=401, detail="Authentication required")
     
-    from database import get_async_compatible_db
-    
     auth_service = AuthService()
-    async for db in get_async_compatible_db():
-        return await auth_service.get_current_user_v2(credentials.credentials, db)
+    return await auth_service.get_current_user_v2(credentials.credentials, db)
 
 async def require_admin(
     current_user: User = Depends(require_auth)
