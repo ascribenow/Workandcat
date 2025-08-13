@@ -1785,7 +1785,7 @@ async def run_enhanced_nightly_processing(
         logger.info("🌙 Starting manual enhanced nightly processing...")
         
         # Run the enhanced nightly processing
-        result = await enhanced_engine.run_nightly_processing()
+        result = await enhanced_engine.run_nightly_processing(db)
         
         return {
             "message": "Enhanced nightly processing completed",
