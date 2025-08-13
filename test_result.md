@@ -96,6 +96,88 @@
 # END - Testing Protocol - DO NOT EDIT OR REMOVE THIS SECTION
 #====================================================================================================
 
+user_problem_statement: "Test the simplified PYQ frequency logic implementation"
+
+backend:
+  - task: "Simple PYQ Calculation"
+    implemented: true
+    working: false
+    file: "/app/backend/simple_pyq_frequency.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        -working: false
+        -agent: "testing"
+        -comment: "SimplePYQFrequencyCalculator class exists and frequency band logic works correctly (High: 6+, Medium: 3-5, Low: 1-2, None: 0). However, no PYQ data exists in database to calculate frequencies from. Database schema includes frequency_band, frequency_score, and pyq_conceptual_matches fields but they are not populated."
+
+  - task: "Frequency Band Assignment"
+    implemented: true
+    working: true
+    file: "/app/backend/simple_pyq_frequency.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        -working: true
+        -agent: "testing"
+        -comment: "Frequency band assignment logic is working correctly. Tested all thresholds: High (6+), Medium (3-5), Low (1-2), None (0). The determine_frequency_band method returns correct bands for all test cases."
+
+  - task: "PYQ Data Utilization"
+    implemented: true
+    working: false
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        -working: false
+        -agent: "testing"
+        -comment: "PYQ upload endpoint exists at /admin/pyq/upload and accepts PDF/Word files. Database schema includes PYQIngestion, PYQPaper, and PYQQuestion tables. However, no PYQ data currently exists in database (0 ingestions, 0 papers, 0 questions). System cannot calculate frequencies without PYQ data."
+
+  - task: "Simplified Nightly Processing"
+    implemented: true
+    working: true
+    file: "/app/backend/enhanced_nightly_engine.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        -working: true
+        -agent: "testing"
+        -comment: "Simplified nightly processing endpoint /admin/run-enhanced-nightly is working. Successfully completed processing with stats showing mastery_updates: 0, frequency_updates: 0, inactive_questions: 0. Uses SimplePYQFrequencyCalculator for frequency refresh."
+
+  - task: "Admin Endpoints for Frequency Management"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        -working: true
+        -agent: "testing"
+        -comment: "Admin endpoints working: /admin/stats (shows system statistics), /admin/export-questions-csv (exports questions), /admin/run-enhanced-nightly (triggers processing). All endpoints accessible with admin authentication."
+
+metadata:
+  created_by: "testing_agent"
+  version: "1.0"
+  test_sequence: 1
+  run_ui: false
+
+test_plan:
+  current_focus:
+    - "Simple PYQ Calculation"
+    - "PYQ Data Utilization"
+  stuck_tasks:
+    - "Simple PYQ Calculation - requires PYQ data"
+    - "PYQ Data Utilization - no sample data"
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication:
+    -agent: "testing"
+    -message: "Completed comprehensive testing of simplified PYQ frequency logic. Core issue identified: System architecture is sound but lacks PYQ data. SimplePYQFrequencyCalculator works correctly, frequency band logic is accurate, nightly processing runs successfully, and admin endpoints are functional. However, frequency calculation cannot work without PYQ questions in database. Need to either: 1) Upload sample PYQ documents via /admin/pyq/upload endpoint, or 2) Create sample PYQ data programmatically to test frequency calculation functionality."
 
 
 #====================================================================================================
