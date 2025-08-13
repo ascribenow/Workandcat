@@ -29,29 +29,33 @@ async def run_phase1_migration():
         # Initialize database
         await init_database()
         
-        async for db in get_async_compatible_db():
+        # Get database session
+        from database import AsyncSession
+        async_session = AsyncSession()
+        
+        try:
             # Check if column already exists
             try:
-                await db.execute(text("SELECT pyq_frequency_score FROM questions LIMIT 1"))
+                await async_session.execute(text("SELECT pyq_frequency_score FROM questions LIMIT 1"))
                 logger.info("✅ pyq_frequency_score column already exists")
                 
             except Exception:
                 logger.info("➕ Adding pyq_frequency_score column to questions table")
                 
                 # Add the new column
-                await db.execute(text("""
+                await async_session.execute(text("""
                     ALTER TABLE questions 
                     ADD COLUMN pyq_frequency_score DECIMAL(5,4) DEFAULT 0.5
                 """))
                 
-                await db.commit()
+                await async_session.commit()
                 logger.info("✅ pyq_frequency_score column added successfully")
             
             # Update existing questions with default PYQ frequency scores based on subcategory
             logger.info("🔄 Updating existing questions with PYQ frequency estimates")
             
             # High frequency subcategories (based on CAT pattern analysis)
-            high_freq_update = await db.execute(text("""
+            high_freq_update = await async_session.execute(text("""
                 UPDATE questions 
                 SET pyq_frequency_score = 0.8
                 WHERE subcategory IN (
@@ -66,7 +70,7 @@ async def run_phase1_migration():
             """))
             
             # Medium frequency subcategories
-            medium_freq_update = await db.execute(text("""
+            medium_freq_update = await async_session.execute(text("""
                 UPDATE questions 
                 SET pyq_frequency_score = 0.6
                 WHERE subcategory IN (
@@ -83,7 +87,7 @@ async def run_phase1_migration():
             
             # Low frequency subcategories get default 0.5 (already set)
             
-            await db.commit()
+            await async_session.commit()
             
             # Get update counts
             high_count = high_freq_update.rowcount
@@ -93,13 +97,13 @@ async def run_phase1_migration():
             logger.info(f"✅ Updated {medium_count} questions to medium frequency (0.6)")
             
             # Get total question count for verification
-            total_result = await db.execute(text("SELECT COUNT(*) FROM questions WHERE is_active = true"))
+            total_result = await async_session.execute(text("SELECT COUNT(*) FROM questions WHERE is_active = true"))
             total_questions = total_result.scalar()
             
             logger.info(f"📊 Total active questions in database: {total_questions}")
             
             # Verify the distribution
-            freq_distribution = await db.execute(text("""
+            freq_distribution = await async_session.execute(text("""
                 SELECT 
                     CASE 
                         WHEN pyq_frequency_score >= 0.7 THEN 'High (≥0.7)'
@@ -132,6 +136,9 @@ async def run_phase1_migration():
                 'total_questions': total_questions,
                 'enhancement_level': 'phase_1_pyq_frequency_integration'
             }
+            
+        finally:
+            await async_session.close()
             
     except Exception as e:
         logger.error(f"❌ PHASE 1 migration failed: {e}")
