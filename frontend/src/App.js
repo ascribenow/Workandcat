@@ -120,7 +120,7 @@ const Login = () => {
               <img 
                 src="/images/twelvr-logo.png" 
                 alt="Twelvr Logo" 
-                className="h-24 w-auto"
+                className="h-40 w-auto"
                 style={{backgroundColor: 'transparent'}}
               />
             </div>
