@@ -626,9 +626,6 @@ async def enhanced_nightly_processing_job():
     logger.info("🌙 Starting enhanced nightly processing job")
     
     try:
-        # Ensure required tables exist
-        await ensure_preparedness_table()
-        
         # Run comprehensive nightly processing
         result = await enhanced_nightly_engine.run_nightly_processing()
         
