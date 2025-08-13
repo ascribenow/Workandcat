@@ -17,7 +17,7 @@ from sqlalchemy import select
 import logging
 
 # Import database models
-from database import User as DBUser
+from database import User as DBUser, get_async_compatible_db
 
 # Hard-coded admin email
 ADMIN_EMAIL = "sumedhprabhu18@gmail.com"
