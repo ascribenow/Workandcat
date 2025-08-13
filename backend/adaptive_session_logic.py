@@ -553,7 +553,7 @@ class AdaptiveSessionLogic:
                 return category
         return "A-Arithmetic"  # Default fallback
 
-    async def create_simple_fallback_session(self, user_id: str, db: Session) -> Dict[str, Any]:
+    async def create_simple_fallback_session(self, user_id: str, db: AsyncSession) -> Dict[str, Any]:
         """Fallback to simple random selection if sophisticated logic fails"""
         try:
             logger.info(f"Creating simple fallback session for user {user_id}")
