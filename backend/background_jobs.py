@@ -21,7 +21,7 @@ from database import (
 from mastery_tracker import MasteryTracker
 from study_planner import StudyPlanner
 from llm_enrichment import LLMEnrichmentPipeline
-from enhanced_nightly_engine import EnhancedNightlyEngine
+from enhanced_nightly_engine import SimplifiedNightlyEngine
 
 logger = logging.getLogger(__name__)
 
