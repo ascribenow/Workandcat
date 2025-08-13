@@ -800,7 +800,13 @@ async def get_next_question(
             "session_progress": {
                 "current_question": answered_count + 1,
                 "total_questions": len(question_ids),
-                "questions_remaining": len(question_ids) - answered_count
+                "questions_remaining": len(question_ids) - answered_count,
+                "progress_percentage": round((answered_count + 1) / len(question_ids) * 100, 1)
+            },
+            "session_intelligence": {
+                "question_selected_for": "Based on your learning profile and performance patterns",
+                "difficulty_rationale": f"This {question.difficulty_band or 'Medium'} question is chosen to match your current skill level",
+                "category_focus": f"Focusing on {question.subcategory} to strengthen your understanding"
             },
             "session_complete": False
         }
