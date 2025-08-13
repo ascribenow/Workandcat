@@ -53,7 +53,7 @@ class AdaptiveSessionLogic:
             ]
         }
 
-    async def create_personalized_session(self, user_id: str, db: Session) -> Dict[str, Any]:
+    async def create_personalized_session(self, user_id: str, db: AsyncSession) -> Dict[str, Any]:
         """
         Create a sophisticated 12-question session tailored to the user's learning profile
         """
