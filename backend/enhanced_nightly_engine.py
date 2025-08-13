@@ -418,14 +418,14 @@ class EnhancedNightlyEngine:
         Get summary of the current processing status
         """
         try:
-            # Get simple frequency summary
-            frequency_summary = await self.pyq_calculator.get_frequency_summary(db)
+            # Get enhanced frequency summary
+            frequency_summary = await self.get_enhanced_frequency_summary(db)
             
             # Get recent processing stats
             return {
                 'last_processing': self.processing_stats,
                 'frequency_analysis': frequency_summary,
-                'system_status': 'simplified_processing_active'
+                'system_status': 'enhanced_processing_active'
             }
             
         except Exception as e:
@@ -433,4 +433,59 @@ class EnhancedNightlyEngine:
             return {
                 'error': str(e),
                 'system_status': 'error'
+            }
+    
+    async def get_enhanced_frequency_summary(self, db: AsyncSession) -> Dict[str, Any]:
+        """
+        Get summary of enhanced frequency analysis
+        """
+        try:
+            # Get frequency band distribution
+            freq_dist = await db.execute(
+                select(
+                    Question.frequency_band,
+                    func.count(Question.id).label('count'),
+                    func.avg(Question.frequency_score).label('avg_score')
+                )
+                .where(Question.is_active == True)
+                .group_by(Question.frequency_band)
+            )
+            
+            distribution = {}
+            for row in freq_dist:
+                band = row.frequency_band or 'Unanalyzed'
+                distribution[band] = {
+                    'count': row.count,
+                    'avg_score': round(row.avg_score or 0.0, 3)
+                }
+            
+            # Get recent updates
+            recent_updates = await db.execute(
+                select(func.count(Question.id))
+                .where(
+                    and_(
+                        Question.is_active == True,
+                        Question.last_frequency_update >= datetime.utcnow() - timedelta(days=1)
+                    )
+                )
+            )
+            
+            recent_count = recent_updates.scalar() or 0
+            
+            return {
+                'method': 'time_weighted_analysis',
+                'frequency_distribution': distribution,
+                'recent_updates_24h': recent_count,
+                'analyzer_config': {
+                    'total_data_years': self.time_analyzer.config.total_data_years,
+                    'relevance_window_years': self.time_analyzer.config.relevance_window_years,
+                    'decay_rate': self.time_analyzer.config.decay_rate
+                }
+            }
+            
+        except Exception as e:
+            logger.error(f"Error getting enhanced frequency summary: {e}")
+            return {
+                'error': str(e),
+                'method': 'time_weighted_analysis'
             }
