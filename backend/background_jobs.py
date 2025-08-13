@@ -620,28 +620,31 @@ enhanced_nightly_engine = SimplifiedNightlyEngine()
 
 async def enhanced_nightly_processing_job():
     """
-    Enhanced nightly processing job implementing all 8 feedback requirements
-    Runs deterministic, auditable nightly updates with proper error handling
+    Simplified nightly processing job for essential maintenance tasks
     """
-    logger.info("🌙 Starting enhanced nightly processing job")
+    logger.info("🌙 Starting simplified nightly processing job")
     
     try:
-        # Run comprehensive nightly processing
-        result = await enhanced_nightly_engine.run_nightly_processing()
+        from database import get_async_compatible_db
         
-        if result["success"]:
-            logger.info(f"✅ Enhanced nightly processing completed successfully: {result}")
-            logger.info(f"📊 Statistics: {result.get('statistics', {})}")
-        else:
-            logger.error(f"❌ Enhanced nightly processing failed: {result.get('error', 'Unknown error')}")
+        # Get database session
+        async for db in get_async_compatible_db():
+            # Run simplified nightly processing
+            result = await enhanced_nightly_engine.run_nightly_processing(db)
             
-        return result
+            if result.get("status") == "completed":
+                logger.info(f"✅ Simplified nightly processing completed successfully")
+                logger.info(f"📊 Statistics: {result.get('stats', {})}")
+            else:
+                logger.error(f"❌ Simplified nightly processing failed: {result.get('error', 'Unknown error')}")
+                
+            return result
         
     except Exception as e:
-        logger.error(f"❌ Enhanced nightly processing job failed: {e}")
+        logger.error(f"❌ Simplified nightly processing job failed: {e}")
         import traceback
         traceback.print_exc()
-        return {"success": False, "error": str(e)}
+        return {"status": "error", "error": str(e)}
 
 
 def start_background_processing(llm_api_key: str):
