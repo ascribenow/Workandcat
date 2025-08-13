@@ -397,14 +397,16 @@ class AdaptiveSessionLogic:
         else:  # advanced
             return {"Easy": 2, "Medium": 4, "Hard": 6}  # Challenge focused
 
-    async def get_personalized_question_pool(self, user_id: str, user_profile: Dict, db: AsyncSession) -> List[Question]:
-        """Get a personalized pool of questions based on user profile"""
+    async def get_pyq_weighted_question_pool(self, user_id: str, user_profile: Dict, db: AsyncSession) -> List[Question]:
+        """
+        PHASE 1: Get PYQ frequency-weighted personalized question pool
+        """
         try:
             question_pool = []
             
-            # Priority 1: Questions from weak areas (60% of pool)
+            # Priority 1: Questions from weak areas (60% of pool) - PYQ weighted
             if user_profile['weak_subcategories']:
-                weak_questions = await db.execute(
+                weak_questions_result = await db.execute(
                     select(Question)
                     .where(
                         and_(
@@ -412,14 +414,14 @@ class AdaptiveSessionLogic:
                             Question.subcategory.in_(user_profile['weak_subcategories'])
                         )
                     )
-                    .order_by(func.random())
+                    .order_by(desc(Question.pyq_frequency_score), func.random())  # PYQ frequency weighted
                     .limit(20)
                 )
-                question_pool.extend(weak_questions.scalars().all())
+                question_pool.extend(weak_questions_result.scalars().all())
             
-            # Priority 2: Questions from moderate areas (30% of pool)
+            # Priority 2: Questions from moderate areas (30% of pool) - PYQ weighted
             if user_profile['moderate_subcategories']:
-                moderate_questions = await db.execute(
+                moderate_questions_result = await db.execute(
                     select(Question)
                     .where(
                         and_(
@@ -427,14 +429,14 @@ class AdaptiveSessionLogic:
                             Question.subcategory.in_(user_profile['moderate_subcategories'])
                         )
                     )
-                    .order_by(func.random())
+                    .order_by(desc(Question.pyq_frequency_score), func.random())  # PYQ frequency weighted
                     .limit(10)
                 )
-                question_pool.extend(moderate_questions.scalars().all())
+                question_pool.extend(moderate_questions_result.scalars().all())
             
-            # Priority 3: Questions from strong areas for retention (10% of pool)
+            # Priority 3: Questions from strong areas for retention (10% of pool) - PYQ weighted
             if user_profile['strong_subcategories']:
-                strong_questions = await db.execute(
+                strong_questions_result = await db.execute(
                     select(Question)
                     .where(
                         and_(
@@ -442,52 +444,247 @@ class AdaptiveSessionLogic:
                             Question.subcategory.in_(user_profile['strong_subcategories'])
                         )
                     )
-                    .order_by(func.random())
+                    .order_by(desc(Question.pyq_frequency_score), func.random())  # PYQ frequency weighted
                     .limit(5)
                 )
-                question_pool.extend(strong_questions.scalars().all())
+                question_pool.extend(strong_questions_result.scalars().all())
             
-            # If not enough personalized questions, add random questions
+            # If not enough personalized questions, add PYQ-weighted random questions
             if len(question_pool) < 25:
-                additional_questions = await db.execute(
+                additional_questions_result = await db.execute(
                     select(Question)
                     .where(Question.is_active == True)
-                    .order_by(func.random())
+                    .order_by(desc(Question.pyq_frequency_score), func.random())  # PYQ frequency weighted
                     .limit(30 - len(question_pool))
                 )
-                question_pool.extend(additional_questions.scalars().all())
+                question_pool.extend(additional_questions_result.scalars().all())
             
+            logger.info(f"Generated PYQ-weighted pool with {len(question_pool)} questions")
             return question_pool
             
         except Exception as e:
-            logger.error(f"Error getting personalized question pool: {e}")
+            logger.error(f"Error getting PYQ weighted question pool: {e}")
             return []
 
-    async def apply_selection_strategies(self, user_id: str, user_profile: Dict, 
-                                       question_pool: List[Question], db: AsyncSession) -> List[Question]:
-        """Apply intelligent selection strategies to choose 12 questions"""
+    async def apply_enhanced_selection_strategies(
+        self, 
+        user_id: str, 
+        user_profile: Dict, 
+        question_pool: List[Question], 
+        dynamic_distribution: Dict[str, int],
+        db: AsyncSession
+    ) -> List[Question]:
+        """
+        PHASE 1: Apply enhanced selection strategies with all improvements
+        """
         try:
             selected_questions = []
             
-            # Strategy 1: Category-balanced selection
-            category_questions = self.select_by_category_distribution(question_pool, user_profile)
+            # Strategy 1: Dynamic category-balanced selection
+            category_questions = await self.select_by_dynamic_category_distribution(
+                question_pool, user_profile, dynamic_distribution
+            )
             
-            # Strategy 2: Difficulty-balanced selection
-            difficulty_questions = self.select_by_difficulty_distribution(category_questions, user_profile)
+            # Strategy 2: Difficulty-balanced selection with PYQ weighting
+            difficulty_questions = await self.select_by_difficulty_with_pyq_weighting(
+                category_questions, user_profile
+            )
             
-            # Strategy 3: Spaced repetition filter
-            spaced_questions = await self.apply_spaced_repetition_filter(
+            # Strategy 3: PHASE 1 - Enhanced differential cooldown filter
+            cooled_questions = await self.apply_differential_cooldown_filter(
                 user_id, difficulty_questions, db
             )
             
-            # Strategy 4: Ensure variety in question types
-            final_questions = self.ensure_question_variety(spaced_questions)
+            # Strategy 4: PHASE 1 - Subcategory diversity enforcement
+            diverse_questions = await self.enforce_subcategory_diversity(cooled_questions)
+            
+            # Strategy 5: Ensure question type variety
+            final_questions = self.ensure_question_variety(diverse_questions)
             
             return final_questions[:12]
             
         except Exception as e:
-            logger.error(f"Error applying selection strategies: {e}")
+            logger.error(f"Error applying enhanced selection strategies: {e}")
             return question_pool[:12]
+
+    async def select_by_dynamic_category_distribution(
+        self, 
+        questions: List[Question], 
+        user_profile: Dict,
+        dynamic_distribution: Dict[str, int]
+    ) -> List[Question]:
+        """
+        PHASE 1: Select questions using dynamic category distribution
+        """
+        try:
+            selected = []
+            
+            # Group questions by category
+            category_groups = {}
+            for question in questions:
+                category = self.get_category_from_subcategory(question.subcategory)
+                if category not in category_groups:
+                    category_groups[category] = []
+                category_groups[category].append(question)
+            
+            # Select questions according to DYNAMIC distribution
+            for category, target_count in dynamic_distribution.items():
+                if category in category_groups:
+                    category_questions = category_groups[category]
+                    
+                    # Sort by weakness first, then PYQ frequency
+                    prioritized = sorted(
+                        category_questions,
+                        key=lambda q: (
+                            0 if q.subcategory in user_profile['weak_subcategories'] else
+                            1 if q.subcategory in user_profile['moderate_subcategories'] else 2,
+                            -(q.pyq_frequency_score or 0.5)  # Higher PYQ frequency first
+                        )
+                    )
+                    
+                    selected.extend(prioritized[:target_count])
+            
+            logger.info(f"Selected {len(selected)} questions using dynamic distribution")
+            return selected
+            
+        except Exception as e:
+            logger.error(f"Error in dynamic category selection: {e}")
+            return questions[:12]
+
+    async def select_by_difficulty_with_pyq_weighting(
+        self, 
+        questions: List[Question], 
+        user_profile: Dict
+    ) -> List[Question]:
+        """
+        PHASE 1: Select questions with difficulty distribution and PYQ frequency weighting
+        """
+        try:
+            difficulty_prefs = user_profile['difficulty_preferences']
+            selected = []
+            
+            # Group by difficulty
+            difficulty_groups = {'Easy': [], 'Medium': [], 'Hard': []}
+            for question in questions:
+                difficulty = question.difficulty_band or 'Medium'
+                if difficulty in difficulty_groups:
+                    difficulty_groups[difficulty].append(question)
+            
+            # Select according to difficulty preferences, weighted by PYQ frequency
+            for difficulty, target_count in difficulty_prefs.items():
+                if difficulty in difficulty_groups:
+                    available = difficulty_groups[difficulty]
+                    
+                    # Sort by PYQ frequency score (higher first)
+                    pyq_weighted = sorted(
+                        available, 
+                        key=lambda q: -(q.pyq_frequency_score or 0.5)
+                    )
+                    
+                    selected.extend(pyq_weighted[:target_count])
+            
+            return selected
+            
+        except Exception as e:
+            logger.error(f"Error in PYQ-weighted difficulty selection: {e}")
+            return questions
+
+    async def apply_differential_cooldown_filter(
+        self, 
+        user_id: str, 
+        questions: List[Question], 
+        db: AsyncSession
+    ) -> List[Question]:
+        """
+        PHASE 1: Apply differential cooldown periods based on difficulty
+        """
+        try:
+            cooled_questions = []
+            
+            for question in questions:
+                difficulty = question.difficulty_band or 'Medium'
+                cooldown_days = self.cooldown_periods.get(difficulty, 2)
+                
+                # Check if question is within cooldown period
+                recent_cutoff = datetime.utcnow() - timedelta(days=cooldown_days)
+                
+                recent_attempt_result = await db.execute(
+                    select(Attempt.id)
+                    .where(
+                        and_(
+                            Attempt.user_id == user_id,
+                            Attempt.question_id == question.id,
+                            Attempt.created_at >= recent_cutoff
+                        )
+                    )
+                    .limit(1)
+                )
+                
+                recent_attempt = recent_attempt_result.scalar_one_or_none()
+                
+                if not recent_attempt:  # Question is outside cooldown period
+                    cooled_questions.append(question)
+            
+            logger.info(f"After differential cooldown filter: {len(cooled_questions)} questions")
+            
+            # If not enough questions after cooldown, add some recent ones back
+            if len(cooled_questions) < 12:
+                remaining_needed = 12 - len(cooled_questions)
+                recent_questions = [q for q in questions if q not in cooled_questions]
+                cooled_questions.extend(recent_questions[:remaining_needed])
+            
+            return cooled_questions
+                
+        except Exception as e:
+            logger.error(f"Error applying differential cooldown filter: {e}")
+            return questions
+
+    async def enforce_subcategory_diversity(self, questions: List[Question]) -> List[Question]:
+        """
+        PHASE 1: Enforce subcategory diversity caps to prevent domination
+        """
+        try:
+            subcategory_counts = {}
+            diverse_questions = []
+            
+            # Sort questions by PYQ frequency first to prioritize high-frequency questions
+            sorted_questions = sorted(
+                questions, 
+                key=lambda q: -(q.pyq_frequency_score or 0.5)
+            )
+            
+            for question in sorted_questions:
+                subcategory = question.subcategory
+                current_count = subcategory_counts.get(subcategory, 0)
+                
+                # Check if adding this question would exceed subcategory limit
+                if current_count < self.max_questions_per_subcategory:
+                    diverse_questions.append(question)
+                    subcategory_counts[subcategory] = current_count + 1
+                
+                # Stop if we have enough questions
+                if len(diverse_questions) >= 12:
+                    break
+            
+            # Ensure minimum subcategory diversity
+            unique_subcategories = len(set(q.subcategory for q in diverse_questions[:12]))
+            
+            if unique_subcategories < self.min_subcategories_per_session:
+                logger.warning(f"Only {unique_subcategories} subcategories, below minimum {self.min_subcategories_per_session}")
+                # Try to add more diverse questions if available
+                remaining_questions = [q for q in questions if q not in diverse_questions]
+                for question in remaining_questions:
+                    if question.subcategory not in [q.subcategory for q in diverse_questions]:
+                        diverse_questions.append(question)
+                        if len(set(q.subcategory for q in diverse_questions[:12])) >= self.min_subcategories_per_session:
+                            break
+            
+            logger.info(f"Enforced diversity: {len(diverse_questions)} questions from {unique_subcategories} subcategories")
+            return diverse_questions
+            
+        except Exception as e:
+            logger.error(f"Error enforcing subcategory diversity: {e}")
+            return questions
 
     def select_by_category_distribution(self, questions: List[Question], 
                                       user_profile: Dict) -> List[Question]:
