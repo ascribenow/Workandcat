@@ -32,9 +32,9 @@ class BackgroundJobProcessor:
         self.study_planner = StudyPlanner()
         self.llm_pipeline = LLMEnrichmentPipeline(llm_api_key)
         
-        # Initialize Enhanced Nightly Engine with LLM support
-        self.enhanced_nightly_engine = SimplifiedNightlyEngine(llm_pipeline=self.llm_pipeline)
-        logger.info("✅ Enhanced Nightly Engine initialized with LLM-powered conceptual frequency analysis")
+        # Initialize Simplified Nightly Engine
+        self.enhanced_nightly_engine = SimplifiedNightlyEngine()
+        logger.info("✅ Simplified Nightly Engine initialized for basic maintenance tasks")
         
     def start_scheduler(self):
         """Start the background job scheduler"""
