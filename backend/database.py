@@ -202,7 +202,7 @@ class User(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     
     # Spending Controls
-    spending_limit_monthly = Column(Float, default=10.0)  # Monthly spending limit in USD
+    spending_limit_monthly = Column(Numeric(10, 2), default=10.0)  # Monthly spending limit in USD
     spending_limit_enabled = Column(Boolean, default=True)  # Enable/disable spending controls
     current_month_spending = Column(Float, default=0.0)  # Current month's spending
     last_spending_reset = Column(Date, default=lambda: datetime.utcnow().date())  # Last reset date
