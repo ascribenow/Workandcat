@@ -13,7 +13,7 @@ backend_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__fil
 sys.path.insert(0, backend_dir)
 
 from sqlalchemy import text
-from database import init_database, get_async_compatible_db
+from database import SessionLocal, init_database
 import logging
 
 logging.basicConfig(level=logging.INFO)
