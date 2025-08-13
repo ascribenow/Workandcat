@@ -533,6 +533,245 @@ class CATBackendTester:
         
         return False
 
+    def test_mcq_content_quality_validation(self):
+        """Test MCQ Content Quality - CRITICAL FOCUS ON REAL MATHEMATICAL ANSWERS"""
+        print("🔍 CRITICAL VALIDATION: MCQ Content Quality - Real Mathematical Answers")
+        print("   Focus: Verify actual mathematical answers are generated, not placeholders")
+        print("   Expected: Options like 'A': '45', 'B': '90', 'C': '22.5', 'D': '180'")
+        print("   NOT: 'A': 'Option A', 'B': 'Option B', etc.")
+        print("   Admin credentials: sumedhprabhu18@gmail.com / admin2025")
+        
+        if not self.student_token:
+            print("❌ Cannot test MCQ content quality - no student token")
+            return False
+
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {self.student_token}'
+        }
+
+        test_results = {
+            "session_creation": False,
+            "mcq_content_quality": False,
+            "mathematical_answers": False,
+            "answer_relevance": False,
+            "fallback_system": False
+        }
+
+        # TEST 1: Create 12-Question Session
+        print("\n   🚀 TEST 1: Create 12-Question Session")
+        
+        session_data = {"target_minutes": 30}
+        success, response = self.run_test("Create 12-Question Session", "POST", "sessions/start", 200, session_data, headers)
+        
+        if not success or 'session_id' not in response:
+            print("   ❌ CRITICAL FAILURE: Session creation failed")
+            return False
+        
+        session_id = response['session_id']
+        total_questions = response.get('total_questions', 0)
+        session_type = response.get('session_type', '')
+        
+        print(f"   ✅ SUCCESS: 12-question session created")
+        print(f"   Session ID: {session_id}")
+        print(f"   Total questions: {total_questions}")
+        print(f"   Session type: {session_type}")
+        test_results["session_creation"] = True
+
+        # TEST 2: Get First Question and Examine MCQ Options in Detail
+        print(f"\n   📝 TEST 2: MCQ Content Quality Analysis")
+        print("   CRITICAL: Examining MCQ options for real mathematical content")
+        
+        success, response = self.run_test("Get First Question - MCQ Content Analysis", "GET", f"sessions/{session_id}/next-question", 200, None, headers)
+        
+        if not success or 'question' not in response:
+            print("   ❌ CRITICAL FAILURE: Cannot retrieve question for MCQ analysis")
+            return False
+        
+        first_question = response['question']
+        options = first_question.get('options', {})
+        
+        if not options:
+            print("   ❌ CRITICAL FAILURE: No MCQ options generated")
+            return False
+        
+        print(f"   ✅ MCQ options found: {list(options.keys())}")
+        
+        # CRITICAL ANALYSIS: Check for real mathematical answers vs placeholders
+        print("\n   🔍 DETAILED MCQ CONTENT ANALYSIS:")
+        print(f"   Question stem: {first_question.get('stem', '')[:150]}...")
+        print(f"   Question subcategory: {first_question.get('subcategory')}")
+        print(f"   Question difficulty: {first_question.get('difficulty_band')}")
+        
+        mathematical_content_found = False
+        placeholder_content_found = False
+        
+        for option_key, option_value in options.items():
+            print(f"   Option {option_key}: '{option_value}'")
+            
+            # Check for placeholder content (bad)
+            if any(placeholder in str(option_value).lower() for placeholder in ['option a', 'option b', 'option c', 'option d', 'placeholder']):
+                placeholder_content_found = True
+                print(f"     ❌ PLACEHOLDER DETECTED: Option {option_key} contains placeholder text")
+            
+            # Check for mathematical content (good)
+            if self._is_mathematical_content(str(option_value)):
+                mathematical_content_found = True
+                print(f"     ✅ MATHEMATICAL CONTENT: Option {option_key} contains real mathematical value")
+        
+        if placeholder_content_found:
+            print("   ❌ CRITICAL ISSUE: Placeholder content found in MCQ options")
+            print("   This indicates LLM is not generating real mathematical answers")
+        else:
+            print("   ✅ NO PLACEHOLDER CONTENT: All options appear to be real content")
+            test_results["mcq_content_quality"] = True
+        
+        if mathematical_content_found:
+            print("   ✅ MATHEMATICAL CONTENT CONFIRMED: Options contain real mathematical values")
+            test_results["mathematical_answers"] = True
+        else:
+            print("   ⚠️ LIMITED MATHEMATICAL CONTENT: Options may not be optimal mathematical values")
+
+        # TEST 3: Answer Relevance Analysis
+        print(f"\n   🎯 TEST 3: Answer Relevance Analysis")
+        
+        correct_answer = options.get('correct', 'Unknown')
+        print(f"   Correct answer: '{correct_answer}'")
+        
+        # Check if one of the A,B,C,D options matches the correct answer
+        matching_option = None
+        for opt_key in ['A', 'B', 'C', 'D']:
+            if opt_key in options and str(options[opt_key]).strip() == str(correct_answer).strip():
+                matching_option = opt_key
+                break
+        
+        if matching_option:
+            print(f"   ✅ ANSWER RELEVANCE: Correct answer '{correct_answer}' matches option {matching_option}")
+            test_results["answer_relevance"] = True
+        else:
+            print(f"   ❌ ANSWER MISMATCH: Correct answer '{correct_answer}' not found in A,B,C,D options")
+            print(f"   Available options: {[(k, v) for k, v in options.items() if k in ['A', 'B', 'C', 'D']]}")
+
+        # TEST 4: Test Answer Submission with MCQ Options
+        print(f"\n   📋 TEST 4: Answer Submission with MCQ Options")
+        
+        if test_results["answer_relevance"]:
+            # Submit the correct answer
+            answer_data = {
+                "question_id": first_question['id'],
+                "user_answer": matching_option,
+                "time_sec": 45,
+                "hint_used": False
+            }
+            
+            success, response = self.run_test("Submit Correct MCQ Answer", "POST", f"sessions/{session_id}/submit-answer", 200, answer_data, headers)
+            
+            if success:
+                is_correct = response.get('correct', False)
+                print(f"   ✅ Answer submitted successfully")
+                print(f"   Answer marked as correct: {is_correct}")
+                print(f"   Solution feedback provided: {bool(response.get('solution_feedback'))}")
+                
+                if is_correct:
+                    print("   ✅ MCQ SYSTEM WORKING: Correct answer properly recognized")
+                else:
+                    print("   ⚠️ Answer recognition issue - may need investigation")
+            else:
+                print("   ❌ Answer submission failed")
+        else:
+            print("   ⚠️ SKIPPING: Answer submission test (answer relevance failed)")
+
+        # TEST 5: Test Multiple Questions for Consistency
+        print(f"\n   🔄 TEST 5: Multiple Questions Consistency Check")
+        
+        questions_tested = 1
+        consistent_quality = True
+        
+        for i in range(2):  # Test 2 more questions
+            success, response = self.run_test(f"Get Question {questions_tested + 1}", "GET", f"sessions/{session_id}/next-question", 200, None, headers)
+            
+            if success and response.get('question'):
+                question = response['question']
+                options = question.get('options', {})
+                
+                if options:
+                    questions_tested += 1
+                    print(f"   Question {questions_tested} options: {list(options.keys())}")
+                    
+                    # Quick check for mathematical content
+                    has_math_content = any(self._is_mathematical_content(str(v)) for v in options.values() if isinstance(v, (str, int, float)))
+                    has_placeholders = any('option' in str(v).lower() for v in options.values() if isinstance(v, str))
+                    
+                    if has_placeholders:
+                        consistent_quality = False
+                        print(f"     ❌ Question {questions_tested}: Contains placeholder content")
+                    elif has_math_content:
+                        print(f"     ✅ Question {questions_tested}: Contains mathematical content")
+                    else:
+                        print(f"     ⚠️ Question {questions_tested}: Content quality unclear")
+                else:
+                    consistent_quality = False
+                    print(f"     ❌ Question {questions_tested}: No MCQ options generated")
+            else:
+                break  # No more questions or error
+        
+        if consistent_quality and questions_tested >= 2:
+            print(f"   ✅ CONSISTENCY CHECK PASSED: {questions_tested} questions show consistent MCQ quality")
+            test_results["fallback_system"] = True
+        else:
+            print(f"   ❌ CONSISTENCY ISSUES: Quality varies across {questions_tested} questions tested")
+
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 70)
+        print("MCQ CONTENT QUALITY VALIDATION RESULTS")
+        print("=" * 70)
+        
+        passed_tests = sum(test_results.values())
+        total_tests = len(test_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        for test_name, result in test_results.items():
+            status = "✅ PASS" if result else "❌ FAIL"
+            print(f"{test_name.replace('_', ' ').title():<30} {status}")
+            
+        print("-" * 70)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # Specific diagnosis for MCQ content quality
+        if test_results["mathematical_answers"] and not any('option' in str(v).lower() for v in options.values() if isinstance(v, str)):
+            print("🎉 MCQ CONTENT QUALITY EXCELLENT!")
+            print("   ✅ Real mathematical answers generated instead of placeholders")
+            print("   ✅ No 'Option A, Option B' placeholder text found")
+        else:
+            print("❌ MCQ CONTENT QUALITY ISSUES DETECTED!")
+            print("   ❌ Placeholder content or non-mathematical answers found")
+            print("   🔧 LLM response parsing and fallback systems need improvement")
+            
+        return success_rate >= 60
+
+    def _is_mathematical_content(self, content):
+        """Helper method to detect if content contains mathematical values"""
+        import re
+        
+        # Check for numbers (integers, decimals, fractions)
+        if re.search(r'\d+\.?\d*', str(content)):
+            return True
+        
+        # Check for mathematical expressions
+        math_patterns = [
+            r'\d+/\d+',  # fractions like 3/4
+            r'\d+:\d+',  # ratios like 2:3
+            r'\d+%',     # percentages like 25%
+            r'\d+\s*(km|m|cm|kg|g|hours?|minutes?|seconds?|mph|kmph)',  # units
+            r'[+-]?\d*\.?\d+',  # signed numbers
+        ]
+        
+        for pattern in math_patterns:
+            if re.search(pattern, str(content), re.IGNORECASE):
+                return True
+        
+        return False
+
     def test_mcq_generation_fix_and_session_system(self):
         """Test MCQ Generation Fix and 12-Question Session System - CRITICAL VALIDATION"""
         print("🔍 CRITICAL VALIDATION: MCQ Generation Fix and 12-Question Session System")
