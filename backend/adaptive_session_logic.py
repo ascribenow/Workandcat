@@ -92,7 +92,7 @@ class AdaptiveSessionLogic:
             logger.error(f"Error creating personalized session: {e}")
             return await self.create_simple_fallback_session(user_id, db)
 
-    async def analyze_user_learning_profile(self, user_id: str, db: Session) -> Dict[str, Any]:
+    async def analyze_user_learning_profile(self, user_id: str, db: AsyncSession) -> Dict[str, Any]:
         """
         Comprehensive analysis of user's learning patterns and performance
         """
