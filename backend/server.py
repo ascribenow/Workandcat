@@ -417,7 +417,7 @@ async def create_question(
             has_image=bool(question_data.image_url and question_data.image_url.strip()),
             image_url=question_data.image_url,
             image_alt_text=question_data.image_alt_text,
-            is_active=False  # Will be activated after enrichment
+            is_active=True if question_data.source == "Test Data" else False  # Activate test questions immediately
         )
         
         db.add(question)
