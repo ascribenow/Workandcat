@@ -26,7 +26,7 @@ from docx import Document
 import io
 from google_drive_utils import GoogleDriveImageFetcher
 
-# Import our modules
+from adaptive_session_logic import AdaptiveSessionLogic
 from database import (
     get_async_compatible_db, init_database, User, Question, Topic, Attempt, Mastery, Plan, PlanUnit, Session,
     PYQIngestion, PYQPaper, PYQQuestion, QuestionOption, AsyncSession
