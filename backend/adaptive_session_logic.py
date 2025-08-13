@@ -265,7 +265,7 @@ class AdaptiveSessionLogic:
         else:  # advanced
             return {"Easy": 2, "Medium": 4, "Hard": 6}  # Challenge focused
 
-    async def get_personalized_question_pool(self, user_id: str, user_profile: Dict, db: Session) -> List[Question]:
+    async def get_personalized_question_pool(self, user_id: str, user_profile: Dict, db: AsyncSession) -> List[Question]:
         """Get a personalized pool of questions based on user profile"""
         try:
             question_pool = []
