@@ -625,21 +625,43 @@ async def start_session(
     current_user: User = Depends(require_auth),
     db: AsyncSession = Depends(get_async_compatible_db)
 ):
-    """Start a new study session"""
+    """Start a new 12-question study session"""
     try:
+        # Get 12 active questions for the session
+        result = await db.execute(
+            select(Question)
+            .where(Question.is_active == True)
+            .order_by(func.random())  # SQLite random function
+            .limit(12)
+        )
+        questions = result.scalars().all()
+        
+        if len(questions) < 12:
+            # If we don't have 12 questions, get what we can
+            question_count = len(questions)
+            if question_count == 0:
+                raise HTTPException(status_code=404, detail="No questions available for session")
+        else:
+            question_count = 12
+            
+        # Create session record with question IDs
+        question_ids = [str(q.id) for q in questions]
         session = Session(
             user_id=current_user.id,
             started_at=datetime.utcnow(),
-            units=session_data.plan_unit_ids or []
+            units=question_ids,  # Store the 12 question IDs
+            notes=f"12-question session with {question_count} questions"
         )
         
         db.add(session)
         await db.commit()
         
         return {
+            "message": f"12-question session started successfully",
             "session_id": str(session.id),
-            "started_at": session.started_at.isoformat(),
-            "message": "Study session started"
+            "total_questions": question_count,
+            "session_type": "12_question_set",
+            "current_question": 1
         }
         
     except Exception as e:
