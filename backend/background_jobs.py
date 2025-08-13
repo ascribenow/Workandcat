@@ -613,10 +613,10 @@ class BackgroundJobProcessor:
 # Global instance
 job_processor = None
 
-from enhanced_nightly_engine import SimplifiedNightlyEngine
+from enhanced_nightly_engine import EnhancedNightlyEngine
 
-# Initialize simplified nightly engine
-enhanced_nightly_engine = SimplifiedNightlyEngine()
+# Initialize enhanced nightly engine
+enhanced_nightly_engine = EnhancedNightlyEngine()
 
 async def enhanced_nightly_processing_job():
     """
