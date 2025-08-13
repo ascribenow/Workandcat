@@ -159,11 +159,6 @@ export const Dashboard = () => {
                 <span className="mr-2">🎯</span>
                 Practice Session
               </button>
-                }`}
-              >
-                <span className="mr-2">📝</span>
-                Practice Session
-              </button>
             </div>
             
             <div className="flex items-center space-x-4">
