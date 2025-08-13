@@ -120,7 +120,23 @@ backend:
         agent: "testing"
         comment: "Database connectivity confirmed. All tables accessible and functional."
         
-  - task: "LLM Enrichment Pipeline"
+  - task: "12-Question Session System"
+    implemented: true
+    working: false
+    file: "backend/adaptive_session_logic.py"
+    stuck_count: 2
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "main"
+        comment: "NEW 12-question session system with sophisticated logic implemented, needs testing"
+      - working: false
+        agent: "testing"
+        comment: "❌ NEW 12-QUESTION SESSION SYSTEM TESTING FAILED: Comprehensive testing of the newly implemented logic changes reveals critical backend issues. DETAILED FINDINGS: 1) Session creation works and returns 12-question session type ✅, 2) Authentication system working (admin/student) ✅, 3) Dashboard endpoints functional ✅, 4) CRITICAL FAILURE: Question progression endpoint /session/{id}/next-question returns 404 Not Found ❌, 5) Answer submission cannot be tested due to no questions available ❌, 6) Question upload fails with SQLite database error: 'type list is not supported' for tags field ❌, 7) Study plan creation fails with 'integer modulo by zero' error ❌. ROOT CAUSE: After SQLite migration, multiple backend endpoints are broken. The session management system creates sessions but cannot retrieve questions, question creation fails due to SQLite data type incompatibility (list/array fields), and study planning has division by zero errors. The new 12-question session system cannot function properly due to these underlying database and endpoint issues. RECOMMENDATION: Fix SQLite migration issues, particularly array/list field handling and session question retrieval logic."
+      - working: false
+        agent: "testing"
+        comment: "❌ SOPHISTICATED 12-QUESTION SESSION LOGIC TESTING RESULTS: Comprehensive testing of the newly implemented sophisticated session logic reveals significant personalization issues. DETAILED FINDINGS: 1) Session creation works (returns session_id and session_type: 'intelligent_12_question_set') ✅, 2) Question retrieval functional with session intelligence metadata ✅, 3) MCQ content quality excellent (real mathematical answers, not placeholders) ✅, 4) Fallback system operational ✅, 5) CRITICAL PERSONALIZATION FAILURES: Learning stage detection returns 'unknown' instead of beginner/intermediate/advanced ❌, 6) No personalization metadata (personalization_applied: false) ❌, 7) No category distribution or difficulty distribution metadata ❌, 8) Spaced repetition logic not working (session completes after 1 question instead of 12) ❌, 9) Only 1 question total instead of 12 questions ❌. SUCCESS RATE: 50% (4/8 tests passed). ROOT CAUSE: The sophisticated session logic (adaptive_session_logic.py) is not being invoked. Sessions default to simple logic without personalization, learning stage analysis, or proper 12-question selection. The sophisticated features mentioned in review request are not functioning."
     implemented: true
     working: false
     file: "backend/llm_enrichment.py"
