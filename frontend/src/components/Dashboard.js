@@ -107,7 +107,7 @@ export const Dashboard = () => {
                 <img 
                   src="/images/twelvr-logo.png" 
                   alt="Twelvr Logo" 
-                  className="h-10 w-auto"
+                  className="h-24 w-auto"
                   style={{backgroundColor: 'transparent'}}
                 />
               </div>
