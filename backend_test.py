@@ -558,14 +558,14 @@ class CATBackendTester:
         }
 
         test_results = {
-            "personalized_session_creation": False,
-            "learning_stage_detection": False,
-            "difficulty_distribution": False,
-            "category_balance": False,
-            "spaced_repetition": False,
-            "weak_area_targeting": False,
-            "fallback_system": False,
-            "session_intelligence": False
+            "asyncsession_compatibility": False,
+            "sophisticated_logic_invocation": False,
+            "learning_profile_analysis": False,
+            "personalization_metadata": False,
+            "twelve_question_selection": False,
+            "category_difficulty_intelligence": False,
+            "session_intelligence": False,
+            "no_fallback_mode": False
         }
 
         # TEST 1: Personalized Session Creation
