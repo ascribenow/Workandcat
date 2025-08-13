@@ -619,7 +619,7 @@ async def report_broken_image(
 
 # Session Management Routes
 
-@api_router.post("/session/start")
+@api_router.post("/sessions/start")
 async def start_session(
     session_data: SessionStart,
     current_user: User = Depends(require_auth),
