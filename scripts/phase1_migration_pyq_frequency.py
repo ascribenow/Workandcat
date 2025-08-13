@@ -147,7 +147,7 @@ def run_phase1_migration():
         }
 
 if __name__ == "__main__":
-    result = asyncio.run(run_phase1_migration())
+    result = run_phase1_migration()
     
     if result['status'] == 'success':
         print("\n🎯 PHASE 1 MIGRATION SUMMARY:")
