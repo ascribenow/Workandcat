@@ -175,37 +175,68 @@ class EnhancedNightlyEngine:
             logger.error(f"Error in mastery calculations: {e}")
             return {'updated_count': 0, 'error': str(e)}
     
-    async def refresh_simple_frequencies(self, db: AsyncSession) -> Dict[str, Any]:
+    async def refresh_enhanced_frequencies(self, db: AsyncSession) -> Dict[str, Any]:
         """
-        Refresh PYQ frequencies using simple calculation method
+        Refresh PYQ frequencies using enhanced time-weighted analysis
         """
         try:
-            logger.info("Starting simple PYQ frequency refresh...")
+            logger.info("Starting enhanced PYQ frequency refresh...")
             
-            # Use the simple PYQ frequency calculator
-            result = await self.pyq_calculator.calculate_simple_frequencies(db)
+            # Get all active questions that need frequency analysis
+            questions_query = await db.execute(
+                select(Question)
+                .where(Question.is_active == True)
+                .order_by(Question.id)
+            )
             
-            if result.get('status') == 'completed':
-                logger.info(f"Simple frequency refresh completed successfully")
-                logger.info(f"Updated {result.get('updated_questions', 0)} questions")
-                logger.info(f"Frequency distribution: {result.get('frequency_distribution', {})}")
-                
-                return {
-                    'status': 'completed',
-                    'updated_questions': result.get('updated_questions', 0),
-                    'distribution': result.get('frequency_distribution', {}),
-                    'method': 'simple_subcategory_count'
-                }
-            else:
-                logger.error(f"Simple frequency refresh failed: {result.get('error', 'Unknown error')}")
-                return {
-                    'status': 'error',
-                    'updated_questions': 0,
-                    'error': result.get('error', 'Unknown error')
-                }
+            questions = questions_query.scalars().all()
+            updated_count = 0
+            frequency_distribution = {}
+            
+            for question in questions:
+                try:
+                    # Get PYQ data for this subcategory
+                    pyq_data = await self.get_pyq_temporal_data(db, question.subcategory)
+                    
+                    if pyq_data['yearly_occurrences']:
+                        # Calculate time-weighted frequency
+                        frequency_result = self.time_analyzer.calculate_time_weighted_frequency(
+                            pyq_data['yearly_occurrences'],
+                            pyq_data['total_pyq_per_year']
+                        )
+                        
+                        # Update question with frequency data
+                        question.frequency_score = frequency_result.get('weighted_frequency', 0.0)
+                        question.frequency_band = self.determine_frequency_band(
+                            frequency_result.get('weighted_frequency', 0.0)
+                        )
+                        question.frequency_notes = f"Time-weighted analysis: {frequency_result.get('trend', 'stable')}"
+                        question.last_frequency_update = datetime.utcnow()
+                        
+                        # Track distribution
+                        band = question.frequency_band
+                        frequency_distribution[band] = frequency_distribution.get(band, 0) + 1
+                        updated_count += 1
+                    
+                except Exception as q_error:
+                    logger.error(f"Error processing question {question.id}: {q_error}")
+                    continue
+            
+            await db.commit()
+            
+            logger.info(f"Enhanced frequency refresh completed successfully")
+            logger.info(f"Updated {updated_count} questions")
+            logger.info(f"Frequency distribution: {frequency_distribution}")
+            
+            return {
+                'status': 'completed',
+                'updated_questions': updated_count,
+                'distribution': frequency_distribution,
+                'method': 'time_weighted_analysis'
+            }
                 
         except Exception as e:
-            logger.error(f"Error in simple frequency refresh: {e}")
+            logger.error(f"Error in enhanced frequency refresh: {e}")
             return {
                 'status': 'error',
                 'updated_questions': 0,
