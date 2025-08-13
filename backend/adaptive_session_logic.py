@@ -273,7 +273,7 @@ class AdaptiveSessionLogic:
                 'learning_stage': learning_stage,
                 'difficulty_preferences': difficulty_preferences,
                 'total_attempts': len(attempt_frequency),
-                'mastery_breakdown': mastery_data  # PHASE 1: Include detailed mastery breakdown
+                'mastery_breakdown': []  # PHASE 1: Empty but consistent structure
             }
             
         except Exception as e:
