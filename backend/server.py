@@ -1772,7 +1772,8 @@ async def test_time_weighted_frequency_analysis(
 
 @api_router.post("/admin/run-enhanced-nightly") 
 async def run_enhanced_nightly_processing(
-    current_user: User = Depends(require_admin)
+    current_user: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_async_compatible_db)
 ):
     """Manually trigger enhanced nightly processing with conceptual frequency analysis"""
     try:
