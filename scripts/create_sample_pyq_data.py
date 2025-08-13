@@ -19,7 +19,7 @@ async def create_sample_pyq_data():
     print("🗃️ Creating sample PYQ data for frequency testing...")
     
     # Initialize database
-    await init_database()
+    init_database()
     
     # Sample subcategories with different frequency levels
     pyq_data = {
