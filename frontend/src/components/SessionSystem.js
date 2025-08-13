@@ -9,53 +9,26 @@ export const SessionSystem = ({ sessionId: propSessionId, onSessionEnd }) => {
   const { user } = useAuth();
   const [sessionId, setSessionId] = useState(propSessionId);
   const [currentQuestion, setCurrentQuestion] = useState(null);
+  const [sessionProgress, setSessionProgress] = useState(null);
   const [userAnswer, setUserAnswer] = useState('');
   const [showResult, setShowResult] = useState(false);
   const [result, setResult] = useState(null);
-  const [sessionStats, setSessionStats] = useState({
-    questions_attempted: 0,
-    accuracy: 0,
-    total_time: 0
-  });
-  const [timeLeft, setTimeLeft] = useState(0);
-  const [questionStartTime, setQuestionStartTime] = useState(null);
+  const [answerSubmitted, setAnswerSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [imageZoomed, setImageZoomed] = useState(false);
   const [imageLoading, setImageLoading] = useState(false);
   const [imageLoadFailed, setImageLoadFailed] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
-  const timerRef = useRef(null);
 
   useEffect(() => {
     if (sessionId) {
       fetchNextQuestion();
-      // Remove fetchSessionStats() call since the endpoint doesn't exist
     }
   }, [sessionId]);
 
-  useEffect(() => {
-    if (questionStartTime && !showResult) {
-      timerRef.current = setInterval(() => {
-        const elapsed = Math.floor((Date.now() - questionStartTime) / 1000);
-        const remaining = Math.max(0, (currentQuestion?.expected_time_sec || 120) - elapsed);
-        setTimeLeft(remaining);
-        
-        if (remaining === 0) {
-          handleTimeUp();
-        }
-      }, 1000);
-    }
-
-    return () => {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-      }
-    };
-  }, [questionStartTime, showResult, currentQuestion]);
-
   const handleImagePreload = async (imageUrl) => {
-    if (!imageUrl) return true; // No image to load
+    if (!imageUrl) return true;
     
     return new Promise((resolve) => {
       setImageLoading(true);
@@ -70,11 +43,9 @@ export const SessionSystem = ({ sessionId: propSessionId, onSessionEnd }) => {
       
       img.onerror = async () => {
         if (retryCount < 1) {
-          // Retry once
           setRetryCount(prev => prev + 1);
           console.log(`Image load failed, retrying... (attempt ${retryCount + 2}/2)`);
           
-          // Wait 1 second before retry
           setTimeout(() => {
             const retryImg = new Image();
             retryImg.onload = () => {
@@ -85,8 +56,7 @@ export const SessionSystem = ({ sessionId: propSessionId, onSessionEnd }) => {
             retryImg.onerror = () => {
               setImageLoading(false);
               setImageLoadFailed(true);
-              // Block this question from future sessions
-              blockQuestionFromSessions(currentQuestion.id);
+              blockQuestionFromSessions(currentQuestion?.id);
               resolve(false);
             };
             retryImg.src = imageUrl;
@@ -94,8 +64,7 @@ export const SessionSystem = ({ sessionId: propSessionId, onSessionEnd }) => {
         } else {
           setImageLoading(false);
           setImageLoadFailed(true);
-          // Block this question from future sessions
-          blockQuestionFromSessions(currentQuestion.id);
+          blockQuestionFromSessions(currentQuestion?.id);
           resolve(false);
         }
       };
@@ -106,7 +75,6 @@ export const SessionSystem = ({ sessionId: propSessionId, onSessionEnd }) => {
 
   const blockQuestionFromSessions = async (questionId) => {
     try {
-      // Report the broken image question to backend
       await fetch(`${API}/sessions/report-broken-image`, {
         method: 'POST',
         headers: {
@@ -116,14 +84,11 @@ export const SessionSystem = ({ sessionId: propSessionId, onSessionEnd }) => {
         body: JSON.stringify({ question_id: questionId })
       });
       
-      console.log(`Question ${questionId} blocked from future sessions due to image load failure`);
-      
-      // Get next question immediately
+      console.log(`Question ${questionId} blocked from future sessions`);
       await fetchNextQuestion();
       
     } catch (error) {
       console.error('Error blocking question:', error);
-      // Still try to get next question even if blocking fails
       await fetchNextQuestion();
     }
   };
@@ -131,44 +96,50 @@ export const SessionSystem = ({ sessionId: propSessionId, onSessionEnd }) => {
   const fetchNextQuestion = async () => {
     setLoading(true);
     setError('');
+    setUserAnswer('');
+    setShowResult(false);
+    setResult(null);
+    setAnswerSubmitted(false);
+    
     try {
-      const response = await axios.get(`${API}/session/${sessionId}/next-question`, {
+      const response = await axios.get(`${API}/sessions/${sessionId}/next-question`, {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('cat_prep_token')}` }
       });
       
+      if (response.data.session_complete) {
+        // Session completed, show summary
+        if (onSessionEnd) {
+          onSessionEnd({
+            completed: true,
+            questionsCompleted: response.data.questions_completed,
+            totalQuestions: response.data.total_questions
+          });
+        }
+        return;
+      }
+      
       if (response.data.question) {
         const question = response.data.question;
+        const progress = response.data.session_progress;
         
         // Pre-load image if question has one
         if (question.has_image && question.image_url) {
           const imageLoaded = await handleImagePreload(question.image_url);
-          
           if (!imageLoaded) {
-            // Image failed to load after retry, question was blocked
-            // fetchNextQuestion will be called again from blockQuestionFromSessions
-            return;
+            return; // Will retry with next question
           }
         }
         
-        // Only set question if image loaded successfully (or no image)
         setCurrentQuestion(question);
-        setQuestionStartTime(Date.now());
-        setUserAnswer('');
-        setShowResult(false);
-        setResult(null);
+        setSessionProgress(progress);
         setImageLoading(false);
         setImageLoadFailed(false);
         setRetryCount(0);
-        
-        if (question.expected_time_sec) {
-          setTimeLeft(question.expected_time_sec);
-        }
       }
     } catch (err) {
       if (err.response?.status === 404) {
-        // Session ended
         if (onSessionEnd) {
-          onSessionEnd();
+          onSessionEnd({ completed: true });
         }
       } else {
         setError('Failed to load next question');
@@ -186,14 +157,13 @@ export const SessionSystem = ({ sessionId: propSessionId, onSessionEnd }) => {
     }
 
     setLoading(true);
+    setAnswerSubmitted(true);
+    
     try {
-      const timeSpent = questionStartTime ? Math.floor((Date.now() - questionStartTime) / 1000) : 0;
-      
-      const response = await axios.post(`${API}/session/${sessionId}/submit-answer`, {
+      const response = await axios.post(`${API}/sessions/${sessionId}/submit-answer`, {
         question_id: currentQuestion.id,
         user_answer: userAnswer,
-        time_sec: timeSpent,
-        context: 'daily',
+        context: 'session',
         hint_used: false
       }, {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('cat_prep_token')}` }
@@ -202,62 +172,45 @@ export const SessionSystem = ({ sessionId: propSessionId, onSessionEnd }) => {
       setResult(response.data);
       setShowResult(true);
       
-      // Update local session stats
-      setSessionStats(prev => ({
-        questions_attempted: prev.questions_attempted + 1,
-        accuracy: response.data.correct ? 
-          Math.round(((prev.accuracy * prev.questions_attempted) + 100) / (prev.questions_attempted + 1)) :
-          Math.round((prev.accuracy * prev.questions_attempted) / (prev.questions_attempted + 1)),
-        total_time: prev.total_time + (timeSpent / 60) // Convert to minutes
-      }));
-      
-      // Clear timer
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-      }
     } catch (err) {
       setError('Failed to submit answer');
-      console.error('Answer submission error:', err);
+      console.error('Error submitting answer:', err);
+      setAnswerSubmitted(false);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleTimeUp = () => {
-    if (!showResult && currentQuestion) {
-      submitAnswer();
-    }
-  };
-
-  const nextQuestion = () => {
+  const handleNextQuestion = () => {
     fetchNextQuestion();
   };
 
-  const endSession = () => {
-    if (onSessionEnd) {
-      onSessionEnd();
+  const handleOptionSelect = (option) => {
+    if (!answerSubmitted) {
+      setUserAnswer(option);
     }
   };
 
   if (loading && !currentQuestion) {
     return (
-      <div className="max-w-4xl mx-auto py-8 px-4">
-        <div className="bg-white rounded-lg shadow-lg p-8 text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading your practice session...</p>
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading your session...</p>
         </div>
       </div>
     );
   }
 
-  if (error && !currentQuestion) {
+  if (error) {
     return (
-      <div className="max-w-4xl mx-auto py-8 px-4">
-        <div className="bg-white rounded-lg shadow-lg p-8 text-center">
-          <div className="text-red-600 mb-4">{error}</div>
-          <button
-            onClick={() => fetchNextQuestion()}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg"
+      <div className="max-w-4xl mx-auto p-6">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <h3 className="text-lg font-semibold text-red-800 mb-2">Error</h3>
+          <p className="text-red-600">{error}</p>
+          <button 
+            onClick={fetchNextQuestion}
+            className="mt-4 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
           >
             Try Again
           </button>
@@ -266,273 +219,247 @@ export const SessionSystem = ({ sessionId: propSessionId, onSessionEnd }) => {
     );
   }
 
-  if (!currentQuestion) {
-    return (
-      <div className="max-w-4xl mx-auto py-8 px-4">
-        <div className="bg-white rounded-lg shadow-lg p-8 text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Session Complete!</h2>
-          <p className="text-gray-600 mb-6">Great job on completing your practice session.</p>
-          
-          {sessionStats && (
-            <div className="grid md:grid-cols-3 gap-4 mb-6">
-              <div className="bg-blue-50 p-4 rounded-lg">
-                <div className="text-2xl font-bold text-blue-600">{sessionStats.questions_attempted || 0}</div>
-                <div className="text-sm text-blue-600">Questions Attempted</div>
-              </div>
-              <div className="bg-green-50 p-4 rounded-lg">
-                <div className="text-2xl font-bold text-green-600">{sessionStats.accuracy || 0}%</div>
-                <div className="text-sm text-green-600">Accuracy</div>
-              </div>
-              <div className="bg-purple-50 p-4 rounded-lg">
-                <div className="text-2xl font-bold text-purple-600">{sessionStats.total_time || 0}min</div>
-                <div className="text-sm text-purple-600">Time Spent</div>
-              </div>
-            </div>
-          )}
-          
-          <button
-            onClick={endSession}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg text-lg font-semibold"
-          >
-            Return to Dashboard
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="max-w-4xl mx-auto py-8 px-4">
-      <div className="bg-white rounded-lg shadow-lg p-8">
-        {/* Session Header */}
-        <div className="flex justify-between items-center mb-6 pb-4 border-b">
-          <div className="flex items-center gap-4">
-            <h1 className="text-xl font-bold text-gray-900">Practice Session</h1>
-            {sessionStats.questions_attempted !== undefined && (
-              <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
-                Question #{sessionStats.questions_attempted + 1}
-              </span>
-            )}
-          </div>
-          
-          <div className="flex items-center gap-4">
-            {/* Timer */}
-            <div className={`text-lg font-mono ${timeLeft < 30 ? 'text-red-600' : 'text-gray-700'}`}>
-              {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
+    <div className="max-w-4xl mx-auto p-6">
+      {/* Session Progress Header */}
+      {sessionProgress && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+          <div className="flex justify-between items-center">
+            <h2 className="text-xl font-semibold text-blue-800">
+              12-Question Practice Session
+            </h2>
+            <div className="text-blue-600 font-medium">
+              Question {sessionProgress.current_question} of {sessionProgress.total_questions}
             </div>
-            
-            <button
-              onClick={endSession}
-              className="text-sm bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded transition-colors"
-            >
-              End Session
-            </button>
+          </div>
+          <div className="mt-2">
+            <div className="w-full bg-blue-200 rounded-full h-2">
+              <div 
+                className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                style={{ width: `${(sessionProgress.current_question / sessionProgress.total_questions) * 100}%` }}
+              ></div>
+            </div>
           </div>
         </div>
+      )}
 
-        {/* Question */}
-        <div className="mb-6">
-          <div className="flex items-center gap-3 mb-4">
-            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-              {currentQuestion.category}
-            </span>
-            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
-              {currentQuestion.subcategory}
-            </span>
-            <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-              currentQuestion.difficulty_band === 'Easy' ? 'bg-green-100 text-green-800' :
-              currentQuestion.difficulty_band === 'Medium' ? 'bg-yellow-100 text-yellow-800' :
-              'bg-red-100 text-red-800'
-            }`}>
-              {currentQuestion.difficulty_band}
-            </span>
-          </div>
-
-          <h2 className="text-xl font-medium text-gray-900 mb-6 leading-relaxed">
-            {currentQuestion.stem}
-          </h2>
-
-          {/* Question Image - No Fallbacks */}
-          {currentQuestion.has_image && currentQuestion.image_url && !imageLoadFailed && (
-            <div className="mb-6">
-              <div className="bg-gray-50 rounded-lg p-4 inline-block max-w-full">
-                {imageLoading ? (
-                  <div className="flex items-center justify-center p-8">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-                    <span className="ml-3 text-sm text-gray-600">Loading image...</span>
-                  </div>
-                ) : (
-                  <img 
-                    src={currentQuestion.image_url} 
-                    alt={currentQuestion.image_alt_text || "Question diagram"}
-                    className="max-w-full h-auto max-h-96 rounded-lg shadow-sm cursor-pointer hover:shadow-md transition-shadow"
-                    onClick={() => setImageZoomed(true)}
-                  />
-                )}
-                {currentQuestion.image_alt_text && !imageLoading && (
-                  <p className="text-xs text-gray-500 mt-2 text-center italic">
-                    {currentQuestion.image_alt_text}
-                  </p>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Image Zoom Modal */}
-          {imageZoomed && (
-            <div 
-              className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4"
-              onClick={() => setImageZoomed(false)}
-            >
-              <div className="relative max-w-full max-h-full">
-                <img 
-                  src={currentQuestion.image_url} 
-                  alt={currentQuestion.image_alt_text || "Question diagram (enlarged)"}
-                  className="max-w-full max-h-full object-contain"
-                />
-                <button
-                  onClick={() => setImageZoomed(false)}
-                  className="absolute top-4 right-4 bg-black bg-opacity-50 text-white rounded-full w-10 h-10 flex items-center justify-center hover:bg-opacity-75 transition-opacity"
-                >
-                  ×
-                </button>
-                {currentQuestion.image_alt_text && (
-                  <div className="absolute bottom-4 left-4 right-4 bg-black bg-opacity-50 text-white text-sm p-2 rounded">
-                    {currentQuestion.image_alt_text}
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* MCQ Options */}
-          {currentQuestion.options && (
-            <div className="space-y-3 mb-6">
-              {Object.entries(currentQuestion.options).filter(([key]) => key !== 'correct').map(([key, value]) => (
-                <button
-                  key={key}
-                  onClick={() => setUserAnswer(key)}
-                  disabled={showResult}
-                  className={`w-full text-left p-4 rounded-lg border-2 transition-all ${
-                    showResult 
-                      ? (key === currentQuestion.options.correct 
-                          ? 'border-green-500 bg-green-50' 
-                          : (key === userAnswer 
-                              ? 'border-red-500 bg-red-50' 
-                              : 'border-gray-200 bg-gray-50'))
-                      : (userAnswer === key
-                          ? 'border-blue-500 bg-blue-50'
-                          : 'border-gray-200 hover:border-blue-300 hover:bg-blue-50')
-                  } ${showResult ? 'cursor-not-allowed' : 'cursor-pointer'}`}
-                >
-                  <div className="flex items-start">
-                    <span className={`font-semibold mr-3 ${
-                      showResult 
-                        ? (key === currentQuestion.options.correct ? 'text-green-600' : 
-                           (key === userAnswer ? 'text-red-600' : 'text-gray-600'))
-                        : 'text-blue-600'
-                    }`}>
-                      {key}.
-                    </span>
-                    <span className="text-gray-900">{value}</span>
-                  </div>
-                </button>
-              ))}
-            </div>
-          )}
-
-          {/* Text Input for NAT questions */}
-          {!currentQuestion.options && (
-            <div className="mb-6">
-              <input
-                type="text"
-                placeholder="Enter your answer"
-                value={userAnswer}
-                onChange={(e) => setUserAnswer(e.target.value)}
-                disabled={showResult}
-                className="w-full border-2 border-gray-200 rounded-lg px-4 py-3 text-lg focus:border-blue-500 focus:outline-none disabled:bg-gray-50"
-              />
-            </div>
-          )}
-        </div>
-
-        {/* Results */}
-        {showResult && result && (
-          <div className={`p-6 rounded-lg mb-6 ${result.correct ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}`}>
-            <div className="flex items-start gap-4">
-              <div className={`p-2 rounded-full ${result.correct ? 'bg-green-200' : 'bg-red-200'}`}>
-                {result.correct ? (
-                  <svg className="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                ) : (
-                  <svg className="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                )}
-              </div>
-              
-              <div className="flex-1">
-                <div className={`font-semibold text-lg ${result.correct ? 'text-green-800' : 'text-red-800'}`}>
-                  {result.correct ? 'Correct!' : 'Incorrect'}
-                </div>
-                
-                {result.solution_approach && (
-                  <div className="mt-2">
-                    <strong>Approach:</strong> {result.solution_approach}
-                  </div>
-                )}
-                
-                {result.detailed_solution && (
-                  <div className="mt-2">
-                    <strong>Solution:</strong> {result.detailed_solution}
-                  </div>
-                )}
-                
-                {result.next_retry_in_days && (
-                  <div className="mt-2 text-sm text-gray-600">
-                    This question will appear again in {result.next_retry_in_days} days for review
-                  </div>
+      {currentQuestion && (
+        <div className="bg-white border border-gray-200 rounded-lg shadow-sm">
+          {/* Question Header */}
+          <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+            <div className="flex justify-between items-start">
+              <div>
+                <span className="inline-block bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-medium">
+                  {currentQuestion.subcategory}
+                </span>
+                {currentQuestion.difficulty_band && (
+                  <span className={`ml-2 inline-block px-2 py-1 rounded text-sm font-medium ${
+                    currentQuestion.difficulty_band === 'Easy' ? 'bg-green-100 text-green-800' :
+                    currentQuestion.difficulty_band === 'Hard' ? 'bg-red-100 text-red-800' :
+                    'bg-yellow-100 text-yellow-800'
+                  }`}>
+                    {currentQuestion.difficulty_band}
+                  </span>
                 )}
               </div>
             </div>
           </div>
-        )}
 
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
-            {error}
-          </div>
-        )}
-
-        {/* Navigation */}
-        <div className="flex justify-between items-center pt-6 border-t">
-          <div className="text-sm text-gray-500">
-            {sessionStats.questions_attempted !== undefined && sessionStats.accuracy !== undefined && (
-              <span>Session: {sessionStats.questions_attempted} questions • {sessionStats.accuracy}% accuracy</span>
+          {/* Question Content */}
+          <div className="p-6">
+            {/* Image Display */}
+            {currentQuestion.has_image && currentQuestion.image_url && (
+              <div className="mb-6">
+                {imageLoading && (
+                  <div className="flex items-center justify-center h-48 bg-gray-100 rounded">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                    <span className="ml-2 text-gray-600">Loading image...</span>
+                  </div>
+                )}
+                
+                {imageLoadFailed && (
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
+                    <p className="text-red-600">Image failed to load. Getting next question...</p>
+                  </div>
+                )}
+                
+                {!imageLoading && !imageLoadFailed && (
+                  <div className="relative">
+                    <img
+                      src={currentQuestion.image_url}
+                      alt={currentQuestion.image_alt_text || "Question image"}
+                      className={`max-w-full h-auto rounded cursor-pointer transition-transform ${
+                        imageZoomed ? 'fixed inset-0 z-50 max-w-none max-h-none object-contain bg-black bg-opacity-90' : ''
+                      }`}
+                      onClick={() => setImageZoomed(!imageZoomed)}
+                      style={imageZoomed ? { margin: 'auto' } : {}}
+                    />
+                    {imageZoomed && (
+                      <button
+                        onClick={() => setImageZoomed(false)}
+                        className="fixed top-4 right-4 z-50 bg-white text-black px-4 py-2 rounded"
+                      >
+                        Close
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
             )}
-          </div>
-          
-          <div className="flex gap-3">
-            {!showResult ? (
+
+            {/* Question Stem */}
+            <div className="prose max-w-none mb-6">
+              <p className="text-lg leading-relaxed">{currentQuestion.stem}</p>
+            </div>
+
+            {/* MCQ Options */}
+            {currentQuestion.options && !showResult && (
+              <div className="space-y-3 mb-6">
+                {Object.entries(currentQuestion.options).map(([key, value]) => {
+                  if (key === 'correct') return null;
+                  return (
+                    <button
+                      key={key}
+                      onClick={() => handleOptionSelect(value)}
+                      disabled={answerSubmitted}
+                      className={`w-full text-left p-4 rounded-lg border-2 transition-all ${
+                        userAnswer === value
+                          ? 'border-blue-500 bg-blue-50 text-blue-800'
+                          : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                      } ${answerSubmitted ? 'cursor-not-allowed opacity-75' : 'cursor-pointer'}`}
+                    >
+                      <span className="font-medium text-sm text-gray-500 mr-3">{key.toUpperCase()})</span>
+                      <span>{value}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Submit Answer Button */}
+            {!showResult && (
               <button
                 onClick={submitAnswer}
-                disabled={!userAnswer.trim() || loading}
-                className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white px-6 py-2 rounded-lg font-medium transition-colors"
+                disabled={!userAnswer || loading || answerSubmitted}
+                className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
               >
                 {loading ? 'Submitting...' : 'Submit Answer'}
               </button>
-            ) : (
-              <button
-                onClick={nextQuestion}
-                className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-medium transition-colors"
-              >
-                Next Question
-              </button>
+            )}
+
+            {/* Answer Result and Solution */}
+            {showResult && result && (
+              <div className="mt-6">
+                {/* Answer Status */}
+                <div className={`p-4 rounded-lg mb-4 ${
+                  result.correct ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'
+                }`}>
+                  <div className="flex items-center">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-3 ${
+                      result.correct ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+                    }`}>
+                      {result.correct ? '✓' : '✗'}
+                    </div>
+                    <div>
+                      <h3 className={`font-semibold ${
+                        result.correct ? 'text-green-800' : 'text-red-800'
+                      }`}>
+                        {result.status === 'correct' ? 'Correct!' : 'Incorrect'}
+                      </h3>
+                      <p className={`text-sm ${
+                        result.correct ? 'text-green-600' : 'text-red-600'
+                      }`}>
+                        {result.message}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Answer Comparison */}
+                <div className="bg-gray-50 p-4 rounded-lg mb-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm font-medium text-gray-600 mb-1">Your Answer:</p>
+                      <p className="text-lg">{result.user_answer}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-600 mb-1">Correct Answer:</p>
+                      <p className="text-lg font-semibold text-green-600">{result.correct_answer}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Solution Feedback */}
+                {result.solution_feedback && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                    <h4 className="font-semibold text-blue-800 mb-3">Solution</h4>
+                    
+                    {/* Solution Approach */}
+                    {result.solution_feedback.solution_approach && (
+                      <div className="mb-4">
+                        <h5 className="font-medium text-blue-700 mb-2">Approach:</h5>
+                        <p className="text-blue-600 leading-relaxed">
+                          {result.solution_feedback.solution_approach}
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Detailed Solution */}
+                    {result.solution_feedback.detailed_solution && (
+                      <div className="mb-4">
+                        <h5 className="font-medium text-blue-700 mb-2">Detailed Solution:</h5>
+                        <div className="text-blue-600 leading-relaxed whitespace-pre-line">
+                          {result.solution_feedback.detailed_solution}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Explanation */}
+                    {result.solution_feedback.explanation && (
+                      <div>
+                        <h5 className="font-medium text-blue-700 mb-2">Explanation:</h5>
+                        <p className="text-blue-600 leading-relaxed">
+                          {result.solution_feedback.explanation}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Question Metadata */}
+                {result.question_metadata && (
+                  <div className="bg-gray-50 p-3 rounded text-sm text-gray-600 mb-4">
+                    <span className="font-medium">Category:</span> {result.question_metadata.subcategory} 
+                    {result.question_metadata.difficulty_band && (
+                      <>
+                        <span className="mx-2">•</span>
+                        <span className="font-medium">Difficulty:</span> {result.question_metadata.difficulty_band}
+                      </>
+                    )}
+                    {result.question_metadata.type_of_question && (
+                      <>
+                        <span className="mx-2">•</span>
+                        <span className="font-medium">Type:</span> {result.question_metadata.type_of_question}
+                      </>
+                    )}
+                  </div>
+                )}
+
+                {/* Next Question Button */}
+                <button
+                  onClick={handleNextQuestion}
+                  className="w-full bg-green-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-green-700 transition-colors"
+                >
+                  {sessionProgress && sessionProgress.current_question >= sessionProgress.total_questions 
+                    ? 'Complete Session' 
+                    : 'Next Question'
+                  }
+                </button>
+              </div>
             )}
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
