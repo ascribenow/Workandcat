@@ -1778,8 +1778,8 @@ async def run_enhanced_nightly_processing(
     try:
         from enhanced_nightly_engine import SimplifiedNightlyEngine
         
-        # Initialize enhanced nightly engine with LLM support
-        enhanced_engine = SimplifiedNightlyEngine(llm_pipeline=llm_pipeline)
+        # Initialize simplified nightly engine
+        enhanced_engine = SimplifiedNightlyEngine()
         
         logger.info("🌙 Starting manual enhanced nightly processing...")
         
