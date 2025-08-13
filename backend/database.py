@@ -425,3 +425,37 @@ def get_database():
         yield db
     finally:
         db.close()
+
+
+# Compatibility layer for async code migration
+class AsyncSession:
+    """Compatibility wrapper to help with async to sync migration"""
+    def __init__(self, session):
+        self._session = session
+    
+    def add(self, instance):
+        return self._session.add(instance)
+    
+    def commit(self):
+        return self._session.commit()
+    
+    def flush(self):
+        return self._session.flush()
+    
+    def execute(self, statement):
+        return self._session.execute(statement)
+    
+    def scalar(self, statement):
+        return self._session.scalar(statement)
+    
+    def close(self):
+        return self._session.close()
+
+
+def get_async_compatible_db():
+    """Get database session with async compatibility wrapper"""
+    db = SessionLocal()
+    try:
+        yield AsyncSession(db)
+    finally:
+        db.close()
