@@ -9720,9 +9720,78 @@ def main_complex_frequency():
         print("Please review the test results above")
         return 1
 
+def main_phase1():
+    """Main function for Phase 1 Enhanced System Testing"""
+    tester = CATBackendTester()
+    
+    print("🚀 Starting CAT Backend Testing Suite - PHASE 1 ENHANCED SYSTEM")
+    print("=" * 70)
+    
+    # First ensure basic authentication works
+    print("Setting up authentication...")
+    admin_login = {
+        "email": "sumedhprabhu18@gmail.com",
+        "password": "admin2025"
+    }
+    
+    success, response = tester.run_test("Admin Login Setup", "POST", "auth/login", 200, admin_login)
+    if success and 'access_token' in response:
+        tester.admin_token = response['access_token']
+        tester.admin_user = response['user']
+        print("✅ Admin authentication successful")
+    else:
+        print("❌ Admin authentication failed - cannot proceed with testing")
+        return 1
+    
+    # Create student account for testing
+    timestamp = datetime.now().strftime('%H%M%S')
+    student_data = {
+        "email": f"phase1_test_student_{timestamp}@catprep.com",
+        "full_name": "Phase 1 Test Student",
+        "password": "student2025"
+    }
+    
+    success, response = tester.run_test("Student Registration Setup", "POST", "auth/register", 200, student_data)
+    if success and 'access_token' in response:
+        tester.student_token = response['access_token']
+        tester.student_user = response['user']
+        print("✅ Student authentication successful")
+    else:
+        print("❌ Student authentication failed - cannot proceed with testing")
+        return 1
+    
+    print("\n" + "=" * 70)
+    print("RUNNING PHASE 1 ENHANCED 12-QUESTION SYSTEM TESTS")
+    print("=" * 70)
+    
+    # Run Phase 1 enhanced system testing
+    phase1_success = tester.test_phase_1_enhanced_12_question_system()
+    
+    print("\n" + "=" * 70)
+    print("PHASE 1 TESTING SUMMARY")
+    print("=" * 70)
+    
+    if phase1_success:
+        print("🎉 PHASE 1 ENHANCED SYSTEM TESTING SUCCESSFUL!")
+        print("   ✅ All Phase 1 improvements are working correctly")
+        print("   ✅ PYQ frequency integration operational")
+        print("   ✅ Dynamic category quotas functional")
+        print("   ✅ Subcategory diversity caps enforced")
+        print("   ✅ Differential cooldowns configured")
+        print("   ✅ Enhanced session creation working")
+        return 0
+    else:
+        print("❌ PHASE 1 ENHANCED SYSTEM HAS ISSUES")
+        print("   Some Phase 1 improvements may need attention")
+        return 1
+
 if __name__ == "__main__":
     import sys
-    if len(sys.argv) > 1 and sys.argv[1] == "frequency":
+    if len(sys.argv) > 1 and sys.argv[1] == "phase1":
+        # Run Phase 1 enhanced system testing suite
+        exit_code = main_phase1()
+        sys.exit(exit_code)
+    elif len(sys.argv) > 1 and sys.argv[1] == "frequency":
         # Run complex frequency analysis testing suite
         exit_code = main_complex_frequency()
         sys.exit(exit_code)
@@ -9731,6 +9800,6 @@ if __name__ == "__main__":
         exit_code = main_sophisticated()
         sys.exit(exit_code)
     else:
-        # Run original main function
-        exit_code = main()
+        # Run Phase 1 testing by default
+        exit_code = main_phase1()
         sys.exit(exit_code)
