@@ -198,10 +198,10 @@ async def get_current_user(
     if not credentials:
         return None
     
-    from database import get_database
+    from database import get_async_compatible_db
     
     auth_service = AuthService()
-    async for db in get_database():
+    async for db in get_async_compatible_db():
         try:
             return await auth_service.get_current_user_v2(credentials.credentials, db)
         except HTTPException:
