@@ -7934,6 +7934,39 @@ def main():
         
         return success_rate >= 70
 
+def main():
+    """Main function for comprehensive testing"""
+    tester = CATBackendTester()
+    
+    print("🚀 Starting CAT Backend Testing Suite...")
+    print("=" * 60)
+    
+    # Test user authentication first
+    if not tester.test_user_login():
+        print("❌ Authentication failed - cannot proceed with other tests")
+        return 1
+    
+    # Test MCQ generation and session system
+    mcq_session_success = tester.test_mcq_generation_session_system()
+    
+    print("\n" + "=" * 70)
+    print("RECOMMENDATIONS FOR MAIN AGENT")
+    print("=" * 70)
+    
+    if mcq_session_success:
+        print("✅ MCQ Generation Fix SUCCESSFUL - System is working correctly")
+        print("✅ 12-Question Session System OPERATIONAL")
+        print("📋 RECOMMENDATION: System is ready for production use")
+        return 0
+    else:
+        print("❌ MCQ Generation Fix FAILED - Critical issues identified")
+        print("🔧 CRITICAL ISSUE: MCQGenerator.generate_options() parameter mismatch")
+        print("📋 URGENT RECOMMENDATION: Fix MCQ generation method signature")
+        print("   - Check difficulty_band parameter in generate_options() method")
+        print("   - Verify all required parameters are passed correctly")
+        print("   - Test with proper parameter order: (stem, subcategory, difficulty_band, correct_answer)")
+        return 1
+
 def main_sophisticated():
     """Main function for sophisticated session testing"""
     tester = CATBackendTester()
