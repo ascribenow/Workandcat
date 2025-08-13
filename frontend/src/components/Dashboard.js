@@ -68,18 +68,17 @@ export const Dashboard = () => {
     }
   };
 
-  const startQuickSession = async (minutes = 30) => {
+  const startQuickSession = async () => {
     try {
-      const response = await axios.post(`${API}/session/start`, {
-        target_minutes: minutes
-      }, {
+      const response = await axios.post(`${API}/sessions/start`, {}, {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('cat_prep_token')}` }
       });
       setActiveSessionId(response.data.session_id);
-      // Don't set view here - let the button handler do it after session is started
+      return true; // Success
     } catch (err) {
       console.error('Error starting session:', err);
-      alert('Failed to start session');
+      alert('Failed to start 12-question session');
+      return false;
     }
   };
 
