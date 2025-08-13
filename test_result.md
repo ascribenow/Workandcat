@@ -581,11 +581,11 @@ metadata:
 
 test_plan:
   current_focus:
-    - "LLM Enrichment Pipeline - CRITICAL FAILURE: Fallback system not implemented"
-    - "Question creation failing due to LLM API connectivity issues"
-    - "Background enrichment jobs queued but never executing"
-    - "Immediate enrichment endpoint returning HTTP 500 errors"
-    - "Mathematical pattern recognition fallback system needs implementation"
+    - "SQLite Migration Completion - Update server.py for SQLite database"
+    - "Remove MongoDB/PostgreSQL dependencies from requirements.txt"
+    - "Clean up environment variables and remove database references"
+    - "Test backend functionality with SQLite database"
+    - "Verify full application functionality after migration"
   stuck_tasks:
     - "LLM Enrichment Pipeline - stuck_count: 5, LLM API connectivity failure blocking all content generation"
     - "Enhanced Time-Weighted Conceptual Frequency Analysis System - database schema missing ALL frequency analysis fields"
