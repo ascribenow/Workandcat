@@ -967,90 +967,127 @@ async def get_mastery_dashboard(
         return {'mastery_by_topic': [], 'total_topics': 0}
 
 async def get_detailed_progress_data(db: AsyncSession, user_id: str) -> List[Dict]:
-    """Get detailed progress breakdown by category/subcategory/difficulty with FIXED category mapping"""
+    """Get comprehensive progress breakdown showing all canonical taxonomy categories/subcategories with question counts by difficulty"""
     try:
-        # Query to get comprehensive progress data with PROPER category mapping
+        # Define canonical taxonomy structure for comprehensive coverage
+        canonical_categories = {
+            "A-Arithmetic": [
+                "Time–Speed–Distance (TSD)", "Time & Work", "Ratio–Proportion–Variation",
+                "Percentages", "Averages & Alligation", "Profit–Loss–Discount (PLD)",
+                "Simple & Compound Interest (SI–CI)", "Mixtures & Solutions"
+            ],
+            "B-Algebra": [
+                "Linear Equations", "Quadratic Equations", "Inequalities", "Progressions",
+                "Functions & Graphs", "Logarithms & Exponents", "Special Algebraic Identities"
+            ],
+            "C-Geometry & Mensuration": [
+                "Triangles", "Circles", "Polygons", "Coordinate Geometry",
+                "Mensuration (2D & 3D)", "Trigonometry in Geometry"
+            ],
+            "D-Number System": [
+                "Divisibility", "HCF–LCM", "Remainders & Modular Arithmetic",
+                "Base Systems", "Digit Properties"
+            ],
+            "E-Modern Math": [
+                "Permutation–Combination (P&C)", "Probability", "Set Theory & Venn Diagrams"
+            ]
+        }
+        
+        # Query to get actual question data with attempts
         progress_query = text("""
             SELECT 
                 CASE 
                     WHEN t.category = 'A' THEN 'A-Arithmetic'
                     WHEN t.category = 'B' THEN 'B-Algebra' 
-                    WHEN t.category = 'C' THEN 'C-Geometry'
+                    WHEN t.category = 'C' THEN 'C-Geometry & Mensuration'
                     WHEN t.category = 'D' THEN 'D-Number System'
                     WHEN t.category = 'E' THEN 'E-Modern Math'
                     ELSE COALESCE(t.category, 'Unknown')
                 END as category,
                 q.subcategory,
-                COALESCE(q.type_of_question, 'General') as type_of_question,
-                q.difficulty_band,
+                COALESCE(q.difficulty_band, 'Medium') as difficulty_band,
                 COUNT(DISTINCT q.id) as total_questions,
-                COUNT(DISTINCT CASE WHEN a.correct = true THEN a.question_id END) as solved_questions,
-                AVG(CASE WHEN a.correct = true THEN 1.0 ELSE 0.0 END) as accuracy_rate,
-                COALESCE(AVG(m.mastery_pct * 100), 0) as mastery_percentage
+                COUNT(DISTINCT CASE WHEN a.correct = true THEN a.question_id END) as solved_correctly,
+                COUNT(DISTINCT CASE WHEN a.user_id = :user_id THEN a.question_id END) as attempted_questions,
+                COALESCE(AVG(CASE WHEN a.correct = true THEN 1.0 ELSE 0.0 END), 0) as accuracy_rate
             FROM questions q
             JOIN topics t ON q.topic_id = t.id
-            LEFT JOIN attempts a ON q.id = a.question_id AND a.user_id = :user_id
-            LEFT JOIN mastery m ON t.id = m.topic_id AND m.user_id = :user_id
+            LEFT JOIN attempts a ON q.id = a.question_id
             WHERE q.is_active = true
             GROUP BY 
                 CASE 
                     WHEN t.category = 'A' THEN 'A-Arithmetic'
                     WHEN t.category = 'B' THEN 'B-Algebra' 
-                    WHEN t.category = 'C' THEN 'C-Geometry'
+                    WHEN t.category = 'C' THEN 'C-Geometry & Mensuration'
                     WHEN t.category = 'D' THEN 'D-Number System'
                     WHEN t.category = 'E' THEN 'E-Modern Math'
                     ELSE COALESCE(t.category, 'Unknown')
                 END,
-                q.subcategory, 
-                COALESCE(q.type_of_question, 'General'), 
-                q.difficulty_band
-            ORDER BY category, q.subcategory, type_of_question, q.difficulty_band
+                q.subcategory,
+                COALESCE(q.difficulty_band, 'Medium')
+            ORDER BY category, q.subcategory, difficulty_band
         """)
         
         result = await db.execute(progress_query, {"user_id": user_id})
-        progress_rows = result.fetchall()
+        db_rows = result.fetchall()
         
-        # Group by subcategory and organize by difficulty
-        progress_map = {}
+        # Create a comprehensive progress structure including all canonical subcategories
+        comprehensive_progress = []
         
-        for row in progress_rows:
-            key = f"{row.category}_{row.subcategory}_{row.type_of_question}"
-            
-            if key not in progress_map:
-                progress_map[key] = {
-                    "category": row.category,
-                    "subcategory": row.subcategory,
-                    "question_type": row.type_of_question,
-                    "easy_total": 0,
-                    "easy_solved": 0,
-                    "medium_total": 0,
-                    "medium_solved": 0,
-                    "hard_total": 0,
-                    "hard_solved": 0,
-                    "mastery_percentage": float(row.mastery_percentage or 0)
+        for category, subcategories in canonical_categories.items():
+            for subcategory in subcategories:
+                # Initialize difficulty breakdown
+                difficulty_breakdown = {
+                    "Easy": {"total": 0, "solved": 0, "attempted": 0, "accuracy": 0.0},
+                    "Medium": {"total": 0, "solved": 0, "attempted": 0, "accuracy": 0.0},
+                    "Hard": {"total": 0, "solved": 0, "attempted": 0, "accuracy": 0.0}
                 }
-            
-            difficulty = row.difficulty_band or "Medium"
-            total_questions = int(row.total_questions or 0)
-            solved_questions = int(row.solved_questions or 0)
-            
-            if difficulty == "Easy":
-                progress_map[key]["easy_total"] += total_questions
-                progress_map[key]["easy_solved"] += solved_questions
-            elif difficulty == "Hard":
-                progress_map[key]["hard_total"] += total_questions
-                progress_map[key]["hard_solved"] += solved_questions
-            else:  # Medium or unknown
-                progress_map[key]["medium_total"] += total_questions
-                progress_map[key]["medium_solved"] += solved_questions
+                
+                # Fill with actual data from database
+                for row in db_rows:
+                    if row.category == category and row.subcategory == subcategory:
+                        difficulty = row.difficulty_band or "Medium"
+                        if difficulty in difficulty_breakdown:
+                            difficulty_breakdown[difficulty] = {
+                                "total": int(row.total_questions or 0),
+                                "solved": int(row.solved_correctly or 0),
+                                "attempted": int(row.attempted_questions or 0),
+                                "accuracy": float(row.accuracy_rate or 0) * 100  # Convert to percentage
+                            }
+                
+                # Calculate overall stats for this subcategory
+                total_questions = sum(d["total"] for d in difficulty_breakdown.values())
+                total_solved = sum(d["solved"] for d in difficulty_breakdown.values())
+                total_attempted = sum(d["attempted"] for d in difficulty_breakdown.values())
+                overall_accuracy = (total_solved / total_attempted * 100) if total_attempted > 0 else 0.0
+                
+                # Determine mastery level
+                mastery_percentage = (total_solved / total_questions * 100) if total_questions > 0 else 0.0
+                if mastery_percentage >= 85:
+                    mastery_level = "Mastered"
+                elif mastery_percentage >= 60:
+                    mastery_level = "On Track"
+                else:
+                    mastery_level = "Needs Focus"
+                
+                comprehensive_progress.append({
+                    "category": category,
+                    "subcategory": subcategory,
+                    "difficulty_breakdown": difficulty_breakdown,
+                    "summary": {
+                        "total_questions": total_questions,
+                        "total_solved": total_solved,
+                        "total_attempted": total_attempted,
+                        "overall_accuracy": round(overall_accuracy, 1),
+                        "mastery_percentage": round(mastery_percentage, 1),
+                        "mastery_level": mastery_level
+                    }
+                })
         
-        # Sort by canonical category order
-        sorted_progress = sorted(progress_map.values(), key=lambda x: (x["category"], x["subcategory"], x["question_type"]))
-        
-        return sorted_progress
+        return comprehensive_progress
         
     except Exception as e:
-        logger.error(f"Error getting detailed progress data: {e}")
+        logger.error(f"Error getting comprehensive progress data: {e}")
         return []
 
 
