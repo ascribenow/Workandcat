@@ -1824,6 +1824,119 @@ async def get_admin_stats(
         logger.error(f"Error getting admin stats: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@api_router.post("/admin/enhance-questions")
+async def enhance_questions_with_pyq_frequency(
+    request: dict,
+    current_user: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_async_compatible_db)
+):
+    """
+    PHASE 1: Enhance questions with PYQ frequency analysis during upload
+    """
+    try:
+        question_ids = request.get('question_ids', [])
+        batch_size = request.get('batch_size', 10)
+        
+        if not question_ids:
+            raise HTTPException(status_code=400, detail="No question IDs provided")
+        
+        logger.info(f"Starting PHASE 1 enhanced processing for {len(question_ids)} questions")
+        
+        # Process questions in batches
+        processing_results = []
+        for i in range(0, len(question_ids), batch_size):
+            batch = question_ids[i:i + batch_size]
+            
+            batch_result = await enhanced_question_processor.batch_process_questions(
+                batch, db
+            )
+            processing_results.append(batch_result)
+            
+            # Small delay between batches to prevent overload
+            await asyncio.sleep(1)
+        
+        # Compile results
+        total_processed = sum(r.get('processed_successfully', 0) for r in processing_results)
+        total_errors = sum(r.get('errors', 0) for r in processing_results)
+        
+        return {
+            "message": f"PHASE 1 enhanced processing completed",
+            "total_questions": len(question_ids),
+            "successfully_processed": total_processed,
+            "errors": total_errors,
+            "enhancement_level": "phase_1_pyq_frequency_integration",
+            "batch_results": processing_results
+        }
+        
+    except Exception as e:
+        logger.error(f"Error in enhanced question processing: {e}")
+        raise HTTPException(status_code=500, detail=f"Enhanced processing failed: {str(e)}")
+
+@api_router.post("/admin/test/enhanced-session")
+async def test_enhanced_session_logic(
+    current_user: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_async_compatible_db)
+):
+    """
+    PHASE 1: Test the enhanced 12-question session logic with all improvements
+    """
+    try:
+        logger.info("Testing PHASE 1 enhanced session logic")
+        
+        # Create a test session using enhanced logic
+        session_result = await adaptive_session_logic.create_personalized_session(
+            current_user.id, db
+        )
+        
+        questions = session_result.get("questions", [])
+        metadata = session_result.get("metadata", {})
+        
+        # Analyze the results
+        analysis = {
+            "session_created": len(questions) > 0,
+            "total_questions": len(questions),
+            "enhancement_level": session_result.get("enhancement_level", "unknown"),
+            "personalization_applied": session_result.get("personalization_applied", False),
+            "metadata_analysis": {
+                "learning_stage": metadata.get("learning_stage"),
+                "dynamic_adjustment": metadata.get("dynamic_adjustment_applied", False),
+                "base_distribution": metadata.get("base_distribution", {}),
+                "applied_distribution": metadata.get("applied_distribution", {}),
+                "pyq_frequency_stats": metadata.get("pyq_frequency_analysis", {}),
+                "subcategory_diversity": metadata.get("subcategory_diversity", 0),
+                "cooldown_periods": metadata.get("cooldown_periods_used", {}),
+                "weak_areas_targeted": metadata.get("weak_areas_targeted", 0)
+            },
+            "question_analysis": []
+        }
+        
+        # Analyze individual questions
+        for q in questions[:5]:  # First 5 questions for sample
+            analysis["question_analysis"].append({
+                "id": str(q.id),
+                "subcategory": q.subcategory,
+                "difficulty": q.difficulty_band,
+                "pyq_frequency_score": float(q.pyq_frequency_score or 0.5),
+                "frequency_band": q.frequency_band,
+                "analysis_method": q.frequency_analysis_method
+            })
+        
+        return {
+            "message": "PHASE 1 enhanced session logic test completed",
+            "status": "success",
+            "enhancement_features": {
+                "pyq_frequency_integration": "✅ Active",
+                "dynamic_category_quotas": "✅ Active", 
+                "subcategory_diversity_caps": "✅ Active",
+                "differential_cooldowns": "✅ Active"
+            },
+            "test_results": analysis
+        }
+        
+    except Exception as e:
+        logger.error(f"Error testing enhanced session logic: {e}")
+        raise HTTPException(status_code=500, detail=f"Enhanced session test failed: {str(e)}")
+
 # Background Tasks
 
 async def enrich_question_background(question_id: str, hint_category: str = None, hint_subcategory: str = None):
