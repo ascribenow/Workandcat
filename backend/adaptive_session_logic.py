@@ -332,7 +332,7 @@ class AdaptiveSessionLogic:
             return []
 
     async def apply_selection_strategies(self, user_id: str, user_profile: Dict, 
-                                       question_pool: List[Question], db: Session) -> List[Question]:
+                                       question_pool: List[Question], db: AsyncSession) -> List[Question]:
         """Apply intelligent selection strategies to choose 12 questions"""
         try:
             selected_questions = []
