@@ -136,34 +136,44 @@ export const Dashboard = () => {
       <nav className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
-            <div className="flex space-x-8">
-              <button
-                onClick={() => setCurrentView('dashboard')}
-                className={`inline-flex items-center px-1 pt-1 text-sm font-medium border-b-2 ${
-                  currentView === 'dashboard' 
-                    ? 'text-blue-600 border-blue-500' 
-                    : 'text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                <span className="mr-2">🏠</span>
-                Dashboard
-              </button>
-              <button
-                onClick={async () => {
-                  const sessionStarted = await startQuickSession();
-                  if (sessionStarted) {
-                    setCurrentView('session');
-                  }
-                }}
-                className={`inline-flex items-center px-1 pt-1 text-sm font-medium border-b-2 ${
-                  currentView === 'session'
-                    ? 'text-green-600 border-green-500'
-                    : 'text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                <span className="mr-2">🎯</span>
-                Practice Session
-              </button>
+            <div className="flex items-center space-x-8">
+              <div className="flex items-center space-x-3">
+                <img 
+                  src="/images/twelvr-logo.png" 
+                  alt="Twelvr Logo" 
+                  className="h-8 w-auto"
+                />
+                <span className="text-lg font-semibold text-gray-900">Twelvr</span>
+              </div>
+              <div className="flex space-x-8">
+                <button
+                  onClick={() => setCurrentView('dashboard')}
+                  className={`inline-flex items-center px-1 pt-1 text-sm font-medium border-b-2 ${
+                    currentView === 'dashboard' 
+                      ? 'text-blue-600 border-blue-500' 
+                      : 'text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300'
+                  }`}
+                >
+                  <span className="mr-2">🏠</span>
+                  Dashboard
+                </button>
+                <button
+                  onClick={async () => {
+                    const sessionStarted = await startQuickSession();
+                    if (sessionStarted) {
+                      setCurrentView('session');
+                    }
+                  }}
+                  className={`inline-flex items-center px-1 pt-1 text-sm font-medium border-b-2 ${
+                    currentView === 'session'
+                      ? 'text-green-600 border-green-500'
+                      : 'text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300'
+                  }`}
+                >
+                  <span className="mr-2">🎯</span>
+                  Practice Session
+                </button>
+              </div>
             </div>
             
             <div className="flex items-center space-x-4">
