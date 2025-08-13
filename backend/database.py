@@ -86,6 +86,7 @@ class Question(Base):
     
     # Enhanced conceptual frequency analysis fields
     frequency_score = Column(Numeric(5, 4), default=0.0)  # New enhanced frequency score
+    pyq_frequency_score = Column(Numeric(5, 4), default=0.0)  # NEW: Integrated PYQ frequency score for selection weighting
     pyq_conceptual_matches = Column(Integer, default=0)
     total_pyq_analyzed = Column(Integer, default=0)
     top_matching_concepts = Column(Text, default='[]')  # JSON string for SQLite
