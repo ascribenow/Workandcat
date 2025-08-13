@@ -1777,10 +1777,10 @@ async def run_enhanced_nightly_processing(
 ):
     """Manually trigger enhanced nightly processing with conceptual frequency analysis"""
     try:
-        from enhanced_nightly_engine import SimplifiedNightlyEngine
+        from enhanced_nightly_engine import EnhancedNightlyEngine
         
-        # Initialize simplified nightly engine
-        enhanced_engine = SimplifiedNightlyEngine()
+        # Initialize enhanced nightly engine
+        enhanced_engine = EnhancedNightlyEngine()
         
         logger.info("🌙 Starting manual enhanced nightly processing...")
         
