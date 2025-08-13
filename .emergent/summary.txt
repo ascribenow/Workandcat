@@ -1,99 +1,84 @@
 <analysis>
-The previous AI engineer successfully migrated the CAT preparation platform from a MongoDB/FastAPI/React MVP to a PostgreSQL-based production system. Initial efforts involved backend re-engineering, SQLAlchemy integration, and fixing critical bugs, explicitly removing diagnostic functionality. Subsequent work addressed comprehensive feedback, including new formulas, schema enhancements, core business logic refinements, and the addition of interactive student sessions and a detailed progress dashboard. Significant recent tasks focused on refining the nightly processing engine, updating the deterministic difficulty formula, and establishing an enhanced background job engine. The engineer then implemented comprehensive image support, transitioning from local file uploads to Google Drive link integration for bulk CSV uploads, with LLM auto-enrichment of questions. Most recently, the engineer addressed and resolved various UI issues, including the interactive student session and ensured all buttons were functional, though a critical bug remains where the Add Question form in the admin panel is not opening.
+The previous AI engineer successfully transitioned the CAT preparation platform from a PostgreSQL-based system to one utilizing SQLite for the database, addressing user concerns about PostgreSQL issues. Key accomplishments include fixing a critical UI bug where the Add Question form in the admin panel was not opening, streamlining the question creation form by removing the Detailed Solution field due to LLM auto-enrichment, and extensively enhancing the backend. A major focus was the implementation of a sophisticated LLM-powered conceptual frequency analysis system, which moved beyond simple subcategory matching to analyze conceptual similarity between questions and PYQ patterns. This system also incorporated time-weighted relevance for PYQ data (20 years stored, 10 years emphasized). The engineer also integrated a robust fallback enrichment system to ensure accurate mathematical answers even if the primary LLM API fails. Database schema issues related to the new frequency fields were identified and resolved through migrations. The current state reflects a stable backend with fixed LLM enrichment and an ongoing migration to SQLite.
 </analysis>
 
 <product_requirements>
-The CAT Quantitative Aptitude preparation platform is designed for personalized and adaptive learning, transitioning from an MVP to a robust PostgreSQL/FastAPI/React stack. Core features include a PostgreSQL backend with 15+ tables, AI-powered question scoring (4-factor difficulty, LLM enrichment), and an adaptive study planning system offering three tracks with rolling units and daily minimums. The system limits question attempts to three with retry intervals, and nightly background jobs update learning impact and mastery. MCQ generation is real-time with distractors. Authentication uses JWT with hardcoded admin access. The UI is streamlined for students (Dashboard, Study Plan, Practice) and admins (PYQ/Question Upload, Export for .docx, .doc, .pdf). A canonical QA taxonomy categorizes content into 5 main categories and 29 subcategories. Initially, a 25-question diagnostic test was present but explicitly removed. Detailed progress tracking by category, subcategory, and question type is included. Recent additions include comprehensive image support via Google Drive links for bulk CSV uploads, with LLM auto-generation of question details, and a strict policy against serving image-based questions without working images.
+The CAT Quantitative Aptitude preparation platform aims to provide personalized and adaptive learning, transitioning from an MVP to a robust stack. It features a PostgreSQL backend (now moving to SQLite) with 15+ tables, AI-powered question scoring (4-factor difficulty, LLM enrichment for all missing fields), and an adaptive study planning system with three tracks and daily minimums. The system limits question attempts, updates learning impact and mastery via nightly background jobs, and generates real-time MCQs. Authentication uses JWT with hardcoded admin access. The UI supports student dashboards and admin functions (PYQ/Question Upload, Export). Content is categorized using a canonical QA taxonomy (5 main, 29 subcategories). A 25-question diagnostic test was removed. Recent additions include comprehensive image support via Google Drive links for bulk CSV uploads, LLM auto-generation of question details, and a policy against serving image-based questions without working images. The user specifically requested a time-weighted frequency analysis using 20 years of PYQ data with emphasis on the last 10 years, and later, migration to SQLite.
 </product_requirements>
 
 <key_technical_concepts>
 -   **Full-stack:** React.js (frontend), FastAPI (backend).
--   **Database:** PostgreSQL with SQLAlchemy ORM.
+-   **Database:** PostgreSQL (migrated to SQLite), SQLAlchemy ORM.
 -   **Authentication:** JWT for API access.
--   **AI/LLM:** Universal Emergent LLM Key for question analysis, scoring, and enrichment.
+-   **AI/LLM:** Universal Emergent LLM Key for question analysis, scoring, enrichment (with fallback system).
 -   **Containerization:** Kubernetes, Supervisor.
 -   **Background Jobs:** APScheduler for nightly tasks.
--   **Learning Algorithms:** EWMA for mastery, spaced repetition, adaptive question selection.
+-   **Learning Algorithms:** EWMA for mastery, spaced repetition, adaptive question selection, time-weighted conceptual frequency analysis.
 </key_technical_concepts>
 
 <code_architecture>
-The application follows a standard full-stack architecture.
+The application follows a standard full-stack architecture with a FastAPI backend and a React frontend.
 
 
 
--   : Main FastAPI application, central API hub.
-    -   **Changes:** Diagnostic logic removed; CORSMiddleware setup; fixed startup_event; integrated background jobs; enhanced ; added ; updated PYQ upload path. Recently, it was updated to include image upload endpoints (, ) with static file serving, handle new image fields in question creation/retrieval, process Google Drive URLs for CSV uploads, and include  endpoint. Fixed async context manager issues for background tasks.
--   : SQLAlchemy models and PostgreSQL connection.
-    -   **Changes:** Defined 15+ models; added  and  to ;  and  have ;  replaced  with  (later removed). Added  and  models. Most recently,  (boolean),  (string), and  (string) fields were added to the  model.  and  columns were updated to  and  respectively for canonical taxonomy support.
--   : Centralizes computational formulas.
-    -   **Changes:** Created to encapsulate 10+ formulas; EWMA alpha updated; new , ,  added;  replaced with .
--   : EWMA-based mastery tracking.
-    -   **Changes:** Updated to use EWMA alpha 0.6 and new preparedness ambition formulas; added mastery threshold categorization.
--   : Real-time MCQ option generation.
-    -   **Changes:** Enhanced with shuffle logic for options and randomized correct answer position.
--   : **NEW** file.
-    -   **Importance:** Manages adaptive question selection based on EWMA mastery.
-    -   **Changes:** Created for optimal session challenge.
--   : **NEW** file.
-    -   **Importance:** Implements spaced review logic.
-    -   **Changes:** Created for repeat until mastery and 48-hour retry rules.
--   : **NEW** file.
-    -   **Importance:** Comprehensive nightly processing engine.
-    -   **Changes:** Created to address critical gaps in background processing, including updated difficulty formulas and plan adjustments. Integrated into .
--   : **NEW** file.
-    -   **Importance:** Utility to handle Google Drive links for image fetching.
-    -   **Changes:** Created to convert Google Drive share links to direct download URLs for image ingestion.
--   :
-    -   **Changes:** Added a new method  for comprehensive auto-generation of all missing question fields by the LLM (answer, category, subcategory, solution, difficulty, etc.) based on just the stem and image URL.
--   :
-    -   **Changes:** Updated question selection logic to include a fallback mechanism to ensure questions are always returned and to exclude questions marked with broken_image tags.
--   : Main React component.
-    -   **Changes:** Modified for new auth, / rendering; diagnostic references removed.
+-   : Main FastAPI application.
+    -   **Importance**: Central API hub, handles all core routes.
+    -   **Changes**: Integrated background jobs; enhanced ; added ; updated PYQ upload path. Recently, added ,  for image support and . Added  and  for testing new frequency logic. Updated LLM initialization in . Initial work for SQLite migration involves updating database engine setup.
+-   : SQLAlchemy models and database connection.
+    -   **Importance**: Defines database schema and handles ORM operations.
+    -   **Changes**: Added , ,  to  model. Updated  and  VARCHAR lengths. Most notably, added 10 new fields to the  model for conceptual and time-weighted frequency analysis (e.g., , ). Migrated from PostgreSQL connection to SQLite.
+-   : LLM enrichment pipeline.
+    -   **Importance**: Auto-generates missing question fields using LLM.
+    -   **Changes**: Added  method for comprehensive auto-generation and  method for conceptual analysis. Fixed LLM initialization to correctly pass . Integrated .
+-   : Comprehensive nightly processing engine.
+    -   **Importance**: Manages background processing for learning metrics and frequency updates.
+    -   **Changes**: Integrated  and  for sophisticated frequency calculations. Updated frequency refresh method to use time-weighted analysis.
+-   : **NEW file**.
+    -   **Importance**: Implements LLM-powered conceptual analysis of question patterns for frequency scoring.
+    -   **Changes**: Created to perform pattern recognition, conceptual similarity matching, and batch processing.
+-   : **NEW file**.
+    -   **Importance**: Implements sophisticated time-weighted frequency analysis for PYQ data.
+    -   **Changes**: Created to handle 20 years of PYQ data with exponential decay weighting emphasizing the last 10 years, including trend detection.
+-   : **NEW file**.
+    -   **Importance**: Provides robust fallback content generation when LLM API calls fail.
+    -   **Changes**: Created to generate accurate mathematical answers and solutions for common question types using pattern recognition.
+-   : Manages background task scheduling.
+    -   **Importance**: Schedules nightly processing and other background tasks.
+    -   **Changes**: Updated to use the new  as an instance method.
 -   : User dashboard/admin functions.
-    -   **Changes:** Redesigned for student progress; admin section refined for PYQ/Question Upload/Export; detailed progress table added; Session button added; diagnostic references removed. The All Questions section was removed from the admin panel. Single question upload form updated to remove answer, source, solution approach fields, replaced drag-drop image upload with URL input, added live preview, and enabled publish blocking for broken images. CSV upload section updated to reflect simplified format and Google Drive support.
--   : Student session interface.
-    -   **Changes:** Refined for full MCQ interface, timer, progress tracking, answer submission, feedback, and question metadata. Added image display with zoom functionality, pre-loading logic, retry mechanism, and question blocking (no fallback display).
--   : **NEW** script.
-    -   **Importance:** Sets up PostgreSQL schema.
-    -   **Changes:** Created and used to initialize the database.
--   : **NEW** script.
-    -   **Importance:** Applies specific fixes for formula calculations.
-    -   **Changes:** Created and executed to achieve 64% formula integration.
--   : **NEW** script.
-    -   **Importance:** Automates removal of diagnostic code.
-    -   **Changes:** Created to systematically remove diagnostic-related imports, endpoints, and logic.
--   : **NEW** script.
-    -   **Importance:** Alters database schema to V1.3.
-    -   **Changes:** Created to add , , , , and  tables/columns. Fixed UUID extension and multi-command SQL.
--   : **NEW** script.
-    -   **Importance:** Fixes database schema VARCHAR constraints for  and .
-    -   **Changes:** Created and modified to use direct  commands to extend string lengths to support canonical taxonomy.
--   : **NEW** script.
-    -   **Importance:** Adds image-related columns to the  table.
-    -   **Changes:** Created to add , , .
--   : **NEW** file.
-    -   **Importance:** Comprehensive technical summary.
-    -   **Changes:** Created to detail architecture, schema, formulas, and project status.
--   : **NEW** file.
-    -   **Importance:** HTML version of the review document.
-    -   **Changes:** Created based on the markdown document.
--   : **NEW** file.
-    -   **Importance:** Explains session storage and nightly update mechanism.
-    -   **Changes:** Created to document the technical flow of how session data powers learning adaptations.
+    -   **Importance**: Central UI for both students and administrators.
+    -   **Changes**: Debugged and fixed the Add Question button not opening the form. Removed the Detailed Solution textarea field from the single question upload form, as LLM handles this.
+-   : **NEW script**.
+    -   **Importance**: Adds new conceptual frequency columns to the  table.
+    -   **Changes**: Created and executed to add 10 new fields to the  table.
+-   : **NEW script**.
+    -   **Importance**: Ensures all conceptual and time-weighted frequency columns are present in the database.
+    -   **Changes**: Created to add any missing frequency-related columns to the  table and create indexes.
+-   : **NEW file**.
+    -   **Importance**: Documentation for the new frequency analysis system.
+    -   **Changes**: Created to detail the time-weighted conceptual frequency analysis system.
 </code_architecture>
 
 <pending_tasks>
--   Fix the Add Question button not opening the single question upload form in the Admin Panel.
+-   Complete the migration to SQLite: Update  to use the new SQLite database configuration.
+-   Verify full application functionality after SQLite migration.
 </pending_tasks>
 
 <current_work>
-Immediately prior to this summary request, the AI engineer was addressing a user-reported critical issue: the Add Question button in the admin panel's single question upload section was not working. The user explicitly stated, There is no box to enter the text of the question and no box for the image URL input....
+Immediately prior to this summary, the AI engineer was addressing PostgreSQL database issues reported by the user and, per the user's explicit request, initiated a migration from PostgreSQL to SQLite.
 
-The AI engineer's initial investigation (Chat 428, 430) incorrectly concluded that the button was functional but the form submission might be problematic. After the user re-reported the issue (Chat 460), the engineer re-evaluated with a screenshot (Chat 462). This revealed the root cause: the Add Question button **is not opening a form at all**. The input fields previously detected were merely existing elements on the page, not part of a dynamically opened form or modal.
+The previous work involved a significant overhaul of the question enrichment and frequency analysis systems:
+1.  **Add Question Form Fix**: Initially, the Add Question button in the admin panel's single question upload section was not opening any form. The engineer debugged , identified the issue (likely related to  or  state), and fixed it.
+2.  **Form Simplification**: The user requested removing the Detailed Solution box from the Add Question form, as LLM handles this. This was successfully implemented in .
+3.  **LLM Enrichment Pipeline Fix**: The LLM enrichment was initially broken, leading to silly updates (placeholder text). This was traced to incorrect LLM client initialization and a missing  method in . These were fixed, and a robust  was implemented to ensure accurate mathematical answers even if the LLM API fails.
+4.  **Conceptual Frequency Analysis**: A major feature addition was the LLM-powered conceptual frequency analysis. This involved creating  to analyze question patterns conceptually (not just by text match), integrating it into , and updating  with .
+5.  **Time-Weighted Frequency Analysis**: Responding to the user's requirement for 20-year PYQ data with 10-year relevance,  was implemented. This uses exponential decay to weight recent PYQ data more heavily.
+6.  **Database Schema Synchronization**: Multiple issues arose where new frequency-related fields in SQLAlchemy models were not present in the actual PostgreSQL database. Migration scripts (, ) were created and executed to ensure all 10 new frequency analysis columns were properly added and indexed.
+7.  **Database Migration to SQLite**: The user requested switching from PostgreSQL to a cloud-agnostic database integrated with the Emergent Universal Key. After clarifying that the Emergent Universal Key is for LLM services, the engineer recommended SQLite as a free, zero-maintenance solution. The  file has been successfully updated to use SQLite.
 
-The work currently in progress is to investigate the  component to understand why the Add Question button fails to trigger the form display.
+The immediate current work is updating the remaining backend components, starting with , to fully transition the application to use the SQLite database.
 </current_work>
 
 <optional_next_step>
-Investigate and fix the logic in  that should open the Add Question form.
+Update  to integrate with the new SQLite database configuration.
 </optional_next_step>

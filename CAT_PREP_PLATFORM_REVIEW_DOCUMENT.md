@@ -552,7 +552,7 @@ JWT_SECRET=cat-prep-2025-secure-jwt-key-sumedhprabhu18
 CORS_ORIGINS=*
 
 # Frontend (.env)  
-REACT_APP_BACKEND_URL=https://prepgenius.preview.emergentagent.com
+REACT_APP_BACKEND_URL=https://smartquant-prep.preview.emergentagent.com
 WDS_SOCKET_PORT=443
 ```
 
