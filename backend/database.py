@@ -190,7 +190,7 @@ class PYQQuestion(Base):
 # User Management Tables
 
 class User(Base):
-    """Users table"""
+    """Users table with spending controls"""
     __tablename__ = "users"
     
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
@@ -201,12 +201,40 @@ class User(Base):
     is_admin = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow)
     
+    # Spending Controls
+    spending_limit_monthly = Column(Float, default=10.0)  # Monthly spending limit in USD
+    spending_limit_enabled = Column(Boolean, default=True)  # Enable/disable spending controls
+    current_month_spending = Column(Float, default=0.0)  # Current month's spending
+    last_spending_reset = Column(Date, default=lambda: datetime.utcnow().date())  # Last reset date
+    spending_notifications = Column(Boolean, default=True)  # Enable spending notifications
+    spending_alert_threshold = Column(Float, default=0.8)  # Alert at 80% of limit
+    
     # Relationships
     diagnostics = relationship("Diagnostic", back_populates="user")
     attempts = relationship("Attempt", back_populates="user")
     mastery = relationship("Mastery", back_populates="user")
     plans = relationship("Plan", back_populates="user")
     sessions = relationship("Session", back_populates="user")
+    usage_logs = relationship("UsageLog", back_populates="user")
+
+
+class UsageLog(Base):
+    """Track API usage and costs per user"""
+    __tablename__ = "usage_logs"
+    
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = Column(String(36), ForeignKey('users.id'), nullable=False)
+    service_type = Column(String(50), nullable=False)  # 'llm_enrichment', 'mcq_generation', 'session_analysis'
+    api_provider = Column(String(50), nullable=False)  # 'openai', 'anthropic', 'emergent'
+    model_used = Column(String(100), nullable=False)  # 'gpt-4o', 'claude-3', etc.
+    tokens_used = Column(Integer, default=0)  # Total tokens consumed
+    estimated_cost = Column(Float, default=0.0)  # Estimated cost in USD
+    operation_type = Column(String(100), nullable=False)  # 'question_enrichment', 'mcq_options', etc.
+    created_at = Column(DateTime, default=datetime.utcnow)
+    metadata = Column(Text, default='{}')  # JSON string for additional data
+    
+    # Relationships
+    user = relationship("User", back_populates="usage_logs")
 
 
 # Diagnostic System Tables
