@@ -321,6 +321,57 @@ async def submit_answer(
         logger.error(f"Error submitting answer: {e}")
         raise HTTPException(status_code=500, detail="Error submitting answer")
 
+@api_router.post("/admin/init-topics")
+async def init_basic_topics(
+    current_user: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_async_compatible_db)
+):
+    """Initialize basic topics for testing"""
+    try:
+        # Check if topics already exist
+        result = await db.execute(select(Topic).limit(1))
+        existing_topic = result.scalar_one_or_none()
+        
+        if existing_topic:
+            return {"message": "Topics already exist", "count": "existing"}
+        
+        # Create basic topics
+        topics = [
+            Topic(
+                name="Arithmetic",
+                slug="arithmetic",
+                category="A",
+                centrality=0.8
+            ),
+            Topic(
+                name="Speed-Time-Distance",
+                slug="speed-time-distance", 
+                category="A",
+                centrality=0.7
+            ),
+            Topic(
+                name="General",
+                slug="general",
+                category="A", 
+                centrality=0.5
+            )
+        ]
+        
+        for topic in topics:
+            db.add(topic)
+        
+        await db.commit()
+        
+        return {
+            "message": "Basic topics created successfully",
+            "topics_created": len(topics),
+            "topics": [{"name": t.name, "category": t.category} for t in topics]
+        }
+        
+    except Exception as e:
+        logger.error(f"Error initializing topics: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @api_router.post("/questions")
 async def create_question(
     question_data: QuestionCreateRequest,
