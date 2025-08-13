@@ -165,7 +165,7 @@ class AdaptiveSessionLogic:
             result = await db.execute(
                 select(
                     func.count(Attempt.id).label('total'),
-                    func.sum(func.cast(Attempt.correct, func.Integer)).label('correct')
+                    func.sum(case((Attempt.correct == True, 1), else_=0)).label('correct')
                 )
                 .where(
                     and_(
