@@ -50,6 +50,7 @@ llm_pipeline = LLMEnrichmentPipeline(EMERGENT_LLM_KEY)
 mcq_generator = MCQGenerator(EMERGENT_LLM_KEY)
 study_planner = StudyPlanner()
 mastery_tracker = MasteryTracker()
+adaptive_session_logic = AdaptiveSessionLogic()  # Initialize sophisticated session logic
 
 app = FastAPI(
     title="CAT Preparation Platform v2.0",
