@@ -28,7 +28,7 @@ from google_drive_utils import GoogleDriveImageFetcher
 
 # Import our modules
 from database import (
-    get_database, init_database, User, Question, Topic, Attempt, Mastery, Plan, PlanUnit, Session,
+    get_async_compatible_db, init_database, User, Question, Topic, Attempt, Mastery, Plan, PlanUnit, Session,
     PYQIngestion, PYQPaper, PYQQuestion, QuestionOption
 )
 from auth_service import AuthService, UserCreate, UserLogin, TokenResponse, require_auth, require_admin, ADMIN_EMAIL
@@ -119,12 +119,12 @@ async def root():
 
 # Authentication Routes (from auth_service)
 @api_router.post("/auth/register", response_model=TokenResponse)
-async def register_user(user_data: UserCreate, db: AsyncSession = Depends(get_database)):
+async def register_user(user_data: UserCreate, db: AsyncSession = Depends(get_async_compatible_db)):
     auth_service = AuthService()
     return await auth_service.register_user_v2(user_data, db)
 
 @api_router.post("/auth/login", response_model=TokenResponse)
-async def login_user(login_data: UserLogin, db: AsyncSession = Depends(get_database)):
+async def login_user(login_data: UserLogin, db: AsyncSession = Depends(get_async_compatible_db)):
     auth_service = AuthService()
     return await auth_service.login_user_v2(login_data, db)
 
@@ -147,7 +147,7 @@ adaptive_engine = AdaptiveSessionEngine()
 @api_router.post("/sessions/adaptive/start")
 async def start_adaptive_session(
     current_user: User = Depends(require_auth),
-    db: AsyncSession = Depends(get_database)
+    db: AsyncSession = Depends(get_async_compatible_db)
 ):
     """Start a new adaptive session with EWMA-based question selection"""
     try:
@@ -213,7 +213,7 @@ async def start_adaptive_session(
 async def get_next_adaptive_question(
     session_id: str,
     current_user: User = Depends(require_auth),
-    db: AsyncSession = Depends(get_database)
+    db: AsyncSession = Depends(get_async_compatible_db)
 ):
     """Get next question in adaptive session with full question data"""
     try:
@@ -276,7 +276,7 @@ async def get_next_adaptive_question(
 async def submit_answer(
     attempt_data: AttemptSubmission,
     current_user: User = Depends(require_auth),
-    db: AsyncSession = Depends(get_database)
+    db: AsyncSession = Depends(get_async_compatible_db)
 ):
     """Submit answer for a question"""
     try:
@@ -326,7 +326,7 @@ async def create_question(
     question_data: QuestionCreateRequest,
     background_tasks: BackgroundTasks,
     current_user: User = Depends(require_auth),
-    db: AsyncSession = Depends(get_database)
+    db: AsyncSession = Depends(get_async_compatible_db)
 ):
     """Create a new question with LLM enrichment"""
     try:
@@ -395,7 +395,7 @@ async def get_questions(
     subcategory: Optional[str] = None,
     difficulty: Optional[str] = None,
     limit: int = 50,
-    db: AsyncSession = Depends(get_database)
+    db: AsyncSession = Depends(get_async_compatible_db)
 ):
     """Get questions with filtering"""
     try:
@@ -442,7 +442,7 @@ async def get_questions(
 async def create_study_plan(
     plan_request: StudyPlanRequest,
     current_user: User = Depends(require_auth),
-    db: AsyncSession = Depends(get_database)
+    db: AsyncSession = Depends(get_async_compatible_db)
 ):
     """Create personalized 90-day study plan"""
     try:
@@ -474,7 +474,7 @@ async def create_study_plan(
 @api_router.get("/study-plan/today")
 async def get_today_plan(
     current_user: User = Depends(require_auth),
-    db: AsyncSession = Depends(get_database)
+    db: AsyncSession = Depends(get_async_compatible_db)
 ):
     """Get today's study plan units"""
     try:
@@ -527,7 +527,7 @@ async def get_today_plan(
 async def report_broken_image(
     request: dict,
     current_user: User = Depends(require_auth),
-    db: AsyncSession = Depends(get_database)
+    db: AsyncSession = Depends(get_async_compatible_db)
 ):
     """Report a question with broken image to block it from future sessions"""
     try:
@@ -572,7 +572,7 @@ async def report_broken_image(
 async def start_session(
     session_data: SessionStart,
     current_user: User = Depends(require_auth),
-    db: AsyncSession = Depends(get_database)
+    db: AsyncSession = Depends(get_async_compatible_db)
 ):
     """Start a new study session"""
     try:
@@ -599,7 +599,7 @@ async def start_session(
 async def get_next_question(
     session_id: str,
     current_user: User = Depends(require_auth),
-    db: AsyncSession = Depends(get_database)
+    db: AsyncSession = Depends(get_async_compatible_db)
 ):
     """Get next question for the session"""
     try:
@@ -662,7 +662,7 @@ async def submit_session_answer(
     session_id: str,
     attempt_data: AttemptSubmission,
     current_user: User = Depends(require_auth),
-    db: AsyncSession = Depends(get_database)
+    db: AsyncSession = Depends(get_async_compatible_db)
 ):
     """Submit answer during study session"""
     try:
@@ -723,7 +723,7 @@ async def submit_session_answer(
 @api_router.get("/dashboard/mastery")
 async def get_mastery_dashboard(
     current_user: User = Depends(require_auth),
-    db: AsyncSession = Depends(get_database)
+    db: AsyncSession = Depends(get_async_compatible_db)
 ):
     """Get user's mastery dashboard with category and subcategory progress"""
     try:
@@ -944,7 +944,7 @@ async def get_detailed_progress_data(db: AsyncSession, user_id: str) -> List[Dic
 @api_router.get("/dashboard/progress")
 async def get_progress_dashboard(
     current_user: User = Depends(require_auth),
-    db: AsyncSession = Depends(get_database)
+    db: AsyncSession = Depends(get_async_compatible_db)
 ):
     """Get progress dashboard data"""
     try:
@@ -980,7 +980,7 @@ async def get_progress_dashboard(
 @api_router.get("/admin/export-questions-csv")
 async def export_questions_csv(
     current_user: User = Depends(require_admin),
-    db: AsyncSession = Depends(get_database)
+    db: AsyncSession = Depends(get_async_compatible_db)
 ):
     """Export all questions as CSV with all columns"""
     try:
@@ -1073,7 +1073,7 @@ async def export_questions_csv(
 async def upload_questions_csv(
     file: UploadFile = File(...),
     current_user: User = Depends(require_admin),
-    db: AsyncSession = Depends(get_database)
+    db: AsyncSession = Depends(get_async_compatible_db)
 ):
     """Upload questions from simplified CSV file with Google Drive image support"""
     try:
@@ -1295,7 +1295,7 @@ async def upload_pyq_document(
     source_url: Optional[str] = Form(None),
     background_tasks: BackgroundTasks = None,
     current_user: User = Depends(require_admin),
-    db: AsyncSession = Depends(get_database)
+    db: AsyncSession = Depends(get_async_compatible_db)
 ):
     """Upload PYQ document (Word or PDF) for processing"""
     try:
@@ -1351,7 +1351,7 @@ async def upload_pyq_document(
 @api_router.post("/admin/test/immediate-enrichment")
 async def test_immediate_enrichment(
     current_user: User = Depends(require_admin),
-    db: AsyncSession = Depends(get_database)
+    db: AsyncSession = Depends(get_async_compatible_db)
 ):
     """Test immediate LLM enrichment (not background task)"""
     try:
@@ -1443,7 +1443,7 @@ async def test_immediate_enrichment(
 @api_router.post("/admin/test/conceptual-frequency")
 async def test_conceptual_frequency_analysis(
     current_user: User = Depends(require_admin),
-    db: AsyncSession = Depends(get_database)
+    db: AsyncSession = Depends(get_async_compatible_db)
 ):
     """Test endpoint to manually trigger conceptual frequency analysis"""
     try:
@@ -1482,7 +1482,7 @@ async def test_conceptual_frequency_analysis(
 @api_router.post("/admin/test/time-weighted-frequency")
 async def test_time_weighted_frequency_analysis(
     current_user: User = Depends(require_admin),
-    db: AsyncSession = Depends(get_database)
+    db: AsyncSession = Depends(get_async_compatible_db)
 ):
     """Test time-weighted frequency analysis (20-year data, 10-year relevance)"""
     try:
@@ -1581,7 +1581,7 @@ async def run_enhanced_nightly_processing(
 @api_router.get("/admin/stats")
 async def get_admin_stats(
     current_user: User = Depends(require_admin),
-    db: AsyncSession = Depends(get_database)
+    db: AsyncSession = Depends(get_async_compatible_db)
 ):
     """Get admin dashboard statistics"""
     try:
@@ -1608,7 +1608,7 @@ async def get_admin_stats(
 async def enrich_question_background(question_id: str, hint_category: str = None, hint_subcategory: str = None):
     """Background task to enrich a question using complete LLM auto-generation"""
     try:
-        async for db in get_database():
+        async for db in get_async_compatible_db():
             # Get question
             result = await db.execute(select(Question).where(Question.id == question_id))
             question = result.scalar_one_or_none()
@@ -1674,7 +1674,7 @@ async def enrich_question_background(question_id: str, hint_category: str = None
         logger.error(f"❌ Error in background enrichment for question {question_id}: {e}")
         # Mark question as failed enrichment but still make it active with placeholder content
         try:
-            async for db in get_database():
+            async for db in get_async_compatible_db():
                 result = await db.execute(select(Question).where(Question.id == question_id))
                 question = result.scalar_one_or_none()
                 if question:
@@ -1689,7 +1689,7 @@ async def enrich_question_background(question_id: str, hint_category: str = None
 async def process_pyq_document(ingestion_id: str, file_content: bytes):
     """Background task to process PYQ document"""
     try:
-        async for db in get_database():
+        async for db in get_async_compatible_db():
             # Get ingestion record
             result = await db.execute(select(PYQIngestion).where(PYQIngestion.id == ingestion_id))
             ingestion = result.scalar_one_or_none()
@@ -1740,7 +1740,7 @@ async def process_pyq_document(ingestion_id: str, file_content: bytes):
         logger.error(f"Error processing PYQ document: {e}")
         # Update ingestion status to failed
         try:
-            async for db in get_database():
+            async for db in get_async_compatible_db():
                 result = await db.execute(select(PYQIngestion).where(PYQIngestion.id == ingestion_id))
                 ingestion = result.scalar_one_or_none()
                 if ingestion:
@@ -1818,7 +1818,7 @@ async def startup_event():
     logger.info("✅ Startup complete - SQLite migration successful")
     
     # Create diagnostic set if needed - DISABLED
-    # async for db in get_database():
+    # async for db in get_async_compatible_db():
     #     await diagnostic_system.create_diagnostic_set(db)
     #     break
     # logger.info("🎯 Diagnostic system initialized")
@@ -1846,7 +1846,7 @@ async def shutdown_event():
 async def create_initial_topics():
     """Create initial topic structure from canonical taxonomy"""
     try:
-        async for db in get_database():
+        async for db in get_async_compatible_db():
             # Check if topics already exist
             existing_topics = await db.execute(select(Topic).limit(1))
             if existing_topics.scalar_one_or_none():
