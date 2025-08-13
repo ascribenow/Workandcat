@@ -3,7 +3,7 @@ SQLite Database Configuration and Models for CAT Preparation Platform
 Migrated from PostgreSQL to SQLite for simplicity and reliability
 """
 
-from sqlalchemy import create_engine, Column, Integer, String, Text, Boolean, Numeric, DateTime, Date, JSON, ForeignKey, Index, BigInteger, func
+from sqlalchemy import create_engine, Column, Integer, String, Text, Boolean, Numeric, Float, DateTime, Date, JSON, ForeignKey, Index, BigInteger, func
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 from datetime import datetime
