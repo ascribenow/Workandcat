@@ -136,13 +136,12 @@ export const Dashboard = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center space-x-8">
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center">
                 <img 
                   src="/images/twelvr-logo.png" 
                   alt="Twelvr Logo" 
-                  className="h-8 w-auto"
+                  className="h-12 w-auto"
                 />
-                <span className="text-lg font-semibold text-gray-900">Twelvr</span>
               </div>
               <div className="flex space-x-8">
                 <button
