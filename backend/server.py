@@ -747,66 +747,89 @@ async def get_next_question(
         logger.error(f"Error getting next question: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@api_router.post("/session/{session_id}/submit-answer")
+@api_router.post("/sessions/{session_id}/submit-answer")
 async def submit_session_answer(
     session_id: str,
     attempt_data: AttemptSubmission,
     current_user: User = Depends(require_auth),
     db: AsyncSession = Depends(get_async_compatible_db)
 ):
-    """Submit answer during study session"""
+    """Submit answer during study session with comprehensive solution feedback"""
     try:
-        # Get question to check answer
+        # Get session
+        session_result = await db.execute(
+            select(Session).where(Session.id == session_id, Session.user_id == current_user.id)
+        )
+        session = session_result.scalar_one_or_none()
+        
+        if not session:
+            raise HTTPException(status_code=404, detail="Session not found")
+        
+        # Get question to check correct answer
         result = await db.execute(select(Question).where(Question.id == attempt_data.question_id))
         question = result.scalar_one_or_none()
         
         if not question:
             raise HTTPException(status_code=404, detail="Question not found")
         
-        # Check if answer is correct
-        is_correct = attempt_data.user_answer.strip().lower() == question.answer.strip().lower()
+        # Check if answer is correct (case-insensitive comparison)
+        user_answer_clean = attempt_data.user_answer.strip().lower()
+        correct_answer_clean = question.answer.strip().lower()
+        is_correct = user_answer_clean == correct_answer_clean
         
-        # Determine attempt number for this user-question pair
-        existing_attempts = await db.execute(
-            select(Attempt).where(
-                Attempt.user_id == current_user.id,
-                Attempt.question_id == attempt_data.question_id
-            ).order_by(desc(Attempt.attempt_no)).limit(1)
+        # Get current attempt number for this question
+        attempts_count_result = await db.execute(
+            select(func.count(Attempt.id))
+            .where(Attempt.user_id == current_user.id, Attempt.question_id == attempt_data.question_id)
         )
-        last_attempt = existing_attempts.scalar_one_or_none()
-        attempt_no = (last_attempt.attempt_no + 1) if last_attempt else 1
+        attempt_number = (attempts_count_result.scalar() or 0) + 1
         
-        # Create attempt
+        # Create attempt record
         attempt = Attempt(
             user_id=current_user.id,
             question_id=attempt_data.question_id,
-            attempt_no=attempt_no,
-            context="daily",
-            options={},
+            attempt_no=attempt_number,
+            context="session",
+            options={},  # Store the actual options shown if needed
             user_answer=attempt_data.user_answer,
             correct=is_correct,
-            time_sec=attempt_data.time_sec,
+            time_sec=attempt_data.time_sec or 0,
             hint_used=attempt_data.hint_used
         )
         
         db.add(attempt)
         await db.commit()
         
-        # Update mastery asynchronously
-        await mastery_tracker.update_mastery_after_attempt(db, attempt)
+        # Update mastery tracking
+        try:
+            await mastery_tracker.update_mastery_after_attempt(db, attempt)
+        except Exception as e:
+            logger.warning(f"Mastery update failed: {e}")
         
+        # Always return comprehensive feedback with solution
         return {
             "correct": is_correct,
-            "attempt_no": attempt_no,
-            "solution_approach": question.solution_approach,
-            "detailed_solution": question.detailed_solution,
-            "video_url": question.video_url,
-            "next_retry_in_days": study_planner.get_next_retry_interval(attempt_no, is_correct)
+            "status": "correct" if is_correct else "incorrect",
+            "message": "Excellent! That's correct." if is_correct else "That's not correct, but let's learn from this.",
+            "correct_answer": question.answer,
+            "user_answer": attempt_data.user_answer,
+            "solution_feedback": {
+                "solution_approach": question.solution_approach or "Solution approach not available",
+                "detailed_solution": question.detailed_solution or "Detailed solution not available",
+                "explanation": f"The correct answer is {question.answer}. " + (question.solution_approach or "")
+            },
+            "question_metadata": {
+                "subcategory": question.subcategory,
+                "difficulty_band": question.difficulty_band,
+                "type_of_question": question.type_of_question
+            },
+            "attempt_id": str(attempt.id),
+            "can_proceed": True  # Always allow proceeding after answer submission
         }
         
     except Exception as e:
         logger.error(f"Error submitting session answer: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Error submitting answer")
 
 # Dashboard and Analytics Routes
 
