@@ -7985,57 +7985,6 @@ def main():
         
         return success_rate >= 70
 
-    def run_sophisticated_session_testing_suite(self):
-        """Run the complete sophisticated session testing suite"""
-        print("🚀 SOPHISTICATED 12-QUESTION SESSION TESTING SUITE")
-        print("=" * 70)
-        print("Testing newly implemented sophisticated session logic as per review request")
-        print("=" * 70)
-        
-        # Ensure authentication first
-        if not self.test_user_login():
-            print("❌ Authentication failed - cannot proceed with sophisticated session tests")
-            return False
-        
-        # Run sophisticated session logic tests
-        session_logic_success = self.test_sophisticated_12_question_session_logic()
-        
-        # Run MCQ content quality validation
-        mcq_quality_success = self.test_mcq_content_quality_validation()
-        
-        # Summary
-        print("\n" + "=" * 70)
-        print("SOPHISTICATED SESSION TESTING SUITE RESULTS")
-        print("=" * 70)
-        
-        results = {
-            "Session Logic": session_logic_success,
-            "MCQ Quality": mcq_quality_success
-        }
-        
-        passed = sum(results.values())
-        total = len(results)
-        success_rate = (passed / total) * 100
-        
-        for test_name, result in results.items():
-            status = "✅ PASS" if result else "❌ FAIL"
-            print(f"{test_name:<30} {status}")
-        
-        print("-" * 70)
-        print(f"Overall Success Rate: {passed}/{total} ({success_rate:.1f}%)")
-        
-        if success_rate >= 80:
-            print("🎉 SOPHISTICATED SESSION SYSTEM EXCELLENT!")
-            print("   All personalization and intelligence features working correctly")
-        elif success_rate >= 60:
-            print("⚠️ SOPHISTICATED SESSION SYSTEM PARTIALLY WORKING")
-            print("   Some features may need refinement")
-        else:
-            print("❌ SOPHISTICATED SESSION SYSTEM HAS ISSUES")
-            print("   Core functionality not working properly")
-        
-        return success_rate >= 70
-
 def main():
     """Main function for comprehensive testing"""
     tester = CATBackendTester()
