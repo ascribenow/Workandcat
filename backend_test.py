@@ -9329,9 +9329,62 @@ def main_sophisticated():
         print("\n❌ Sophisticated session testing failed")
         return 1
 
+def main_complex_frequency():
+    """Main function for complex frequency analysis testing"""
+    tester = CATBackendTester()
+    
+    print("🚀 STARTING COMPLEX FREQUENCY ANALYSIS SYSTEM TESTING")
+    print("=" * 60)
+    
+    # First ensure we have admin authentication
+    print("Setting up authentication...")
+    admin_login = {
+        "email": "sumedhprabhu18@gmail.com",
+        "password": "admin2025"
+    }
+    
+    success, response = tester.run_test("Admin Login", "POST", "auth/login", 200, admin_login)
+    if success and 'access_token' in response:
+        tester.admin_token = response['access_token']
+        tester.admin_user = response['user']
+        print(f"✅ Admin authenticated: {tester.admin_user['full_name']}")
+    else:
+        print("❌ Admin authentication failed - cannot proceed with testing")
+        return 1
+    
+    # Create a student user for system integration tests
+    timestamp = datetime.now().strftime('%H%M%S')
+    student_data = {
+        "email": f"test_student_{timestamp}@catprep.com",
+        "full_name": "Test Student",
+        "password": "student2025"
+    }
+    
+    success, response = tester.run_test("Student Registration", "POST", "auth/register", 200, student_data)
+    if success and 'access_token' in response:
+        tester.student_token = response['access_token']
+        tester.student_user = response['user']
+        print(f"✅ Student authenticated: {tester.student_user['full_name']}")
+    
+    # Run complex frequency analysis system testing
+    frequency_success = tester.test_complex_frequency_analysis_system()
+    
+    if frequency_success:
+        print("\n🎉 Complex frequency analysis system testing completed successfully!")
+        print("Rollback from simplified to complex PYQ frequency analysis was successful")
+        return 0
+    else:
+        print("\n❌ Complex frequency analysis system has issues that need attention")
+        print("Please review the test results above")
+        return 1
+
 if __name__ == "__main__":
     import sys
-    if len(sys.argv) > 1 and sys.argv[1] == "sophisticated":
+    if len(sys.argv) > 1 and sys.argv[1] == "frequency":
+        # Run complex frequency analysis testing suite
+        exit_code = main_complex_frequency()
+        sys.exit(exit_code)
+    elif len(sys.argv) > 1 and sys.argv[1] == "sophisticated":
         # Run sophisticated session testing suite
         exit_code = main_sophisticated()
         sys.exit(exit_code)
