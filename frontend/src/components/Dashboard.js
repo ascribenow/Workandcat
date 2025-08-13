@@ -212,7 +212,7 @@ export const Dashboard = () => {
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900">Welcome back, {user.name}!</h1>
             <p className="mt-2 text-gray-600">
-              Track your CAT preparation progress across all categories
+              Track your CAT preparation progress with Twelvr's AI-powered platform
             </p>
           </div>
 
