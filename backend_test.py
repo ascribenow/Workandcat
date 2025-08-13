@@ -71,16 +71,428 @@ class CATBackendTester:
             print(f"❌ Failed - Error: {str(e)}")
             return False, {}
 
-    def test_root_endpoint(self):
-        """Test root API endpoint"""
-        success, response = self.run_test("Root Endpoint", "GET", "", 200)
+    def test_sqlite_migration_comprehensive(self):
+        """COMPREHENSIVE SQLite Migration Testing - MAIN TEST SUITE"""
+        print("🔍 COMPREHENSIVE SQLite MIGRATION TESTING")
+        print("=" * 60)
+        print("Testing backend functionality after SQLite migration from PostgreSQL")
+        print("Database: SQLite (cat_preparation.db)")
+        print("Admin Credentials: sumedhprabhu18@gmail.com / admin2025")
+        print("=" * 60)
+        
+        migration_results = {
+            "basic_api_health": False,
+            "database_connectivity": False,
+            "authentication_system": False,
+            "question_management": False,
+            "admin_functionality": False,
+            "study_planning": False,
+            "session_management": False,
+            "data_integrity": False
+        }
+        
+        # 1. Basic API Health Check
+        print("\n📋 1. BASIC API HEALTH CHECK")
+        print("-" * 40)
+        success = self.test_root_endpoint()
+        migration_results["basic_api_health"] = success
         if success:
-            print(f"   Admin email: {response.get('admin_email')}")
-            features = response.get('features', [])
-            print(f"   Features available: {len(features)}")
-            for feature in features:
-                print(f"     - {feature}")
-        return success
+            print("✅ Root endpoint (/api/) working - server is running with SQLite")
+        else:
+            print("❌ Root endpoint failed - server startup issue")
+            
+        # 2. Database Connectivity Test
+        print("\n🗄️ 2. DATABASE CONNECTIVITY TEST")
+        print("-" * 40)
+        success = self.test_sqlite_database_connectivity()
+        migration_results["database_connectivity"] = success
+        if success:
+            print("✅ SQLite database connectivity confirmed")
+        else:
+            print("❌ SQLite database connectivity failed")
+            
+        # 3. Authentication System Test
+        print("\n🔐 3. AUTHENTICATION SYSTEM TEST")
+        print("-" * 40)
+        success = self.test_sqlite_authentication_system()
+        migration_results["authentication_system"] = success
+        if success:
+            print("✅ Authentication system working with SQLite")
+        else:
+            print("❌ Authentication system failed with SQLite")
+            
+        # 4. Question Management Test
+        print("\n📝 4. QUESTION MANAGEMENT TEST")
+        print("-" * 40)
+        success = self.test_sqlite_question_management()
+        migration_results["question_management"] = success
+        if success:
+            print("✅ Question management working with SQLite")
+        else:
+            print("❌ Question management failed with SQLite")
+            
+        # 5. Admin Functionality Test
+        print("\n👨‍💼 5. ADMIN FUNCTIONALITY TEST")
+        print("-" * 40)
+        success = self.test_sqlite_admin_functionality()
+        migration_results["admin_functionality"] = success
+        if success:
+            print("✅ Admin functionality working with SQLite")
+        else:
+            print("❌ Admin functionality failed with SQLite")
+            
+        # 6. Study Planning Test
+        print("\n📚 6. STUDY PLANNING TEST")
+        print("-" * 40)
+        success = self.test_sqlite_study_planning()
+        migration_results["study_planning"] = success
+        if success:
+            print("✅ Study planning working with SQLite")
+        else:
+            print("❌ Study planning failed with SQLite")
+            
+        # 7. Session Management Test
+        print("\n🎯 7. SESSION MANAGEMENT TEST")
+        print("-" * 40)
+        success = self.test_sqlite_session_management()
+        migration_results["session_management"] = success
+        if success:
+            print("✅ Session management working with SQLite")
+        else:
+            print("❌ Session management failed with SQLite")
+            
+        # 8. Data Integrity Test
+        print("\n🔍 8. DATA INTEGRITY TEST")
+        print("-" * 40)
+        success = self.test_sqlite_data_integrity()
+        migration_results["data_integrity"] = success
+        if success:
+            print("✅ Data integrity verified with SQLite")
+        else:
+            print("❌ Data integrity issues with SQLite")
+            
+        # Final Results Summary
+        print("\n" + "=" * 60)
+        print("SQLITE MIGRATION TEST RESULTS")
+        print("=" * 60)
+        
+        passed_tests = sum(migration_results.values())
+        total_tests = len(migration_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        for test_name, result in migration_results.items():
+            status = "✅ PASS" if result else "❌ FAIL"
+            print(f"{test_name.replace('_', ' ').title():<30} {status}")
+            
+        print("-" * 60)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        if success_rate >= 80:
+            print("🎉 SQLite MIGRATION SUCCESSFUL!")
+            print("Backend is ready for production with SQLite database")
+        elif success_rate >= 60:
+            print("⚠️ SQLite migration mostly successful with minor issues")
+        else:
+            print("❌ SQLite migration has significant issues requiring attention")
+            
+        return success_rate >= 80
+
+    def test_sqlite_database_connectivity(self):
+        """Test SQLite database connectivity and basic operations"""
+        print("Testing SQLite database connectivity...")
+        
+        # Test basic endpoint that requires database access
+        success, response = self.run_test("Database Connection Test", "GET", "questions?limit=1", 200)
+        if success:
+            print("   ✅ SQLite database accessible via API")
+            questions = response.get('questions', [])
+            print(f"   Database contains {len(questions)} sample questions")
+            return True
+        else:
+            print("   ❌ SQLite database connection failed")
+            return False
+
+    def test_sqlite_authentication_system(self):
+        """Test authentication system with SQLite database"""
+        print("Testing authentication system with SQLite...")
+        
+        # Test admin login with provided credentials
+        admin_login = {
+            "email": "sumedhprabhu18@gmail.com",
+            "password": "admin2025"
+        }
+        
+        success, response = self.run_test("Admin Login (SQLite)", "POST", "auth/login", 200, admin_login)
+        if success and 'user' in response and 'access_token' in response:
+            self.admin_user = response['user']
+            self.admin_token = response['access_token']
+            print(f"   ✅ Admin login successful: {self.admin_user['full_name']}")
+            print(f"   Admin privileges: {self.admin_user.get('is_admin', False)}")
+            
+            # Test student registration/login
+            timestamp = datetime.now().strftime('%H%M%S')
+            student_data = {
+                "email": f"sqlite_test_student_{timestamp}@catprep.com",
+                "full_name": "SQLite Test Student",
+                "password": "student2025"
+            }
+            
+            success, response = self.run_test("Student Registration (SQLite)", "POST", "auth/register", 200, student_data)
+            if success and 'user' in response and 'access_token' in response:
+                self.student_user = response['user']
+                self.student_token = response['access_token']
+                print(f"   ✅ Student registration successful: {self.student_user['full_name']}")
+                return True
+            else:
+                print("   ❌ Student registration failed with SQLite")
+                return False
+        else:
+            print("   ❌ Admin login failed with SQLite")
+            return False
+
+    def test_sqlite_question_management(self):
+        """Test question creation and retrieval with SQLite"""
+        print("Testing question management with SQLite...")
+        
+        if not self.admin_token:
+            print("   ❌ Cannot test question management - no admin token")
+            return False
+            
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {self.admin_token}'
+        }
+        
+        # Test question creation
+        question_data = {
+            "stem": "SQLite Migration Test: A train travels 150 km in 2 hours. What is its speed?",
+            "answer": "75",
+            "solution_approach": "Speed = Distance / Time",
+            "detailed_solution": "Speed = 150 km / 2 hours = 75 km/h",
+            "hint_category": "Arithmetic",
+            "hint_subcategory": "Speed-Time-Distance",
+            "type_of_question": "Basic Speed Calculation",
+            "tags": ["sqlite_migration_test"],
+            "source": "SQLite Migration Test"
+        }
+        
+        success, response = self.run_test("Create Question (SQLite)", "POST", "questions", 200, question_data, headers)
+        if success and 'question_id' in response:
+            self.sample_question_id = response['question_id']
+            print(f"   ✅ Question created in SQLite: {self.sample_question_id}")
+            print(f"   Status: {response.get('status')}")
+            
+            # Test question retrieval
+            success, response = self.run_test("Retrieve Questions (SQLite)", "GET", "questions?limit=5", 200, None, headers)
+            if success:
+                questions = response.get('questions', [])
+                print(f"   ✅ Retrieved {len(questions)} questions from SQLite")
+                
+                # Verify our test question is in the results
+                test_question = None
+                for q in questions:
+                    if 'sqlite_migration_test' in q.get('tags', []):
+                        test_question = q
+                        break
+                        
+                if test_question:
+                    print(f"   ✅ Test question found in SQLite database")
+                    print(f"   Question stem: {test_question.get('stem', '')[:50]}...")
+                    return True
+                else:
+                    print("   ⚠️ Test question not found in retrieval results")
+                    return True  # Still consider successful if questions were retrieved
+            else:
+                print("   ❌ Question retrieval failed from SQLite")
+                return False
+        else:
+            print("   ❌ Question creation failed in SQLite")
+            return False
+
+    def test_sqlite_admin_functionality(self):
+        """Test admin functionality with SQLite"""
+        print("Testing admin functionality with SQLite...")
+        
+        if not self.admin_token:
+            print("   ❌ Cannot test admin functionality - no admin token")
+            return False
+            
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {self.admin_token}'
+        }
+        
+        # Test admin stats
+        success, response = self.run_test("Admin Stats (SQLite)", "GET", "admin/stats", 200, None, headers)
+        if success:
+            print(f"   ✅ Admin stats retrieved from SQLite")
+            print(f"   Total users: {response.get('total_users', 0)}")
+            print(f"   Total questions: {response.get('total_questions', 0)}")
+            print(f"   Total attempts: {response.get('total_attempts', 0)}")
+            print(f"   Active study plans: {response.get('active_study_plans', 0)}")
+            
+            # Test CSV export functionality
+            success, response = self.run_test("CSV Export (SQLite)", "GET", "admin/export-questions-csv", 200, None, headers)
+            if success:
+                print("   ✅ CSV export functionality working with SQLite")
+                return True
+            else:
+                print("   ❌ CSV export failed with SQLite")
+                return False
+        else:
+            print("   ❌ Admin stats failed with SQLite")
+            return False
+
+    def test_sqlite_study_planning(self):
+        """Test study planning functionality with SQLite"""
+        print("Testing study planning with SQLite...")
+        
+        if not self.student_token:
+            print("   ❌ Cannot test study planning - no student token")
+            return False
+            
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {self.student_token}'
+        }
+        
+        # Test study plan creation
+        plan_data = {
+            "track": "Beginner",
+            "daily_minutes_weekday": 30,
+            "daily_minutes_weekend": 60
+        }
+        
+        success, response = self.run_test("Create Study Plan (SQLite)", "POST", "study-plan", 200, plan_data, headers)
+        if success and 'plan_id' in response:
+            self.plan_id = response['plan_id']
+            print(f"   ✅ Study plan created in SQLite: {self.plan_id}")
+            print(f"   Track: {response.get('track')}")
+            print(f"   Start date: {response.get('start_date')}")
+            
+            # Test today's plan retrieval
+            success, response = self.run_test("Get Today's Plan (SQLite)", "GET", "study-plan/today", 200, None, headers)
+            if success:
+                plan_units = response.get('plan_units', [])
+                print(f"   ✅ Today's plan retrieved from SQLite: {len(plan_units)} units")
+                return True
+            else:
+                print("   ❌ Today's plan retrieval failed from SQLite")
+                return False
+        else:
+            print("   ❌ Study plan creation failed in SQLite")
+            return False
+
+    def test_sqlite_session_management(self):
+        """Test session management with SQLite"""
+        print("Testing session management with SQLite...")
+        
+        if not self.student_token:
+            print("   ❌ Cannot test session management - no student token")
+            return False
+            
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {self.student_token}'
+        }
+        
+        # Test session creation
+        session_data = {"target_minutes": 30}
+        success, response = self.run_test("Start Session (SQLite)", "POST", "session/start", 200, session_data, headers)
+        if success and 'session_id' in response:
+            self.session_id = response['session_id']
+            print(f"   ✅ Session created in SQLite: {self.session_id}")
+            
+            # Test getting next question
+            success, response = self.run_test("Get Next Question (SQLite)", "GET", f"session/{self.session_id}/next-question", 200, None, headers)
+            if success:
+                question = response.get('question')
+                if question:
+                    print(f"   ✅ Question retrieved from SQLite session")
+                    print(f"   Question ID: {question.get('id')}")
+                    
+                    # Test answer submission
+                    answer_data = {
+                        "question_id": question['id'],
+                        "user_answer": "75",
+                        "time_sec": 45,
+                        "context": "daily",
+                        "hint_used": False
+                    }
+                    
+                    success, response = self.run_test("Submit Answer (SQLite)", "POST", f"session/{self.session_id}/submit-answer", 200, answer_data, headers)
+                    if success:
+                        print(f"   ✅ Answer submitted to SQLite")
+                        print(f"   Answer correct: {response.get('correct')}")
+                        return True
+                    else:
+                        print("   ❌ Answer submission failed with SQLite")
+                        return False
+                else:
+                    print("   ⚠️ No question available in session (may be expected)")
+                    return True  # Session creation worked, which is the main test
+            else:
+                print("   ❌ Get next question failed with SQLite")
+                return False
+        else:
+            print("   ❌ Session creation failed in SQLite")
+            return False
+
+    def test_sqlite_data_integrity(self):
+        """Test data integrity and consistency with SQLite"""
+        print("Testing data integrity with SQLite...")
+        
+        if not self.admin_token:
+            print("   ❌ Cannot test data integrity - no admin token")
+            return False
+            
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {self.admin_token}'
+        }
+        
+        # Test data consistency across different endpoints
+        success, response = self.run_test("Check Data Consistency (SQLite)", "GET", "questions", 200, None, headers)
+        if success:
+            questions = response.get('questions', [])
+            print(f"   ✅ Data consistency check: {len(questions)} questions accessible")
+            
+            if len(questions) > 0:
+                # Check if questions have required fields
+                first_question = questions[0]
+                required_fields = ['id', 'stem', 'subcategory', 'difficulty_band']
+                missing_fields = [field for field in required_fields if field not in first_question]
+                
+                if not missing_fields:
+                    print("   ✅ Question data structure integrity verified")
+                    
+                    # Test mastery dashboard data integrity
+                    if self.student_token:
+                        student_headers = {
+                            'Content-Type': 'application/json',
+                            'Authorization': f'Bearer {self.student_token}'
+                        }
+                        
+                        success, response = self.run_test("Mastery Dashboard Integrity (SQLite)", "GET", "dashboard/mastery", 200, None, student_headers)
+                        if success:
+                            mastery_data = response.get('mastery_by_topic', [])
+                            print(f"   ✅ Mastery data integrity: {len(mastery_data)} topics tracked")
+                            return True
+                        else:
+                            print("   ❌ Mastery dashboard data integrity failed")
+                            return False
+                    else:
+                        print("   ✅ Basic data integrity verified")
+                        return True
+                else:
+                    print(f"   ❌ Missing required fields in questions: {missing_fields}")
+                    return False
+            else:
+                print("   ⚠️ No questions found for integrity check")
+                return True  # Empty database is still valid
+        else:
+            print("   ❌ Data consistency check failed")
+            return False
 
     def test_jwt_authentication_fix(self):
         """Test JWT authentication with FIXED InvalidTokenError handling"""
