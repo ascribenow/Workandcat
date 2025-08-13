@@ -1,19 +1,18 @@
 <analysis>
-The previous AI engineer successfully transitioned the CAT preparation platform from a PostgreSQL-based system to one utilizing SQLite for the database, addressing user concerns about PostgreSQL issues. Key accomplishments include fixing a critical UI bug where the Add Question form in the admin panel was not opening, streamlining the question creation form by removing the Detailed Solution field due to LLM auto-enrichment, and extensively enhancing the backend. A major focus was the implementation of a sophisticated LLM-powered conceptual frequency analysis system, which moved beyond simple subcategory matching to analyze conceptual similarity between questions and PYQ patterns. This system also incorporated time-weighted relevance for PYQ data (20 years stored, 10 years emphasized). The engineer also integrated a robust fallback enrichment system to ensure accurate mathematical answers even if the primary LLM API fails. Database schema issues related to the new frequency fields were identified and resolved through migrations. The current state reflects a stable backend with fixed LLM enrichment and an ongoing migration to SQLite.
+The previous AI engineer successfully migrated the CAT preparation platform from PostgreSQL to SQLite, a major architectural shift, and addressed initial UI bugs. Subsequently, the engineer implemented significant feature enhancements: a 12-question session system, improved answer submission with detailed solutions, and a comprehensive student dashboard. A critical phase involved fixing numerous backend and frontend routing, data type, and parameter mismatch issues, especially for MCQ generation and session flow. Most recently, the engineer implemented a sophisticated, adaptive session logic for personalized question selection. The current work involved simplifying the PYQ frequency analysis and then, facing issues while creating sample PYQ data. The trajectory concludes with the engineer troubleshooting asynchronous database operation errors in a script to populate PYQ data, indicating an unfinished task related to data generation and testing for the simplified PYQ system.
 </analysis>
 
 <product_requirements>
-The CAT Quantitative Aptitude preparation platform aims to provide personalized and adaptive learning, transitioning from an MVP to a robust stack. It features a PostgreSQL backend (now moving to SQLite) with 15+ tables, AI-powered question scoring (4-factor difficulty, LLM enrichment for all missing fields), and an adaptive study planning system with three tracks and daily minimums. The system limits question attempts, updates learning impact and mastery via nightly background jobs, and generates real-time MCQs. Authentication uses JWT with hardcoded admin access. The UI supports student dashboards and admin functions (PYQ/Question Upload, Export). Content is categorized using a canonical QA taxonomy (5 main, 29 subcategories). A 25-question diagnostic test was removed. Recent additions include comprehensive image support via Google Drive links for bulk CSV uploads, LLM auto-generation of question details, and a policy against serving image-based questions without working images. The user specifically requested a time-weighted frequency analysis using 20 years of PYQ data with emphasis on the last 10 years, and later, migration to SQLite.
+The CAT Quantitative Aptitude preparation platform, originally MVP with PostgreSQL, is transitioning to a robust, portable stack using SQLite. It provides personalized, adaptive learning with AI-powered question scoring (4-factor difficulty, LLM enrichment for missing fields), and an adaptive study planning system. Key features include limited question attempts, nightly learning impact/mastery updates, real-time MCQ generation, and JWT authentication. Admin functions support PYQ/Question Upload and Export. Content is structured by a canonical taxonomy. Recent additions include comprehensive image support via Google Drive, LLM auto-generation of question details, and a policy against serving image-based questions without working images. Explicit user requests included: time-weighted frequency analysis using 20 years of PYQ data (10 years emphasized), later changed to simple PYQ frequency, migration to SQLite, a 12-question, non-time-bound session structure where students must answer before proceeding, comprehensive solution display, very detailed LLM-generated solutions, and a student summary showing all categories/subcategories with solved question counts by difficulty. Finally, the user requested sophisticated, adaptive session logic.
 </product_requirements>
 
 <key_technical_concepts>
 -   **Full-stack:** React.js (frontend), FastAPI (backend).
 -   **Database:** PostgreSQL (migrated to SQLite), SQLAlchemy ORM.
--   **Authentication:** JWT for API access.
--   **AI/LLM:** Universal Emergent LLM Key for question analysis, scoring, enrichment (with fallback system).
+-   **AI/LLM:** Universal Emergent LLM Key for question analysis, scoring, enrichment; LLM-powered conceptual frequency analysis; MCQ generation; detailed solution generation.
 -   **Containerization:** Kubernetes, Supervisor.
 -   **Background Jobs:** APScheduler for nightly tasks.
--   **Learning Algorithms:** EWMA for mastery, spaced repetition, adaptive question selection, time-weighted conceptual frequency analysis.
+-   **Learning Algorithms:** EWMA for mastery, spaced repetition, adaptive question selection, time-weighted conceptual frequency analysis (now simplified).
 </key_technical_concepts>
 
 <code_architecture>
@@ -21,64 +20,61 @@ The application follows a standard full-stack architecture with a FastAPI backen
 
 
 
--   : Main FastAPI application.
-    -   **Importance**: Central API hub, handles all core routes.
-    -   **Changes**: Integrated background jobs; enhanced ; added ; updated PYQ upload path. Recently, added ,  for image support and . Added  and  for testing new frequency logic. Updated LLM initialization in . Initial work for SQLite migration involves updating database engine setup.
--   : SQLAlchemy models and database connection.
+-   :
+    -   **Importance**: Main FastAPI application, central API hub.
+    -   **Changes**: Migrated database engine setup to SQLite; updated  endpoint to implement sophisticated 12-question adaptive logic (previously simple random); enhanced  to include personalization metadata; updated  to always show detailed solutions; updated PYQ upload path, integrated background jobs; enhanced  and  for comprehensive student summary; updated  call for MCQ generation; updated to use .
+-   :
     -   **Importance**: Defines database schema and handles ORM operations.
-    -   **Changes**: Added , ,  to  model. Updated  and  VARCHAR lengths. Most notably, added 10 new fields to the  model for conceptual and time-weighted frequency analysis (e.g., , ). Migrated from PostgreSQL connection to SQLite.
--   : LLM enrichment pipeline.
-    -   **Importance**: Auto-generates missing question fields using LLM.
-    -   **Changes**: Added  method for comprehensive auto-generation and  method for conceptual analysis. Fixed LLM initialization to correctly pass . Integrated .
--   : Comprehensive nightly processing engine.
-    -   **Importance**: Manages background processing for learning metrics and frequency updates.
-    -   **Changes**: Integrated  and  for sophisticated frequency calculations. Updated frequency refresh method to use time-weighted analysis.
+    -   **Changes**: Migrated from PostgreSQL connection to SQLite; converted JSON fields (e.g., ) to  with JSON string storage for SQLite compatibility; added 10 new fields to  model for frequency analysis; updated  and  VARCHAR lengths.
+-   :
+    -   **Importance**: LLM enrichment pipeline for auto-generating missing question fields.
+    -   **Changes**: Enhanced  method's LLM prompt to generate very detailed, beginner-friendly explanations (200-300 words).
+-   :
+    -   **Importance**: Real-time MCQ option generation.
+    -   **Changes**: Fixed LLM response parsing to generate actual mathematical answers instead of placeholders; enhanced LLM prompts for smart distractors; implemented a fallback system for numerical variations.
+-   :
+    -   **Importance**: Comprehensive nightly processing engine.
+    -   **Changes**: Overhauled to use  instead of the complex  and .
 -   : **NEW file**.
-    -   **Importance**: Implements LLM-powered conceptual analysis of question patterns for frequency scoring.
-    -   **Changes**: Created to perform pattern recognition, conceptual similarity matching, and batch processing.
+    -   **Importance**: Implements the sophisticated, personalized 12-question session logic.
+    -   **Changes**: Created to include user learning profile analysis, intelligent question selection (category balance, difficulty adaptation, weak area targeting, spaced repetition), and enhanced session intelligence metadata. Fixed  compatibility issues.
 -   : **NEW file**.
-    -   **Importance**: Implements sophisticated time-weighted frequency analysis for PYQ data.
-    -   **Changes**: Created to handle 20 years of PYQ data with exponential decay weighting emphasizing the last 10 years, including trend detection.
--   : **NEW file**.
-    -   **Importance**: Provides robust fallback content generation when LLM API calls fail.
-    -   **Changes**: Created to generate accurate mathematical answers and solutions for common question types using pattern recognition.
--   : Manages background task scheduling.
-    -   **Importance**: Schedules nightly processing and other background tasks.
-    -   **Changes**: Updated to use the new  as an instance method.
--   : User dashboard/admin functions.
+    -   **Importance**: Implements a simplified PYQ frequency calculation based on direct counts.
+    -   **Changes**: Created to replace the complex time-weighted and conceptual frequency analysis.
+-   :
+    -   **Importance**: Manages background task scheduling.
+    -   **Changes**: Updated to use the  for enhanced nightly processing.
+-   :
     -   **Importance**: Central UI for both students and administrators.
-    -   **Changes**: Debugged and fixed the Add Question button not opening the form. Removed the Detailed Solution textarea field from the single question upload form, as LLM handles this.
+    -   **Changes**: Fixed Add Question button; removed Detailed Solution field; updated session start logic to use the new  endpoint; enhanced to display comprehensive student summary (all canonical taxonomy categories with difficulty breakdown).
+-   :
+    -   **Importance**: Handles the student session UI.
+    -   **Changes**: Updated to work with the new 12-question format and display comprehensive solutions after answer submission; updated API calls to the new  endpoints.
 -   : **NEW script**.
-    -   **Importance**: Adds new conceptual frequency columns to the  table.
-    -   **Changes**: Created and executed to add 10 new fields to the  table.
--   : **NEW script**.
-    -   **Importance**: Ensures all conceptual and time-weighted frequency columns are present in the database.
-    -   **Changes**: Created to add any missing frequency-related columns to the  table and create indexes.
--   : **NEW file**.
-    -   **Importance**: Documentation for the new frequency analysis system.
-    -   **Changes**: Created to detail the time-weighted conceptual frequency analysis system.
+    -   **Importance**: Script to generate sample PYQ data for testing the simplified frequency system.
+    -   **Changes**: Created, but is currently encountering  and  related to asynchronous database operations.
+-   : **REMOVED**.
+-   : **REMOVED**.
 </code_architecture>
 
 <pending_tasks>
--   Complete the migration to SQLite: Update  to use the new SQLite database configuration.
--   Verify full application functionality after SQLite migration.
+-   **Debug and execute **: Resolve the  and  preventing the script from populating sample PYQ data.
+-   **Verify simplified PYQ frequency calculation**: Once sample data is populated, test and confirm the simple PYQ frequency system works as expected.
 </pending_tasks>
 
 <current_work>
-Immediately prior to this summary, the AI engineer was addressing PostgreSQL database issues reported by the user and, per the user's explicit request, initiated a migration from PostgreSQL to SQLite.
+Immediately before this summary request, the AI engineer was tasked with simplifying the PYQ (Previous Year Questions) logic. This involved:
+1.  **Creating **: A new file to handle direct frequency counting.
+2.  **Updating **: Replacing the complex conceptual and time-weighted frequency analyzers with the new simple PYQ frequency calculator. This also involved fixing parameter mismatches during initialization.
+3.  **Updating **: Modifying the manual run endpoint for the nightly engine to use the simplified version.
+4.  **Updating **: Adjusting the scheduled nightly processing job to invoke the  correctly, including passing the database session.
+5.  **Removing old files**: Deleting  and  which are no longer needed.
 
-The previous work involved a significant overhaul of the question enrichment and frequency analysis systems:
-1.  **Add Question Form Fix**: Initially, the Add Question button in the admin panel's single question upload section was not opening any form. The engineer debugged , identified the issue (likely related to  or  state), and fixed it.
-2.  **Form Simplification**: The user requested removing the Detailed Solution box from the Add Question form, as LLM handles this. This was successfully implemented in .
-3.  **LLM Enrichment Pipeline Fix**: The LLM enrichment was initially broken, leading to silly updates (placeholder text). This was traced to incorrect LLM client initialization and a missing  method in . These were fixed, and a robust  was implemented to ensure accurate mathematical answers even if the LLM API fails.
-4.  **Conceptual Frequency Analysis**: A major feature addition was the LLM-powered conceptual frequency analysis. This involved creating  to analyze question patterns conceptually (not just by text match), integrating it into , and updating  with .
-5.  **Time-Weighted Frequency Analysis**: Responding to the user's requirement for 20-year PYQ data with 10-year relevance,  was implemented. This uses exponential decay to weight recent PYQ data more heavily.
-6.  **Database Schema Synchronization**: Multiple issues arose where new frequency-related fields in SQLAlchemy models were not present in the actual PostgreSQL database. Migration scripts (, ) were created and executed to ensure all 10 new frequency analysis columns were properly added and indexed.
-7.  **Database Migration to SQLite**: The user requested switching from PostgreSQL to a cloud-agnostic database integrated with the Emergent Universal Key. After clarifying that the Emergent Universal Key is for LLM services, the engineer recommended SQLite as a free, zero-maintenance solution. The  file has been successfully updated to use SQLite.
+After these code changes, initial backend testing confirmed the simplified PYQ system was working correctly but noted there was no PYQ data in the database yet to calculate frequencies from. The engineer then initiated the creation of a script, , to populate this data.
 
-The immediate current work is updating the remaining backend components, starting with , to fully transition the application to use the SQLite database.
+The current work is stalled at this point as the  script is failing with  and , indicating issues with asynchronous database operations within the script. The engineer attempted direct API testing, which also resulted in similar errors, suggesting a fundamental async/await or session handling problem in the test or script environment.
 </current_work>
 
 <optional_next_step>
-Update  to integrate with the new SQLite database configuration.
+Debug and fix the  script and the direct API test for PYQ frequency.
 </optional_next_step>
