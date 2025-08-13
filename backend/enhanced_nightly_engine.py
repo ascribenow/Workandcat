@@ -37,10 +37,10 @@ class EnhancedNightlyEngine:
     
     async def run_nightly_processing(self, db: AsyncSession) -> Dict[str, Any]:
         """
-        Run simplified nightly processing tasks
+        Run enhanced nightly processing tasks
         """
         self.processing_stats['start_time'] = datetime.utcnow()
-        logger.info("🌙 Starting simplified nightly processing...")
+        logger.info("🌙 Starting enhanced nightly processing...")
         
         try:
             # Task 1: Update mastery calculations
@@ -48,9 +48,9 @@ class EnhancedNightlyEngine:
             mastery_result = await self.update_mastery_calculations(db)
             self.processing_stats['mastery_updates'] = mastery_result.get('updated_count', 0)
             
-            # Task 2: Simple PYQ frequency refresh
-            logger.info("📈 Refreshing simple PYQ frequencies...")
-            frequency_result = await self.refresh_simple_frequencies(db)
+            # Task 2: Enhanced PYQ frequency refresh
+            logger.info("📈 Refreshing enhanced PYQ frequencies...")
+            frequency_result = await self.refresh_enhanced_frequencies(db)
             self.processing_stats['frequency_updates'] = frequency_result.get('updated_questions', 0)
             
             # Task 3: Cleanup inactive questions
@@ -65,7 +65,7 @@ class EnhancedNightlyEngine:
             self.processing_stats['end_time'] = datetime.utcnow()
             duration = self.processing_stats['end_time'] - self.processing_stats['start_time']
             
-            logger.info(f"✅ Simplified nightly processing completed in {duration.total_seconds():.1f} seconds")
+            logger.info(f"✅ Enhanced nightly processing completed in {duration.total_seconds():.1f} seconds")
             logger.info(f"   - Mastery updates: {self.processing_stats['mastery_updates']}")
             logger.info(f"   - Frequency updates: {self.processing_stats['frequency_updates']}")
             logger.info(f"   - Inactive questions handled: {self.processing_stats['inactive_questions']}")
