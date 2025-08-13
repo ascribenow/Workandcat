@@ -644,12 +644,12 @@ async def start_session(
         else:
             question_count = 12
             
-        # Create session record with question IDs
+        # Create session record with question IDs as JSON string
         question_ids = [str(q.id) for q in questions]
         session = Session(
             user_id=current_user.id,
             started_at=datetime.utcnow(),
-            units=question_ids,  # Store the 12 question IDs
+            units=json.dumps(question_ids),  # Store as JSON string for SQLite
             notes=f"12-question session with {question_count} questions"
         )
         
