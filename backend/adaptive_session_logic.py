@@ -422,7 +422,7 @@ class AdaptiveSessionLogic:
             return questions
 
     async def apply_spaced_repetition_filter(self, user_id: str, questions: List[Question], 
-                                           db: Session) -> List[Question]:
+                                           db: AsyncSession) -> List[Question]:
         """Apply spaced repetition principles to avoid recently attempted questions"""
         try:
             # Get recently attempted questions (last 3 days)
