@@ -626,48 +626,98 @@ async def start_session(
     current_user: User = Depends(require_auth),
     db: AsyncSession = Depends(get_async_compatible_db)
 ):
-    """Start a new 12-question study session"""
+    """Start a sophisticated 12-question session with personalized question selection"""
     try:
-        # Get 12 active questions for the session
-        result = await db.execute(
-            select(Question)
-            .where(Question.is_active == True)
-            .order_by(func.random())  # SQLite random function
-            .limit(12)
-        )
-        questions = result.scalars().all()
+        logger.info(f"Starting sophisticated session for user {current_user.id}")
         
-        if len(questions) < 12:
-            # If we don't have 12 questions, get what we can
-            question_count = len(questions)
-            if question_count == 0:
-                raise HTTPException(status_code=404, detail="No questions available for session")
-        else:
-            question_count = 12
-            
+        # Use adaptive session logic for personalized question selection
+        session_result = await adaptive_session_logic.create_personalized_session(
+            current_user.id, db
+        )
+        
+        questions = session_result["questions"]
+        metadata = session_result["metadata"]
+        personalized = session_result["personalization_applied"]
+        
+        if not questions:
+            raise HTTPException(status_code=404, detail="No questions available for session")
+        
+        question_count = len(questions)
+        
         # Create session record with question IDs as JSON string
         question_ids = [str(q.id) for q in questions]
         session = Session(
             user_id=current_user.id,
             started_at=datetime.utcnow(),
             units=json.dumps(question_ids),  # Store as JSON string for SQLite
-            notes=f"12-question session with {question_count} questions"
+            notes=f"{'Personalized' if personalized else 'Standard'} 12-question session - Stage: {metadata.get('learning_stage', 'N/A')} - Accuracy: {metadata.get('recent_accuracy', 0):.1f}%"
         )
         
         db.add(session)
         await db.commit()
         
-        return {
-            "message": f"12-question session started successfully",
+        # Enhanced response with session intelligence
+        response = {
+            "message": f"{'🎯 Personalized' if personalized else '📚 Standard'} 12-question session started successfully",
             "session_id": str(session.id),
             "total_questions": question_count,
-            "session_type": "12_question_set",
-            "current_question": 1
+            "session_type": "intelligent_12_question_set",
+            "current_question": 1,
+            "personalization": {
+                "applied": personalized,
+                "learning_stage": metadata.get('learning_stage', 'unknown'),
+                "recent_accuracy": metadata.get('recent_accuracy', 0),
+                "difficulty_distribution": metadata.get('difficulty_distribution', {}),
+                "category_distribution": metadata.get('category_distribution', {}),
+                "weak_areas_targeted": metadata.get('weak_areas_targeted', 0)
+            }
         }
         
+        logger.info(f"Session created successfully: {session.id} - Personalized: {personalized}")
+        return response
+        
     except Exception as e:
-        logger.error(f"Error starting session: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"Error starting sophisticated session: {e}")
+        # Fallback to simple session if sophisticated logic fails
+        try:
+            fallback_result = await adaptive_session_logic.create_simple_fallback_session(
+                current_user.id, db
+            )
+            
+            questions = fallback_result["questions"]
+            if not questions:
+                raise HTTPException(status_code=404, detail="No questions available")
+            
+            question_ids = [str(q.id) for q in questions]
+            session = Session(
+                user_id=current_user.id,
+                started_at=datetime.utcnow(),
+                units=json.dumps(question_ids),
+                notes="Fallback 12-question session"
+            )
+            
+            db.add(session)
+            await db.commit()
+            
+            return {
+                "message": "📚 Standard 12-question session started (fallback mode)",
+                "session_id": str(session.id),
+                "total_questions": len(questions),
+                "session_type": "fallback_12_question_set",
+                "current_question": 1,
+                "personalization": {
+                    "applied": False,
+                    "learning_stage": "unknown",
+                    "recent_accuracy": 0,
+                    "difficulty_distribution": {},
+                    "category_distribution": {},
+                    "weak_areas_targeted": 0
+                }
+            }
+            
+        except Exception as fallback_error:
+            logger.error(f"Fallback session creation also failed: {fallback_error}")
+            raise HTTPException(status_code=500, detail="Unable to create session")
 
 @api_router.get("/sessions/{session_id}/next-question")
 async def get_next_question(
