@@ -14,6 +14,7 @@ from database import (
     Question, User, Attempt, Mastery, Topic, Session,
     PYQQuestion, PYQPaper, PYQIngestion
 )
+from conceptual_frequency_analyzer import ConceptualFrequencyAnalyzer
 from time_weighted_frequency_analyzer import TimeWeightedFrequencyAnalyzer, CAT_ANALYSIS_CONFIG
 
 logger = logging.getLogger(__name__)
