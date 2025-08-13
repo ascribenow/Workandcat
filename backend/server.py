@@ -685,7 +685,13 @@ async def get_next_question(
         if not session:
             raise HTTPException(status_code=404, detail="Session not found")
         
-        if not session.units:
+        # Parse question IDs from JSON string
+        try:
+            question_ids = json.loads(session.units) if session.units else []
+        except (json.JSONDecodeError, TypeError):
+            raise HTTPException(status_code=500, detail="Invalid session data")
+        
+        if not question_ids:
             raise HTTPException(status_code=404, detail="No questions in this session")
         
         # Get number of attempts in this session to determine current question
@@ -693,23 +699,23 @@ async def get_next_question(
             select(func.count(Attempt.id))
             .where(
                 Attempt.user_id == current_user.id,
-                Attempt.question_id.in_(session.units),
+                Attempt.question_id.in_(question_ids),
                 Attempt.created_at >= session.started_at
             )
         )
         answered_count = attempts_result.scalar() or 0
         
         # Check if session is complete
-        if answered_count >= len(session.units):
+        if answered_count >= len(question_ids):
             return {
                 "session_complete": True,
                 "message": "All questions completed!",
                 "questions_completed": answered_count,
-                "total_questions": len(session.units)
+                "total_questions": len(question_ids)
             }
         
         # Get the next unanswered question
-        current_question_id = session.units[answered_count]
+        current_question_id = question_ids[answered_count]
         
         # Get question details
         question_result = await db.execute(
@@ -732,13 +738,13 @@ async def get_next_question(
                 "type_of_question": question.type_of_question,
                 "has_image": question.has_image,
                 "image_url": question.image_url,
-                "image_alt_text": question.image_alt_text
+                "image_alt_text": question.image_alt_text,
+                "options": options
             },
-            "options": options,
             "session_progress": {
                 "current_question": answered_count + 1,
-                "total_questions": len(session.units),
-                "questions_remaining": len(session.units) - answered_count
+                "total_questions": len(question_ids),
+                "questions_remaining": len(question_ids) - answered_count
             },
             "session_complete": False
         }
