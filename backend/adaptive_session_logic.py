@@ -157,7 +157,7 @@ class AdaptiveSessionLogic:
                 'total_attempts': 0
             }
 
-    async def calculate_recent_accuracy(self, user_id: str, db: Session, days: int = 7) -> float:
+    async def calculate_recent_accuracy(self, user_id: str, db: AsyncSession, days: int = 7) -> float:
         """Calculate user's accuracy over the last N days"""
         try:
             cutoff_date = datetime.utcnow() - timedelta(days=days)
