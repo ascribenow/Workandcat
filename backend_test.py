@@ -3,6 +3,7 @@ import sys
 import json
 from datetime import datetime
 import time
+import os
 
 class CATBackendTester:
     def __init__(self, base_url="https://smartquant-prep.preview.emergentagent.com/api"):
@@ -17,6 +18,15 @@ class CATBackendTester:
         self.diagnostic_id = None
         self.session_id = None
         self.plan_id = None
+        self.sqlite_migration_tests = {
+            "database_connectivity": False,
+            "authentication_system": False,
+            "question_management": False,
+            "admin_functionality": False,
+            "study_planning": False,
+            "session_management": False,
+            "data_integrity": False
+        }
 
     def run_test(self, name, method, endpoint, expected_status, data=None, headers=None):
         """Run a single API test"""
