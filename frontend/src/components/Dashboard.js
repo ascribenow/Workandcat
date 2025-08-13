@@ -158,11 +158,7 @@ export const Dashboard = () => {
               >
                 <span className="mr-2">🎯</span>
                 Practice Session
-                }}
-                className={`inline-flex items-center px-1 pt-1 text-sm font-medium border-b-2 ${
-                  currentView === 'session' 
-                    ? 'text-blue-600 border-blue-500' 
-                    : 'text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300'
+              </button>
                 }`}
               >
                 <span className="mr-2">📝</span>
