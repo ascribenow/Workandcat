@@ -207,7 +207,7 @@ class User(Base):
     current_month_spending = Column(Numeric(10, 2), default=0.0)  # Current month's spending
     last_spending_reset = Column(Date, default=lambda: datetime.utcnow().date())  # Last reset date
     spending_notifications = Column(Boolean, default=True)  # Enable spending notifications
-    spending_alert_threshold = Column(Float, default=0.8)  # Alert at 80% of limit
+    spending_alert_threshold = Column(Numeric(3, 2), default=0.8)  # Alert at 80% of limit
     
     # Relationships
     diagnostics = relationship("Diagnostic", back_populates="user")
