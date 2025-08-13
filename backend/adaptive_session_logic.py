@@ -185,7 +185,7 @@ class AdaptiveSessionLogic:
             logger.error(f"Error calculating recent accuracy: {e}")
             return 50.0
 
-    async def get_user_mastery_breakdown(self, user_id: str, db: Session) -> List[Dict[str, Any]]:
+    async def get_user_mastery_breakdown(self, user_id: str, db: AsyncSession) -> List[Dict[str, Any]]:
         """Get detailed mastery breakdown by subcategory"""
         try:
             # Get all attempts with question details
