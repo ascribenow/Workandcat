@@ -533,18 +533,18 @@ class CATBackendTester:
         
         return False
 
-    def test_sophisticated_12_question_session_logic(self):
-        """Test Sophisticated 12-Question Session Logic - COMPREHENSIVE VALIDATION"""
-        print("🔍 SOPHISTICATED 12-QUESTION SESSION LOGIC TESTING")
+    def test_sophisticated_12_question_session_logic_fixed(self):
+        """Test FIXED Sophisticated 12-Question Session Logic - AsyncSession Compatibility"""
+        print("🔍 FIXED SOPHISTICATED 12-QUESTION SESSION LOGIC TESTING")
         print("=" * 70)
-        print("Testing newly implemented sophisticated session logic with focus on:")
-        print("1. Personalized Session Creation")
-        print("2. Learning Stage Detection") 
-        print("3. Difficulty Distribution")
-        print("4. Category Balance")
-        print("5. Spaced Repetition")
-        print("6. Weak Area Targeting")
-        print("7. Fallback System")
+        print("Testing FIXED sophisticated session logic after AsyncSession compatibility updates:")
+        print("1. AsyncSession Compatibility Verification")
+        print("2. Sophisticated Logic Invocation (not fallback)")
+        print("3. Learning Profile Analysis")
+        print("4. Personalization Metadata Population")
+        print("5. 12-Question Selection (not 1)")
+        print("6. Category & Difficulty Intelligence")
+        print("7. Session Intelligence Features")
         print("Admin credentials: sumedhprabhu18@gmail.com / admin2025")
         print("=" * 70)
         
