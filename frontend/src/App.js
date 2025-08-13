@@ -116,14 +116,13 @@ const Login = () => {
       <div className="max-w-md w-full">
         <div className="bg-white rounded-lg shadow-xl p-8">
           <div className="text-center mb-8">
-            <div className="mx-auto mb-4 flex justify-center">
+            <div className="mx-auto mb-6 flex justify-center">
               <img 
                 src="/images/twelvr-logo.png" 
                 alt="Twelvr Logo" 
-                className="h-16 w-auto"
+                className="h-24 w-auto"
               />
             </div>
-            <h2 className="text-3xl font-bold text-gray-900">Twelvr</h2>
             <p className="mt-2 text-sm text-gray-600">
               {isRegister ? "Create your account" : "Sign in to your account"}
             </p>
