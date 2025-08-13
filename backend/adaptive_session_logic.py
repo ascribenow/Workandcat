@@ -840,41 +840,93 @@ class AdaptiveSessionLogic:
             logger.error(f"Error ordering by difficulty progression: {e}")
             return questions
 
-    def generate_session_metadata(self, questions: List[Question], 
-                                 user_profile: Dict) -> Dict[str, Any]:
-        """Generate metadata about the session composition"""
+    async def generate_enhanced_session_metadata(
+        self, 
+        questions: List[Question], 
+        user_profile: Dict[str, Any],
+        dynamic_distribution: Dict[str, int]
+    ) -> Dict[str, Any]:
+        """
+        PHASE 1: Generate enhanced session metadata with all improvements
+        """
         try:
-            # Difficulty breakdown
-            difficulty_count = {'Easy': 0, 'Medium': 0, 'Hard': 0}
-            category_count = {}
-            subcategory_count = {}
-            
-            for question in questions:
-                # Count difficulties
-                difficulty = question.difficulty_band or 'Medium'
-                difficulty_count[difficulty] += 1
-                
-                # Count categories
-                category = self.get_category_from_subcategory(question.subcategory)
-                category_count[category] = category_count.get(category, 0) + 1
-                
-                # Count subcategories
-                subcategory_count[question.subcategory] = subcategory_count.get(question.subcategory, 0) + 1
-            
-            return {
-                'learning_stage': user_profile['learning_stage'],
-                'recent_accuracy': user_profile['recent_accuracy'],
-                'difficulty_distribution': difficulty_count,
-                'category_distribution': category_count,
-                'subcategory_distribution': subcategory_count,
-                'weak_areas_targeted': len([q for q in questions if q.subcategory in user_profile['weak_subcategories']]),
-                'session_type': 'adaptive_personalized',
-                'total_questions': len(questions)
+            # Basic metadata
+            difficulty_distribution = {}
+            category_distribution = {}
+            subcategory_distribution = {}
+            pyq_frequency_stats = {
+                'high_frequency': 0,
+                'medium_frequency': 0, 
+                'low_frequency': 0,
+                'average_score': 0.0
             }
             
+            total_pyq_score = 0.0
+            
+            for question in questions:
+                # Difficulty distribution
+                difficulty = question.difficulty_band or 'Medium'
+                difficulty_distribution[difficulty] = difficulty_distribution.get(difficulty, 0) + 1
+                
+                # Category distribution
+                category = self.get_category_from_subcategory(question.subcategory)
+                if category:
+                    category_distribution[category] = category_distribution.get(category, 0) + 1
+                
+                # Subcategory distribution
+                subcategory = question.subcategory
+                subcategory_distribution[subcategory] = subcategory_distribution.get(subcategory, 0) + 1
+                
+                # PYQ frequency analysis
+                pyq_score = question.pyq_frequency_score or 0.5
+                total_pyq_score += pyq_score
+                
+                if pyq_score >= 0.7:
+                    pyq_frequency_stats['high_frequency'] += 1
+                elif pyq_score >= 0.4:
+                    pyq_frequency_stats['medium_frequency'] += 1
+                else:
+                    pyq_frequency_stats['low_frequency'] += 1
+            
+            # Calculate averages
+            pyq_frequency_stats['average_score'] = total_pyq_score / len(questions) if questions else 0.0
+            
+            # Count weak areas targeted
+            weak_areas_targeted = sum(
+                1 for q in questions 
+                if q.subcategory in user_profile.get('weak_subcategories', [])
+            )
+            
+            # Enhanced metadata
+            metadata = {
+                'learning_stage': user_profile.get('learning_stage', 'unknown'),
+                'recent_accuracy': user_profile.get('recent_accuracy', 0),
+                'difficulty_distribution': difficulty_distribution,
+                'category_distribution': category_distribution,
+                'subcategory_distribution': subcategory_distribution,
+                'weak_areas_targeted': weak_areas_targeted,
+                'dynamic_adjustment_applied': dynamic_distribution != self.base_category_distribution,
+                'base_distribution': self.base_category_distribution,
+                'applied_distribution': dynamic_distribution,
+                'pyq_frequency_analysis': pyq_frequency_stats,
+                'subcategory_diversity': len(subcategory_distribution),
+                'cooldown_periods_used': self.cooldown_periods,
+                'total_questions': len(questions),
+                'enhancement_level': 'phase_1_advanced'
+            }
+            
+            return metadata
+            
         except Exception as e:
-            logger.error(f"Error generating session metadata: {e}")
-            return {'session_type': 'adaptive_personalized', 'total_questions': len(questions)}
+            logger.error(f"Error generating enhanced metadata: {e}")
+            return {
+                'learning_stage': 'unknown',
+                'recent_accuracy': 0,
+                'difficulty_distribution': {},
+                'category_distribution': {},
+                'weak_areas_targeted': 0,
+                'enhancement_level': 'error'
+            }
 
     def get_category_from_subcategory(self, subcategory: str) -> str:
         """Map subcategory to main category"""
