@@ -1,6 +1,10 @@
 """
-Sophisticated 12-Question Session Logic
-Adaptive, personalized question selection based on user learning profile
+Sophisticated 12-Question Session Logic - PHASE 1 ENHANCED
+Adaptive, personalized question selection with:
+- PYQ frequency integration
+- Dynamic category quotas
+- Subcategory diversity caps
+- Differential cooldowns
 """
 
 import json
@@ -15,19 +19,30 @@ logger = logging.getLogger(__name__)
 
 class AdaptiveSessionLogic:
     """
-    Sophisticated session logic that creates personalized 12-question sessions
-    based on user's learning profile, mastery levels, and performance patterns
+    PHASE 1 ENHANCED: Sophisticated session logic with PYQ frequency integration
+    and advanced selection strategies
     """
     
     def __init__(self):
-        # CAT Canonical Taxonomy Distribution
-        self.category_distribution = {
+        # CAT Canonical Taxonomy Distribution (Base quotas - can be dynamically adjusted)
+        self.base_category_distribution = {
             "A-Arithmetic": 4,           # 33% - Most important for CAT
             "B-Algebra": 3,              # 25% - Core mathematical concepts
             "C-Geometry & Mensuration": 2, # 17% - Spatial reasoning
             "D-Number System": 2,        # 17% - Fundamental concepts
             "E-Modern Math": 1           # 8% - Advanced topics
         }
+        
+        # PHASE 1: Differential cooldown periods by difficulty
+        self.cooldown_periods = {
+            "Easy": 1,      # 1 day - fundamentals can recur sooner
+            "Medium": 2,    # 2 days - balanced recovery
+            "Hard": 3       # 3 days - more recovery time for complex problems
+        }
+        
+        # PHASE 1: Subcategory diversity limits
+        self.max_questions_per_subcategory = 3  # Prevent domination
+        self.min_subcategories_per_session = 4  # Ensure variety
         
         # Subcategory mapping
         self.canonical_subcategories = {
