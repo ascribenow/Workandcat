@@ -436,20 +436,26 @@ class AsyncSession:
     def add(self, instance):
         return self._session.add(instance)
     
-    def commit(self):
+    async def commit(self):
         return self._session.commit()
     
-    def flush(self):
+    async def flush(self):
         return self._session.flush()
     
-    def execute(self, statement):
+    async def execute(self, statement):
         return self._session.execute(statement)
     
-    def scalar(self, statement):
+    async def scalar(self, statement):
         return self._session.scalar(statement)
     
     def close(self):
         return self._session.close()
+    
+    async def refresh(self, instance):
+        return self._session.refresh(instance)
+    
+    async def rollback(self):
+        return self._session.rollback()
 
 
 def get_async_compatible_db():
