@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "CAT Quantitative Aptitude preparation application with focus on formula integration and core study system (diagnostic functionality removed as requested by user)"
+user_problem_statement: "Complete SQLite migration from PostgreSQL and remove MongoDB/PostgreSQL dependencies and references. Update server.py to integrate with new SQLite database configuration."
 
 backend:
   - task: "PostgreSQL Database Setup"
