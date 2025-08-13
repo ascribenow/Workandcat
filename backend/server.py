@@ -668,13 +668,13 @@ async def start_session(
         logger.error(f"Error starting session: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@api_router.get("/session/{session_id}/next-question")
+@api_router.get("/sessions/{session_id}/next-question")
 async def get_next_question(
     session_id: str,
     current_user: User = Depends(require_auth),
     db: AsyncSession = Depends(get_async_compatible_db)
 ):
-    """Get next question for the session"""
+    """Get next question for the 12-question session"""
     try:
         # Get session
         session_result = await db.execute(
@@ -685,46 +685,63 @@ async def get_next_question(
         if not session:
             raise HTTPException(status_code=404, detail="Session not found")
         
-        # Try to use study planner to get next question
-        next_question = await study_planner.get_next_question(db, str(current_user.id), session_id)
+        if not session.units:
+            raise HTTPException(status_code=404, detail="No questions in this session")
         
-        # CRITICAL FIX: If study planner fails, use fallback question selection
-        if not next_question:
-            logger.warning(f"Study planner returned no questions for session {session_id}, using fallback selection")
-            
-            # Fallback: Get any available active question
-            fallback_result = await db.execute(
-                select(Question).where(
-                    Question.is_active == True
-                ).order_by(desc(Question.importance_index)).limit(1)
+        # Get number of attempts in this session to determine current question
+        attempts_result = await db.execute(
+            select(func.count(Attempt.id))
+            .where(
+                Attempt.user_id == current_user.id,
+                Attempt.question_id.in_(session.units),
+                Attempt.created_at >= session.started_at
             )
-            fallback_question = fallback_result.scalar_one_or_none()
-            
-            if fallback_question:
-                next_question = {
-                    "id": str(fallback_question.id),
-                    "stem": fallback_question.stem,
-                    "subcategory": fallback_question.subcategory,
-                    "difficulty_band": fallback_question.difficulty_band,
-                    "importance_index": float(fallback_question.importance_index) if fallback_question.importance_index else 0,
-                    "unit_id": None,
-                    "unit_kind": "fallback"
-                }
-                logger.info(f"Using fallback question {fallback_question.id} for session {session_id}")
-            else:
-                logger.error(f"No questions available at all for session {session_id}")
-                return {"question": None, "message": "No more questions for this session"}
+        )
+        answered_count = attempts_result.scalar() or 0
+        
+        # Check if session is complete
+        if answered_count >= len(session.units):
+            return {
+                "session_complete": True,
+                "message": "All questions completed!",
+                "questions_completed": answered_count,
+                "total_questions": len(session.units)
+            }
+        
+        # Get the next unanswered question
+        current_question_id = session.units[answered_count]
+        
+        # Get question details
+        question_result = await db.execute(
+            select(Question).where(Question.id == current_question_id)
+        )
+        question = question_result.scalar_one_or_none()
+        
+        if not question:
+            raise HTTPException(status_code=404, detail="Question not found")
         
         # Generate MCQ options
-        options = await mcq_generator.generate_options(
-            next_question["stem"],
-            next_question["subcategory"],
-            next_question["difficulty_band"]
-        )
+        options = await mcq_generator.generate_options(question.stem, question.answer)
         
-        next_question["options"] = options
-        
-        return {"question": next_question}
+        return {
+            "question": {
+                "id": str(question.id),
+                "stem": question.stem,
+                "subcategory": question.subcategory,
+                "difficulty_band": question.difficulty_band,
+                "type_of_question": question.type_of_question,
+                "has_image": question.has_image,
+                "image_url": question.image_url,
+                "image_alt_text": question.image_alt_text
+            },
+            "options": options,
+            "session_progress": {
+                "current_question": answered_count + 1,
+                "total_questions": len(session.units),
+                "questions_remaining": len(session.units) - answered_count
+            },
+            "session_complete": False
+        }
         
     except Exception as e:
         logger.error(f"Error getting next question: {e}")
