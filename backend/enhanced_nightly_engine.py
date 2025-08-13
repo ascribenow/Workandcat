@@ -25,8 +25,9 @@ class EnhancedNightlyEngine:
     Uses time-weighted frequency calculation for better accuracy
     """
     
-    def __init__(self):
+    def __init__(self, llm_pipeline=None):
         self.time_analyzer = TimeWeightedFrequencyAnalyzer(CAT_ANALYSIS_CONFIG)
+        self.conceptual_analyzer = ConceptualFrequencyAnalyzer(llm_pipeline) if llm_pipeline else None
         self.processing_stats = {
             'start_time': None,
             'end_time': None,
