@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Simplified Nightly Processing Engine for CAT Preparation Platform
-Updated to use simple PYQ frequency calculation instead of complex analysis
+Enhanced Nightly Processing Engine for CAT Preparation Platform
+Comprehensive processing with LLM-powered conceptual frequency analysis
 """
 
 import logging
@@ -14,18 +14,18 @@ from database import (
     Question, User, Attempt, Mastery, Topic, Session,
     PYQQuestion, PYQPaper, PYQIngestion
 )
-from simple_pyq_frequency import SimplePYQFrequencyCalculator
+from time_weighted_frequency_analyzer import TimeWeightedFrequencyAnalyzer, CAT_ANALYSIS_CONFIG
 
 logger = logging.getLogger(__name__)
 
-class SimplifiedNightlyEngine:
+class EnhancedNightlyEngine:
     """
-    Simplified nightly processing engine focused on essential maintenance tasks
-    Uses simple PYQ frequency calculation instead of complex analysis
+    Enhanced nightly processing engine with comprehensive frequency analysis
+    Uses time-weighted frequency calculation for better accuracy
     """
     
     def __init__(self):
-        self.pyq_calculator = SimplePYQFrequencyCalculator()
+        self.time_analyzer = TimeWeightedFrequencyAnalyzer(CAT_ANALYSIS_CONFIG)
         self.processing_stats = {
             'start_time': None,
             'end_time': None,
