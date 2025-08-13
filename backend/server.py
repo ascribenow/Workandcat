@@ -1780,7 +1780,7 @@ async def run_enhanced_nightly_processing(
         from enhanced_nightly_engine import EnhancedNightlyEngine
         
         # Initialize enhanced nightly engine
-        enhanced_engine = EnhancedNightlyEngine()
+        enhanced_engine = EnhancedNightlyEngine(llm_pipeline)
         
         logger.info("🌙 Starting manual enhanced nightly processing...")
         
