@@ -1811,7 +1811,7 @@ async def startup_event():
     logger.info("🚀 CAT Preparation Platform v2.0 Starting...")
     
     # Initialize database
-    await init_database()
+    init_database()
     logger.info("📊 Database initialized")
     
     # Create initial topics if needed
