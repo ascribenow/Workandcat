@@ -615,22 +615,26 @@ job_processor = None
 
 from enhanced_nightly_engine import EnhancedNightlyEngine
 
-# Initialize enhanced nightly engine
-enhanced_nightly_engine = EnhancedNightlyEngine()
+# Note: Enhanced nightly engine initialized in main function with LLM pipeline
 
 async def enhanced_nightly_processing_job():
     """
-    Simplified nightly processing job for essential maintenance tasks
+    Enhanced nightly processing job for comprehensive maintenance tasks
     """
-    logger.info("🌙 Starting simplified nightly processing job")
+    logger.info("🌙 Starting enhanced nightly processing job")
     
     try:
         from database import get_async_compatible_db
         
         # Get database session
         async for db in get_async_compatible_db():
-            # Run simplified nightly processing
-            result = await enhanced_nightly_engine.run_nightly_processing(db)
+            # Access enhanced nightly engine from global job processor
+            if job_processor and hasattr(job_processor, 'enhanced_nightly_engine'):
+                result = await job_processor.enhanced_nightly_engine.run_nightly_processing(db)
+            else:
+                # Fallback: create temporary instance (should not happen in production)
+                temp_engine = EnhancedNightlyEngine()
+                result = await temp_engine.run_nightly_processing(db)
             
             if result.get("status") == "completed":
                 logger.info(f"✅ Simplified nightly processing completed successfully")
