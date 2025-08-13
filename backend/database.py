@@ -1,13 +1,11 @@
 """
-PostgreSQL Database Configuration and Models for CAT Preparation Platform
-Based on the complete specification with all required tables and relationships
+SQLite Database Configuration and Models for CAT Preparation Platform
+Migrated from PostgreSQL to SQLite for simplicity and reliability
 """
 
 from sqlalchemy import create_engine, Column, Integer, String, Text, Boolean, Numeric, DateTime, Date, JSON, ForeignKey, Index, BigInteger, func
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker, relationship
-from sqlalchemy.dialects.postgresql import UUID, ARRAY
 from datetime import datetime
 import uuid
 import os
@@ -15,25 +13,37 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-DATABASE_URL = os.getenv("DATABASE_URL")
-ASYNC_DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://")
+# SQLite Database Configuration
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./cat_preparation.db")
 
-# Create async engine
-engine = create_async_engine(ASYNC_DATABASE_URL, echo=True)
-async_session_maker = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+# Create SQLite engine with optimized settings
+engine = create_engine(
+    DATABASE_URL,
+    echo=False,  # Set to True for debugging
+    connect_args={
+        "check_same_thread": False,  # Allow SQLite to work with FastAPI
+        "timeout": 20,  # 20 second timeout for database locks
+        "isolation_level": None,  # Use autocommit mode for better concurrency
+    },
+    pool_pre_ping=True,  # Verify connections before use
+    pool_recycle=3600,   # Recycle connections every hour
+)
+
+# Create session factory
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()
 
-# Database Models based on the specification
+# Database Models adapted for SQLite
 
 class Topic(Base):
     """Topics table - canonical taxonomy structure"""
     __tablename__ = "topics"
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     section = Column(String(10), default='QA', nullable=False)
     name = Column(Text, nullable=False)
-    parent_id = Column(UUID(as_uuid=True), ForeignKey('topics.id'), nullable=True)
+    parent_id = Column(String(36), ForeignKey('topics.id'), nullable=True)
     slug = Column(String(255), unique=True, nullable=False)
     centrality = Column(Numeric(3, 2), default=0.5)  # 0-1 for Learning Impact static
     category = Column(String(50))  # A, B, C, D, E for canonical taxonomy
@@ -48,8 +58,8 @@ class Question(Base):
     """Questions table - main question bank with LLM enrichment"""
     __tablename__ = "questions"
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    topic_id = Column(UUID(as_uuid=True), ForeignKey('topics.id'), nullable=False)
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    topic_id = Column(String(36), ForeignKey('topics.id'), nullable=False)
     subcategory = Column(Text, nullable=False)
     type_of_question = Column(String(150))  # Specific question type within subcategory
     
@@ -78,17 +88,17 @@ class Question(Base):
     frequency_score = Column(Numeric(5, 4), default=0.0)  # New enhanced frequency score
     pyq_conceptual_matches = Column(Integer, default=0)
     total_pyq_analyzed = Column(Integer, default=0)
-    top_matching_concepts = Column(ARRAY(String), default=list)
+    top_matching_concepts = Column(Text, default='[]')  # JSON string for SQLite
     frequency_analysis_method = Column(String(50), default='subcategory')
     frequency_last_updated = Column(DateTime, nullable=True)
-    pattern_keywords = Column(ARRAY(String), default=list)
+    pattern_keywords = Column(Text, default='[]')  # JSON string for SQLite
     pattern_solution_approach = Column(Text, nullable=True)
     pyq_occurrences_last_10_years = Column(Integer, default=0)
     total_pyq_count = Column(Integer, default=0)
     
     # Metadata
     video_url = Column(Text, nullable=True)
-    tags = Column(ARRAY(String), default=list)
+    tags = Column(Text, default='[]')  # JSON string for SQLite
     source = Column(String(20), default='Admin')  # Admin|PYQ|Mock|AI_GEN
     version = Column(Integer, default=1)
     is_active = Column(Boolean, default=True)
@@ -104,8 +114,8 @@ class QuestionOption(Base):
     """Question options - cache of last MCQ set shown"""
     __tablename__ = "question_options"
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    question_id = Column(UUID(as_uuid=True), ForeignKey('questions.id'), nullable=False)
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    question_id = Column(String(36), ForeignKey('questions.id'), nullable=False)
     choice_a = Column(Text, nullable=True)
     choice_b = Column(Text, nullable=True)
     choice_c = Column(Text, nullable=True)
@@ -123,7 +133,7 @@ class PYQIngestion(Base):
     """PYQ ingestions - raw file stage"""
     __tablename__ = "pyq_ingestions"
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     upload_filename = Column(Text, nullable=False)
     storage_key = Column(Text, nullable=False)
     year = Column(Integer, nullable=True)
@@ -145,12 +155,12 @@ class PYQPaper(Base):
     """PYQ papers - normalized paper record"""
     __tablename__ = "pyq_papers"
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     year = Column(Integer, nullable=False)
     slot = Column(String(10), nullable=True)
     source_url = Column(Text, nullable=True)
     ingested_at = Column(DateTime, default=datetime.utcnow)
-    ingestion_id = Column(UUID(as_uuid=True), ForeignKey('pyq_ingestions.id'), nullable=False)
+    ingestion_id = Column(String(36), ForeignKey('pyq_ingestions.id'), nullable=False)
     
     # Relationships
     ingestion = relationship("PYQIngestion", back_populates="papers")
@@ -161,14 +171,14 @@ class PYQQuestion(Base):
     """PYQ questions - normalized, taxonomy-mapped items"""
     __tablename__ = "pyq_questions"
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    paper_id = Column(UUID(as_uuid=True), ForeignKey('pyq_papers.id'), nullable=False)
-    topic_id = Column(UUID(as_uuid=True), ForeignKey('topics.id'), nullable=False)
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    paper_id = Column(String(36), ForeignKey('pyq_papers.id'), nullable=False)
+    topic_id = Column(String(36), ForeignKey('topics.id'), nullable=False)
     subcategory = Column(Text, nullable=False)
     type_of_question = Column(String(150))  # Specific question type within subcategory
     stem = Column(Text, nullable=False)
     answer = Column(Text, nullable=False)
-    tags = Column(ARRAY(String), default=list)
+    tags = Column(Text, default='[]')  # JSON string for SQLite
     confirmed = Column(Boolean, default=False)  # human-verified mapping
     created_at = Column(DateTime, default=datetime.utcnow)
     
@@ -183,7 +193,7 @@ class User(Base):
     """Users table"""
     __tablename__ = "users"
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     email = Column(String(255), unique=True, nullable=False)
     full_name = Column(String(255), nullable=False)
     password_hash = Column(Text, nullable=False)
@@ -205,7 +215,7 @@ class DiagnosticSet(Base):
     """Diagnostic sets - fixed 25-Q Day-0 test"""
     __tablename__ = "diagnostic_sets"
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     name = Column(String(255), nullable=False)
     meta = Column(JSON, default=dict)
     is_active = Column(Boolean, default=True)
@@ -219,8 +229,8 @@ class DiagnosticSetQuestion(Base):
     """Diagnostic set questions - fixed question order"""
     __tablename__ = "diagnostic_set_questions"
     
-    set_id = Column(UUID(as_uuid=True), ForeignKey('diagnostic_sets.id'), primary_key=True)
-    question_id = Column(UUID(as_uuid=True), ForeignKey('questions.id'), primary_key=True)
+    set_id = Column(String(36), ForeignKey('diagnostic_sets.id'), primary_key=True)
+    question_id = Column(String(36), ForeignKey('questions.id'), primary_key=True)
     seq = Column(Integer, nullable=False)  # question sequence in diagnostic
     
     # Relationships
@@ -232,9 +242,9 @@ class Diagnostic(Base):
     """Diagnostics - one per user per attempt"""
     __tablename__ = "diagnostics"
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id = Column(UUID(as_uuid=True), ForeignKey('users.id'), nullable=False)
-    set_id = Column(UUID(as_uuid=True), ForeignKey('diagnostic_sets.id'), nullable=False)
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = Column(String(36), ForeignKey('users.id'), nullable=False)
+    set_id = Column(String(36), ForeignKey('diagnostic_sets.id'), nullable=False)
     started_at = Column(DateTime, default=datetime.utcnow)
     completed_at = Column(DateTime, nullable=True)
     result = Column(JSON, default=dict)  # per-topic accuracy/time; readiness band
@@ -251,9 +261,9 @@ class Attempt(Base):
     """Attempts - every user × question interaction"""
     __tablename__ = "attempts"
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id = Column(UUID(as_uuid=True), ForeignKey('users.id'), nullable=False)
-    question_id = Column(UUID(as_uuid=True), ForeignKey('questions.id'), nullable=False)
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = Column(String(36), ForeignKey('users.id'), nullable=False)
+    question_id = Column(String(36), ForeignKey('questions.id'), nullable=False)
     attempt_no = Column(Integer, nullable=False)  # 1, 2, 3
     context = Column(String(20), nullable=False)  # diagnostic|daily|sandbox
     options = Column(JSON, default=dict)  # the 4 choices shown
@@ -280,8 +290,8 @@ class Mastery(Base):
     """Mastery - user × topic snapshots"""
     __tablename__ = "mastery"
     
-    user_id = Column(UUID(as_uuid=True), ForeignKey('users.id'), primary_key=True)
-    topic_id = Column(UUID(as_uuid=True), ForeignKey('topics.id'), primary_key=True)
+    user_id = Column(String(36), ForeignKey('users.id'), primary_key=True)
+    topic_id = Column(String(36), ForeignKey('topics.id'), primary_key=True)
     exposure_score = Column(Numeric(5, 2), default=0)
     accuracy_easy = Column(Numeric(3, 2), default=0)
     accuracy_med = Column(Numeric(3, 2), default=0)
@@ -301,8 +311,8 @@ class Plan(Base):
     """Plans - 90-day engine plan"""
     __tablename__ = "plans"
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id = Column(UUID(as_uuid=True), ForeignKey('users.id'), nullable=False)
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = Column(String(36), ForeignKey('users.id'), nullable=False)
     track = Column(String(20), nullable=False)  # Beginner|Intermediate|Good
     daily_minutes_weekday = Column(Integer, default=30)
     daily_minutes_weekend = Column(Integer, default=60)
@@ -319,10 +329,10 @@ class PlanUnit(Base):
     """Plan units - atomic day items"""
     __tablename__ = "plan_units"
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    plan_id = Column(UUID(as_uuid=True), ForeignKey('plans.id'), nullable=False)
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    plan_id = Column(String(36), ForeignKey('plans.id'), nullable=False)
     planned_for = Column(Date, nullable=False)
-    topic_id = Column(UUID(as_uuid=True), ForeignKey('topics.id'), nullable=False)
+    topic_id = Column(String(36), ForeignKey('topics.id'), nullable=False)
     unit_kind = Column(String(20), nullable=False)  # read|examples|practice|review|mock
     target_count = Column(Integer, default=1)
     generated_payload = Column(JSON, default=dict)  # question_ids
@@ -341,8 +351,8 @@ class Session(Base):
     """Sessions - study session tracking"""
     __tablename__ = "sessions"
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id = Column(UUID(as_uuid=True), ForeignKey('users.id'), nullable=False)
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = Column(String(36), ForeignKey('users.id'), nullable=False)
     started_at = Column(DateTime, default=datetime.utcnow)
     ended_at = Column(DateTime, nullable=True)
     duration_sec = Column(Integer, nullable=True)
@@ -353,27 +363,16 @@ class Session(Base):
     user = relationship("User", back_populates="sessions")
 
 
-# Database utility functions
-
-async def get_db_session() -> AsyncSession:
-    """Get database session"""
-    async with async_session_maker() as session:
-        try:
-            yield session
-        finally:
-            await session.close()
-
-
 class MasteryHistory(Base):
     """Store daily mastery history per user per subcategory (v1.3 requirement)"""
     __tablename__ = "mastery_history"
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = Column(String(36), ForeignKey("users.id"), nullable=False)
     subcategory = Column(String(100), nullable=False)
     mastery_score = Column(Numeric(3, 2))
     recorded_date = Column(Date, nullable=False)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    created_at = Column(DateTime, default=datetime.utcnow)
     
     # Indexes for efficient queries
     __table_args__ = (
@@ -386,10 +385,10 @@ class PYQFiles(Base):
     """Track uploaded PYQ files and their processing status (v1.3 requirement)"""
     __tablename__ = "pyq_files"
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     filename = Column(Text, nullable=False)
     year = Column(Integer)
-    upload_date = Column(DateTime(timezone=True), server_default=func.now())
+    upload_date = Column(DateTime, default=datetime.utcnow)
     processing_status = Column(String(20), default="pending")
     file_size = Column(BigInteger)
     storage_path = Column(Text)
@@ -402,16 +401,27 @@ class PYQFiles(Base):
     )
 
 
-async def init_database():
+# Database utility functions
+
+def get_db():
+    """Get database session for FastAPI dependency injection"""
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+
+def init_database():
     """Initialize database with tables"""
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+    Base.metadata.create_all(bind=engine)
 
 
 # Dependency for FastAPI
-async def get_database():
-    async with async_session_maker() as session:
-        try:
-            yield session
-        finally:
-            await session.close()
+def get_database():
+    """Alternative database session getter"""
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
