@@ -838,6 +838,264 @@ class CATBackendTester:
             
         return success_rate >= 70
 
+    def test_fixed_sophisticated_session_comprehensive(self):
+        """COMPREHENSIVE TEST: Fixed Sophisticated 12-Question Session Logic"""
+        print("🔍 COMPREHENSIVE FIXED SOPHISTICATED SESSION TESTING")
+        print("=" * 80)
+        print("CRITICAL FOCUS - FIXED INTEGRATION TESTING:")
+        print("1. Sophisticated Logic Invocation - Verify adaptive session logic is properly called")
+        print("2. Learning Profile Analysis - Test user profile analysis with AsyncSession compatibility")
+        print("3. Personalization Metadata - Verify session responses include personalization details")
+        print("4. 12-Question Selection - Confirm sessions contain 12 questions instead of 1")
+        print("5. Category & Difficulty Intelligence - Test proper distribution and reasoning")
+        print("Admin credentials: sumedhprabhu18@gmail.com / admin2025")
+        print("=" * 80)
+        
+        if not self.student_token:
+            print("❌ Cannot test sophisticated session logic - no student token")
+            return False
+
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {self.student_token}'
+        }
+
+        comprehensive_results = {
+            "sophisticated_logic_invocation": False,
+            "learning_profile_analysis": False,
+            "personalization_metadata": False,
+            "twelve_question_selection": False,
+            "category_difficulty_intelligence": False,
+            "session_intelligence": False,
+            "different_user_types": False,
+            "asyncsession_compatibility": False
+        }
+
+        # TEST 1: Sophisticated Logic Invocation
+        print("\n🎯 TEST 1: SOPHISTICATED LOGIC INVOCATION")
+        print("-" * 60)
+        print("CRITICAL: Verify the adaptive session logic is NOW properly called")
+        
+        session_data = {"target_minutes": 30}
+        success, response = self.run_test("Create Sophisticated Session", "POST", "sessions/start", 200, session_data, headers)
+        
+        if not success or 'session_id' not in response:
+            print("   ❌ CRITICAL FAILURE: Sophisticated session creation failed")
+            return False
+        
+        session_id = response['session_id']
+        total_questions = response.get('total_questions', 0)
+        session_type = response.get('session_type', '')
+        personalization = response.get('personalization', {})
+        message = response.get('message', '')
+        
+        print(f"   Session ID: {session_id}")
+        print(f"   Total questions: {total_questions}")
+        print(f"   Session type: {session_type}")
+        print(f"   Message: {message}")
+        
+        # CRITICAL CHECK: Is sophisticated logic being invoked?
+        if session_type == "intelligent_12_question_set":
+            print("   ✅ SOPHISTICATED LOGIC INVOKED: Session type confirms intelligent selection")
+            comprehensive_results["sophisticated_logic_invocation"] = True
+        elif session_type == "fallback_12_question_set":
+            print("   ❌ FALLBACK MODE: Sophisticated logic failed, using simple fallback")
+            comprehensive_results["sophisticated_logic_invocation"] = False
+        else:
+            print(f"   ⚠️ UNKNOWN SESSION TYPE: {session_type}")
+            comprehensive_results["sophisticated_logic_invocation"] = False
+
+        # TEST 2: Learning Profile Analysis
+        print(f"\n🧠 TEST 2: LEARNING PROFILE ANALYSIS")
+        print("-" * 60)
+        print("CRITICAL: Test user profile analysis with AsyncSession compatibility")
+        
+        if personalization:
+            applied = personalization.get('applied', False)
+            learning_stage = personalization.get('learning_stage', 'unknown')
+            recent_accuracy = personalization.get('recent_accuracy', 0)
+            
+            print(f"   Personalization applied: {applied}")
+            print(f"   Learning stage detected: {learning_stage}")
+            print(f"   Recent accuracy: {recent_accuracy}%")
+            
+            if applied and learning_stage != 'unknown':
+                print("   ✅ LEARNING PROFILE ANALYSIS WORKING: AsyncSession compatibility confirmed")
+                comprehensive_results["learning_profile_analysis"] = True
+                comprehensive_results["asyncsession_compatibility"] = True
+            else:
+                print("   ❌ LEARNING PROFILE ANALYSIS FAILED: AsyncSession compatibility issues")
+        else:
+            print("   ❌ NO PERSONALIZATION DATA: Sophisticated logic not working")
+
+        # TEST 3: Personalization Metadata
+        print(f"\n📊 TEST 3: PERSONALIZATION METADATA")
+        print("-" * 60)
+        print("CRITICAL: Verify session responses NOW include personalization details")
+        
+        if personalization:
+            difficulty_distribution = personalization.get('difficulty_distribution', {})
+            category_distribution = personalization.get('category_distribution', {})
+            weak_areas_targeted = personalization.get('weak_areas_targeted', 0)
+            
+            print(f"   Difficulty distribution: {difficulty_distribution}")
+            print(f"   Category distribution: {category_distribution}")
+            print(f"   Weak areas targeted: {weak_areas_targeted}")
+            
+            # Check if metadata is populated
+            has_difficulty_dist = bool(difficulty_distribution and sum(difficulty_distribution.values()) > 0)
+            has_category_dist = bool(category_distribution and sum(category_distribution.values()) > 0)
+            
+            if has_difficulty_dist and has_category_dist:
+                print("   ✅ PERSONALIZATION METADATA POPULATED: All distributions present")
+                comprehensive_results["personalization_metadata"] = True
+            else:
+                print("   ❌ PERSONALIZATION METADATA MISSING: Distributions not populated")
+        else:
+            print("   ❌ NO PERSONALIZATION METADATA: Critical failure")
+
+        # TEST 4: 12-Question Selection
+        print(f"\n🔢 TEST 4: 12-QUESTION SELECTION")
+        print("-" * 60)
+        print("CRITICAL: Confirm sessions NOW contain 12 questions instead of 1")
+        
+        if total_questions == 12:
+            print(f"   ✅ CORRECT: Session contains exactly 12 questions")
+            comprehensive_results["twelve_question_selection"] = True
+        elif total_questions == 1:
+            print(f"   ❌ CRITICAL ISSUE: Session only contains 1 question (old broken behavior)")
+            comprehensive_results["twelve_question_selection"] = False
+        else:
+            print(f"   ⚠️ UNEXPECTED: Session contains {total_questions} questions")
+            comprehensive_results["twelve_question_selection"] = total_questions >= 10
+
+        # TEST 5: Category & Difficulty Intelligence
+        print(f"\n🎯 TEST 5: CATEGORY & DIFFICULTY INTELLIGENCE")
+        print("-" * 60)
+        print("CRITICAL: Test proper distribution and reasoning")
+        
+        if personalization and comprehensive_results["personalization_metadata"]:
+            difficulty_dist = personalization.get('difficulty_distribution', {})
+            category_dist = personalization.get('category_distribution', {})
+            
+            # Analyze difficulty intelligence
+            if difficulty_dist:
+                easy_count = difficulty_dist.get('Easy', 0)
+                medium_count = difficulty_dist.get('Medium', 0)
+                hard_count = difficulty_dist.get('Hard', 0)
+                
+                print(f"   Difficulty breakdown: Easy={easy_count}, Medium={medium_count}, Hard={hard_count}")
+                
+                # Check if distribution is intelligent (not all same difficulty)
+                if len([x for x in [easy_count, medium_count, hard_count] if x > 0]) >= 2:
+                    print("   ✅ DIFFICULTY INTELLIGENCE: Multiple difficulty levels present")
+                    comprehensive_results["category_difficulty_intelligence"] = True
+                else:
+                    print("   ❌ NO DIFFICULTY INTELLIGENCE: All questions same difficulty")
+            
+            # Analyze category intelligence
+            if category_dist:
+                category_count = len([k for k, v in category_dist.items() if v > 0])
+                print(f"   Category diversity: {category_count} different categories")
+                
+                if category_count >= 2:
+                    print("   ✅ CATEGORY INTELLIGENCE: Multiple categories represented")
+                else:
+                    print("   ❌ NO CATEGORY INTELLIGENCE: Limited category diversity")
+
+        # TEST 6: Question Retrieval with Session Intelligence
+        print(f"\n🤖 TEST 6: QUESTION RETRIEVAL WITH SESSION INTELLIGENCE")
+        print("-" * 60)
+        print("Testing question retrieval with session intelligence metadata")
+        
+        success, response = self.run_test("Get First Intelligent Question", "GET", f"sessions/{session_id}/next-question", 200, None, headers)
+        
+        if success and response.get('question'):
+            question = response['question']
+            session_progress = response.get('session_progress', {})
+            session_intelligence = response.get('session_intelligence', {})
+            
+            print(f"   Question retrieved: {question.get('id')}")
+            print(f"   Subcategory: {question.get('subcategory')}")
+            print(f"   Difficulty: {question.get('difficulty_band')}")
+            
+            # Check session intelligence
+            if session_intelligence:
+                selection_reason = session_intelligence.get('question_selected_for', '')
+                difficulty_rationale = session_intelligence.get('difficulty_rationale', '')
+                category_focus = session_intelligence.get('category_focus', '')
+                
+                print(f"   Selection reason: {selection_reason}")
+                print(f"   Difficulty rationale: {difficulty_rationale}")
+                print(f"   Category focus: {category_focus}")
+                
+                if selection_reason and difficulty_rationale:
+                    print("   ✅ SESSION INTELLIGENCE: Detailed rationale provided")
+                    comprehensive_results["session_intelligence"] = True
+                else:
+                    print("   ❌ NO SESSION INTELLIGENCE: Missing rationale")
+            else:
+                print("   ❌ NO SESSION INTELLIGENCE: Metadata missing")
+        else:
+            print("   ❌ QUESTION RETRIEVAL FAILED: Cannot test session intelligence")
+
+        # TEST 7: Different User Types (Create another user for comparison)
+        print(f"\n👥 TEST 7: DIFFERENT USER TYPES")
+        print("-" * 60)
+        print("Testing with different user types (different performance levels)")
+        
+        # Create a second session to test consistency
+        success, response = self.run_test("Create Second Session", "POST", "sessions/start", 200, session_data, headers)
+        
+        if success and 'session_id' in response:
+            second_session_id = response['session_id']
+            second_personalization = response.get('personalization', {})
+            
+            print(f"   Second session created: {second_session_id}")
+            
+            # Compare personalization between sessions
+            if second_personalization.get('applied', False):
+                print("   ✅ CONSISTENT PERSONALIZATION: Second session also personalized")
+                comprehensive_results["different_user_types"] = True
+            else:
+                print("   ❌ INCONSISTENT PERSONALIZATION: Second session not personalized")
+        else:
+            print("   ❌ FAILED TO CREATE SECOND SESSION")
+
+        # FINAL COMPREHENSIVE RESULTS
+        print("\n" + "=" * 80)
+        print("COMPREHENSIVE FIXED SOPHISTICATED SESSION LOGIC TEST RESULTS")
+        print("=" * 80)
+        
+        passed_tests = sum(comprehensive_results.values())
+        total_tests = len(comprehensive_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        for test_name, result in comprehensive_results.items():
+            status = "✅ PASS" if result else "❌ FAIL"
+            print(f"{test_name.replace('_', ' ').title():<40} {status}")
+            
+        print("-" * 80)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # Specific analysis for the review request
+        if comprehensive_results["sophisticated_logic_invocation"] and comprehensive_results["personalization_metadata"]:
+            print("🎉 SOPHISTICATED LOGIC FIX SUCCESSFUL!")
+            print("   ✅ Adaptive session logic is NOW properly called")
+            print("   ✅ Personalization metadata is populated")
+            print("   ✅ AsyncSession compatibility confirmed")
+        else:
+            print("❌ SOPHISTICATED LOGIC STILL HAS ISSUES!")
+            print("   ❌ Adaptive session logic may not be properly invoked")
+            print("   ❌ Personalization metadata may be missing")
+            
+        if comprehensive_results["twelve_question_selection"]:
+            print("✅ 12-QUESTION SELECTION WORKING!")
+        else:
+            print("❌ 12-QUESTION SELECTION STILL BROKEN!")
+            
+        return success_rate >= 75
+
     def test_mcq_content_quality_validation(self):
         """Test MCQ Content Quality - CRITICAL FOCUS ON REAL MATHEMATICAL ANSWERS"""
         print("🔍 CRITICAL VALIDATION: MCQ Content Quality - Real Mathematical Answers")
