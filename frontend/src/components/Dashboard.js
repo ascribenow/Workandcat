@@ -203,7 +203,7 @@ export const Dashboard = () => {
 
           {/* Progress Overview Cards */}
           {progressData && (
-            <div className="grid md:grid-cols-4 gap-6 mb-8">
+            <div className="grid md:grid-cols-2 gap-6 mb-8">
               <div className="bg-white p-6 rounded-lg shadow">
                 <div className="text-3xl font-bold text-blue-600">{progressData.total_sessions || 0}</div>
                 <div className="text-sm text-gray-600">Study Sessions</div>
@@ -217,22 +217,6 @@ export const Dashboard = () => {
                 <div className="text-sm text-gray-600">Questions Solved</div>
                 <div className="text-xs text-gray-500 mt-1">
                   {progressData.accuracy || 0}% accuracy
-                </div>
-              </div>
-              
-              <div className="bg-white p-6 rounded-lg shadow">
-                <div className="text-3xl font-bold text-purple-600">{progressData.current_streak || 0}</div>
-                <div className="text-sm text-gray-600">Day Streak</div>
-                <div className="text-xs text-gray-500 mt-1">
-                  {progressData.longest_streak || 0} longest streak
-                </div>
-              </div>
-              
-              <div className="bg-white p-6 rounded-lg shadow">
-                <div className="text-3xl font-bold text-yellow-600">{Math.round(progressData.days_remaining || 90)}</div>
-                <div className="text-sm text-gray-600">Days Remaining</div>
-                <div className="text-xs text-gray-500 mt-1">
-                  Out of 90-day plan
                 </div>
               </div>
             </div>
