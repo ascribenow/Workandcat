@@ -494,7 +494,16 @@ class CATBackendTester:
             print("   ❌ Data consistency check failed")
             return False
 
-    def test_jwt_authentication_fix(self):
+    def test_root_endpoint(self):
+        """Test root API endpoint"""
+        success, response = self.run_test("Root Endpoint", "GET", "", 200)
+        if success:
+            print(f"   Admin email: {response.get('admin_email')}")
+            features = response.get('features', [])
+            print(f"   Features available: {len(features)}")
+            for feature in features:
+                print(f"     - {feature}")
+        return success
         """Test JWT authentication with FIXED InvalidTokenError handling"""
         print("🔍 Testing JWT Authentication Fix...")
         
