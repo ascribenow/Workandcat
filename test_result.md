@@ -116,15 +116,18 @@ backend:
 
   - task: "Enhanced Nightly Engine Restoration"
     implemented: true
-    working: false
+    working: true
     file: "/app/backend/enhanced_nightly_engine.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         -working: false
         -agent: "main"
         -comment: "Updated enhanced_nightly_engine.py to use complex analyzers instead of simplified system. Now imports ConceptualFrequencyAnalyzer and TimeWeightedFrequencyAnalyzer. Class renamed from SimplifiedNightlyEngine to EnhancedNightlyEngine. Updated initialization to accept LLM pipeline."
+        -working: true
+        -agent: "testing"
+        -comment: "✅ ENHANCED NIGHTLY ENGINE INTEGRATION SUCCESSFUL! Testing confirms: 1) Enhanced Nightly Processing completed successfully via /api/admin/run-enhanced-nightly endpoint, 2) Processing results show status: completed with duration tracking, 3) EnhancedNightlyEngine properly integrates both ConceptualFrequencyAnalyzer and TimeWeightedFrequencyAnalyzer instead of SimplifiedNightlyEngine, 4) Manual nightly processing working correctly with complex analyzers. Processing completed in 0.023 seconds with proper stats tracking."
 
   - task: "Background Jobs Update"
     implemented: true
