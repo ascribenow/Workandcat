@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 from typing import List, Dict, Any, Optional
 from sqlalchemy.orm import Session
 from sqlalchemy import select, func, and_, or_, desc
-from database import Question, Attempt, Mastery, Topic, User
+from database import Question, Attempt, Mastery, Topic, User, AsyncSession
 
 logger = logging.getLogger(__name__)
 
