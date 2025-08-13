@@ -458,9 +458,9 @@ backend:
 
   - task: "Session Management"
     implemented: true
-    working: true
+    working: false
     file: "backend/server.py"
-    stuck_count: 0
+    stuck_count: 3
     priority: "high"
     needs_retesting: false
     status_history:
@@ -482,6 +482,9 @@ backend:
       - working: true
         agent: "testing"
         comment: "✅ CRITICAL SESSION ISSUE RESOLVED: Implemented fallback mechanism in /session/{id}/next-question endpoint. When study_planner.get_next_question() fails, system now falls back to selecting available active questions directly. Testing confirms: ✅ Session creation works, ✅ Questions returned with MCQ options (A,B,C,D,correct), ✅ Answer submission functional, ✅ Multiple questions available, ✅ Complete interactive MCQ interface working. Students can now start practice sessions and receive questions properly instead of seeing 'Session Complete!' immediately. The core student learning workflow is fully operational."
+      - working: false
+        agent: "testing"
+        comment: "❌ NEW 12-QUESTION SESSION SYSTEM CRITICAL FAILURE: Testing the newly implemented 12-question session system reveals critical endpoint failures after SQLite migration. DETAILED FINDINGS: 1) Session creation works and returns correct 12-question session type with session_id ✅, 2) CRITICAL FAILURE: Question progression endpoint /session/{session_id}/next-question returns 404 Not Found error ❌, 3) Cannot retrieve any questions from created sessions ❌, 4) Answer submission cannot be tested due to no questions available ❌, 5) Session progress tracking cannot be verified ❌. ROOT CAUSE: After SQLite migration, the session question retrieval endpoint is broken. The session is created successfully but the next-question endpoint is not found or not properly routed. This completely blocks the new 12-question session system functionality. RECOMMENDATION: Fix the session next-question endpoint routing and ensure SQLite compatibility for session question retrieval."
 
   - task: "Admin Statistics"
     implemented: true
