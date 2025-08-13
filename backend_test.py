@@ -1334,6 +1334,208 @@ class CATBackendTester:
         
         return False
 
+    def test_complex_frequency_analysis_system(self):
+        """Test the restored complex PYQ frequency analysis system"""
+        print("🔍 TESTING COMPLEX FREQUENCY ANALYSIS SYSTEM")
+        print("=" * 80)
+        print("FOCUS: Complex Frequency Analysis System Restoration Testing")
+        print("1. Test ConceptualFrequencyAnalyzer with LLM integration")
+        print("2. Test TimeWeightedFrequencyAnalyzer with 20-year PYQ data analysis")
+        print("3. Test Enhanced Nightly Processing with complex analyzers")
+        print("4. Verify system integration and recent improvements")
+        print("Admin credentials: sumedhprabhu18@gmail.com / admin2025")
+        print("=" * 80)
+        
+        if not self.admin_token:
+            print("❌ Cannot test complex frequency analysis - no admin token")
+            return False
+
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {self.admin_token}'
+        }
+
+        test_results = {
+            "conceptual_frequency_analyzer": False,
+            "time_weighted_frequency_analyzer": False,
+            "enhanced_nightly_processing": False,
+            "system_integration": False,
+            "admin_authentication": False,
+            "database_schema": False
+        }
+
+        # TEST 1: Admin Authentication for Frequency Analysis Endpoints
+        print("\n🔐 TEST 1: ADMIN AUTHENTICATION FOR FREQUENCY ANALYSIS")
+        print("-" * 60)
+        
+        success, response = self.run_test("Admin Authentication Check", "GET", "admin/stats", 200, None, headers)
+        if success:
+            print("   ✅ Admin authentication working for frequency analysis endpoints")
+            test_results["admin_authentication"] = True
+        else:
+            print("   ❌ Admin authentication failed - cannot access frequency analysis")
+            return False
+
+        # TEST 2: ConceptualFrequencyAnalyzer Test
+        print("\n🧠 TEST 2: CONCEPTUAL FREQUENCY ANALYZER")
+        print("-" * 60)
+        print("Testing ConceptualFrequencyAnalyzer with LLM integration")
+        
+        success, response = self.run_test("Conceptual Frequency Analysis", "POST", "admin/test/conceptual-frequency", 200, {}, headers)
+        if success:
+            print("   ✅ ConceptualFrequencyAnalyzer working successfully")
+            print(f"   Question analyzed: {response.get('question_stem', 'N/A')}")
+            analysis_results = response.get('analysis_results', {})
+            if analysis_results:
+                print(f"   Analysis results: {list(analysis_results.keys())}")
+                test_results["conceptual_frequency_analyzer"] = True
+            else:
+                print("   ⚠️ ConceptualFrequencyAnalyzer returned empty results")
+        else:
+            print("   ❌ ConceptualFrequencyAnalyzer test failed")
+            print(f"   Error details: {response}")
+
+        # TEST 3: TimeWeightedFrequencyAnalyzer Test
+        print("\n⏰ TEST 3: TIME-WEIGHTED FREQUENCY ANALYZER")
+        print("-" * 60)
+        print("Testing TimeWeightedFrequencyAnalyzer with 20-year PYQ data analysis")
+        
+        success, response = self.run_test("Time-Weighted Frequency Analysis", "POST", "admin/test/time-weighted-frequency", 200, {}, headers)
+        if success:
+            print("   ✅ TimeWeightedFrequencyAnalyzer working successfully")
+            
+            config = response.get('config', {})
+            temporal_pattern = response.get('temporal_pattern', {})
+            frequency_metrics = response.get('frequency_metrics', {})
+            
+            print(f"   Data years analyzed: {config.get('total_data_years', 'N/A')}")
+            print(f"   Relevance window: {config.get('relevance_window_years', 'N/A')} years")
+            print(f"   Weighted frequency score: {temporal_pattern.get('weighted_frequency_score', 'N/A')}")
+            print(f"   Trend direction: {temporal_pattern.get('trend_direction', 'N/A')}")
+            
+            if temporal_pattern and frequency_metrics:
+                print("   ✅ 20-year PYQ data analysis with 10-year emphasis working")
+                test_results["time_weighted_frequency_analyzer"] = True
+            else:
+                print("   ⚠️ TimeWeightedFrequencyAnalyzer returned incomplete results")
+        else:
+            print("   ❌ TimeWeightedFrequencyAnalyzer test failed")
+            print(f"   Error details: {response}")
+
+        # TEST 4: Enhanced Nightly Processing
+        print("\n🌙 TEST 4: ENHANCED NIGHTLY PROCESSING")
+        print("-" * 60)
+        print("Testing Enhanced Nightly Engine with complex analyzers")
+        
+        success, response = self.run_test("Enhanced Nightly Processing", "POST", "admin/run-enhanced-nightly", 200, {}, headers)
+        if success:
+            print("   ✅ Enhanced Nightly Processing completed successfully")
+            processing_results = response.get('processing_results', {})
+            if processing_results:
+                print(f"   Processing results: {list(processing_results.keys())}")
+                test_results["enhanced_nightly_processing"] = True
+            else:
+                print("   ⚠️ Enhanced Nightly Processing returned empty results")
+        else:
+            print("   ❌ Enhanced Nightly Processing failed")
+            print(f"   Error details: {response}")
+
+        # TEST 5: System Integration Check
+        print("\n🔧 TEST 5: SYSTEM INTEGRATION CHECK")
+        print("-" * 60)
+        print("Verifying system integration and recent improvements")
+        
+        # Check if 12-question sessions still work
+        if self.student_token:
+            student_headers = {
+                'Content-Type': 'application/json',
+                'Authorization': f'Bearer {self.student_token}'
+            }
+            
+            session_data = {"target_minutes": 30}
+            success, response = self.run_test("12-Question Session Integration", "POST", "sessions/start", 200, session_data, student_headers)
+            if success and response.get('total_questions') == 12:
+                print("   ✅ 12-question session system still working after rollback")
+                
+                # Test detailed solutions
+                session_id = response.get('session_id')
+                if session_id:
+                    success, response = self.run_test("Detailed Solutions Check", "GET", f"sessions/{session_id}/next-question", 200, None, student_headers)
+                    if success and response.get('question'):
+                        print("   ✅ Detailed solutions display still functional")
+                        test_results["system_integration"] = True
+                    else:
+                        print("   ⚠️ Detailed solutions may have issues")
+            else:
+                print("   ❌ 12-question session system may have issues after rollback")
+        else:
+            print("   ⚠️ Cannot test system integration - no student token")
+
+        # TEST 6: Database Schema Check
+        print("\n🗄️ TEST 6: DATABASE SCHEMA CHECK")
+        print("-" * 60)
+        print("Verifying database has required frequency analysis columns")
+        
+        # Check if questions can be retrieved (basic schema check)
+        success, response = self.run_test("Database Schema Check", "GET", "questions?limit=1", 200, None, headers)
+        if success:
+            questions = response.get('questions', [])
+            if questions:
+                question = questions[0]
+                # Check for frequency analysis related fields
+                frequency_fields = ['frequency_band', 'frequency_notes', 'learning_impact', 'importance_index']
+                found_fields = [field for field in frequency_fields if field in question]
+                
+                print(f"   Database accessible: {len(questions)} questions found")
+                print(f"   Frequency analysis fields found: {found_fields}")
+                
+                if len(found_fields) >= 2:
+                    print("   ✅ Database schema supports frequency analysis")
+                    test_results["database_schema"] = True
+                else:
+                    print("   ⚠️ Database schema may be missing some frequency analysis fields")
+            else:
+                print("   ⚠️ No questions found in database")
+        else:
+            print("   ❌ Database schema check failed")
+
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 80)
+        print("COMPLEX FREQUENCY ANALYSIS SYSTEM TEST RESULTS")
+        print("=" * 80)
+        
+        passed_tests = sum(test_results.values())
+        total_tests = len(test_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        for test_name, result in test_results.items():
+            status = "✅ PASS" if result else "❌ FAIL"
+            print(f"{test_name.replace('_', ' ').title():<40} {status}")
+            
+        print("-" * 80)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # Specific analysis for the rollback
+        if test_results["conceptual_frequency_analyzer"] and test_results["time_weighted_frequency_analyzer"]:
+            print("🎉 COMPLEX FREQUENCY ANALYSIS ROLLBACK SUCCESSFUL!")
+            print("   ✅ ConceptualFrequencyAnalyzer with LLM integration working")
+            print("   ✅ TimeWeightedFrequencyAnalyzer with 20-year PYQ analysis working")
+        else:
+            print("❌ COMPLEX FREQUENCY ANALYSIS ROLLBACK HAS ISSUES!")
+            print("   ❌ One or more complex analyzers not functioning properly")
+            
+        if test_results["enhanced_nightly_processing"]:
+            print("✅ ENHANCED NIGHTLY ENGINE INTEGRATION SUCCESSFUL!")
+        else:
+            print("❌ ENHANCED NIGHTLY ENGINE INTEGRATION FAILED!")
+            
+        if test_results["system_integration"]:
+            print("✅ RECENT IMPROVEMENTS PRESERVED!")
+        else:
+            print("⚠️ RECENT IMPROVEMENTS MAY NEED VERIFICATION!")
+            
+        return success_rate >= 70
+
     def test_complete_cat_platform_readiness(self):
         """FINAL TEST: Complete CAT Platform Readiness Check - Review Request Focus"""
         print("🔍 FINAL TEST: COMPLETE CAT PLATFORM READINESS CHECK")
