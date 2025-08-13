@@ -49,6 +49,7 @@ EMERGENT_LLM_KEY = os.getenv("EMERGENT_LLM_KEY")
 # Initialize services
 llm_pipeline = LLMEnrichmentPipeline(EMERGENT_LLM_KEY)
 mcq_generator = MCQGenerator(EMERGENT_LLM_KEY)
+enhanced_question_processor = EnhancedQuestionProcessor(llm_pipeline)  # PHASE 1: Enhanced processing
 study_planner = StudyPlanner()
 mastery_tracker = MasteryTracker()
 adaptive_session_logic = AdaptiveSessionLogic()  # Initialize sophisticated session logic
