@@ -613,7 +613,7 @@ class BackgroundJobProcessor:
 # Global instance
 job_processor = None
 
-from enhanced_nightly_engine import SimplifiedNightlyEngine, ensure_preparedness_table
+from enhanced_nightly_engine import SimplifiedNightlyEngine
 
 # Initialize simplified nightly engine
 enhanced_nightly_engine = SimplifiedNightlyEngine()
