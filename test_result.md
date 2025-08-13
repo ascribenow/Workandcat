@@ -96,58 +96,136 @@
 # END - Testing Protocol - DO NOT EDIT OR REMOVE THIS SECTION
 #====================================================================================================
 
-user_problem_statement: "Test the simplified PYQ frequency logic implementation"
+user_problem_statement: "Rollback from simplified PYQ to complex PYQ frequency analysis system with LLM-powered conceptual analysis and time-weighted frequency calculation"
 
 backend:
-  - task: "Simple PYQ Calculation"
+  - task: "Complex Frequency Analysis Restoration"
     implemented: true
     working: false
-    file: "/app/backend/simple_pyq_frequency.py"
+    file: "/app/backend/conceptual_frequency_analyzer.py, /app/backend/time_weighted_frequency_analyzer.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
         -working: false
-        -agent: "testing"
-        -comment: "SimplePYQFrequencyCalculator class exists and frequency band logic works correctly (High: 6+, Medium: 3-5, Low: 1-2, None: 0). However, no PYQ data exists in database to calculate frequencies from. Database schema includes frequency_band, frequency_score, and pyq_conceptual_matches fields but they are not populated."
+        -agent: "main"
+        -comment: "Restored original complex frequency system with ConceptualFrequencyAnalyzer (LLM-powered pattern analysis) and TimeWeightedFrequencyAnalyzer (20-year PYQ data with 10-year emphasis). Files recreated based on documentation and usage patterns. Needs testing to verify functionality."
 
-  - task: "Frequency Band Assignment"
+  - task: "Enhanced Nightly Engine Restoration"
     implemented: true
-    working: true
-    file: "/app/backend/simple_pyq_frequency.py"
+    working: false
+    file: "/app/backend/enhanced_nightly_engine.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
-        -working: true
-        -agent: "testing"
-        -comment: "Frequency band assignment logic is working correctly. Tested all thresholds: High (6+), Medium (3-5), Low (1-2), None (0). The determine_frequency_band method returns correct bands for all test cases."
+        -working: false
+        -agent: "main"
+        -comment: "Updated enhanced_nightly_engine.py to use complex analyzers instead of simplified system. Now imports ConceptualFrequencyAnalyzer and TimeWeightedFrequencyAnalyzer. Class renamed from SimplifiedNightlyEngine to EnhancedNightlyEngine. Updated initialization to accept LLM pipeline."
 
-  - task: "PYQ Data Utilization"
+  - task: "Background Jobs Update"
+    implemented: true
+    working: false
+    file: "/app/backend/background_jobs.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: false
+        -agent: "main"
+        -comment: "Updated background_jobs.py to use EnhancedNightlyEngine instead of SimplifiedNightlyEngine. Updated import statements and initialization. Enhanced nightly engine now receives LLM pipeline for conceptual analysis."
+
+  - task: "Server Endpoints Update"
     implemented: true
     working: false
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
         -working: false
-        -agent: "testing"
-        -comment: "PYQ upload endpoint exists at /admin/pyq/upload and accepts PDF/Word files. Database schema includes PYQIngestion, PYQPaper, and PYQQuestion tables. However, no PYQ data currently exists in database (0 ingestions, 0 papers, 0 questions). System cannot calculate frequencies without PYQ data."
+        -agent: "main"
+        -comment: "Updated server.py manual nightly processing endpoint to use EnhancedNightlyEngine with LLM pipeline. Test endpoints for conceptual and time-weighted frequency analysis should now work with restored analyzers."
 
-  - task: "Simplified Nightly Processing"
+  - task: "Simplified System Removal"
     implemented: true
     working: true
-    file: "/app/backend/enhanced_nightly_engine.py"
+    file: "simple_pyq_frequency.py (deleted), create_sample_pyq_data.py (deleted)"
     stuck_count: 0
-    priority: "high"
+    priority: "medium"
     needs_retesting: false
     status_history:
         -working: true
-        -agent: "testing"
-        -comment: "Simplified nightly processing endpoint /admin/run-enhanced-nightly is working. Successfully completed processing with stats showing mastery_updates: 0, frequency_updates: 0, inactive_questions: 0. Uses SimplePYQFrequencyCalculator for frequency refresh."
+        -agent: "main"
+        -comment: "Successfully removed simplified PYQ frequency files that are no longer needed: /app/backend/simple_pyq_frequency.py and /app/scripts/create_sample_pyq_data.py"
 
-  - task: "Admin Endpoints for Frequency Management"
+  - task: "Frequency Analysis Test Endpoints"
+    implemented: true
+    working: false
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: false
+        -agent: "main"
+        -comment: "Test endpoints /admin/test/conceptual-frequency and /admin/test/time-weighted-frequency should now work with restored ConceptualFrequencyAnalyzer and TimeWeightedFrequencyAnalyzer. Needs testing to verify LLM integration and 20-year analysis capability."
+
+frontend:
+  - task: "12-Question Session System (Keep Intact)"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/components/SessionSystem.js"
+    stuck_count: 0
+    priority: "low"
+    needs_retesting: false
+    status_history:
+        -working: true
+        -agent: "main"
+        -comment: "12-question session system should remain intact and functional. This was part of recent improvements that should be preserved during the rollback."
+
+  - task: "Detailed Solutions Display (Keep Intact)"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/components/SessionSystem.js"
+    stuck_count: 0
+    priority: "low"
+    needs_retesting: false
+    status_history:
+        -working: true
+        -agent: "main"
+        -comment: "Comprehensive solution display (200-300 words) should remain intact. This was part of recent improvements that should be preserved."
+
+  - task: "Student Dashboard Progress (Keep Intact)"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/components/Dashboard.js"
+    stuck_count: 0
+    priority: "low"
+    needs_retesting: false
+    status_history:
+        -working: true
+        -agent: "main"
+        -comment: "Complete canonical taxonomy progress tracking should remain intact. This was part of recent improvements that should be preserved."
+
+metadata:
+  created_by: "main_agent"
+  version: "2.0"
+  test_sequence: 1
+  run_ui: false
+
+test_plan:
+  current_focus:
+    - "Complex Frequency Analysis Restoration"
+    - "Enhanced Nightly Engine Restoration"
+    - "Frequency Analysis Test Endpoints"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication:
+    -agent: "main"
+    -message: "Completed rollback from simplified PYQ to complex frequency analysis system. Restored ConceptualFrequencyAnalyzer and TimeWeightedFrequencyAnalyzer files, updated enhanced_nightly_engine.py to use complex analyzers, updated background jobs and server endpoints. Removed simplified system files. All services restarted successfully. Need testing to verify complex frequency analysis endpoints work properly with LLM integration and 20-year PYQ data analysis capabilities."
     implemented: true
     working: true
     file: "/app/backend/server.py"
