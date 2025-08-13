@@ -142,6 +142,7 @@ export const Dashboard = () => {
                   src="/images/twelvr-logo.png" 
                   alt="Twelvr Logo" 
                   className="h-12 w-auto"
+                  style={{backgroundColor: 'transparent'}}
                 />
               </div>
               <div className="flex space-x-8">
