@@ -568,39 +568,83 @@ class CATBackendTester:
             "no_fallback_mode": False
         }
 
-        # TEST 1: Personalized Session Creation
-        print("\n🎯 TEST 1: PERSONALIZED SESSION CREATION")
+        # TEST 1: AsyncSession Compatibility & Sophisticated Logic Invocation
+        print("\n🔧 TEST 1: ASYNCSESSION COMPATIBILITY & SOPHISTICATED LOGIC INVOCATION")
         print("-" * 50)
-        print("Testing how the system analyzes user learning profile and creates personalized sessions")
+        print("Testing that sophisticated logic is NOW properly called (not fallback)")
         
         session_data = {"target_minutes": 30}
-        success, response = self.run_test("Create Sophisticated Session", "POST", "sessions/start", 200, session_data, headers)
+        success, response = self.run_test("Create FIXED Sophisticated Session", "POST", "sessions/start", 200, session_data, headers)
         
         if not success or 'session_id' not in response:
-            print("   ❌ CRITICAL FAILURE: Sophisticated session creation failed")
+            print("   ❌ CRITICAL FAILURE: Session creation failed - AsyncSession compatibility issue")
             return False
         
         session_id = response['session_id']
         total_questions = response.get('total_questions', 0)
         session_type = response.get('session_type', '')
         personalization = response.get('personalization', {})
+        message = response.get('message', '')
         
         print(f"   ✅ Session created successfully")
         print(f"   Session ID: {session_id}")
         print(f"   Total questions: {total_questions}")
         print(f"   Session type: {session_type}")
+        print(f"   Message: {message}")
         
-        # Check for personalization metadata
+        # CRITICAL: Check if sophisticated logic was invoked (not fallback)
+        if session_type == "intelligent_12_question_set":
+            print("   ✅ SOPHISTICATED LOGIC INVOKED: Session type is 'intelligent_12_question_set'")
+            test_results["sophisticated_logic_invocation"] = True
+        elif session_type == "fallback_12_question_set":
+            print("   ❌ FALLBACK MODE DETECTED: Sophisticated logic failed, using fallback")
+            test_results["no_fallback_mode"] = False
+        else:
+            print(f"   ⚠️ UNKNOWN SESSION TYPE: {session_type}")
+        
+        # TEST 2: 12-Question Selection Verification
+        print(f"\n📊 TEST 2: 12-QUESTION SELECTION VERIFICATION")
+        print("-" * 50)
+        print("Verifying session contains 12 questions instead of 1")
+        
+        if total_questions == 12:
+            print(f"   ✅ CORRECT: Session contains exactly 12 questions")
+            test_results["twelve_question_selection"] = True
+        elif total_questions == 1:
+            print(f"   ❌ CRITICAL ISSUE: Session only contains 1 question (old behavior)")
+            test_results["twelve_question_selection"] = False
+        else:
+            print(f"   ⚠️ UNEXPECTED: Session contains {total_questions} questions")
+            test_results["twelve_question_selection"] = total_questions >= 10  # Accept 10+ as reasonable
+        
+        # TEST 3: Personalization Metadata Analysis
+        print(f"\n🧠 TEST 3: PERSONALIZATION METADATA ANALYSIS")
+        print("-" * 50)
+        print("Verifying personalization metadata is NOW populated")
+        
         if personalization:
             applied = personalization.get('applied', False)
             learning_stage = personalization.get('learning_stage', 'unknown')
             recent_accuracy = personalization.get('recent_accuracy', 0)
+            difficulty_distribution = personalization.get('difficulty_distribution', {})
+            category_distribution = personalization.get('category_distribution', {})
+            weak_areas_targeted = personalization.get('weak_areas_targeted', 0)
             
             print(f"   Personalization applied: {applied}")
             print(f"   Learning stage detected: {learning_stage}")
             print(f"   Recent accuracy: {recent_accuracy}%")
+            print(f"   Difficulty distribution: {difficulty_distribution}")
+            print(f"   Category distribution: {category_distribution}")
+            print(f"   Weak areas targeted: {weak_areas_targeted}")
             
-            test_results["personalized_session_creation"] = True
+            # Check if personalization is actually applied (not false)
+            if applied:
+                print("   ✅ PERSONALIZATION APPLIED: Sophisticated logic working")
+                test_results["personalization_metadata"] = True
+                test_results["asyncsession_compatibility"] = True
+            else:
+                print("   ❌ PERSONALIZATION NOT APPLIED: Still using simple logic")
+                test_results["personalization_metadata"] = False
             
             # TEST 2: Learning Stage Detection
             print(f"\n🧠 TEST 2: LEARNING STAGE DETECTION")
