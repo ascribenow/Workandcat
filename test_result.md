@@ -146,15 +146,18 @@ backend:
 
   - task: "Server Endpoints Update"
     implemented: true
-    working: false
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         -working: false
         -agent: "main"
         -comment: "Updated server.py manual nightly processing endpoint to use EnhancedNightlyEngine with LLM pipeline. Test endpoints for conceptual and time-weighted frequency analysis should now work with restored analyzers."
+        -working: true
+        -agent: "testing"
+        -comment: "✅ SERVER ENDPOINTS UPDATE SUCCESSFUL! Testing confirms: 1) Manual nightly processing endpoint (/api/admin/run-enhanced-nightly) properly updated to use EnhancedNightlyEngine with LLM pipeline, 2) Test endpoints for frequency analysis working correctly - both conceptual and time-weighted analyzers functional, 3) Admin authentication working for all frequency analysis endpoints, 4) System integration verified - recent improvements (12-question sessions, detailed solutions) still working after rollback, 5) Database schema supports frequency analysis with required fields (learning_impact, importance_index) present."
 
   - task: "Simplified System Removal"
     implemented: true
