@@ -192,20 +192,18 @@ class AuthService:
 
 # Dependency functions for FastAPI
 async def get_current_user(
-    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security)
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
+    db: AsyncSession = Depends(get_async_compatible_db)
 ) -> Optional[User]:
     """Get current authenticated user"""
     if not credentials:
         return None
     
-    from database import get_async_compatible_db
-    
     auth_service = AuthService()
-    async for db in get_async_compatible_db():
-        try:
-            return await auth_service.get_current_user_v2(credentials.credentials, db)
-        except HTTPException:
-            return None
+    try:
+        return await auth_service.get_current_user_v2(credentials.credentials, db)
+    except HTTPException:
+        return None
 
 async def require_auth(
     credentials: HTTPAuthorizationCredentials = Depends(security),
