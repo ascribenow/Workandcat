@@ -217,7 +217,7 @@ class AdaptiveSessionLogic:
             logger.error(f"Error getting mastery breakdown: {e}")
             return []
 
-    async def get_attempt_frequency_by_subcategory(self, user_id: str, db: Session) -> Dict[str, int]:
+    async def get_attempt_frequency_by_subcategory(self, user_id: str, db: AsyncSession) -> Dict[str, int]:
         """Get attempt frequency by subcategory for spaced repetition"""
         try:
             cutoff_date = datetime.utcnow() - timedelta(days=7)
