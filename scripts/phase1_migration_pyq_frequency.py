@@ -7,7 +7,10 @@ Adds pyq_frequency_score column to questions table for enhanced selection
 import asyncio
 import sys
 import os
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+# Add the backend directory to Python path
+backend_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'backend')
+sys.path.insert(0, backend_dir)
 
 from sqlalchemy import text
 from database import init_database, get_async_compatible_db
