@@ -7308,35 +7308,78 @@ def run_critical_session_investigation_main():
             return False
 
 def main():
-    """Main function to run SQLite migration tests"""
-    print("🚀 Starting CAT Backend SQLite Migration Testing")
-    print("=" * 60)
+    """Main function to run MCQ Generation Fix and Session System tests"""
+    print("🚀 Starting CAT Backend Testing Suite - MCQ Generation Fix Focus")
+    print("=" * 70)
     
     tester = CATBackendTester()
     
-    # Run comprehensive SQLite migration tests
-    success = tester.test_sqlite_migration_comprehensive()
+    # Test authentication first
+    if not tester.test_user_login():
+        print("❌ Authentication failed - cannot proceed with other tests")
+        return 1
     
-    print("\n" + "=" * 60)
-    print("FINAL TEST SUMMARY")
-    print("=" * 60)
-    print(f"Tests Run: {tester.tests_run}")
-    print(f"Tests Passed: {tester.tests_passed}")
+    # Run the specific MCQ generation fix and session system test
+    print("\n" + "=" * 70)
+    print("MCQ GENERATION FIX AND 12-QUESTION SESSION SYSTEM TESTING")
+    print("=" * 70)
+    
+    mcq_session_success = tester.test_mcq_generation_fix_and_session_system()
+    
+    # Additional diagnostic tests if needed
+    if not mcq_session_success:
+        print("\n" + "=" * 70)
+        print("ADDITIONAL DIAGNOSTIC TESTS")
+        print("=" * 70)
+        
+        # Test single question creation to verify database issues
+        print("\n🔍 Testing Single Question Creation (Database Verification)...")
+        question_creation_success = tester.test_single_question_creation_fix()
+        
+        # Test basic session management
+        print("\n🔍 Testing Basic Session Management...")
+        basic_session_success = tester.test_sqlite_session_management()
+    else:
+        question_creation_success = True
+        basic_session_success = True
+    
+    # Final summary
+    print("\n" + "=" * 70)
+    print("FINAL TEST SUMMARY - MCQ GENERATION FIX FOCUS")
+    print("=" * 70)
+    print(f"MCQ Generation Fix & Session System: {'✅ PASS' if mcq_session_success else '❌ FAIL'}")
+    
+    if not mcq_session_success:
+        print(f"Single Question Creation: {'✅ PASS' if question_creation_success else '❌ FAIL'}")
+        print(f"Basic Session Management: {'✅ PASS' if basic_session_success else '❌ FAIL'}")
+    
+    print(f"\nTotal tests run: {tester.tests_run}")
+    print(f"Total tests passed: {tester.tests_passed}")
     
     if tester.tests_run > 0:
         success_rate = (tester.tests_passed / tester.tests_run) * 100
-        print(f"Success Rate: {success_rate:.1f}%")
+        print(f"Success rate: {success_rate:.1f}%")
     else:
         success_rate = 0
-        print("Success Rate: 0% (No tests run)")
+        print("Success rate: 0% (No tests run)")
     
-    if success:
-        print("🎉 SQLite MIGRATION TESTING COMPLETED SUCCESSFULLY!")
-        print("Backend is ready for production with SQLite database")
+    # Specific recommendations
+    print("\n" + "=" * 70)
+    print("RECOMMENDATIONS FOR MAIN AGENT")
+    print("=" * 70)
+    
+    if mcq_session_success:
+        print("✅ MCQ Generation Fix SUCCESSFUL - System is working correctly")
+        print("✅ 12-Question Session System OPERATIONAL")
+        print("📋 RECOMMENDATION: System is ready for production use")
         return 0
     else:
-        print("❌ SQLite migration testing revealed issues")
-        print("Please review the test results and fix any failing components")
+        print("❌ MCQ Generation Fix FAILED - Critical issues identified")
+        print("🔧 CRITICAL ISSUE: MCQGenerator.generate_options() parameter mismatch")
+        print("📋 URGENT RECOMMENDATION: Fix MCQ generation method signature")
+        print("   - Check difficulty_band parameter in generate_options() method")
+        print("   - Verify all required parameters are passed correctly")
+        print("   - Test with proper parameter order: (stem, subcategory, difficulty_band, correct_answer)")
         return 1
 
 if __name__ == "__main__":
