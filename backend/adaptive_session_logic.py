@@ -70,42 +70,159 @@ class AdaptiveSessionLogic:
 
     async def create_personalized_session(self, user_id: str, db: AsyncSession) -> Dict[str, Any]:
         """
-        Create a sophisticated 12-question session tailored to the user's learning profile
+        PHASE 1 ENHANCED: Create a sophisticated 12-question session with PYQ frequency integration
         """
         try:
-            logger.info(f"Creating personalized session for user {user_id}")
+            logger.info(f"Creating PHASE 1 enhanced personalized session for user {user_id}")
             
             # Step 1: Analyze user's learning profile
             user_profile = await self.analyze_user_learning_profile(user_id, db)
             logger.info(f"User profile: {user_profile}")
             
-            # Step 2: Get personalized question pool
-            question_pool = await self.get_personalized_question_pool(user_id, user_profile, db)
+            # Step 2: PHASE 1 - Calculate dynamic category distribution
+            dynamic_distribution = await self.calculate_dynamic_category_distribution(
+                user_profile, db
+            )
+            logger.info(f"Dynamic distribution: {dynamic_distribution}")
+            
+            # Step 3: Get PYQ frequency-weighted question pool
+            question_pool = await self.get_pyq_weighted_question_pool(user_id, user_profile, db)
             
             if len(question_pool) < 12:
                 logger.warning(f"Limited question pool ({len(question_pool)}), falling back to simple selection")
                 return await self.create_simple_fallback_session(user_id, db)
             
-            # Step 3: Apply intelligent selection strategies
-            selected_questions = await self.apply_selection_strategies(
-                user_id, user_profile, question_pool, db
+            # Step 4: Apply PHASE 1 enhanced selection strategies
+            selected_questions = await self.apply_enhanced_selection_strategies(
+                user_id, user_profile, question_pool, dynamic_distribution, db
             )
             
-            # Step 4: Order questions by difficulty progression
+            # Step 5: Order questions by difficulty progression
             ordered_questions = self.order_by_difficulty_progression(selected_questions, user_profile)
             
-            # Step 5: Generate session metadata
-            session_metadata = self.generate_session_metadata(ordered_questions, user_profile)
+            # Step 6: Generate enhanced session metadata
+            session_metadata = await self.generate_enhanced_session_metadata(
+                ordered_questions, user_profile, dynamic_distribution
+            )
             
             return {
                 "questions": ordered_questions,
                 "metadata": session_metadata,
-                "personalization_applied": True
+                "personalization_applied": True,
+                "enhancement_level": "phase_1_advanced"
             }
             
         except Exception as e:
-            logger.error(f"Error creating personalized session: {e}")
+            logger.error(f"Error creating enhanced personalized session: {e}")
             return await self.create_simple_fallback_session(user_id, db)
+
+    async def calculate_dynamic_category_distribution(
+        self, 
+        user_profile: Dict[str, Any], 
+        db: AsyncSession
+    ) -> Dict[str, int]:
+        """
+        PHASE 1: Calculate dynamic category distribution based on student's weakest areas
+        """
+        try:
+            # Start with base CAT distribution
+            dynamic_dist = self.base_category_distribution.copy()
+            
+            # Identify student's weakest category
+            weakest_category = await self.identify_weakest_category(user_profile, db)
+            strongest_category = await self.identify_strongest_category(user_profile, db)
+            
+            # PHASE 1: Dynamic adjustment (±1 question max to maintain exam authenticity)
+            if (weakest_category and strongest_category and 
+                weakest_category != strongest_category and
+                dynamic_dist[strongest_category] > 1):  # Don't reduce below 1
+                
+                dynamic_dist[weakest_category] += 1
+                dynamic_dist[strongest_category] -= 1
+                
+                logger.info(f"Dynamic adjustment: +1 to {weakest_category}, -1 to {strongest_category}")
+            
+            # Ensure total is still 12
+            total = sum(dynamic_dist.values())
+            if total != 12:
+                logger.warning(f"Dynamic distribution total is {total}, adjusting to 12")
+                # Reset to base if math doesn't work out
+                dynamic_dist = self.base_category_distribution.copy()
+            
+            return dynamic_dist
+            
+        except Exception as e:
+            logger.error(f"Error calculating dynamic distribution: {e}")
+            return self.base_category_distribution.copy()
+
+    async def identify_weakest_category(self, user_profile: Dict[str, Any], db: AsyncSession) -> Optional[str]:
+        """
+        Identify the category with lowest average mastery
+        """
+        try:
+            category_mastery = {}
+            
+            # Calculate average mastery per category
+            for category, subcategories in self.canonical_subcategories.items():
+                category_scores = []
+                
+                # Get mastery data for subcategories in this category
+                mastery_data = user_profile.get('mastery_breakdown', [])
+                for item in mastery_data:
+                    if item['subcategory'] in subcategories:
+                        category_scores.append(item['mastery_percentage'])
+                
+                # Calculate average mastery for category
+                if category_scores:
+                    category_mastery[category] = sum(category_scores) / len(category_scores)
+                else:
+                    category_mastery[category] = 0.0  # No data = weakest
+            
+            # Find weakest category
+            if category_mastery:
+                weakest = min(category_mastery.items(), key=lambda x: x[1])
+                return weakest[0]
+            
+            return None
+            
+        except Exception as e:
+            logger.error(f"Error identifying weakest category: {e}")
+            return None
+
+    async def identify_strongest_category(self, user_profile: Dict[str, Any], db: AsyncSession) -> Optional[str]:
+        """
+        Identify the category with highest average mastery
+        """
+        try:
+            category_mastery = {}
+            
+            # Calculate average mastery per category
+            for category, subcategories in self.canonical_subcategories.items():
+                category_scores = []
+                
+                # Get mastery data for subcategories in this category
+                mastery_data = user_profile.get('mastery_breakdown', [])
+                for item in mastery_data:
+                    if item['subcategory'] in subcategories:
+                        category_scores.append(item['mastery_percentage'])
+                
+                # Calculate average mastery for category
+                if category_scores:
+                    category_mastery[category] = sum(category_scores) / len(category_scores)
+                else:
+                    category_mastery[category] = 0.0
+            
+            # Find strongest category (but only if it has meaningful mastery)
+            if category_mastery:
+                strongest = max(category_mastery.items(), key=lambda x: x[1])
+                if strongest[1] > 70:  # Only consider it strong if >70% mastery
+                    return strongest[0]
+            
+            return None
+            
+        except Exception as e:
+            logger.error(f"Error identifying strongest category: {e}")
+            return None
 
     async def analyze_user_learning_profile(self, user_id: str, db: AsyncSession) -> Dict[str, Any]:
         """
