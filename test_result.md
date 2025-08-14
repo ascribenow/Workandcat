@@ -96,7 +96,7 @@
 # END - Testing Protocol - DO NOT EDIT OR REMOVE THIS SECTION
 #====================================================================================================
 
-user_problem_statement: "Test the PHASE 1 enhanced 12-question selection system with all implemented improvements: PYQ Frequency Integration, Dynamic Category Quotas, Subcategory Diversity Caps, Differential Cooldowns, Enhanced Session Creation, and Enhanced Question Processing"
+user_problem_statement: "Test the complete OPTION 2 Enhanced Background Processing after the database schema fix: Initialize Database Topics, Test Enhanced Question Upload with Complete Processing, Verify Database Schema Fix, Test Enhanced Session Creation with PYQ Weighting, Test Complete End-to-End OPTION 2 Flow"
 
 backend:
   - task: "PHASE 1: PYQ Frequency Integration Test"
