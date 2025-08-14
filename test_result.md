@@ -161,15 +161,18 @@ backend:
 
   - task: "OPTION 2: Enhanced Session Creation with PYQ Weighting"
     implemented: true
-    working: false
+    working: true
     file: "/app/backend/adaptive_session_logic.py"
-    stuck_count: 1
+    stuck_count: 0
     priority: "high"
     needs_retesting: false
     status_history:
         -working: false
         -agent: "testing"
         -comment: "❌ ENHANCED SESSION CREATION NOT USING PYQ WEIGHTING: Sessions are created successfully but use 'fallback_12_question_set' instead of 'intelligent_12_question_set'. Personalization is not applied (applied: false). The enhanced logic with PYQ frequency weighting is not functioning because questions lack PYQ frequency scores. Session intelligence provides generic rationale instead of PYQ-based selection reasoning."
+        -working: true
+        -agent: "testing"
+        -comment: "✅ ENHANCED SESSION CREATION NOW WORKING: After database transaction fix, sessions now use 'intelligent_12_question_set' instead of fallback mode. Personalization is applied: true. Enhanced logic with PYQ frequency weighting is operational because questions now have populated PYQ frequency scores. Sessions are created with proper personalization metadata and intelligent question selection."
 
   - task: "OPTION 2: Complete End-to-End Automation"
     implemented: true
