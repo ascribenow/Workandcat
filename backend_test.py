@@ -1530,13 +1530,13 @@ class CATBackendTester:
         batch_questions = [
             {
                 "stem": "OPTION 2 Batch Test 1: If 5 workers can complete a job in 8 days, how many days will 10 workers take?",
-                "hint_category": "A-Arithmetic", 
+                "hint_category": "Arithmetic", 
                 "hint_subcategory": "Time & Work",
                 "source": "OPTION 2 Batch Test"
             },
             {
                 "stem": "OPTION 2 Batch Test 2: What is 25% of 80?",
-                "hint_category": "A-Arithmetic",
+                "hint_category": "Arithmetic",
                 "hint_subcategory": "Percentages", 
                 "source": "OPTION 2 Batch Test"
             }
