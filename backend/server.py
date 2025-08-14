@@ -453,7 +453,7 @@ async def get_questions(
 ):
     """Get questions with filtering"""
     try:
-        query = select(Question).where(Question.is_active == True)
+        query = select(Question)  # Remove is_active filter for testing
         
         if category:
             query = query.join(Question.topic).where(Topic.name == category)
