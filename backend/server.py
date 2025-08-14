@@ -2032,12 +2032,16 @@ async def enrich_question_background(question_id: str, hint_category: str = None
                     question.frequency_analysis_method = frequency_method
                     question.frequency_last_updated = datetime.utcnow()
                     
+                    # Ensure question is activated after successful processing
+                    question.is_active = True
+                    
                     db.commit()
                     logger.info(f"✅ Step 2 completed: PYQ frequency analysis for question {question_id} (score: {pyq_score:.3f})")
                 else:
                     # Fallback for questions without subcategory
                     question.pyq_frequency_score = 0.5
                     question.frequency_analysis_method = 'fallback_default'
+                    question.is_active = True  # Activate even with fallback
                     db.commit()
                     logger.info(f"🔧 Applied fallback PYQ score for question {question_id}")
                 
