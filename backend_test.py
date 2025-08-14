@@ -1330,11 +1330,12 @@ class CATBackendTester:
         ]
         
         for pattern in math_patterns:
+            if re.search(pattern, str(content)):
                 return True
         
         return False
 
-    def test_option_2_enhanced_background_processing(self):
+    def test_option_2_enhanced_background_processing_after_transaction_fix(self):
         """Test OPTION 2 Enhanced Background Processing with Complete End-to-End Verification"""
         print("🔍 FINAL TEST OF OPTION 2 ENHANCED BACKGROUND PROCESSING")
         print("=" * 80)
