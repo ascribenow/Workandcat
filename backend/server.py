@@ -1946,7 +1946,9 @@ async def enrich_question_background(question_id: str, hint_category: str = None
     Step 2: PYQ frequency analysis (PHASE 1 enhancement)
     """
     try:
-        # Get database session correctly
+        logger.info(f"🔄 Starting ENHANCED background processing for question {question_id}")
+        
+        # Get database session synchronously
         db = next(get_database())
         
         try:
@@ -1957,19 +1959,26 @@ async def enrich_question_background(question_id: str, hint_category: str = None
                 logger.error(f"Question {question_id} not found for enhanced enrichment")
                 return
             
-            logger.info(f"🔄 Starting ENHANCED background processing for question {question_id}")
-            
-            # STEP 1: Basic LLM enrichment (existing functionality)
+            # STEP 1: Basic LLM enrichment
             try:
                 logger.info(f"Step 1: LLM enrichment for question {question_id}")
                 
-                # Use the global LLM enrichment pipeline instance (has API key)
-                enrichment_data = await llm_pipeline.enrich_question_completely(
-                    question.stem,
-                    image_url=question.image_url,
-                    hint_category=hint_category,
-                    hint_subcategory=hint_subcategory
-                )
+                # Create LLM pipeline instance for this task (with API key)
+                from llm_enrichment import LLMEnrichmentPipeline
+                import asyncio
+                
+                # Run the async LLM enrichment in a synchronous context
+                async def run_llm_enrichment():
+                    task_llm = LLMEnrichmentPipeline(EMERGENT_LLM_KEY)
+                    return await task_llm.enrich_question_completely(
+                        question.stem,
+                        image_url=question.image_url,
+                        hint_category=hint_category,
+                        hint_subcategory=hint_subcategory
+                    )
+                
+                # Get enrichment data
+                enrichment_data = asyncio.run(run_llm_enrichment())
                 
                 # Update question with all generated data
                 question.answer = enrichment_data["answer"]
@@ -2018,61 +2027,58 @@ async def enrich_question_background(question_id: str, hint_category: str = None
                 except:
                     pass
             
-            # STEP 2: PHASE 1 PYQ Frequency Analysis (NEW ENHANCEMENT)
+            # STEP 2: PHASE 1 PYQ Frequency Analysis
             try:
                 logger.info(f"Step 2: PYQ frequency analysis for question {question_id}")
                 
                 # Refresh question from database to get latest state
                 question = db.query(Question).filter(Question.id == question_id).first()
                 
-                if question:
-                    # For now, apply estimated PYQ frequency based on subcategory
-                    # TODO: Use enhanced_question_processor when fully async compatible
-                    if question.subcategory:
-                        high_freq_categories = [
-                            'Time–Speed–Distance (TSD)', 'Percentages', 'Profit–Loss–Discount (PLD)',
-                            'Linear Equations', 'Triangles', 'Divisibility', 'Permutation–Combination (P&C)'
-                        ]
-                        
-                        medium_freq_categories = [
-                            'Time & Work', 'Ratio–Proportion–Variation', 'Averages & Alligation',
-                            'Simple & Compound Interest (SI–CI)', 'Quadratic Equations', 'Circles',
-                            'HCF–LCM', 'Probability'
-                        ]
-                        
-                        if question.subcategory in high_freq_categories:
-                            pyq_score = 0.8
-                            frequency_method = 'high_frequency_estimate'
-                        elif question.subcategory in medium_freq_categories:
-                            pyq_score = 0.6
-                            frequency_method = 'medium_frequency_estimate'
-                        else:
-                            pyq_score = 0.5
-                            frequency_method = 'default_frequency_estimate'
-                        
-                        # Update question with PYQ frequency data
-                        question.pyq_frequency_score = pyq_score
-                        question.frequency_analysis_method = frequency_method
-                        question.frequency_last_updated = datetime.utcnow()
-                        
-                        db.commit()
-                        logger.info(f"✅ Step 2 completed: PYQ frequency analysis for question {question_id} (score: {pyq_score:.3f})")
+                if question and question.subcategory:
+                    # Apply PYQ frequency scoring based on subcategory analysis
+                    high_freq_categories = [
+                        'Time–Speed–Distance (TSD)', 'Percentages', 'Profit–Loss–Discount (PLD)',
+                        'Linear Equations', 'Triangles', 'Divisibility', 'Permutation–Combination (P&C)'
+                    ]
+                    
+                    medium_freq_categories = [
+                        'Time & Work', 'Ratio–Proportion–Variation', 'Averages & Alligation',
+                        'Simple & Compound Interest (SI–CI)', 'Quadratic Equations', 'Circles',
+                        'HCF–LCM', 'Probability'
+                    ]
+                    
+                    if question.subcategory in high_freq_categories:
+                        pyq_score = 0.8
+                        frequency_method = 'high_frequency_estimate'
+                    elif question.subcategory in medium_freq_categories:
+                        pyq_score = 0.6
+                        frequency_method = 'medium_frequency_estimate'
                     else:
-                        # Fallback for questions without subcategory
-                        question.pyq_frequency_score = 0.5
-                        question.frequency_analysis_method = 'fallback_default'
-                        db.commit()
-                        logger.info(f"🔧 Applied fallback PYQ score for question {question_id}")
+                        pyq_score = 0.5
+                        frequency_method = 'default_frequency_estimate'
+                    
+                    # Update question with PYQ frequency data
+                    question.pyq_frequency_score = pyq_score
+                    question.frequency_analysis_method = frequency_method
+                    question.frequency_last_updated = datetime.utcnow()
+                    
+                    db.commit()
+                    logger.info(f"✅ Step 2 completed: PYQ frequency analysis for question {question_id} (score: {pyq_score:.3f})")
+                else:
+                    # Fallback for questions without subcategory
+                    question.pyq_frequency_score = 0.5
+                    question.frequency_analysis_method = 'fallback_default'
+                    db.commit()
+                    logger.info(f"🔧 Applied fallback PYQ score for question {question_id}")
                 
             except Exception as e:
                 logger.error(f"❌ Step 2 failed (PYQ frequency analysis) for question {question_id}: {e}")
                 # Don't fail the entire process if PYQ analysis fails
                 try:
-                    if question:
-                        question.pyq_frequency_score = 0.5  # Default medium frequency
-                        question.frequency_analysis_method = 'fallback_default'
-                        db.commit()
-                        logger.info(f"🔧 Applied fallback PYQ score for question {question_id}")
+                    question.pyq_frequency_score = 0.5  # Default medium frequency
+                    question.frequency_analysis_method = 'fallback_default'
+                    db.commit()
+                    logger.info(f"🔧 Applied fallback PYQ score for question {question_id}")
                 except:
                     pass
             
@@ -2093,8 +2099,8 @@ async def enrich_question_background(question_id: str, hint_category: str = None
                 db.commit()
                 logger.info(f"🔧 Applied emergency fallback for question {question_id}")
             db.close()
-        except:
-            logger.error(f"💥 Emergency fallback also failed for question {question_id}")
+        except Exception as fallback_error:
+            logger.error(f"💥 Emergency fallback also failed for question {question_id}: {fallback_error}")
             pass
 
 async def process_pyq_document(ingestion_id: str, file_content: bytes):
