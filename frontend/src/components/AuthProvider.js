@@ -1,8 +1,32 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import axios from 'axios';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-const API = `${BACKEND_URL}/api`;
+// Smart API URL detection
+const getBackendURL = () => {
+  // If environment variable is set, use it
+  if (process.env.REACT_APP_BACKEND_URL && process.env.REACT_APP_BACKEND_URL.trim()) {
+    return process.env.REACT_APP_BACKEND_URL;
+  }
+  
+  // Auto-detect based on current domain
+  const currentDomain = window.location.hostname;
+  
+  if (currentDomain === 'twelvr.com' || currentDomain.includes('twelvr')) {
+    // Custom domain - use preview backend URL
+    return 'https://adaptive-quant.preview.emergentagent.com';
+  } else if (currentDomain.includes('preview.emergentagent.com')) {
+    // Preview domain - use relative URLs
+    return '';
+  } else {
+    // Default fallback
+    return 'https://adaptive-quant.preview.emergentagent.com';
+  }
+};
+
+const BACKEND_URL = getBackendURL();
+const API = BACKEND_URL ? `${BACKEND_URL}/api` : '/api';
+
+console.log(`🔗 API Configuration: Backend URL = "${BACKEND_URL}", API = "${API}"`);
 
 // Create Auth Context
 const AuthContext = createContext();
