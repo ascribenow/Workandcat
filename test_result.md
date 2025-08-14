@@ -210,29 +210,30 @@ frontend:
 
 metadata:
   created_by: "testing_agent"
-  version: "1.0"
-  test_sequence: 1
+  version: "2.0"
+  test_sequence: 3
   run_ui: false
-  phase_1_testing_date: "2025-01-11"
-  phase_1_enhancement_status: "implemented_and_active"
+  option_2_testing_date: "2025-01-11"
+  option_2_system_status: "partially_implemented"
+  critical_blocker: "background_job_execution_not_working"
 
 test_plan:
   current_focus:
-    - "PHASE 1: PYQ Frequency Integration Test - COMPLETED ✅"
-    - "PHASE 1: Dynamic Category Quotas Test - COMPLETED ✅"
-    - "PHASE 1: Subcategory Diversity Caps Test - COMPLETED ✅"
-    - "PHASE 1: Differential Cooldowns Test - COMPLETED ✅"
-    - "PHASE 1: Enhanced Session Creation Test - BLOCKED (needs questions)"
-    - "PHASE 1: Enhanced Question Processing Test - BLOCKED (needs questions)"
+    - "OPTION 2: Enhanced Question Upload with Complete Processing - BLOCKED (background jobs not executing)"
+    - "OPTION 2: PYQ Frequency Scores Population - BLOCKED (background processing failure)"
+    - "OPTION 2: Enhanced Session Creation with PYQ Weighting - BLOCKED (no PYQ scores)"
+    - "OPTION 2: Complete End-to-End Automation - BLOCKED (background job system failure)"
+    - "OPTION 2: Background Job Execution System - CRITICAL BLOCKER"
   stuck_tasks:
-    - "Enhanced Session Creation - requires database initialization with sample questions"
-    - "Enhanced Question Processing - requires database initialization with sample questions"
+    - "Background Job Execution System - jobs queued but never executed"
+    - "Two-Step Background Processing - LLM enrichment and PYQ analysis not completing"
+    - "PYQ Frequency Analysis - ConceptualFrequencyAnalyzer and TimeWeightedFrequencyAnalyzer not invoked"
   test_all: false
-  test_priority: "high_first"
+  test_priority: "critical_blocker_first"
 
 agent_communication:
     -agent: "testing"
-    -message: "🎯 PHASE 1 ENHANCED 12-QUESTION SYSTEM TESTING COMPLETED! Comprehensive testing confirms that all Phase 1 improvements are properly implemented and active. DETAILED FINDINGS: 1) ✅ PYQ FREQUENCY INTEGRATION ACTIVE: The /api/admin/test/enhanced-session endpoint confirms 'pyq_frequency_integration': '✅ Active'. Enhanced question processor includes PYQ frequency analysis with ConceptualFrequencyAnalyzer and TimeWeightedFrequencyAnalyzer integration. High-frequency questions are prioritized in selection algorithms. 2) ✅ DYNAMIC CATEGORY QUOTAS ACTIVE: Base distribution (4-3-2-2-1) with ±1 dynamic adjustment based on student weaknesses is implemented. The adaptive session logic includes proper category balancing to target weak areas while maintaining exam authenticity. 3) ✅ SUBCATEGORY DIVERSITY CAPS ACTIVE: Maximum 3 questions per subcategory and minimum 4 different subcategories enforced. The enforce_subcategory_diversity() method prevents domination and ensures mathematical domain variety. 4) ✅ DIFFERENTIAL COOLDOWNS ACTIVE: Difficulty-based cooldown periods implemented (Easy: 1-day, Medium: 2-day, Hard: 3-day). The apply_differential_cooldown_filter() method provides optimal spaced repetition based on question complexity. 5) ✅ DATABASE SCHEMA COMPLETE: SQLite database includes all required Phase 1 fields (pyq_frequency_score, pyq_conceptual_matches, frequency_analysis_method, etc.). Schema is properly migrated and ready. 6) ❌ TESTING LIMITATION: Enhanced session creation and question processing cannot be fully tested due to empty database (0 questions, 0 topics). The Phase 1 logic is implemented correctly but requires question data to demonstrate full functionality. PHASE 1 STATUS: IMPLEMENTED AND ACTIVE - All enhancements are ready and operational, blocked only by lack of test data."
+    -message: "🎯 OPTION 2 ENHANCED BACKGROUND PROCESSING TESTING COMPLETED - CRITICAL ISSUES IDENTIFIED! Comprehensive testing reveals OPTION 2 system architecture is properly implemented but has a critical blocker preventing full functionality. DETAILED FINDINGS: 1) ✅ DATABASE TOPICS INITIALIZATION WORKING: CAT canonical taxonomy topics are properly set up and ready for question uploads, 2) ✅ DATABASE SCHEMA FIX VERIFIED: All new columns exist (difficulty_score, learning_impact, importance_index, has_image, image_url, image_alt_text) and are accessible, 3) ✅ QUESTION UPLOAD WORKING: Questions are successfully uploaded and queued with status 'enrichment_queued', 4) ❌ CRITICAL BLOCKER: BACKGROUND JOB EXECUTION NOT WORKING - This is the root cause blocking the entire OPTION 2 system. Background jobs are queued but never executed, preventing: a) LLM enrichment (Step 1), b) PYQ frequency analysis (Step 2), c) Question activation, d) PYQ score population, 5) ❌ PYQ FREQUENCY SCORES MISSING: 0/5 questions have populated PYQ frequency scores due to background processing failure, 6) ❌ ENHANCED SESSION CREATION FALLING BACK: Sessions use 'fallback_12_question_set' instead of 'intelligent_12_question_set' because questions lack PYQ frequency data, 7) ❌ END-TO-END AUTOMATION BLOCKED: Complete automation pipeline fails because background processing doesn't complete. SUCCESS RATE: 50% (4/8 tests passed). CRITICAL RECOMMENDATION: Fix background job execution system to enable the two-step automatic processing (LLM enrichment + PYQ frequency analysis). The OPTION 2 architecture is sound but the background worker/scheduler is not functioning."
 
 backend:
   - task: "Complex Frequency Analysis Restoration"
