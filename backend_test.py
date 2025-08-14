@@ -10170,6 +10170,50 @@ def main_phase1():
         print("   Some Phase 1 improvements may need attention")
         return 1
 
+def main_option_2():
+    """Main function for OPTION 2 Enhanced Background Processing testing"""
+    tester = CATBackendTester()
+    
+    print("🚀 CAT Backend Testing Suite - OPTION 2 Enhanced Background Processing")
+    print("=" * 70)
+    
+    # First ensure basic connectivity
+    print("\n📋 BASIC CONNECTIVITY CHECK")
+    print("-" * 40)
+    basic_success = tester.test_root_endpoint()
+    
+    if not basic_success:
+        print("❌ Basic connectivity failed. Cannot proceed with OPTION 2 testing.")
+        return 1
+    
+    # Authenticate admin and student users
+    print("\n🔐 AUTHENTICATION SETUP")
+    print("-" * 40)
+    auth_success = tester.test_sqlite_authentication_system()
+    
+    if not auth_success:
+        print("❌ Authentication failed. Cannot proceed with OPTION 2 testing.")
+        return 1
+    
+    # Run OPTION 2 Enhanced Background Processing test
+    print("\n🎯 MAIN TEST: OPTION 2 ENHANCED BACKGROUND PROCESSING")
+    print("=" * 70)
+    option2_success = tester.test_option_2_enhanced_background_processing()
+    
+    if option2_success:
+        print("\n🎉 OPTION 2 ENHANCED BACKGROUND PROCESSING SUCCESSFUL!")
+        print("✅ Complete automation pipeline is functional")
+        print("✅ Two-step background processing working")
+        print("✅ PYQ frequency weighting operational")
+        print("✅ Enhanced session creation with automatic processing")
+        print("\nOPTION 2 is ready for production use!")
+        return 0
+    else:
+        print("\n❌ OPTION 2 ENHANCED BACKGROUND PROCESSING HAS ISSUES!")
+        print("❌ Some components of the automation pipeline need attention")
+        print("Please review the detailed test results above.")
+        return 1
+
 if __name__ == "__main__":
     import sys
     if len(sys.argv) > 1 and sys.argv[1] == "option2":
