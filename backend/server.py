@@ -1975,7 +1975,7 @@ async def enrich_question_background(question_id: str, hint_category: str = None
                 question.learning_impact = 60.0
                 question.importance_index = 70.0
                 question.frequency_band = "High"
-                question.tags = ["enhanced_processing", "option_2_test"]
+                question.tags = json.dumps(["enhanced_processing", "option_2_test"])
                 question.source = "OPTION 2 Enhanced Processing"
                 
                 # Activate question after enrichment
