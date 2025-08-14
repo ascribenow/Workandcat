@@ -1068,43 +1068,39 @@ async def get_detailed_progress_data(db: AsyncSession, user_id: str) -> List[Dic
             ]
         }
         
-        # Query to get actual question data with attempts
-        progress_query = text("""
-            SELECT 
-                CASE 
-                    WHEN t.category = 'A' THEN 'A-Arithmetic'
-                    WHEN t.category = 'B' THEN 'B-Algebra' 
-                    WHEN t.category = 'C' THEN 'C-Geometry & Mensuration'
-                    WHEN t.category = 'D' THEN 'D-Number System'
-                    WHEN t.category = 'E' THEN 'E-Modern Math'
-                    ELSE COALESCE(t.category, 'Unknown')
-                END as category,
-                q.subcategory,
-                COALESCE(q.difficulty_band, 'Medium') as difficulty_band,
-                COUNT(DISTINCT q.id) as total_questions,
-                COUNT(DISTINCT CASE WHEN a.correct = true THEN a.question_id END) as solved_correctly,
-                COUNT(DISTINCT CASE WHEN a.user_id = :user_id THEN a.question_id END) as attempted_questions,
-                COALESCE(AVG(CASE WHEN a.correct = true THEN 1.0 ELSE 0.0 END), 0) as accuracy_rate
-            FROM questions q
-            JOIN topics t ON q.topic_id = t.id
-            LEFT JOIN attempts a ON q.id = a.question_id
-            WHERE q.is_active = true
-            GROUP BY 
-                CASE 
-                    WHEN t.category = 'A' THEN 'A-Arithmetic'
-                    WHEN t.category = 'B' THEN 'B-Algebra' 
-                    WHEN t.category = 'C' THEN 'C-Geometry & Mensuration'
-                    WHEN t.category = 'D' THEN 'D-Number System'
-                    WHEN t.category = 'E' THEN 'E-Modern Math'
-                    ELSE COALESCE(t.category, 'Unknown')
-                END,
-                q.subcategory,
-                COALESCE(q.difficulty_band, 'Medium')
-            ORDER BY category, q.subcategory, difficulty_band
-        """)
-        
-        result = await db.execute(progress_query, {"user_id": user_id})
-        db_rows = result.fetchall()
+        # Simplified query using SQLAlchemy ORM instead of raw SQL to avoid AsyncSession parameter issues
+        try:
+            # Get all active questions with their topics and attempts for this user
+            questions_query = select(
+                Question.subcategory,
+                Question.difficulty_band,
+                Topic.category,
+                func.count(Question.id).label('total_questions'),
+                func.count(case((Attempt.correct == True, Attempt.question_id))).label('solved_correctly'),
+                func.count(case((Attempt.user_id == user_id, Attempt.question_id))).label('attempted_questions'),
+                func.coalesce(func.avg(case((Attempt.correct == True, 1.0), else_=0.0)), 0).label('accuracy_rate')
+            ).select_from(
+                Question.__table__.join(Topic.__table__, Question.topic_id == Topic.id)
+                .outerjoin(Attempt.__table__, Question.id == Attempt.question_id)
+            ).where(
+                Question.is_active == True
+            ).group_by(
+                Question.subcategory,
+                Question.difficulty_band,
+                Topic.category
+            ).order_by(
+                Topic.category,
+                Question.subcategory,
+                Question.difficulty_band
+            )
+            
+            result = await db.execute(questions_query)
+            db_rows = result.fetchall()
+            
+        except Exception as query_error:
+            logger.error(f"Error executing questions query: {query_error}")
+            # Fallback to empty results if query fails
+            db_rows = []
         
         # Create a comprehensive progress structure including all canonical subcategories
         comprehensive_progress = []
