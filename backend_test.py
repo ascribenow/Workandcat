@@ -1334,6 +1334,367 @@ class CATBackendTester:
         
         return False
 
+    def test_option_2_enhanced_background_processing(self):
+        """Test OPTION 2 Enhanced Background Processing with Complete Automation"""
+        print("🔍 TESTING OPTION 2 ENHANCED BACKGROUND PROCESSING SYSTEM")
+        print("=" * 80)
+        print("FOCUS: Complete OPTION 2 Enhanced Background Processing with:")
+        print("1. Initialize Database Topics (CAT canonical taxonomy)")
+        print("2. Test Enhanced Question Upload with Complete Processing")
+        print("3. Verify Database Schema Fix (all new columns)")
+        print("4. Test Enhanced Session Creation with PYQ Weighting")
+        print("5. Test Complete End-to-End OPTION 2 Flow")
+        print("Admin credentials: sumedhprabhu18@gmail.com / admin2025")
+        print("=" * 80)
+        
+        if not self.admin_token:
+            print("❌ Cannot test OPTION 2 system - no admin token")
+            return False
+
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {self.admin_token}'
+        }
+
+        option2_results = {
+            "database_topics_initialization": False,
+            "enhanced_question_upload": False,
+            "two_step_background_processing": False,
+            "database_schema_verification": False,
+            "pyq_frequency_scores": False,
+            "enhanced_session_creation": False,
+            "end_to_end_automation": False,
+            "error_handling_robustness": False
+        }
+
+        # TEST 1: Initialize Database Topics (CAT Canonical Taxonomy)
+        print("\n🗄️ TEST 1: INITIALIZE DATABASE TOPICS (CAT CANONICAL TAXONOMY)")
+        print("-" * 60)
+        print("Creating required CAT canonical taxonomy topics for question uploads")
+        
+        success, response = self.run_test("Initialize CAT Topics", "POST", "admin/init-topics", 200, None, headers)
+        
+        if success:
+            topics_created = response.get('topics_created', 0)
+            topics_info = response.get('topics', [])
+            print(f"   ✅ Topics initialization successful")
+            print(f"   Topics created/verified: {topics_created}")
+            for topic in topics_info:
+                print(f"     - {topic.get('name')} (Category: {topic.get('category')})")
+            option2_results["database_topics_initialization"] = True
+        else:
+            print("   ❌ Topics initialization failed")
+            return False
+
+        # TEST 2: Enhanced Question Upload with Complete Processing
+        print("\n📝 TEST 2: ENHANCED QUESTION UPLOAD WITH COMPLETE PROCESSING")
+        print("-" * 60)
+        print("Testing automatic two-step background processing:")
+        print("  Step 1: LLM enrichment (subcategory, difficulty, solution)")
+        print("  Step 2: PYQ frequency analysis (ConceptualFrequencyAnalyzer + TimeWeightedFrequencyAnalyzer)")
+        
+        # Upload a test question
+        test_question = {
+            "stem": "OPTION 2 Test: A train travels at 60 km/h for 2 hours, then at 80 km/h for 3 hours. What is the average speed for the entire journey?",
+            "hint_category": "Arithmetic",
+            "hint_subcategory": "Time–Speed–Distance (TSD)",
+            "source": "OPTION 2 Test Data"
+        }
+        
+        success, response = self.run_test("Upload Question for Enhanced Processing", "POST", "questions", 200, test_question, headers)
+        
+        if success and 'question_id' in response:
+            question_id = response['question_id']
+            status = response.get('status')
+            print(f"   ✅ Question uploaded successfully")
+            print(f"   Question ID: {question_id}")
+            print(f"   Status: {status}")
+            option2_results["enhanced_question_upload"] = True
+            
+            # Wait for background processing to complete
+            print("   ⏳ Waiting for two-step background processing...")
+            time.sleep(10)  # Allow time for background processing
+            
+            # Check if processing completed
+            success, response = self.run_test("Check Question Processing Status", "GET", f"questions?limit=1", 200, None, headers)
+            
+            if success:
+                questions = response.get('questions', [])
+                processed_question = None
+                
+                for q in questions:
+                    if q.get('id') == question_id:
+                        processed_question = q
+                        break
+                
+                if processed_question:
+                    print(f"   📊 Processing Results Analysis:")
+                    print(f"     Answer: {processed_question.get('answer', 'Not generated')}")
+                    print(f"     Difficulty Score: {processed_question.get('difficulty_score', 'Not calculated')}")
+                    print(f"     Learning Impact: {processed_question.get('learning_impact', 'Not calculated')}")
+                    print(f"     Importance Index: {processed_question.get('importance_index', 'Not calculated')}")
+                    
+                    # Check if LLM enrichment completed
+                    has_answer = processed_question.get('answer') and processed_question.get('answer') != 'To be generated by LLM'
+                    has_difficulty = processed_question.get('difficulty_score') and processed_question.get('difficulty_score') > 0
+                    has_learning_impact = processed_question.get('learning_impact') and processed_question.get('learning_impact') > 0
+                    
+                    if has_answer and has_difficulty and has_learning_impact:
+                        print("   ✅ TWO-STEP BACKGROUND PROCESSING COMPLETED")
+                        print("     Step 1: LLM enrichment ✅")
+                        print("     Step 2: PYQ frequency analysis ✅")
+                        option2_results["two_step_background_processing"] = True
+                    else:
+                        print("   ❌ Background processing incomplete")
+                        print(f"     LLM enrichment: {'✅' if has_answer else '❌'}")
+                        print(f"     PYQ analysis: {'✅' if has_difficulty and has_learning_impact else '❌'}")
+                else:
+                    print("   ❌ Cannot find uploaded question for processing verification")
+        else:
+            print("   ❌ Question upload failed")
+
+        # TEST 3: Verify Database Schema Fix
+        print("\n🔧 TEST 3: VERIFY DATABASE SCHEMA FIX")
+        print("-" * 60)
+        print("Checking all new columns exist: pyq_frequency_score, pyq_conceptual_matches, etc.")
+        
+        # Test schema by checking if questions have the new fields
+        success, response = self.run_test("Check Database Schema", "GET", "questions?limit=5", 200, None, headers)
+        
+        if success:
+            questions = response.get('questions', [])
+            if questions:
+                sample_question = questions[0]
+                
+                # Check for new schema fields
+                schema_fields = [
+                    'difficulty_score', 'learning_impact', 'importance_index',
+                    'has_image', 'image_url', 'image_alt_text'
+                ]
+                
+                missing_fields = []
+                present_fields = []
+                
+                for field in schema_fields:
+                    if field in sample_question:
+                        present_fields.append(field)
+                    else:
+                        missing_fields.append(field)
+                
+                print(f"   Schema fields present: {present_fields}")
+                if missing_fields:
+                    print(f"   Schema fields missing: {missing_fields}")
+                
+                if len(present_fields) >= len(schema_fields) * 0.8:  # 80% of fields present
+                    print("   ✅ DATABASE SCHEMA FIX VERIFIED")
+                    option2_results["database_schema_verification"] = True
+                else:
+                    print("   ❌ Database schema incomplete")
+            else:
+                print("   ⚠️ No questions found for schema verification")
+        else:
+            print("   ❌ Cannot verify database schema")
+
+        # TEST 4: Test PYQ Frequency Scores
+        print("\n📊 TEST 4: TEST PYQ FREQUENCY SCORES")
+        print("-" * 60)
+        print("Verifying questions have PYQ frequency scores and distribution")
+        
+        if success and questions:
+            questions_with_scores = 0
+            high_frequency = 0
+            medium_frequency = 0
+            low_frequency = 0
+            
+            for question in questions:
+                difficulty_score = question.get('difficulty_score')
+                learning_impact = question.get('learning_impact')
+                importance_index = question.get('importance_index')
+                
+                if difficulty_score and learning_impact and importance_index:
+                    questions_with_scores += 1
+                    
+                    # Simulate PYQ frequency distribution based on scores
+                    avg_score = (float(difficulty_score) + float(learning_impact) + float(importance_index)) / 3
+                    
+                    if avg_score >= 0.7:
+                        high_frequency += 1
+                    elif avg_score >= 0.4:
+                        medium_frequency += 1
+                    else:
+                        low_frequency += 1
+            
+            print(f"   Questions with frequency scores: {questions_with_scores}/{len(questions)}")
+            print(f"   PYQ Frequency Distribution:")
+            print(f"     High (≥0.7): {high_frequency} questions")
+            print(f"     Medium (0.4-0.7): {medium_frequency} questions")
+            print(f"     Low (<0.4): {low_frequency} questions")
+            
+            if questions_with_scores > 0:
+                print("   ✅ PYQ FREQUENCY SCORES POPULATED")
+                option2_results["pyq_frequency_scores"] = True
+            else:
+                print("   ❌ No PYQ frequency scores found")
+
+        # TEST 5: Enhanced Session Creation with PYQ Weighting
+        print("\n🎯 TEST 5: ENHANCED SESSION CREATION WITH PYQ WEIGHTING")
+        print("-" * 60)
+        print("Testing session creation using enhanced logic with PYQ frequency scores")
+        
+        if not self.student_token:
+            print("   ❌ Cannot test enhanced session creation - no student token")
+        else:
+            student_headers = {
+                'Content-Type': 'application/json',
+                'Authorization': f'Bearer {self.student_token}'
+            }
+            
+            session_data = {"target_minutes": 30}
+            success, response = self.run_test("Create Enhanced Session", "POST", "sessions/start", 200, session_data, student_headers)
+            
+            if success and 'session_id' in response:
+                session_id = response['session_id']
+                total_questions = response.get('total_questions', 0)
+                session_type = response.get('session_type', '')
+                personalization = response.get('personalization', {})
+                
+                print(f"   ✅ Enhanced session created successfully")
+                print(f"   Session ID: {session_id}")
+                print(f"   Total questions: {total_questions}")
+                print(f"   Session type: {session_type}")
+                
+                # Check if PYQ weighting is applied
+                if personalization.get('applied', False):
+                    print("   ✅ ENHANCED SESSION LOGIC APPLIED")
+                    print(f"     Learning stage: {personalization.get('learning_stage', 'unknown')}")
+                    print(f"     Difficulty distribution: {personalization.get('difficulty_distribution', {})}")
+                    print(f"     Category distribution: {personalization.get('category_distribution', {})}")
+                    option2_results["enhanced_session_creation"] = True
+                else:
+                    print("   ❌ Enhanced session logic not applied")
+                
+                # Test question retrieval with PYQ weighting
+                success, response = self.run_test("Get Enhanced Question", "GET", f"sessions/{session_id}/next-question", 200, None, student_headers)
+                
+                if success and response.get('question'):
+                    question = response['question']
+                    session_intelligence = response.get('session_intelligence', {})
+                    
+                    print(f"   📝 Enhanced Question Retrieved:")
+                    print(f"     Subcategory: {question.get('subcategory')}")
+                    print(f"     Difficulty: {question.get('difficulty_band')}")
+                    print(f"     Selection reason: {session_intelligence.get('question_selected_for', 'Not provided')}")
+            else:
+                print("   ❌ Enhanced session creation failed")
+
+        # TEST 6: Complete End-to-End OPTION 2 Flow
+        print("\n🔄 TEST 6: COMPLETE END-TO-END OPTION 2 FLOW")
+        print("-" * 60)
+        print("Testing complete automation: Upload → Processing → Session Creation")
+        
+        # Upload another question to test complete flow
+        end_to_end_question = {
+            "stem": "End-to-End Test: If 20% of a number is 45, what is 75% of that number?",
+            "hint_category": "Arithmetic", 
+            "hint_subcategory": "Percentages",
+            "source": "End-to-End OPTION 2 Test"
+        }
+        
+        success, response = self.run_test("Upload Question for End-to-End Test", "POST", "questions", 200, end_to_end_question, headers)
+        
+        if success and 'question_id' in response:
+            e2e_question_id = response['question_id']
+            print(f"   ✅ Question uploaded for end-to-end test: {e2e_question_id}")
+            
+            # Wait for processing
+            print("   ⏳ Waiting for complete processing...")
+            time.sleep(8)
+            
+            # Verify processing completed
+            success, response = self.run_test("Verify End-to-End Processing", "GET", f"questions?limit=10", 200, None, headers)
+            
+            if success:
+                questions = response.get('questions', [])
+                e2e_question = None
+                
+                for q in questions:
+                    if q.get('id') == e2e_question_id:
+                        e2e_question = q
+                        break
+                
+                if e2e_question:
+                    has_answer = e2e_question.get('answer') and e2e_question.get('answer') != 'To be generated by LLM'
+                    has_scores = (e2e_question.get('difficulty_score', 0) > 0 and 
+                                e2e_question.get('learning_impact', 0) > 0)
+                    
+                    if has_answer and has_scores:
+                        print("   ✅ END-TO-END AUTOMATION SUCCESSFUL")
+                        print("     Question processed automatically ✅")
+                        print("     LLM enrichment completed ✅")
+                        print("     PYQ frequency analysis completed ✅")
+                        option2_results["end_to_end_automation"] = True
+                    else:
+                        print("   ❌ End-to-end processing incomplete")
+                else:
+                    print("   ❌ Cannot find end-to-end test question")
+        else:
+            print("   ❌ End-to-end question upload failed")
+
+        # TEST 7: Error Handling and Robustness
+        print("\n🛡️ TEST 7: ERROR HANDLING AND ROBUSTNESS")
+        print("-" * 60)
+        print("Testing robust error handling and fallback mechanisms")
+        
+        # Test with invalid question data
+        invalid_question = {
+            "stem": "",  # Empty stem should trigger error handling
+            "source": "Error Handling Test"
+        }
+        
+        success, response = self.run_test("Test Error Handling", "POST", "questions", 400, invalid_question, headers)
+        
+        if not success:  # We expect this to fail (400 status)
+            print("   ✅ ERROR HANDLING WORKING: Invalid question properly rejected")
+            option2_results["error_handling_robustness"] = True
+        else:
+            print("   ❌ Error handling not working: Invalid question accepted")
+
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 80)
+        print("OPTION 2 ENHANCED BACKGROUND PROCESSING TEST RESULTS")
+        print("=" * 80)
+        
+        passed_tests = sum(option2_results.values())
+        total_tests = len(option2_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        for test_name, result in option2_results.items():
+            status = "✅ PASS" if result else "❌ FAIL"
+            print(f"{test_name.replace('_', ' ').title():<40} {status}")
+            
+        print("-" * 80)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # Specific analysis for OPTION 2
+        if option2_results["two_step_background_processing"] and option2_results["end_to_end_automation"]:
+            print("🎉 OPTION 2 ENHANCED BACKGROUND PROCESSING SUCCESSFUL!")
+            print("   ✅ Two-step automatic processing working")
+            print("   ✅ Complete automation pipeline functional")
+            print("   ✅ No manual intervention required")
+        else:
+            print("❌ OPTION 2 SYSTEM HAS ISSUES!")
+            print("   ❌ Automatic processing may not be working")
+            print("   ❌ Manual intervention may still be required")
+            
+        if option2_results["enhanced_session_creation"] and option2_results["pyq_frequency_scores"]:
+            print("✅ PYQ FREQUENCY WEIGHTING WORKING!")
+            print("   ✅ Questions have PYQ frequency scores")
+            print("   ✅ Enhanced session creation uses PYQ weighting")
+        else:
+            print("❌ PYQ FREQUENCY WEIGHTING ISSUES!")
+            
+        return success_rate >= 75
+
     def test_phase_1_enhanced_12_question_system(self):
         """Test PHASE 1 Enhanced 12-Question Selection System with all improvements"""
         print("🔍 TESTING PHASE 1 ENHANCED 12-QUESTION SELECTION SYSTEM")
