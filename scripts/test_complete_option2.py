@@ -25,26 +25,21 @@ def get_admin_token():
         return None
 
 def create_required_topics(token):
-    """Create required CAT topics"""
+    """Initialize CAT topics using the correct endpoint"""
     headers = {"Authorization": f"Bearer {token}"}
     
-    # Create TSD topic
-    topic_data = {
-        "name": "Time–Speed–Distance (TSD)",
-        "category": "A",
-        "difficulty_multiplier": 1.0,
-        "importance_weight": 0.8
-    }
-    
-    print("📚 Creating required topic: Time–Speed–Distance (TSD)")
-    response = requests.post(f"{BASE_URL}/admin/topics", json=topic_data, headers=headers)
+    print("📚 Initializing CAT canonical taxonomy topics...")
+    response = requests.post(f"{BASE_URL}/admin/init-topics", headers=headers)
     
     if response.status_code == 200:
-        print("✅ Topic created successfully")
+        result = response.json()
+        topics_created = result.get('topics_created', 0)
+        print(f"✅ Topics initialized successfully ({topics_created} topics)")
         return True
     else:
-        print(f"⚠️ Topic creation response: {response.status_code} - {response.text}")
-        return True  # Might already exist
+        print(f"⚠️ Topic initialization response: {response.status_code} - {response.text}")
+        # Continue anyway - topics might already exist
+        return True
 
 def test_complete_option2_pipeline():
     """Test the complete OPTION 2 pipeline"""
