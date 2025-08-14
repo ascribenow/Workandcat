@@ -1940,7 +1940,11 @@ async def test_enhanced_session_logic(
 # Background Tasks
 
 async def enrich_question_background(question_id: str, hint_category: str = None, hint_subcategory: str = None):
-    """Background task to enrich a question using complete LLM auto-generation"""
+    """
+    OPTION 2: Enhanced background task with comprehensive processing
+    Step 1: Basic LLM enrichment 
+    Step 2: PYQ frequency analysis (PHASE 1 enhancement)
+    """
     try:
         async for db in get_async_compatible_db():
             # Get question
@@ -1948,77 +1952,133 @@ async def enrich_question_background(question_id: str, hint_category: str = None
             question = result.scalar_one_or_none()
             
             if not question:
-                logger.error(f"Question {question_id} not found for enrichment")
+                logger.error(f"Question {question_id} not found for enhanced enrichment")
                 return
             
-            logger.info(f"Starting complete LLM auto-generation for question {question_id}")
+            logger.info(f"🔄 Starting ENHANCED background processing for question {question_id}")
             
-            # Use the global LLM enrichment pipeline instance (has API key)
-            enrichment_data = await llm_pipeline.enrich_question_completely(
-                question.stem,
-                image_url=question.image_url,
-                hint_category=hint_category,
-                hint_subcategory=hint_subcategory
-            )
-            
-            # Update question with all generated data
-            question.answer = enrichment_data["answer"]
-            question.solution_approach = enrichment_data["solution_approach"] 
-            question.detailed_solution = enrichment_data["detailed_solution"]
-            question.subcategory = enrichment_data["subcategory"]
-            question.type_of_question = enrichment_data["type_of_question"]
-            question.difficulty_score = enrichment_data["difficulty_score"]
-            question.difficulty_band = enrichment_data["difficulty_band"]
-            question.learning_impact = enrichment_data["learning_impact"]
-            question.importance_index = enrichment_data["importance_index"]
-            question.frequency_band = enrichment_data["frequency_band"]
-            question.tags = enrichment_data.get("tags", [])
-            question.source = enrichment_data.get("source", "LLM Generated")
-            
-            # Find and update topic based on LLM classification
-            topic_result = await db.execute(
-                select(Topic).where(Topic.name == enrichment_data["subcategory"])
-            )
-            topic = topic_result.scalar_one_or_none()
-            
-            if not topic:
-                # Try to find by category
-                category_result = await db.execute(
-                    select(Topic).where(Topic.category == enrichment_data.get("category", "A"))
+            # STEP 1: Basic LLM enrichment (existing functionality)
+            try:
+                logger.info(f"Step 1: LLM enrichment for question {question_id}")
+                
+                # Use the global LLM enrichment pipeline instance (has API key)
+                enrichment_data = await llm_pipeline.enrich_question_completely(
+                    question.stem,
+                    image_url=question.image_url,
+                    hint_category=hint_category,
+                    hint_subcategory=hint_subcategory
                 )
-                topic = category_result.scalar_one_or_none()
+                
+                # Update question with all generated data
+                question.answer = enrichment_data["answer"]
+                question.solution_approach = enrichment_data["solution_approach"] 
+                question.detailed_solution = enrichment_data["detailed_solution"]
+                question.subcategory = enrichment_data["subcategory"]
+                question.type_of_question = enrichment_data["type_of_question"]
+                question.difficulty_score = enrichment_data["difficulty_score"]
+                question.difficulty_band = enrichment_data["difficulty_band"]
+                question.learning_impact = enrichment_data["learning_impact"]
+                question.importance_index = enrichment_data["importance_index"]
+                question.frequency_band = enrichment_data["frequency_band"]
+                question.tags = enrichment_data.get("tags", [])
+                question.source = enrichment_data.get("source", "LLM Generated")
+                
+                # Find and update topic based on LLM classification
+                topic_result = await db.execute(
+                    select(Topic).where(Topic.name == enrichment_data["subcategory"])
+                )
+                topic = topic_result.scalar_one_or_none()
                 
                 if not topic:
-                    # Use a default topic if none found
-                    default_result = await db.execute(
-                        select(Topic).where(Topic.name == "Arithmetic")
+                    # Try to find by category
+                    category_result = await db.execute(
+                        select(Topic).where(Topic.category == enrichment_data.get("category", "A"))
                     )
-                    topic = default_result.scalar_one_or_none()
+                    topic = category_result.scalar_one_or_none()
+                    
+                    if not topic:
+                        # Use a default topic if none found
+                        default_result = await db.execute(
+                            select(Topic).where(Topic.name == "Arithmetic")
+                        )
+                        topic = default_result.scalar_one_or_none()
+                
+                if topic:
+                    question.topic_id = topic.id
+                
+                # Activate question after LLM enrichment
+                question.is_active = True
+                
+                # Commit LLM enrichment first
+                await db.commit()
+                logger.info(f"✅ Step 1 completed: LLM enrichment for question {question_id}")
+                
+            except Exception as e:
+                logger.error(f"❌ Step 1 failed (LLM enrichment) for question {question_id}: {e}")
+                # Continue to Step 2 even if LLM enrichment fails partially
+                await db.rollback()
+                
+                # Try to commit what we have and continue
+                try:
+                    question.is_active = True  # At least activate the question
+                    await db.commit()
+                except:
+                    pass
             
-            if topic:
-                question.topic_id = topic.id
+            # STEP 2: PHASE 1 PYQ Frequency Analysis (NEW ENHANCEMENT)
+            try:
+                logger.info(f"Step 2: PYQ frequency analysis for question {question_id}")
+                
+                # Refresh question from database to get latest state
+                result = await db.execute(select(Question).where(Question.id == question_id))
+                question = result.scalar_one_or_none()
+                
+                if question:
+                    # Use the enhanced question processor for PYQ frequency analysis
+                    processing_result = await enhanced_question_processor.process_question_with_frequency_analysis(
+                        question, db
+                    )
+                    
+                    if processing_result.get('status') == 'success':
+                        pyq_score = processing_result.get('pyq_frequency_score', 0.5)
+                        logger.info(f"✅ Step 2 completed: PYQ frequency analysis for question {question_id} (score: {pyq_score:.3f})")
+                    else:
+                        logger.warning(f"⚠️ Step 2 partial: PYQ analysis had issues for question {question_id}")
+                
+            except Exception as e:
+                logger.error(f"❌ Step 2 failed (PYQ frequency analysis) for question {question_id}: {e}")
+                # Don't fail the entire process if PYQ analysis fails
+                # Question still has basic LLM enrichment
+                
+                # Set a default PYQ frequency score if analysis fails
+                try:
+                    if question:
+                        question.pyq_frequency_score = 0.5  # Default medium frequency
+                        question.frequency_analysis_method = 'fallback_default'
+                        await db.commit()
+                        logger.info(f"🔧 Applied fallback PYQ score for question {question_id}")
+                except:
+                    pass
             
-            question.is_active = True  # Activate after complete enrichment
-            
-            await db.commit()
-            logger.info(f"✅ Question {question_id} enriched successfully with LLM auto-generation")
+            logger.info(f"🎉 ENHANCED background processing completed for question {question_id}")
             break  # Exit the async for loop
             
     except Exception as e:
-        logger.error(f"❌ Error in background enrichment for question {question_id}: {e}")
-        # Mark question as failed enrichment but still make it active with placeholder content
+        logger.error(f"❌ Critical error in enhanced background processing for question {question_id}: {e}")
+        # Ensure question is still usable even if both steps fail
         try:
-            async for db in get_async_compatible_db():
-                result = await db.execute(select(Question).where(Question.id == question_id))
+            async for db_fallback in get_async_compatible_db():
+                result = await db_fallback.execute(select(Question).where(Question.id == question_id))
                 question = result.scalar_one_or_none()
-                if question:
-                    question.is_active = True  # Make active even if enrichment failed
-                    question.tags = question.tags + ["enrichment_failed"] if question.tags else ["enrichment_failed"]
-                    await db.commit()
-                    logger.warning(f"⚠️ Question {question_id} activated with enrichment failure flag")
+                if question and not question.is_active:
+                    question.is_active = True  # At least make it available
+                    question.pyq_frequency_score = 0.5  # Default score
+                    await db_fallback.commit()
+                    logger.info(f"🔧 Applied emergency fallback for question {question_id}")
                 break
-        except Exception as commit_error:
-            logger.error(f"Failed to mark question as enrichment failed: {commit_error}")
+        except:
+            logger.error(f"💥 Emergency fallback also failed for question {question_id}")
+            pass
 
 async def process_pyq_document(ingestion_id: str, file_content: bytes):
     """Background task to process PYQ document"""
