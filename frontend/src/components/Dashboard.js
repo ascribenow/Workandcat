@@ -239,7 +239,7 @@ export const Dashboard = () => {
 
           {/* Category Progress Dashboard */}
           <div className="bg-white rounded-lg shadow p-6 mb-8">
-            <h3 className="text-xl font-semibold text-gray-900 mb-6">Category Progress (90-Day Plan)</h3>
+            <h3 className="text-xl font-semibold text-gray-900 mb-6">Category Progress</h3>
             
             {masteryData && masteryData.mastery_by_topic && masteryData.mastery_by_topic.length > 0 ? (
               <div className="space-y-6">
