@@ -1294,6 +1294,92 @@ async def export_questions_csv(
         logger.error(f"Questions export error: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to export questions: {str(e)}")
 
+@api_router.get("/admin/export-pyq-csv")
+async def export_pyq_csv(
+    current_user: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_async_compatible_db)
+):
+    """Export all PYQ data as CSV with comprehensive information"""
+    try:
+        import csv
+        import io
+        from datetime import datetime
+        
+        # Get all PYQ data with joined information
+        result = await db.execute(
+            select(
+                PYQQuestion,
+                PYQPaper.year,
+                PYQPaper.slot, 
+                PYQIngestion.upload_filename,
+                Topic.name.label('topic_name')
+            )
+            .join(PYQPaper, PYQQuestion.paper_id == PYQPaper.id)
+            .join(PYQIngestion, PYQPaper.ingestion_id == PYQIngestion.id)
+            .join(Topic, PYQQuestion.topic_id == Topic.id)
+            .order_by(PYQPaper.year.desc(), PYQQuestion.created_at.desc())
+        )
+        
+        pyq_data = result.fetchall()
+        
+        # Create CSV in memory
+        output = io.StringIO()
+        writer = csv.writer(output)
+        
+        # Write header with comprehensive PYQ information
+        header = [
+            'question_id',
+            'year',
+            'slot',
+            'topic_name',
+            'subcategory',
+            'type_of_question',
+            'question_stem',
+            'answer',
+            'tags',
+            'confirmed_mapping',
+            'upload_filename',
+            'created_at',
+            'paper_id',
+            'ingestion_id'
+        ]
+        writer.writerow(header)
+        
+        # Write PYQ data
+        for pyq_question, year, slot, upload_filename, topic_name in pyq_data:
+            row = [
+                str(pyq_question.id),
+                year or '',
+                slot or '',
+                topic_name or '',
+                pyq_question.subcategory or '',
+                pyq_question.type_of_question or '',
+                pyq_question.stem or '',
+                pyq_question.answer or '',
+                pyq_question.tags or '[]',
+                str(pyq_question.confirmed),
+                upload_filename or '',
+                pyq_question.created_at.isoformat() if pyq_question.created_at else '',
+                str(pyq_question.paper_id),
+                str(pyq_question.paper.ingestion_id) if pyq_question.paper else ''
+            ]
+            writer.writerow(row)
+        
+        # Prepare response
+        output.seek(0)
+        
+        return StreamingResponse(
+            io.BytesIO(output.getvalue().encode('utf-8')),
+            media_type="text/csv",
+            headers={
+                "Content-Disposition": f"attachment; filename=pyq_database_export_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+            }
+        )
+        
+    except Exception as e:
+        logger.error(f"PYQ export error: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to export PYQ database: {str(e)}")
+
 @api_router.post("/admin/upload-questions-csv")
 async def upload_questions_csv(
     file: UploadFile = File(...),
