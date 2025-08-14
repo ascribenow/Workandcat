@@ -29,7 +29,7 @@ from google_drive_utils import GoogleDriveImageFetcher
 from adaptive_session_logic import AdaptiveSessionLogic
 from enhanced_question_processor import EnhancedQuestionProcessor
 from database import (
-    get_async_compatible_db, init_database, User, Question, Topic, Attempt, Mastery, Plan, PlanUnit, Session,
+    get_async_compatible_db, get_database, init_database, User, Question, Topic, Attempt, Mastery, Plan, PlanUnit, Session,
     PYQIngestion, PYQPaper, PYQQuestion, QuestionOption, AsyncSession
 )
 from auth_service import AuthService, UserCreate, UserLogin, TokenResponse, require_auth, require_admin, ADMIN_EMAIL
