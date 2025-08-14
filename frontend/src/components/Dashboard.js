@@ -720,54 +720,15 @@ const AdminPanel = () => {
     const file = event.target.files[0];
     if (!file) return;
 
-    setUploading(true);
-    const formData = new FormData();
-    formData.append('file', file);
-    
-    // For CSV files, don't need to add year (it's in the CSV)
-    // For document files, add default year
+    // Only accept CSV files now
     if (!file.name.endsWith('.csv')) {
-      formData.append('year', '2024');
-    }
-
-    try {
-      const response = await axios.post(`${API}/admin/pyq/upload`, formData, {
-        headers: { 
-          'Content-Type': 'multipart/form-data',
-          'Authorization': `Bearer ${localStorage.getItem('cat_prep_token')}`
-        }
-      });
-      
-      // Show appropriate success message based on file type
-      if (file.name.endsWith('.csv')) {
-        alert(`PYQ CSV uploaded successfully! ${response.data?.questions_created || 0} questions processed with automatic LLM enrichment.`);
-      } else {
-        alert('PYQ document uploaded successfully!');
-      }
-      
-      event.target.value = ''; // Reset file input
-    } catch (error) {
-      alert('Error uploading PYQ: ' + (error.response?.data?.detail || 'Unknown error'));
-    } finally {
-      setUploading(false);
-    }
-  };
-
-  const handlePYQDocUpload = async (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    // Prompt for year since it's required for document uploads
-    const year = prompt('Enter the year for this PYQ document (e.g., 2024):');
-    if (!year || isNaN(year)) {
-      alert('Please enter a valid year');
+      alert('Only CSV files are supported for PYQ upload. Please use the CSV format with columns: stem, year, image_url');
       return;
     }
 
     setUploading(true);
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('year', year);
 
     try {
       const response = await axios.post(`${API}/admin/pyq/upload`, formData, {
@@ -776,10 +737,21 @@ const AdminPanel = () => {
           'Authorization': `Bearer ${localStorage.getItem('cat_prep_token')}`
         }
       });
-      alert(`PYQ document uploaded successfully for year ${year}!`);
+      
+      // Show success message with details
+      const questionsCreated = response.data?.questions_created || 0;
+      const yearsProcessed = response.data?.years_processed || [];
+      const imagesProcessed = response.data?.images_processed || 0;
+      
+      alert(`PYQ CSV uploaded successfully!\n\n` +
+            `✅ ${questionsCreated} questions processed\n` +
+            `📅 Years: ${yearsProcessed.join(', ')}\n` +
+            `🖼️ ${imagesProcessed} images processed\n` +
+            `🤖 Automatic LLM enrichment in progress...`);
+      
       event.target.value = ''; // Reset file input
     } catch (error) {
-      alert('Error uploading PYQ document: ' + (error.response?.data?.detail || 'Unknown error'));
+      alert('Error uploading PYQ CSV: ' + (error.response?.data?.detail || 'Unknown error'));
     } finally {
       setUploading(false);
     }
