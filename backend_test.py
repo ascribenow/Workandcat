@@ -9944,6 +9944,30 @@ def main():
             
         return success_rate >= 70
 
+def main_option_2():
+    """Main function for OPTION 2 Enhanced Background Processing testing"""
+    tester = CATBackendTester()
+    
+    print("🚀 Starting OPTION 2 Enhanced Background Processing Testing Suite...")
+    print("=" * 80)
+    
+    # Login first
+    if not tester.test_user_login():
+        print("❌ Authentication failed - cannot proceed with OPTION 2 testing")
+        return 1
+    
+    # Run OPTION 2 Enhanced Background Processing test
+    success = tester.test_option_2_enhanced_background_processing()
+    
+    if success:
+        print("\n🎉 OPTION 2 ENHANCED BACKGROUND PROCESSING TEST COMPLETED SUCCESSFULLY!")
+        print("The OPTION 2 Enhanced Background Processing implementation is working correctly")
+        return 0
+    else:
+        print("\n❌ OPTION 2 ENHANCED BACKGROUND PROCESSING TEST IDENTIFIED ISSUES")
+        print("Please review the test results above for specific areas needing attention")
+        return 1
+
 def main_sophisticated():
     """Main function for sophisticated session testing"""
     tester = CATBackendTester()
