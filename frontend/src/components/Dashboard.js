@@ -867,9 +867,9 @@ const AdminPanel = () => {
           {/* Tab Content */}
           <div className="p-8">
             {activeTab === 'pyq-upload' && (
-              <div className="max-w-3xl">
+              <div className="max-w-4xl">
                 <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-2xl font-semibold text-gray-900">Upload PYQ Files</h2>
+                  <h2 className="text-2xl font-semibold text-gray-900">Upload PYQ Data</h2>
                   <button
                     onClick={() => handleExportPYQ()}
                     className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium flex items-center"
@@ -877,34 +877,107 @@ const AdminPanel = () => {
                     📋 Export PYQ Database (CSV)
                   </button>
                 </div>
-                
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center">
-                  <div className="mb-6">
-                    <svg className="mx-auto h-16 w-16 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
-                      <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
+
+                {/* Upload Format Selection */}
+                <div className="mb-8">
+                  <div className="grid md:grid-cols-2 gap-6">
+                    
+                    {/* NEW: CSV Upload */}
+                    <div className="border-2 border-green-200 rounded-lg p-6 bg-green-50">
+                      <h3 className="text-lg font-semibold text-green-900 mb-4">📊 CSV Upload (Recommended)</h3>
+                      <p className="text-green-700 mb-4">Upload PYQ questions with automatic LLM classification</p>
+                      
+                      {/* CSV Format Info */}
+                      <div className="bg-green-100 border border-green-200 rounded-lg p-4 mb-6">
+                        <h4 className="text-sm font-medium text-green-800 mb-2">📋 Required CSV Columns</h4>
+                        <div className="text-sm text-green-700">
+                          <ul className="list-disc list-inside space-y-1 text-xs">
+                            <li><strong>stem</strong> - Question text (Required)</li>
+                            <li><strong>year</strong> - PYQ year (Required, e.g., 2024, 2023)</li>
+                            <li><strong>image_url</strong> - Google Drive share link (Optional)</li>
+                          </ul>
+                          <p className="mt-2 text-xs">
+                            <strong>Example:</strong><br/>
+                            "A train travels 120 km in 2 hours. Find speed.",2024,"https://drive.google.com/file/d/FILE_ID/view"
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* LLM Auto-Generation Info */}
+                      <div className="bg-white border border-green-200 rounded-lg p-4 mb-6">
+                        <div className="flex items-start">
+                          <div className="flex-shrink-0">
+                            <svg className="h-5 w-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                            </svg>
+                          </div>
+                          <div className="ml-3">
+                            <h4 className="text-sm font-medium text-green-800">🤖 Automatic LLM Processing</h4>
+                            <div className="text-sm text-green-700 mt-1">
+                              <p className="mb-1">Just provide question text and year - LLM automatically generates:</p>
+                              <ul className="list-disc list-inside space-y-0 text-xs">
+                                <li><strong>Category & Subcategory</strong> - CAT taxonomy classification</li>
+                                <li><strong>Question Type</strong> - Specific classification within subcategory</li>
+                                <li><strong>Answer</strong> - Correct solution</li>
+                                <li><strong>Solutions</strong> - Step-by-step explanations</li>
+                              </ul>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="text-center">
+                        <label htmlFor="pyq-csv-upload" className="cursor-pointer">
+                          <span className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium inline-block">
+                            {uploading ? 'Uploading & Processing...' : 'Upload PYQ CSV'}
+                          </span>
+                          <input
+                            id="pyq-csv-upload"
+                            type="file"
+                            accept=".csv"
+                            onChange={handlePYQUpload}
+                            disabled={uploading}
+                            className="hidden"
+                          />
+                        </label>
+                      </div>
+                    </div>
+
+                    {/* LEGACY: Document Upload */}
+                    <div className="border-2 border-gray-200 rounded-lg p-6">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-4">📄 Document Upload (Legacy)</h3>
+                      <p className="text-gray-600 mb-4">Upload Word/PDF documents for manual processing</p>
+                      
+                      <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
+                        <h4 className="text-sm font-medium text-gray-800 mb-2">📋 Supported Formats</h4>
+                        <div className="text-sm text-gray-700">
+                          <ul className="list-disc list-inside space-y-1 text-xs">
+                            <li>Word documents (.docx, .doc)</li>
+                            <li>PDF files (.pdf)</li>
+                          </ul>
+                          <p className="mt-2 text-xs text-amber-600">
+                            <strong>Note:</strong> Requires manual processing and may be less accurate than CSV upload.
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="text-center">
+                        <label htmlFor="pyq-doc-upload" className="cursor-pointer">
+                          <span className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg font-medium inline-block">
+                            {uploading ? 'Uploading...' : 'Upload Document'}
+                          </span>
+                          <input
+                            id="pyq-doc-upload"
+                            type="file"
+                            accept=".docx,.doc,.pdf"
+                            onChange={handlePYQDocUpload}
+                            disabled={uploading}
+                            className="hidden"
+                          />
+                        </label>
+                      </div>
+                    </div>
                   </div>
-                  <div className="mb-6">
-                    <label htmlFor="pyq-upload" className="cursor-pointer">
-                      <span className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg text-lg font-medium">
-                        {uploading ? 'Uploading...' : 'Select PYQ File'}
-                      </span>
-                      <input
-                        id="pyq-upload"
-                        type="file"
-                        accept=".docx,.doc,.pdf"
-                        onChange={handlePYQUpload}
-                        disabled={uploading}
-                        className="hidden"
-                      />
-                    </label>
-                  </div>
-                  <p className="text-gray-600">
-                    Upload previous year question papers in Word or PDF format
-                  </p>
-                  <p className="text-sm text-gray-500 mt-2">
-                    Supported formats: .docx, .doc, .pdf
-                  </p>
                 </div>
               </div>
             )}
