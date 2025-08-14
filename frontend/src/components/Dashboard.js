@@ -868,7 +868,15 @@ const AdminPanel = () => {
           <div className="p-8">
             {activeTab === 'pyq-upload' && (
               <div className="max-w-3xl">
-                <h2 className="text-2xl font-semibold text-gray-900 mb-6">Upload PYQ Files</h2>
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-2xl font-semibold text-gray-900">Upload PYQ Files</h2>
+                  <button
+                    onClick={() => handleExportPYQ()}
+                    className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium flex items-center"
+                  >
+                    📋 Export PYQ Database (CSV)
+                  </button>
+                </div>
                 
                 <div className="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center">
                   <div className="mb-6">
