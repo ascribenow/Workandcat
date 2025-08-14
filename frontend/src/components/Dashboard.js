@@ -911,7 +911,7 @@ const AdminPanel = () => {
           {/* Tab Content */}
           <div className="p-8">
             {activeTab === 'pyq-upload' && (
-              <div className="max-w-4xl">
+              <div className="max-w-3xl">
                 <div className="flex justify-between items-center mb-6">
                   <h2 className="text-2xl font-semibold text-gray-900">Upload PYQ Data</h2>
                   <button
@@ -922,105 +922,79 @@ const AdminPanel = () => {
                   </button>
                 </div>
 
-                {/* Upload Format Selection */}
-                <div className="mb-8">
-                  <div className="grid md:grid-cols-2 gap-6">
-                    
-                    {/* NEW: CSV Upload */}
-                    <div className="border-2 border-green-200 rounded-lg p-6 bg-green-50">
-                      <h3 className="text-lg font-semibold text-green-900 mb-4">📊 CSV Upload (Recommended)</h3>
-                      <p className="text-green-700 mb-4">Upload PYQ questions with automatic LLM classification</p>
-                      
-                      {/* CSV Format Info */}
-                      <div className="bg-green-100 border border-green-200 rounded-lg p-4 mb-6">
-                        <h4 className="text-sm font-medium text-green-800 mb-2">📋 Required CSV Columns</h4>
-                        <div className="text-sm text-green-700">
-                          <ul className="list-disc list-inside space-y-1 text-xs">
-                            <li><strong>stem</strong> - Question text (Required)</li>
-                            <li><strong>year</strong> - PYQ year (Required, e.g., 2024, 2023)</li>
-                            <li><strong>image_url</strong> - Google Drive share link (Optional)</li>
-                          </ul>
-                          <p className="mt-2 text-xs">
-                            <strong>Example:</strong><br/>
-                            "A train travels 120 km in 2 hours. Find speed.",2024,"https://drive.google.com/file/d/FILE_ID/view"
+                {/* CSV Upload Only */}
+                <div className="border-2 border-green-200 rounded-lg p-8 bg-green-50">
+                  <h3 className="text-xl font-semibold text-green-900 mb-4">📊 CSV Upload with LLM Processing</h3>
+                  <p className="text-green-700 mb-6">Upload PYQ questions with automatic classification and solution generation</p>
+                  
+                  {/* CSV Format Info */}
+                  <div className="bg-green-100 border border-green-200 rounded-lg p-6 mb-6">
+                    <h4 className="text-lg font-medium text-green-800 mb-3">📋 Required CSV Columns</h4>
+                    <div className="text-sm text-green-700">
+                      <ul className="list-disc list-inside space-y-2">
+                        <li><strong>stem</strong> - Question text (Required)</li>
+                        <li><strong>year</strong> - PYQ year (Required, e.g., 2024, 2023, 2022)</li>
+                        <li><strong>image_url</strong> - Google Drive share link (Optional)</li>
+                      </ul>
+                      <div className="mt-4 p-3 bg-white rounded border border-green-300">
+                        <p className="text-sm font-medium text-green-800 mb-2">Example CSV Format:</p>
+                        <code className="text-xs text-green-600 font-mono">
+                          stem,year,image_url<br/>
+                          "A train travels 120 km in 2 hours. Find speed.",2024,"https://drive.google.com/file/d/FILE_ID/view"<br/>
+                          "What is 15% of 200?",2023,""<br/>
+                          "Find area of triangle with base 10cm, height 8cm.",2024,"https://drive.google.com/file/d/ANOTHER_ID/view"
+                        </code>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* LLM Auto-Generation Info */}
+                  <div className="bg-white border border-green-200 rounded-lg p-6 mb-8">
+                    <div className="flex items-start">
+                      <div className="flex-shrink-0">
+                        <svg className="h-6 w-6 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                        </svg>
+                      </div>
+                      <div className="ml-3">
+                        <h4 className="text-lg font-medium text-green-800">🤖 Automatic LLM Processing</h4>
+                        <div className="text-sm text-green-700 mt-2">
+                          <p className="mb-3">Just provide question text and year - our AI automatically generates:</p>
+                          <div className="grid md:grid-cols-2 gap-4">
+                            <ul className="list-disc list-inside space-y-1">
+                              <li><strong>Category & Subcategory</strong> - CAT taxonomy classification</li>
+                              <li><strong>Question Type</strong> - Specific classification</li>
+                            </ul>
+                            <ul className="list-disc list-inside space-y-1">
+                              <li><strong>Answer</strong> - Correct solution</li>
+                              <li><strong>Solutions</strong> - Step-by-step explanations</li>
+                            </ul>
+                          </div>
+                          <p className="mt-3 text-xs text-green-600 font-medium">
+                            ✨ Supports multiple years in single CSV • Google Drive image processing • Bulk processing capability
                           </p>
                         </div>
                       </div>
-
-                      {/* LLM Auto-Generation Info */}
-                      <div className="bg-white border border-green-200 rounded-lg p-4 mb-6">
-                        <div className="flex items-start">
-                          <div className="flex-shrink-0">
-                            <svg className="h-5 w-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                            </svg>
-                          </div>
-                          <div className="ml-3">
-                            <h4 className="text-sm font-medium text-green-800">🤖 Automatic LLM Processing</h4>
-                            <div className="text-sm text-green-700 mt-1">
-                              <p className="mb-1">Just provide question text and year - LLM automatically generates:</p>
-                              <ul className="list-disc list-inside space-y-0 text-xs">
-                                <li><strong>Category & Subcategory</strong> - CAT taxonomy classification</li>
-                                <li><strong>Question Type</strong> - Specific classification within subcategory</li>
-                                <li><strong>Answer</strong> - Correct solution</li>
-                                <li><strong>Solutions</strong> - Step-by-step explanations</li>
-                              </ul>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div className="text-center">
-                        <label htmlFor="pyq-csv-upload" className="cursor-pointer">
-                          <span className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium inline-block">
-                            {uploading ? 'Uploading & Processing...' : 'Upload PYQ CSV'}
-                          </span>
-                          <input
-                            id="pyq-csv-upload"
-                            type="file"
-                            accept=".csv"
-                            onChange={handlePYQUpload}
-                            disabled={uploading}
-                            className="hidden"
-                          />
-                        </label>
-                      </div>
                     </div>
-
-                    {/* LEGACY: Document Upload */}
-                    <div className="border-2 border-gray-200 rounded-lg p-6">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-4">📄 Document Upload (Legacy)</h3>
-                      <p className="text-gray-600 mb-4">Upload Word/PDF documents for manual processing</p>
-                      
-                      <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
-                        <h4 className="text-sm font-medium text-gray-800 mb-2">📋 Supported Formats</h4>
-                        <div className="text-sm text-gray-700">
-                          <ul className="list-disc list-inside space-y-1 text-xs">
-                            <li>Word documents (.docx, .doc)</li>
-                            <li>PDF files (.pdf)</li>
-                          </ul>
-                          <p className="mt-2 text-xs text-amber-600">
-                            <strong>Note:</strong> Requires manual processing and may be less accurate than CSV upload.
-                          </p>
-                        </div>
-                      </div>
-                      
-                      <div className="text-center">
-                        <label htmlFor="pyq-doc-upload" className="cursor-pointer">
-                          <span className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg font-medium inline-block">
-                            {uploading ? 'Uploading...' : 'Upload Document'}
-                          </span>
-                          <input
-                            id="pyq-doc-upload"
-                            type="file"
-                            accept=".docx,.doc,.pdf"
-                            onChange={handlePYQDocUpload}
-                            disabled={uploading}
-                            className="hidden"
-                          />
-                        </label>
-                      </div>
-                    </div>
+                  </div>
+                  
+                  <div className="text-center">
+                    <label htmlFor="pyq-csv-upload" className="cursor-pointer">
+                      <span className="bg-green-600 hover:bg-green-700 text-white px-8 py-4 rounded-lg text-lg font-medium inline-block shadow-lg hover:shadow-xl transition-all">
+                        {uploading ? 'Uploading & Processing...' : '📤 Upload PYQ CSV'}
+                      </span>
+                      <input
+                        id="pyq-csv-upload"
+                        type="file"
+                        accept=".csv"
+                        onChange={handlePYQUpload}
+                        disabled={uploading}
+                        className="hidden"
+                      />
+                    </label>
+                    <p className="text-sm text-green-600 mt-3">
+                      Drag and drop CSV file or click to browse • Maximum file size: 10MB
+                    </p>
                   </div>
                 </div>
               </div>
