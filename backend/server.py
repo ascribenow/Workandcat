@@ -1608,31 +1608,34 @@ async def upload_pyq_document(
     current_user: User = Depends(require_admin),
     db: AsyncSession = Depends(get_async_compatible_db)
 ):
-    """Upload PYQ data - supports both CSV (new format) and Word/PDF (legacy)"""
+    """Upload PYQ data - Primary support for CSV format with automatic LLM enrichment"""
     try:
-        # Check file type
+        # PRIMARY: CSV-based PYQ upload with LLM enrichment
         if file.filename.endswith('.csv'):
-            # NEW: CSV-based PYQ upload with LLM enrichment
             return await upload_pyq_csv(file, db, current_user)
         
-        # LEGACY: Word/PDF document processing (kept for backward compatibility)
+        # MINIMAL LEGACY SUPPORT: Document processing (deprecated)
+        # Note: This is kept for minimal backward compatibility but CSV is strongly recommended
         allowed_extensions = ('.docx', '.doc', '.pdf')
         if not file.filename.endswith(allowed_extensions):
             raise HTTPException(
                 status_code=400, 
-                detail="Supported formats: CSV (.csv) for new streamlined upload, or Word/PDF (.docx, .doc, .pdf) for legacy document processing"
+                detail="Primary format: CSV (.csv) with automatic LLM processing. Legacy support: Word/PDF (.docx, .doc, .pdf) with manual processing."
             )
         
         # Validate year for legacy upload
         if not year:
-            raise HTTPException(status_code=400, detail="Year is required for document upload")
+            raise HTTPException(
+                status_code=400, 
+                detail="Year is required for legacy document upload. Consider using CSV format for better automation."
+            )
         
-        # Store file
+        # Minimal legacy document processing
         file_content = await file.read()
         file_extension = file.filename.split('.')[-1]
-        storage_key = f"pyq_{year}_{slot or 'unknown'}_{uuid.uuid4()}.{file_extension}"
+        storage_key = f"pyq_legacy_{year}_{slot or 'unknown'}_{uuid.uuid4()}.{file_extension}"
         
-        # Create ingestion record
+        # Create minimal ingestion record
         ingestion = PYQIngestion(
             upload_filename=file.filename,
             storage_key=storage_key,
@@ -1642,13 +1645,13 @@ async def upload_pyq_document(
             pages_count=None,
             ocr_required=False,
             ocr_status="not_needed",
-            parse_status="queued"
+            parse_status="legacy_queued"
         )
         
         db.add(ingestion)
         await db.commit()
         
-        # Queue processing as background task
+        # Queue minimal processing (no extensive LLM enrichment for legacy)
         if background_tasks:
             background_tasks.add_task(
                 process_pyq_document,
@@ -1657,13 +1660,13 @@ async def upload_pyq_document(
             )
         
         return {
-            "message": "PYQ document uploaded successfully (legacy format)",
+            "message": "Legacy document uploaded (limited processing)",
             "ingestion_id": str(ingestion.id),
             "filename": file.filename,
             "year": year,
             "slot": slot,
-            "status": "queued_for_processing",
-            "note": "Document will be processed in the background. Use CSV format for faster, more accurate uploads."
+            "status": "legacy_processing_queued",
+            "recommendation": "For better results with automatic LLM enrichment, use CSV format with columns: stem, year, image_url"
         }
         
     except Exception as e:
