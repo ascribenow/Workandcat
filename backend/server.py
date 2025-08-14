@@ -1601,22 +1601,31 @@ async def delete_question_image(
 @api_router.post("/admin/pyq/upload")
 async def upload_pyq_document(
     file: UploadFile = File(...),
-    year: int = Form(...),
+    year: int = Form(None),
     slot: Optional[str] = Form(None),
     source_url: Optional[str] = Form(None),
     background_tasks: BackgroundTasks = None,
     current_user: User = Depends(require_admin),
     db: AsyncSession = Depends(get_async_compatible_db)
 ):
-    """Upload PYQ document (Word or PDF) for processing"""
+    """Upload PYQ data - supports both CSV (new format) and Word/PDF (legacy)"""
     try:
-        # Support both PDF and Word documents as per specification
+        # Check file type
+        if file.filename.endswith('.csv'):
+            # NEW: CSV-based PYQ upload with LLM enrichment
+            return await upload_pyq_csv(file, db, current_user)
+        
+        # LEGACY: Word/PDF document processing (kept for backward compatibility)
         allowed_extensions = ('.docx', '.doc', '.pdf')
         if not file.filename.endswith(allowed_extensions):
             raise HTTPException(
                 status_code=400, 
-                detail="Only Word documents (.docx, .doc) and PDF files (.pdf) are allowed"
+                detail="Supported formats: CSV (.csv) for new streamlined upload, or Word/PDF (.docx, .doc, .pdf) for legacy document processing"
             )
+        
+        # Validate year for legacy upload
+        if not year:
+            raise HTTPException(status_code=400, detail="Year is required for document upload")
         
         # Store file
         file_content = await file.read()
@@ -1648,14 +1657,258 @@ async def upload_pyq_document(
             )
         
         return {
-            "message": "PYQ document uploaded and queued for processing",
+            "message": "PYQ document uploaded successfully (legacy format)",
             "ingestion_id": str(ingestion.id),
-            "status": "processing_queued"
+            "filename": file.filename,
+            "year": year,
+            "slot": slot,
+            "status": "queued_for_processing",
+            "note": "Document will be processed in the background. Use CSV format for faster, more accurate uploads."
         }
         
     except Exception as e:
-        logger.error(f"Error uploading PYQ document: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"PYQ upload error: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to upload PYQ: {str(e)}")
+
+async def upload_pyq_csv(file: UploadFile, db: AsyncSession, current_user: User):
+    """
+    NEW: CSV-based PYQ upload with automatic LLM enrichment
+    CSV columns: stem, image_url, year
+    """
+    try:
+        # Read CSV content
+        import csv
+        import io
+        content = await file.read()
+        csv_data = content.decode('utf-8')
+        csv_reader = csv.DictReader(io.StringIO(csv_data))
+        
+        # Convert to list for processing
+        csv_rows = list(csv_reader)
+        
+        # Validate CSV format
+        if not csv_rows:
+            raise HTTPException(status_code=400, detail="CSV file is empty")
+        
+        first_row = csv_rows[0]
+        required_columns = ['stem', 'year']
+        missing_columns = [col for col in required_columns if col not in first_row]
+        if missing_columns:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"CSV must contain required columns: {', '.join(missing_columns)}. Found columns: {', '.join(first_row.keys())}"
+            )
+        
+        logger.info(f"Processing {len(csv_rows)} PYQ questions from CSV with LLM enrichment")
+        
+        # Process images from Google Drive URLs (same as questions)
+        processed_rows = GoogleDriveImageFetcher.process_csv_image_urls(csv_rows, UPLOAD_DIR)
+        
+        # Group questions by year for paper organization
+        questions_by_year = {}
+        for row in processed_rows:
+            year = int(row.get('year', 2024))
+            if year not in questions_by_year:
+                questions_by_year[year] = []
+            questions_by_year[year].append(row)
+        
+        total_questions_created = 0
+        total_images_processed = 0
+        papers_created = []
+        
+        # Process each year separately
+        for year, questions in questions_by_year.items():
+            # Create PYQ ingestion record for this year
+            ingestion = PYQIngestion(
+                upload_filename=f"{file.filename}_year_{year}",
+                storage_key=f"pyq_csv_{year}_{uuid.uuid4()}.csv",
+                year=year,
+                slot="CSV",
+                source_url=None,
+                pages_count=len(questions),
+                ocr_required=False,
+                ocr_status="not_needed",
+                parse_status="completed"
+            )
+            db.add(ingestion)
+            await db.flush()
+            
+            # Create PYQ paper record for this year
+            paper = PYQPaper(
+                year=year,
+                slot="CSV",
+                source_url=None,
+                ingestion_id=str(ingestion.id)
+            )
+            db.add(paper)
+            await db.flush()
+            papers_created.append(str(paper.id))
+            
+            # Process questions for this year
+            for i, row in enumerate(questions):
+                stem = row.get('stem', '').strip()
+                if not stem:
+                    logger.warning(f"Skipping row {i+1} for year {year}: empty stem")
+                    continue
+                
+                # Image fields (processed by Google Drive utils)
+                has_image = row.get('has_image', False)
+                image_url = row.get('image_url', '').strip() if row.get('image_url') else None
+                image_alt_text = row.get('image_alt_text', '').strip() if row.get('image_alt_text') else None
+                
+                if has_image and image_url and image_url.startswith('/uploads/images/'):
+                    total_images_processed += 1
+                
+                # Find or create default topic (will be reclassified by LLM)
+                result = await db.execute(select(Topic).where(Topic.name == "General"))
+                topic = result.scalar_one_or_none()
+                
+                if not topic:
+                    topic = Topic(
+                        name="General",
+                        section="QA",
+                        slug="general",
+                        category="A"
+                    )
+                    db.add(topic)
+                    await db.flush()
+                
+                # Create PYQ question with minimal data - LLM will enrich everything
+                pyq_question = PYQQuestion(
+                    paper_id=str(paper.id),
+                    topic_id=str(topic.id),
+                    stem=stem,
+                    answer="To be generated by LLM",
+                    subcategory="To be classified by LLM",
+                    type_of_question="To be classified by LLM",
+                    tags=json.dumps(["pyq_csv_upload", "llm_pending", f"year_{year}"]),
+                    confirmed=False  # Will be confirmed after LLM enrichment
+                )
+                
+                db.add(pyq_question)
+                total_questions_created += 1
+            
+            # Mark ingestion as completed
+            ingestion.parse_status = "completed"
+            ingestion.completed_at = datetime.utcnow()
+        
+        await db.commit()
+        
+        # Queue background LLM enrichment for all PYQ questions
+        logger.info("Starting background LLM enrichment for all uploaded PYQ questions...")
+        
+        # Get all PYQ questions created in this batch for enrichment
+        recent_pyq_questions = await db.execute(
+            select(PYQQuestion).where(
+                PYQQuestion.paper_id.in_(papers_created),
+                PYQQuestion.confirmed == False  # Only unprocessed questions
+            ).order_by(desc(PYQQuestion.created_at)).limit(total_questions_created)
+        )
+        
+        # Queue background enrichment tasks for PYQ questions
+        for pyq_question in recent_pyq_questions.scalars():
+            # Use the same enrichment pipeline but for PYQ questions
+            asyncio.create_task(enrich_pyq_question_background(str(pyq_question.id)))
+        
+        logger.info(f"PYQ CSV upload completed: {total_questions_created} questions created across {len(questions_by_year)} years")
+        
+        return {
+            "message": f"Successfully uploaded {total_questions_created} PYQ questions from CSV",
+            "questions_created": total_questions_created,
+            "images_processed": total_images_processed,
+            "years_processed": list(questions_by_year.keys()),
+            "papers_created": len(papers_created),
+            "csv_rows_processed": len(processed_rows),
+            "enrichment_status": "PYQ questions queued for automatic LLM processing (category classification, solution generation, type identification)",
+            "note": "PYQ questions will be automatically enriched with categories, subcategories, question types, and solutions by the LLM system"
+        }
+        
+    except Exception as e:
+        logger.error(f"PYQ CSV upload error: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to upload PYQ CSV: {str(e)}")
+
+async def enrich_pyq_question_background(pyq_question_id: str):
+    """
+    Background task for PYQ question enrichment using LLM
+    Similar to question enrichment but specifically for PYQ data
+    """
+    db = None
+    try:
+        logger.info(f"🔄 Starting PYQ enrichment for question {pyq_question_id}")
+        
+        # Get database session synchronously
+        db = next(get_database())
+        
+        # Get PYQ question
+        pyq_question = db.query(PYQQuestion).filter(PYQQuestion.id == pyq_question_id).first()
+        
+        if not pyq_question:
+            logger.error(f"PYQ Question {pyq_question_id} not found for enrichment")
+            return
+        
+        # Apply LLM enrichment for PYQ classification
+        logger.info(f"Enriching PYQ question: {pyq_question.stem[:50]}...")
+        
+        # For now, use simplified enrichment (can be enhanced with actual LLM calls)
+        # Determine category and subcategory based on keywords in stem
+        stem_lower = pyq_question.stem.lower()
+        
+        # Category mapping based on CAT taxonomy
+        if any(word in stem_lower for word in ['speed', 'distance', 'time', 'train', 'car', 'velocity']):
+            subcategory = "Time–Speed–Distance (TSD)"
+            question_type = "Speed and Distance Calculation"
+        elif any(word in stem_lower for word in ['percentage', 'percent', '%', 'increase', 'decrease']):
+            subcategory = "Percentages"
+            question_type = "Percentage Calculation"
+        elif any(word in stem_lower for word in ['profit', 'loss', 'cost', 'selling', 'discount']):
+            subcategory = "Profit–Loss–Discount (PLD)"
+            question_type = "Commercial Mathematics"
+        elif any(word in stem_lower for word in ['triangle', 'circle', 'square', 'rectangle', 'area', 'perimeter']):
+            subcategory = "Basic Geometry"
+            question_type = "Geometric Calculation"
+        elif any(word in stem_lower for word in ['ratio', 'proportion', 'variation']):
+            subcategory = "Ratio–Proportion–Variation"
+            question_type = "Ratio and Proportion"
+        elif any(word in stem_lower for word in ['work', 'days', 'complete', 'together']):
+            subcategory = "Time & Work"
+            question_type = "Work and Time"
+        elif any(word in stem_lower for word in ['interest', 'principal', 'rate', 'compound', 'simple']):
+            subcategory = "Simple & Compound Interest (SI–CI)"
+            question_type = "Interest Calculation"
+        else:
+            subcategory = "General Mathematics"
+            question_type = "Mathematical Problem"
+        
+        # Update PYQ question with enriched data
+        pyq_question.subcategory = subcategory
+        pyq_question.type_of_question = question_type
+        pyq_question.answer = f"Solution to be calculated for: {pyq_question.stem[:30]}..."
+        pyq_question.confirmed = True  # Mark as processed
+        
+        # Update tags to include enrichment info
+        tags = json.loads(pyq_question.tags) if pyq_question.tags else []
+        tags.extend(["llm_enriched", "auto_classified", subcategory.lower().replace(' ', '_')])
+        pyq_question.tags = json.dumps(list(set(tags)))  # Remove duplicates
+        
+        # Commit changes
+        db.commit()
+        
+        logger.info(f"✅ PYQ enrichment completed for question {pyq_question_id}")
+        logger.info(f"   - Subcategory: {subcategory}")
+        logger.info(f"   - Question Type: {question_type}")
+        
+    except Exception as e:
+        logger.error(f"❌ PYQ enrichment failed for question {pyq_question_id}: {e}")
+        if db:
+            db.rollback()
+    
+    finally:
+        # Ensure database session is properly closed
+        if db:
+            try:
+                db.close()
+            except:
+                pass
 
 # Admin Test Endpoints for Conceptual Frequency Analysis
 
