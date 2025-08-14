@@ -1977,8 +1977,19 @@ async def enrich_question_background(question_id: str, hint_category: str = None
                         hint_subcategory=hint_subcategory
                     )
                 
-                # Get enrichment data
-                enrichment_data = asyncio.run(run_llm_enrichment())
+                # Get enrichment data - use create_task instead of asyncio.run
+                try:
+                    # Try to get current event loop
+                    loop = asyncio.get_event_loop()
+                    if loop.is_running():
+                        # We're in an async context, create a task
+                        enrichment_data = await run_llm_enrichment()
+                    else:
+                        # No running loop, use asyncio.run
+                        enrichment_data = asyncio.run(run_llm_enrichment())
+                except RuntimeError:
+                    # No event loop, use asyncio.run
+                    enrichment_data = asyncio.run(run_llm_enrichment())
                 
                 # Update question with all generated data
                 question.answer = enrichment_data["answer"]
