@@ -10100,7 +10100,11 @@ def main_phase1():
 
 if __name__ == "__main__":
     import sys
-    if len(sys.argv) > 1 and sys.argv[1] == "phase1":
+    if len(sys.argv) > 1 and sys.argv[1] == "option2":
+        # Run OPTION 2 Enhanced Background Processing testing suite
+        exit_code = main_option_2()
+        sys.exit(exit_code)
+    elif len(sys.argv) > 1 and sys.argv[1] == "phase1":
         # Run Phase 1 enhanced system testing suite
         exit_code = main_phase1()
         sys.exit(exit_code)
@@ -10113,6 +10117,6 @@ if __name__ == "__main__":
         exit_code = main_sophisticated()
         sys.exit(exit_code)
     else:
-        # Run Phase 1 testing by default
-        exit_code = main_phase1()
+        # Run OPTION 2 testing by default (as per review request)
+        exit_code = main_option_2()
         sys.exit(exit_code)
