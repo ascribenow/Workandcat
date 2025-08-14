@@ -99,109 +99,7 @@
 user_problem_statement: "Test the complete OPTION 2 Enhanced Background Processing after the database schema fix: Initialize Database Topics, Test Enhanced Question Upload with Complete Processing, Verify Database Schema Fix, Test Enhanced Session Creation with PYQ Weighting, Test Complete End-to-End OPTION 2 Flow"
 
 backend:
-  - task: "PHASE 1: PYQ Frequency Integration Test"
-    implemented: true
-    working: true
-    file: "/app/backend/server.py, /app/backend/enhanced_question_processor.py"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-        -working: "NA"
-        -agent: "testing"
-        -comment: "Testing PHASE 1 enhanced 12-question selection system with PYQ frequency integration"
-        -working: true
-        -agent: "testing"
-        -comment: "✅ PYQ FREQUENCY INTEGRATION WORKING: Comprehensive testing confirms the /api/admin/test/enhanced-session endpoint is functional and shows 'pyq_frequency_integration': '✅ Active'. The Phase 1 enhancement features are properly implemented and active. The enhanced question processor is integrated with PYQ frequency analysis capabilities. System correctly identifies high-frequency questions for prioritization in selection."
-
-  - task: "PHASE 1: Dynamic Category Quotas Test"
-    implemented: true
-    working: true
-    file: "/app/backend/adaptive_session_logic.py"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-        -working: "NA"
-        -agent: "testing"
-        -comment: "Testing dynamic category distribution adjustment (4-3-2-2-1) based on student weaknesses"
-        -working: true
-        -agent: "testing"
-        -comment: "✅ DYNAMIC CATEGORY QUOTAS IMPLEMENTED: Testing confirms the enhancement feature shows 'dynamic_category_quotas': '✅ Active'. The adaptive session logic includes base distribution (4-3-2-2-1) with ±1 dynamic adjustment capability based on student profile. The system maintains total of 12 questions while adjusting category distribution to target weak areas. Implementation verified in adaptive_session_logic.py with proper category balancing algorithms."
-
-  - task: "PHASE 1: Subcategory Diversity Caps Test"
-    implemented: true
-    working: true
-    file: "/app/backend/adaptive_session_logic.py"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-        -working: "NA"
-        -agent: "testing"
-        -comment: "Testing subcategory diversity limits (max 3 per subcategory, min 4 different subcategories)"
-        -working: true
-        -agent: "testing"
-        -comment: "✅ SUBCATEGORY DIVERSITY CAPS IMPLEMENTED: Testing confirms the enhancement feature shows 'subcategory_diversity_caps': '✅ Active'. The adaptive session logic includes max_questions_per_subcategory = 3 and min_subcategories_per_session = 4 constraints. The enforce_subcategory_diversity() method prevents domination by any single subcategory and ensures variety across different mathematical domains. Implementation verified with proper diversity enforcement algorithms."
-
-  - task: "PHASE 1: Differential Cooldowns Test"
-    implemented: true
-    working: true
-    file: "/app/backend/adaptive_session_logic.py"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-        -working: "NA"
-        -agent: "testing"
-        -comment: "Testing differential cooldown periods: Easy (1-day), Medium (2-day), Hard (3-day)"
-        -working: true
-        -agent: "testing"
-        -comment: "✅ DIFFERENTIAL COOLDOWNS IMPLEMENTED: Testing confirms the enhancement feature shows 'differential_cooldowns': '✅ Active'. The adaptive session logic includes cooldown_periods = {'Easy': 1, 'Medium': 2, 'Hard': 3} configuration. The apply_differential_cooldown_filter() method properly implements spaced repetition with difficulty-based cooldown periods. Easy questions can recur after 1 day, Medium after 2 days, and Hard after 3 days for optimal learning recovery."
-
-  - task: "PHASE 1: Enhanced Session Creation Test"
-    implemented: true
-    working: false
-    file: "/app/backend/server.py, /app/backend/adaptive_session_logic.py"
-    stuck_count: 1
-    priority: "high"
-    needs_retesting: false
-    status_history:
-        -working: "NA"
-        -agent: "testing"
-        -comment: "Testing /api/sessions/start endpoint with Phase 1 adaptive logic"
-        -working: false
-        -agent: "testing"
-        -comment: "❌ ENHANCED SESSION CREATION BLOCKED: Testing reveals the /api/sessions/start endpoint returns 500 error with 'Unable to create session'. ROOT CAUSE: Database is empty (0 questions, 0 topics) preventing session creation. The Phase 1 adaptive logic is properly implemented and active, but requires question data to function. The enhanced session creation logic is working correctly but fails gracefully when no questions are available. RECOMMENDATION: Initialize database with sample questions to enable full session creation testing."
-
-  - task: "PHASE 1: Enhanced Question Processing Test"
-    implemented: true
-    working: false
-    file: "/app/backend/server.py, /app/backend/enhanced_question_processor.py"
-    stuck_count: 1
-    priority: "high"
-    needs_retesting: false
-    status_history:
-        -working: "NA"
-        -agent: "testing"
-        -comment: "Testing /api/admin/enhance-questions endpoint for PYQ frequency processing"
-        -working: false
-        -agent: "testing"
-        -comment: "❌ ENHANCED QUESTION PROCESSING BLOCKED: Testing reveals the /api/questions endpoint returns 500 error due to SQLite schema query issues. The enhanced question processor is properly implemented with PYQ frequency integration, but cannot be tested without existing questions in database. The /api/admin/enhance-questions endpoint exists and is functional, but requires question data to process. RECOMMENDATION: Initialize database with sample questions to enable full enhancement processing testing."
-
-  - task: "Database Schema Verification"
-    implemented: true
-    working: true
-    file: "/app/backend/database.py"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-        -working: true
-        -agent: "testing"
-        -comment: "✅ DATABASE SCHEMA COMPLETE: Comprehensive verification confirms the SQLite database schema includes all required Phase 1 enhancement fields: pyq_frequency_score (DECIMAL(5,4)), pyq_conceptual_matches (INTEGER), frequency_analysis_method (VARCHAR(50)), pattern_keywords (TEXT), pattern_solution_approach (TEXT), pyq_occurrences_last_10_years (INTEGER), total_pyq_count (INTEGER). The database structure fully supports Phase 1 enhanced functionality. Schema is properly migrated and ready for Phase 1 operations."
-
-  - task: "Phase 1 Enhancement Features Status"
+  - task: "OPTION 2: Database Topics Initialization"
     implemented: true
     working: true
     file: "/app/backend/server.py"
@@ -211,7 +109,91 @@ backend:
     status_history:
         -working: true
         -agent: "testing"
-        -comment: "✅ PHASE 1 ENHANCEMENT FEATURES ACTIVE: Comprehensive testing via /api/admin/test/enhanced-session endpoint confirms all Phase 1 improvements are properly implemented and active: 1) 'pyq_frequency_integration': '✅ Active' - PYQ frequency weighting system operational, 2) 'dynamic_category_quotas': '✅ Active' - Category distribution adjustment based on student weaknesses functional, 3) 'subcategory_diversity_caps': '✅ Active' - Subcategory diversity limits (max 3 per subcategory, min 4 different) enforced, 4) 'differential_cooldowns': '✅ Active' - Difficulty-based cooldown periods (Easy: 1d, Medium: 2d, Hard: 3d) implemented. All Phase 1 enhancements are ready and operational."
+        -comment: "✅ DATABASE TOPICS INITIALIZATION SUCCESSFUL: CAT canonical taxonomy topics are properly initialized and available. Topics already exist in the database and are ready for question uploads. The /api/admin/init-topics endpoint confirms topics are set up correctly for the OPTION 2 system."
+
+  - task: "OPTION 2: Enhanced Question Upload with Complete Processing"
+    implemented: true
+    working: false
+    file: "/app/backend/server.py, /app/backend/enhanced_question_processor.py"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        -working: false
+        -agent: "testing"
+        -comment: "❌ ENHANCED QUESTION UPLOAD PARTIALLY WORKING: Question upload works correctly (questions are created and queued with status 'enrichment_queued'), but the two-step background processing is NOT completing. Questions remain in queued state without LLM enrichment or PYQ frequency analysis being executed. ROOT CAUSE: Background job execution system is not processing queued tasks. The architecture is in place but the background worker is not functioning."
+
+  - task: "OPTION 2: Database Schema Fix Verification"
+    implemented: true
+    working: true
+    file: "/app/backend/database.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        -working: true
+        -agent: "testing"
+        -comment: "✅ DATABASE SCHEMA FIX VERIFIED: All new columns exist and are accessible: difficulty_score, learning_impact, importance_index, has_image, image_url, image_alt_text. The database schema supports the OPTION 2 enhanced background processing system. Schema fields are present in question responses and properly structured."
+
+  - task: "OPTION 2: PYQ Frequency Scores Population"
+    implemented: true
+    working: false
+    file: "/app/backend/conceptual_frequency_analyzer.py, /app/backend/time_weighted_frequency_analyzer.py"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        -working: false
+        -agent: "testing"
+        -comment: "❌ PYQ FREQUENCY SCORES NOT POPULATED: Testing reveals 0/5 questions have populated PYQ frequency scores. No questions show High/Medium/Low frequency distribution. This indicates the PYQ frequency analysis step (Step 2 of two-step processing) is not executing. ConceptualFrequencyAnalyzer and TimeWeightedFrequencyAnalyzer are not being invoked by the background processing system."
+
+  - task: "OPTION 2: Enhanced Session Creation with PYQ Weighting"
+    implemented: true
+    working: false
+    file: "/app/backend/adaptive_session_logic.py"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        -working: false
+        -agent: "testing"
+        -comment: "❌ ENHANCED SESSION CREATION NOT USING PYQ WEIGHTING: Sessions are created successfully but use 'fallback_12_question_set' instead of 'intelligent_12_question_set'. Personalization is not applied (applied: false). The enhanced logic with PYQ frequency weighting is not functioning because questions lack PYQ frequency scores. Session intelligence provides generic rationale instead of PYQ-based selection reasoning."
+
+  - task: "OPTION 2: Complete End-to-End Automation"
+    implemented: true
+    working: false
+    file: "/app/backend/background_jobs.py"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        -working: false
+        -agent: "testing"
+        -comment: "❌ END-TO-END AUTOMATION FAILING: Complete automation pipeline (Upload → Processing → Session Creation) is not working. Questions are uploaded and queued but cannot be found after processing attempts, indicating background jobs are not completing. The automation requires manual intervention because background processing is not executing the two-step enhancement (LLM enrichment + PYQ analysis)."
+
+  - task: "OPTION 2: Background Job Execution System"
+    implemented: true
+    working: false
+    file: "/app/backend/background_jobs.py"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        -working: false
+        -agent: "testing"
+        -comment: "❌ CRITICAL ISSUE: BACKGROUND JOB EXECUTION NOT WORKING: The core problem blocking OPTION 2 is that background jobs are queued but never executed. Questions remain with status 'enrichment_queued' indefinitely. The background job worker/scheduler is not processing queued tasks. This blocks the entire OPTION 2 automation pipeline including LLM enrichment and PYQ frequency analysis."
+
+  - task: "OPTION 2: Error Handling and Robustness"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+        -working: true
+        -agent: "testing"
+        -comment: "✅ ERROR HANDLING WORKING: The system properly handles errors and invalid inputs. Robust error handling and fallback mechanisms are in place. The system gracefully falls back to simple logic when enhanced processing is not available."
 
 frontend:
   - task: "Frontend Integration with Phase 1 Backend"
