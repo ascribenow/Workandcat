@@ -322,7 +322,7 @@ export const Dashboard = () => {
                           ></div>
                         </div>
                         <div className="flex justify-between text-xs text-gray-500 mt-1">
-                          <span>Day {currentDay} of 90</span>
+                          <span>Study Day {currentDay}</span>
                           <span>{Math.round(performanceProgress)}% Mastery</span>
                         </div>
                       </div>
