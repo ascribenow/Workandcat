@@ -142,13 +142,16 @@ backend:
     implemented: true
     working: false
     file: "/app/backend/conceptual_frequency_analyzer.py, /app/backend/time_weighted_frequency_analyzer.py"
-    stuck_count: 1
+    stuck_count: 2
     priority: "high"
     needs_retesting: false
     status_history:
         -working: false
         -agent: "testing"
         -comment: "❌ PYQ FREQUENCY SCORES NOT POPULATED: Testing reveals 0/5 questions have populated PYQ frequency scores. No questions show High/Medium/Low frequency distribution. This indicates the PYQ frequency analysis step (Step 2 of two-step processing) is not executing. ConceptualFrequencyAnalyzer and TimeWeightedFrequencyAnalyzer are not being invoked by the background processing system."
+        -working: false
+        -agent: "testing"
+        -comment: "❌ CRITICAL ISSUE CONFIRMED: Final testing shows PYQ frequency analysis step not executing. Questions lack learning_impact and importance_index scores, indicating second step of background processing is not working. Background job system failure affects both LLM enrichment and PYQ frequency analysis."
 
   - task: "OPTION 2: Enhanced Session Creation with PYQ Weighting"
     implemented: true
