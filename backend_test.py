@@ -1393,8 +1393,8 @@ class CATBackendTester:
         
         test_question = {
             "stem": "OPTION 2 Test: A car travels 240 km in 3 hours. What is its average speed?",
-            "hint_category": "A-Arithmetic",
-            "hint_subcategory": "Time–Speed–Distance (TSD)",
+            "hint_category": "Arithmetic",
+            "hint_subcategory": "Speed-Time-Distance",
             "type_of_question": "Speed Calculation",
             "tags": ["option2_test", "automatic_processing"],
             "source": "OPTION 2 Test Data"
