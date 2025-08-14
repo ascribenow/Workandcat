@@ -175,7 +175,7 @@ backend:
         -comment: "❌ ENHANCED SESSION CREATION NOT USING PYQ WEIGHTING: Sessions are created successfully but use 'fallback_12_question_set' instead of 'intelligent_12_question_set'. Personalization is not applied (applied: false). The enhanced logic with PYQ frequency weighting is not functioning because questions lack PYQ frequency scores. Session intelligence provides generic rationale instead of PYQ-based selection reasoning."
         -working: true
         -agent: "testing"
-        -comment: "✅ ENHANCED SESSION CREATION NOW WORKING: After database transaction fix, sessions now use 'intelligent_12_question_set' instead of fallback mode. Personalization is applied: true. Enhanced logic with PYQ frequency weighting is operational because questions now have populated PYQ frequency scores. Sessions are created with proper personalization metadata and intelligent question selection."
+        -comment: "✅ ENHANCED SESSION CREATION WITH PYQ WEIGHTING - WORKING! After the database transaction fix, sessions now use 'intelligent_12_question_set' instead of fallback mode. Personalization applied: true. PYQ frequency weighting is functional and questions are selected based on their frequency scores. Session intelligence provides PYQ-based rationale for question selection."
 
   - task: "OPTION 2: Complete End-to-End Automation"
     implemented: true
