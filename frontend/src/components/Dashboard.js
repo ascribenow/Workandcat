@@ -92,9 +92,8 @@ export const Dashboard = () => {
 
   const startQuickSession = async () => {
     try {
-      const response = await axios.post(`${API}/sessions/start`, {}, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('cat_prep_token')}` }
-      });
+      // Using global axios authorization header set by AuthProvider
+      const response = await axios.post(`${API}/sessions/start`, {});
       setActiveSessionId(response.data.session_id);
       return true; // Success
     } catch (err) {
