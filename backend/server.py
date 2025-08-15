@@ -627,6 +627,86 @@ async def report_broken_image(
 
 # Session Management Routes
 
+@api_router.get("/sessions/current-status")
+async def get_current_session_status(
+    current_user: User = Depends(require_auth),
+    db: AsyncSession = Depends(get_async_compatible_db)
+):
+    """Check if user has an active session for today that can be resumed"""
+    try:
+        # Get the most recent session for today
+        today_start = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+        
+        session_result = await db.execute(
+            select(Session)
+            .where(
+                Session.user_id == current_user.id,
+                Session.started_at >= today_start
+            )
+            .order_by(Session.started_at.desc())
+            .limit(1)
+        )
+        session = session_result.scalar_one_or_none()
+        
+        if not session:
+            return {
+                "active_session": False,
+                "message": "No active session found for today"
+            }
+        
+        # Parse question IDs from session
+        try:
+            question_ids = json.loads(session.units) if session.units else []
+        except (json.JSONDecodeError, TypeError):
+            return {
+                "active_session": False,
+                "message": "Invalid session data"
+            }
+        
+        if not question_ids:
+            return {
+                "active_session": False,
+                "message": "Session has no questions"
+            }
+        
+        # Count how many questions have been attempted in this session
+        attempts_result = await db.execute(
+            select(func.count(Attempt.id))
+            .where(
+                Attempt.user_id == current_user.id,
+                Attempt.question_id.in_(question_ids),
+                Attempt.created_at >= session.started_at
+            )
+        )
+        answered_count = attempts_result.scalar() or 0
+        total_questions = len(question_ids)
+        
+        # If session is complete, no active session
+        if answered_count >= total_questions:
+            return {
+                "active_session": False,
+                "message": "Today's session already completed"
+            }
+        
+        # Session can be resumed
+        return {
+            "active_session": True,
+            "session_id": str(session.id),
+            "progress": {
+                "answered": answered_count,
+                "total": total_questions,
+                "next_question": answered_count + 1
+            },
+            "message": f"Resuming session - Question {answered_count + 1} of {total_questions}"
+        }
+        
+    except Exception as e:
+        logger.error(f"Error checking session status: {e}")
+        return {
+            "active_session": False,
+            "message": "Error checking session status"
+        }
+
 @api_router.post("/sessions/start")
 async def start_session(
     session_data: SessionStart,
