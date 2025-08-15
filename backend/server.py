@@ -1772,11 +1772,18 @@ async def upload_pyq_csv(file: UploadFile, db: AsyncSession, current_user: User)
     CSV columns: stem, image_url, year
     """
     try:
-        # Read CSV content
+        # Read CSV content with BOM handling
         import csv
         import io
         content = await file.read()
-        csv_data = content.decode('utf-8')
+        
+        # Handle UTF-8 BOM properly
+        try:
+            csv_data = content.decode('utf-8-sig')  # Automatically removes BOM
+        except UnicodeDecodeError:
+            # Fallback to regular UTF-8 if utf-8-sig fails
+            csv_data = content.decode('utf-8')
+            
         csv_reader = csv.DictReader(io.StringIO(csv_data))
         
         # Convert to list for processing
