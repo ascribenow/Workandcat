@@ -654,6 +654,7 @@ const AdminPanel = () => {
       fetchUploadedFiles();
     }
   }, [activeTab]);
+
   const validateAndPreviewImage = async (url) => {
     if (!url.trim()) {
       setImagePreview(null);
