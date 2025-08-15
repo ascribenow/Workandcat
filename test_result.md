@@ -567,7 +567,7 @@ agent_communication:
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Complete PostgreSQL migration from SQLite, fixing boolean data type conversion issues and ensuring full database functionality with all migrated data."
+user_problem_statement: "Fix JSX syntax errors in Dashboard.js preventing PYQFilesTable component integration and implement a scrollable table to display uploaded PYQ files for download in the admin UI."
 
 backend:
   - task: "PostgreSQL Database Migration"
