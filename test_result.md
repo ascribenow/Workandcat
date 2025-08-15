@@ -554,7 +554,7 @@ agent_communication:
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Complete SQLite migration from PostgreSQL and remove MongoDB/PostgreSQL dependencies and references. Update server.py to integrate with new SQLite database configuration."
+user_problem_statement: "Complete PostgreSQL migration from SQLite, fixing boolean data type conversion issues and ensuring full database functionality with all migrated data."
 
 backend:
   - task: "PostgreSQL Database Setup"
