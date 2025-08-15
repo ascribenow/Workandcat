@@ -104,12 +104,7 @@ class PYQEnrichmentCorrector:
                         "question_id": question_id
                     }
                 
-                conn.execute(update_query, {
-                    "subcategory": subcategory,
-                    "question_type": question_type,
-                    "topic_id": topic_id,
-                    "question_id": question_id
-                })
+                conn.execute(update_query, params)
                 conn.commit()
             
             # Check if this was an improvement
