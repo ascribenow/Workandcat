@@ -71,13 +71,15 @@ class CATBackendTester:
             print(f"❌ Failed - Error: {str(e)}")
             return False, {}
 
-    def test_sqlite_migration_comprehensive(self):
-        """COMPREHENSIVE SQLite Migration Testing - MAIN TEST SUITE"""
-        print("🔍 COMPREHENSIVE SQLite MIGRATION TESTING")
+    def test_postgresql_migration_comprehensive(self):
+        """COMPREHENSIVE PostgreSQL Migration Testing - MAIN TEST SUITE"""
+        print("🔍 COMPREHENSIVE POSTGRESQL MIGRATION TESTING")
         print("=" * 60)
-        print("Testing backend functionality after SQLite migration from PostgreSQL")
-        print("Database: SQLite (cat_preparation.db)")
+        print("Testing backend functionality after PostgreSQL migration from SQLite")
+        print("Database: PostgreSQL (Supabase)")
+        print("Migrated Data: 22 users, 37 questions, 12 attempts, 50 sessions, 2 mastery records, 2 plans")
         print("Admin Credentials: sumedhprabhu18@gmail.com / admin2025")
+        print("Student Credentials: student@catprep.com / student123")
         print("=" * 60)
         
         migration_results = {
