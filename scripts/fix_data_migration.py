@@ -126,8 +126,25 @@ def migrate_table_data(table_name, sqlite_conn, pg_engine):
                     pg_conn.execute(text(insert_sql), row_dict)
                     migrated_count += 1
                 except Exception as e:
-                    print(f"     ⚠️ Failed to migrate row: {str(e)[:100]}...")
+                    # Provide more detailed error information
+                    error_msg = str(e)
+                    if table_name == 'questions':
+                        print(f"     ⚠️ Question row failed - ID: {row_dict.get('id', 'unknown')[:8]}...")
+                        print(f"       Subcategory: '{row_dict.get('subcategory', '')}'")
+                        print(f"       Error: {error_msg[:150]}...")
+                    elif table_name == 'attempts':
+                        print(f"     ⚠️ Attempt row failed - ID: {row_dict.get('id', 'unknown')[:8]}...")
+                        print(f"       Options type: {type(row_dict.get('options', ''))}")
+                        print(f"       Error: {error_msg[:100]}...")
+                    else:
+                        print(f"     ⚠️ Failed to migrate row: {error_msg[:100]}...")
                     skipped_count += 1
+                    
+                    # Rollback failed transaction and continue
+                    try:
+                        pg_conn.rollback()
+                    except:
+                        pass
             
             # Commit all changes for this table
             pg_conn.commit()
