@@ -1890,9 +1890,12 @@ async def upload_pyq_csv(file: UploadFile, db: AsyncSession, current_user: User)
     CSV columns: stem, image_url, year
     """
     try:
-        # Read CSV content with BOM handling
+        # Import json module at the top
         import csv
         import io
+        import json
+        
+        # Read CSV content with BOM handling
         content = await file.read()
         
         # Handle UTF-8 BOM properly
