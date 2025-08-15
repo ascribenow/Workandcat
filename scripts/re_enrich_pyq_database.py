@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 sys.path.append('/app/backend')
 
 from sqlalchemy import create_engine, text, select
-from database import get_async_compatible_db, PyqQuestion, Topic
+from database import get_async_compatible_db, PYQQuestion, Topic
 from llm_enrichment import LLMEnrichmentPipeline
 
 load_dotenv()
