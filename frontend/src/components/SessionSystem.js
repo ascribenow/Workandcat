@@ -189,8 +189,6 @@ export const SessionSystem = ({ sessionId: propSessionId, onSessionEnd }) => {
         user_answer: userAnswer,
         context: 'session',
         hint_used: false
-      }, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('cat_prep_token')}` }
       });
 
       setResult(response.data);
