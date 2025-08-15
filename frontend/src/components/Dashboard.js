@@ -207,14 +207,15 @@ export const Dashboard = () => {
                       setCurrentView('session');
                     }
                   }}
+                  disabled={loading}
                   className={`inline-flex items-center px-1 pt-1 text-sm font-medium border-b-2 ${
                     currentView === 'session'
                       ? 'text-green-600 border-green-500'
                       : 'text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300'
-                  }`}
+                  } ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
                   <span className="mr-2">🎯</span>
-                  Today's Session
+                  {loading ? 'Loading...' : "Today's Session"}
                 </button>
               </div>
             </div>
