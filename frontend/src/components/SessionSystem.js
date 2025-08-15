@@ -100,12 +100,9 @@ export const SessionSystem = ({ sessionId: propSessionId, onSessionEnd }) => {
 
   const blockQuestionFromSessions = async (questionId) => {
     try {
-      await fetch(`${API}/sessions/report-broken-image`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ question_id: questionId })
+      // Using axios to leverage global authorization headers
+      await axios.post(`${API}/sessions/report-broken-image`, {
+        question_id: questionId
       });
       
       console.log(`Question ${questionId} blocked from future sessions`);
