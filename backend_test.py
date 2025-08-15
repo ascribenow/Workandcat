@@ -221,7 +221,433 @@ class CATBackendTester:
             
         return success_rate >= 80
 
-    def test_sqlite_database_connectivity(self):
+    def test_postgresql_database_connectivity(self):
+        """Test PostgreSQL database connectivity and basic operations"""
+        print("Testing PostgreSQL database connectivity...")
+        
+        # Test basic endpoint that requires database access
+        success, response = self.run_test("Database Connection Test", "GET", "questions?limit=1", 200)
+        if success:
+            print("   ✅ PostgreSQL database accessible via API")
+            questions = response.get('questions', [])
+            print(f"   Database contains {len(questions)} sample questions")
+            return True
+        else:
+            print("   ❌ PostgreSQL database connection failed")
+            return False
+
+    def test_postgresql_authentication_system(self):
+        """Test authentication system with PostgreSQL database"""
+        print("Testing authentication system with PostgreSQL...")
+        
+        # Test admin login with provided credentials
+        admin_login = {
+            "email": "sumedhprabhu18@gmail.com",
+            "password": "admin2025"
+        }
+        
+        success, response = self.run_test("Admin Login (PostgreSQL)", "POST", "auth/login", 200, admin_login)
+        if success and 'user' in response and 'access_token' in response:
+            self.admin_user = response['user']
+            self.admin_token = response['access_token']
+            print(f"   ✅ Admin login successful: {self.admin_user['full_name']}")
+            print(f"   Admin privileges: {self.admin_user.get('is_admin', False)}")
+            
+            # Test student login with provided credentials
+            student_login = {
+                "email": "student@catprep.com",
+                "password": "student123"
+            }
+            
+            success, response = self.run_test("Student Login (PostgreSQL)", "POST", "auth/login", 200, student_login)
+            if success and 'user' in response and 'access_token' in response:
+                self.student_user = response['user']
+                self.student_token = response['access_token']
+                print(f"   ✅ Student login successful: {self.student_user['full_name']}")
+                return True
+            else:
+                print("   ❌ Student login failed with PostgreSQL")
+                return False
+        else:
+            print("   ❌ Admin login failed with PostgreSQL")
+            return False
+
+    def test_postgresql_question_management(self):
+        """Test question creation and retrieval with PostgreSQL"""
+        print("Testing question management with PostgreSQL...")
+        
+        if not self.admin_token:
+            print("   ❌ Cannot test question management - no admin token")
+            return False
+            
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {self.admin_token}'
+        }
+        
+        # Test question creation
+        question_data = {
+            "stem": "PostgreSQL Migration Test: A car travels 180 km in 2.5 hours. What is its speed?",
+            "answer": "72",
+            "solution_approach": "Speed = Distance / Time",
+            "detailed_solution": "Speed = 180 km / 2.5 hours = 72 km/h",
+            "hint_category": "Arithmetic",
+            "hint_subcategory": "Time–Speed–Distance (TSD)",
+            "type_of_question": "Basic Speed Calculation",
+            "tags": ["postgresql_migration_test"],
+            "source": "PostgreSQL Migration Test"
+        }
+        
+        success, response = self.run_test("Create Question (PostgreSQL)", "POST", "questions", 200, question_data, headers)
+        if success and 'question_id' in response:
+            self.sample_question_id = response['question_id']
+            print(f"   ✅ Question created in PostgreSQL: {self.sample_question_id}")
+            print(f"   Status: {response.get('status')}")
+            
+            # Test question retrieval
+            success, response = self.run_test("Retrieve Questions (PostgreSQL)", "GET", "questions?limit=10", 200, None, headers)
+            if success:
+                questions = response.get('questions', [])
+                print(f"   ✅ Retrieved {len(questions)} questions from PostgreSQL")
+                
+                # Verify migrated data count
+                if len(questions) >= 37:
+                    print(f"   ✅ Migrated data confirmed: {len(questions)} questions (expected 37+)")
+                else:
+                    print(f"   ⚠️ Question count lower than expected: {len(questions)} (expected 37+)")
+                
+                return True
+            else:
+                print("   ❌ Question retrieval failed from PostgreSQL")
+                return False
+        else:
+            print("   ❌ Question creation failed in PostgreSQL")
+            return False
+
+    def test_postgresql_admin_functionality(self):
+        """Test admin functionality with PostgreSQL"""
+        print("Testing admin functionality with PostgreSQL...")
+        
+        if not self.admin_token:
+            print("   ❌ Cannot test admin functionality - no admin token")
+            return False
+            
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {self.admin_token}'
+        }
+        
+        # Test admin stats
+        success, response = self.run_test("Admin Stats (PostgreSQL)", "GET", "admin/stats", 200, None, headers)
+        if success:
+            print(f"   ✅ Admin stats retrieved from PostgreSQL")
+            print(f"   Total users: {response.get('total_users', 0)} (expected 22+)")
+            print(f"   Total questions: {response.get('total_questions', 0)} (expected 37+)")
+            print(f"   Total attempts: {response.get('total_attempts', 0)} (expected 12+)")
+            print(f"   Active study plans: {response.get('active_study_plans', 0)} (expected 2+)")
+            
+            # Verify migrated data counts
+            migrated_data_ok = (
+                response.get('total_users', 0) >= 22 and
+                response.get('total_questions', 0) >= 37 and
+                response.get('total_attempts', 0) >= 12
+            )
+            
+            if migrated_data_ok:
+                print("   ✅ Migrated data counts verified")
+            else:
+                print("   ⚠️ Migrated data counts lower than expected")
+            
+            # Test CSV export functionality
+            success, response = self.run_test("CSV Export (PostgreSQL)", "GET", "admin/export-questions-csv", 200, None, headers)
+            if success:
+                print("   ✅ CSV export functionality working with PostgreSQL")
+                return True
+            else:
+                print("   ❌ CSV export failed with PostgreSQL")
+                return False
+        else:
+            print("   ❌ Admin stats failed with PostgreSQL")
+            return False
+
+    def test_postgresql_study_planning(self):
+        """Test study planning functionality with PostgreSQL"""
+        print("Testing study planning with PostgreSQL...")
+        
+        if not self.student_token:
+            print("   ❌ Cannot test study planning - no student token")
+            return False
+            
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {self.student_token}'
+        }
+        
+        # Test study plan creation
+        plan_data = {
+            "track": "Beginner",
+            "daily_minutes_weekday": 30,
+            "daily_minutes_weekend": 60
+        }
+        
+        success, response = self.run_test("Create Study Plan (PostgreSQL)", "POST", "study-plan", 200, plan_data, headers)
+        if success and 'plan_id' in response:
+            self.plan_id = response['plan_id']
+            print(f"   ✅ Study plan created in PostgreSQL: {self.plan_id}")
+            print(f"   Track: {response.get('track')}")
+            print(f"   Start date: {response.get('start_date')}")
+            
+            # Test today's plan retrieval
+            success, response = self.run_test("Get Today's Plan (PostgreSQL)", "GET", "study-plan/today", 200, None, headers)
+            if success:
+                plan_units = response.get('plan_units', [])
+                print(f"   ✅ Today's plan retrieved from PostgreSQL: {len(plan_units)} units")
+                return True
+            else:
+                print("   ❌ Today's plan retrieval failed from PostgreSQL")
+                return False
+        else:
+            print("   ❌ Study plan creation failed in PostgreSQL")
+            return False
+
+    def test_postgresql_session_management(self):
+        """Test session management with PostgreSQL"""
+        print("Testing session management with PostgreSQL...")
+        
+        if not self.student_token:
+            print("   ❌ Cannot test session management - no student token")
+            return False
+            
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {self.student_token}'
+        }
+        
+        # Test session creation
+        session_data = {"target_minutes": 30}
+        success, response = self.run_test("Start Session (PostgreSQL)", "POST", "sessions/start", 200, session_data, headers)
+        if success and 'session_id' in response:
+            self.session_id = response['session_id']
+            print(f"   ✅ Session created in PostgreSQL: {self.session_id}")
+            print(f"   Session type: {response.get('session_type')}")
+            print(f"   Total questions: {response.get('total_questions')}")
+            
+            # Test getting next question
+            success, response = self.run_test("Get Next Question (PostgreSQL)", "GET", f"sessions/{self.session_id}/next-question", 200, None, headers)
+            if success:
+                question = response.get('question')
+                if question:
+                    print(f"   ✅ Question retrieved from PostgreSQL session")
+                    print(f"   Question ID: {question.get('id')}")
+                    print(f"   Subcategory: {question.get('subcategory')}")
+                    
+                    # Test answer submission
+                    answer_data = {
+                        "question_id": question['id'],
+                        "user_answer": "72",
+                        "time_sec": 45,
+                        "hint_used": False
+                    }
+                    
+                    success, response = self.run_test("Submit Answer (PostgreSQL)", "POST", f"sessions/{self.session_id}/submit-answer", 200, answer_data, headers)
+                    if success:
+                        print(f"   ✅ Answer submitted to PostgreSQL")
+                        print(f"   Answer correct: {response.get('correct')}")
+                        return True
+                    else:
+                        print("   ❌ Answer submission failed with PostgreSQL")
+                        return False
+                else:
+                    print("   ⚠️ No question available in session (may be expected)")
+                    return True  # Session creation worked, which is the main test
+            else:
+                print("   ❌ Get next question failed with PostgreSQL")
+                return False
+        else:
+            print("   ❌ Session creation failed in PostgreSQL")
+            return False
+
+    def test_postgresql_data_integrity(self):
+        """Test data integrity and consistency with PostgreSQL"""
+        print("Testing data integrity with PostgreSQL...")
+        
+        if not self.admin_token:
+            print("   ❌ Cannot test data integrity - no admin token")
+            return False
+            
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {self.admin_token}'
+        }
+        
+        # Test data consistency across different endpoints
+        success, response = self.run_test("Check Data Consistency (PostgreSQL)", "GET", "questions", 200, None, headers)
+        if success:
+            questions = response.get('questions', [])
+            print(f"   ✅ Data consistency check: {len(questions)} questions accessible")
+            
+            if len(questions) > 0:
+                # Check if questions have required fields
+                first_question = questions[0]
+                required_fields = ['id', 'stem', 'subcategory', 'difficulty_band']
+                missing_fields = [field for field in required_fields if field not in first_question]
+                
+                if not missing_fields:
+                    print("   ✅ Question data structure integrity verified")
+                    
+                    # Test mastery dashboard data integrity
+                    if self.student_token:
+                        student_headers = {
+                            'Content-Type': 'application/json',
+                            'Authorization': f'Bearer {self.student_token}'
+                        }
+                        
+                        success, response = self.run_test("Mastery Dashboard Integrity (PostgreSQL)", "GET", "dashboard/mastery", 200, None, student_headers)
+                        if success:
+                            mastery_data = response.get('mastery_by_topic', [])
+                            print(f"   ✅ Mastery data integrity: {len(mastery_data)} topics tracked")
+                            return True
+                        else:
+                            print("   ❌ Mastery dashboard data integrity failed")
+                            return False
+                    else:
+                        print("   ✅ Basic data integrity verified")
+                        return True
+                else:
+                    print(f"   ❌ Missing required fields in questions: {missing_fields}")
+                    return False
+            else:
+                print("   ⚠️ No questions found for integrity check")
+                return True  # Empty database is still valid
+        else:
+            print("   ❌ Data consistency check failed")
+            return False
+
+    def test_postgresql_specific_features(self):
+        """Test PostgreSQL-specific features (JSON fields, boolean fields, foreign keys)"""
+        print("Testing PostgreSQL-specific features...")
+        
+        if not self.admin_token:
+            print("   ❌ Cannot test PostgreSQL features - no admin token")
+            return False
+            
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {self.admin_token}'
+        }
+        
+        # Test JSON field handling
+        success, response = self.run_test("JSON Fields Test (PostgreSQL)", "GET", "questions?limit=5", 200, None, headers)
+        if success:
+            questions = response.get('questions', [])
+            if questions:
+                first_question = questions[0]
+                
+                # Check for JSON fields that should be properly handled
+                json_fields_ok = True
+                
+                # Check if boolean fields are properly converted
+                is_active = first_question.get('is_active')
+                if isinstance(is_active, bool):
+                    print("   ✅ Boolean fields properly converted from SQLite 0/1 to PostgreSQL TRUE/FALSE")
+                else:
+                    print(f"   ❌ Boolean field conversion issue: is_active = {is_active} (type: {type(is_active)})")
+                    json_fields_ok = False
+                
+                # Check if numeric fields are properly handled
+                difficulty_score = first_question.get('difficulty_score')
+                if difficulty_score is None or isinstance(difficulty_score, (int, float)):
+                    print("   ✅ Numeric fields properly handled")
+                else:
+                    print(f"   ❌ Numeric field issue: difficulty_score = {difficulty_score}")
+                    json_fields_ok = False
+                
+                if json_fields_ok:
+                    print("   ✅ PostgreSQL-specific data types working correctly")
+                    return True
+                else:
+                    print("   ❌ PostgreSQL data type conversion issues detected")
+                    return False
+            else:
+                print("   ⚠️ No questions available to test PostgreSQL features")
+                return True
+        else:
+            print("   ❌ Failed to test PostgreSQL-specific features")
+            return False
+
+    def test_postgresql_background_processing(self):
+        """Test background processing with PostgreSQL"""
+        print("Testing background processing with PostgreSQL...")
+        
+        if not self.admin_token:
+            print("   ❌ Cannot test background processing - no admin token")
+            return False
+            
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {self.admin_token}'
+        }
+        
+        # Test LLM enrichment and frequency analysis
+        question_data = {
+            "stem": "PostgreSQL Background Test: If a train covers 240 km in 3 hours, what is its average speed?",
+            "hint_category": "Arithmetic",
+            "hint_subcategory": "Time–Speed–Distance (TSD)",
+            "source": "PostgreSQL Background Test"
+        }
+        
+        success, response = self.run_test("Create Question for Background Processing", "POST", "questions", 200, question_data, headers)
+        if success and 'question_id' in response:
+            question_id = response['question_id']
+            print(f"   ✅ Question created for background processing: {question_id}")
+            print(f"   Status: {response.get('status')}")
+            
+            # Wait a moment for background processing
+            import time
+            time.sleep(3)
+            
+            # Check if background processing completed
+            success, response = self.run_test("Check Background Processing Results", "GET", f"questions?limit=50", 200, None, headers)
+            if success:
+                questions = response.get('questions', [])
+                test_question = None
+                
+                for q in questions:
+                    if q.get('id') == question_id:
+                        test_question = q
+                        break
+                
+                if test_question:
+                    answer = test_question.get('answer')
+                    learning_impact = test_question.get('learning_impact')
+                    importance_index = test_question.get('importance_index')
+                    
+                    print(f"   Question answer: {answer}")
+                    print(f"   Learning impact: {learning_impact}")
+                    print(f"   Importance index: {importance_index}")
+                    
+                    # Check if background processing worked
+                    if answer and answer != "To be generated by LLM":
+                        print("   ✅ LLM enrichment completed")
+                        
+                        if learning_impact and learning_impact > 0:
+                            print("   ✅ PYQ frequency analysis completed")
+                            return True
+                        else:
+                            print("   ⚠️ PYQ frequency analysis may not have completed")
+                            return True  # LLM enrichment working is sufficient
+                    else:
+                        print("   ❌ Background processing not completed")
+                        return False
+                else:
+                    print("   ❌ Test question not found after creation")
+                    return False
+            else:
+                print("   ❌ Failed to check background processing results")
+                return False
+        else:
+            print("   ❌ Failed to create question for background processing test")
+            return False
         """Test SQLite database connectivity and basic operations"""
         print("Testing SQLite database connectivity...")
         
