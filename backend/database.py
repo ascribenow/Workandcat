@@ -1,6 +1,6 @@
 """
-SQLite Database Configuration and Models for CAT Preparation Platform
-Migrated from PostgreSQL to SQLite for simplicity and reliability
+PostgreSQL Database Configuration and Models for CAT Preparation Platform
+Production-ready with managed PostgreSQL (Neon/Supabase)
 """
 
 from sqlalchemy import create_engine, Column, Integer, String, Text, Boolean, Numeric, DateTime, Date, JSON, ForeignKey, Index, BigInteger, func
@@ -13,21 +13,42 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# SQLite Database Configuration
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./cat_preparation.db")
+# Production-ready PostgreSQL Database Configuration
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://user:password@localhost/cat_preparation")
 
-# Create SQLite engine with optimized settings
-engine = create_engine(
-    DATABASE_URL,
-    echo=False,  # Set to True for debugging
-    connect_args={
-        "check_same_thread": False,  # Allow SQLite to work with FastAPI
-        "timeout": 20,  # 20 second timeout for database locks
-        "isolation_level": None,  # Use autocommit mode for better concurrency
-    },
-    pool_pre_ping=True,  # Verify connections before use
-    pool_recycle=3600,   # Recycle connections every hour
-)
+# Detect database type for appropriate configuration
+is_postgres = DATABASE_URL.startswith('postgresql://') or DATABASE_URL.startswith('postgres://')
+is_sqlite = DATABASE_URL.startswith('sqlite:///')
+
+if is_postgres:
+    # PostgreSQL Configuration (Production)
+    engine = create_engine(
+        DATABASE_URL,
+        echo=False,  # Set to True for debugging
+        pool_size=10,  # Connection pool size
+        max_overflow=20,  # Maximum overflow connections
+        pool_pre_ping=True,  # Verify connections before use
+        pool_recycle=3600,   # Recycle connections every hour
+        connect_args={
+            "sslmode": "require",  # Require SSL for security
+            "application_name": "twelvr_cat_prep",
+        }
+    )
+    print("🐘 Using PostgreSQL database (Production)")
+else:
+    # SQLite Configuration (Development fallback)
+    engine = create_engine(
+        DATABASE_URL,
+        echo=False,
+        connect_args={
+            "check_same_thread": False,
+            "timeout": 20,
+            "isolation_level": None,
+        },
+        pool_pre_ping=True,
+        pool_recycle=3600,
+    )
+    print("📁 Using SQLite database (Development)")
 
 # Create session factory
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
