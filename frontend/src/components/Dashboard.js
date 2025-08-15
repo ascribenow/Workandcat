@@ -90,14 +90,25 @@ export const Dashboard = () => {
     }
   };
 
-  const startQuickSession = async () => {
+  const startOrResumeSession = async () => {
     try {
-      const response = await axios.post(`${API}/sessions/start`, {});
-      setActiveSessionId(response.data.session_id);
-      return true; // Success
+      // First check if there's an active session for today
+      const sessionStatusResponse = await axios.get(`${API}/sessions/current-status`);
+      
+      if (sessionStatusResponse.data.active_session) {
+        // Resume existing session
+        const existingSessionId = sessionStatusResponse.data.session_id;
+        setActiveSessionId(existingSessionId);
+        return true;
+      } else {
+        // No active session, create new one
+        const response = await axios.post(`${API}/sessions/start`, {});
+        setActiveSessionId(response.data.session_id);
+        return true;
+      }
     } catch (err) {
-      console.error('Error starting session:', err);
-      alert('Failed to start 12-question session');
+      console.error('Error starting/resuming session:', err);
+      alert('Failed to start/resume session');
       return false;
     }
   };
