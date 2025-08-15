@@ -11509,26 +11509,54 @@ def main_option_2():
             return True  # API is working, just no files uploaded yet
 
 def main_pyq_testing():
-    """Main function for PYQ file tracking testing"""
+    """Main function for PYQ file tracking and CSV upload testing"""
     tester = CATBackendTester()
     
-    print("🚀 CAT Backend PYQ File Tracking Testing Suite")
+    print("🚀 CAT Backend PYQ Testing Suite")
     print("=" * 60)
+    print("Testing PYQ CSV upload functionality after fixing 'json' variable scope issue")
     
-    # Run PYQ file tracking functionality testing
-    print("\n🎯 RUNNING PYQ FILE TRACKING TESTS")
-    pyq_success = tester.test_pyq_file_tracking_functionality()
+    # First authenticate admin user for PYQ testing
+    admin_login = {
+        "email": "sumedhprabhu18@gmail.com",
+        "password": "admin2025"
+    }
     
-    if pyq_success:
-        print("\n🎉 PYQ file tracking tests completed successfully!")
-        print("Backend PYQ file tracking functionality is working correctly.")
-        print("PYQFilesTable component should be fully supported.")
+    print("\n🔐 Authenticating admin user for PYQ testing...")
+    success, response = tester.run_test("Admin Login for PYQ Test", "POST", "auth/login", 200, admin_login)
+    if success and 'user' in response and 'access_token' in response:
+        tester.admin_user = response['user']
+        tester.admin_token = response['access_token']
+        print(f"   ✅ Admin authenticated: {tester.admin_user['full_name']}")
+        
+        # Run PYQ CSV upload test (main focus of review request)
+        print("\n🎯 RUNNING PYQ CSV UPLOAD TESTS")
+        csv_upload_success = tester.test_pyq_csv_upload_functionality()
+        
+        # Run PYQ file tracking functionality testing
+        print("\n🎯 RUNNING PYQ FILE TRACKING TESTS")
+        file_tracking_success = tester.test_pyq_file_tracking_functionality()
+        
+        overall_success = csv_upload_success and file_tracking_success
+        
+        if overall_success:
+            print("\n🎉 All PYQ tests completed successfully!")
+            print("✅ PYQ CSV upload functionality working (JSON error fixed)")
+            print("✅ PYQ file tracking functionality working correctly")
+            print("✅ PYQFilesTable component fully supported")
+        else:
+            print("\n⚠️ Some PYQ tests failed. Please review the results above.")
+            if not csv_upload_success:
+                print("❌ PYQ CSV upload functionality needs attention")
+            if not file_tracking_success:
+                print("❌ PYQ file tracking functionality needs attention")
+        
+        print(f"\nFinal Results: {tester.tests_passed}/{tester.tests_run} tests passed")
+        return 0 if overall_success else 1
+        
     else:
-        print("\n⚠️ Some PYQ file tracking tests failed. Please review the results above.")
-        print("PYQ file tracking functionality may need attention.")
-    
-    print(f"\nFinal Results: {tester.tests_passed}/{tester.tests_run} tests passed")
-    return 0 if pyq_success else 1
+        print("❌ Admin authentication failed. Cannot run PYQ tests.")
+        return 1
 
 if __name__ == "__main__":
     import sys
