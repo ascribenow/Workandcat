@@ -75,15 +75,12 @@ export const Dashboard = () => {
       setLoading(true);
       
       // Fetch mastery data with detailed progress
-      const masteryResponse = await axios.get(`${API}/dashboard/mastery`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('cat_prep_token')}` }
-      });
+      // Using global axios authorization header set by AuthProvider
+      const masteryResponse = await axios.get(`${API}/dashboard/mastery`);
       setMasteryData(masteryResponse.data);
 
       // Fetch overall progress data
-      const progressResponse = await axios.get(`${API}/dashboard/progress`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('cat_prep_token')}` }
-      });
+      const progressResponse = await axios.get(`${API}/dashboard/progress`);
       setProgressData(progressResponse.data);
       
     } catch (error) {
