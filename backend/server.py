@@ -1380,6 +1380,124 @@ async def export_questions_csv(
         logger.error(f"Questions export error: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to export questions: {str(e)}")
 
+@api_router.get("/admin/pyq/uploaded-files")
+async def get_uploaded_pyq_files(
+    current_user: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_async_compatible_db)
+):
+    """Get list of all uploaded PYQ CSV files"""
+    try:
+        from database import PYQFiles
+        import json
+        
+        result = await db.execute(
+            select(PYQFiles).order_by(desc(PYQFiles.upload_date))
+        )
+        files = result.scalars().all()
+        
+        file_list = []
+        for file in files:
+            try:
+                metadata = json.loads(file.file_metadata) if file.file_metadata else {}
+            except:
+                metadata = {}
+                
+            file_list.append({
+                "id": file.id,
+                "filename": file.filename,
+                "upload_date": file.upload_date.isoformat() if file.upload_date else None,
+                "year": file.year,
+                "file_size": file.file_size,
+                "processing_status": file.processing_status,
+                "questions_created": metadata.get("questions_created", 0),
+                "years_processed": metadata.get("years_processed", []),
+                "uploaded_by": metadata.get("uploaded_by", "Unknown"),
+                "csv_rows_processed": metadata.get("csv_rows_processed", 0)
+            })
+        
+        return {
+            "files": file_list,
+            "total_files": len(file_list)
+        }
+        
+    except Exception as e:
+        logger.error(f"Error retrieving uploaded files: {e}")
+        raise HTTPException(status_code=500, detail="Failed to retrieve file list")
+
+@api_router.get("/admin/pyq/download-file/{file_id}")
+async def download_pyq_file(
+    file_id: str,
+    current_user: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_async_compatible_db)
+):
+    """Download uploaded PYQ file by recreating CSV from database"""
+    try:
+        from database import PYQFiles, PYQQuestion, PYQPaper
+        import csv
+        import io
+        from fastapi.responses import StreamingResponse
+        
+        # Get file record
+        file_result = await db.execute(
+            select(PYQFiles).where(PYQFiles.id == file_id)
+        )
+        file_record = file_result.scalar_one_or_none()
+        
+        if not file_record:
+            raise HTTPException(status_code=404, detail="File not found")
+        
+        # Get file metadata to determine years
+        metadata = json.loads(file_record.file_metadata) if file_record.file_metadata else {}
+        years_processed = metadata.get("years_processed", [])
+        
+        # Query PYQ questions from these years (approximate recreation)
+        if years_processed:
+            questions_result = await db.execute(
+                select(PYQQuestion, PYQPaper)
+                .join(PYQPaper, PYQQuestion.paper_id == PYQPaper.id)
+                .where(PYQPaper.year.in_(years_processed))
+                .order_by(PYQPaper.year, PYQQuestion.created_at)
+            )
+            questions = questions_result.all()
+        else:
+            # If no year info, get recent questions
+            questions_result = await db.execute(
+                select(PYQQuestion, PYQPaper)
+                .join(PYQPaper, PYQQuestion.paper_id == PYQPaper.id)
+                .order_by(desc(PYQQuestion.created_at))
+                .limit(metadata.get("questions_created", 50))
+            )
+            questions = questions_result.all()
+        
+        # Create CSV content
+        output = io.StringIO()
+        writer = csv.writer(output)
+        
+        # Write header
+        writer.writerow(['stem', 'year', 'image_url'])
+        
+        # Write data
+        for pyq_question, pyq_paper in questions:
+            writer.writerow([
+                pyq_question.stem,
+                pyq_paper.year,
+                pyq_question.image_url or ""
+            ])
+        
+        # Create response
+        output.seek(0)
+        response = StreamingResponse(
+            io.BytesIO(output.getvalue().encode('utf-8')),
+            media_type='text/csv',
+            headers={"Content-Disposition": f"attachment; filename={file_record.filename}"}
+        )
+        
+        return response
+        
+    except Exception as e:
+        logger.error(f"Error downloading file: {e}")
+        raise HTTPException(status_code=500, detail="Failed to download file")
+
 @api_router.get("/admin/export-pyq-csv")
 async def export_pyq_csv(
     current_user: User = Depends(require_admin),
