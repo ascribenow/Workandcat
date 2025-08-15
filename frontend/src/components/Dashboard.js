@@ -92,24 +92,36 @@ export const Dashboard = () => {
 
   const startOrResumeSession = async () => {
     try {
+      setLoading(true); // Show loading state during session check
+      
       // First check if there's an active session for today
       const sessionStatusResponse = await axios.get(`${API}/sessions/current-status`);
       
       if (sessionStatusResponse.data.active_session) {
         // Resume existing session
         const existingSessionId = sessionStatusResponse.data.session_id;
+        const progress = sessionStatusResponse.data.progress;
+        
         setActiveSessionId(existingSessionId);
+        
+        // Optional: Show resumption message
+        console.log(`Resuming session: Question ${progress.next_question} of ${progress.total}`);
+        
         return true;
       } else {
         // No active session, create new one
         const response = await axios.post(`${API}/sessions/start`, {});
         setActiveSessionId(response.data.session_id);
+        
+        console.log('Started new session:', response.data.session_id);
         return true;
       }
     } catch (err) {
       console.error('Error starting/resuming session:', err);
       alert('Failed to start/resume session');
       return false;
+    } finally {
+      setLoading(false);
     }
   };
 
