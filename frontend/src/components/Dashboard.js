@@ -92,13 +92,19 @@ export const Dashboard = () => {
 
   const startQuickSession = async () => {
     try {
-      // Using global axios authorization header set by AuthProvider
+      console.log('Starting session with API:', `${API}/sessions/start`);
       const response = await axios.post(`${API}/sessions/start`, {});
+      console.log('Session start response:', response.data);
       setActiveSessionId(response.data.session_id);
       return true; // Success
     } catch (err) {
       console.error('Error starting session:', err);
-      alert('Failed to start 12-question session');
+      console.error('Error details:', {
+        message: err.message,
+        response: err.response?.data,
+        status: err.response?.status
+      });
+      alert(`Failed to start session: ${err.message} (${err.response?.status || 'No status'})`);
       return false;
     }
   };
