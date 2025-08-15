@@ -1959,20 +1959,23 @@ async def enrich_pyq_question_background(pyq_question_id: str):
             # Initialize LLM enrichment pipeline
             enrichment_pipeline = LLMEnrichmentPipeline()
             
-            # Get LLM-based taxonomy classification
-            classification_result = await enrichment_pipeline.classify_question_taxonomy(
-                question_stem=pyq_question.stem,
-                context="PYQ question from CAT exam"
+            # Get LLM-based taxonomy classification using existing categorize_question method
+            category, subcategory, question_type = await enrichment_pipeline.categorize_question(
+                stem=pyq_question.stem,
+                hint_category=None,  # Let LLM determine
+                hint_subcategory=None  # Let LLM determine
             )
             
-            if classification_result:
-                subcategory = classification_result.get('subcategory', 'General Mathematics')
-                question_type = classification_result.get('type_of_question', 'Mathematical Problem')
-                suggested_topic_id = classification_result.get('topic_id')
-                
-                logger.info(f"LLM classification successful: {subcategory} -> {question_type}")
-            else:
-                raise Exception("LLM classification returned empty result")
+            logger.info(f"LLM classification successful: {category} -> {subcategory} -> {question_type}")
+            
+            # Find matching topic_id from database based on category
+            from sqlalchemy import select
+            from database import Topic
+            topic_result = await db.execute(
+                select(Topic).where(Topic.category.like(f"%{category}%"))
+            )
+            topic = topic_result.scalar_one_or_none()
+            suggested_topic_id = topic.id if topic else None
                 
         except Exception as llm_error:
             logger.warning(f"LLM enrichment failed for PYQ question {pyq_question_id}: {llm_error}")
