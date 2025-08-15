@@ -73,14 +73,36 @@ class PYQEnrichmentCorrector:
             
             # Update database
             with self.engine.connect() as conn:
-                update_query = text("""
-                    UPDATE pyq_questions 
-                    SET subcategory = :subcategory,
-                        type_of_question = :question_type,
-                        topic_id = :topic_id,
-                        confirmed = true
-                    WHERE id = :question_id
-                """)
+                # Only update topic_id if we found a match, otherwise leave it unchanged
+                if topic_id:
+                    update_query = text("""
+                        UPDATE pyq_questions 
+                        SET subcategory = :subcategory,
+                            type_of_question = :question_type,
+                            topic_id = :topic_id,
+                            confirmed = true
+                        WHERE id = :question_id
+                    """)
+                    params = {
+                        "subcategory": subcategory,
+                        "question_type": question_type,
+                        "topic_id": topic_id,
+                        "question_id": question_id
+                    }
+                else:
+                    # Don't update topic_id if none found, keep existing one
+                    update_query = text("""
+                        UPDATE pyq_questions 
+                        SET subcategory = :subcategory,
+                            type_of_question = :question_type,
+                            confirmed = true
+                        WHERE id = :question_id
+                    """)
+                    params = {
+                        "subcategory": subcategory,
+                        "question_type": question_type,
+                        "question_id": question_id
+                    }
                 
                 conn.execute(update_query, {
                     "subcategory": subcategory,
