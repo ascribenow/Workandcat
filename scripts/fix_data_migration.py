@@ -114,6 +114,9 @@ def migrate_table_data(table_name, sqlite_conn, pg_engine):
             pg_conn.execute(text(f"DELETE FROM {table_name}"))
             pg_conn.commit()
             
+            # Begin new transaction for insertions
+            trans = pg_conn.begin()
+            
             for row in rows:
                 row_dict = dict(zip(column_names, row))
                 
