@@ -90,7 +90,9 @@ class CATBackendTester:
             "admin_functionality": False,
             "study_planning": False,
             "session_management": False,
-            "data_integrity": False
+            "data_integrity": False,
+            "postgresql_specific_features": False,
+            "background_processing": False
         }
         
         # 1. Basic API Health Check
@@ -99,83 +101,103 @@ class CATBackendTester:
         success = self.test_root_endpoint()
         migration_results["basic_api_health"] = success
         if success:
-            print("✅ Root endpoint (/api/) working - server is running with SQLite")
+            print("✅ Root endpoint (/api/) working - server is running with PostgreSQL")
         else:
             print("❌ Root endpoint failed - server startup issue")
             
         # 2. Database Connectivity Test
         print("\n🗄️ 2. DATABASE CONNECTIVITY TEST")
         print("-" * 40)
-        success = self.test_sqlite_database_connectivity()
+        success = self.test_postgresql_database_connectivity()
         migration_results["database_connectivity"] = success
         if success:
-            print("✅ SQLite database connectivity confirmed")
+            print("✅ PostgreSQL database connectivity confirmed")
         else:
-            print("❌ SQLite database connectivity failed")
+            print("❌ PostgreSQL database connectivity failed")
             
         # 3. Authentication System Test
         print("\n🔐 3. AUTHENTICATION SYSTEM TEST")
         print("-" * 40)
-        success = self.test_sqlite_authentication_system()
+        success = self.test_postgresql_authentication_system()
         migration_results["authentication_system"] = success
         if success:
-            print("✅ Authentication system working with SQLite")
+            print("✅ Authentication system working with PostgreSQL")
         else:
-            print("❌ Authentication system failed with SQLite")
+            print("❌ Authentication system failed with PostgreSQL")
             
         # 4. Question Management Test
         print("\n📝 4. QUESTION MANAGEMENT TEST")
         print("-" * 40)
-        success = self.test_sqlite_question_management()
+        success = self.test_postgresql_question_management()
         migration_results["question_management"] = success
         if success:
-            print("✅ Question management working with SQLite")
+            print("✅ Question management working with PostgreSQL")
         else:
-            print("❌ Question management failed with SQLite")
+            print("❌ Question management failed with PostgreSQL")
             
         # 5. Admin Functionality Test
         print("\n👨‍💼 5. ADMIN FUNCTIONALITY TEST")
         print("-" * 40)
-        success = self.test_sqlite_admin_functionality()
+        success = self.test_postgresql_admin_functionality()
         migration_results["admin_functionality"] = success
         if success:
-            print("✅ Admin functionality working with SQLite")
+            print("✅ Admin functionality working with PostgreSQL")
         else:
-            print("❌ Admin functionality failed with SQLite")
+            print("❌ Admin functionality failed with PostgreSQL")
             
         # 6. Study Planning Test
         print("\n📚 6. STUDY PLANNING TEST")
         print("-" * 40)
-        success = self.test_sqlite_study_planning()
+        success = self.test_postgresql_study_planning()
         migration_results["study_planning"] = success
         if success:
-            print("✅ Study planning working with SQLite")
+            print("✅ Study planning working with PostgreSQL")
         else:
-            print("❌ Study planning failed with SQLite")
+            print("❌ Study planning failed with PostgreSQL")
             
         # 7. Session Management Test
         print("\n🎯 7. SESSION MANAGEMENT TEST")
         print("-" * 40)
-        success = self.test_sqlite_session_management()
+        success = self.test_postgresql_session_management()
         migration_results["session_management"] = success
         if success:
-            print("✅ Session management working with SQLite")
+            print("✅ Session management working with PostgreSQL")
         else:
-            print("❌ Session management failed with SQLite")
+            print("❌ Session management failed with PostgreSQL")
             
         # 8. Data Integrity Test
         print("\n🔍 8. DATA INTEGRITY TEST")
         print("-" * 40)
-        success = self.test_sqlite_data_integrity()
+        success = self.test_postgresql_data_integrity()
         migration_results["data_integrity"] = success
         if success:
-            print("✅ Data integrity verified with SQLite")
+            print("✅ Data integrity verified with PostgreSQL")
         else:
-            print("❌ Data integrity issues with SQLite")
+            print("❌ Data integrity issues with PostgreSQL")
+
+        # 9. PostgreSQL-Specific Features Test
+        print("\n🐘 9. POSTGRESQL-SPECIFIC FEATURES TEST")
+        print("-" * 40)
+        success = self.test_postgresql_specific_features()
+        migration_results["postgresql_specific_features"] = success
+        if success:
+            print("✅ PostgreSQL-specific features working")
+        else:
+            print("❌ PostgreSQL-specific features failed")
+
+        # 10. Background Processing Test
+        print("\n⚙️ 10. BACKGROUND PROCESSING TEST")
+        print("-" * 40)
+        success = self.test_postgresql_background_processing()
+        migration_results["background_processing"] = success
+        if success:
+            print("✅ Background processing working with PostgreSQL")
+        else:
+            print("❌ Background processing failed with PostgreSQL")
             
         # Final Results Summary
         print("\n" + "=" * 60)
-        print("SQLITE MIGRATION TEST RESULTS")
+        print("POSTGRESQL MIGRATION TEST RESULTS")
         print("=" * 60)
         
         passed_tests = sum(migration_results.values())
@@ -184,18 +206,18 @@ class CATBackendTester:
         
         for test_name, result in migration_results.items():
             status = "✅ PASS" if result else "❌ FAIL"
-            print(f"{test_name.replace('_', ' ').title():<30} {status}")
+            print(f"{test_name.replace('_', ' ').title():<35} {status}")
             
         print("-" * 60)
         print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
         
         if success_rate >= 80:
-            print("🎉 SQLite MIGRATION SUCCESSFUL!")
-            print("Backend is ready for production with SQLite database")
+            print("🎉 POSTGRESQL MIGRATION SUCCESSFUL!")
+            print("Backend is ready for production with PostgreSQL database")
         elif success_rate >= 60:
-            print("⚠️ SQLite migration mostly successful with minor issues")
+            print("⚠️ PostgreSQL migration mostly successful with minor issues")
         else:
-            print("❌ SQLite migration has significant issues requiring attention")
+            print("❌ PostgreSQL migration has significant issues requiring attention")
             
         return success_rate >= 80
 
