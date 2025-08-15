@@ -114,9 +114,6 @@ def migrate_table_data(table_name, sqlite_conn, pg_engine):
             pg_conn.execute(text(f"DELETE FROM {table_name}"))
             pg_conn.commit()
             
-            # Begin new transaction for insertions
-            trans = pg_conn.begin()
-            
             for row in rows:
                 row_dict = dict(zip(column_names, row))
                 
@@ -130,6 +127,7 @@ def migrate_table_data(table_name, sqlite_conn, pg_engine):
                 
                 try:
                     pg_conn.execute(text(insert_sql), row_dict)
+                    pg_conn.commit()
                     migrated_count += 1
                 except Exception as e:
                     # Provide more detailed error information
@@ -145,14 +143,7 @@ def migrate_table_data(table_name, sqlite_conn, pg_engine):
                     else:
                         print(f"     ⚠️ Failed to migrate row: {error_msg[:100]}...")
                     skipped_count += 1
-            
-            # Commit transaction
-            try:
-                trans.commit()
-            except Exception as e:
-                print(f"     ❌ Failed to commit transaction: {e}")
-                trans.rollback()
-                return False
+                    pg_conn.rollback()
         
         print(f"     ✅ Migrated {migrated_count} rows, skipped {skipped_count}")
         return True
