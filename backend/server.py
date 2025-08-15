@@ -1952,35 +1952,72 @@ async def enrich_pyq_question_background(pyq_question_id: str):
         # Apply LLM enrichment for PYQ classification
         logger.info(f"Enriching PYQ question: {pyq_question.stem[:50]}...")
         
-        # For now, use simplified enrichment (can be enhanced with actual LLM calls)
-        # Determine category and subcategory based on keywords in stem
-        stem_lower = pyq_question.stem.lower()
+        # Use proper LLM enrichment for canonical taxonomy mapping
+        from llm_enrichment import LLMEnrichmentPipeline
         
-        # Category mapping based on CAT taxonomy
-        if any(word in stem_lower for word in ['speed', 'distance', 'time', 'train', 'car', 'velocity']):
-            subcategory = "Time–Speed–Distance (TSD)"
-            question_type = "Speed and Distance Calculation"
-        elif any(word in stem_lower for word in ['percentage', 'percent', '%', 'increase', 'decrease']):
-            subcategory = "Percentages"
-            question_type = "Percentage Calculation"
-        elif any(word in stem_lower for word in ['profit', 'loss', 'cost', 'selling', 'discount']):
-            subcategory = "Profit–Loss–Discount (PLD)"
-            question_type = "Commercial Mathematics"
-        elif any(word in stem_lower for word in ['triangle', 'circle', 'square', 'rectangle', 'area', 'perimeter']):
-            subcategory = "Basic Geometry"
-            question_type = "Geometric Calculation"
-        elif any(word in stem_lower for word in ['ratio', 'proportion', 'variation']):
-            subcategory = "Ratio–Proportion–Variation"
-            question_type = "Ratio and Proportion"
-        elif any(word in stem_lower for word in ['work', 'days', 'complete', 'together']):
-            subcategory = "Time & Work"
-            question_type = "Work and Time"
-        elif any(word in stem_lower for word in ['interest', 'principal', 'rate', 'compound', 'simple']):
-            subcategory = "Simple & Compound Interest (SI–CI)"
-            question_type = "Interest Calculation"
-        else:
-            subcategory = "General Mathematics"
-            question_type = "Mathematical Problem"
+        try:
+            # Initialize LLM enrichment pipeline
+            enrichment_pipeline = LLMEnrichmentPipeline()
+            
+            # Get LLM-based taxonomy classification
+            classification_result = await enrichment_pipeline.classify_question_taxonomy(
+                question_stem=pyq_question.stem,
+                context="PYQ question from CAT exam"
+            )
+            
+            if classification_result:
+                subcategory = classification_result.get('subcategory', 'General Mathematics')
+                question_type = classification_result.get('type_of_question', 'Mathematical Problem')
+                suggested_topic_id = classification_result.get('topic_id')
+                
+                logger.info(f"LLM classification successful: {subcategory} -> {question_type}")
+            else:
+                raise Exception("LLM classification returned empty result")
+                
+        except Exception as llm_error:
+            logger.warning(f"LLM enrichment failed for PYQ question {pyq_question_id}: {llm_error}")
+            
+            # Enhanced fallback with better keyword matching
+            stem_lower = pyq_question.stem.lower()
+            
+            # More comprehensive keyword mapping to canonical taxonomy
+            if any(word in stem_lower for word in ['speed', 'distance', 'time', 'train', 'car', 'velocity', 'travel', 'journey', 'meet', 'overtake']):
+                subcategory = "Time–Speed–Distance (TSD)"
+                question_type = "Speed and Distance Calculation"
+            elif any(word in stem_lower for word in ['percentage', 'percent', '%', 'increase', 'decrease', 'rise', 'fall', 'change']):
+                subcategory = "Percentages"
+                question_type = "Percentage Calculation"
+            elif any(word in stem_lower for word in ['profit', 'loss', 'cost', 'selling', 'discount', 'markup', 'cp', 'sp', 'marked']):
+                subcategory = "Profit–Loss–Discount (PLD)"
+                question_type = "Commercial Mathematics"
+            elif any(word in stem_lower for word in ['triangle', 'circle', 'square', 'rectangle', 'area', 'perimeter', 'diagonal', 'side', 'angle']):
+                subcategory = "Triangles"  # More specific canonical mapping
+                question_type = "Geometric Calculation"
+            elif any(word in stem_lower for word in ['ratio', 'proportion', 'variation', 'directly', 'inversely', 'partnership']):
+                subcategory = "Ratio–Proportion–Variation"
+                question_type = "Ratio and Proportion"
+            elif any(word in stem_lower for word in ['work', 'days', 'complete', 'together', 'efficiency', 'alone']):
+                subcategory = "Time & Work"
+                question_type = "Work and Time"
+            elif any(word in stem_lower for word in ['interest', 'principal', 'rate', 'compound', 'simple', 'amount', 'ci', 'si']):
+                subcategory = "Simple & Compound Interest (SI–CI)"
+                question_type = "Interest Calculation"
+            elif any(word in stem_lower for word in ['average', 'mean', 'mixture', 'alligation', 'mix', 'solution']):
+                subcategory = "Averages & Alligation"
+                question_type = "Average and Mixture"
+            elif any(word in stem_lower for word in ['equation', 'linear', 'solve', 'x', 'y', 'variable']):
+                subcategory = "Linear Equations"
+                question_type = "Algebraic Problem"
+            elif any(word in stem_lower for word in ['quadratic', 'x²', 'roots', 'discriminant']):
+                subcategory = "Quadratic Equations"
+                question_type = "Quadratic Problem"
+            else:
+                # Still fallback, but with better logging
+                subcategory = "Percentages"  # Default to high-frequency topic instead of "General"
+                question_type = "Mathematical Problem"
+                logger.warning(f"No specific classification found for PYQ {pyq_question_id}, defaulting to Percentages")
+            
+            suggested_topic_id = None
         
         # Update PYQ question with enriched data
         pyq_question.subcategory = subcategory
