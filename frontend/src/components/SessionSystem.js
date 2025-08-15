@@ -127,9 +127,8 @@ export const SessionSystem = ({ sessionId: propSessionId, onSessionEnd }) => {
     setAnswerSubmitted(false);
     
     try {
-      const response = await axios.get(`${API}/sessions/${sessionId}/next-question`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('cat_prep_token')}` }
-      });
+      // Using global axios authorization header set by AuthProvider
+      const response = await axios.get(`${API}/sessions/${sessionId}/next-question`);
       
       if (response.data.session_complete) {
         // Session completed, show summary
