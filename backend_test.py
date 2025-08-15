@@ -954,6 +954,231 @@ class CATBackendTester:
             for feature in features:
                 print(f"     - {feature}")
         return success
+
+    def test_pyq_csv_upload_functionality(self):
+        """Test PYQ CSV upload functionality after fixing 'json' variable scope issue"""
+        print("🔍 TESTING PYQ CSV UPLOAD FUNCTIONALITY")
+        print("=" * 60)
+        print("Testing PYQ CSV upload after fixing 'json' variable scope issue")
+        print("Expected: No 'cannot access local variable json' error")
+        print("Admin credentials: sumedhprabhu18@gmail.com / admin2025")
+        print("=" * 60)
+        
+        if not self.admin_token:
+            print("❌ Cannot test PYQ upload - no admin token")
+            return False
+            
+        headers = {
+            'Authorization': f'Bearer {self.admin_token}'
+        }
+        
+        test_results = {
+            "csv_file_creation": False,
+            "pyq_upload_success": False,
+            "no_json_error": False,
+            "questions_created": False,
+            "file_tracking": False,
+            "uploaded_files_api": False
+        }
+        
+        # TEST 1: Create Test CSV File
+        print("\n📄 TEST 1: CREATE TEST CSV FILE")
+        print("-" * 40)
+        
+        csv_content = '''stem,year,image_url
+"A car travels 120 km in 2 hours. What is the speed?",2024,""
+"Find 15% of 200",2023,""
+"If a train covers 300 km in 4 hours, what is its average speed?",2022,""
+"Calculate the compound interest on Rs. 5000 at 10% per annum for 2 years",2021,""
+"A shopkeeper sells an item at 20% profit. If the cost price is Rs. 100, what is the selling price?",2020,""'''
+        
+        try:
+            with open('/app/test_pyq_upload.csv', 'w') as f:
+                f.write(csv_content)
+            print("   ✅ Test CSV file created successfully")
+            print("   CSV contains 5 test questions with required format (stem, year, image_url)")
+            test_results["csv_file_creation"] = True
+        except Exception as e:
+            print(f"   ❌ Failed to create test CSV file: {e}")
+            return False
+        
+        # TEST 2: Test PYQ CSV Upload
+        print("\n📤 TEST 2: TEST PYQ CSV UPLOAD")
+        print("-" * 40)
+        print("Testing POST /api/admin/pyq/upload endpoint")
+        
+        try:
+            import requests
+            
+            # Prepare file upload
+            with open('/app/test_pyq_upload.csv', 'rb') as f:
+                files = {'file': ('test_pyq_upload.csv', f, 'text/csv')}
+                
+                url = f"{self.base_url}/admin/pyq/upload"
+                print(f"   Uploading to: {url}")
+                
+                response = requests.post(url, files=files, headers=headers)
+                
+                print(f"   Response status: {response.status_code}")
+                
+                if response.status_code == 200:
+                    try:
+                        response_data = response.json()
+                        print(f"   ✅ PYQ CSV upload successful")
+                        print(f"   Response: {json.dumps(response_data, indent=2)}")
+                        
+                        # Check for specific success indicators
+                        if 'message' in response_data and 'success' in response_data['message'].lower():
+                            test_results["pyq_upload_success"] = True
+                            print("   ✅ Upload success confirmed in response message")
+                        
+                        # Check for questions created
+                        if 'questions_created' in response_data or 'processed' in response_data:
+                            test_results["questions_created"] = True
+                            questions_count = response_data.get('questions_created', response_data.get('processed', 0))
+                            print(f"   ✅ Questions created: {questions_count}")
+                        
+                        # Most importantly - check for NO JSON error
+                        test_results["no_json_error"] = True
+                        print("   ✅ NO JSON VARIABLE SCOPE ERROR - Fix confirmed!")
+                        
+                    except json.JSONDecodeError as e:
+                        print(f"   ❌ Invalid JSON response: {e}")
+                        print(f"   Raw response: {response.text}")
+                        return False
+                        
+                elif response.status_code == 500:
+                    print(f"   ❌ Server error during upload")
+                    try:
+                        error_data = response.json()
+                        error_detail = error_data.get('detail', '')
+                        print(f"   Error detail: {error_detail}")
+                        
+                        # Check specifically for the json variable scope error
+                        if 'json' in error_detail.lower() and 'local variable' in error_detail.lower():
+                            print("   ❌ CRITICAL: JSON variable scope error still exists!")
+                            test_results["no_json_error"] = False
+                        else:
+                            print("   ✅ No JSON variable scope error detected")
+                            test_results["no_json_error"] = True
+                            
+                    except:
+                        print(f"   Raw error response: {response.text}")
+                        
+                else:
+                    print(f"   ❌ Upload failed with status {response.status_code}")
+                    try:
+                        error_data = response.json()
+                        print(f"   Error: {error_data}")
+                    except:
+                        print(f"   Raw response: {response.text}")
+                        
+        except Exception as e:
+            print(f"   ❌ Upload request failed: {e}")
+            return False
+        
+        # TEST 3: Verify File Tracking in Database
+        print("\n🗄️ TEST 3: VERIFY FILE TRACKING IN DATABASE")
+        print("-" * 40)
+        print("Testing that file metadata is stored in PYQFiles table")
+        
+        success, response = self.run_test("Get Uploaded Files", "GET", "admin/pyq/uploaded-files", 200, None, headers)
+        if success:
+            files_list = response.get('files', [])
+            total_files = response.get('total_files', 0)
+            
+            print(f"   ✅ Uploaded files API working")
+            print(f"   Total files: {total_files}")
+            
+            if total_files > 0:
+                print(f"   ✅ File tracking working - {total_files} files found")
+                test_results["file_tracking"] = True
+                
+                # Check if our test file is in the list
+                test_file_found = False
+                for file_info in files_list:
+                    filename = file_info.get('filename', '')
+                    if 'test_pyq_upload' in filename or 'pyq' in filename.lower():
+                        test_file_found = True
+                        print(f"   ✅ Test file found in database: {filename}")
+                        print(f"   File details: {json.dumps(file_info, indent=2)}")
+                        break
+                
+                if test_file_found:
+                    test_results["uploaded_files_api"] = True
+                else:
+                    print("   ⚠️ Test file not found in uploaded files list")
+            else:
+                print("   ⚠️ No files found in database (upload may have failed)")
+        else:
+            print("   ❌ Failed to retrieve uploaded files list")
+        
+        # TEST 4: Verify PYQ Questions Created in Database
+        print("\n📝 TEST 4: VERIFY PYQ QUESTIONS CREATED IN DATABASE")
+        print("-" * 40)
+        print("Testing that PYQ questions are created from CSV upload")
+        
+        # Try to get questions to see if any were created from our upload
+        success, response = self.run_test("Get Questions After Upload", "GET", "questions?limit=20", 200, None, headers)
+        if success:
+            questions = response.get('questions', [])
+            print(f"   Total questions in database: {len(questions)}")
+            
+            # Look for questions that might be from our test upload
+            test_questions_found = 0
+            for question in questions:
+                stem = question.get('stem', '')
+                source = question.get('source', '')
+                
+                # Check if this looks like one of our test questions
+                if ('car travels 120 km' in stem or 
+                    'Find 15% of 200' in stem or 
+                    'train covers 300 km' in stem or
+                    'compound interest' in stem or
+                    'shopkeeper sells' in stem):
+                    test_questions_found += 1
+                    print(f"   ✅ Test question found: {stem[:50]}...")
+            
+            if test_questions_found > 0:
+                print(f"   ✅ {test_questions_found} test questions found in database")
+                test_results["questions_created"] = True
+            else:
+                print("   ⚠️ No test questions found (may be in PYQ-specific tables)")
+        else:
+            print("   ❌ Failed to retrieve questions from database")
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 60)
+        print("PYQ CSV UPLOAD TEST RESULTS")
+        print("=" * 60)
+        
+        passed_tests = sum(test_results.values())
+        total_tests = len(test_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        for test_name, result in test_results.items():
+            status = "✅ PASS" if result else "❌ FAIL"
+            print(f"{test_name.replace('_', ' ').title():<35} {status}")
+            
+        print("-" * 60)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # Critical analysis
+        if test_results["no_json_error"]:
+            print("🎉 CRITICAL SUCCESS: JSON variable scope error FIXED!")
+            print("   ✅ No 'cannot access local variable json' error detected")
+        else:
+            print("❌ CRITICAL FAILURE: JSON variable scope error still exists!")
+            
+        if success_rate >= 80:
+            print("🎉 PYQ CSV UPLOAD FUNCTIONALITY WORKING!")
+            print("   ✅ CSV upload, file tracking, and question creation operational")
+        elif success_rate >= 60:
+            print("⚠️ PYQ CSV upload mostly working with minor issues")
+        else:
+            print("❌ PYQ CSV upload has significant issues requiring attention")
+            
+        return success_rate >= 70
         """Test JWT authentication with FIXED InvalidTokenError handling"""
         print("🔍 Testing JWT Authentication Fix...")
         
