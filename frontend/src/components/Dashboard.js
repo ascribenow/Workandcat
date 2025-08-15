@@ -938,10 +938,7 @@ const AdminPanel = () => {
                   </button>
                 </div>
 
-                {/* Uploaded Files Tracking Table */}
-                <PYQFilesTable />
-
-                <div className="max-w-3xl mt-8">
+                <div className="max-w-3xl">
 
                 {/* CSV Upload Only */}
                 <div className="border-2 border-green-200 rounded-lg p-8 bg-green-50">
