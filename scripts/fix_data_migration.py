@@ -145,15 +145,14 @@ def migrate_table_data(table_name, sqlite_conn, pg_engine):
                     else:
                         print(f"     ⚠️ Failed to migrate row: {error_msg[:100]}...")
                     skipped_count += 1
-                    
-                    # Rollback failed transaction and continue
-                    try:
-                        pg_conn.rollback()
-                    except:
-                        pass
             
-            # Commit all changes for this table
-            pg_conn.commit()
+            # Commit transaction
+            try:
+                trans.commit()
+            except Exception as e:
+                print(f"     ❌ Failed to commit transaction: {e}")
+                trans.rollback()
+                return False
         
         print(f"     ✅ Migrated {migrated_count} rows, skipped {skipped_count}")
         return True
