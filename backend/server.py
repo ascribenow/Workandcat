@@ -2036,7 +2036,6 @@ async def upload_pyq_csv(file: UploadFile, db: AsyncSession, current_user: User)
         
         # Store file metadata for tracking
         from database import PYQFiles
-        import json
         
         file_record = PYQFiles(
             filename=file.filename,
