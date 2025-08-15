@@ -193,7 +193,7 @@ export const Dashboard = () => {
                   }`}
                 >
                   <span className="mr-2">🎯</span>
-                  Practice Session
+                  Today's Session
                 </button>
               </div>
             </div>
