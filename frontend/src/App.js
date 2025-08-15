@@ -210,15 +210,6 @@ const Login = () => {
                 </div>
               )}
             </div>
-
-            {/* Demo credentials info */}
-            <div className="mt-6 p-3 bg-blue-50 rounded-md">
-              <p className="text-xs text-blue-700">
-                <strong>Demo Access:</strong><br/>
-                Admin: sumedhprabhu18@gmail.com / admin2025<br/>
-                Student: student@catprep.com / student123
-              </p>
-            </div>
           </form>
         </div>
       </div>
