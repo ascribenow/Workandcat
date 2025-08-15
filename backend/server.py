@@ -2527,10 +2527,10 @@ async def startup_event():
     
     # Initialize database
     init_database()
-    logger.info("📊 SQLite Database initialized")
+    logger.info("📊 Database initialized")
     
     # Note: Topic creation can be done manually via admin interface
-    logger.info("✅ Startup complete - SQLite migration successful")
+    logger.info("✅ Startup complete - Database ready")
     
     # Create diagnostic set if needed - DISABLED
     # async for db in get_async_compatible_db():
