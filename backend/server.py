@@ -1954,10 +1954,15 @@ async def enrich_pyq_question_background(pyq_question_id: str):
         
         # Use proper LLM enrichment for canonical taxonomy mapping
         from llm_enrichment import LLMEnrichmentPipeline
+        import os
         
         try:
-            # Initialize LLM enrichment pipeline
-            enrichment_pipeline = LLMEnrichmentPipeline()
+            # Initialize LLM enrichment pipeline with API key
+            llm_api_key = os.getenv('EMERGENT_LLM_KEY')
+            if not llm_api_key:
+                raise Exception("EMERGENT_LLM_KEY not found in environment")
+                
+            enrichment_pipeline = LLMEnrichmentPipeline(llm_api_key=llm_api_key)
             
             # Get LLM-based taxonomy classification using existing categorize_question method
             category, subcategory, question_type = await enrichment_pipeline.categorize_question(
