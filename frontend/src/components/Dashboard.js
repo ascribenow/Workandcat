@@ -1017,6 +1017,7 @@ const AdminPanel = () => {
                     </p>
                   </div>
                 </div>
+                </div>
               </div>
             )}
 
