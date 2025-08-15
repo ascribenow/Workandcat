@@ -85,14 +85,6 @@ export const Dashboard = () => {
       
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
-      console.error('Error details:', {
-        message: error.message,
-        response: error.response?.data,
-        status: error.response?.status,
-        url: error.config?.url
-      });
-      // For debugging: alert the error so we can see it
-      alert(`Dashboard API error: ${error.message} - ${error.response?.status || 'No status'}`);
     } finally {
       setLoading(false);
     }
