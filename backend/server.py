@@ -1477,11 +1477,18 @@ async def upload_questions_csv(
         if not file.filename.endswith('.csv'):
             raise HTTPException(status_code=400, detail="File must be a CSV")
             
-        # Read CSV content
+        # Read CSV content with BOM handling
         import csv
         import io
         content = await file.read()
-        csv_data = content.decode('utf-8')
+        
+        # Handle UTF-8 BOM properly
+        try:
+            csv_data = content.decode('utf-8-sig')  # Automatically removes BOM
+        except UnicodeDecodeError:
+            # Fallback to regular UTF-8 if utf-8-sig fails
+            csv_data = content.decode('utf-8')
+            
         csv_reader = csv.DictReader(io.StringIO(csv_data))
         
         # Convert to list for processing
