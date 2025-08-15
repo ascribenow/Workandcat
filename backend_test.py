@@ -11509,10 +11509,10 @@ def main_option_2():
             return True  # API is working, just no files uploaded yet
 
 def main_pyq_testing():
-    """Main function for PYQ file tracking and CSV upload testing"""
+    """Main function for PYQ CSV upload testing (focus of review request)"""
     tester = CATBackendTester()
     
-    print("🚀 CAT Backend PYQ Testing Suite")
+    print("🚀 CAT Backend PYQ CSV Upload Testing Suite")
     print("=" * 60)
     print("Testing PYQ CSV upload functionality after fixing 'json' variable scope issue")
     
@@ -11533,26 +11533,16 @@ def main_pyq_testing():
         print("\n🎯 RUNNING PYQ CSV UPLOAD TESTS")
         csv_upload_success = tester.test_pyq_csv_upload_functionality()
         
-        # Run PYQ file tracking functionality testing
-        print("\n🎯 RUNNING PYQ FILE TRACKING TESTS")
-        file_tracking_success = tester.test_pyq_file_tracking_functionality()
-        
-        overall_success = csv_upload_success and file_tracking_success
-        
-        if overall_success:
-            print("\n🎉 All PYQ tests completed successfully!")
+        if csv_upload_success:
+            print("\n🎉 PYQ CSV upload test completed successfully!")
             print("✅ PYQ CSV upload functionality working (JSON error fixed)")
-            print("✅ PYQ file tracking functionality working correctly")
-            print("✅ PYQFilesTable component fully supported")
+            print("✅ No 'cannot access local variable json' error detected")
         else:
-            print("\n⚠️ Some PYQ tests failed. Please review the results above.")
-            if not csv_upload_success:
-                print("❌ PYQ CSV upload functionality needs attention")
-            if not file_tracking_success:
-                print("❌ PYQ file tracking functionality needs attention")
+            print("\n❌ PYQ CSV upload test failed. Please review the results above.")
+            print("❌ PYQ CSV upload functionality needs attention")
         
         print(f"\nFinal Results: {tester.tests_passed}/{tester.tests_run} tests passed")
-        return 0 if overall_success else 1
+        return 0 if csv_upload_success else 1
         
     else:
         print("❌ Admin authentication failed. Cannot run PYQ tests.")
