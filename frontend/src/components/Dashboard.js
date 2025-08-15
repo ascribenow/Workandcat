@@ -1273,3 +1273,5 @@ const AdminPanel = () => {
 const PracticeSystem = () => {
   return <div className="p-8 text-center">Practice System - Will integrate with existing Practice component</div>;
 };
+
+export default Dashboard;
