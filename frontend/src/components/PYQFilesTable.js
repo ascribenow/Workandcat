@@ -96,6 +96,9 @@ const PYQFilesTable = ({ onFileUploaded }) => {
     }
   }, [onFileUploaded]);
 
+  // Debug logging
+  console.log('PYQFilesTable rendering...', { uploadedFiles, loading });
+  
   return (
     <div className="mb-8">
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
