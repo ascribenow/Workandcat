@@ -864,13 +864,23 @@ async def get_next_question(
         if not question:
             raise HTTPException(status_code=404, detail="Question not found")
         
-        # Generate MCQ options
-        options = await mcq_generator.generate_options(
-            question.stem, 
-            question.subcategory, 
-            question.difficulty_band or "Medium", 
-            question.answer
-        )
+        # Generate MCQ options (with fallback)
+        try:
+            options = await mcq_generator.generate_options(
+                question.stem, 
+                question.subcategory, 
+                question.difficulty_band or "Medium", 
+                question.answer
+            )
+        except Exception as mcq_error:
+            logger.warning(f"MCQ generation failed for question {question.id}: {mcq_error}")
+            # Fallback options
+            options = [
+                {"letter": "A", "text": "Option A"},
+                {"letter": "B", "text": "Option B"}, 
+                {"letter": "C", "text": "Option C"},
+                {"letter": "D", "text": "Option D"}
+            ]
         
         return {
             "question": {
