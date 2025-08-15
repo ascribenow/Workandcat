@@ -104,7 +104,6 @@ export const SessionSystem = ({ sessionId: propSessionId, onSessionEnd }) => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('cat_prep_token')}`
         },
         body: JSON.stringify({ question_id: questionId })
       });
