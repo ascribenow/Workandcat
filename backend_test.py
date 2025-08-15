@@ -11307,7 +11307,11 @@ def main_pyq_testing():
 
 if __name__ == "__main__":
     import sys
-    if len(sys.argv) > 1 and sys.argv[1] == "option2":
+    if len(sys.argv) > 1 and sys.argv[1] == "pyq":
+        # Run PYQ file tracking testing suite
+        exit_code = main_pyq_testing()
+        sys.exit(exit_code)
+    elif len(sys.argv) > 1 and sys.argv[1] == "option2":
         # Run OPTION 2 Enhanced Background Processing testing suite
         exit_code = main_option_2()
         sys.exit(exit_code)
@@ -11324,6 +11328,6 @@ if __name__ == "__main__":
         exit_code = main_sophisticated()
         sys.exit(exit_code)
     else:
-        # Run OPTION 2 testing by default (as per review request)
-        exit_code = main_option_2()
+        # Run PYQ file tracking testing by default (as per review request)
+        exit_code = main_pyq_testing()
         sys.exit(exit_code)
