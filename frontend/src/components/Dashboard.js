@@ -190,7 +190,7 @@ export const Dashboard = () => {
                 </button>
                 <button
                   onClick={async () => {
-                    const sessionStarted = await startQuickSession();
+                    const sessionStarted = await startOrResumeSession();
                     if (sessionStarted) {
                       setCurrentView('session');
                     }
