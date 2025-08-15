@@ -2025,6 +2025,12 @@ async def enrich_pyq_question_background(pyq_question_id: str):
         # Update PYQ question with enriched data
         pyq_question.subcategory = subcategory
         pyq_question.type_of_question = question_type
+        
+        # Assign proper topic_id if found
+        if suggested_topic_id:
+            pyq_question.topic_id = suggested_topic_id
+            logger.info(f"   - Assigned topic_id: {suggested_topic_id}")
+        
         pyq_question.answer = f"Solution to be calculated for: {pyq_question.stem[:30]}..."
         pyq_question.confirmed = True  # Mark as processed
         
