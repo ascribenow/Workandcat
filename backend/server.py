@@ -1913,6 +1913,31 @@ async def upload_pyq_csv(file: UploadFile, db: AsyncSession, current_user: User)
             # Use the same enrichment pipeline but for PYQ questions
             asyncio.create_task(enrich_pyq_question_background(str(pyq_question.id)))
         
+        # Store file metadata for tracking
+        from database import PYQFiles
+        import json
+        
+        file_record = PYQFiles(
+            filename=file.filename,
+            year=list(questions_by_year.keys())[0] if len(questions_by_year) == 1 else None,  # Single year or mixed
+            upload_date=datetime.utcnow(),
+            processing_status="completed",
+            file_size=len(content),
+            storage_path=f"pyq_uploads/{file.filename}",  # Virtual path for tracking
+            file_metadata=json.dumps({
+                "questions_created": total_questions_created,
+                "images_processed": total_images_processed,
+                "years_processed": list(questions_by_year.keys()),
+                "papers_created": len(papers_created),
+                "csv_rows_processed": len(processed_rows),
+                "upload_timestamp": datetime.utcnow().isoformat(),
+                "uploaded_by": current_user.email
+            })
+        )
+        
+        db.add(file_record)
+        await db.commit()
+        
         logger.info(f"PYQ CSV upload completed: {total_questions_created} questions created across {len(questions_by_year)} years")
         
         return {
@@ -1923,7 +1948,8 @@ async def upload_pyq_csv(file: UploadFile, db: AsyncSession, current_user: User)
             "papers_created": len(papers_created),
             "csv_rows_processed": len(processed_rows),
             "enrichment_status": "PYQ questions queued for automatic LLM processing (category classification, solution generation, type identification)",
-            "note": "PYQ questions will be automatically enriched with categories, subcategories, question types, and solutions by the LLM system"
+            "note": "PYQ questions will be automatically enriched with categories, subcategories, question types, and solutions by the LLM system",
+            "file_id": file_record.id
         }
         
     except Exception as e:
