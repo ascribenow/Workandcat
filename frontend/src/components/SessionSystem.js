@@ -12,15 +12,18 @@ const getBackendURL = () => {
   // Auto-detect based on current domain
   const currentDomain = window.location.hostname;
   
-  if (currentDomain === 'twelvr.com' || currentDomain.includes('twelvr')) {
-    // Custom domain - use preview backend URL
-    return 'https://db-type-convert.preview.emergentagent.com';
+  if (currentDomain === 'localhost' || currentDomain === '127.0.0.1') {
+    // Local development - use relative URLs
+    return '';
+  } else if (currentDomain === 'twelvr.com' || currentDomain.includes('twelvr')) {
+    // Custom domain - use correct emergent.host backend URL
+    return 'https://adaptive-quant.emergent.host';
   } else if (currentDomain.includes('preview.emergentagent.com')) {
     // Preview domain - use relative URLs
     return '';
   } else {
-    // Default fallback
-    return 'https://db-type-convert.preview.emergentagent.com';
+    // Default fallback for other domains
+    return '';
   }
 };
 
