@@ -14,13 +14,13 @@ const getBackendURL = () => {
   
   if (currentDomain === 'twelvr.com' || currentDomain.includes('twelvr')) {
     // Custom domain - use preview backend URL
-    return 'https://adaptive-quant.preview.emergentagent.com';
+    return 'https://db-type-convert.preview.emergentagent.com';
   } else if (currentDomain.includes('preview.emergentagent.com')) {
     // Preview domain - use relative URLs
     return '';
   } else {
     // Default fallback
-    return 'https://adaptive-quant.preview.emergentagent.com';
+    return 'https://db-type-convert.preview.emergentagent.com';
   }
 };
 
