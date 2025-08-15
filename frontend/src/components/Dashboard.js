@@ -131,51 +131,6 @@ export const Dashboard = () => {
     fetchDashboardData(); // Refresh dashboard data
   };
 
-  // PYQ Files Management
-  const [uploadedFiles, setUploadedFiles] = useState([]);
-  const [loadingFiles, setLoadingFiles] = useState(false);
-
-  const fetchUploadedFiles = async () => {
-    try {
-      setLoadingFiles(true);
-      const response = await axios.get(`${API}/admin/pyq/uploaded-files`);
-      setUploadedFiles(response.data.files || []);
-    } catch (err) {
-      console.error('Error fetching uploaded files:', err);
-      alert('Failed to load uploaded files');
-    } finally {
-      setLoadingFiles(false);
-    }
-  };
-
-  const downloadFile = async (fileId, filename) => {
-    try {
-      const response = await axios.get(`${API}/admin/pyq/download-file/${fileId}`, {
-        responseType: 'blob'
-      });
-      
-      // Create download link
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', filename);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-    } catch (err) {
-      console.error('Error downloading file:', err);
-      alert('Failed to download file');
-    }
-  };
-
-  // Load uploaded files when PYQ tab is active
-  React.useEffect(() => {
-    if (activeTab === 'pyq-upload') {
-      fetchUploadedFiles();
-    }
-  }, [activeTab]);
-
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       weekday: 'short',
