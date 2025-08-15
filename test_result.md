@@ -245,13 +245,16 @@ frontend:
     implemented: true
     working: false
     file: "/app/frontend/src/components/SessionSystem.js"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
         -working: false
         -agent: "testing"
         -comment: "❌ ENHANCED SESSION INTELLIGENCE DISPLAY - PARTIALLY WORKING: Testing reveals: 1) Session intelligence/rationale not visible in UI (no 'intelligent session' indicators), 2) PYQ frequency weighting indicators not displayed in frontend, 3) Session type (intelligent vs fallback) not clearly indicated to users, 4) Category distribution and personalization metadata not visible in UI, 5) While backend OPTION 2 system uses 'intelligent_12_question_set' with personalization applied: true, this intelligence is not surfaced to users in the frontend interface. The enhanced backend logic is working but UI doesn't expose the intelligence features."
+        -working: false
+        -agent: "main"
+        -comment: "📝 PostgreSQL migration completed but frontend issue remains. Backend now uses PostgreSQL with all data migrated successfully. Session intelligence backend functionality should still work but UI display issue persists and requires frontend investigation."
 
   - task: "Enhanced Solution Display"
     implemented: true
