@@ -78,13 +78,16 @@ def convert_json_fields(row_dict, table_name):
                         elif row_dict[field] == '{}':
                             row_dict[field] = {}
                         else:
-                            row_dict[field] = json.loads(row_dict[field])
+                            parsed = json.loads(row_dict[field])
+                            row_dict[field] = parsed
+                    # For PostgreSQL JSON columns, convert back to JSON string
+                    row_dict[field] = json.dumps(row_dict[field]) if row_dict[field] is not None else '{}'
                 except (json.JSONDecodeError, TypeError):
-                    # If parsing fails, keep as string or set default
+                    # If parsing fails, keep as string or set default JSON
                     if field in ['tags', 'top_matching_concepts', 'pattern_keywords']:
-                        row_dict[field] = []
+                        row_dict[field] = '[]'
                     else:
-                        row_dict[field] = {}
+                        row_dict[field] = '{}'
     return row_dict
 
 def migrate_table_data(table_name, sqlite_conn, pg_engine):
