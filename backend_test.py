@@ -1202,12 +1202,12 @@ class CATBackendTester:
         test_results = {
             "admin_authentication": False,
             "question_pool_check": False,
-            "session_start_api": False,
-            "session_metadata_check": False,
-            "session_status_api": False,
-            "next_question_api": False,
-            "database_investigation": False,
-            "adaptive_logic_check": False
+            "session_creation_12_questions": False,
+            "session_units_verification": False,
+            "session_progress_verification": False,
+            "first_question_progress": False,
+            "canonical_taxonomy_mapping": False,
+            "fallback_logic_verification": False
         }
         
         # TEST 1: Admin Authentication
