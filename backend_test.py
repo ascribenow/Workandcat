@@ -1180,14 +1180,15 @@ class CATBackendTester:
             
         return success_rate >= 70
 
-    def test_session_creation_12_questions_fix_verification(self):
-        """Test if the 12-question fix worked by creating a new session and verifying it has exactly 12 questions"""
-        print("🔍 TESTING 12-QUESTION SESSION FIX VERIFICATION")
+    def test_session_creation_12_questions_final_fix_verification(self):
+        """Test the FINAL FIX for 12-question session issue with category distribution bug fix and robust fallback logic"""
+        print("🔍 TESTING FINAL 12-QUESTION SESSION FIX VERIFICATION")
         print("=" * 60)
-        print("Testing if the canonical taxonomy fix resolved the 12-question session issue")
-        print("Expected: Sessions should create exactly 12 questions with proper category distribution")
+        print("Testing the final fix for 12-question session issue with two critical changes:")
+        print("1. Fixed Category Distribution Bug: Changed self.category_distribution to self.base_category_distribution")
+        print("2. Added Robust Fallback Logic: Ensures 12 questions are always selected")
+        print("Expected: Sessions should create exactly 12 questions with proper progress display")
         print("Admin credentials: sumedhprabhu18@gmail.com / admin2025")
-        print("Testing adaptive_session_logic.py changes and fallback logic")
         print("=" * 60)
         
         if not self.admin_token:
