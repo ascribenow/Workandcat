@@ -632,6 +632,18 @@ backend:
         -agent: "testing"
         -comment: "✅ BACKGROUND PROCESSING FUNCTION FIXED! Critical fix implemented successfully: 1) ✅ ROOT CAUSE IDENTIFIED: LLMEnrichmentPipeline was being initialized without required llm_api_key parameter, causing LLM enrichment to fail and fall back to generic solutions, 2) ✅ FIX APPLIED: Updated enrich_question_background function (line 2617) to use global llm_pipeline instance instead of creating new LLMEnrichmentPipeline() without API key, 3) ✅ VERIFICATION: Backend logs now show LLM enrichment being called successfully instead of 'missing 1 required positional argument: llm_api_key' error, 4) ✅ IMPACT: New questions no longer get hardcoded generic solutions like 'Mathematical approach to solve this problem' or 'Example answer based on the question pattern', 5) ⚠️ LEGACY DATA: Existing questions in database still have generic solutions (267/300 questions), but new questions will get proper LLM-generated solutions. The critical bug preventing proper LLM solution generation has been resolved."
 
+  - task: "URGENT: Mass Re-enrichment of Generic Solutions"
+    implemented: false
+    working: false
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: true
+    status_history:
+        -working: false
+        -agent: "testing"
+        -comment: "🚨 CRITICAL PRODUCTION ISSUE IDENTIFIED: Comprehensive testing reveals 277 out of 300 questions (92.3%) contain generic solutions that are misleading students. EXACT PATTERNS FOUND: 'Mathematical approach to solve this problem', 'Example answer based on the question pattern', 'Detailed solution for: [question]...'. ROOT CAUSE: LLM service connection failures ('litellm.InternalServerError: OpenAIException - Connection error') causing background enrichment to fall back to generic solutions. STUDENT IMPACT: Live testing confirms students see generic solutions during practice sessions. URGENT ACTIONS NEEDED: 1) Fix LLM service connectivity issues, 2) Use /api/admin/enhance-questions endpoint to re-enrich all 277 affected questions, 3) Implement monitoring to prevent future fallbacks. This is a production-blocking issue affecting educational quality."
+
 frontend:
   - task: "PYQFilesTable Component Integration"
     implemented: true
