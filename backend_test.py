@@ -1317,39 +1317,35 @@ class CATBackendTester:
         else:
             print("   ❌ Session status check failed")
         
-        # TEST 5: Session Status API
-        print("\n📊 TEST 5: SESSION STATUS API")
+        # TEST 5: Session Progress Verification
+        print("\n📊 TEST 5: SESSION PROGRESS VERIFICATION")
         print("-" * 40)
-        print("Testing GET /api/sessions/current-status to check active session details")
+        print("Verifying total_questions = 12 in session metadata")
         
-        success, response = self.run_test("Check Session Status", "GET", "sessions/current-status", 200, None, headers)
-        if success:
-            active_session = response.get('active_session')
-            session_id_status = response.get('session_id')
-            progress = response.get('progress', {})
-            
-            print(f"   Active session: {active_session}")
-            if active_session:
-                print(f"   Session ID: {session_id_status}")
-                print(f"   Progress: {progress}")
-                print(f"     Answered: {progress.get('answered', 0)}")
-                print(f"     Total: {progress.get('total', 0)}")
-                print(f"     Next question: {progress.get('next_question', 0)}")
+        if self.session_id:
+            success, response = self.run_test("Get Next Question", "GET", f"sessions/{self.session_id}/next-question", 200, None, headers)
+            if success:
+                session_progress = response.get('session_progress', {})
+                session_complete = response.get('session_complete', False)
                 
-                # Critical check: Does status show 12 questions?
-                total_in_status = progress.get('total', 0)
-                if total_in_status == 12:
-                    print("   ✅ CORRECT: Session status shows 12 questions")
-                elif total_in_status == 3:
-                    print("   ❌ ISSUE CONFIRMED: Session status shows only 3 questions")
-                else:
-                    print(f"   ⚠️ UNEXPECTED: Session status shows {total_in_status} questions")
+                if not session_complete:
+                    total_questions = session_progress.get('total_questions', 0)
+                    current_question = session_progress.get('current_question', 0)
                     
-                test_results["session_status_api"] = True
+                    print(f"   Session progress total questions: {total_questions}")
+                    print(f"   Current question number: {current_question}")
+                    
+                    if total_questions == 12:
+                        print("   ✅ SUCCESS: Session metadata shows total_questions = 12")
+                        test_results["session_progress_verification"] = True
+                    else:
+                        print(f"   ❌ FAILURE: Session metadata shows total_questions = {total_questions} (expected 12)")
+                else:
+                    print("   ⚠️ Session already complete")
             else:
-                print("   ⚠️ No active session found in status")
+                print("   ❌ Failed to get session progress")
         else:
-            print("   ❌ Session status check failed")
+            print("   ❌ No session ID available")
         
         # TEST 6: Next Question API
         print("\n❓ TEST 6: NEXT QUESTION API")
