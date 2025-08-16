@@ -1305,9 +1305,9 @@ class CATBackendTester:
             print(f"   Detailed Solution: {target_question.get('detailed_solution')}")
             
             # Check if solution matches the question
-            stem_lower = target_question.get('stem', '').lower()
-            solution_lower = target_question.get('solution_approach', '').lower()
-            detailed_lower = target_question.get('detailed_solution', '').lower()
+            stem_lower = (target_question.get('stem') or '').lower()
+            solution_lower = (target_question.get('solution_approach') or '').lower()
+            detailed_lower = (target_question.get('detailed_solution') or '').lower()
             
             # Check for mismatch
             is_salary_question = any(keyword in stem_lower for keyword in ['earn', 'salary', 'income'])
