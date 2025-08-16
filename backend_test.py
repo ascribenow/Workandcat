@@ -1180,6 +1180,334 @@ class CATBackendTester:
             
         return success_rate >= 70
 
+    def test_llm_solution_generation_debug(self):
+        """Debug the critical LLM solution generation issue where wrong solutions are displayed"""
+        print("🔍 DEBUGGING CRITICAL LLM SOLUTION GENERATION ISSUE")
+        print("=" * 60)
+        print("Issue: Question shows completely wrong solution")
+        print("Example: Salary question showing alloy solution")
+        print("Question: 'A earns 25% more than B. C earns 25% more than A...'")
+        print("Wrong Solution: 'An alloy of copper and aluminum has 40% copper...'")
+        print("Admin credentials: sumedhprabhu18@gmail.com / admin2025")
+        print("=" * 60)
+        
+        if not self.admin_token:
+            print("❌ Cannot debug LLM solutions - no admin token")
+            return False
+            
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {self.admin_token}'
+        }
+        
+        debug_results = {
+            "admin_authentication": False,
+            "database_content_check": False,
+            "salary_question_found": False,
+            "solution_content_verification": False,
+            "llm_generation_test": False,
+            "question_processing_test": False,
+            "solution_retrieval_test": False,
+            "mismatch_identification": False
+        }
+        
+        # TEST 1: Admin Authentication
+        print("\n🔐 TEST 1: ADMIN AUTHENTICATION")
+        print("-" * 40)
+        
+        success, response = self.run_test("Admin Authentication Check", "GET", "auth/me", 200, None, headers)
+        if success and response.get('is_admin'):
+            print(f"   ✅ Admin authenticated: {response.get('email')}")
+            debug_results["admin_authentication"] = True
+        else:
+            print("   ❌ Admin authentication failed")
+            return False
+        
+        # TEST 2: Database Content Check - Query Questions for Solution Analysis
+        print("\n🗄️ TEST 2: DATABASE CONTENT CHECK")
+        print("-" * 40)
+        print("Querying database to check what solutions are actually stored")
+        
+        success, response = self.run_test("Get All Questions for Analysis", "GET", "questions?limit=50", 200, None, headers)
+        if success:
+            questions = response.get('questions', [])
+            print(f"   ✅ Retrieved {len(questions)} questions from database")
+            debug_results["database_content_check"] = True
+            
+            # Look for salary-related questions
+            salary_questions = []
+            alloy_questions = []
+            
+            for q in questions:
+                stem = q.get('stem', '').lower()
+                solution_approach = q.get('solution_approach', '').lower()
+                detailed_solution = q.get('detailed_solution', '').lower()
+                
+                # Check for salary questions
+                if any(keyword in stem for keyword in ['earn', 'salary', 'income', 'wage']):
+                    salary_questions.append({
+                        'id': q.get('id'),
+                        'stem': q.get('stem', '')[:100] + '...',
+                        'solution_approach': q.get('solution_approach', '')[:100] + '...',
+                        'detailed_solution': q.get('detailed_solution', '')[:100] + '...'
+                    })
+                
+                # Check for alloy questions or solutions
+                if any(keyword in stem + solution_approach + detailed_solution for keyword in ['alloy', 'copper', 'aluminum', 'metal']):
+                    alloy_questions.append({
+                        'id': q.get('id'),
+                        'stem': q.get('stem', '')[:100] + '...',
+                        'solution_approach': q.get('solution_approach', '')[:100] + '...',
+                        'detailed_solution': q.get('detailed_solution', '')[:100] + '...'
+                    })
+            
+            print(f"   Found {len(salary_questions)} salary-related questions")
+            print(f"   Found {len(alloy_questions)} alloy-related questions/solutions")
+            
+            if salary_questions:
+                debug_results["salary_question_found"] = True
+                print("   ✅ Salary questions found in database:")
+                for i, q in enumerate(salary_questions[:3]):
+                    print(f"     {i+1}. ID: {q['id']}")
+                    print(f"        Stem: {q['stem']}")
+                    print(f"        Solution: {q['solution_approach']}")
+                    print()
+            
+            if alloy_questions:
+                print("   ⚠️ Alloy-related content found:")
+                for i, q in enumerate(alloy_questions[:3]):
+                    print(f"     {i+1}. ID: {q['id']}")
+                    print(f"        Stem: {q['stem']}")
+                    print(f"        Solution: {q['solution_approach']}")
+                    print()
+        else:
+            print("   ❌ Failed to retrieve questions from database")
+            return False
+        
+        # TEST 3: Specific Question Solution Verification
+        print("\n🔍 TEST 3: SPECIFIC QUESTION SOLUTION VERIFICATION")
+        print("-" * 40)
+        print("Looking for the specific salary question mentioned in the bug report")
+        
+        target_question = None
+        for q in questions:
+            stem = q.get('stem', '')
+            if 'earns 25% more than' in stem.lower() or ('earn' in stem.lower() and '25%' in stem):
+                target_question = q
+                break
+        
+        if target_question:
+            print(f"   ✅ Found target salary question:")
+            print(f"   ID: {target_question.get('id')}")
+            print(f"   Stem: {target_question.get('stem')}")
+            print(f"   Answer: {target_question.get('answer')}")
+            print(f"   Solution Approach: {target_question.get('solution_approach')}")
+            print(f"   Detailed Solution: {target_question.get('detailed_solution')}")
+            
+            # Check if solution matches the question
+            stem_lower = target_question.get('stem', '').lower()
+            solution_lower = target_question.get('solution_approach', '').lower()
+            detailed_lower = target_question.get('detailed_solution', '').lower()
+            
+            # Check for mismatch
+            is_salary_question = any(keyword in stem_lower for keyword in ['earn', 'salary', 'income'])
+            has_alloy_solution = any(keyword in solution_lower + detailed_lower for keyword in ['alloy', 'copper', 'aluminum'])
+            
+            if is_salary_question and has_alloy_solution:
+                print("   ❌ CRITICAL BUG CONFIRMED: Salary question has alloy solution!")
+                print("   This is the exact issue reported - solution mismatch")
+                debug_results["mismatch_identification"] = True
+            elif is_salary_question and not has_alloy_solution:
+                print("   ✅ Solution appears to match question type")
+                debug_results["solution_content_verification"] = True
+            else:
+                print("   ⚠️ Question type unclear, need manual verification")
+                
+        else:
+            print("   ⚠️ Specific salary question not found, checking general pattern")
+        
+        # TEST 4: LLM Generation Test
+        print("\n🤖 TEST 4: LLM GENERATION TEST")
+        print("-" * 40)
+        print("Testing LLM enrichment process for a sample question")
+        
+        # Create a test question to see if LLM generates correct solution
+        test_question_data = {
+            "stem": "DEBUG TEST: A earns 25% more than B. If B earns Rs. 1000, how much does A earn?",
+            "hint_category": "Arithmetic",
+            "hint_subcategory": "Percentages",
+            "source": "LLM Debug Test"
+        }
+        
+        success, response = self.run_test("Create Test Question for LLM", "POST", "questions", 200, test_question_data, headers)
+        if success and 'question_id' in response:
+            test_question_id = response['question_id']
+            print(f"   ✅ Test question created: {test_question_id}")
+            print(f"   Status: {response.get('status')}")
+            
+            # Wait for LLM processing
+            print("   Waiting 10 seconds for LLM enrichment...")
+            import time
+            time.sleep(10)
+            
+            # Check if LLM generated correct solution
+            success, response = self.run_test("Check LLM Generated Solution", "GET", f"questions?limit=50", 200, None, headers)
+            if success:
+                questions = response.get('questions', [])
+                test_question = None
+                
+                for q in questions:
+                    if q.get('id') == test_question_id:
+                        test_question = q
+                        break
+                
+                if test_question:
+                    answer = test_question.get('answer')
+                    solution_approach = test_question.get('solution_approach')
+                    detailed_solution = test_question.get('detailed_solution')
+                    
+                    print(f"   Generated Answer: {answer}")
+                    print(f"   Generated Solution Approach: {solution_approach}")
+                    print(f"   Generated Detailed Solution: {detailed_solution}")
+                    
+                    # Check if solution is relevant to the question
+                    if answer and answer != "To be generated by LLM":
+                        if ('1250' in str(answer) or 'percentage' in solution_approach.lower() or 
+                            'earn' in solution_approach.lower()):
+                            print("   ✅ LLM generated relevant solution for salary question")
+                            debug_results["llm_generation_test"] = True
+                        else:
+                            print("   ❌ LLM generated irrelevant solution")
+                            print("   This could indicate the LLM enrichment bug")
+                    else:
+                        print("   ❌ LLM enrichment did not complete")
+                else:
+                    print("   ❌ Test question not found after creation")
+        else:
+            print("   ❌ Failed to create test question")
+        
+        # TEST 5: Question Processing Pipeline Test
+        print("\n⚙️ TEST 5: QUESTION PROCESSING PIPELINE TEST")
+        print("-" * 40)
+        print("Testing how questions are processed during CSV upload and LLM enrichment")
+        
+        # Create a simple CSV with a clear question
+        csv_content = '''stem,image_url
+"Simple test: What is 10% of 100?",""'''
+        
+        try:
+            with open('/app/debug_test.csv', 'w') as f:
+                f.write(csv_content)
+            print("   ✅ Debug CSV file created")
+            
+            # Upload CSV
+            import requests
+            with open('/app/debug_test.csv', 'rb') as f:
+                files = {'file': ('debug_test.csv', f, 'text/csv')}
+                url = f"{self.base_url}/admin/upload-questions-csv"
+                response = requests.post(url, files=files, headers=headers)
+                
+                if response.status_code == 200:
+                    print("   ✅ CSV upload successful")
+                    debug_results["question_processing_test"] = True
+                    
+                    # Wait and check results
+                    time.sleep(5)
+                    success, response = self.run_test("Check CSV Processing Results", "GET", "questions?limit=50", 200, None, headers)
+                    if success:
+                        questions = response.get('questions', [])
+                        csv_question = None
+                        
+                        for q in questions:
+                            if 'What is 10% of 100' in q.get('stem', ''):
+                                csv_question = q
+                                break
+                        
+                        if csv_question:
+                            print(f"   ✅ CSV question found and processed")
+                            print(f"   Answer: {csv_question.get('answer')}")
+                            print(f"   Solution: {csv_question.get('solution_approach')}")
+                        else:
+                            print("   ⚠️ CSV question not found in results")
+                else:
+                    print(f"   ❌ CSV upload failed: {response.status_code}")
+                    
+        except Exception as e:
+            print(f"   ❌ CSV processing test failed: {e}")
+        
+        # TEST 6: Solution Retrieval Test
+        print("\n📤 TEST 6: SOLUTION RETRIEVAL TEST")
+        print("-" * 40)
+        print("Testing how solutions are retrieved and displayed via API")
+        
+        if questions:
+            # Test with first available question
+            test_q = questions[0]
+            question_id = test_q.get('id')
+            
+            print(f"   Testing solution retrieval for question: {question_id}")
+            print(f"   Question stem: {test_q.get('stem', '')[:60]}...")
+            
+            # Simulate answer submission to get solution feedback
+            if self.student_token and self.session_id:
+                student_headers = {
+                    'Content-Type': 'application/json',
+                    'Authorization': f'Bearer {self.student_token}'
+                }
+                
+                answer_data = {
+                    "question_id": question_id,
+                    "user_answer": "test_answer",
+                    "time_sec": 30,
+                    "hint_used": False
+                }
+                
+                success, response = self.run_test("Test Solution Retrieval", "POST", f"sessions/{self.session_id}/submit-answer", 200, answer_data, student_headers)
+                if success:
+                    solution_feedback = response.get('solution_feedback', {})
+                    print(f"   ✅ Solution retrieved via API")
+                    print(f"   Solution Approach: {solution_feedback.get('solution_approach', '')[:100]}...")
+                    print(f"   Detailed Solution: {solution_feedback.get('detailed_solution', '')[:100]}...")
+                    debug_results["solution_retrieval_test"] = True
+                else:
+                    print("   ❌ Solution retrieval failed")
+            else:
+                print("   ⚠️ Cannot test solution retrieval - no student session")
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 60)
+        print("LLM SOLUTION GENERATION DEBUG RESULTS")
+        print("=" * 60)
+        
+        passed_tests = sum(debug_results.values())
+        total_tests = len(debug_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        for test_name, result in debug_results.items():
+            status = "✅ PASS" if result else "❌ FAIL"
+            print(f"{test_name.replace('_', ' ').title():<35} {status}")
+            
+        print("-" * 60)
+        print(f"Debug Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # Critical findings
+        if debug_results["mismatch_identification"]:
+            print("🚨 CRITICAL BUG CONFIRMED: Solution mismatch detected!")
+            print("   ❌ Questions are showing solutions for different problems")
+            print("   🔧 RECOMMENDED ACTIONS:")
+            print("   1. Check LLM enrichment pipeline for question-solution association")
+            print("   2. Verify database transactions during background processing")
+            print("   3. Check if question IDs are being mixed up during processing")
+            print("   4. Review the enrich_question_background function")
+        elif debug_results["solution_content_verification"]:
+            print("✅ Solutions appear to match their questions")
+            print("   The reported issue may be resolved or intermittent")
+        else:
+            print("⚠️ Unable to confirm or deny the solution mismatch issue")
+            print("   More investigation needed with specific question examples")
+            
+        return debug_results["database_content_check"] and debug_results["admin_authentication"]
+
     def test_session_creation_12_questions_ultimate_fix_verification(self):
         """Test the ULTIMATE FIX for 12-question session issue with four critical fixes"""
         print("🔍 TESTING ULTIMATE 12-QUESTION SESSION FIX VERIFICATION")
