@@ -37,7 +37,7 @@ class SolutionFixer:
         if not EMERGENT_LLM_KEY:
             raise ValueError("EMERGENT_LLM_KEY not found in environment variables")
         
-        self.llm_pipeline = LLMEnrichmentPipeline()
+        self.llm_pipeline = LLMEnrichmentPipeline(llm_api_key=EMERGENT_LLM_KEY)
         print("✅ LLM enrichment pipeline initialized")
 
     async def find_generic_solutions(self, db_session):
