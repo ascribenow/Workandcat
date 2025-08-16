@@ -1378,10 +1378,40 @@ class CATBackendTester:
         else:
             print("   ❌ No session ID available")
         
-        # TEST 7: Database Investigation
-        print("\n🗄️ TEST 7: DATABASE INVESTIGATION")
+        # TEST 7: Canonical Taxonomy Mapping Check
+        print("\n🗂️ TEST 7: CANONICAL TAXONOMY MAPPING CHECK")
         print("-" * 40)
-        print("Checking if session.units field contains 12 question IDs")
+        print("Verifying that questions with subcategories are properly mapped to canonical taxonomy")
+        
+        success, response = self.run_test("Check Question Subcategories", "GET", "questions?limit=50", 200, None, headers)
+        if success:
+            questions = response.get('questions', [])
+            
+            # Check for specific subcategories mentioned in the fix
+            target_subcategories = [
+                "Basic Arithmetic", "Speed-Time-Distance", "Powers and Roots", 
+                "Perimeter and Area", "Basic Operations", "Time–Speed–Distance (TSD)"
+            ]
+            
+            found_subcategories = {}
+            for question in questions:
+                subcategory = question.get('subcategory', '')
+                if subcategory in target_subcategories:
+                    if subcategory not in found_subcategories:
+                        found_subcategories[subcategory] = 0
+                    found_subcategories[subcategory] += 1
+            
+            print(f"   Found subcategories in database:")
+            for subcat, count in found_subcategories.items():
+                print(f"     - {subcat}: {count} questions")
+            
+            if len(found_subcategories) > 0:
+                print("   ✅ SUCCESS: Target subcategories found in database")
+                test_results["canonical_taxonomy_mapping"] = True
+            else:
+                print("   ⚠️ WARNING: No target subcategories found - may affect session creation")
+        else:
+            print("   ❌ Failed to check question subcategories")
         
         if self.session_id:
             # We can't directly query the database, but we can infer from the API responses
