@@ -12173,35 +12173,14 @@ def main_12_question_session_fix():
         return 1
 if __name__ == "__main__":
     import sys
-    if len(sys.argv) > 1 and sys.argv[1] == "12-question":
-        # Run 12-question session fix verification testing suite
-        exit_code = main_12_question_session_fix()
-        sys.exit(exit_code)
-    elif len(sys.argv) > 1 and sys.argv[1] == "pyq":
-        # Run PYQ file tracking testing suite
-        exit_code = main_pyq_testing()
-        sys.exit(exit_code)
-    elif len(sys.argv) > 1 and sys.argv[1] == "question-csv":
-        # Run regular question CSV upload testing suite
-        exit_code = main_regular_question_csv()
-        sys.exit(exit_code)
-    elif len(sys.argv) > 1 and sys.argv[1] == "option2":
-        # Run OPTION 2 Enhanced Background Processing testing suite
-        exit_code = main_option_2()
-        sys.exit(exit_code)
-    elif len(sys.argv) > 1 and sys.argv[1] == "phase1":
-        # Run Phase 1 enhanced system testing suite
-        exit_code = main_phase1()
-        sys.exit(exit_code)
-    elif len(sys.argv) > 1 and sys.argv[1] == "frequency":
-        # Run complex frequency analysis testing suite
-        exit_code = main_complex_frequency()
-        sys.exit(exit_code)
-    elif len(sys.argv) > 1 and sys.argv[1] == "sophisticated":
-        # Run sophisticated session testing suite
-        exit_code = main_sophisticated()
-        sys.exit(exit_code)
+    
+    # Run the FINAL COMPREHENSIVE FIX test for 12-question sessions
+    tester = CATBackendTester()
+    success = tester.test_12_question_session_final_comprehensive_fix()
+    
+    if success:
+        print("\n🎉 12-question session fix verified! System is working correctly.")
+        sys.exit(0)
     else:
-        # Run 12-question session fix verification by default (as per review request)
-        exit_code = main_12_question_session_fix()
-        sys.exit(exit_code)
+        print("\n❌ 12-question session fix verification failed. Please review the issues above.")
+        sys.exit(1)
