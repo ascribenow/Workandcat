@@ -1561,10 +1561,17 @@ async def re_enrich_all_questions(
         
         for question in unique_questions:
             try:
+                # Get the topic/category information from the related topic
+                topic_result = await db.execute(
+                    select(Topic).where(Topic.id == question.topic_id)
+                )
+                topic = topic_result.scalar_one_or_none()
+                hint_category = topic.name if topic else "Arithmetic"
+                
                 # Use the global LLM pipeline with retry logic
                 enrichment_result = await llm_pipeline.complete_auto_generation(
                     stem=question.stem,
-                    hint_category=question.category,
+                    hint_category=hint_category,
                     hint_subcategory=question.subcategory
                 )
                 
