@@ -269,47 +269,45 @@ class CATBackendTester:
         else:
             print("   ❌ Failed to create test question for LLM pipeline test")
         
-        # TEST 3: Force Re-enrichment of Generic Questions
-        print("\n🔄 TEST 3: FORCE RE-ENRICHMENT OF GENERIC QUESTIONS")
+        # TEST 3: CRITICAL - Use Mass Re-enrichment API Endpoint
+        print("\n🔄 TEST 3: CRITICAL MASS RE-ENRICHMENT API ENDPOINT")
         print("-" * 40)
-        print("Attempting to re-enrich questions with generic solutions")
+        print("Using /api/admin/re-enrich-all-questions endpoint to fix ALL generic solutions")
         
         if len(generic_questions) > 0:
-            print(f"   Found {len(generic_questions)} questions needing re-enrichment")
+            print(f"   🚨 CRITICAL: Found {len(generic_questions)} questions with generic solutions")
+            print("   🔄 Calling mass re-enrichment API endpoint...")
             
-            # Try to re-enrich the first few generic questions
-            re_enriched_count = 0
-            for i, generic_q in enumerate(generic_questions[:3]):  # Test with first 3
-                question_id = generic_q['id']
-                print(f"   🔄 Re-enriching question {i+1}: {question_id}")
+            # Call the critical re-enrichment endpoint
+            success, response = self.run_test("Mass Re-enrichment API Call", "POST", "admin/re-enrich-all-questions", 200, {}, headers)
+            if success:
+                processed = response.get('processed', 0)
+                success_count = response.get('success', 0)
+                failed_count = response.get('failed', 0)
+                status = response.get('status', 'unknown')
                 
-                # Create a new question with same stem to trigger re-enrichment
-                original_stem = generic_q['stem'].replace('...', '')
-                re_enrich_data = {
-                    "stem": f"RE-ENRICH: {original_stem}",
-                    "hint_category": "Arithmetic",
-                    "hint_subcategory": "Time–Speed–Distance (TSD)",
-                    "source": "Re-enrichment Process"
-                }
+                print(f"   ✅ Mass re-enrichment API called successfully")
+                print(f"   📊 Status: {status}")
+                print(f"   📊 Questions processed: {processed}")
+                print(f"   📊 Successfully re-enriched: {success_count}")
+                print(f"   📊 Failed to re-enrich: {failed_count}")
                 
-                success, response = self.run_test(f"Re-enrich Question {i+1}", "POST", "questions", 200, re_enrich_data, headers)
-                if success:
-                    re_enriched_count += 1
-                    print(f"   ✅ Question {i+1} queued for re-enrichment")
+                if success_count > 0:
+                    re_enrichment_results["force_re_enrichment_test"] = True
+                    print(f"   🎉 SUCCESS: {success_count} questions re-enriched with proper solutions!")
+                    
+                    # Wait for processing to complete
+                    print("   ⏳ Waiting 30 seconds for mass re-enrichment to complete...")
+                    time.sleep(30)
                 else:
-                    print(f"   ❌ Failed to queue question {i+1} for re-enrichment")
-            
-            if re_enriched_count > 0:
-                re_enrichment_results["force_re_enrichment_test"] = True
-                print(f"   ✅ Successfully queued {re_enriched_count} questions for re-enrichment")
-                
-                # Wait for processing
-                print("   ⏳ Waiting 20 seconds for re-enrichment processing...")
-                time.sleep(20)
+                    print(f"   ⚠️ WARNING: No questions were successfully re-enriched")
+                    if failed_count > 0:
+                        print(f"   ❌ {failed_count} questions failed re-enrichment")
             else:
-                print("   ❌ Failed to queue any questions for re-enrichment")
+                print("   ❌ CRITICAL FAILURE: Mass re-enrichment API call failed")
+                print("   🚨 This is a production-blocking issue!")
         else:
-            print("   ✅ No generic questions found that need re-enrichment")
+            print("   ✅ No generic questions found - database already clean")
             re_enrichment_results["force_re_enrichment_test"] = True
         
         # TEST 4: Database Update Verification
