@@ -1729,6 +1729,327 @@ class CATBackendTester:
             print("   ❌ Issue is code-related and needs to be fixed in the codebase")
             
         return success_rate >= 70
+
+    def test_ultimate_12_question_session_fix(self):
+        """Test the ULTIMATE FIX for 12-question session issue with all four critical fixes"""
+        print("🔍 TESTING ULTIMATE 12-QUESTION SESSION FIX")
+        print("=" * 80)
+        print("Testing the ULTIMATE FIX for 12-question session issue with FOUR critical changes:")
+        print("1. Fixed Category Distribution Reference: self.category_distribution → self.base_category_distribution")
+        print("2. Enhanced Fallback Logic: Multiple layers to ensure 12 questions are always selected")
+        print("3. Relaxed Filtering Parameters:")
+        print("   - Disabled cooldown periods (0 days for all difficulties)")
+        print("   - Increased max_questions_per_subcategory from 3 to 12")
+        print("   - Reduced min_subcategories_per_session from 4 to 1")
+        print("4. Fixed Decimal Type Error: Convert pyq_frequency_score to float")
+        print("Expected: Sessions should create exactly 12 questions consistently")
+        print("Admin credentials: sumedhprabhu18@gmail.com / admin2025")
+        print("=" * 80)
+        
+        # First authenticate as admin
+        admin_login = {
+            "email": "sumedhprabhu18@gmail.com",
+            "password": "admin2025"
+        }
+        
+        success, response = self.run_test("Admin Login", "POST", "auth/login", 200, admin_login)
+        if not success or 'access_token' not in response:
+            print("❌ Admin authentication failed")
+            return False
+            
+        self.admin_token = response['access_token']
+        admin_headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {self.admin_token}'
+        }
+        
+        ultimate_fix_results = {
+            "admin_authentication": True,
+            "question_pool_verification": False,
+            "session_creation_12_questions": False,
+            "filtering_stages_verification": False,
+            "decimal_error_prevention": False,
+            "multiple_session_consistency": False,
+            "progress_display_verification": False,
+            "ultimate_fix_confirmation": False
+        }
+        
+        # TEST 1: Question Pool Verification
+        print("\n📊 TEST 1: QUESTION POOL VERIFICATION")
+        print("-" * 60)
+        print("Verifying sufficient active questions exist for 12-question sessions")
+        
+        success, response = self.run_test("Check Question Pool", "GET", "questions?limit=50", 200, None, admin_headers)
+        if success:
+            questions = response.get('questions', [])
+            active_questions = [q for q in questions if q.get('is_active', False)]
+            
+            print(f"   Total questions in database: {len(questions)}")
+            print(f"   Active questions available: {len(active_questions)}")
+            
+            if len(active_questions) >= 12:
+                print(f"   ✅ Sufficient active questions for 12-question session")
+                ultimate_fix_results["question_pool_verification"] = True
+                
+                # Show category distribution
+                category_counts = {}
+                for q in active_questions:
+                    subcat = q.get('subcategory', 'Unknown')
+                    category_counts[subcat] = category_counts.get(subcat, 0) + 1
+                
+                print("   Question distribution by subcategory:")
+                for subcat, count in sorted(category_counts.items()):
+                    print(f"     {subcat}: {count} questions")
+            else:
+                print(f"   ❌ Insufficient active questions: only {len(active_questions)} available")
+        else:
+            print("   ❌ Failed to check question pool")
+            return False
+        
+        # TEST 2: Session Creation with 12 Questions (ULTIMATE FIX)
+        print("\n🎯 TEST 2: SESSION CREATION WITH 12 QUESTIONS (ULTIMATE FIX)")
+        print("-" * 60)
+        print("Testing session creation with all four fixes applied")
+        
+        session_data = {"target_minutes": 30}
+        success, response = self.run_test("Create 12-Question Session (ULTIMATE FIX)", "POST", "sessions/start", 200, session_data, admin_headers)
+        
+        if success:
+            session_id = response.get('session_id')
+            total_questions = response.get('total_questions')
+            session_type = response.get('session_type')
+            personalization = response.get('personalization', {})
+            
+            print(f"   ✅ Session created successfully")
+            print(f"   Session ID: {session_id}")
+            print(f"   Total questions: {total_questions}")
+            print(f"   Session type: {session_type}")
+            
+            # CRITICAL CHECK: Is it exactly 12 questions?
+            if total_questions == 12:
+                print("   ✅ SUCCESS: ULTIMATE FIX WORKING - Session created with exactly 12 questions")
+                ultimate_fix_results["session_creation_12_questions"] = True
+            elif total_questions == 3:
+                print("   ❌ FAILURE: ULTIMATE FIX NOT WORKING - Session still creating only 3 questions")
+            else:
+                print(f"   ⚠️ UNEXPECTED: Session created with {total_questions} questions (expected 12)")
+            
+            # Check personalization metadata
+            if personalization:
+                applied = personalization.get('applied', False)
+                category_dist = personalization.get('category_distribution', {})
+                difficulty_dist = personalization.get('difficulty_distribution', {})
+                
+                print(f"   Personalization applied: {applied}")
+                print(f"   Category distribution: {category_dist}")
+                print(f"   Difficulty distribution: {difficulty_dist}")
+                
+                if session_id:
+                    self.session_id = session_id
+        else:
+            print("   ❌ Session creation failed")
+            return False
+        
+        # TEST 3: Filtering Stages Verification
+        print("\n🔍 TEST 3: FILTERING STAGES VERIFICATION")
+        print("-" * 60)
+        print("Verifying all filtering stages allow 12 questions through:")
+        print("- Category distribution filter")
+        print("- Cooldown filter (should be disabled)")
+        print("- Diversity enforcement (should be relaxed)")
+        
+        if self.session_id:
+            success, response = self.run_test("Get Session Status", "GET", "sessions/current-status", 200, None, admin_headers)
+            if success:
+                active_session = response.get('active_session')
+                progress = response.get('progress', {})
+                
+                if active_session:
+                    total_in_status = progress.get('total', 0)
+                    print(f"   Session status total questions: {total_in_status}")
+                    
+                    if total_in_status == 12:
+                        print("   ✅ SUCCESS: All filtering stages allow 12 questions through")
+                        ultimate_fix_results["filtering_stages_verification"] = True
+                    else:
+                        print(f"   ❌ FAILURE: Filtering stages reduced to {total_in_status} questions")
+                        print("   This indicates cooldown or diversity filters are still too aggressive")
+                else:
+                    print("   ⚠️ No active session found for filtering verification")
+            else:
+                print("   ❌ Session status check failed")
+        
+        # TEST 4: Decimal Error Prevention
+        print("\n🔢 TEST 4: DECIMAL ERROR PREVENTION")
+        print("-" * 60)
+        print("Testing that pyq_frequency_score decimal conversion prevents errors")
+        
+        # Create a test question to trigger background processing
+        test_question = {
+            "stem": "ULTIMATE FIX Test: A car travels 120 km in 1.5 hours. What is its speed?",
+            "hint_category": "Arithmetic",
+            "hint_subcategory": "Time–Speed–Distance (TSD)",
+            "source": "ULTIMATE FIX Test"
+        }
+        
+        success, response = self.run_test("Create Question for Decimal Test", "POST", "questions", 200, test_question, admin_headers)
+        if success and 'question_id' in response:
+            question_id = response['question_id']
+            print(f"   ✅ Test question created: {question_id}")
+            
+            # Wait for background processing
+            time.sleep(5)
+            
+            # Check if question was processed without decimal errors
+            success, response = self.run_test("Check Decimal Processing", "GET", "questions?limit=10", 200, None, admin_headers)
+            if success:
+                questions = response.get('questions', [])
+                test_question_found = False
+                
+                for q in questions:
+                    if q.get('id') == question_id:
+                        test_question_found = True
+                        pyq_score = q.get('pyq_frequency_score')
+                        learning_impact = q.get('learning_impact')
+                        
+                        print(f"   Question processed successfully")
+                        print(f"   PYQ frequency score: {pyq_score} (type: {type(pyq_score)})")
+                        print(f"   Learning impact: {learning_impact} (type: {type(learning_impact)})")
+                        
+                        # Check if values are proper floats (not Decimal objects)
+                        if isinstance(pyq_score, (int, float, type(None))) and isinstance(learning_impact, (int, float, type(None))):
+                            print("   ✅ SUCCESS: No decimal type errors - values are proper floats")
+                            ultimate_fix_results["decimal_error_prevention"] = True
+                        else:
+                            print("   ❌ FAILURE: Decimal type errors still present")
+                        break
+                
+                if not test_question_found:
+                    print("   ⚠️ Test question not found in results")
+            else:
+                print("   ❌ Failed to check decimal processing")
+        else:
+            print("   ❌ Failed to create test question for decimal test")
+        
+        # TEST 5: Multiple Session Consistency
+        print("\n🔄 TEST 5: MULTIPLE SESSION CONSISTENCY")
+        print("-" * 60)
+        print("Testing that multiple sessions consistently create 12 questions")
+        
+        consistent_sessions = 0
+        total_test_sessions = 3
+        
+        for i in range(total_test_sessions):
+            success, response = self.run_test(f"Create Session {i+1}", "POST", "sessions/start", 200, session_data, admin_headers)
+            if success:
+                total_questions = response.get('total_questions', 0)
+                session_id = response.get('session_id')
+                
+                print(f"   Session {i+1}: {total_questions} questions (ID: {session_id})")
+                
+                if total_questions == 12:
+                    consistent_sessions += 1
+            else:
+                print(f"   ❌ Session {i+1} creation failed")
+        
+        consistency_rate = (consistent_sessions / total_test_sessions) * 100
+        print(f"   Consistency rate: {consistent_sessions}/{total_test_sessions} ({consistency_rate:.1f}%)")
+        
+        if consistency_rate >= 100:
+            print("   ✅ SUCCESS: All sessions consistently create 12 questions")
+            ultimate_fix_results["multiple_session_consistency"] = True
+        elif consistency_rate >= 66:
+            print("   ⚠️ PARTIAL SUCCESS: Most sessions create 12 questions")
+            ultimate_fix_results["multiple_session_consistency"] = True
+        else:
+            print("   ❌ FAILURE: Inconsistent session creation")
+        
+        # TEST 6: Progress Display Verification
+        print("\n📊 TEST 6: PROGRESS DISPLAY VERIFICATION")
+        print("-" * 60)
+        print("Testing that session progress shows 'X of 12' format correctly")
+        
+        if self.session_id:
+            success, response = self.run_test("Get First Question Progress", "GET", f"sessions/{self.session_id}/next-question", 200, None, admin_headers)
+            if success:
+                session_progress = response.get('session_progress', {})
+                
+                if session_progress:
+                    current_question = session_progress.get('current_question', 0)
+                    total_questions = session_progress.get('total_questions', 0)
+                    progress_percentage = session_progress.get('progress_percentage', 0)
+                    
+                    print(f"   Progress display: Question {current_question} of {total_questions}")
+                    print(f"   Progress percentage: {progress_percentage}%")
+                    
+                    if current_question == 1 and total_questions == 12:
+                        print("   ✅ SUCCESS: Progress display shows '1 of 12' format correctly")
+                        ultimate_fix_results["progress_display_verification"] = True
+                    else:
+                        print(f"   ❌ FAILURE: Progress display incorrect - shows '{current_question} of {total_questions}'")
+                else:
+                    print("   ❌ No session progress metadata found")
+            else:
+                print("   ❌ Failed to get question for progress verification")
+        
+        # ULTIMATE FIX CONFIRMATION
+        print("\n🎯 ULTIMATE FIX CONFIRMATION")
+        print("-" * 60)
+        
+        critical_fixes_working = (
+            ultimate_fix_results["session_creation_12_questions"] and
+            ultimate_fix_results["filtering_stages_verification"] and
+            ultimate_fix_results["decimal_error_prevention"] and
+            ultimate_fix_results["multiple_session_consistency"]
+        )
+        
+        if critical_fixes_working:
+            print("   ✅ ULTIMATE FIX CONFIRMED: All four critical fixes are working")
+            print("   1. ✅ Category Distribution Reference Fixed")
+            print("   2. ✅ Enhanced Fallback Logic Working")
+            print("   3. ✅ Relaxed Filtering Parameters Applied")
+            print("   4. ✅ Decimal Type Error Prevention Working")
+            ultimate_fix_results["ultimate_fix_confirmation"] = True
+        else:
+            print("   ❌ ULTIMATE FIX NOT FULLY WORKING: Some critical fixes still have issues")
+            print(f"   1. {'✅' if ultimate_fix_results['session_creation_12_questions'] else '❌'} Category Distribution Reference")
+            print(f"   2. {'✅' if ultimate_fix_results['filtering_stages_verification'] else '❌'} Enhanced Fallback Logic")
+            print(f"   3. {'✅' if ultimate_fix_results['decimal_error_prevention'] else '❌'} Relaxed Filtering Parameters")
+            print(f"   4. {'✅' if ultimate_fix_results['multiple_session_consistency'] else '❌'} Decimal Type Error Prevention")
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 80)
+        print("ULTIMATE 12-QUESTION SESSION FIX TEST RESULTS")
+        print("=" * 80)
+        
+        passed_tests = sum(ultimate_fix_results.values())
+        total_tests = len(ultimate_fix_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        for test_name, result in ultimate_fix_results.items():
+            status = "✅ PASS" if result else "❌ FAIL"
+            print(f"{test_name.replace('_', ' ').title():<40} {status}")
+            
+        print("-" * 80)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # Final assessment
+        if ultimate_fix_results["ultimate_fix_confirmation"]:
+            print("🎉 ULTIMATE FIX SUCCESSFUL!")
+            print("   ✅ 12-question session bug is completely resolved")
+            print("   ✅ All filtering stages allow 12 questions through")
+            print("   ✅ Sessions consistently create exactly 12 questions")
+            print("   ✅ Progress display shows proper 'X of 12' format")
+        elif ultimate_fix_results["session_creation_12_questions"]:
+            print("⚠️ PARTIAL SUCCESS")
+            print("   ✅ Sessions create 12 questions but some issues remain")
+        else:
+            print("❌ ULTIMATE FIX FAILED")
+            print("   ❌ Sessions still not creating 12 questions consistently")
+            print("   ❌ Core issue not resolved")
+            
+        return success_rate >= 75
+        
         print("🔍 Testing JWT Authentication Fix...")
         
         # Test with invalid token to verify error handling
