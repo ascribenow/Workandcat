@@ -929,12 +929,26 @@ const AdminPanel = () => {
               <div>
                 <div className="flex justify-between items-center mb-6">
                   <h2 className="text-2xl font-semibold text-gray-900">Upload PYQ Data</h2>
-                  <button
-                    onClick={() => handleExportPYQ()}
-                    className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium flex items-center"
-                  >
-                    📋 Export PYQ Database (CSV)
-                  </button>
+                  <div className="flex space-x-3">
+                    <button
+                      onClick={() => handleExportPYQ()}
+                      className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium flex items-center"
+                    >
+                      📋 Export PYQ Database (CSV)
+                    </button>
+                    <button
+                      onClick={() => handleCheckQuestionQuality()}
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium flex items-center"
+                    >
+                      🔍 Check Quality
+                    </button>
+                    <button
+                      onClick={() => handleReEnrichQuestions()}
+                      className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-medium flex items-center"
+                    >
+                      🔧 Fix Solutions
+                    </button>
+                  </div>
                 </div>
 
                 {/* Uploaded Files Tracking Table */}
