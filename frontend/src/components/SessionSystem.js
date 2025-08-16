@@ -253,9 +253,14 @@ export const SessionSystem = ({ sessionId: propSessionId, onSessionEnd }) => {
       {sessionProgress && (
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
           <div className="flex justify-between items-center">
-            <h2 className="text-xl font-semibold text-blue-800">
-              12-Question Practice Session
-            </h2>
+            <div>
+              <h2 className="text-xl font-semibold text-blue-800">
+                Session #{sessionNumber || '---'} • 12-Question Practice
+              </h2>
+              <div className="text-sm text-blue-600 mt-1">
+                CAT Quantitative Aptitude Practice Session
+              </div>
+            </div>
             <div className="text-blue-600 font-medium">
               Question {sessionProgress.current_question} of {sessionProgress.total_questions}
             </div>
