@@ -711,7 +711,7 @@ class AdaptiveSessionLogic:
                 category_groups[category].append(question)
             
             # Select questions according to distribution
-            for category, target_count in self.category_distribution.items():
+            for category, target_count in self.base_category_distribution.items():
                 if category in category_groups:
                     # Prioritize weak areas within category
                     category_questions = category_groups[category]
