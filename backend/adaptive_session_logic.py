@@ -727,7 +727,19 @@ class AdaptiveSessionLogic:
                     
                     selected.extend(weak_first[:target_count])
             
-            return selected
+            # CRITICAL FIX: Ensure we always have 12 questions
+            if len(selected) < 12:
+                logger.warning(f"Category distribution only yielded {len(selected)} questions, filling to 12")
+                # Get all remaining questions not already selected
+                selected_ids = {q.id for q in selected}
+                remaining_questions = [q for q in questions if q.id not in selected_ids]
+                
+                # Add remaining questions to reach 12
+                needed = 12 - len(selected)
+                selected.extend(remaining_questions[:needed])
+                logger.info(f"Added {min(needed, len(remaining_questions))} additional questions for complete session")
+            
+            return selected[:12]  # Ensure exactly 12 questions
             
         except Exception as e:
             logger.error(f"Error in category distribution selection: {e}")
