@@ -2609,15 +2609,46 @@ async def enrich_question_background(question_id: str, hint_category: str = None
             
             logger.info(f"Step 1: LLM enrichment for question {question_id}")
             
-            # Apply enrichment data directly (simplified for reliability)
-            question.answer = "Example answer based on the question pattern"
-            question.solution_approach = "Mathematical approach to solve this problem"
-            question.detailed_solution = f"Detailed solution for: {question.stem[:50]}..."
-            question.subcategory = hint_subcategory or "Time–Speed–Distance (TSD)"
-            question.type_of_question = "Calculation"
-            question.difficulty_score = 0.3
-            question.difficulty_band = "Easy"
-            question.learning_impact = 60.0
+            # CRITICAL FIX: Use actual LLM enrichment pipeline instead of hardcoded solutions
+            from llm_enrichment import LLMEnrichmentPipeline
+            
+            try:
+                # Initialize LLM enrichment pipeline
+                llm_enricher = LLMEnrichmentPipeline()
+                
+                # Generate proper solutions using LLM
+                logger.info(f"Generating LLM solutions for: {question.stem[:50]}...")
+                enrichment_result = await llm_enricher.complete_auto_generation(
+                    stem=question.stem,
+                    hint_category=hint_category,
+                    hint_subcategory=hint_subcategory
+                )
+                
+                # Apply LLM-generated enrichment data
+                question.answer = enrichment_result.get('answer', 'LLM generation failed')
+                question.solution_approach = enrichment_result.get('solution_approach', 'Solution approach not available')
+                question.detailed_solution = enrichment_result.get('detailed_solution', 'Detailed solution not available')
+                question.subcategory = enrichment_result.get('subcategory', hint_subcategory or "Time–Speed–Distance (TSD)")
+                question.type_of_question = enrichment_result.get('type_of_question', 'Calculation')
+                question.difficulty_score = enrichment_result.get('difficulty_score', 0.3)
+                question.difficulty_band = enrichment_result.get('difficulty_band', 'Easy')
+                question.learning_impact = enrichment_result.get('learning_impact', 60.0)
+                
+                logger.info(f"✅ LLM enrichment successful for question {question_id}")
+                logger.info(f"Answer: {question.answer}")
+                logger.info(f"Solution: {question.solution_approach[:100]}...")
+                
+            except Exception as llm_error:
+                logger.error(f"LLM enrichment failed for question {question_id}: {llm_error}")
+                # Fallback to basic enrichment if LLM fails
+                question.answer = "Answer generation failed - manual review needed"
+                question.solution_approach = f"Solution approach for {hint_subcategory or 'this problem'} needs manual review"
+                question.detailed_solution = f"This {hint_subcategory or 'mathematical'} problem requires step-by-step analysis. The question stem: {question.stem[:100]}... Please provide manual solution."
+                question.subcategory = hint_subcategory or "Time–Speed–Distance (TSD)"
+                question.type_of_question = "Calculation"
+                question.difficulty_score = 0.3
+                question.difficulty_band = "Easy"
+                question.learning_impact = 60.0
             question.importance_index = 70.0
             question.frequency_band = "High"
             question.tags = json.dumps(["enhanced_processing", "option_2_test"])
