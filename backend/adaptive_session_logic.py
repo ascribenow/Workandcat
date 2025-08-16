@@ -528,6 +528,10 @@ class AdaptiveSessionLogic:
         try:
             selected = []
             
+            # Debug logging
+            logger.info(f"Starting dynamic category selection with {len(questions)} questions")
+            logger.info(f"Dynamic distribution: {dynamic_distribution}")
+            
             # Group questions by category
             category_groups = {}
             for question in questions:
@@ -536,8 +540,13 @@ class AdaptiveSessionLogic:
                     category_groups[category] = []
                 category_groups[category].append(question)
             
-            # Select questions according to DYNAMIC distribution
-            for category, target_count in dynamic_distribution.items():
+            logger.info(f"Category groups: {[(cat, len(qs)) for cat, qs in category_groups.items()]}")
+            
+            # CRITICAL FIX: Use base distribution if dynamic distribution is empty
+            distribution_to_use = dynamic_distribution if dynamic_distribution else self.base_category_distribution
+            
+            # Select questions according to distribution
+            for category, target_count in distribution_to_use.items():
                 if category in category_groups:
                     category_questions = category_groups[category]
                     
@@ -552,9 +561,22 @@ class AdaptiveSessionLogic:
                     )
                     
                     selected.extend(prioritized[:target_count])
+                    logger.info(f"Selected {min(target_count, len(prioritized))} questions from {category}")
+                else:
+                    logger.warning(f"No questions available for category {category}")
             
-            logger.info(f"Selected {len(selected)} questions using dynamic distribution")
-            return selected
+            # CRITICAL FALLBACK: Ensure we have 12 questions
+            if len(selected) < 12:
+                logger.warning(f"Only {len(selected)} questions selected from distribution, need 12")
+                selected_ids = {q.id for q in selected}
+                remaining_questions = [q for q in questions if q.id not in selected_ids]
+                needed = 12 - len(selected)
+                selected.extend(remaining_questions[:needed])
+                logger.info(f"Added {min(needed, len(remaining_questions))} additional questions to reach 12")
+            
+            final_count = len(selected)
+            logger.info(f"Final selection: {final_count} questions")
+            return selected[:12]  # Ensure exactly 12 questions
             
         except Exception as e:
             logger.error(f"Error in dynamic category selection: {e}")
