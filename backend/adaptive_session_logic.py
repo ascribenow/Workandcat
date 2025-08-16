@@ -49,19 +49,27 @@ class AdaptiveSessionLogic:
             "A-Arithmetic": [
                 "Time–Speed–Distance (TSD)", "Time & Work", "Ratio–Proportion–Variation",
                 "Percentages", "Averages & Alligation", "Profit–Loss–Discount (PLD)",
-                "Simple & Compound Interest (SI–CI)", "Mixtures & Solutions"
+                "Simple & Compound Interest (SI–CI)", "Mixtures & Solutions",
+                # Additional subcategories from current question database
+                "Speed-Time-Distance", "Basic Arithmetic"
             ],
             "B-Algebra": [
                 "Linear Equations", "Quadratic Equations", "Inequalities", "Progressions",
-                "Functions & Graphs", "Logarithms & Exponents", "Special Algebraic Identities"
+                "Functions & Graphs", "Logarithms & Exponents", "Special Algebraic Identities",
+                # Additional subcategories from current question database
+                "Powers and Roots"
             ],
             "C-Geometry & Mensuration": [
                 "Triangles", "Circles", "Polygons", "Coordinate Geometry",
-                "Mensuration (2D & 3D)", "Trigonometry in Geometry"
+                "Mensuration (2D & 3D)", "Trigonometry in Geometry",
+                # Additional subcategories from current question database
+                "Perimeter and Area"
             ],
             "D-Number System": [
                 "Divisibility", "HCF–LCM", "Remainders & Modular Arithmetic",
-                "Base Systems", "Digit Properties"
+                "Base Systems", "Digit Properties",
+                # Additional subcategories from current question database
+                "Basic Operations"
             ],
             "E-Modern Math": [
                 "Permutation–Combination (P&C)", "Probability", "Set Theory & Venn Diagrams"
