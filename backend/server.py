@@ -1748,6 +1748,13 @@ async def emergency_fix_solutions(
         
         for question in critical_questions:
             try:
+                # Get the topic/category information from the related topic
+                topic_result = await db.execute(
+                    select(Topic).where(Topic.id == question.topic_id)
+                )
+                topic = topic_result.scalar_one_or_none()
+                hint_category = topic.name if topic else "Arithmetic"
+                
                 # Simple retry logic for LLM calls
                 max_attempts = 3
                 enrichment_result = None
@@ -1756,7 +1763,7 @@ async def emergency_fix_solutions(
                     try:
                         enrichment_result = await llm_pipeline.complete_auto_generation(
                             stem=question.stem,
-                            hint_category=question.category,
+                            hint_category=hint_category,
                             hint_subcategory=question.subcategory
                         )
                         break  # Success, break retry loop
