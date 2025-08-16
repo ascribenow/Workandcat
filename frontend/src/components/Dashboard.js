@@ -867,6 +867,78 @@ const AdminPanel = () => {
     }
   };
 
+  const handleCheckQuestionQuality = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.post(`${API}/admin/check-question-quality`);
+      const data = response.data;
+      
+      const qualityReport = `
+🔍 QUESTION QUALITY REPORT
+========================
+
+📊 Overall Quality Score: ${data.quality_score}%
+📝 Total Questions: ${data.total_questions}
+⚠️ Total Issues Found: ${data.total_issues}
+
+📋 Issue Breakdown:
+• Generic Solutions: ${data.issues.generic_solutions.length}
+• Missing Answers: ${data.issues.missing_answers.length} 
+• Solution Mismatches: ${data.issues.solution_mismatch.length}
+• Short Solutions: ${data.issues.short_solutions.length}
+• Generic Detailed Solutions: ${data.issues.generic_detailed_solutions.length}
+
+💡 Recommendations:
+${data.recommendations.immediate_action_needed ? '🚨 IMMEDIATE ACTION NEEDED - High number of quality issues detected!' : '✅ Quality levels are acceptable'}
+${data.recommendations.needs_re_enrichment > 0 ? `\n🔧 ${data.recommendations.needs_re_enrichment} questions need re-enrichment` : ''}
+${data.recommendations.critical_mismatches > 0 ? `\n⚠️ ${data.recommendations.critical_mismatches} critical solution mismatches found` : ''}
+
+Use the "Fix Solutions" button to automatically resolve these issues.
+      `;
+      
+      alert(qualityReport);
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
+      alert('Error checking question quality: ' + (error.response?.data?.detail || 'Unknown error'));
+    }
+  };
+
+  const handleReEnrichQuestions = async () => {
+    if (!confirm('⚠️ CRITICAL OPERATION\n\nThis will re-enrich ALL questions with generic/wrong solutions using LLM.\nThis process may take several minutes and cannot be undone.\n\nAre you sure you want to continue?')) {
+      return;
+    }
+    
+    try {
+      setLoading(true);
+      alert('🔧 Starting re-enrichment process...\nThis may take several minutes. Please wait for completion message.');
+      
+      const response = await axios.post(`${API}/admin/re-enrich-all-questions`);
+      const data = response.data;
+      
+      const successReport = `
+🎉 RE-ENRICHMENT COMPLETE!
+========================
+
+📊 Processing Results:
+• Questions Processed: ${data.processed}
+• Successfully Fixed: ${data.success}
+• Failed to Fix: ${data.failed}
+• Success Rate: ${((data.success / data.processed) * 100).toFixed(1)}%
+
+${data.details}
+
+${data.success > 0 ? '✅ Students will now see proper question-specific solutions!' : '❌ No questions were successfully re-enriched.'}
+      `;
+      
+      alert(successReport);
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
+      alert('❌ Re-enrichment failed: ' + (error.response?.data?.detail || 'Unknown error'));
+    }
+  };
+
   const handleQuestionSubmit = async (e) => {
     e.preventDefault();
     try {
