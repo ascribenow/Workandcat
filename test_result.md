@@ -567,7 +567,28 @@ agent_communication:
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Test the regular question CSV upload functionality (not PYQ upload) using the /api/admin/upload-questions-csv endpoint. This is the endpoint that the user is having issues with on production. Test the following: 1. Create Test Question CSV: Create a simple CSV file with the simplified format (stem, image_url), 2. Test Question CSV Upload: Use POST /api/admin/upload-questions-csv to upload the test CSV, 3. Verify Question Creation: Check that regular questions (not PYQ questions) are created in the database, 4. Check for Errors: Verify there are no JSON variable scope issues or other errors, 5. Compare with Production Issue: Determine if the issue is deployment-related or code-related. Expected Results: Question CSV upload should succeed without errors, Regular questions should be created with proper metadata, No 'Unknown error' or JSON-related errors should occur. Use admin credentials: sumedhprabhu18@gmail.com / admin2025"
+user_problem_statement: "Debug the critical LLM solution generation issue. The solution displayed for questions is completely wrong and unrelated to the actual question.
+
+**Issue Description:**
+- Question: 'A earns 25% more than B. C earns 25% more than A...' (salary problem)
+- Solution shown: 'An alloy of copper and aluminum has 40% copper...' (completely different alloy problem)
+- This is a critical bug affecting student learning
+
+**Debug Objectives:**
+1. **Check Database Content**: Query a few questions to see what solution_approach and detailed_solution are actually stored
+2. **Test LLM Generation**: Test the LLM enrichment process for a sample question to see if it generates correct solutions
+3. **Check Question Processing**: Verify how questions are processed during CSV upload and LLM enrichment
+4. **Test Solution Retrieval**: Verify the API returns correct solutions for specific questions
+
+**Specific Actions:**
+1. Query the question 'A earns 25% more than B...' from the database and check its stored solutions
+2. Test LLM solution generation for a simple question to verify the LLM is working correctly
+3. Check if there's a mismatch between question stems and their solutions
+4. Verify the LLM enrichment pipeline is associating solutions with the correct questions
+
+**Use admin credentials**: sumedhprabhu18@gmail.com / admin2025
+
+This is CRITICAL - students are getting completely wrong solutions which is misleading and harmful to their learning."
 
 backend:
   - task: "Session Creation 12-Question Functionality Debug"
