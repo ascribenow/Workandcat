@@ -574,13 +574,16 @@ backend:
     implemented: true
     working: false
     file: "/app/backend/adaptive_session_logic.py, /app/backend/server.py"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
     needs_retesting: false
     status_history:
         -working: false
         -agent: "testing"
         -comment: "❌ SESSION CREATION GENERATING ONLY 3 QUESTIONS INSTEAD OF 12: Comprehensive debugging reveals ROOT CAUSE - canonical taxonomy mismatch in adaptive_session_logic.py. The logic expects questions in 5 specific categories (A-Arithmetic: 4, B-Algebra: 3, C-Geometry & Mensuration: 2, D-Number System: 2, E-Modern Math: 1) totaling 12 questions. However, database only has questions in 2 categories: A-Arithmetic (28 questions) and B-Algebra (2 questions). Missing categories: C-Geometry & Mensuration (0), D-Number System (0), E-Modern Math (0). Additionally, 11 questions (27%) have unmapped subcategories not in canonical taxonomy. When select_by_dynamic_category_distribution() fails to find sufficient questions in required categories, it gracefully degrades to 3 questions instead of expected 12. All test sessions consistently create exactly 3 questions with session_type 'intelligent_12_question_set' but empty category_distribution. CRITICAL ISSUE: Adaptive session logic architectural mismatch with actual question data structure."
+        -working: false
+        -agent: "testing"
+        -comment: "❌ 12-QUESTION SESSION FIX VERIFICATION FAILED (2025-01-11): Comprehensive testing confirms the canonical taxonomy fix is NOT working. DETAILED FINDINGS: 1) ❌ SESSION CREATION: Sessions still creating only 3 questions instead of 12 (session_type: 'intelligent_12_question_set' but total_questions: 3), 2) ❌ SESSION UNITS: Session.units contains only 3 question IDs (expected 12), 3) ❌ SESSION PROGRESS: Session metadata shows total_questions = 3 (expected 12), 4) ❌ FIRST QUESTION PROGRESS: Shows '1 of 3' instead of '1 of 12', 5) ✅ CANONICAL TAXONOMY MAPPING: Target subcategories found in database (Time–Speed–Distance (TSD): 24 questions, Basic Operations: 6 questions, Powers and Roots: 4 questions, Perimeter and Area: 2 questions, Basic Arithmetic: 1 question, Speed-Time-Distance: 2 questions), 6) ❌ FALLBACK LOGIC: Second session also creates only 3 questions, indicating consistent failure. CRITICAL ISSUE: Despite having 41 active questions in database and proper subcategory mapping, adaptive_session_logic.py is still limiting sessions to 3 questions. The canonical taxonomy mismatch fix has NOT resolved the core issue. SUCCESS RATE: 37.5% (3/8 tests passed)."
 
   - task: "Regular Question CSV Upload Functionality Testing"
     implemented: true
