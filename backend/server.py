@@ -1635,10 +1635,17 @@ async def check_question_quality(
         }
         
         for question in all_questions:
+            # Get the topic/category information from the related topic
+            topic_result = await db.execute(
+                select(Topic).where(Topic.id == question.topic_id)
+            )
+            topic = topic_result.scalar_one_or_none()
+            category_name = topic.name if topic else "Unknown"
+            
             question_data = {
                 "id": str(question.id),
                 "stem": question.stem[:100] + "..." if len(question.stem) > 100 else question.stem,
-                "category": question.category,
+                "category": category_name,
                 "subcategory": question.subcategory
             }
             
