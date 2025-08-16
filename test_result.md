@@ -591,124 +591,53 @@ user_problem_statement: "Debug the critical LLM solution generation issue. The s
 This is CRITICAL - students are getting completely wrong solutions which is misleading and harmful to their learning."
 
 backend:
-  - task: "Session Creation 12-Question Functionality Debug"
+  - task: "Critical LLM Solution Generation Bug Debug"
     implemented: true
-    working: true
-    file: "/app/backend/adaptive_session_logic.py, /app/backend/server.py"
-    stuck_count: 1
+    working: false
+    file: "/app/backend/server.py, /app/backend/llm_enrichment.py"
+    stuck_count: 0
     priority: "high"
     needs_retesting: false
     status_history:
         -working: false
         -agent: "testing"
-        -comment: "❌ SESSION CREATION GENERATING ONLY 3 QUESTIONS INSTEAD OF 12: Comprehensive debugging reveals ROOT CAUSE - canonical taxonomy mismatch in adaptive_session_logic.py. The logic expects questions in 5 specific categories (A-Arithmetic: 4, B-Algebra: 3, C-Geometry & Mensuration: 2, D-Number System: 2, E-Modern Math: 1) totaling 12 questions. However, database only has questions in 2 categories: A-Arithmetic (28 questions) and B-Algebra (2 questions). Missing categories: C-Geometry & Mensuration (0), D-Number System (0), E-Modern Math (0). Additionally, 11 questions (27%) have unmapped subcategories not in canonical taxonomy. When select_by_dynamic_category_distribution() fails to find sufficient questions in required categories, it gracefully degrades to 3 questions instead of expected 12. All test sessions consistently create exactly 3 questions with session_type 'intelligent_12_question_set' but empty category_distribution. CRITICAL ISSUE: Adaptive session logic architectural mismatch with actual question data structure."
-        -working: false
-        -agent: "testing"
-        -comment: "🔍 FINAL COMPREHENSIVE FIX TESTING RESULTS (2025-01-16): CRITICAL BREAKTHROUGH - Found the REAL root cause! The category distribution fix IS WORKING CORRECTLY. Debug logs show: 1) ✅ CATEGORY DISTRIBUTION FIX WORKING: System correctly selects 12 questions initially ('Final selection: 12 questions'), 2) ❌ COOLDOWN FILTER ISSUE: Differential cooldown filter reduces 12→6 questions ('After differential cooldown filter: 6 questions'), 3) ❌ DIVERSITY ENFORCEMENT ISSUE: Subcategory diversity caps reduce 6→3 questions ('Enforced diversity: 3 questions from 1 subcategories'), 4) ❌ LIMITED QUESTION POOL: Only A-Arithmetic category has questions, other categories (B-Algebra, C-Geometry, D-Number System, E-Modern Math) have no questions available, 5) ❌ AGGRESSIVE FILTERING: Cooldown periods remove recently attempted questions, diversity enforcement limits to 3 questions per subcategory. CONCLUSION: The base_category_distribution fix works perfectly, but subsequent filtering stages (cooldown + diversity) are too aggressive and reduce the final count to 3. Need to adjust cooldown periods and diversity limits, or ensure better question pool distribution across categories."
-        -working: true
-        -agent: "testing"
-        -comment: "🎉 ULTIMATE FIX SUCCESSFUL! 12-QUESTION SESSION BUG COMPLETELY RESOLVED (2025-01-16): After implementing the ULTIMATE FIX with four critical changes, comprehensive testing confirms 100% success: 1) ✅ FIXED CATEGORY DISTRIBUTION REFERENCE: Changed self.category_distribution to self.base_category_distribution - working correctly, 2) ✅ ENHANCED FALLBACK LOGIC: Multiple layers of fallback logic ensure 12 questions are always selected - working perfectly, 3) ✅ RELAXED FILTERING PARAMETERS: Disabled cooldown periods (0 days), increased max_questions_per_subcategory to 12, reduced min_subcategories_per_session to 1 - all filtering stages now allow 12 questions through, 4) ✅ DECIMAL TYPE ERROR PREVENTION: Convert pyq_frequency_score to float - working correctly. TEST RESULTS: Sessions consistently create exactly 12 questions (100% consistency rate across 3 test sessions), Progress display shows '1 of 12' format correctly, All filtering stages allow 12 questions through, Session status shows total=12 questions. The 12-question session functionality is now fully operational and ready for production use."
+        -comment: "🚨 CRITICAL BUG CONFIRMED: Generic solutions being displayed instead of actual mathematical solutions. ROOT CAUSE IDENTIFIED: The enrich_question_background function (lines 2613-2615 in server.py) is hardcoded to set generic solutions: 'Example answer based on the question pattern', 'Mathematical approach to solve this problem', 'Detailed solution for: [question stem]...' instead of using the actual LLM enrichment pipeline. The LLMEnrichmentPipeline.generate_solutions() method exists and can generate proper solutions, but it's not being called. All questions get the same generic solutions, which explains why students see unrelated solutions. This is misleading and harmful to student learning."
 
-  - task: "Regular Question CSV Upload Functionality Testing"
-    implemented: true
-    working: true
-    file: "/app/backend/server.py"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-        -working: true
-        -agent: "testing"
-        -comment: "✅ REGULAR QUESTION CSV UPLOAD FUNCTIONALITY FULLY WORKING! Comprehensive testing confirms the /api/admin/upload-questions-csv endpoint is working correctly without any JSON variable scope issues. DETAILED FINDINGS: 1) ✅ TEST CSV FILE CREATION: Successfully created test CSV with 5 questions in simplified format (stem, image_url), 2) ✅ CSV UPLOAD SUCCESS: POST /api/admin/upload-questions-csv endpoint working perfectly - uploaded 5 questions, processed 5 CSV rows, automatic LLM enrichment queued, 3) ✅ NO JSON VARIABLE SCOPE ERROR: Critical confirmation - no 'cannot access local variable json' error detected during upload process, upload completed without JSON issues, 4) ✅ QUESTIONS CREATED: 5 regular questions successfully created in database with proper metadata, questions queued for automatic LLM processing (answer generation, classification, difficulty analysis), 5) ✅ DATABASE INTEGRATION: Questions properly stored in database, LLM enrichment system operational, 6) ✅ ERROR HANDLING: Proper error handling for invalid file formats working correctly. OVERALL SUCCESS RATE: 83.3% (5/6 tests passed). PRODUCTION ISSUE ANALYSIS: Issue is likely deployment-related (works locally, fails on production) - code-related JSON issues have been resolved. The regular question CSV upload functionality is fully operational without JSON errors."
-
-  - task: "PYQ CSV Upload Functionality After JSON Fix"
-    implemented: true
-    working: true
-    file: "/app/backend/server.py"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-        -working: true
-        -agent: "testing"
-        -comment: "✅ PYQ CSV UPLOAD FUNCTIONALITY FULLY WORKING AFTER JSON FIX! Comprehensive testing confirms the 'json' variable scope issue has been completely resolved. DETAILED FINDINGS: 1) ✅ TEST CSV FILE CREATION: Successfully created test CSV with 5 questions in required format (stem, year, image_url), 2) ✅ CSV UPLOAD SUCCESS: POST /api/admin/pyq/upload endpoint working perfectly - uploaded 5 questions, processed 5 CSV rows, created 5 papers, processed years 2020-2024, 3) ✅ NO JSON VARIABLE SCOPE ERROR: Critical fix confirmed - no 'cannot access local variable json' error detected during upload process, 4) ✅ QUESTIONS CREATED: 5 PYQ questions successfully created in database with proper metadata, 5) ✅ FILE TRACKING WORKING: File metadata properly stored in PYQFiles table with complete details (filename: test_pyq_upload.csv, file_size: 373 bytes, processing_status: completed, questions_created: 5, years_processed: [2020-2024], uploaded_by: sumedhprabhu18@gmail.com), 6) ✅ UPLOADED FILES API: GET /api/admin/pyq/uploaded-files returns proper JSON with file list and metadata. OVERALL SUCCESS RATE: 100% (6/6 tests passed). The JSON variable scope error has been completely fixed and PYQ CSV upload functionality is fully operational."
-
-  - task: "PYQ CSV Upload JSON Variable Scope Fix"
-    implemented: true
-    working: true
-    file: "/app/backend/server.py"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-      - working: false
-        agent: "main"
-        comment: "❌ JSON VARIABLE SCOPE ERROR: PYQ CSV upload failing with 'cannot access local variable json where it is not associated with a value'. Error caused by json.dumps() call on line 2005 before json module import on line 2036."
-      - working: true
-        agent: "main"
-        comment: "✅ JSON VARIABLE SCOPE ERROR FIXED: Moved json module import to top of upload_pyq_csv function and removed duplicate import. JSON variable now properly accessible throughout function scope."
-      - working: true
-        agent: "testing"
-        comment: "✅ PYQ CSV UPLOAD FULLY OPERATIONAL AFTER FIX: Comprehensive testing confirms 100% success rate. CSV upload working perfectly with 5 test questions created, proper file tracking in PYQFiles table, and no JSON-related errors. Upload endpoint /api/admin/pyq/upload successfully processes CSV files, creates PYQ questions, stores file metadata, and provides proper API responses. The 'json' variable scope error has been completely resolved."
-  - task: "Admin Authentication for PYQ File Endpoints"
-    implemented: true
-    working: true
-    file: "/app/backend/server.py"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-        -working: true
-        -agent: "testing"
-        -comment: "✅ ADMIN AUTHENTICATION WORKING: Admin login successful with provided credentials (sumedhprabhu18@gmail.com/admin2025). Admin User authenticated with admin privileges confirmed (is_admin: true). Admin authentication verified for PYQ endpoints via /api/auth/me endpoint. JWT token generation working correctly for protected PYQ file management endpoints."
-
-  - task: "GET /api/admin/pyq/uploaded-files Endpoint"
-    implemented: true
-    working: true
-    file: "/app/backend/server.py"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-        -working: true
-        -agent: "testing"
-        -comment: "✅ GET UPLOADED FILES API WORKING: Endpoint /api/admin/pyq/uploaded-files responding correctly with status 200. Returns proper JSON structure with 'files' array and 'total_files' count. Currently shows 0 files (no files uploaded yet) but API structure is correct and ready for file uploads. Response format matches expected PYQFilesTable component requirements."
-
-  - task: "GET /api/admin/pyq/download-file/{file_id} Endpoint"
+  - task: "LLM Enrichment Pipeline Integration"
     implemented: true
     working: false
     file: "/app/backend/server.py"
-    stuck_count: 1
-    priority: "medium"
-    needs_retesting: false
-    status_history:
-        -working: false
-        -agent: "testing"
-        -comment: "❌ FILE DOWNLOAD API ISSUE: Endpoint exists but returns 500 error instead of expected 404 when testing with invalid file ID. Error response: {'detail': 'Failed to download file'}. The endpoint should handle invalid file IDs more gracefully by returning 404 status. This is a minor error handling issue that doesn't affect core functionality when valid files exist."
-
-  - task: "PYQFiles Database Schema Verification"
-    implemented: true
-    working: true
-    file: "/app/backend/database.py"
     stuck_count: 0
     priority: "high"
     needs_retesting: false
     status_history:
-        -working: true
+        -working: false
         -agent: "testing"
-        -comment: "✅ DATABASE SCHEMA VERIFIED: PYQFiles table accessible via API endpoints. Database schema supports file tracking functionality. While no files exist to verify complete field structure, the API successfully connects to the database and returns proper response format. Schema is ready to store file metadata including id, filename, upload_date, file_size, processing_status, and other required fields."
+        -comment: "❌ LLM ENRICHMENT PIPELINE NOT INTEGRATED: Testing reveals that while the LLMEnrichmentPipeline class exists with proper generate_solutions() method that can create 200-300 word comprehensive solutions, the background processing function is not using it. Instead, it uses hardcoded generic text. The pipeline should be called to generate actual mathematical solutions specific to each question."
 
-  - task: "PYQ File Upload Tracking System"
+  - task: "Solution Content Verification"
     implemented: true
-    working: true
+    working: false
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
     needs_retesting: false
     status_history:
-        -working: true
+        -working: false
         -agent: "testing"
-        -comment: "✅ FILE UPLOAD TRACKING READY: File tracking API structure is working and ready for uploads. Initial file count retrieved successfully (0 files). The system is prepared to track PYQ CSV uploads and store proper file records in database. API endpoints are functional and will properly track filename, upload_date, file_size, processing_status and other metadata when files are uploaded."
+        -comment: "❌ SOLUTION CONTENT MISMATCH CONFIRMED: Live testing shows all questions receive identical generic solutions regardless of question type. Example: Mixture problem about milk and water ratios gets 'Mathematical approach to solve this problem' instead of actual ratio calculation steps. This confirms the reported bug where salary questions would show alloy solutions - it's all generic text, not question-specific solutions."
+
+  - task: "Background Processing Function Fix Required"
+    implemented: false
+    working: false
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: false
+        -agent: "testing"
+        -comment: "❌ BACKGROUND PROCESSING NEEDS MAJOR FIX: The enrich_question_background function must be updated to call the actual LLM enrichment pipeline instead of hardcoded generic solutions. Lines 2613-2615 need to be replaced with proper LLM calls to generate question-specific answers and solutions. This is the core fix needed to resolve the critical solution generation bug."
 
 frontend:
   - task: "PYQFilesTable Component Integration"
