@@ -1347,50 +1347,36 @@ class CATBackendTester:
         else:
             print("   ❌ No session ID available")
         
-        # TEST 6: Next Question API
-        print("\n❓ TEST 6: NEXT QUESTION API")
+        # TEST 6: First Question Progress Check
+        print("\n❓ TEST 6: FIRST QUESTION PROGRESS CHECK")
         print("-" * 40)
-        print("Testing GET /api/sessions/{session_id}/next-question to verify question flow")
+        print("Testing that first question shows progress as '1 of 12'")
         
         if self.session_id:
-            success, response = self.run_test("Get Next Question", "GET", f"sessions/{self.session_id}/next-question", 200, None, headers)
+            success, response = self.run_test("Get First Question", "GET", f"sessions/{self.session_id}/next-question", 200, None, headers)
             if success:
                 question = response.get('question')
                 session_progress = response.get('session_progress', {})
-                session_complete = response.get('session_complete', False)
                 
                 if question:
-                    print(f"   ✅ Question retrieved successfully")
+                    current_question = session_progress.get('current_question', 0)
+                    total_questions = session_progress.get('total_questions', 0)
+                    
                     print(f"   Question ID: {question.get('id')}")
                     print(f"   Question stem: {question.get('stem', '')[:60]}...")
-                    print(f"   Subcategory: {question.get('subcategory')}")
-                    print(f"   Difficulty: {question.get('difficulty_band')}")
+                    print(f"   Progress: Question {current_question} of {total_questions}")
                     
-                    print(f"   Session progress:")
-                    print(f"     Current question: {session_progress.get('current_question')}")
-                    print(f"     Total questions: {session_progress.get('total_questions')}")
-                    print(f"     Questions remaining: {session_progress.get('questions_remaining')}")
-                    print(f"     Progress percentage: {session_progress.get('progress_percentage')}%")
-                    
-                    # Critical check: Does progress show 12 questions?
-                    total_in_progress = session_progress.get('total_questions', 0)
-                    if total_in_progress == 12:
-                        print("   ✅ CORRECT: Question progress shows 12 questions")
-                    elif total_in_progress == 3:
-                        print("   ❌ ISSUE CONFIRMED: Question progress shows only 3 questions")
+                    if current_question == 1 and total_questions == 12:
+                        print("   ✅ SUCCESS: First question shows progress '1 of 12'")
+                        test_results["first_question_progress"] = True
                     else:
-                        print(f"   ⚠️ UNEXPECTED: Question progress shows {total_in_progress} questions")
-                    
-                    test_results["next_question_api"] = True
-                elif session_complete:
-                    print("   ⚠️ Session already complete")
-                    test_results["next_question_api"] = True
+                        print(f"   ❌ FAILURE: Progress shows '{current_question} of {total_questions}' (expected '1 of 12')")
                 else:
-                    print("   ❌ No question available and session not complete")
+                    print("   ❌ No question available")
             else:
-                print("   ❌ Failed to get next question")
+                print("   ❌ Failed to get first question")
         else:
-            print("   ❌ No session ID available for testing")
+            print("   ❌ No session ID available")
         
         # TEST 7: Database Investigation
         print("\n🗄️ TEST 7: DATABASE INVESTIGATION")
