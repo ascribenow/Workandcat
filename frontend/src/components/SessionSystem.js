@@ -153,6 +153,15 @@ export const SessionSystem = ({ sessionId: propSessionId, onSessionEnd }) => {
         
         setCurrentQuestion(question);
         setSessionProgress(progress);
+        
+        // Calculate session number if not already set
+        if (!sessionNumber && progress) {
+          // For now, use a simple calculation based on progress or timestamp
+          // In the future, this could come from the backend
+          const sessionNum = Math.floor(Date.now() / 1000) % 1000; // Simple session number
+          setSessionNumber(sessionNum);
+        }
+        
         setImageLoading(false);
         setImageLoadFailed(false);
         setRetryCount(0);
