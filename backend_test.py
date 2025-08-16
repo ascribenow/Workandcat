@@ -1180,6 +1180,324 @@ class CATBackendTester:
             
         return success_rate >= 70
 
+    def test_session_creation_12_questions_debug(self):
+        """Debug session creation functionality to investigate why sessions are only generating 3 questions instead of 12"""
+        print("🔍 DEBUGGING SESSION CREATION - 3 vs 12 QUESTIONS ISSUE")
+        print("=" * 60)
+        print("Testing session creation functionality to debug why sessions are only generating 3 questions instead of 12")
+        print("Expected: Sessions should create exactly 12 questions")
+        print("Admin credentials: sumedhprabhu18@gmail.com / admin2025")
+        print("=" * 60)
+        
+        if not self.admin_token:
+            print("❌ Cannot test session creation - no admin token")
+            return False
+            
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {self.admin_token}'
+        }
+        
+        test_results = {
+            "admin_authentication": False,
+            "question_pool_check": False,
+            "session_start_api": False,
+            "session_metadata_check": False,
+            "session_status_api": False,
+            "next_question_api": False,
+            "database_investigation": False,
+            "adaptive_logic_check": False
+        }
+        
+        # TEST 1: Admin Authentication
+        print("\n🔐 TEST 1: ADMIN AUTHENTICATION")
+        print("-" * 40)
+        
+        success, response = self.run_test("Admin Authentication Check", "GET", "auth/me", 200, None, headers)
+        if success and response.get('is_admin'):
+            print(f"   ✅ Admin authenticated: {response.get('email')}")
+            print(f"   Admin privileges confirmed: {response.get('is_admin')}")
+            test_results["admin_authentication"] = True
+        else:
+            print("   ❌ Admin authentication failed")
+            return False
+        
+        # TEST 2: Question Pool Check
+        print("\n📊 TEST 2: QUESTION POOL CHECK")
+        print("-" * 40)
+        print("Verifying there are enough active questions in the database for session creation")
+        
+        success, response = self.run_test("Check Question Pool", "GET", "questions?limit=50", 200, None, headers)
+        if success:
+            questions = response.get('questions', [])
+            active_questions = [q for q in questions if q.get('is_active', False)]
+            
+            print(f"   Total questions in database: {len(questions)}")
+            print(f"   Active questions available: {len(active_questions)}")
+            
+            if len(active_questions) >= 12:
+                print(f"   ✅ Sufficient active questions for 12-question session ({len(active_questions)} available)")
+                test_results["question_pool_check"] = True
+                
+                # Show sample questions
+                print("   Sample active questions:")
+                for i, q in enumerate(active_questions[:5]):
+                    print(f"     {i+1}. {q.get('stem', '')[:60]}...")
+                    print(f"        ID: {q.get('id')}, Subcategory: {q.get('subcategory')}, Difficulty: {q.get('difficulty_band')}")
+            else:
+                print(f"   ❌ Insufficient active questions for 12-question session (only {len(active_questions)} available)")
+                print("   This could be the root cause of the 3-question limitation")
+        else:
+            print("   ❌ Failed to check question pool")
+            return False
+        
+        # TEST 3: Session Start API
+        print("\n🎯 TEST 3: SESSION START API")
+        print("-" * 40)
+        print("Testing POST /api/sessions/start to create a new session")
+        
+        session_data = {"target_minutes": 30}
+        success, response = self.run_test("Start Session", "POST", "sessions/start", 200, session_data, headers)
+        if success:
+            session_id = response.get('session_id')
+            total_questions = response.get('total_questions')
+            session_type = response.get('session_type')
+            
+            print(f"   ✅ Session created successfully")
+            print(f"   Session ID: {session_id}")
+            print(f"   Total questions: {total_questions}")
+            print(f"   Session type: {session_type}")
+            
+            if session_id:
+                self.session_id = session_id
+                test_results["session_start_api"] = True
+                
+                # Critical check: Is it 12 questions?
+                if total_questions == 12:
+                    print("   ✅ CORRECT: Session created with 12 questions")
+                elif total_questions == 3:
+                    print("   ❌ ISSUE CONFIRMED: Session created with only 3 questions (expected 12)")
+                else:
+                    print(f"   ⚠️ UNEXPECTED: Session created with {total_questions} questions (expected 12)")
+            else:
+                print("   ❌ Session ID not returned")
+        else:
+            print("   ❌ Session creation failed")
+            return False
+        
+        # TEST 4: Session Metadata Check
+        print("\n📋 TEST 4: SESSION METADATA CHECK")
+        print("-" * 40)
+        print("Verifying the session response contains proper session metadata including total_questions count")
+        
+        if 'personalization' in response:
+            personalization = response['personalization']
+            print(f"   Session personalization data:")
+            print(f"     Applied: {personalization.get('applied')}")
+            print(f"     Learning stage: {personalization.get('learning_stage')}")
+            print(f"     Recent accuracy: {personalization.get('recent_accuracy')}")
+            print(f"     Difficulty distribution: {personalization.get('difficulty_distribution')}")
+            print(f"     Category distribution: {personalization.get('category_distribution')}")
+            print(f"     Weak areas targeted: {personalization.get('weak_areas_targeted')}")
+            test_results["session_metadata_check"] = True
+        else:
+            print("   ⚠️ No personalization metadata in session response")
+        
+        # TEST 5: Session Status API
+        print("\n📊 TEST 5: SESSION STATUS API")
+        print("-" * 40)
+        print("Testing GET /api/sessions/current-status to check active session details")
+        
+        success, response = self.run_test("Check Session Status", "GET", "sessions/current-status", 200, None, headers)
+        if success:
+            active_session = response.get('active_session')
+            session_id_status = response.get('session_id')
+            progress = response.get('progress', {})
+            
+            print(f"   Active session: {active_session}")
+            if active_session:
+                print(f"   Session ID: {session_id_status}")
+                print(f"   Progress: {progress}")
+                print(f"     Answered: {progress.get('answered', 0)}")
+                print(f"     Total: {progress.get('total', 0)}")
+                print(f"     Next question: {progress.get('next_question', 0)}")
+                
+                # Critical check: Does status show 12 questions?
+                total_in_status = progress.get('total', 0)
+                if total_in_status == 12:
+                    print("   ✅ CORRECT: Session status shows 12 questions")
+                elif total_in_status == 3:
+                    print("   ❌ ISSUE CONFIRMED: Session status shows only 3 questions")
+                else:
+                    print(f"   ⚠️ UNEXPECTED: Session status shows {total_in_status} questions")
+                    
+                test_results["session_status_api"] = True
+            else:
+                print("   ⚠️ No active session found in status")
+        else:
+            print("   ❌ Session status check failed")
+        
+        # TEST 6: Next Question API
+        print("\n❓ TEST 6: NEXT QUESTION API")
+        print("-" * 40)
+        print("Testing GET /api/sessions/{session_id}/next-question to verify question flow")
+        
+        if self.session_id:
+            success, response = self.run_test("Get Next Question", "GET", f"sessions/{self.session_id}/next-question", 200, None, headers)
+            if success:
+                question = response.get('question')
+                session_progress = response.get('session_progress', {})
+                session_complete = response.get('session_complete', False)
+                
+                if question:
+                    print(f"   ✅ Question retrieved successfully")
+                    print(f"   Question ID: {question.get('id')}")
+                    print(f"   Question stem: {question.get('stem', '')[:60]}...")
+                    print(f"   Subcategory: {question.get('subcategory')}")
+                    print(f"   Difficulty: {question.get('difficulty_band')}")
+                    
+                    print(f"   Session progress:")
+                    print(f"     Current question: {session_progress.get('current_question')}")
+                    print(f"     Total questions: {session_progress.get('total_questions')}")
+                    print(f"     Questions remaining: {session_progress.get('questions_remaining')}")
+                    print(f"     Progress percentage: {session_progress.get('progress_percentage')}%")
+                    
+                    # Critical check: Does progress show 12 questions?
+                    total_in_progress = session_progress.get('total_questions', 0)
+                    if total_in_progress == 12:
+                        print("   ✅ CORRECT: Question progress shows 12 questions")
+                    elif total_in_progress == 3:
+                        print("   ❌ ISSUE CONFIRMED: Question progress shows only 3 questions")
+                    else:
+                        print(f"   ⚠️ UNEXPECTED: Question progress shows {total_in_progress} questions")
+                    
+                    test_results["next_question_api"] = True
+                elif session_complete:
+                    print("   ⚠️ Session already complete")
+                    test_results["next_question_api"] = True
+                else:
+                    print("   ❌ No question available and session not complete")
+            else:
+                print("   ❌ Failed to get next question")
+        else:
+            print("   ❌ No session ID available for testing")
+        
+        # TEST 7: Database Investigation
+        print("\n🗄️ TEST 7: DATABASE INVESTIGATION")
+        print("-" * 40)
+        print("Checking if session.units field contains 12 question IDs")
+        
+        if self.session_id:
+            # We can't directly query the database, but we can infer from the API responses
+            # The session creation response and status should tell us about the units
+            print(f"   Session ID for investigation: {self.session_id}")
+            
+            # Try to get session details through multiple questions
+            question_ids_found = []
+            for i in range(15):  # Try to get up to 15 questions to see the pattern
+                try:
+                    success, response = self.run_test(f"Get Question {i+1}", "GET", f"sessions/{self.session_id}/next-question", 200, None, headers)
+                    if success:
+                        question = response.get('question')
+                        session_complete = response.get('session_complete', False)
+                        
+                        if question and question.get('id') not in question_ids_found:
+                            question_ids_found.append(question.get('id'))
+                            print(f"     Question {len(question_ids_found)}: {question.get('id')}")
+                        elif session_complete:
+                            print(f"     Session complete after {len(question_ids_found)} questions")
+                            break
+                        else:
+                            break
+                    else:
+                        break
+                except:
+                    break
+            
+            print(f"   Total unique question IDs found: {len(question_ids_found)}")
+            
+            if len(question_ids_found) == 12:
+                print("   ✅ CORRECT: Session contains 12 question IDs")
+                test_results["database_investigation"] = True
+            elif len(question_ids_found) == 3:
+                print("   ❌ ISSUE CONFIRMED: Session contains only 3 question IDs")
+            else:
+                print(f"   ⚠️ UNEXPECTED: Session contains {len(question_ids_found)} question IDs")
+                test_results["database_investigation"] = True  # Still valuable data
+        else:
+            print("   ❌ No session ID available for database investigation")
+        
+        # TEST 8: Adaptive Logic Check
+        print("\n🧠 TEST 8: ADAPTIVE LOGIC CHECK")
+        print("-" * 40)
+        print("Checking if adaptive_session_logic is limiting questions to 3")
+        
+        # Create another session to see if the pattern is consistent
+        session_data_2 = {"target_minutes": 45}
+        success, response = self.run_test("Start Second Session", "POST", "sessions/start", 200, session_data_2, headers)
+        if success:
+            session_id_2 = response.get('session_id')
+            total_questions_2 = response.get('total_questions')
+            session_type_2 = response.get('session_type')
+            
+            print(f"   Second session created:")
+            print(f"     Session ID: {session_id_2}")
+            print(f"     Total questions: {total_questions_2}")
+            print(f"     Session type: {session_type_2}")
+            
+            # Check if both sessions have the same issue
+            if total_questions_2 == 3:
+                print("   ❌ CONSISTENT ISSUE: Second session also has 3 questions")
+                print("   This suggests adaptive_session_logic is consistently limiting to 3 questions")
+            elif total_questions_2 == 12:
+                print("   ✅ INCONSISTENT: Second session has 12 questions")
+                print("   This suggests the issue may be intermittent or context-dependent")
+            else:
+                print(f"   ⚠️ DIFFERENT PATTERN: Second session has {total_questions_2} questions")
+            
+            test_results["adaptive_logic_check"] = True
+        else:
+            print("   ❌ Failed to create second session for comparison")
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 60)
+        print("SESSION CREATION DEBUG TEST RESULTS")
+        print("=" * 60)
+        
+        passed_tests = sum(test_results.values())
+        total_tests = len(test_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        for test_name, result in test_results.items():
+            status = "✅ PASS" if result else "❌ FAIL"
+            print(f"{test_name.replace('_', ' ').title():<35} {status}")
+            
+        print("-" * 60)
+        print(f"Overall Test Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # Critical analysis and recommendations
+        print("\n🔍 CRITICAL ANALYSIS:")
+        
+        if test_results["question_pool_check"]:
+            print("✅ Sufficient questions available in database")
+        else:
+            print("❌ CRITICAL: Insufficient active questions in database")
+            print("   RECOMMENDATION: Check question activation status and ensure enough questions are marked as active")
+        
+        if test_results["session_start_api"] and test_results["session_status_api"]:
+            print("✅ Session creation APIs working")
+        else:
+            print("❌ CRITICAL: Session creation APIs have issues")
+        
+        print("\n🎯 DEBUGGING CONCLUSIONS:")
+        print("1. Check adaptive_session_logic.py for hardcoded limits")
+        print("2. Verify question filtering logic in session creation")
+        print("3. Check if personalization logic is reducing question pool")
+        print("4. Investigate fallback mechanisms that might limit to 3 questions")
+        print("5. Review database query constraints in session creation")
+        
+        return success_rate >= 70
+
     def test_regular_question_csv_upload_functionality(self):
         """Test regular question CSV upload functionality (not PYQ upload) using /api/admin/upload-questions-csv"""
         print("🔍 TESTING REGULAR QUESTION CSV UPLOAD FUNCTIONALITY")
