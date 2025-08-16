@@ -1252,13 +1252,13 @@ class CATBackendTester:
             print("   ❌ Failed to check question pool")
             return False
         
-        # TEST 3: Session Start API
-        print("\n🎯 TEST 3: SESSION START API")
+        # TEST 3: Session Creation with 12 Questions
+        print("\n🎯 TEST 3: SESSION CREATION WITH 12 QUESTIONS")
         print("-" * 40)
-        print("Testing POST /api/sessions/start to create a new session")
+        print("Testing POST /api/sessions/start to create a new session with exactly 12 questions")
         
         session_data = {"target_minutes": 30}
-        success, response = self.run_test("Start Session", "POST", "sessions/start", 200, session_data, headers)
+        success, response = self.run_test("Start 12-Question Session", "POST", "sessions/start", 200, session_data, headers)
         if success:
             session_id = response.get('session_id')
             total_questions = response.get('total_questions')
@@ -1271,15 +1271,22 @@ class CATBackendTester:
             
             if session_id:
                 self.session_id = session_id
-                test_results["session_start_api"] = True
                 
-                # Critical check: Is it 12 questions?
+                # Critical check: Is it exactly 12 questions?
                 if total_questions == 12:
-                    print("   ✅ CORRECT: Session created with 12 questions")
+                    print("   ✅ SUCCESS: Session created with exactly 12 questions")
+                    test_results["session_creation_12_questions"] = True
                 elif total_questions == 3:
-                    print("   ❌ ISSUE CONFIRMED: Session created with only 3 questions (expected 12)")
+                    print("   ❌ FAILURE: Session still creating only 3 questions - fix not working")
                 else:
                     print(f"   ⚠️ UNEXPECTED: Session created with {total_questions} questions (expected 12)")
+                    
+                # Check personalization data
+                if 'personalization' in response:
+                    personalization = response['personalization']
+                    print(f"   Personalization applied: {personalization.get('applied')}")
+                    print(f"   Category distribution: {personalization.get('category_distribution')}")
+                    print(f"   Difficulty distribution: {personalization.get('difficulty_distribution')}")
             else:
                 print("   ❌ Session ID not returned")
         else:
