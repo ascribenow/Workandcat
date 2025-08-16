@@ -12131,7 +12131,44 @@ def main_regular_question_csv():
         print("❌ Admin authentication failed. Cannot run question CSV tests.")
         return 1
 
-if __name__ == "__main__":
+def main_12_question_session_fix():
+    """Main function for 12-question session fix verification testing"""
+    tester = CATBackendTester()
+    
+    print("🚀 CAT Backend 12-Question Session Fix Verification")
+    print("=" * 60)
+    print("Testing if the canonical taxonomy fix resolved the 12-question session issue")
+    print()
+    
+    # First authenticate admin
+    print("🔐 Authenticating admin user for session testing...")
+    admin_login = {
+        "email": "sumedhprabhu18@gmail.com",
+        "password": "admin2025"
+    }
+    
+    success, response = tester.run_test("Admin Login for Session Test", "POST", "auth/login", 200, admin_login)
+    if success and 'access_token' in response:
+        tester.admin_token = response['access_token']
+        tester.admin_user = response['user']
+        print(f"   ✅ Admin authenticated: {tester.admin_user['full_name']}")
+        print()
+        
+        # Run the 12-question session fix verification test
+        print("🎯 RUNNING 12-QUESTION SESSION FIX VERIFICATION TEST")
+        success = tester.test_session_creation_12_questions_fix_verification()
+        
+        if success:
+            print("\n🎉 12-question session fix verification completed successfully!")
+            return 0
+        else:
+            print("\n❌ 12-question session fix verification failed!")
+            return 1
+            
+    else:
+        print("❌ Failed to authenticate admin user")
+        print("Cannot proceed with session testing")
+        return 1
     import sys
     if len(sys.argv) > 1 and sys.argv[1] == "pyq":
         # Run PYQ file tracking testing suite
