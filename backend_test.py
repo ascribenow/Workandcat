@@ -11785,6 +11785,48 @@ def main_pyq_testing():
         print("❌ Admin authentication failed. Cannot run PYQ tests.")
         return 1
 
+def main_regular_question_csv():
+    """Main function for regular question CSV upload testing (focus of review request)"""
+    tester = CATBackendTester()
+    
+    print("🚀 CAT Backend Regular Question CSV Upload Testing Suite")
+    print("=" * 60)
+    print("Testing regular question CSV upload functionality using /api/admin/upload-questions-csv")
+    print("This is the endpoint that the user is having issues with on production")
+    
+    # First authenticate admin user for question CSV testing
+    admin_login = {
+        "email": "sumedhprabhu18@gmail.com",
+        "password": "admin2025"
+    }
+    
+    print("\n🔐 Authenticating admin user for question CSV testing...")
+    success, response = tester.run_test("Admin Login for Question CSV Test", "POST", "auth/login", 200, admin_login)
+    if success and 'user' in response and 'access_token' in response:
+        tester.admin_user = response['user']
+        tester.admin_token = response['access_token']
+        print(f"   ✅ Admin authenticated: {tester.admin_user['full_name']}")
+        
+        # Run regular question CSV upload test (main focus of review request)
+        print("\n🎯 RUNNING REGULAR QUESTION CSV UPLOAD TESTS")
+        csv_upload_success = tester.test_regular_question_csv_upload_functionality()
+        
+        if csv_upload_success:
+            print("\n🎉 Regular question CSV upload test completed successfully!")
+            print("✅ Regular question CSV upload functionality working")
+            print("✅ No JSON variable scope issues detected")
+            print("✅ Questions created successfully in database")
+        else:
+            print("\n❌ Regular question CSV upload test failed. Please review the results above.")
+            print("❌ Regular question CSV upload functionality needs attention")
+        
+        print(f"\nFinal Results: {tester.tests_passed}/{tester.tests_run} tests passed")
+        return 0 if csv_upload_success else 1
+        
+    else:
+        print("❌ Admin authentication failed. Cannot run question CSV tests.")
+        return 1
+
 if __name__ == "__main__":
     import sys
     if len(sys.argv) > 1 and sys.argv[1] == "pyq":
