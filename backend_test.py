@@ -1180,13 +1180,14 @@ class CATBackendTester:
             
         return success_rate >= 70
 
-    def test_session_creation_12_questions_debug(self):
-        """Debug session creation functionality to investigate why sessions are only generating 3 questions instead of 12"""
-        print("🔍 DEBUGGING SESSION CREATION - 3 vs 12 QUESTIONS ISSUE")
+    def test_session_creation_12_questions_fix_verification(self):
+        """Test if the 12-question fix worked by creating a new session and verifying it has exactly 12 questions"""
+        print("🔍 TESTING 12-QUESTION SESSION FIX VERIFICATION")
         print("=" * 60)
-        print("Testing session creation functionality to debug why sessions are only generating 3 questions instead of 12")
-        print("Expected: Sessions should create exactly 12 questions")
+        print("Testing if the canonical taxonomy fix resolved the 12-question session issue")
+        print("Expected: Sessions should create exactly 12 questions with proper category distribution")
         print("Admin credentials: sumedhprabhu18@gmail.com / admin2025")
+        print("Testing adaptive_session_logic.py changes and fallback logic")
         print("=" * 60)
         
         if not self.admin_token:
