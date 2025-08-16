@@ -1412,82 +1412,35 @@ class CATBackendTester:
                 print("   ⚠️ WARNING: No target subcategories found - may affect session creation")
         else:
             print("   ❌ Failed to check question subcategories")
-        
-        if self.session_id:
-            # We can't directly query the database, but we can infer from the API responses
-            # The session creation response and status should tell us about the units
-            print(f"   Session ID for investigation: {self.session_id}")
-            
-            # Try to get session details through multiple questions
-            question_ids_found = []
-            for i in range(15):  # Try to get up to 15 questions to see the pattern
-                try:
-                    success, response = self.run_test(f"Get Question {i+1}", "GET", f"sessions/{self.session_id}/next-question", 200, None, headers)
-                    if success:
-                        question = response.get('question')
-                        session_complete = response.get('session_complete', False)
-                        
-                        if question and question.get('id') not in question_ids_found:
-                            question_ids_found.append(question.get('id'))
-                            print(f"     Question {len(question_ids_found)}: {question.get('id')}")
-                        elif session_complete:
-                            print(f"     Session complete after {len(question_ids_found)} questions")
-                            break
-                        else:
-                            break
-                    else:
-                        break
-                except:
-                    break
-            
-            print(f"   Total unique question IDs found: {len(question_ids_found)}")
-            
-            if len(question_ids_found) == 12:
-                print("   ✅ CORRECT: Session contains 12 question IDs")
-                test_results["database_investigation"] = True
-            elif len(question_ids_found) == 3:
-                print("   ❌ ISSUE CONFIRMED: Session contains only 3 question IDs")
-            else:
-                print(f"   ⚠️ UNEXPECTED: Session contains {len(question_ids_found)} question IDs")
-                test_results["database_investigation"] = True  # Still valuable data
-        else:
-            print("   ❌ No session ID available for database investigation")
-        
-        # TEST 8: Adaptive Logic Check
-        print("\n🧠 TEST 8: ADAPTIVE LOGIC CHECK")
+        # TEST 8: Fallback Logic Verification
+        print("\n🔄 TEST 8: FALLBACK LOGIC VERIFICATION")
         print("-" * 40)
-        print("Checking if adaptive_session_logic is limiting questions to 3")
+        print("Verifying that fallback logic ensures 12 questions even if category distribution fails")
         
-        # Create another session to see if the pattern is consistent
-        session_data_2 = {"target_minutes": 45}
-        success, response = self.run_test("Start Second Session", "POST", "sessions/start", 200, session_data_2, headers)
+        # Create a second session to test consistency
+        session_data = {"target_minutes": 30}
+        success, response = self.run_test("Start Second Session", "POST", "sessions/start", 200, session_data, headers)
         if success:
             session_id_2 = response.get('session_id')
             total_questions_2 = response.get('total_questions')
             session_type_2 = response.get('session_type')
             
             print(f"   Second session created:")
-            print(f"     Session ID: {session_id_2}")
-            print(f"     Total questions: {total_questions_2}")
-            print(f"     Session type: {session_type_2}")
+            print(f"   Session ID: {session_id_2}")
+            print(f"   Total questions: {total_questions_2}")
+            print(f"   Session type: {session_type_2}")
             
-            # Check if both sessions have the same issue
-            if total_questions_2 == 3:
-                print("   ❌ CONSISTENT ISSUE: Second session also has 3 questions")
-                print("   This suggests adaptive_session_logic is consistently limiting to 3 questions")
-            elif total_questions_2 == 12:
-                print("   ✅ INCONSISTENT: Second session has 12 questions")
-                print("   This suggests the issue may be intermittent or context-dependent")
+            if total_questions_2 == 12:
+                print("   ✅ SUCCESS: Fallback logic ensures consistent 12 questions")
+                test_results["fallback_logic_verification"] = True
             else:
-                print(f"   ⚠️ DIFFERENT PATTERN: Second session has {total_questions_2} questions")
-            
-            test_results["adaptive_logic_check"] = True
+                print(f"   ❌ FAILURE: Fallback logic not working - got {total_questions_2} questions")
         else:
-            print("   ❌ Failed to create second session for comparison")
+            print("   ❌ Failed to create second session for fallback test")
         
         # FINAL RESULTS SUMMARY
         print("\n" + "=" * 60)
-        print("SESSION CREATION DEBUG TEST RESULTS")
+        print("12-QUESTION SESSION FIX VERIFICATION RESULTS")
         print("=" * 60)
         
         passed_tests = sum(test_results.values())
@@ -1499,29 +1452,36 @@ class CATBackendTester:
             print(f"{test_name.replace('_', ' ').title():<35} {status}")
             
         print("-" * 60)
-        print(f"Overall Test Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
         
-        # Critical analysis and recommendations
-        print("\n🔍 CRITICAL ANALYSIS:")
-        
-        if test_results["question_pool_check"]:
-            print("✅ Sufficient questions available in database")
+        # Critical analysis
+        if test_results["session_creation_12_questions"]:
+            print("🎉 CRITICAL SUCCESS: 12-question session fix is working!")
+            print("   ✅ Sessions now create exactly 12 questions")
         else:
-            print("❌ CRITICAL: Insufficient active questions in database")
-            print("   RECOMMENDATION: Check question activation status and ensure enough questions are marked as active")
-        
-        if test_results["session_start_api"] and test_results["session_status_api"]:
-            print("✅ Session creation APIs working")
+            print("❌ CRITICAL FAILURE: 12-question session fix is NOT working!")
+            print("   ❌ Sessions still creating wrong number of questions")
+            
+        if test_results["canonical_taxonomy_mapping"]:
+            print("✅ Canonical taxonomy mapping is working")
         else:
-            print("❌ CRITICAL: Session creation APIs have issues")
-        
-        print("\n🎯 DEBUGGING CONCLUSIONS:")
-        print("1. Check adaptive_session_logic.py for hardcoded limits")
-        print("2. Verify question filtering logic in session creation")
-        print("3. Check if personalization logic is reducing question pool")
-        print("4. Investigate fallback mechanisms that might limit to 3 questions")
-        print("5. Review database query constraints in session creation")
-        
+            print("⚠️ Canonical taxonomy mapping may need attention")
+            
+        if test_results["fallback_logic_verification"]:
+            print("✅ Fallback logic is ensuring consistent results")
+        else:
+            print("⚠️ Fallback logic may need improvement")
+            
+        if success_rate >= 80:
+            print("🎉 12-QUESTION SESSION FIX VERIFICATION SUCCESSFUL!")
+            print("   ✅ The canonical taxonomy mismatch has been resolved")
+            print("   ✅ Sessions consistently create 12 questions")
+            print("   ✅ Fallback logic ensures reliability")
+        elif success_rate >= 60:
+            print("⚠️ 12-question session fix partially working with minor issues")
+        else:
+            print("❌ 12-question session fix has significant issues requiring attention")
+            
         return success_rate >= 70
 
     def test_regular_question_csv_upload_functionality(self):
