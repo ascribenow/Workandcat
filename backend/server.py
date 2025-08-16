@@ -2613,12 +2613,9 @@ async def enrich_question_background(question_id: str, hint_category: str = None
             from llm_enrichment import LLMEnrichmentPipeline
             
             try:
-                # Initialize LLM enrichment pipeline
-                llm_enricher = LLMEnrichmentPipeline()
-                
-                # Generate proper solutions using LLM
+                # Use the global LLM enrichment pipeline (already initialized with API key)
                 logger.info(f"Generating LLM solutions for: {question.stem[:50]}...")
-                enrichment_result = await llm_enricher.complete_auto_generation(
+                enrichment_result = await llm_pipeline.complete_auto_generation(
                     stem=question.stem,
                     hint_category=hint_category,
                     hint_subcategory=hint_subcategory
