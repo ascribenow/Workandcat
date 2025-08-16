@@ -33,16 +33,16 @@ class AdaptiveSessionLogic:
             "E-Modern Math": 1           # 8% - Advanced topics
         }
         
-        # PHASE 1: Differential cooldown periods by difficulty
+        # PHASE 1: Differential cooldown periods by difficulty (RELAXED FOR TESTING)
         self.cooldown_periods = {
-            "Easy": 1,      # 1 day - fundamentals can recur sooner
-            "Medium": 2,    # 2 days - balanced recovery
-            "Hard": 3       # 3 days - more recovery time for complex problems
+            "Easy": 0,      # No cooldown for now
+            "Medium": 0,    # No cooldown for now  
+            "Hard": 0       # No cooldown for now
         }
         
-        # PHASE 1: Subcategory diversity limits
-        self.max_questions_per_subcategory = 3  # Prevent domination
-        self.min_subcategories_per_session = 4  # Ensure variety
+        # PHASE 1: Subcategory diversity limits (RELAXED FOR LIMITED QUESTION POOL)
+        self.max_questions_per_subcategory = 12  # Allow all questions from single subcategory if needed
+        self.min_subcategories_per_session = 1   # Allow single subcategory sessions if needed
         
         # Subcategory mapping
         self.canonical_subcategories = {
