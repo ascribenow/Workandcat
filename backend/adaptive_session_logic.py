@@ -589,6 +589,7 @@ class AdaptiveSessionLogic:
     ) -> List[Question]:
         """
         PHASE 1: Select questions with difficulty distribution and PYQ frequency weighting
+        ULTIMATE FIX: Enhanced fallback logic to ensure 12 questions are always selected
         """
         try:
             difficulty_prefs = user_profile['difficulty_preferences']
@@ -601,6 +602,9 @@ class AdaptiveSessionLogic:
                 if difficulty in difficulty_groups:
                     difficulty_groups[difficulty].append(question)
             
+            logger.info(f"Difficulty groups: Easy={len(difficulty_groups['Easy'])}, Medium={len(difficulty_groups['Medium'])}, Hard={len(difficulty_groups['Hard'])}")
+            logger.info(f"Difficulty preferences: {difficulty_prefs}")
+            
             # Select according to difficulty preferences, weighted by PYQ frequency
             for difficulty, target_count in difficulty_prefs.items():
                 if difficulty in difficulty_groups:
@@ -612,13 +616,33 @@ class AdaptiveSessionLogic:
                         key=lambda q: -(q.pyq_frequency_score or 0.5)
                     )
                     
-                    selected.extend(pyq_weighted[:target_count])
+                    actual_selected = min(target_count, len(pyq_weighted))
+                    selected.extend(pyq_weighted[:actual_selected])
+                    logger.info(f"Selected {actual_selected}/{target_count} {difficulty} questions")
             
-            return selected
+            # ULTIMATE FIX: Ensure we have 12 questions by filling from available pool
+            if len(selected) < 12:
+                logger.warning(f"Only {len(selected)} questions selected from difficulty preferences, need 12")
+                selected_ids = {q.id for q in selected}
+                remaining_questions = [q for q in questions if q.id not in selected_ids]
+                
+                # Sort remaining by PYQ frequency
+                remaining_sorted = sorted(
+                    remaining_questions,
+                    key=lambda q: -(q.pyq_frequency_score or 0.5)
+                )
+                
+                needed = 12 - len(selected)
+                selected.extend(remaining_sorted[:needed])
+                logger.info(f"Added {min(needed, len(remaining_sorted))} additional questions to reach 12")
+            
+            final_count = len(selected)
+            logger.info(f"Final difficulty selection: {final_count} questions")
+            return selected[:12]  # Ensure exactly 12 questions
             
         except Exception as e:
             logger.error(f"Error in PYQ-weighted difficulty selection: {e}")
-            return questions
+            return questions[:12]  # Fallback to first 12 questions
 
     async def apply_differential_cooldown_filter(
         self, 
