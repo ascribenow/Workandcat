@@ -12782,13 +12782,38 @@ def main_12_question_session_fix():
 if __name__ == "__main__":
     import sys
     
-    # Run the FINAL COMPREHENSIVE FIX test for 12-question sessions
-    tester = CATBackendTester()
-    success = tester.test_12_question_session_final_comprehensive_fix()
+    if len(sys.argv) > 1:
+        test_type = sys.argv[1].lower()
+        
+        tester = CATBackendTester()
+        
+        if test_type == "postgresql":
+            print("🔍 Running PostgreSQL Migration Tests...")
+            success = tester.test_postgresql_migration_comprehensive()
+        elif test_type == "pyq":
+            print("🔍 Running PYQ CSV Upload Tests...")
+            success = tester.test_pyq_csv_upload_functionality()
+        elif test_type == "session":
+            print("🔍 Running Session Creation 12-Question Tests...")
+            success = tester.test_session_creation_12_questions_ultimate_fix_verification()
+        elif test_type == "ultimate":
+            print("🔍 Running ULTIMATE 12-Question Session Fix Tests...")
+            success = tester.test_ultimate_12_question_session_fix()
+        elif test_type == "regular":
+            print("🔍 Running Regular Question CSV Upload Tests...")
+            success = tester.test_regular_question_csv_upload_functionality()
+        else:
+            print("❌ Unknown test type. Available: postgresql, pyq, session, ultimate, regular")
+            sys.exit(1)
+    else:
+        # Default: Run the ULTIMATE FIX test for 12-question sessions
+        print("🔍 Running ULTIMATE 12-Question Session Fix Tests (default)...")
+        tester = CATBackendTester()
+        success = tester.test_ultimate_12_question_session_fix()
     
     if success:
-        print("\n🎉 12-question session fix verified! System is working correctly.")
+        print("\n🎉 Tests completed successfully!")
         sys.exit(0)
     else:
-        print("\n❌ 12-question session fix verification failed. Please review the issues above.")
+        print("\n❌ Tests failed! Please review the issues above.")
         sys.exit(1)
