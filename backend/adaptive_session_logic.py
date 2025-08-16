@@ -920,7 +920,7 @@ class AdaptiveSessionLogic:
                 subcategory_distribution[subcategory] = subcategory_distribution.get(subcategory, 0) + 1
                 
                 # PYQ frequency analysis
-                pyq_score = question.pyq_frequency_score or 0.5
+                pyq_score = float(question.pyq_frequency_score or 0.5)  # Convert to float
                 total_pyq_score += pyq_score
                 
                 if pyq_score >= 0.7:
