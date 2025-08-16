@@ -12169,8 +12169,13 @@ def main_12_question_session_fix():
         print("❌ Failed to authenticate admin user")
         print("Cannot proceed with session testing")
         return 1
+if __name__ == "__main__":
     import sys
-    if len(sys.argv) > 1 and sys.argv[1] == "pyq":
+    if len(sys.argv) > 1 and sys.argv[1] == "12-question":
+        # Run 12-question session fix verification testing suite
+        exit_code = main_12_question_session_fix()
+        sys.exit(exit_code)
+    elif len(sys.argv) > 1 and sys.argv[1] == "pyq":
         # Run PYQ file tracking testing suite
         exit_code = main_pyq_testing()
         sys.exit(exit_code)
@@ -12195,6 +12200,6 @@ def main_12_question_session_fix():
         exit_code = main_sophisticated()
         sys.exit(exit_code)
     else:
-        # Run regular question CSV upload testing by default (as per review request)
-        exit_code = main_regular_question_csv()
+        # Run 12-question session fix verification by default (as per review request)
+        exit_code = main_12_question_session_fix()
         sys.exit(exit_code)
