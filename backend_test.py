@@ -1180,14 +1180,19 @@ class CATBackendTester:
             
         return success_rate >= 70
 
-    def test_session_creation_12_questions_final_fix_verification(self):
-        """Test the FINAL FIX for 12-question session issue with category distribution bug fix and robust fallback logic"""
-        print("🔍 TESTING FINAL 12-QUESTION SESSION FIX VERIFICATION")
+    def test_session_creation_12_questions_ultimate_fix_verification(self):
+        """Test the ULTIMATE FIX for 12-question session issue with four critical fixes"""
+        print("🔍 TESTING ULTIMATE 12-QUESTION SESSION FIX VERIFICATION")
         print("=" * 60)
-        print("Testing the final fix for 12-question session issue with two critical changes:")
-        print("1. Fixed Category Distribution Bug: Changed self.category_distribution to self.base_category_distribution")
-        print("2. Added Robust Fallback Logic: Ensures 12 questions are always selected")
-        print("Expected: Sessions should create exactly 12 questions with proper progress display")
+        print("Testing the ULTIMATE FIX for 12-question session issue with FOUR critical changes:")
+        print("1. Fixed Category Distribution Reference: self.category_distribution → self.base_category_distribution")
+        print("2. Enhanced Fallback Logic: Multiple layers to ensure 12 questions are always selected")
+        print("3. Relaxed Filtering Parameters:")
+        print("   - Disabled cooldown periods (0 days for all difficulties)")
+        print("   - Increased max_questions_per_subcategory from 3 to 12")
+        print("   - Reduced min_subcategories_per_session from 4 to 1")
+        print("4. Fixed Decimal Type Error: Convert pyq_frequency_score to float")
+        print("Expected: Sessions should create exactly 12 questions consistently")
         print("Admin credentials: sumedhprabhu18@gmail.com / admin2025")
         print("=" * 60)
         
