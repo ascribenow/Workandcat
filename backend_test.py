@@ -1291,7 +1291,7 @@ class CATBackendTester:
         
         target_question = None
         for q in questions:
-            stem = q.get('stem', '')
+            stem = (q.get('stem') or '')
             if 'earns 25% more than' in stem.lower() or ('earn' in stem.lower() and '25%' in stem):
                 target_question = q
                 break
