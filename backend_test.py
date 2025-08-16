@@ -1239,9 +1239,9 @@ class CATBackendTester:
             alloy_questions = []
             
             for q in questions:
-                stem = q.get('stem', '').lower()
-                solution_approach = q.get('solution_approach', '').lower()
-                detailed_solution = q.get('detailed_solution', '').lower()
+                stem = (q.get('stem') or '').lower()
+                solution_approach = (q.get('solution_approach') or '').lower()
+                detailed_solution = (q.get('detailed_solution') or '').lower()
                 
                 # Check for salary questions
                 if any(keyword in stem for keyword in ['earn', 'salary', 'income', 'wage']):
