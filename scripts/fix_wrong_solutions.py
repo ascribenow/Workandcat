@@ -7,7 +7,10 @@ This fixes the bug where all questions had generic hardcoded solutions
 import asyncio
 import sys
 import os
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+# Add the backend directory to Python path
+backend_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'backend')
+sys.path.insert(0, backend_dir)
 
 from sqlalchemy import select
 from database import get_async_session, Question
