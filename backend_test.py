@@ -1293,23 +1293,29 @@ class CATBackendTester:
             print("   ❌ Session creation failed")
             return False
         
-        # TEST 4: Session Metadata Check
-        print("\n📋 TEST 4: SESSION METADATA CHECK")
+        # TEST 4: Session Units Verification
+        print("\n📋 TEST 4: SESSION UNITS VERIFICATION")
         print("-" * 40)
-        print("Verifying the session response contains proper session metadata including total_questions count")
+        print("Verifying that session.units contains exactly 12 question IDs")
         
-        if 'personalization' in response:
-            personalization = response['personalization']
-            print(f"   Session personalization data:")
-            print(f"     Applied: {personalization.get('applied')}")
-            print(f"     Learning stage: {personalization.get('learning_stage')}")
-            print(f"     Recent accuracy: {personalization.get('recent_accuracy')}")
-            print(f"     Difficulty distribution: {personalization.get('difficulty_distribution')}")
-            print(f"     Category distribution: {personalization.get('category_distribution')}")
-            print(f"     Weak areas targeted: {personalization.get('weak_areas_targeted')}")
-            test_results["session_metadata_check"] = True
+        success, response = self.run_test("Check Session Status", "GET", "sessions/current-status", 200, None, headers)
+        if success:
+            active_session = response.get('active_session')
+            progress = response.get('progress', {})
+            
+            if active_session:
+                total_in_status = progress.get('total', 0)
+                print(f"   Session status total questions: {total_in_status}")
+                
+                if total_in_status == 12:
+                    print("   ✅ SUCCESS: Session units contains 12 question IDs")
+                    test_results["session_units_verification"] = True
+                else:
+                    print(f"   ❌ FAILURE: Session units contains {total_in_status} question IDs (expected 12)")
+            else:
+                print("   ⚠️ No active session found")
         else:
-            print("   ⚠️ No personalization metadata in session response")
+            print("   ❌ Session status check failed")
         
         # TEST 5: Session Status API
         print("\n📊 TEST 5: SESSION STATUS API")
