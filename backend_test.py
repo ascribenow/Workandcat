@@ -11833,6 +11833,10 @@ if __name__ == "__main__":
         # Run PYQ file tracking testing suite
         exit_code = main_pyq_testing()
         sys.exit(exit_code)
+    elif len(sys.argv) > 1 and sys.argv[1] == "question-csv":
+        # Run regular question CSV upload testing suite
+        exit_code = main_regular_question_csv()
+        sys.exit(exit_code)
     elif len(sys.argv) > 1 and sys.argv[1] == "option2":
         # Run OPTION 2 Enhanced Background Processing testing suite
         exit_code = main_option_2()
@@ -11850,6 +11854,6 @@ if __name__ == "__main__":
         exit_code = main_sophisticated()
         sys.exit(exit_code)
     else:
-        # Run PYQ file tracking testing by default (as per review request)
-        exit_code = main_pyq_testing()
+        # Run regular question CSV upload testing by default (as per review request)
+        exit_code = main_regular_question_csv()
         sys.exit(exit_code)
