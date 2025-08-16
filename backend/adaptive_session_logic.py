@@ -565,14 +565,33 @@ class AdaptiveSessionLogic:
                 else:
                     logger.warning(f"No questions available for category {category}")
             
-            # CRITICAL FALLBACK: Ensure we have 12 questions
+            # ULTIMATE FIX: Enhanced fallback logic to ensure 12 questions
             if len(selected) < 12:
                 logger.warning(f"Only {len(selected)} questions selected from distribution, need 12")
                 selected_ids = {q.id for q in selected}
                 remaining_questions = [q for q in questions if q.id not in selected_ids]
+                
+                # Sort remaining by PYQ frequency and weakness priority
+                remaining_sorted = sorted(
+                    remaining_questions,
+                    key=lambda q: (
+                        0 if q.subcategory in user_profile['weak_subcategories'] else
+                        1 if q.subcategory in user_profile['moderate_subcategories'] else 2,
+                        -(q.pyq_frequency_score or 0.5)
+                    )
+                )
+                
                 needed = 12 - len(selected)
-                selected.extend(remaining_questions[:needed])
-                logger.info(f"Added {min(needed, len(remaining_questions))} additional questions to reach 12")
+                selected.extend(remaining_sorted[:needed])
+                logger.info(f"Added {min(needed, len(remaining_sorted))} additional questions to reach 12")
+                
+                # ULTIMATE FALLBACK: If still not enough, use any available questions
+                if len(selected) < 12:
+                    logger.warning(f"Still only {len(selected)} questions, using any available questions")
+                    all_remaining = [q for q in questions if q.id not in {s.id for s in selected}]
+                    final_needed = 12 - len(selected)
+                    selected.extend(all_remaining[:final_needed])
+                    logger.info(f"Final fallback: added {min(final_needed, len(all_remaining))} questions")
             
             final_count = len(selected)
             logger.info(f"Final selection: {final_count} questions")
