@@ -1212,9 +1212,10 @@ class CATBackendTester:
             "session_units_verification": False,
             "session_progress_verification": False,
             "first_question_progress": False,
-            "question_selection_distribution": False,
-            "fallback_logic_verification": False,
-            "multiple_session_consistency": False
+            "filtering_stages_verification": False,
+            "decimal_error_prevention": False,
+            "multiple_session_consistency": False,
+            "ultimate_fix_confirmation": False
         }
         
         # TEST 1: Admin Authentication
