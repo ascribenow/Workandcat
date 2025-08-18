@@ -24,13 +24,13 @@ class AdaptiveSessionLogic:
     """
     
     def __init__(self):
-        # CAT Canonical Taxonomy Distribution (Base quotas - can be dynamically adjusted)
+        # Base category distribution (updated for new canonical taxonomy)
         self.base_category_distribution = {
-            "A-Arithmetic": 4,           # 33% - Most important for CAT
-            "B-Algebra": 3,              # 25% - Core mathematical concepts
-            "C-Geometry & Mensuration": 2, # 17% - Spatial reasoning
-            "D-Number System": 2,        # 17% - Fundamental concepts
-            "E-Modern Math": 1           # 8% - Advanced topics
+            "Arithmetic": 4,                    # 33% - Core calculation topics
+            "Algebra": 3,                       # 25% - Algebraic manipulation
+            "Geometry and Mensuration": 3,      # 25% - Spatial and geometric reasoning  
+            "Number System": 1,                 # 8% - Number theory fundamentals
+            "Modern Math": 1                    # 8% - Combinatorics and probability
         }
         
         # PHASE 1: Differential cooldown periods by difficulty (RELAXED FOR TESTING)
