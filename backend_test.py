@@ -1106,15 +1106,23 @@ class CATBackendTester:
             'Authorization': f'Bearer {student_token}'
         }
         
+        # Expected 8 canonical Types from review request
+        expected_8_types = [
+            "Basics", "Trains", "Circular Track Motion", "Races", 
+            "Relative Speed", "Boats and Streams", "Two variable systems", 
+            "Work Time Efficiency"
+        ]
+        
         type_results = {
             "admin_authentication": True,
             "student_authentication": True,
-            "database_schema_verification": False,
-            "canonical_taxonomy_coverage": False,
-            "type_based_session_creation": False,
+            "type_field_api_verification": False,
+            "eight_unique_types_verification": False,
+            "twelve_question_session_generation": False,
             "type_diversity_enforcement": False,
-            "type_metadata_tracking": False,
-            "pyq_type_integration": False,
+            "category_mapping_verification": False,
+            "session_metadata_type_tracking": False,
+            "type_aware_pyq_weighting": False,
             "session_intelligence_type_rationale": False
         }
         
