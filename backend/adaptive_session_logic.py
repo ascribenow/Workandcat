@@ -861,7 +861,7 @@ class AdaptiveSessionLogic:
             if len(diverse_questions) < 12:
                 logger.info(f"Ensuring 12 questions: currently have {len(diverse_questions)}, need {12 - len(diverse_questions)} more")
                 
-                # Add remaining questions to reach 12, respecting caps where possible
+                # Add remaining questions to reach 12, relaxing caps if necessary
                 selected_ids = {q.id for q in diverse_questions}
                 remaining_questions = [q for q in questions if q.id not in selected_ids]
                 
@@ -878,18 +878,25 @@ class AdaptiveSessionLogic:
                     # Prefer questions that don't exceed subcategory cap, but add anyway if needed for 12 questions
                     diverse_questions.append(question)
                     subcategory_counts[subcategory] = current_subcategory_count + 1
+                    logger.info(f"Added question from {subcategory} to reach 12 questions (count now: {current_subcategory_count + 1})")
                 
-                added_count = min(len(remaining_sorted), 12 - len(diverse_questions) + len(remaining_sorted))
-                logger.info(f"Added {added_count} questions to guarantee 12-question session")
+                logger.info(f"Successfully padded to {len(diverse_questions)} questions")
             
             # VALIDATION: Ensure exactly 12 questions
-            if len(diverse_questions) != 12:
-                logger.warning(f"Session has {len(diverse_questions)} questions instead of 12 - adjusting to 12")
+            if len(diverse_questions) > 12:
+                logger.info(f"Truncating from {len(diverse_questions)} to 12 questions")
                 diverse_questions = diverse_questions[:12]  # Truncate if over 12
-                
+            elif len(diverse_questions) < 12:
+                logger.warning(f"Still only have {len(diverse_questions)} questions - using emergency fallback")
                 # Emergency fallback if still under 12
                 while len(diverse_questions) < 12 and questions:
-                    diverse_questions.append(questions[len(diverse_questions) % len(questions)])
+                    fallback_question = questions[len(diverse_questions) % len(questions)]
+                    if fallback_question not in diverse_questions:
+                        diverse_questions.append(fallback_question)
+                    else:
+                        # If we've exhausted unique questions, duplicate high-quality ones
+                        diverse_questions.append(questions[0])
+                logger.info(f"Emergency fallback completed: {len(diverse_questions)} questions")
             
             # FINAL REPORTING
             final_subcategories = len(set(q.subcategory for q in diverse_questions[:12] if q.subcategory))
