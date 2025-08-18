@@ -1053,22 +1053,22 @@ class CATBackendTester:
             
         return success_rate >= 70
 
-    def test_taxonomy_triple_with_8_unique_types(self):
-        """Test taxonomy triple implementation with 8 unique Types for Type-based session generation"""
-        print("🎯 TAXONOMY TRIPLE WITH 8 UNIQUE TYPES TESTING")
+    def test_type_based_session_system_after_threshold_fix(self):
+        """Test Type-based session system after fixing Type diversity enforcement threshold"""
+        print("🎯 TYPE-BASED SESSION SYSTEM TESTING AFTER THRESHOLD FIX")
         print("=" * 60)
-        print("Testing current taxonomy triple implementation with 8 unique Types to verify Type-based session generation works")
-        print("UPDATED TESTING FOCUS:")
-        print("- ✅ 1126 questions with Type field populated (100% coverage)")
-        print("- ✅ 8 unique canonical Types assigned")
-        print("- ✅ Type field included in API responses")
-        print("PRIMARY TEST OBJECTIVES:")
-        print("1. Verify 12-Question Session Generation (not 2)")
-        print("2. Check session uses Type diversity from available 8 Types")
-        print("3. Verify Type-aware selection at (Category, Subcategory, Type) granularity")
-        print("4. Test Type diversity enforcement with 8 available Types")
-        print("5. Verify category mapping: Time-Speed-Distance → Arithmetic")
-        print("6. Check session metadata includes Type tracking fields")
+        print("CRITICAL VALIDATION: Testing complete taxonomy triple implementation after fixing Type diversity enforcement")
+        print("REVIEW REQUEST FOCUS:")
+        print("- Type diversity enforcement threshold reduced from 8 to 3 Types minimum")
+        print("- 12-Question Session Generation via /api/sessions/start endpoint")
+        print("- Type diversity validation with relaxed 3-Type minimum")
+        print("- Session metadata verification with Type-based fields")
+        print("- Category mapping verification: Time-Speed-Distance → Arithmetic")
+        print("EXPECTED RESULTS:")
+        print("- Sessions should consistently generate 12 questions")
+        print("- Type diversity should reach 3+ different Types per session")
+        print("- Session metadata should include proper Type tracking")
+        print("- No more 'Only X questions from Y unique Types' reductions")
         print("Admin credentials: sumedhprabhu18@gmail.com / admin2025")
         print("=" * 60)
         
