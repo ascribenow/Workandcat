@@ -187,18 +187,24 @@ def migrate_questions_to_canonical(db: Session):
         )
         
         # Find the topic ID for canonical subcategory (check both old and new category format)
+        category_conditions = [Topic.category == canonical_category]
+        
+        # Add legacy category format conditions
+        if canonical_category == "Arithmetic":
+            category_conditions.append(Topic.category == "A-Arithmetic")
+        elif canonical_category == "Algebra":
+            category_conditions.append(Topic.category == "B-Algebra")
+        elif canonical_category == "Geometry and Mensuration":
+            category_conditions.append(Topic.category == "C-Geometry")
+            category_conditions.append(Topic.category == "C-Geometry & Mensuration")
+        elif canonical_category == "Number System":
+            category_conditions.append(Topic.category == "D-Number System")
+        elif canonical_category == "Modern Math":
+            category_conditions.append(Topic.category == "E-Modern Math")
+        
         topic = db.query(Topic).filter(
-            Topic.name == canonical_subcategory
-        ).filter(
-            or_(
-                Topic.category == canonical_category,
-                Topic.category == f"A-{canonical_category}" if canonical_category == "Arithmetic" else Topic.category,
-                Topic.category == f"B-{canonical_category}" if canonical_category == "Algebra" else Topic.category,
-                Topic.category == f"C-{canonical_category}" if canonical_category == "Geometry and Mensuration" else Topic.category,
-                Topic.category == f"D-{canonical_category}" if canonical_category == "Number System" else Topic.category,
-                Topic.category == f"E-{canonical_category}" if canonical_category == "Modern Math" else Topic.category,
-                Topic.category.like(f"%{canonical_category}%")
-            )
+            Topic.name == canonical_subcategory,
+            or_(*category_conditions)
         ).first()
         
         if topic:
