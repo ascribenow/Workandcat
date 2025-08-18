@@ -420,7 +420,7 @@ Please provide:
     def _analyze_concept_layering(self, stem: str, category: str, subcategory: str) -> float:
         """Analyze concept layering complexity (1-5)"""
         # Heuristic: more complex categories/subcategories have higher layering
-        complex_categories = ["Algebra", "Geometry & Mensuration", "Modern Math"]
+        complex_categories = ["Algebra", "Geometry and Mensuration", "Modern Math"]
         complex_subcategories = ["Quadratic Equations", "Coordinate Geometry", "Probability"]
         
         score = 2.0  # base score
