@@ -10,7 +10,7 @@ import time
 
 class DetailedSessionDebugger:
     def __init__(self):
-        self.base_url = "https://twelvr-adaptive.preview.emergentagent.com/api"
+        self.base_url = "https://quant-prep.preview.emergentagent.com/api"
         self.admin_token = None
         
     def authenticate_admin(self):
