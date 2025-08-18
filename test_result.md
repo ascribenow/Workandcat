@@ -789,7 +789,7 @@ backend:
     implemented: true
     working: false
     file: "/app/backend/adaptive_session_logic.py"
-    stuck_count: 1
+    stuck_count: 2
     priority: "high"
     needs_retesting: false
     status_history:
@@ -799,6 +799,9 @@ backend:
         -working: false
         -agent: "testing"
         -comment: "❌ TYPE-BASED SESSION GENERATION FAILING: Sessions cannot operate at Type granularity due to missing Type data. CRITICAL ISSUES: 1) ❌ SESSIONS CREATE ONLY 2 QUESTIONS: intelligent_12_question_set creates 2 questions instead of 12, indicating selection logic failure, 2) ❌ NO TYPE DIVERSITY ENFORCEMENT: Cannot enforce Type diversity caps without Type data, 3) ❌ NO TYPE METADATA TRACKING: Session metadata lacks Type distribution and category-type combinations, 4) ❌ TYPE DIVERSITY CAPS INEFFECTIVE: Max 2 questions per Type cannot work without Type classification. FUNDAMENTAL ISSUE: Session engine architecture supports Type operations but data layer lacks Type information."
+        -working: false
+        -agent: "testing"
+        -comment: "❌ TYPE-BASED SESSION GENERATION STILL FAILING: Despite Type field population, session generation cannot achieve 12-question requirement. CRITICAL ISSUES: 1) ❌ SESSIONS STILL CREATE ONLY 2 QUESTIONS: intelligent_12_question_set consistently creates 2 questions instead of 12, 2) ❌ TYPE DIVERSITY ENFORCEMENT IMPOSSIBLE: With only 3 unique Types available, cannot enforce minimum 8 different Types per session requirement, 3) ❌ NO TYPE METADATA TRACKING: Session metadata still lacks type_distribution and category_type_distribution, 4) ❌ INSUFFICIENT TYPE POOL: Only 3 Types ('Work Time Effeciency', 'Two variable systems', 'Basics') vs required 129 canonical Types. FUNDAMENTAL ISSUE: Session engine needs diverse Type pool to generate 12-question sessions with proper Type diversity enforcement."
 
   - task: "PYQ Type Integration"
     implemented: true
