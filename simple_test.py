@@ -6,7 +6,7 @@ import time
 
 def test_stratified_difficulty_distribution():
     """Simple test for stratified difficulty distribution"""
-    base_url = "https://quant-prep.preview.emergentagent.com/api"
+    base_url = "http://localhost:8001/api"
     
     print("🎯 STRATIFIED DIFFICULTY DISTRIBUTION TEST")
     print("=" * 60)
