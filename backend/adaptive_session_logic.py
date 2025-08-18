@@ -130,7 +130,7 @@ class AdaptiveSessionLogic:
             logger.info(f"User profile: {user_profile}")
             
             # Step 2: PHASE 1 - Calculate dynamic category distribution
-            dynamic_distribution = await self.calculate_dynamic_category_distribution(
+            dynamic_distribution = self.calculate_dynamic_category_distribution(
                 user_profile, db
             )
             logger.info(f"Dynamic distribution: {dynamic_distribution}")
