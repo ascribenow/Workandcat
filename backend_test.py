@@ -1067,14 +1067,16 @@ class CATBackendTester:
         student_headers = {'Content-Type': 'application/json', 'Authorization': f'Bearer {student_token}'}
         
         dual_dimension_results = {
-            "adaptive_session_logic_integration": False,
-            "dual_dimension_diversity_method_called": False,
-            "subcategory_cap_enforcement": False,
-            "type_within_subcategory_cap_enforcement": False,
-            "priority_order_implementation": False,
-            "session_metadata_dual_dimension_fields": False,
-            "sophisticated_diversity_not_random": False,
-            "logs_show_dual_dimension_enforcement": False
+            "hundred_percent_success_rate": False,
+            "intelligent_session_type_usage": False,
+            "subcategory_cap_enforcement_max_5": False,
+            "type_within_subcategory_caps": False,
+            "priority_order_subcategory_first": False,
+            "six_plus_subcategories_per_session": False,
+            "session_breadth_not_tsd_dominated": False,
+            "eight_plus_subcategory_type_combinations": False,
+            "dual_dimension_metadata_fields": False,
+            "learning_breadth_achievement": False
         }
         
         # TEST 1: Adaptive Session Logic Integration
