@@ -683,28 +683,32 @@ agent_communication:
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Debug the critical LLM solution generation issue. The solution displayed for questions is completely wrong and unrelated to the actual question.
+user_problem_statement: "Complete the taxonomy triple (Category, Subcategory, Type) implementation with 100% coverage.
 
-**Issue Description:**
-- Question: 'A earns 25% more than B. C earns 25% more than A...' (salary problem)
-- Solution shown: 'An alloy of copper and aluminum has 40% copper...' (completely different alloy problem)
-- This is a critical bug affecting student learning
+**CRITICAL UPDATE REQUIRED:**
+The system currently operates only at (Category, Subcategory) granularity but needs to upgrade to (Category, Subcategory, Type) granularity for all operations including session engine, mastery tracking, and data population.
 
-**Debug Objectives:**
-1. **Check Database Content**: Query a few questions to see what solution_approach and detailed_solution are actually stored
-2. **Test LLM Generation**: Test the LLM enrichment process for a sample question to see if it generates correct solutions
-3. **Check Question Processing**: Verify how questions are processed during CSV upload and LLM enrichment
-4. **Test Solution Retrieval**: Verify the API returns correct solutions for specific questions
+**Key Requirements:**
+1. **Database Schema**: All questions and PYQ questions must have complete taxonomy triple populated
+2. **Session Engine**: Must operate at (Category, Subcategory, Type) granularity for selection, diversity, mastery, cooldowns
+3. **LLM Enrichment**: Must classify questions with all three taxonomy levels using canonical taxonomy
+4. **100% Coverage**: No 90%+ - need complete canonical compliance with no free-text drift
+5. **PYQ Integration**: PYQ database must also have Category, Subcategory, Type columns populated
 
-**Specific Actions:**
-1. Query the question 'A earns 25% more than B...' from the database and check its stored solutions
-2. Test LLM solution generation for a simple question to verify the LLM is working correctly
-3. Check if there's a mismatch between question stems and their solutions
-4. Verify the LLM enrichment pipeline is associating solutions with the correct questions
+**Implementation Status:**
+- ✅ Database schema supports type_of_question field
+- ✅ LLM enrichment includes Type classification in canonical taxonomy  
+- ✅ Complete taxonomy migration script created and partially executed (1100+ questions migrated)
+- ✅ Session engine updated to use Type as first-class dimension
+- ⚠️ Migration incomplete due to timeout - need to verify and complete
 
-**Use admin credentials**: sumedhprabhu18@gmail.com / admin2025
+**Testing Objectives:**
+1. **Verify Session Engine**: Test that 12-question sessions operate at (Category, Subcategory, Type) granularity
+2. **Check Type Diversity**: Ensure sessions enforce Type diversity caps and metadata tracking
+3. **Validate Taxonomy Coverage**: Confirm questions use canonical taxonomy with proper Type classification
+4. **Test PYQ Integration**: Verify PYQ frequency weighting considers Type dimension
 
-This is CRITICAL - students are getting completely wrong solutions which is misleading and harmful to their learning."
+**Use admin credentials**: sumedhprabhu18@gmail.com / admin2025"
 
 backend:
   - task: "Critical LLM Solution Generation Bug Debug"
