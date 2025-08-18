@@ -1053,16 +1053,22 @@ class CATBackendTester:
             
         return success_rate >= 70
 
-    def test_complete_taxonomy_triple_implementation(self):
-        """Test complete taxonomy triple (Category, Subcategory, Type) implementation after migration and API fixes"""
-        print("🎯 COMPLETE TAXONOMY TRIPLE IMPLEMENTATION TESTING")
+    def test_taxonomy_triple_with_8_unique_types(self):
+        """Test taxonomy triple implementation with 8 unique Types for Type-based session generation"""
+        print("🎯 TAXONOMY TRIPLE WITH 8 UNIQUE TYPES TESTING")
         print("=" * 60)
-        print("Testing complete taxonomy triple (Category, Subcategory, Type) implementation after migration and API fixes")
-        print("CRITICAL TESTING OBJECTIVES:")
-        print("1. Verify Type field in API response (/api/questions endpoint)")
-        print("2. Test 12-Question Session Generation (/api/sessions/start endpoint)")
-        print("3. Type-Based Selection Verification (Type diversity enforcement)")
-        print("4. Database Coverage Validation (1126/1126 questions with Type field)")
+        print("Testing current taxonomy triple implementation with 8 unique Types to verify Type-based session generation works")
+        print("UPDATED TESTING FOCUS:")
+        print("- ✅ 1126 questions with Type field populated (100% coverage)")
+        print("- ✅ 8 unique canonical Types assigned")
+        print("- ✅ Type field included in API responses")
+        print("PRIMARY TEST OBJECTIVES:")
+        print("1. Verify 12-Question Session Generation (not 2)")
+        print("2. Check session uses Type diversity from available 8 Types")
+        print("3. Verify Type-aware selection at (Category, Subcategory, Type) granularity")
+        print("4. Test Type diversity enforcement with 8 available Types")
+        print("5. Verify category mapping: Time-Speed-Distance → Arithmetic")
+        print("6. Check session metadata includes Type tracking fields")
         print("Admin credentials: sumedhprabhu18@gmail.com / admin2025")
         print("=" * 60)
         
