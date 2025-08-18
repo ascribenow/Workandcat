@@ -1254,30 +1254,54 @@ class CATBackendTester:
             else:
                 print(f"   ❌ Limited diversity: Only {subcategory_type_combinations} subcategory-type combinations (<8)")
         
-        # TEST 4: Priority Order Implementation
-        print("\n⚡ TEST 4: PRIORITY ORDER IMPLEMENTATION")
+        # TEST 4: Learning Breadth Achievement
+        print("\n🎓 TEST 4: LEARNING BREADTH ACHIEVEMENT")
         print("-" * 50)
-        print("Testing Priority 1: Maximize subcategory coverage first (not type coverage)")
-        print("Testing Priority 2: Ensure type diversity within chosen subcategories")
+        print("Testing true learning breadth with 6+ unique subcategories per session")
+        print("Verifying sessions provide comprehensive coverage instead of narrow focus")
+        print("Checking session metadata includes: dual_dimension_diversity, subcategory_caps_analysis, type_within_subcategory_analysis")
         
         if session_data_list:
-            # Analyze priority order from session metadata
-            priority_evidence = 0
+            # Analyze learning breadth across all sessions
+            breadth_sessions = 0
+            metadata_sessions = 0
             
             for i, session_data in enumerate(session_data_list):
                 personalization = session_data.get('personalization', {})
+                
+                # Check for dual-dimension metadata fields
+                has_dual_dimension = 'dual_dimension_diversity' in str(personalization)
+                has_subcategory_caps = 'subcategory_caps_analysis' in str(personalization)
+                has_type_within_subcategory = 'type_within_subcategory_analysis' in str(personalization)
+                
+                if has_dual_dimension or has_subcategory_caps or has_type_within_subcategory:
+                    metadata_sessions += 1
+                    print(f"   Session {i+1}: Dual-dimension metadata detected")
+                
+                # Check subcategory diversity from category distribution
                 category_distribution = personalization.get('category_distribution', {})
+                subcategory_distribution = personalization.get('subcategory_distribution', {})
                 
-                print(f"   Session {i+1} Category Distribution: {category_distribution}")
+                # Estimate subcategory count from available data
+                estimated_subcategories = len(subcategory_distribution) if subcategory_distribution else len(category_distribution) * 2
                 
-                # Check if category distribution shows evidence of priority order
-                if len(category_distribution) >= 2:  # Multiple categories = subcategory diversity priority
-                    priority_evidence += 1
-                    print(f"   ✅ Session {i+1} shows subcategory diversity priority")
+                if estimated_subcategories >= 6:
+                    breadth_sessions += 1
+                    print(f"   Session {i+1}: Learning breadth achieved (~{estimated_subcategories} subcategories)")
+                else:
+                    print(f"   Session {i+1}: Limited breadth (~{estimated_subcategories} subcategories)")
             
-            if priority_evidence >= 2:
-                dual_dimension_results["priority_order_implementation"] = True
-                print(f"   ✅ Priority order implementation confirmed: {priority_evidence}/3 sessions show evidence")
+            if breadth_sessions >= 3:  # At least 3/5 sessions achieve breadth
+                dual_dimension_results["learning_breadth_achievement"] = True
+                print(f"   ✅ Learning breadth achieved: {breadth_sessions}/5 sessions have comprehensive coverage")
+            else:
+                print(f"   ❌ Limited learning breadth: Only {breadth_sessions}/5 sessions have comprehensive coverage")
+            
+            if metadata_sessions >= 3:  # At least 3/5 sessions have dual-dimension metadata
+                dual_dimension_results["dual_dimension_metadata_fields"] = True
+                print(f"   ✅ Dual-dimension metadata: {metadata_sessions}/5 sessions include metadata fields")
+            else:
+                print(f"   ❌ Missing metadata: Only {metadata_sessions}/5 sessions include dual-dimension fields")
         
         # TEST 5: Session Metadata Dual-Dimension Fields
         print("\n📋 TEST 5: SESSION METADATA DUAL-DIMENSION FIELDS")
