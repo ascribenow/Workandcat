@@ -546,8 +546,8 @@ class AdaptiveSessionLogic:
                 user_id, difficulty_questions, db
             )
             
-            # Strategy 4: PHASE 1 - Type diversity enforcement (operates at Category::Subcategory::Type level)
-            diverse_questions = self.enforce_type_diversity(cooled_questions)
+            # Strategy 4: PHASE 1 - Dual-dimension diversity enforcement (Subcategory + Type)
+            diverse_questions = self.enforce_dual_dimension_diversity(cooled_questions)
             
             # Strategy 5: Ensure question type variety
             final_questions = self.ensure_question_variety(diverse_questions)
