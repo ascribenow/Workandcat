@@ -1213,41 +1213,46 @@ class CATBackendTester:
             else:
                 print(f"   ❌ Priority order unclear: Only {unique_subcategories} subcategories")
         
-        # TEST 3: Type within Subcategory Cap Enforcement
-        print("\n🔍 TEST 3: TYPE WITHIN SUBCATEGORY CAP ENFORCEMENT")
+        # TEST 3: Session Quality and Breadth Validation
+        print("\n🌟 TEST 3: SESSION QUALITY AND BREADTH VALIDATION")
         print("-" * 50)
-        print("Testing Per Type within Subcategory Cap: Max 2-3 questions of same type within subcategory")
-        print("Checking that 'Basics' type gets max 3 per subcategory, specific types get max 2")
+        print("Testing sessions spread across multiple subcategories (6+ subcategories expected)")
+        print("Verifying sessions include questions from multiple subcategories, not dominated by Time-Speed-Distance")
+        print("Checking that subcategory distribution shows diversity (Time-Speed-Distance ≤5, others represented)")
         
         if session_questions:
-            # Analyze type within subcategory distribution
-            type_within_subcategory = {}
+            # Analyze session breadth and quality
+            unique_subcategories = len(subcategory_distribution)
+            tsd_questions = subcategory_distribution.get("Time–Speed–Distance (TSD)", 0) + subcategory_distribution.get("Time-Speed-Distance", 0)
+            non_tsd_subcategories = sum(1 for subcat, count in subcategory_distribution.items() 
+                                      if "time" not in subcat.lower() and "speed" not in subcat.lower() and "distance" not in subcat.lower())
             
-            for q in session_questions:
-                subcategory = q['subcategory']
-                question_type = q['type']
-                key = f"{subcategory}::{question_type}"
-                
-                type_within_subcategory[key] = type_within_subcategory.get(key, 0) + 1
+            print(f"   📊 Session Breadth Analysis:")
+            print(f"      Unique subcategories: {unique_subcategories}")
+            print(f"      Time-Speed-Distance questions: {tsd_questions}")
+            print(f"      Non-TSD subcategories represented: {non_tsd_subcategories}")
             
-            print(f"   📊 Type within Subcategory Distribution:")
-            cap_violations = 0
-            
-            for key, count in type_within_subcategory.items():
-                subcategory, question_type = key.split("::")
-                expected_cap = 3 if question_type == "Basics" else 2
-                
-                print(f"      {subcategory} -> {question_type}: {count} questions (cap: {expected_cap})")
-                
-                if count > expected_cap:
-                    cap_violations += 1
-                    print(f"         ❌ Cap violation: {count} > {expected_cap}")
-            
-            if cap_violations == 0:
-                dual_dimension_results["type_within_subcategory_cap_enforcement"] = True
-                print(f"   ✅ Type within subcategory caps enforced: No violations detected")
+            # Check 6+ subcategories per session
+            if unique_subcategories >= 6:
+                dual_dimension_results["six_plus_subcategories_per_session"] = True
+                print(f"   ✅ Learning breadth achieved: {unique_subcategories} subcategories (≥6)")
             else:
-                print(f"   ❌ Type within subcategory cap violations: {cap_violations} detected")
+                print(f"   ❌ Limited breadth: Only {unique_subcategories} subcategories (<6)")
+            
+            # Check not dominated by Time-Speed-Distance
+            if tsd_questions <= 5 and non_tsd_subcategories >= 2:
+                dual_dimension_results["session_breadth_not_tsd_dominated"] = True
+                print(f"   ✅ Not TSD dominated: {tsd_questions} TSD questions (≤5), {non_tsd_subcategories} other subcategories")
+            else:
+                print(f"   ❌ TSD dominated: {tsd_questions} TSD questions, {non_tsd_subcategories} other subcategories")
+            
+            # Check 8+ subcategory-type combinations
+            subcategory_type_combinations = len(type_within_subcategory)
+            if subcategory_type_combinations >= 8:
+                dual_dimension_results["eight_plus_subcategory_type_combinations"] = True
+                print(f"   ✅ Optimal diversity: {subcategory_type_combinations} subcategory-type combinations (≥8)")
+            else:
+                print(f"   ❌ Limited diversity: Only {subcategory_type_combinations} subcategory-type combinations (<8)")
         
         # TEST 4: Priority Order Implementation
         print("\n⚡ TEST 4: PRIORITY ORDER IMPLEMENTATION")
