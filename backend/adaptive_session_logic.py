@@ -228,33 +228,25 @@ class AdaptiveSessionLogic:
         try:
             difficulty_dist = phase_info['difficulty_distribution']
             
-            # Step 1: Set quotas upfront (compute counts from percentages once)
-            easy_quota = int(12 * difficulty_dist.get('Easy', 0.2))      # 20% = 2 questions
-            medium_quota = int(12 * difficulty_dist.get('Medium', 0.75)) # 75% = 9 questions  
-            hard_quota = int(12 * difficulty_dist.get('Hard', 0.05))     # 5% = 1 question
+            # Step 1: Set quotas upfront, but ADAPT to actual LLM difficulty distribution
+            target_easy = int(12 * difficulty_dist.get('Easy', 0.2))      # 20% = 2 questions
+            target_medium = int(12 * difficulty_dist.get('Medium', 0.75)) # 75% = 9 questions  
+            target_hard = int(12 * difficulty_dist.get('Hard', 0.05))     # 5% = 1 question
             
             # Ensure exactly 12 questions
-            total_quota = easy_quota + medium_quota + hard_quota
-            if total_quota != 12:
-                medium_quota = 12 - easy_quota - hard_quota
+            total_target = target_easy + target_medium + target_hard
+            if total_target != 12:
+                target_medium = 12 - target_easy - target_hard
             
-            # Store in metadata for telemetry
-            difficulty_targets = {
-                'Easy': easy_quota,
-                'Medium': medium_quota, 
-                'Hard': hard_quota
-            }
+            logger.info(f"QUOTA-BASED targets (ideal): Easy={target_easy}, Medium={target_medium}, Hard={target_hard}")
             
-            logger.info(f"QUOTA-BASED targets: Easy={easy_quota}, Medium={medium_quota}, Hard={hard_quota}")
-            
-            # Step 2: Categorize question pool into difficulty pools
+            # Step 2: Check actual availability from LLM difficulty_band 
             hard_pool = []
             easy_pool = []
             medium_pool = []
             
             for question in question_pool:
                 difficulty = self.determine_question_difficulty(question)
-                logger.debug(f"Question {question.id} classified as {difficulty}")  # Debug classification
                 if difficulty == "Hard":
                     hard_pool.append(question)
                 elif difficulty == "Easy":
@@ -262,75 +254,78 @@ class AdaptiveSessionLogic:
                 else:
                     medium_pool.append(question)
             
-            logger.info(f"Difficulty pools: Hard={len(hard_pool)}, Easy={len(easy_pool)}, Medium={len(medium_pool)}")
+            logger.info(f"ACTUAL LLM distribution: Hard={len(hard_pool)}, Easy={len(easy_pool)}, Medium={len(medium_pool)}")
             
-            # Debug: Check first few classifications
-            if len(question_pool) >= 3:
-                for i, question in enumerate(question_pool[:3]):
-                    difficulty = self.determine_question_difficulty(question)
-                    question_id_hash = hash(str(question.id)) % 100
-                    logger.info(f"DEBUG Question {i+1}: ID={question.id}, Hash={question_id_hash}, Classified={difficulty}")
+            # Step 3: ADAPT targets to respect LLM intelligence
+            # If LLM says all questions are Medium, respect that assessment
+            if len(easy_pool) == 0 and len(hard_pool) == 0:
+                logger.info("LLM classified all questions as Medium - adapting Phase A to respect LLM assessment")
+                adapted_targets = {
+                    'Easy': 0,
+                    'Medium': 12,  # Use all Medium as LLM determined
+                    'Hard': 0
+                }
+                backfill_notes = ["LLM assessment: All questions classified as Medium difficulty - Phase A adapted accordingly"]
+            else:
+                # Use original targets if diversity exists
+                adapted_targets = {
+                    'Easy': min(target_easy, len(easy_pool)),
+                    'Medium': target_medium,  
+                    'Hard': min(target_hard, len(hard_pool))
+                }
+                backfill_notes = []
             
-            
-            # Step 3: Fill by stratum in order with existing filters
+            # Step 4: Fill based on adapted targets that respect LLM assessment
             selected_questions = []
             used_combinations = set()
-            backfill_notes = []
             
-            # Fill Hard (H1): pick 1 from Hard pool with all filters
+            # Fill Hard quota (if any available)
             hard_selected = self.fill_difficulty_quota(
-                hard_pool, hard_quota, "Hard", used_combinations, 
+                hard_pool, adapted_targets['Hard'], "Hard", used_combinations, 
                 balanced_distribution, selected_questions
             )
             selected_questions.extend(hard_selected)
             
-            # Fill Easy (E2): pick 2 from Easy pool with all filters  
+            # Fill Easy quota (if any available)
             easy_selected = self.fill_difficulty_quota(
-                easy_pool, easy_quota, "Easy", used_combinations,
+                easy_pool, adapted_targets['Easy'], "Easy", used_combinations,
                 balanced_distribution, selected_questions
             )
             selected_questions.extend(easy_selected)
             
-            # Fill Medium (M9): fill remaining from Medium pool
+            # Fill remaining slots with Medium (respecting LLM assessment)
+            remaining_needed = 12 - len(selected_questions)
             medium_selected = self.fill_difficulty_quota(
-                medium_pool, medium_quota, "Medium", used_combinations,
+                medium_pool, remaining_needed, "Medium", used_combinations,
                 balanced_distribution, selected_questions
             )
             selected_questions.extend(medium_selected)
             
-            # Step 4: Single backfill pass if pools were short
-            if len(selected_questions) < 12:
-                backfilled = self.perform_backfill(
-                    selected_questions, hard_pool, easy_pool, medium_pool,
-                    difficulty_targets, used_combinations, backfill_notes
-                )
-                selected_questions.extend(backfilled)
-            
-            # Step 5: Generate telemetry
+            # Step 5: Generate telemetry that explains LLM-based adaptation
             difficulty_actual = self.calculate_actual_difficulty_distribution(selected_questions)
             
-            # Store telemetry in session metadata format
             telemetry = {
-                'difficulty_targets': difficulty_targets,
+                'difficulty_targets': adapted_targets,  # Show adapted targets that respect LLM
                 'difficulty_actual': difficulty_actual,
-                'backfill_notes': backfill_notes if backfill_notes else None,
-                'quota_system_used': True
+                'backfill_notes': backfill_notes,
+                'quota_system_used': True,
+                'llm_assessment_respected': True,
+                'original_phase_a_targets': {'Easy': target_easy, 'Medium': target_medium, 'Hard': target_hard}
             }
             
-            logger.info(f"QUOTA RESULTS: Targets={difficulty_targets} vs Actual={difficulty_actual}")
+            logger.info(f"LLM-RESPECTING QUOTA: Targets={adapted_targets} vs Actual={difficulty_actual}")
             if backfill_notes:
-                logger.info(f"Backfill notes: {backfill_notes}")
+                logger.info(f"LLM adaptation notes: {backfill_notes}")
             
-            # Add telemetry to return result instead of individual questions
             result_data = {
                 'selected_questions': selected_questions[:12],
                 'quota_telemetry': telemetry
             }
             
-            return result_data  # Return both questions and telemetry
+            return result_data
             
         except Exception as e:
-            logger.error(f"Error in quota-based coverage selection: {e}")
+            logger.error(f"Error in LLM-respecting quota-based selection: {e}")
             return {'selected_questions': question_pool[:12], 'quota_telemetry': {}}
     
     def fill_difficulty_quota(self, pool: List[Question], quota: int, difficulty: str, 
