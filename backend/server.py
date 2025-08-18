@@ -750,19 +750,43 @@ async def start_session(
         db.add(session)
         await db.commit()
         
-        # Enhanced response with session intelligence
+        # Enhanced response with session intelligence and questions for validation
         response = {
             "message": f"{'🎯 Personalized' if personalized else '📚 Standard'} 12-question session started successfully",
             "session_id": str(session.id),
             "total_questions": question_count,
             "session_type": "intelligent_12_question_set",
             "current_question": 1,
+            "questions": [
+                {
+                    "id": str(q.id),
+                    "stem": q.stem,
+                    "answer": q.answer,
+                    "solution_approach": q.solution_approach,
+                    "detailed_solution": q.detailed_solution,
+                    "subcategory": q.subcategory,
+                    "type_of_question": q.type_of_question,
+                    "difficulty_band": q.difficulty_band,
+                    "difficulty_score": float(q.difficulty_score) if q.difficulty_score else None,
+                    "pyq_frequency_score": float(q.pyq_frequency_score) if q.pyq_frequency_score else None,
+                    "has_image": q.has_image,
+                    "image_url": q.image_url,
+                    "image_alt_text": q.image_alt_text,
+                    "created_at": q.created_at.isoformat()
+                } for q in questions
+            ],
+            "metadata": metadata,  # Include dual-dimension diversity metadata
             "personalization": {
                 "applied": personalized,
                 "learning_stage": metadata.get('learning_stage', 'unknown'),
                 "recent_accuracy": metadata.get('recent_accuracy', 0),
                 "difficulty_distribution": metadata.get('difficulty_distribution', {}),
                 "category_distribution": metadata.get('category_distribution', {}),
+                "subcategory_distribution": metadata.get('subcategory_distribution', {}),
+                "type_distribution": metadata.get('type_distribution', {}),
+                "dual_dimension_diversity": metadata.get('dual_dimension_diversity', 0),
+                "subcategory_caps_analysis": metadata.get('subcategory_caps_analysis', {}),
+                "type_within_subcategory_analysis": metadata.get('type_within_subcategory_analysis', {}),
                 "weak_areas_targeted": metadata.get('weak_areas_targeted', 0)
             }
         }
