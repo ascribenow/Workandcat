@@ -802,11 +802,15 @@ async def start_session(
         logger.error(f"Error starting sophisticated session: {e}")
         # Fallback to simple session if sophisticated logic fails
         try:
-            fallback_result = await adaptive_session_logic.create_simple_fallback_session(
-                current_user.id, db
+            # Simple fallback: get any 12 active questions
+            fallback_result = await db.execute(
+                select(Question)
+                .where(Question.is_active == True)
+                .order_by(func.random())
+                .limit(12)
             )
+            questions = fallback_result.scalars().all()
             
-            questions = fallback_result["questions"]
             if not questions:
                 raise HTTPException(status_code=404, detail="No questions available")
             
