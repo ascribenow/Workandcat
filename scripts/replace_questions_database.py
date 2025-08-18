@@ -32,7 +32,7 @@ async def clear_existing_questions(db: Session):
         logger.info(f"Deleted {attempts_deleted} existing attempts")
         
         # Clear sessions (may reference questions)
-        sessions_deleted = db.query(StudySession).delete()
+        sessions_deleted = db.query(Session).delete()  # Note: Session is the model name
         logger.info(f"Deleted {sessions_deleted} existing sessions")
         
         # Delete all existing questions
