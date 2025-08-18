@@ -143,7 +143,7 @@ class AdaptiveSessionLogic:
                 return self.create_simple_fallback_session(user_id, db)
             
             # Step 4: Apply PHASE 1 enhanced selection strategies
-            selected_questions = await self.apply_enhanced_selection_strategies(
+            selected_questions = self.apply_enhanced_selection_strategies(
                 user_id, user_profile, question_pool, dynamic_distribution, db
             )
             
