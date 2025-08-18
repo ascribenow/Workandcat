@@ -741,9 +741,10 @@ class AdaptiveSessionLogic:
             # Order by easy-to-medium progression
             ordered_questions = self.order_by_coverage_progression(selected_questions, phase_info)
             
-            # Generate coverage phase metadata
+            # Generate coverage phase metadata with quota telemetry
             session_metadata = self.generate_phase_metadata(
-                ordered_questions, user_profile, balanced_distribution, phase_info
+                ordered_questions, user_profile, balanced_distribution, phase_info,
+                quota_telemetry=quota_telemetry
             )
             
             return {
