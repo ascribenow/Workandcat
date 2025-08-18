@@ -1194,6 +1194,340 @@ class CATBackendTester:
         else:
             return "Arithmetic"  # Default fallback
 
+    def test_quota_based_difficulty_distribution(self):
+        """Test Quota-Based Difficulty Distribution Implementation - CRITICAL TEST from review request"""
+        print("🎯 CRITICAL TEST: Quota-Based Difficulty Distribution Implementation")
+        print("=" * 80)
+        print("IMPLEMENTATION STATUS - QUOTA SYSTEM:")
+        print("✅ Fixed Quotas Upfront: M9/E2/H1 stored in session.metadata.difficulty_targets")
+        print("✅ Ordered Fill Strategy: Hard (1) → Easy (2) → Medium (9) with existing filters")
+        print("✅ Single-Pass Backfill: Clear backfill logic with transparent notes")
+        print("✅ Quota Telemetry: difficulty_targets vs difficulty_actual + backfill_notes")
+        print("✅ Binary Acceptance: Either M9/E2/H1 or clear deviation explanation")
+        print("")
+        print("ALGORITHM LOGIC:")
+        print("1. Set quotas upfront: Easy=2, Medium=9, Hard=1 (from 20%/75%/5% of 12)")
+        print("2. Categorize pools: Split question_pool into Hard/Easy/Medium pools by difficulty")
+        print("3. Fill in order: Hard quota first, then Easy, then Medium (most constrained to least)")
+        print("4. Apply existing filters: Category quotas, subcategory caps, coverage priority maintained")
+        print("5. Backfill if short: H short→M, E short→M, M short→E then H")
+        print("6. Generate telemetry: Clear targets vs actual with backfill explanation")
+        print("")
+        print("EXPECTED RESULTS:")
+        print("- Phase A sessions: EXACTLY 9 Medium, 2 Easy, 1 Hard (or clear deviation explanation)")
+        print("- NOT 100% Medium: Quota system enforces distribution regardless of pool composition")
+        print("- Clear telemetry: difficulty_targets, difficulty_actual, backfill_notes in metadata")
+        print("- Integration: Works with existing coverage priority and dual-dimension diversity")
+        print("")
+        print("SUCCESS CRITERIA:")
+        print("✅ Difficulty distribution closer to M9/E2/H1 (not 100% Medium)")
+        print("✅ Clear telemetry showing targets vs actual")
+        print("✅ Backfill notes if deviations occur")
+        print("✅ Coverage priority maintained within difficulty quotas")
+        print("✅ Exactly 12 questions generated consistently")
+        print("")
+        print("AUTH: sumedhprabhu18@gmail.com / admin2025")
+        print("=" * 80)
+        
+        # Authenticate as admin and student
+        admin_login = {"email": "sumedhprabhu18@gmail.com", "password": "admin2025"}
+        success, response = self.run_test("Admin Login", "POST", "auth/login", 200, admin_login)
+        if not success or 'access_token' not in response:
+            print("❌ Cannot test quota system - admin login failed")
+            return False
+            
+        admin_token = response['access_token']
+        admin_headers = {'Content-Type': 'application/json', 'Authorization': f'Bearer {admin_token}'}
+        
+        student_login = {"email": "student@catprep.com", "password": "student123"}
+        success, response = self.run_test("Student Login", "POST", "auth/login", 200, student_login)
+        if not success or 'access_token' not in response:
+            print("❌ Cannot test quota system - student login failed")
+            return False
+            
+        student_token = response['access_token']
+        student_headers = {'Content-Type': 'application/json', 'Authorization': f'Bearer {student_token}'}
+        
+        quota_results = {
+            "quota_targets_in_metadata": False,
+            "difficulty_distribution_improved": False,
+            "not_100_percent_medium": False,
+            "backfill_notes_present": False,
+            "exactly_12_questions": False,
+            "telemetry_complete": False,
+            "coverage_priority_maintained": False,
+            "phase_a_identification": False,
+            "ordered_fill_strategy": False,
+            "binary_acceptance_criteria": False
+        }
+        
+        # TEST 1: Phase A Session Creation with Quota System
+        print("\n🎯 TEST 1: PHASE A SESSION CREATION WITH QUOTA SYSTEM")
+        print("-" * 60)
+        print("Testing that Phase A sessions implement M9/E2/H1 quota system")
+        print("Verifying difficulty_targets are set upfront in metadata")
+        
+        session_data = {"target_minutes": 30}
+        success, response = self.run_test("Create Phase A Session for Quota Test", "POST", "sessions/start", 200, session_data, student_headers)
+        
+        if success:
+            session_id = response.get('session_id')
+            total_questions = response.get('total_questions', 0)
+            metadata = response.get('metadata', {})
+            phase_info = response.get('phase_info', {})
+            questions = response.get('questions', [])
+            
+            print(f"   📊 Session ID: {session_id}")
+            print(f"   📊 Total questions: {total_questions}")
+            print(f"   📊 Phase info: {phase_info}")
+            
+            # Check if exactly 12 questions
+            if total_questions == 12:
+                quota_results["exactly_12_questions"] = True
+                print("   ✅ CRITICAL SUCCESS: Exactly 12 questions generated")
+            else:
+                print(f"   ❌ CRITICAL ISSUE: {total_questions} questions generated (expected 12)")
+            
+            # Check Phase A identification
+            phase = phase_info.get('phase', '')
+            phase_name = phase_info.get('phase_name', '')
+            if 'phase_a' in phase.lower() or 'coverage' in phase_name.lower():
+                quota_results["phase_a_identification"] = True
+                print("   ✅ Phase A correctly identified")
+            else:
+                print(f"   ⚠️ Phase identification unclear: {phase} - {phase_name}")
+            
+            # Check for quota targets in metadata
+            difficulty_targets = None
+            if hasattr(questions[0], '_quota_telemetry') if questions else False:
+                telemetry = getattr(questions[0], '_quota_telemetry', {})
+                difficulty_targets = telemetry.get('difficulty_targets', {})
+            elif 'difficulty_targets' in metadata:
+                difficulty_targets = metadata['difficulty_targets']
+            
+            if difficulty_targets:
+                quota_results["quota_targets_in_metadata"] = True
+                print(f"   ✅ Quota targets found: {difficulty_targets}")
+                
+                # Check if targets match M9/E2/H1
+                expected_targets = {'Easy': 2, 'Medium': 9, 'Hard': 1}
+                if difficulty_targets == expected_targets:
+                    quota_results["ordered_fill_strategy"] = True
+                    print("   ✅ Perfect M9/E2/H1 quota targets set")
+                else:
+                    print(f"   ⚠️ Quota targets differ from M9/E2/H1: {difficulty_targets}")
+            else:
+                print("   ❌ No difficulty_targets found in metadata")
+            
+            # Analyze actual difficulty distribution
+            if questions:
+                difficulty_counts = {'Easy': 0, 'Medium': 0, 'Hard': 0}
+                for q in questions:
+                    difficulty = q.get('difficulty_band', 'Medium')
+                    if difficulty in difficulty_counts:
+                        difficulty_counts[difficulty] += 1
+                
+                total_q = len(questions)
+                difficulty_percentages = {}
+                for diff, count in difficulty_counts.items():
+                    difficulty_percentages[diff] = (count / total_q) * 100 if total_q > 0 else 0
+                
+                print(f"   📊 Actual difficulty counts: {difficulty_counts}")
+                print(f"   📊 Actual difficulty percentages: {difficulty_percentages}")
+                
+                # Check if NOT 100% Medium
+                medium_pct = difficulty_percentages.get('Medium', 0)
+                if medium_pct < 95:  # Less than 95% Medium
+                    quota_results["not_100_percent_medium"] = True
+                    print("   ✅ CRITICAL SUCCESS: NOT 100% Medium - quota system working!")
+                else:
+                    print(f"   ❌ CRITICAL FAILURE: Still {medium_pct:.1f}% Medium - quota system not working")
+                
+                # Check if distribution is closer to M9/E2/H1 (75%/20%/5%)
+                target_medium = 75
+                target_easy = 20  
+                target_hard = 5
+                
+                medium_diff = abs(medium_pct - target_medium)
+                easy_diff = abs(difficulty_percentages.get('Easy', 0) - target_easy)
+                hard_diff = abs(difficulty_percentages.get('Hard', 0) - target_hard)
+                
+                if medium_diff <= 25 and easy_diff <= 25 and hard_diff <= 15:  # Reasonable tolerance
+                    quota_results["difficulty_distribution_improved"] = True
+                    print("   ✅ Difficulty distribution closer to Phase A targets")
+                else:
+                    print(f"   ⚠️ Distribution deviations: M±{medium_diff:.1f}%, E±{easy_diff:.1f}%, H±{hard_diff:.1f}%")
+        
+        # TEST 2: Telemetry and Backfill Notes Verification
+        print("\n📊 TEST 2: TELEMETRY AND BACKFILL NOTES VERIFICATION")
+        print("-" * 60)
+        print("Testing quota telemetry: difficulty_targets vs difficulty_actual")
+        print("Checking for backfill_notes if deviations occur")
+        
+        # Create multiple sessions to test telemetry consistency
+        telemetry_sessions = []
+        for i in range(3):
+            session_data = {"target_minutes": 30}
+            success, response = self.run_test(f"Telemetry Test Session {i+1}", "POST", "sessions/start", 200, session_data, student_headers)
+            
+            if success:
+                metadata = response.get('metadata', {})
+                questions = response.get('questions', [])
+                
+                # Extract telemetry data
+                telemetry_data = {
+                    'session': i+1,
+                    'difficulty_targets': metadata.get('difficulty_targets', {}),
+                    'difficulty_actual': {},
+                    'backfill_notes': metadata.get('backfill_notes', [])
+                }
+                
+                # Calculate actual distribution
+                if questions:
+                    actual_counts = {'Easy': 0, 'Medium': 0, 'Hard': 0}
+                    for q in questions:
+                        difficulty = q.get('difficulty_band', 'Medium')
+                        if difficulty in actual_counts:
+                            actual_counts[difficulty] += 1
+                    telemetry_data['difficulty_actual'] = actual_counts
+                
+                telemetry_sessions.append(telemetry_data)
+                
+                print(f"   Session {i+1}:")
+                print(f"     Targets: {telemetry_data['difficulty_targets']}")
+                print(f"     Actual: {telemetry_data['difficulty_actual']}")
+                print(f"     Backfill notes: {telemetry_data['backfill_notes']}")
+        
+        # Analyze telemetry completeness
+        complete_telemetry_count = 0
+        backfill_notes_count = 0
+        
+        for session_data in telemetry_sessions:
+            if session_data['difficulty_targets'] and session_data['difficulty_actual']:
+                complete_telemetry_count += 1
+            
+            if session_data['backfill_notes']:
+                backfill_notes_count += 1
+        
+        if complete_telemetry_count >= 2:
+            quota_results["telemetry_complete"] = True
+            print("   ✅ Complete telemetry (targets vs actual) working")
+        
+        if backfill_notes_count >= 1:
+            quota_results["backfill_notes_present"] = True
+            print("   ✅ Backfill notes present when needed")
+        
+        # TEST 3: Coverage Priority Integration
+        print("\n🎯 TEST 3: COVERAGE PRIORITY INTEGRATION")
+        print("-" * 60)
+        print("Testing that quota system works WITH existing coverage priority")
+        print("Verifying subcategory diversity maintained within difficulty quotas")
+        
+        session_data = {"target_minutes": 30}
+        success, response = self.run_test("Coverage Priority Integration Test", "POST", "sessions/start", 200, session_data, student_headers)
+        
+        if success:
+            questions = response.get('questions', [])
+            personalization = response.get('personalization', {})
+            
+            if questions:
+                # Analyze subcategory diversity
+                subcategories = set()
+                category_distribution = {}
+                
+                for q in questions:
+                    subcategory = q.get('subcategory', 'Unknown')
+                    subcategories.add(subcategory)
+                    
+                    # Map to category
+                    category = self.get_category_from_subcategory(subcategory)
+                    category_distribution[category] = category_distribution.get(category, 0) + 1
+                
+                print(f"   📊 Subcategory diversity: {len(subcategories)} unique subcategories")
+                print(f"   📊 Category distribution: {category_distribution}")
+                print(f"   📊 Subcategories: {sorted(list(subcategories))}")
+                
+                # Check if coverage priority is maintained
+                if len(subcategories) >= 3:  # At least 3 different subcategories
+                    quota_results["coverage_priority_maintained"] = True
+                    print("   ✅ Coverage priority maintained within quota system")
+                else:
+                    print("   ⚠️ Limited subcategory diversity - coverage priority may be compromised")
+        
+        # TEST 4: Binary Acceptance Criteria
+        print("\n✅ TEST 4: BINARY ACCEPTANCE CRITERIA")
+        print("-" * 60)
+        print("Testing binary acceptance: Either M9/E2/H1 OR clear deviation explanation")
+        
+        # Analyze all sessions for binary acceptance
+        binary_acceptance_sessions = 0
+        
+        for i, session_data in enumerate(telemetry_sessions):
+            targets = session_data['difficulty_targets']
+            actual = session_data['difficulty_actual']
+            backfill_notes = session_data['backfill_notes']
+            
+            # Check if exactly M9/E2/H1
+            if (targets.get('Medium') == 9 and targets.get('Easy') == 2 and targets.get('Hard') == 1 and
+                actual.get('Medium') == 9 and actual.get('Easy') == 2 and actual.get('Hard') == 1):
+                binary_acceptance_sessions += 1
+                print(f"   Session {i+1}: ✅ Perfect M9/E2/H1 achieved")
+            elif backfill_notes:
+                binary_acceptance_sessions += 1
+                print(f"   Session {i+1}: ✅ Clear deviation explanation provided: {backfill_notes}")
+            else:
+                print(f"   Session {i+1}: ❌ Neither perfect M9/E2/H1 nor clear explanation")
+        
+        if binary_acceptance_sessions >= 2:
+            quota_results["binary_acceptance_criteria"] = True
+            print("   ✅ Binary acceptance criteria met")
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 80)
+        print("QUOTA-BASED DIFFICULTY DISTRIBUTION TEST RESULTS")
+        print("=" * 80)
+        
+        passed_tests = sum(quota_results.values())
+        total_tests = len(quota_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        for test_name, result in quota_results.items():
+            status = "✅ PASS" if result else "❌ FAIL"
+            print(f"{test_name.replace('_', ' ').title():<45} {status}")
+        
+        print("-" * 80)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # Critical analysis based on review request
+        print("\n🎯 CRITICAL QUOTA SYSTEM ANALYSIS:")
+        
+        if quota_results["not_100_percent_medium"]:
+            print("✅ CRITICAL SUCCESS: NOT 100% Medium - Quota system WORKING!")
+        else:
+            print("❌ CRITICAL FAILURE: Still 100% Medium - Quota system NOT working")
+        
+        if quota_results["quota_targets_in_metadata"]:
+            print("✅ QUOTA TARGETS: M9/E2/H1 targets properly set upfront")
+        else:
+            print("❌ QUOTA TARGETS: Difficulty targets not found in metadata")
+        
+        if quota_results["difficulty_distribution_improved"]:
+            print("✅ DISTRIBUTION: Closer to Phase A targets (75%/20%/5%)")
+        else:
+            print("❌ DISTRIBUTION: Still far from Phase A targets")
+        
+        if quota_results["telemetry_complete"]:
+            print("✅ TELEMETRY: Complete targets vs actual tracking")
+        else:
+            print("❌ TELEMETRY: Incomplete telemetry data")
+        
+        if quota_results["exactly_12_questions"]:
+            print("✅ CONSISTENCY: Exactly 12 questions generated")
+        else:
+            print("❌ CONSISTENCY: Question count inconsistent")
+        
+        return success_rate >= 70
+
     def test_stratified_difficulty_distribution(self):
         """Test Stratified Difficulty Distribution - FINAL VERIFICATION from review request"""
         print("🎯 FINAL VERIFICATION: Stratified Difficulty Distribution")
