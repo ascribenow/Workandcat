@@ -278,6 +278,15 @@ class AdaptiveSessionLogic:
                         selected_questions.append(question)
             
             logger.info(f"Coverage selection: {len(selected_questions)} questions, {len(used_combinations)} unique combinations")
+            
+            # Debug: Print difficulty distribution of selected questions
+            debug_difficulty_dist = {}
+            for q in selected_questions:
+                difficulty = self.determine_question_difficulty(q)
+                debug_difficulty_dist[difficulty] = debug_difficulty_dist.get(difficulty, 0) + 1
+            logger.info(f"Achieved difficulty distribution: {debug_difficulty_dist}")
+            
+            return selected_questions[:12]
             return selected_questions[:12]
             
         except Exception as e:
