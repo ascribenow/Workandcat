@@ -299,6 +299,27 @@ RETURN FORMAT:
             category = result.get("category")
             subcategory = result.get("subcategory")
             type_of_question = result.get("type_of_question")
+            reasoning = result.get("reasoning", "")
+            
+            # CRITICAL: Prevent over-classification as "Basics"
+            if type_of_question == "Basics" and subcategory == "Time-Speed-Distance":
+                # Analyze stem for specific type indicators
+                stem_lower = stem.lower()
+                if any(word in stem_lower for word in ['train', 'platform', 'bridge', 'tunnel', 'cross']):
+                    type_of_question = "Trains"
+                    logger.info(f"Upgraded 'Basics' to 'Trains' based on content analysis")
+                elif any(word in stem_lower for word in ['boat', 'stream', 'current', 'upstream', 'downstream']):
+                    type_of_question = "Boats and Streams"
+                    logger.info(f"Upgraded 'Basics' to 'Boats and Streams' based on content analysis")
+                elif any(word in stem_lower for word in ['circular', 'track', 'lap', 'overtake', 'round']):
+                    type_of_question = "Circular Track Motion"
+                    logger.info(f"Upgraded 'Basics' to 'Circular Track Motion' based on content analysis")
+                elif any(word in stem_lower for word in ['race', 'head start', 'lead', 'advantage']):
+                    type_of_question = "Races"
+                    logger.info(f"Upgraded 'Basics' to 'Races' based on content analysis")
+                elif any(word in stem_lower for word in ['opposite', 'towards', 'relative', 'meet']):
+                    type_of_question = "Relative Speed"
+                    logger.info(f"Upgraded 'Basics' to 'Relative Speed' based on content analysis")
             
             # Validate against taxonomy
             if (category in CANONICAL_TAXONOMY and 
