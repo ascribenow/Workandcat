@@ -10,7 +10,6 @@ import os
 from typing import Dict, Any, Tuple
 from datetime import datetime
 import logging
-from emergentintegrations.llm.chat import LlmChat, UserMessage
 from formulas import (
     calculate_difficulty_level,
     calculate_frequency_band,
