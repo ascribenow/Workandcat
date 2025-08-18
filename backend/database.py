@@ -327,6 +327,38 @@ class Mastery(Base):
     topic = relationship("Topic")
 
 
+class TypeMastery(Base):
+    """Type-level mastery tracking for three-phase adaptive system"""
+    __tablename__ = "type_mastery"
+    
+    user_id = Column(String(36), ForeignKey('users.id'), primary_key=True)
+    category = Column(String(100), primary_key=True)
+    subcategory = Column(String(100), primary_key=True) 
+    type_of_question = Column(String(100), primary_key=True)
+    
+    # Mastery metrics at type level
+    total_attempts = Column(Integer, default=0)
+    correct_attempts = Column(Integer, default=0)
+    accuracy_rate = Column(Numeric(3, 2), default=0)  # 0-1
+    avg_time_taken = Column(Numeric(6, 2), default=0)  # seconds
+    mastery_score = Column(Numeric(3, 2), default=0)   # 0-1
+    
+    # Time-based tracking
+    first_attempt_date = Column(DateTime, nullable=True)
+    last_attempt_date = Column(DateTime, nullable=True)
+    last_updated = Column(DateTime, default=datetime.utcnow)
+    
+    # Relationships
+    user = relationship("User")
+    
+    # Indexes for efficient querying
+    __table_args__ = (
+        Index('idx_user_category_subcategory_type', 'user_id', 'category', 'subcategory', 'type_of_question'),
+        Index('idx_user_mastery_score', 'user_id', 'mastery_score'),
+        Index('idx_category_subcategory_type', 'category', 'subcategory', 'type_of_question'),
+    )
+
+
 # Study Planning Tables
 
 class Plan(Base):
