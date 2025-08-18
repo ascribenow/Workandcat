@@ -147,14 +147,8 @@ Generate 4 MCQ options where one matches the correct answer and three are plausi
                 except:
                     pass
             
-            # Final fallback
-            return {
-                "A": correct_answer or "Option A",
-                "B": "Option B", 
-                "C": "Option C",
-                "D": "Option D",
-                "correct": "A"
-            }
+            # Raise exception to let server's enhanced fallback handle it
+            raise Exception("MCQ generation failed, using server fallback")
     
     def generate_fallback_options(self, correct_answer: str, subcategory: str) -> Dict[str, str]:
         """Generate mathematical fallback options based on correct answer"""
