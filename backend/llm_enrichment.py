@@ -798,21 +798,31 @@ RULES:
 4. For word answers, keep it very brief (1-3 words max)
 5. If it's a speed problem, give answer in specified units (km/h, m/s, etc.)"""
 
-            chat = LlmChat(
-                api_key=self.llm_api_key,
-                session_id=f"answer_{uuid.uuid4()}",
-                system_message=system_message
-            ).with_model("claude", "claude-3-5-sonnet-20241022")
-
+            # Use direct OpenAI API
+            import openai
+            
+            openai_key = os.getenv('OPENAI_API_KEY')
+            if not openai_key:
+                logger.error("OpenAI API key not found")
+                return "Answer generation failed"
+                
+            client = openai.OpenAI(api_key=openai_key)
+            
             user_content = f"Question: {stem}"
             if image_url:
                 user_content += f"\nImage: {image_url}"
-                
-            user_message = UserMessage(text=user_content)
-            response = await chat.send_message(user_message)
+            
+            response = client.chat.completions.create(
+                model="gpt-4o",
+                messages=[
+                    {"role": "system", "content": system_message},
+                    {"role": "user", "content": user_content}
+                ],
+                max_tokens=200
+            )
             
             # Clean up the response to just get the answer
-            answer = response.strip()
+            answer = response.choices[0].message.content.strip()
             
             # Remove common prefixes that might be added
             prefixes_to_remove = [
