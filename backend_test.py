@@ -1177,6 +1177,306 @@ class CATBackendTester:
         
         return success_rate >= 70
 
+    def test_stratified_difficulty_distribution(self):
+        """Test Stratified Difficulty Distribution - FINAL VERIFICATION from review request"""
+        print("🎯 FINAL VERIFICATION: Stratified Difficulty Distribution")
+        print("=" * 70)
+        print("ENHANCED IMPLEMENTATION APPLIED:")
+        print("✅ Stratified Sampling: Implemented proper stratified sampling based on research")
+        print("✅ Forced Difficulty Assignment: Questions artificially assigned Easy/Medium/Hard via _artificial_difficulty attribute")
+        print("✅ Improved Algorithm: Enhanced question pool balancing with strata-based selection")
+        print("✅ Backend Restarted: All changes loaded and ready for testing")
+        print("")
+        print("CRITICAL VALIDATION:")
+        print("Test that Phase A sessions now achieve proper difficulty distribution using stratified sampling:")
+        print("")
+        print("EXPECTED RESULTS:")
+        print("- Phase A: 75% Medium (9 questions), 20% Easy (2 questions), 5% Hard (1 question)")
+        print("- NOT 100% Medium anymore")
+        print("- Stratified algorithm should force proper distribution")
+        print("- _artificial_difficulty attribute should override natural difficulty classification")
+        print("")
+        print("TESTING APPROACH:")
+        print("1. Create multiple Phase A sessions")
+        print("2. Analyze difficulty distribution of returned questions")
+        print("3. Verify stratified sampling is working")
+        print("4. Confirm artificial difficulty assignment is applied")
+        print("5. Validate 75/20/5 target distribution is achieved")
+        print("")
+        print("SUCCESS CRITERIA:")
+        print("✅ Difficulty distribution closer to 75/20/5 ratio")
+        print("✅ NOT 100% Medium (the original critical issue)")
+        print("✅ Stratified sampling evidence in logs")
+        print("✅ _artificial_difficulty assignments working")
+        print("")
+        print("AUTH: sumedhprabhu18@gmail.com / admin2025")
+        print("=" * 70)
+        
+        # Authenticate as student for session testing
+        student_login = {"email": "student@catprep.com", "password": "student123"}
+        success, response = self.run_test("Student Login", "POST", "auth/login", 200, student_login)
+        if not success or 'access_token' not in response:
+            print("❌ Cannot test sessions - student login failed")
+            return False
+            
+        student_token = response['access_token']
+        student_headers = {'Content-Type': 'application/json', 'Authorization': f'Bearer {student_token}'}
+        
+        stratified_results = {
+            "phase_a_session_creation": False,
+            "stratified_difficulty_distribution": False,
+            "not_100_percent_medium": False,
+            "artificial_difficulty_assignment": False,
+            "target_75_20_5_achieved": False,
+            "multiple_sessions_consistent": False,
+            "phase_info_populated": False,
+            "enhanced_metadata_present": False
+        }
+        
+        # TEST 1: Phase A Session Creation and Analysis
+        print("\n🎯 TEST 1: PHASE A SESSION CREATION AND DIFFICULTY ANALYSIS")
+        print("-" * 60)
+        print("Creating multiple Phase A sessions to analyze difficulty distribution")
+        print("Testing for 75% Medium, 20% Easy, 5% Hard target distribution")
+        
+        session_difficulty_data = []
+        session_ids = []
+        
+        # Create 5 sessions to test consistency
+        for session_num in range(5):
+            session_data = {"target_minutes": 30}
+            success, response = self.run_test(f"Create Phase A Session {session_num + 1}", "POST", "sessions/start", 200, session_data, student_headers)
+            
+            if success:
+                session_id = response.get('session_id')
+                questions = response.get('questions', [])
+                phase_info = response.get('phase_info', {})
+                metadata = response.get('metadata', {})
+                personalization = response.get('personalization', {})
+                
+                session_ids.append(session_id)
+                
+                print(f"\n   📊 Session {session_num + 1} Analysis:")
+                print(f"   Session ID: {session_id}")
+                print(f"   Total Questions: {len(questions)}")
+                print(f"   Phase Info: {phase_info}")
+                
+                # Check if this is Phase A
+                phase = phase_info.get('phase') or metadata.get('phase')
+                phase_name = phase_info.get('phase_name') or metadata.get('phase_name')
+                
+                if phase_info and len(phase_info) > 0:
+                    stratified_results["phase_info_populated"] = True
+                    print(f"   ✅ Phase Info populated: {phase} - {phase_name}")
+                
+                # Analyze difficulty distribution
+                if questions:
+                    difficulty_counts = {'Easy': 0, 'Medium': 0, 'Hard': 0}
+                    artificial_difficulty_found = False
+                    
+                    for q in questions:
+                        difficulty = q.get('difficulty_band', 'Medium')
+                        if difficulty in difficulty_counts:
+                            difficulty_counts[difficulty] += 1
+                        
+                        # Check for artificial difficulty assignment evidence
+                        if '_artificial_difficulty' in str(q) or 'artificial' in str(q).lower():
+                            artificial_difficulty_found = True
+                    
+                    total_questions = len(questions)
+                    difficulty_percentages = {}
+                    for diff, count in difficulty_counts.items():
+                        difficulty_percentages[diff] = (count / total_questions) * 100 if total_questions > 0 else 0
+                    
+                    session_difficulty_data.append({
+                        'session': session_num + 1,
+                        'counts': difficulty_counts,
+                        'percentages': difficulty_percentages,
+                        'total': total_questions,
+                        'artificial_found': artificial_difficulty_found
+                    })
+                    
+                    print(f"   📊 Difficulty Counts: {difficulty_counts}")
+                    print(f"   📊 Difficulty Percentages: {difficulty_percentages}")
+                    print(f"   📊 Target: 75% Medium, 20% Easy, 5% Hard")
+                    
+                    # Check if NOT 100% Medium (the original critical issue)
+                    medium_pct = difficulty_percentages.get('Medium', 0)
+                    easy_pct = difficulty_percentages.get('Easy', 0)
+                    hard_pct = difficulty_percentages.get('Hard', 0)
+                    
+                    if medium_pct < 95:  # Not 100% Medium
+                        stratified_results["not_100_percent_medium"] = True
+                        print(f"   ✅ NOT 100% Medium: {medium_pct:.1f}% Medium - Diversity achieved!")
+                    
+                    # Check target distribution (with reasonable tolerance)
+                    if (60 <= medium_pct <= 85 and 10 <= easy_pct <= 30 and 0 <= hard_pct <= 15):
+                        stratified_results["target_75_20_5_achieved"] = True
+                        print(f"   ✅ Target distribution achieved within tolerance")
+                    
+                    if artificial_difficulty_found:
+                        stratified_results["artificial_difficulty_assignment"] = True
+                        print(f"   ✅ Artificial difficulty assignment evidence found")
+                
+                # Check enhanced metadata
+                if metadata and len(metadata) > 5:
+                    stratified_results["enhanced_metadata_present"] = True
+                    print(f"   ✅ Enhanced metadata present: {len(metadata)} fields")
+                
+                stratified_results["phase_a_session_creation"] = True
+            else:
+                print(f"   ❌ Failed to create session {session_num + 1}")
+        
+        # TEST 2: Aggregate Analysis Across All Sessions
+        print("\n📊 TEST 2: AGGREGATE DIFFICULTY DISTRIBUTION ANALYSIS")
+        print("-" * 60)
+        print("Analyzing difficulty distribution across all created sessions")
+        
+        if session_difficulty_data:
+            # Calculate aggregate statistics
+            total_easy = sum(data['counts']['Easy'] for data in session_difficulty_data)
+            total_medium = sum(data['counts']['Medium'] for data in session_difficulty_data)
+            total_hard = sum(data['counts']['Hard'] for data in session_difficulty_data)
+            total_questions_all = sum(data['total'] for data in session_difficulty_data)
+            
+            if total_questions_all > 0:
+                aggregate_easy_pct = (total_easy / total_questions_all) * 100
+                aggregate_medium_pct = (total_medium / total_questions_all) * 100
+                aggregate_hard_pct = (total_hard / total_questions_all) * 100
+                
+                print(f"   📊 Aggregate across {len(session_difficulty_data)} sessions:")
+                print(f"   📊 Total Questions: {total_questions_all}")
+                print(f"   📊 Easy: {total_easy} ({aggregate_easy_pct:.1f}%)")
+                print(f"   📊 Medium: {total_medium} ({aggregate_medium_pct:.1f}%)")
+                print(f"   📊 Hard: {total_hard} ({aggregate_hard_pct:.1f}%)")
+                print(f"   📊 Target: 75% Medium, 20% Easy, 5% Hard")
+                
+                # Check if stratified distribution is working
+                if (50 <= aggregate_medium_pct <= 90 and aggregate_easy_pct >= 5 and aggregate_hard_pct <= 25):
+                    stratified_results["stratified_difficulty_distribution"] = True
+                    print(f"   ✅ STRATIFIED DISTRIBUTION WORKING: Balanced difficulty achieved")
+                
+                # Check consistency across sessions
+                medium_percentages = [data['percentages']['Medium'] for data in session_difficulty_data]
+                medium_variance = max(medium_percentages) - min(medium_percentages)
+                
+                if medium_variance < 30:  # Reasonable consistency
+                    stratified_results["multiple_sessions_consistent"] = True
+                    print(f"   ✅ CONSISTENCY: Medium% variance = {medium_variance:.1f}% (good consistency)")
+                else:
+                    print(f"   ⚠️ CONSISTENCY: Medium% variance = {medium_variance:.1f}% (high variance)")
+        
+        # TEST 3: Evidence of Stratified Sampling Implementation
+        print("\n🔬 TEST 3: STRATIFIED SAMPLING EVIDENCE")
+        print("-" * 60)
+        print("Looking for evidence that stratified sampling algorithm is implemented")
+        
+        # Create one more session to analyze in detail
+        session_data = {"target_minutes": 30}
+        success, response = self.run_test("Detailed Stratified Analysis Session", "POST", "sessions/start", 200, session_data, student_headers)
+        
+        if success:
+            questions = response.get('questions', [])
+            metadata = response.get('metadata', {})
+            personalization = response.get('personalization', {})
+            
+            print(f"   📊 Detailed Analysis Session:")
+            print(f"   📊 Questions: {len(questions)}")
+            
+            # Look for stratified sampling indicators in metadata
+            stratified_indicators = [
+                'stratified', 'strata', 'sampling', 'artificial_difficulty', 
+                'difficulty_distribution', 'balanced', 'forced'
+            ]
+            
+            metadata_text = str(metadata).lower()
+            personalization_text = str(personalization).lower()
+            
+            found_indicators = []
+            for indicator in stratified_indicators:
+                if indicator in metadata_text or indicator in personalization_text:
+                    found_indicators.append(indicator)
+            
+            if found_indicators:
+                print(f"   ✅ Stratified sampling indicators found: {found_indicators}")
+            else:
+                print(f"   ⚠️ No explicit stratified sampling indicators in metadata")
+            
+            # Analyze question distribution patterns
+            if questions and len(questions) >= 10:
+                # Check if questions show evidence of forced distribution
+                difficulty_sequence = [q.get('difficulty_band', 'Medium') for q in questions]
+                unique_difficulties = set(difficulty_sequence)
+                
+                print(f"   📊 Difficulty sequence: {difficulty_sequence}")
+                print(f"   📊 Unique difficulties: {unique_difficulties}")
+                
+                if len(unique_difficulties) >= 2:
+                    print(f"   ✅ Multiple difficulty levels present - stratification working")
+                else:
+                    print(f"   ❌ Only one difficulty level - stratification may not be working")
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 70)
+        print("STRATIFIED DIFFICULTY DISTRIBUTION TEST RESULTS")
+        print("=" * 70)
+        
+        passed_tests = sum(stratified_results.values())
+        total_tests = len(stratified_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        for test_name, result in stratified_results.items():
+            status = "✅ PASS" if result else "❌ FAIL"
+            print(f"{test_name.replace('_', ' ').title():<45} {status}")
+        
+        print("-" * 70)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # Critical analysis based on review request
+        print("\n🎯 CRITICAL STRATIFIED DISTRIBUTION ANALYSIS:")
+        
+        if stratified_results["not_100_percent_medium"]:
+            print("✅ CRITICAL SUCCESS: NOT 100% Medium anymore - Original issue RESOLVED!")
+        else:
+            print("❌ CRITICAL FAILURE: Still showing 100% Medium - Stratified sampling not working")
+        
+        if stratified_results["stratified_difficulty_distribution"]:
+            print("✅ CRITICAL SUCCESS: Stratified difficulty distribution WORKING!")
+        else:
+            print("❌ CRITICAL FAILURE: Stratified distribution not achieving target ratios")
+        
+        if stratified_results["target_75_20_5_achieved"]:
+            print("✅ CRITICAL SUCCESS: Target 75/20/5 distribution ACHIEVED!")
+        else:
+            print("❌ CRITICAL FAILURE: Target distribution not achieved - needs algorithm adjustment")
+        
+        if stratified_results["phase_info_populated"]:
+            print("✅ CRITICAL SUCCESS: Phase info field populated correctly!")
+        else:
+            print("❌ CRITICAL FAILURE: Phase info field still empty")
+        
+        if stratified_results["multiple_sessions_consistent"]:
+            print("✅ CRITICAL SUCCESS: Consistent stratified distribution across sessions!")
+        else:
+            print("❌ CRITICAL FAILURE: Inconsistent distribution - algorithm needs stabilization")
+        
+        # Summary for main agent
+        print("\n🎯 SUMMARY FOR MAIN AGENT:")
+        if success_rate >= 75:
+            print("✅ STRATIFIED DIFFICULTY DISTRIBUTION: MOSTLY WORKING")
+            print("   The enhanced implementation with stratified sampling is functional.")
+            print("   Phase A sessions are achieving better difficulty distribution.")
+        elif success_rate >= 50:
+            print("⚠️ STRATIFIED DIFFICULTY DISTRIBUTION: PARTIAL SUCCESS")
+            print("   Some improvements achieved but target distribution needs fine-tuning.")
+            print("   Algorithm is working but may need parameter adjustments.")
+        else:
+            print("❌ STRATIFIED DIFFICULTY DISTRIBUTION: NEEDS MAJOR FIXES")
+            print("   Stratified sampling implementation is not working as expected.")
+            print("   Original 100% Medium issue may still persist.")
+        
+        return success_rate >= 60
+
     def test_session_engine_priority_correction(self):
         """Test Session Engine Priority Correction - Core requirement from review request"""
         print("⚙️ SESSION ENGINE PRIORITY CORRECTION")
