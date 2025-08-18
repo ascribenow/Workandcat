@@ -27,7 +27,7 @@ class CATBackendTester:
         ]
 
     def run_test(self, name, method, endpoint, expected_status, data=None, headers=None):
-        """Run a single API test"""
+        """Run a single API test with retry logic"""
         url = f"{self.base_url}/{endpoint}" if not endpoint.startswith('http') else endpoint
         if headers is None:
             headers = {'Content-Type': 'application/json'}
@@ -36,38 +36,57 @@ class CATBackendTester:
         print(f"\n🔍 Testing {name}...")
         print(f"   URL: {url}")
         
-        try:
-            if method == 'GET':
-                response = requests.get(url, headers=headers)
-            elif method == 'POST':
-                response = requests.post(url, json=data, headers=headers)
-            elif method == 'PUT':
-                response = requests.put(url, json=data, headers=headers)
-            elif method == 'DELETE':
-                response = requests.delete(url, headers=headers)
+        # Retry logic for network issues
+        max_retries = 3
+        for attempt in range(max_retries):
+            try:
+                if method == 'GET':
+                    response = requests.get(url, headers=headers, timeout=30)
+                elif method == 'POST':
+                    response = requests.post(url, json=data, headers=headers, timeout=30)
+                elif method == 'PUT':
+                    response = requests.put(url, json=data, headers=headers, timeout=30)
+                elif method == 'DELETE':
+                    response = requests.delete(url, headers=headers, timeout=30)
 
-            success = response.status_code == expected_status
-            if success:
-                self.tests_passed += 1
-                print(f"✅ Passed - Status: {response.status_code}")
-                try:
-                    response_data = response.json()
-                    print(f"   Response: {json.dumps(response_data, indent=2)[:200]}...")
-                    return True, response_data
-                except:
-                    return True, {}
-            else:
-                print(f"❌ Failed - Expected {expected_status}, got {response.status_code}")
-                try:
-                    error_data = response.json()
-                    print(f"   Error: {error_data}")
-                except:
-                    print(f"   Error: {response.text}")
+                success = response.status_code == expected_status
+                if success:
+                    self.tests_passed += 1
+                    print(f"✅ Passed - Status: {response.status_code}")
+                    try:
+                        response_data = response.json()
+                        print(f"   Response: {json.dumps(response_data, indent=2)[:200]}...")
+                        return True, response_data
+                    except:
+                        return True, {}
+                else:
+                    print(f"❌ Failed - Expected {expected_status}, got {response.status_code}")
+                    try:
+                        error_data = response.json()
+                        print(f"   Error: {error_data}")
+                    except:
+                        print(f"   Error: {response.text}")
+                    
+                    # If it's a 502 error, retry
+                    if response.status_code == 502 and attempt < max_retries - 1:
+                        print(f"   🔄 Retrying ({attempt + 1}/{max_retries})...")
+                        time.sleep(2)
+                        continue
+                    
+                    return False, {}
+
+            except requests.exceptions.RequestException as e:
+                print(f"❌ Request failed - Error: {str(e)}")
+                if attempt < max_retries - 1:
+                    print(f"   🔄 Retrying ({attempt + 1}/{max_retries})...")
+                    time.sleep(2)
+                    continue
                 return False, {}
-
-        except Exception as e:
-            print(f"❌ Failed - Error: {str(e)}")
-            return False, {}
+            except Exception as e:
+                print(f"❌ Failed - Error: {str(e)}")
+                return False, {}
+        
+        return False, {}
 
     def test_type_based_session_system_after_threshold_fix(self):
         """Test Type-based session system after fixing Type diversity enforcement threshold"""
