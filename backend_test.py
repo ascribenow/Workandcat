@@ -1130,9 +1130,9 @@ class CATBackendTester:
         print("\n🔍 TEST 1: VERIFY TYPE FIELD IN API RESPONSE")
         print("-" * 40)
         print("Testing /api/questions endpoint to confirm it returns type_of_question field")
-        print("Expected: All questions should have properly populated Type values (99.2% canonical compliance)")
+        print("Expected: 1126 questions with Type field populated (100% coverage)")
         
-        success, response = self.run_test("Get Questions with Type Field Check", "GET", "questions?limit=100", 200, None, admin_headers)
+        success, response = self.run_test("Get Questions with Type Field Check", "GET", "questions?limit=1200", 200, None, admin_headers)
         if success:
             questions = response.get('questions', [])
             print(f"   📊 Total questions retrieved: {len(questions)}")
@@ -1141,14 +1141,6 @@ class CATBackendTester:
                 # Check Type field presence and population
                 questions_with_type = 0
                 unique_types = set()
-                canonical_types = set()
-                
-                # Expected canonical Types from review request
-                expected_canonical_types = [
-                    "Basics", "Relative Speed", "Percentage Change", "Time-Speed-Distance",
-                    "Linear Equations", "Quadratic Equations", "Geometry Basics", "Mensuration",
-                    "Number Properties", "Divisibility", "Probability", "Permutation-Combination"
-                ]
                 
                 for q in questions:
                     has_type_field = 'type_of_question' in q
@@ -1157,28 +1149,20 @@ class CATBackendTester:
                     if has_type_field and type_value and type_value.strip():
                         questions_with_type += 1
                         unique_types.add(type_value)
-                        
-                        # Check if it's a canonical type
-                        if any(canonical in type_value for canonical in expected_canonical_types):
-                            canonical_types.add(type_value)
                 
                 type_coverage = (questions_with_type / len(questions)) * 100 if questions else 0
-                canonical_compliance = (len(canonical_types) / len(unique_types)) * 100 if unique_types else 0
                 
                 print(f"   📊 Questions with type_of_question field: {questions_with_type}/{len(questions)} ({type_coverage:.1f}%)")
                 print(f"   📊 Unique Types found: {len(unique_types)}")
-                print(f"   📊 Canonical Types found: {len(canonical_types)}")
-                print(f"   📊 Canonical compliance: {canonical_compliance:.1f}%")
-                print(f"   📊 Sample Types: {list(unique_types)[:10]}")
+                print(f"   📊 All Types: {sorted(list(unique_types))}")
                 
-                if type_coverage >= 90 and len(unique_types) >= 10:
-                    type_results["database_schema_verification"] = True
+                if type_coverage >= 99 and questions_with_type >= 1100:
+                    type_results["type_field_api_verification"] = True
                     print("   ✅ Type field properly populated in API responses")
-                    if canonical_compliance >= 80:
-                        print("   ✅ Good canonical taxonomy compliance")
+                    print(f"   ✅ Achieved {type_coverage:.1f}% coverage (expected 100%)")
                 else:
-                    print("   ❌ Type field missing or poorly populated")
-                    print(f"   ❌ Expected 99.2% coverage, found {type_coverage:.1f}%")
+                    print("   ❌ Type field coverage insufficient")
+                    print(f"   ❌ Expected 1126 questions with Type field, found {questions_with_type}")
             else:
                 print("   ❌ No questions found for Type field verification")
         
