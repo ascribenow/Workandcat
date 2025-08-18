@@ -757,99 +757,139 @@ class AdaptiveSessionLogic:
             return questions
 
     
-    def enforce_type_diversity(self, questions: List[Question]) -> List[Question]:
+    def enforce_dual_dimension_diversity(self, questions: List[Question]) -> List[Question]:
         """
-        Enforce Type diversity caps to prevent domination at Type level
-        Operates at (Category, Subcategory, Type) granularity
+        Enforce Dual-Dimension Diversity: Subcategory level first, then Type level within subcategories
+        
+        Priority Order:
+        1. First: Maximize subcategory coverage across session (max 5 per subcategory)
+        2. Second: Ensure type diversity within each chosen subcategory (max 2-3 per type)
+        
+        Caps:
+        - Per Subcategory Cap: Max 5 questions from same subcategory per session
+        - Per Type within Subcategory Cap: Max 2-3 questions of same type within subcategory
         """
         try:
-            type_counts = {}
+            subcategory_counts = {}
+            type_within_subcategory_counts = {}
             diverse_questions = []
             
-            # Sort questions by PYQ frequency first
+            # Sort questions by PYQ frequency first for quality
             sorted_questions = sorted(
                 questions, 
                 key=lambda q: -(q.pyq_frequency_score or 0.5)
             )
             
+            logger.info("Starting dual-dimension diversity enforcement...")
+            
+            # PHASE 1: Maximize subcategory coverage first
             for question in sorted_questions:
-                # Create Type key as (Category, Subcategory, Type)
-                category = self.get_category_from_subcategory(question.subcategory)
-                type_key = f"{category}::{question.subcategory}::{question.type_of_question or 'General'}"
+                subcategory = question.subcategory or 'Unknown'
+                question_type = question.type_of_question or 'General'
                 
-                current_count = type_counts.get(type_key, 0)
+                # Check subcategory cap (max 5 per subcategory)
+                current_subcategory_count = subcategory_counts.get(subcategory, 0)
+                if current_subcategory_count >= 5:
+                    continue  # Skip if subcategory cap reached
                 
-                # Allow max 2 questions per Type to ensure diversity
-                if current_count < 2:
-                    diverse_questions.append(question)
-                    type_counts[type_key] = current_count + 1
+                # Check type within subcategory cap (max 2-3 per type within subcategory)
+                type_within_subcategory_key = f"{subcategory}::{question_type}"
+                current_type_count = type_within_subcategory_counts.get(type_within_subcategory_key, 0)
+                
+                # Use cap of 3 for "Basics" type (most common), 2 for specific types
+                type_cap = 3 if question_type == "Basics" else 2
+                if current_type_count >= type_cap:
+                    continue  # Skip if type within subcategory cap reached
+                
+                # Add question - satisfies both caps
+                diverse_questions.append(question)
+                subcategory_counts[subcategory] = current_subcategory_count + 1
+                type_within_subcategory_counts[type_within_subcategory_key] = current_type_count + 1
                 
                 # Stop if we have enough questions
                 if len(diverse_questions) >= 12:
                     break
             
-            # Ensure reasonable Type diversity (at least 3 different Types, up to 8 if available)
-            unique_types = len(set(f"{self.get_category_from_subcategory(q.subcategory)}::{q.subcategory}::{q.type_of_question or 'General'}" for q in diverse_questions[:12]))
+            # PHASE 2: Analyze diversity achieved
+            unique_subcategories = len(subcategory_counts)
+            unique_types_overall = len(set(q.type_of_question or 'General' for q in diverse_questions))
             
-            # CRITICAL: Handle low diversity scenarios gracefully for 100% success rate
-            if unique_types < 3:
-                logger.info(f"Type diversity: {unique_types} unique types available, attempting to improve diversity")
-                # Try to add more Type-diverse questions if available
+            logger.info(f"Dual-dimension diversity achieved: {len(diverse_questions)} questions from {unique_subcategories} subcategories, {unique_types_overall} types")
+            
+            # Show subcategory distribution
+            for subcategory, count in subcategory_counts.items():
+                logger.info(f"  - {subcategory}: {count} questions")
+            
+            # PHASE 3: Quality check - ensure reasonable subcategory spread
+            if unique_subcategories < 3 and len(diverse_questions) < 12:
+                logger.info(f"Only {unique_subcategories} subcategories, attempting to improve subcategory diversity...")
+                
+                # Try to add questions from unused subcategories
+                selected_subcategories = set(subcategory_counts.keys())
                 remaining_questions = [q for q in questions if q not in diverse_questions]
-                diversity_improved = False
                 
                 for question in remaining_questions:
-                    category = self.get_category_from_subcategory(question.subcategory)
-                    type_key = f"{category}::{question.subcategory}::{question.type_of_question or 'General'}"
+                    question_subcategory = question.subcategory or 'Unknown'
                     
-                    # Check if this Type is not already represented
-                    existing_types = set(f"{self.get_category_from_subcategory(q.subcategory)}::{q.subcategory}::{q.type_of_question or 'General'}" for q in diverse_questions)
-                    if type_key not in existing_types:
+                    # Prefer questions from new subcategories
+                    if question_subcategory not in selected_subcategories:
                         diverse_questions.append(question)
-                        diversity_improved = True
-                        # Check if we've improved diversity
-                        new_unique_types = len(set(f"{self.get_category_from_subcategory(q.subcategory)}::{q.subcategory}::{q.type_of_question or 'General'}" for q in diverse_questions[:12]))
-                        if new_unique_types >= 3:
-                            logger.info(f"Type diversity improved to {new_unique_types} unique types")
+                        subcategory_counts[question_subcategory] = subcategory_counts.get(question_subcategory, 0) + 1
+                        logger.info(f"Added question from new subcategory: {question_subcategory}")
+                        
+                        if len(diverse_questions) >= 12:
                             break
-                
-                # If we couldn't improve diversity, that's acceptable - log and continue
-                if not diversity_improved:
-                    logger.info(f"Type diversity remains at {unique_types} types - proceeding with available diversity")
             
             # GUARANTEED: Always ensure exactly 12 questions (100% success rate)
             if len(diverse_questions) < 12:
                 logger.info(f"Ensuring 12 questions: currently have {len(diverse_questions)}, need {12 - len(diverse_questions)} more")
-                # Add remaining questions to reach 12, prioritizing those not already selected
+                
+                # Add remaining questions to reach 12, respecting caps where possible
                 selected_ids = {q.id for q in diverse_questions}
                 remaining_questions = [q for q in questions if q.id not in selected_ids]
                 
                 # Sort remaining by PYQ frequency for quality
                 remaining_sorted = sorted(remaining_questions, key=lambda q: -(q.pyq_frequency_score or 0.5))
                 
-                needed = 12 - len(diverse_questions)
-                diverse_questions.extend(remaining_sorted[:needed])
-                logger.info(f"Added {min(needed, len(remaining_sorted))} questions to guarantee 12-question session")
+                for question in remaining_sorted:
+                    if len(diverse_questions) >= 12:
+                        break
+                    
+                    subcategory = question.subcategory or 'Unknown'
+                    current_subcategory_count = subcategory_counts.get(subcategory, 0)
+                    
+                    # Prefer questions that don't exceed subcategory cap, but add anyway if needed for 12 questions
+                    diverse_questions.append(question)
+                    subcategory_counts[subcategory] = current_subcategory_count + 1
+                
+                added_count = min(len(remaining_sorted), 12 - len(diverse_questions) + len(remaining_sorted))
+                logger.info(f"Added {added_count} questions to guarantee 12-question session")
             
-            # VALIDATION: Ensure exactly 12 questions for 100% success rate
+            # VALIDATION: Ensure exactly 12 questions
             if len(diverse_questions) != 12:
-                logger.warning(f"Session has {len(diverse_questions)} questions instead of 12 - forcing to 12")
+                logger.warning(f"Session has {len(diverse_questions)} questions instead of 12 - adjusting to 12")
                 diverse_questions = diverse_questions[:12]  # Truncate if over 12
                 
-                # If under 12 and no more questions available, duplicate some (emergency fallback)
-                while len(diverse_questions) < 12:
-                    if questions:
-                        diverse_questions.append(questions[len(diverse_questions) % len(questions)])
-                    else:
-                        break
+                # Emergency fallback if still under 12
+                while len(diverse_questions) < 12 and questions:
+                    diverse_questions.append(questions[len(diverse_questions) % len(questions)])
             
-            final_unique_types = len(set(f"{self.get_category_from_subcategory(q.subcategory)}::{q.subcategory}::{q.type_of_question or 'General'}" for q in diverse_questions[:12]))
-            logger.info(f"Type diversity enforcement: {len(diverse_questions)} questions from {final_unique_types} unique Types")
+            # FINAL REPORTING
+            final_subcategories = len(set(q.subcategory for q in diverse_questions[:12] if q.subcategory))
+            final_types = len(set(q.type_of_question for q in diverse_questions[:12] if q.type_of_question))
+            
+            logger.info(f"Dual-dimension diversity enforcement complete:")
+            logger.info(f"  - {len(diverse_questions)} questions selected")
+            logger.info(f"  - {final_subcategories} unique subcategories")
+            logger.info(f"  - {final_types} unique types")
+            logger.info(f"  - Subcategory caps enforced (max 5 per subcategory)")
+            logger.info(f"  - Type caps enforced (max 2-3 per type within subcategory)")
+            
             return diverse_questions[:12]  # GUARANTEE exactly 12 questions
             
         except Exception as e:
-            logger.error(f"Error enforcing Type diversity: {e}")
-            return questions
+            logger.error(f"Error enforcing dual-dimension diversity: {e}")
+            return questions[:12]  # Fallback to first 12 questions
     
 
     def enforce_subcategory_diversity(self, questions: List[Question]) -> List[Question]:
