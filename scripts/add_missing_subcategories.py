@@ -7,27 +7,32 @@ Simple script to add the 8 missing subcategories identified in testing
 import os
 import sys
 from dotenv import load_dotenv
-import sqlite3
+import psycopg2
+from urllib.parse import urlparse
 
 # Load environment
 load_dotenv('/app/backend/.env')
 
 # Configuration 
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./twelvr.db")
-if DATABASE_URL.startswith("sqlite:///"):
-    db_path = DATABASE_URL.replace("sqlite:///", "")
-    if not db_path.startswith("/"):
-        db_path = f"/app/backend/{db_path}"
-else:
-    print("❌ This script only works with SQLite databases")
-    sys.exit(1)
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+def parse_database_url(url):
+    """Parse PostgreSQL database URL"""
+    parsed = urlparse(url)
+    return {
+        'host': parsed.hostname,
+        'port': parsed.port or 5432,
+        'database': parsed.path[1:],  # Remove leading slash
+        'user': parsed.username,
+        'password': parsed.password
+    }
 
 def add_missing_subcategories():
     """Add the 8 missing subcategories identified in testing"""
     
     print("🎯 ADDING MISSING CANONICAL TAXONOMY SUBCATEGORIES")
     print("=" * 60)
-    print(f"Database: {db_path}")
+    print(f"Database: PostgreSQL")
     
     # Missing subcategories identified by testing agent
     missing_subcategories = [
@@ -42,8 +47,9 @@ def add_missing_subcategories():
     ]
     
     try:
-        # Connect to database
-        conn = sqlite3.connect(db_path)
+        # Parse database URL and connect
+        db_config = parse_database_url(DATABASE_URL)
+        conn = psycopg2.connect(**db_config)
         cursor = conn.cursor()
         
         print(f"📊 Adding {len(missing_subcategories)} missing subcategories...")
@@ -56,7 +62,7 @@ def add_missing_subcategories():
                 # Check if subcategory already exists
                 cursor.execute("""
                     SELECT COUNT(*) FROM topics 
-                    WHERE name = ? AND category = ?
+                    WHERE name = %s AND category = %s
                 """, (subcategory, category))
                 
                 if cursor.fetchone()[0] > 0:
@@ -71,7 +77,7 @@ def add_missing_subcategories():
                 
                 cursor.execute("""
                     INSERT INTO topics (id, section, name, slug, category, centrality)
-                    VALUES (?, 'QA', ?, ?, ?, 0.5)
+                    VALUES (%s, 'QA', %s, %s, %s, 0.5)
                 """, (topic_id, subcategory, slug, category))
                 
                 added_count += 1
