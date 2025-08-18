@@ -1306,7 +1306,7 @@ class CATBackendTester:
         
         # FINAL RESULTS SUMMARY
         print("\n" + "=" * 80)
-        print("DUAL-DIMENSION DIVERSITY ENFORCEMENT SYSTEM TEST RESULTS")
+        print("REFINED DUAL-DIMENSION DIVERSITY ENFORCEMENT SYSTEM TEST RESULTS")
         print("=" * 80)
         
         passed_tests = sum(dual_dimension_results.values())
@@ -1321,7 +1321,7 @@ class CATBackendTester:
         print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
         
         # Critical analysis based on review request
-        if dual_dimension_results["adaptive_session_logic_integration"]:
+        if dual_dimension_results["hundred_percent_success_rate"]:
             print("🎉 CRITICAL SUCCESS: Adaptive session logic integration confirmed!")
         else:
             print("❌ CRITICAL FAILURE: Sessions not using adaptive session logic")
