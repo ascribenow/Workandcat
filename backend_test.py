@@ -5285,6 +5285,365 @@ class CATBackendTester:
         
         return success_rate >= 70
 
+    def test_llm_enrichment_and_mcq_improvements(self):
+        """Test LLM enrichment fixes and MCQ improvements - MAIN FOCUS from review request"""
+        print("🧠 LLM ENRICHMENT FIXES AND MCQ IMPROVEMENTS TESTING")
+        print("=" * 70)
+        print("CRITICAL VALIDATION: Testing the core fixes implemented for LLM enrichment")
+        print("REVIEW REQUEST FOCUS:")
+        print("1. **Test Session Creation**: Create a new session and verify it works without generic 'Option A, B, C, D' issues")
+        print("2. **Test MCQ Quality**: Verify questions return meaningful mathematical MCQ options instead of generic placeholders")
+        print("3. **Test Answer Submission**: Try to submit answers and verify session flow works end-to-end")
+        print("4. **Test Solutions Display**: Verify questions have proper answers, solution_approach, and detailed_solution fields populated")
+        print("")
+        print("MAIN FIX IMPLEMENTED:")
+        print("- Fixed LLM enrichment pipeline to generate proper answers and solutions using OpenAI with Anthropic fallback")
+        print("- Added MCQ options storage during enrichment process")
+        print("- Modified server to use stored MCQ options first, then fallback to generation")
+        print("- All 94 questions in database are being processed (currently ~11% complete)")
+        print("")
+        print("SUCCESS CRITERIA:")
+        print("- Sessions should work without crashing")
+        print("- MCQ options should show meaningful mathematical values")
+        print("- Answer submission should work")
+        print("- Solutions should be available (not 'generation failed' messages)")
+        print("=" * 70)
+        
+        # Authenticate as student for session testing
+        student_login = {"email": "student@catprep.com", "password": "student123"}
+        success, response = self.run_test("Student Login", "POST", "auth/login", 200, student_login)
+        if not success or 'access_token' not in response:
+            print("❌ Cannot test - student login failed")
+            return False
+            
+        student_token = response['access_token']
+        student_headers = {'Content-Type': 'application/json', 'Authorization': f'Bearer {student_token}'}
+        
+        # Test results tracking
+        llm_mcq_results = {
+            "session_creation_without_crashes": False,
+            "mcq_options_meaningful_not_generic": False,
+            "answer_submission_works": False,
+            "solutions_properly_populated": False,
+            "no_generation_failed_messages": False,
+            "stored_mcq_options_used": False,
+            "openai_anthropic_fallback_working": False,
+            "end_to_end_session_flow": False
+        }
+        
+        # TEST 1: Session Creation Without Generic MCQ Issues
+        print("\n🎯 TEST 1: SESSION CREATION WITHOUT GENERIC MCQ ISSUES")
+        print("-" * 60)
+        print("Creating new session and verifying it works without 'Option A, B, C, D' issues")
+        
+        session_data = {"target_minutes": 30}
+        success, response = self.run_test("Create Session for MCQ Testing", "POST", "sessions/start", 200, session_data, student_headers)
+        
+        if success:
+            session_id = response.get('session_id')
+            total_questions = response.get('total_questions', 0)
+            session_type = response.get('session_type')
+            
+            print(f"   ✅ Session created successfully: {session_id}")
+            print(f"   📊 Total questions: {total_questions}")
+            print(f"   📊 Session type: {session_type}")
+            
+            if session_id and total_questions > 0:
+                llm_mcq_results["session_creation_without_crashes"] = True
+                print("   ✅ CRITICAL SUCCESS: Session creation working without crashes")
+                self.session_id = session_id
+            else:
+                print("   ❌ Session creation failed or returned no questions")
+        else:
+            print("   ❌ Failed to create session")
+        
+        # TEST 2: MCQ Quality - Meaningful Mathematical Options
+        print("\n📊 TEST 2: MCQ QUALITY - MEANINGFUL MATHEMATICAL OPTIONS")
+        print("-" * 60)
+        print("Testing that questions return meaningful mathematical MCQ options instead of generic placeholders")
+        
+        if hasattr(self, 'session_id') and self.session_id:
+            # Get multiple questions to test MCQ quality
+            meaningful_mcq_count = 0
+            generic_mcq_count = 0
+            total_questions_tested = 0
+            
+            for i in range(min(5, 12)):  # Test up to 5 questions
+                success, response = self.run_test(f"Get Question {i+1} for MCQ Testing", "GET", f"sessions/{self.session_id}/next-question", 200, None, student_headers)
+                
+                if success and 'question' in response:
+                    question = response['question']
+                    options = question.get('options', {})
+                    question_stem = question.get('stem', '')
+                    
+                    total_questions_tested += 1
+                    print(f"   Question {i+1}: {question_stem[:80]}...")
+                    
+                    if options and isinstance(options, dict):
+                        option_a = options.get('A', '')
+                        option_b = options.get('B', '')
+                        option_c = options.get('C', '')
+                        option_d = options.get('D', '')
+                        
+                        print(f"   Options: A={option_a}, B={option_b}, C={option_c}, D={option_d}")
+                        
+                        # Check for generic options (the main issue)
+                        generic_patterns = ['Option A', 'Option B', 'Option C', 'Option D', 'A', 'B', 'C', 'D']
+                        is_generic = any(opt in generic_patterns for opt in [option_a, option_b, option_c, option_d])
+                        
+                        # Check for meaningful mathematical content
+                        has_numbers = any(any(char.isdigit() for char in str(opt)) for opt in [option_a, option_b, option_c, option_d])
+                        has_units = any(any(unit in str(opt).lower() for unit in ['km', 'hour', 'meter', 'second', '%', 'rs', 'minutes']) for opt in [option_a, option_b, option_c, option_d])
+                        
+                        if is_generic:
+                            generic_mcq_count += 1
+                            print(f"   ❌ Generic MCQ options detected in question {i+1}")
+                        elif has_numbers or has_units:
+                            meaningful_mcq_count += 1
+                            print(f"   ✅ Meaningful mathematical options in question {i+1}")
+                        else:
+                            print(f"   ⚠️ Options unclear for question {i+1}")
+                    else:
+                        print(f"   ❌ No options found for question {i+1}")
+                else:
+                    break
+            
+            print(f"   📊 Questions tested: {total_questions_tested}")
+            print(f"   📊 Meaningful MCQ options: {meaningful_mcq_count}")
+            print(f"   📊 Generic MCQ options: {generic_mcq_count}")
+            
+            # Success criteria: At least 60% meaningful options, less than 20% generic
+            if total_questions_tested > 0:
+                meaningful_percentage = (meaningful_mcq_count / total_questions_tested) * 100
+                generic_percentage = (generic_mcq_count / total_questions_tested) * 100
+                
+                if meaningful_percentage >= 60 and generic_percentage <= 20:
+                    llm_mcq_results["mcq_options_meaningful_not_generic"] = True
+                    print("   ✅ CRITICAL SUCCESS: MCQ options are meaningful, not generic")
+                elif meaningful_percentage >= 40:
+                    llm_mcq_results["mcq_options_meaningful_not_generic"] = True
+                    print("   ✅ ACCEPTABLE: MCQ options showing improvement")
+                else:
+                    print("   ❌ CRITICAL FAILURE: Still showing generic MCQ options")
+        
+        # TEST 3: Answer Submission End-to-End Flow
+        print("\n🎯 TEST 3: ANSWER SUBMISSION END-TO-END FLOW")
+        print("-" * 60)
+        print("Testing answer submission and verifying session flow works end-to-end")
+        
+        if hasattr(self, 'session_id') and self.session_id:
+            # Get a question and submit an answer
+            success, response = self.run_test("Get Question for Answer Submission", "GET", f"sessions/{self.session_id}/next-question", 200, None, student_headers)
+            
+            if success and 'question' in response:
+                question = response['question']
+                question_id = question.get('id')
+                options = question.get('options', {})
+                
+                if question_id and options:
+                    # Submit an answer (use option A)
+                    answer_data = {
+                        "question_id": question_id,
+                        "user_answer": "A",
+                        "context": "session",
+                        "time_sec": 120,
+                        "hint_used": False
+                    }
+                    
+                    success, response = self.run_test("Submit Answer", "POST", f"sessions/{self.session_id}/submit-answer", 200, answer_data, student_headers)
+                    
+                    if success:
+                        correct = response.get('correct')
+                        status = response.get('status')
+                        message = response.get('message', '')
+                        solution_feedback = response.get('solution_feedback', {})
+                        attempt_id = response.get('attempt_id')
+                        
+                        print(f"   ✅ Answer submitted successfully")
+                        print(f"   📊 Correct: {correct}")
+                        print(f"   📊 Status: {status}")
+                        print(f"   📊 Message: {message}")
+                        print(f"   📊 Attempt ID: {attempt_id}")
+                        
+                        if attempt_id and status and message:
+                            llm_mcq_results["answer_submission_works"] = True
+                            print("   ✅ CRITICAL SUCCESS: Answer submission working end-to-end")
+                            
+                            # Check solution feedback quality
+                            solution_approach = solution_feedback.get('solution_approach', '')
+                            detailed_solution = solution_feedback.get('detailed_solution', '')
+                            
+                            if solution_approach and detailed_solution:
+                                if ('not available' not in solution_approach.lower() and 
+                                    'generation failed' not in solution_approach.lower() and
+                                    'not available' not in detailed_solution.lower() and
+                                    'generation failed' not in detailed_solution.lower()):
+                                    llm_mcq_results["solutions_properly_populated"] = True
+                                    llm_mcq_results["no_generation_failed_messages"] = True
+                                    print("   ✅ CRITICAL SUCCESS: Solutions properly populated")
+                                else:
+                                    print("   ❌ Solutions showing 'not available' or 'generation failed'")
+                            else:
+                                print("   ⚠️ Solution feedback missing or incomplete")
+                        else:
+                            print("   ❌ Answer submission response incomplete")
+                    else:
+                        print("   ❌ Answer submission failed")
+                else:
+                    print("   ❌ Question missing ID or options for answer submission")
+            else:
+                print("   ❌ Could not get question for answer submission test")
+        
+        # TEST 4: Solutions Display Quality
+        print("\n📋 TEST 4: SOLUTIONS DISPLAY QUALITY")
+        print("-" * 60)
+        print("Verifying questions have proper answers, solution_approach, and detailed_solution fields populated")
+        
+        if hasattr(self, 'session_id') and self.session_id:
+            # Test multiple questions for solution quality
+            solutions_populated_count = 0
+            solutions_failed_count = 0
+            total_solutions_tested = 0
+            
+            for i in range(min(3, 12)):  # Test up to 3 questions for solutions
+                success, response = self.run_test(f"Get Question {i+1} for Solution Testing", "GET", f"sessions/{self.session_id}/next-question", 200, None, student_headers)
+                
+                if success and 'question' in response:
+                    question = response['question']
+                    answer = question.get('answer', '')
+                    solution_approach = question.get('solution_approach', '')
+                    detailed_solution = question.get('detailed_solution', '')
+                    
+                    total_solutions_tested += 1
+                    print(f"   Question {i+1} Solutions:")
+                    print(f"   Answer: {answer}")
+                    print(f"   Solution approach: {solution_approach[:100]}...")
+                    print(f"   Detailed solution: {detailed_solution[:100]}...")
+                    
+                    # Check for proper population (not generic/failed messages)
+                    failed_indicators = ['to be generated', 'generation failed', 'not available', 'will be provided after enrichment']
+                    
+                    answer_failed = any(indicator in answer.lower() for indicator in failed_indicators)
+                    solution_approach_failed = any(indicator in solution_approach.lower() for indicator in failed_indicators)
+                    detailed_solution_failed = any(indicator in detailed_solution.lower() for indicator in failed_indicators)
+                    
+                    if answer_failed or solution_approach_failed or detailed_solution_failed:
+                        solutions_failed_count += 1
+                        print(f"   ❌ Question {i+1} has failed/generic solution content")
+                    elif answer and solution_approach and detailed_solution:
+                        solutions_populated_count += 1
+                        print(f"   ✅ Question {i+1} has properly populated solutions")
+                    else:
+                        print(f"   ⚠️ Question {i+1} has incomplete solution data")
+                else:
+                    break
+            
+            print(f"   📊 Solutions tested: {total_solutions_tested}")
+            print(f"   📊 Properly populated: {solutions_populated_count}")
+            print(f"   📊 Failed/generic: {solutions_failed_count}")
+            
+            if total_solutions_tested > 0:
+                success_percentage = (solutions_populated_count / total_solutions_tested) * 100
+                if success_percentage >= 70:
+                    llm_mcq_results["solutions_properly_populated"] = True
+                    llm_mcq_results["no_generation_failed_messages"] = True
+                    print("   ✅ CRITICAL SUCCESS: Solutions properly populated")
+                elif success_percentage >= 50:
+                    print("   ⚠️ PARTIAL SUCCESS: Some solutions populated, improvement needed")
+                else:
+                    print("   ❌ CRITICAL FAILURE: Most solutions still showing failed/generic content")
+        
+        # TEST 5: End-to-End Session Flow
+        print("\n🔄 TEST 5: END-TO-END SESSION FLOW")
+        print("-" * 60)
+        print("Testing complete session flow from creation to completion")
+        
+        if hasattr(self, 'session_id') and self.session_id:
+            # Try to complete a few questions in the session
+            questions_completed = 0
+            for i in range(min(3, 12)):
+                # Get question
+                success, response = self.run_test(f"E2E Question {i+1}", "GET", f"sessions/{self.session_id}/next-question", 200, None, student_headers)
+                
+                if success and 'question' in response:
+                    question = response['question']
+                    question_id = question.get('id')
+                    
+                    if question_id:
+                        # Submit answer
+                        answer_data = {
+                            "question_id": question_id,
+                            "user_answer": "A",
+                            "context": "session",
+                            "time_sec": 60,
+                            "hint_used": False
+                        }
+                        
+                        success, response = self.run_test(f"E2E Submit {i+1}", "POST", f"sessions/{self.session_id}/submit-answer", 200, answer_data, student_headers)
+                        
+                        if success:
+                            questions_completed += 1
+                        else:
+                            break
+                    else:
+                        break
+                else:
+                    break
+            
+            print(f"   📊 Questions completed in flow: {questions_completed}")
+            
+            if questions_completed >= 2:
+                llm_mcq_results["end_to_end_session_flow"] = True
+                print("   ✅ CRITICAL SUCCESS: End-to-end session flow working")
+            else:
+                print("   ❌ End-to-end session flow broken")
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 70)
+        print("LLM ENRICHMENT FIXES AND MCQ IMPROVEMENTS TEST RESULTS")
+        print("=" * 70)
+        
+        passed_tests = sum(llm_mcq_results.values())
+        total_tests = len(llm_mcq_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        for test_name, result in llm_mcq_results.items():
+            status = "✅ PASS" if result else "❌ FAIL"
+            print(f"{test_name.replace('_', ' ').title():<45} {status}")
+        
+        print("-" * 70)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # Critical analysis based on review request
+        print("\n🎯 CRITICAL FIXES ANALYSIS:")
+        
+        if llm_mcq_results["session_creation_without_crashes"]:
+            print("✅ CRITICAL SUCCESS: Session creation working without crashes!")
+        else:
+            print("❌ CRITICAL FAILURE: Session creation still failing")
+        
+        if llm_mcq_results["mcq_options_meaningful_not_generic"]:
+            print("✅ CRITICAL SUCCESS: MCQ options are meaningful, not generic 'Option A, B, C, D'!")
+        else:
+            print("❌ CRITICAL FAILURE: Still showing generic MCQ options")
+        
+        if llm_mcq_results["answer_submission_works"]:
+            print("✅ CRITICAL SUCCESS: Answer submission working end-to-end!")
+        else:
+            print("❌ CRITICAL FAILURE: Answer submission broken")
+        
+        if llm_mcq_results["solutions_properly_populated"]:
+            print("✅ CRITICAL SUCCESS: Solutions properly populated, not 'generation failed'!")
+        else:
+            print("❌ CRITICAL FAILURE: Solutions still showing failed/generic content")
+        
+        if llm_mcq_results["end_to_end_session_flow"]:
+            print("✅ CRITICAL SUCCESS: Complete session workflow functional!")
+        else:
+            print("❌ CRITICAL FAILURE: Session workflow broken")
+        
+        return success_rate >= 70
+
 
 if __name__ == "__main__":
     print("🎯 CAT BACKEND TESTING - LLM ENRICHMENT AND MCQ IMPROVEMENTS VALIDATION")
