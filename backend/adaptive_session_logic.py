@@ -301,6 +301,226 @@ class AdaptiveSessionLogic:
             logger.error(f"Error ordering coverage progression: {e}")
             return questions
 
+    def identify_weak_type_combinations(self, user_profile: Dict[str, Any]) -> List[str]:
+        """Identify weak subcategory-type combinations for strengthen phase"""
+        try:
+            weak_combinations = []
+            mastery_data = user_profile.get('mastery_breakdown', [])
+            
+            for item in mastery_data:
+                if item.get('mastery_percentage', 0) < 60:  # Consider <60% as weak
+                    subcategory = item.get('subcategory', 'Unknown')
+                    # For now, we'll identify weak subcategories and pair with common types
+                    for question_type in ['Basics', 'Advanced']:  # Common types
+                        weak_combinations.append(f"{subcategory}::{question_type}")
+            
+            # If no weak areas identified, target some default areas for strengthening
+            if not weak_combinations:
+                weak_combinations = [
+                    "HCF-LCM::Euclidean Algorithm",
+                    "Remainders::Chinese Remainder Theorem", 
+                    "Divisibility::Basic Divisibility Rules"
+                ]
+            
+            logger.info(f"Identified {len(weak_combinations)} weak type combinations")
+            return weak_combinations[:10]  # Limit to top 10
+            
+        except Exception as e:
+            logger.error(f"Error identifying weak type combinations: {e}")
+            return ["HCF-LCM::Basics", "Remainders::Basics"]
+
+    def identify_strong_type_combinations(self, user_profile: Dict[str, Any]) -> List[str]:
+        """Identify strong subcategory-type combinations for stretch goals"""
+        try:
+            strong_combinations = []
+            mastery_data = user_profile.get('mastery_breakdown', [])
+            
+            for item in mastery_data:
+                if item.get('mastery_percentage', 0) > 75:  # Consider >75% as strong
+                    subcategory = item.get('subcategory', 'Unknown')
+                    # For strong areas, pair with advanced types
+                    for question_type in ['Advanced', 'Complex']:
+                        strong_combinations.append(f"{subcategory}::{question_type}")
+            
+            # If no strong areas identified, use some default strong patterns
+            if not strong_combinations:
+                strong_combinations = [
+                    "Divisibility::Factorisation of Integers",
+                    "HCF-LCM::Product of HCF and LCM",
+                    "Number Properties::Perfect Squares"
+                ]
+            
+            logger.info(f"Identified {len(strong_combinations)} strong type combinations")
+            return strong_combinations[:8]  # Limit to top 8
+            
+        except Exception as e:
+            logger.error(f"Error identifying strong type combinations: {e}")
+            return ["Divisibility::Factorisation of Integers"]
+
+    def calculate_strengthen_distribution(self, user_profile: Dict[str, Any], weak_areas: List[str], strong_areas: List[str]) -> Dict[str, int]:
+        """Calculate category distribution for strengthen phase"""
+        try:
+            # Start with base distribution
+            strengthen_dist = self.base_category_distribution.copy()
+            
+            # Extract categories from weak and strong areas
+            weak_categories = []
+            for area in weak_areas:
+                subcategory = area.split('::')[0] if '::' in area else area
+                category = self.get_category_from_subcategory(subcategory)
+                if category:
+                    weak_categories.append(category)
+            
+            strong_categories = []
+            for area in strong_areas:
+                subcategory = area.split('::')[0] if '::' in area else area
+                category = self.get_category_from_subcategory(subcategory)
+                if category:
+                    strong_categories.append(category)
+            
+            # Adjust distribution to emphasize weak categories
+            for category in set(weak_categories):
+                if category in strengthen_dist:
+                    strengthen_dist[category] += 1  # Add 1 extra question for weak categories
+            
+            # Normalize to 12 questions
+            total = sum(strengthen_dist.values())
+            if total > 12:
+                # Scale down proportionally
+                factor = 12 / total
+                for category in strengthen_dist:
+                    strengthen_dist[category] = max(1, int(strengthen_dist[category] * factor))
+            
+            logger.info(f"Strengthen distribution: {strengthen_dist}")
+            return strengthen_dist
+            
+        except Exception as e:
+            logger.error(f"Error calculating strengthen distribution: {e}")
+            return self.base_category_distribution.copy()
+
+    def get_strengthen_weighted_question_pool(self, user_id: str, user_profile: Dict[str, Any], 
+                                            phase_info: Dict[str, Any], weak_areas: List[str], 
+                                            strong_areas: List[str], db: Session) -> List[Question]:
+        """Get question pool optimized for strengthen phase"""
+        try:
+            # Get all active questions
+            result = db.execute(
+                select(Question)
+                .where(Question.is_active == True)
+                .order_by(func.random())
+            )
+            all_questions = result.scalars().all()
+            
+            # Categorize questions by weak/strong/neutral
+            weak_questions = []
+            strong_questions = []
+            neutral_questions = []
+            
+            for question in all_questions:
+                subcategory = question.subcategory or 'Unknown'
+                question_type = question.type_of_question or 'General'
+                combination = f"{subcategory}::{question_type}"
+                
+                if any(weak_area in combination or combination in weak_area for weak_area in weak_areas):
+                    weak_questions.append(question)
+                elif any(strong_area in combination or combination in strong_area for strong_area in strong_areas):
+                    strong_questions.append(question)
+                else:
+                    neutral_questions.append(question)
+            
+            # Build strengthen pool: 50% weak, 30% strong, 20% neutral (approximations)
+            strengthen_pool = []
+            
+            # Add weak area questions (for Easy→Medium targeting)
+            weak_sorted = sorted(weak_questions, key=lambda q: q.difficulty_score or 0.5)
+            strengthen_pool.extend(weak_sorted[:30])  # Up to 30 weak questions
+            
+            # Add strong area questions (for Hard targeting)  
+            strong_sorted = sorted(strong_questions, key=lambda q: -(q.difficulty_score or 0.5))  # Harder first
+            strengthen_pool.extend(strong_sorted[:20])  # Up to 20 strong questions
+            
+            # Add neutral questions
+            strengthen_pool.extend(neutral_questions[:15])  # Up to 15 neutral questions
+            
+            logger.info(f"Strengthen pool: {len(strengthen_pool)} questions ({len(weak_questions)} weak, {len(strong_questions)} strong, {len(neutral_questions)} neutral)")
+            return strengthen_pool
+            
+        except Exception as e:
+            logger.error(f"Error getting strengthen weighted question pool: {e}")
+            return self.get_fallback_question_pool(db)
+
+    def apply_strengthen_selection_strategies(self, user_id: str, user_profile: Dict[str, Any], 
+                                           question_pool: List[Question], strengthen_distribution: Dict[str, int], 
+                                           weak_areas: List[str], strong_areas: List[str], 
+                                           phase_info: Dict[str, Any], db: Session) -> List[Question]:
+        """Apply selection strategies for strengthen phase: 45% weak, 35% strong, 20% authentic"""
+        try:
+            selected_questions = []
+            difficulty_dist = phase_info['difficulty_distribution']
+            
+            # Allocation targets based on strengthen phase requirements
+            weak_target = int(12 * 0.45)   # 45% = ~5 questions targeting weak areas
+            strong_target = int(12 * 0.35) # 35% = ~4 questions targeting strong areas  
+            authentic_target = int(12 * 0.2) # 20% = ~3 questions for authentic distribution
+            
+            # Separate questions by weak/strong/neutral
+            weak_questions = []
+            strong_questions = []
+            neutral_questions = []
+            
+            for question in question_pool:
+                subcategory = question.subcategory or 'Unknown'
+                question_type = question.type_of_question or 'General'
+                combination = f"{subcategory}::{question_type}"
+                
+                if any(weak_area in combination for weak_area in weak_areas):
+                    weak_questions.append(question)
+                elif any(strong_area in combination for strong_area in strong_areas):
+                    strong_questions.append(question)
+                else:
+                    neutral_questions.append(question)
+            
+            # Select weak area questions (Easy→Medium preference)
+            weak_sorted = sorted(weak_questions, key=lambda q: q.difficulty_score or 0.5)
+            selected_questions.extend(weak_sorted[:weak_target])
+            
+            # Select strong area questions (Hard preference)
+            strong_sorted = sorted(strong_questions, key=lambda q: -(q.difficulty_score or 0.5))
+            selected_questions.extend(strong_sorted[:strong_target])
+            
+            # Fill remaining with neutral questions
+            selected_questions.extend(neutral_questions[:authentic_target])
+            
+            # If we don't have enough, fill from any remaining pool
+            while len(selected_questions) < 12:
+                remaining_pool = [q for q in question_pool if q not in selected_questions]
+                if not remaining_pool:
+                    break
+                selected_questions.append(remaining_pool[0])
+            
+            logger.info(f"Strengthen selection: {len(selected_questions)} questions ({weak_target} weak, {strong_target} strong, {authentic_target} authentic)")
+            return selected_questions[:12]
+            
+        except Exception as e:
+            logger.error(f"Error applying strengthen selection strategies: {e}")
+            return question_pool[:12]
+
+    def order_by_strengthen_progression(self, questions: List[Question], phase_info: Dict[str, Any]) -> List[Question]:
+        """Order questions for strengthen phase - Easy → Medium → Hard progression"""
+        try:
+            # Sort by difficulty progression with some randomization within difficulty levels
+            ordered = sorted(questions, key=lambda q: (
+                self.get_difficulty_order(q),      # Easy=0, Medium=1, Hard=2
+                q.pyq_frequency_score or 0.5       # Secondary sort by frequency
+            ))
+            
+            logger.info(f"Strengthen progression: {len(ordered)} questions ordered with difficulty progression")
+            return ordered
+            
+        except Exception as e:
+            logger.error(f"Error ordering strengthen progression: {e}")
+            return questions
+
     def create_coverage_phase_session(self, user_id: str, user_profile: Dict[str, Any], phase_info: Dict[str, Any], db: Session) -> Dict[str, Any]:
         """
         Phase A (Sessions 1-30): Coverage & Calibration
