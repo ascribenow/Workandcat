@@ -10,7 +10,7 @@ import time
 import sys
 
 class LLMSolutionTester:
-    def __init__(self, base_url="https://7c02cfe7-3550-46e8-a144-11935599c1f5.preview.emergentagent.com/api"):
+    def __init__(self, base_url="https://twelvr-adaptive.preview.emergentagent.com/api"):
         self.base_url = base_url
         self.admin_token = None
         self.student_token = None

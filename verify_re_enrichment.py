@@ -6,7 +6,7 @@ import requests
 import json
 
 def verify_re_enrichment():
-    base_url = "https://7c02cfe7-3550-46e8-a144-11935599c1f5.preview.emergentagent.com/api"
+    base_url = "https://twelvr-adaptive.preview.emergentagent.com/api"
     
     print("🔍 VERIFYING RE-ENRICHMENT RESULTS")
     print("=" * 50)
