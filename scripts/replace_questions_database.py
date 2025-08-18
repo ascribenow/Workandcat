@@ -73,11 +73,11 @@ async def download_and_parse_csv():
                     'image_url': image_url if image_url else None
                 })
         
-        logger.info(f"✅ Parsed {len(questions_data)} questions from CSV")
+        logger.info(f"✅ Parsed {len(questions_data)} questions from local CSV")
         return questions_data
         
     except Exception as e:
-        logger.error(f"Error downloading/parsing CSV: {e}")
+        logger.error(f"Error loading/parsing local CSV: {e}")
         return []
 
 async def import_questions_to_database(questions_data: list, db: Session):
