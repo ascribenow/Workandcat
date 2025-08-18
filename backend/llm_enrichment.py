@@ -538,11 +538,11 @@ Please provide:
         """Analyze how central this concept is (0-100)"""
         # Core concepts that appear across many problems
         central_concepts = {
-            "Time–Speed–Distance (TSD)": 90,
+            "Time-Speed-Distance": 90,
             "Percentages": 85,
             "Linear Equations": 80,
-            "Basic SI & CI": 75,
-            "Ratio–Proportion–Variation": 85
+            "Simple and Compound Interest": 75,
+            "Ratios and Proportions": 85
         }
         return central_concepts.get(subcategory, 60.0)
     
