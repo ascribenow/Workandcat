@@ -487,7 +487,7 @@ Please provide:
         """
         if not pyq_data:
             # Default frequency mapping (would be replaced with actual PYQ analysis)
-            high_freq = ["Basic TSD", "Basic Percentages", "Linear Equations", "Basic SI & CI"]
+            high_freq = ["Basics", "Basics", "Linear Equations", "Basics"]
             medium_freq = ["Relative Speed", "Compound Ratios", "Quadratic Equations", "Triangles"]
             
             if subcategory in high_freq:
