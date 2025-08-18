@@ -181,6 +181,158 @@ class AdaptiveSessionLogic:
         except Exception as e:
             logger.error(f"Error creating three-phase adaptive session: {e}")
             return self.create_simple_fallback_session(user_id, db)
+
+    def create_coverage_phase_session(self, user_id: str, user_profile: Dict[str, Any], phase_info: Dict[str, Any], db: Session) -> Dict[str, Any]:
+        """
+        Phase A (Sessions 1-30): Coverage & Calibration
+        Objective: Broad exposure across entire taxonomy, build initial mastery signals
+        Difficulty: 75% Medium, 20% Easy, 5% Hard
+        """
+        try:
+            logger.info(f"Creating Coverage Phase session (Session {phase_info['current_session']}/30)")
+            
+            # Coverage-focused category distribution (more balanced)
+            balanced_distribution = {
+                "Arithmetic": 3,                    # 25%
+                "Algebra": 3,                       # 25%
+                "Geometry and Mensuration": 2,      # 17%
+                "Number System": 2,                 # 17%
+                "Modern Math": 2                    # 17%
+            }
+            
+            # Get diverse question pool focusing on coverage
+            question_pool = self.get_coverage_weighted_question_pool(user_id, user_profile, phase_info, db)
+            
+            if len(question_pool) < 12:
+                logger.warning(f"Limited question pool for coverage phase, falling back")
+                return self.create_simple_fallback_session(user_id, db)
+            
+            # Apply coverage-focused selection
+            selected_questions = self.apply_coverage_selection_strategies(
+                user_id, user_profile, question_pool, balanced_distribution, phase_info, db
+            )
+            
+            # Order by easy-to-medium progression
+            ordered_questions = self.order_by_coverage_progression(selected_questions, phase_info)
+            
+            # Generate coverage phase metadata
+            session_metadata = self.generate_phase_metadata(
+                ordered_questions, user_profile, balanced_distribution, phase_info
+            )
+            
+            return {
+                "questions": ordered_questions,
+                "metadata": session_metadata,
+                "personalization_applied": True,
+                "enhancement_level": "three_phase_adaptive",
+                "session_type": "intelligent_12_question_set",
+                "phase_info": phase_info
+            }
+            
+        except Exception as e:
+            logger.error(f"Error creating coverage phase session: {e}")
+            return self.create_simple_fallback_session(user_id, db)
+
+    def create_strengthen_phase_session(self, user_id: str, user_profile: Dict[str, Any], phase_info: Dict[str, Any], db: Session) -> Dict[str, Any]:
+        """
+        Phase B (Sessions 31-60): Strengthen & Stretch
+        Objective: Target weak areas + introduce Hard questions in strong areas
+        Allocation: 45% weak areas (Easy→Medium), 35% strong areas (Hard), 20% authentic
+        """
+        try:
+            logger.info(f"Creating Strengthen Phase session (Session {phase_info['current_session']}/60)")
+            
+            # Identify weak and strong areas at type level
+            weak_areas = self.identify_weak_type_combinations(user_profile)
+            strong_areas = self.identify_strong_type_combinations(user_profile)
+            
+            # Calculate strengthen-focused distribution
+            strengthen_distribution = self.calculate_strengthen_distribution(
+                user_profile, weak_areas, strong_areas
+            )
+            
+            # Get targeted question pool for strengthen phase
+            question_pool = self.get_strengthen_weighted_question_pool(
+                user_id, user_profile, phase_info, weak_areas, strong_areas, db
+            )
+            
+            if len(question_pool) < 12:
+                logger.warning(f"Limited question pool for strengthen phase, falling back")
+                return self.create_simple_fallback_session(user_id, db)
+            
+            # Apply strengthen-focused selection (45% weak, 35% strong, 20% authentic)
+            selected_questions = self.apply_strengthen_selection_strategies(
+                user_id, user_profile, question_pool, strengthen_distribution, 
+                weak_areas, strong_areas, phase_info, db
+            )
+            
+            # Order by difficulty progression (Easy → Medium → Hard)
+            ordered_questions = self.order_by_strengthen_progression(selected_questions, phase_info)
+            
+            # Generate strengthen phase metadata
+            session_metadata = self.generate_phase_metadata(
+                ordered_questions, user_profile, strengthen_distribution, phase_info,
+                weak_areas_targeted=len(weak_areas), strong_areas_targeted=len(strong_areas)
+            )
+            
+            return {
+                "questions": ordered_questions,
+                "metadata": session_metadata,
+                "personalization_applied": True,
+                "enhancement_level": "three_phase_adaptive",
+                "session_type": "intelligent_12_question_set",
+                "phase_info": phase_info,
+                "weak_areas_targeted": weak_areas,
+                "strong_areas_targeted": strong_areas
+            }
+            
+        except Exception as e:
+            logger.error(f"Error creating strengthen phase session: {e}")
+            return self.create_simple_fallback_session(user_id, db)
+
+    def create_adaptive_phase_session(self, user_id: str, user_profile: Dict[str, Any], phase_info: Dict[str, Any], db: Session) -> Dict[str, Any]:
+        """
+        Phase C (Sessions 61+): Fully Adaptive
+        Objective: Full adaptive logic with type-level granularity
+        Uses existing enhanced logic but with type-aware selection
+        """
+        try:
+            logger.info(f"Creating Fully Adaptive session (Session {phase_info['current_session']})")
+            
+            # Use dynamic category distribution (existing logic)
+            dynamic_distribution = self.calculate_dynamic_category_distribution(user_profile, db)
+            
+            # Get PYQ frequency-weighted question pool with type-level awareness
+            question_pool = self.get_pyq_weighted_question_pool(user_id, user_profile, db)
+            
+            if len(question_pool) < 12:
+                logger.warning(f"Limited question pool for adaptive phase, falling back")
+                return self.create_simple_fallback_session(user_id, db)
+            
+            # Apply enhanced selection strategies with type-level focus
+            selected_questions = self.apply_enhanced_selection_strategies(
+                user_id, user_profile, question_pool, dynamic_distribution, db
+            )
+            
+            # Order by difficulty progression
+            ordered_questions = self.order_by_difficulty_progression(selected_questions, user_profile)
+            
+            # Generate enhanced metadata with phase info
+            session_metadata = self.generate_phase_metadata(
+                ordered_questions, user_profile, dynamic_distribution, phase_info
+            )
+            
+            return {
+                "questions": ordered_questions,
+                "metadata": session_metadata,
+                "personalization_applied": True,
+                "enhancement_level": "three_phase_adaptive",
+                "session_type": "intelligent_12_question_set",
+                "phase_info": phase_info
+            }
+            
+        except Exception as e:
+            logger.error(f"Error creating adaptive phase session: {e}")
             return self.create_simple_fallback_session(user_id, db)
 
     def calculate_dynamic_category_distribution(
