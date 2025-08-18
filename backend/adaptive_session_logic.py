@@ -517,7 +517,7 @@ class AdaptiveSessionLogic:
             logger.error(f"Error getting PYQ weighted question pool: {e}")
             return []
 
-    def apply_enhanced_selection_strategies(
+    async def apply_enhanced_selection_strategies(
         self, 
         user_id: str, 
         user_profile: Dict, 
