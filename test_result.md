@@ -738,7 +738,7 @@ backend:
     implemented: true
     working: false
     file: "/app/scripts/complete_taxonomy_migration.py"
-    stuck_count: 1
+    stuck_count: 2
     priority: "critical"
     needs_retesting: false
     status_history:
@@ -748,6 +748,9 @@ backend:
         -working: false
         -agent: "testing"
         -comment: "❌ TAXONOMY TRIPLE MIGRATION INCOMPLETE: Comprehensive testing reveals critical gaps in Type implementation. FINDINGS: 1) ❌ DATABASE SCHEMA MISSING TYPE FIELD: Questions API response does not include 'type_of_question' field - schema verification failed, 2) ❌ ZERO TYPE DIVERSITY: Found 0 unique Types in 500 questions - Type field is not populated, 3) ❌ LOW CANONICAL COMPLIANCE: Only 1.6% (8/500) questions use canonical taxonomy, 4) ❌ LIMITED SUBCATEGORY COVERAGE: Only 8 unique subcategories found vs expected 36+ canonical subcategories, 5) ❌ ONLY 2 CANONICAL CATEGORIES: Found only 2 canonical categories vs expected 5. CRITICAL ISSUE: The migration script may have run but Type field is not being populated or exposed in API responses. SUCCESS RATE: 11.1% (1/9 tests passed)."
+        -working: false
+        -agent: "testing"
+        -comment: "❌ TAXONOMY TRIPLE MIGRATION PARTIALLY SUCCESSFUL BUT INSUFFICIENT: Updated testing reveals Type field is now populated but with critical gaps. FINDINGS: 1) ✅ TYPE FIELD EXPOSED: Questions API now returns type_of_question field with 100% coverage (1126/1126 questions), 2) ❌ INSUFFICIENT TYPE DIVERSITY: Only 3 unique Types found vs expected 129 canonical Types, 3) ❌ LOW CANONICAL COMPLIANCE: Only 1.2% (13/1126) questions use canonical taxonomy vs required 99.2%, 4) ✅ DATABASE SIZE CORRECT: Found expected 1126 total questions, 5) ✅ TIME-SPEED-DISTANCE MAPPING: Found 1099 TSD questions as expected, 6) ❌ LIMITED SUBCATEGORY COVERAGE: Only 8 unique subcategories vs expected 36+ canonical subcategories. CRITICAL ISSUE: Migration populated Type field but failed to achieve canonical taxonomy diversity and compliance. SUCCESS RATE: 33.3% (3/9 tests passed)."
 
   - task: "Session Engine Type Integration"
     implemented: true
