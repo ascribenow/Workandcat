@@ -803,10 +803,10 @@ class AdaptiveSessionLogic:
                 subcategory = question.subcategory or 'Unknown'
                 question_type = question.type_of_question or 'General'
                 
-                # Check subcategory cap (max 5 per subcategory)
+                # Check subcategory cap (max 3 per subcategory for better diversity)
                 current_subcategory_count = subcategory_counts.get(subcategory, 0)
-                if current_subcategory_count >= 5:
-                    logger.info(f"Skipping {subcategory} - subcategory cap reached ({current_subcategory_count}/5)")
+                if current_subcategory_count >= 3:  # Stricter cap for better diversity
+                    logger.info(f"Skipping {subcategory} - subcategory cap reached ({current_subcategory_count}/3)")
                     continue  # Skip if subcategory cap reached
                 
                 # Check type within subcategory cap (max 2-3 per type within subcategory)
