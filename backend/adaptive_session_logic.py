@@ -166,7 +166,7 @@ class AdaptiveSessionLogic:
             logger.error(f"Error creating enhanced personalized session: {e}")
             return self.create_simple_fallback_session(user_id, db)
 
-    async def calculate_dynamic_category_distribution(
+    def calculate_dynamic_category_distribution(
         self, 
         user_profile: Dict[str, Any], 
         db: Session
@@ -1104,7 +1104,7 @@ class AdaptiveSessionLogic:
             logger.error(f"Error ordering by difficulty progression: {e}")
             return questions
 
-    async def generate_enhanced_session_metadata(
+    def generate_enhanced_session_metadata(
         self, 
         questions: List[Question], 
         user_profile: Dict[str, Any],
