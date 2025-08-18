@@ -153,51 +153,34 @@ class AdaptiveSessionLogic:
 
     def create_personalized_session(self, user_id: str, db: Session) -> Dict[str, Any]:
         """
-        PHASE 1 ENHANCED: Create a sophisticated 12-question session with PYQ frequency integration
+        THREE-PHASE ADAPTIVE: Create a sophisticated 12-question session with phase-based progression
+        Phase A (1-30): Coverage & Calibration
+        Phase B (31-60): Strengthen & Stretch  
+        Phase C (61+): Fully Adaptive
         """
         try:
-            logger.info(f"Creating PHASE 1 enhanced personalized session for user {user_id}")
+            # Step 1: Determine user's current phase
+            phase_info = self.determine_user_phase(user_id, db)
+            logger.info(f"Creating {phase_info['phase_name']} session for user {user_id} (Session {phase_info['current_session']})")
             
-            # Step 1: Analyze user's learning profile
+            # Step 2: Analyze user's learning profile
             user_profile = self.analyze_user_learning_profile(user_id, db)
             logger.info(f"User profile: {user_profile}")
             
-            # Step 2: PHASE 1 - Calculate dynamic category distribution
-            dynamic_distribution = self.calculate_dynamic_category_distribution(
-                user_profile, db
-            )
-            logger.info(f"Dynamic distribution: {dynamic_distribution}")
-            
-            # Step 3: Get PYQ frequency-weighted question pool
-            question_pool = self.get_pyq_weighted_question_pool(user_id, user_profile, db)
-            
-            if len(question_pool) < 12:
-                logger.warning(f"Limited question pool ({len(question_pool)}), falling back to simple selection")
-                return self.create_simple_fallback_session(user_id, db)
-            
-            # Step 4: Apply PHASE 1 enhanced selection strategies
-            selected_questions = self.apply_enhanced_selection_strategies(
-                user_id, user_profile, question_pool, dynamic_distribution, db
-            )
-            
-            # Step 5: Order questions by difficulty progression
-            ordered_questions = self.order_by_difficulty_progression(selected_questions, user_profile)
-            
-            # Step 6: Generate enhanced session metadata
-            session_metadata = self.generate_enhanced_session_metadata(
-                ordered_questions, user_profile, dynamic_distribution
-            )
-            
-            return {
-                "questions": ordered_questions,
-                "metadata": session_metadata,
-                "personalization_applied": True,
-                "enhancement_level": "phase_1_advanced",
-                "session_type": "intelligent_12_question_set"  # Add session type for API compatibility
-            }
+            # Step 3: Phase-specific session creation
+            if phase_info['is_coverage_phase']:
+                # Phase A: Coverage & Calibration
+                return self.create_coverage_phase_session(user_id, user_profile, phase_info, db)
+            elif phase_info['is_strengthen_phase']:
+                # Phase B: Strengthen & Stretch
+                return self.create_strengthen_phase_session(user_id, user_profile, phase_info, db)
+            else:
+                # Phase C: Fully Adaptive
+                return self.create_adaptive_phase_session(user_id, user_profile, phase_info, db)
             
         except Exception as e:
-            logger.error(f"Error creating enhanced personalized session: {e}")
+            logger.error(f"Error creating three-phase adaptive session: {e}")
+            return self.create_simple_fallback_session(user_id, db)
             return self.create_simple_fallback_session(user_id, db)
 
     def calculate_dynamic_category_distribution(
