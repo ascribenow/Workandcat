@@ -797,6 +797,7 @@ async def start_session(
         questions = session_result["questions"]
         metadata = session_result["metadata"]
         personalized = session_result["personalization_applied"]
+        phase_info = session_result.get("phase_info", {})  # Extract phase_info from session_result
         
         if not questions:
             raise HTTPException(status_code=404, detail="No questions available for session")
