@@ -399,7 +399,8 @@ class CATBackendTester:
             print("❌ SESSION SYSTEM: Issues with new taxonomy structure")
         
         return success_rate >= 70
-        """CRITICAL: Test and fix all questions with generic/wrong solutions in database"""
+
+    def test_critical_llm_solution_re_enrichment(self):
         print("🚨 CRITICAL LLM SOLUTION RE-ENRICHMENT TESTING")
         print("=" * 60)
         print("URGENT REQUIREMENT: Re-enrich ALL questions with generic/wrong solutions")
