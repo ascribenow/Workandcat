@@ -3635,23 +3635,25 @@ class CATBackendTester:
 if __name__ == "__main__":
     tester = CATBackendTester()
     
-    print("🚀 Starting FINAL Dual-Dimension Diversity Enforcement System Testing")
+    print("🚀 Starting Dual-Dimension Diversity Enforcement System Testing with NEW DIVERSE DATASET")
     print("=" * 80)
     
-    # Run the FINAL dual-dimension diversity enforcement test with questions in response
-    success = tester.test_final_dual_dimension_diversity_with_questions_in_response()
+    # Run the dual-dimension diversity enforcement test with the NEW DIVERSE DATASET
+    success = tester.test_dual_dimension_diversity_with_new_diverse_dataset()
     
     print("\n" + "=" * 80)
-    print("FINAL TEST SUMMARY")
+    print("DUAL-DIMENSION DIVERSITY ENFORCEMENT TEST SUMMARY")
     print("=" * 80)
     print(f"Tests run: {tester.tests_run}")
     print(f"Tests passed: {tester.tests_passed}")
     
     if success:
-        print("🎉 FINAL DUAL-DIMENSION DIVERSITY ENFORCEMENT SYSTEM: WORKING!")
-        print("✅ All critical requirements met - system ready for production")
+        print("🎉 DUAL-DIMENSION DIVERSITY ENFORCEMENT WITH NEW DIVERSE DATASET: WORKING!")
+        print("✅ All critical requirements met with 14 subcategories and 23 types")
+        print("✅ System ready for production with proper diversity enforcement")
     else:
-        print("❌ FINAL DUAL-DIMENSION DIVERSITY ENFORCEMENT SYSTEM: NEEDS IMPROVEMENTS")
+        print("❌ DUAL-DIMENSION DIVERSITY ENFORCEMENT WITH NEW DIVERSE DATASET: NEEDS IMPROVEMENTS")
         print("⚠️ Critical requirements not fully met - system needs fixes")
+        print("⚠️ Despite having 14 subcategories and 23 types, diversity enforcement failing")
     
     print("=" * 80)
