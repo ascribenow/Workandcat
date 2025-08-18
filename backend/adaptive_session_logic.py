@@ -1792,27 +1792,32 @@ class AdaptiveSessionLogic:
             return 1  # Default to Medium order
 
     def determine_question_difficulty(self, question: Question) -> str:
-        """Determine question difficulty with support for artificial difficulty assignment"""
+        """Determine question difficulty with support for FORCED difficulty assignment from stratified sampling"""
         try:
-            # Check if question has artificial difficulty assigned (from stratified sampling)
+            # PRIORITY: Check if question has FORCED difficulty from stratified sampling
+            if hasattr(question, '_forced_difficulty'):
+                forced_difficulty = getattr(question, '_forced_difficulty')
+                logger.debug(f"Using FORCED difficulty: {forced_difficulty} (stratified sampling)")
+                return forced_difficulty
+            
+            # Legacy: Check for artificial difficulty (older implementation)
             if hasattr(question, '_artificial_difficulty'):
                 artificial_difficulty = getattr(question, '_artificial_difficulty')
-                logger.debug(f"Using artificial difficulty: {artificial_difficulty} for question")
+                logger.debug(f"Using artificial difficulty: {artificial_difficulty}")
                 return artificial_difficulty
             
-            # First try difficulty_band if available and valid
+            # Natural: Try difficulty_band if available and valid
             if hasattr(question, 'difficulty_band') and question.difficulty_band:
                 band = question.difficulty_band.strip()
                 if band in ['Easy', 'Medium', 'Hard']:
                     return band
             
-            # Use difficulty_score with adjusted thresholds for better distribution
+            # Natural: Use difficulty_score with adjusted thresholds
             difficulty_score = question.difficulty_score or 0.5
             
-            # Adjusted thresholds to create better distribution
-            if difficulty_score < 0.35:  # Lower threshold for Easy
+            if difficulty_score < 0.35:
                 return "Easy"
-            elif difficulty_score < 0.75:  # Higher threshold for Medium  
+            elif difficulty_score < 0.75:
                 return "Medium"
             else:
                 return "Hard"
