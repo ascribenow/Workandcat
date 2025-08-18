@@ -1322,31 +1322,46 @@ class CATBackendTester:
         
         # Critical analysis based on review request
         if dual_dimension_results["hundred_percent_success_rate"]:
-            print("🎉 CRITICAL SUCCESS: Adaptive session logic integration confirmed!")
+            print("🎉 100% SUCCESS RATE: Sessions consistently generate exactly 12 questions!")
         else:
-            print("❌ CRITICAL FAILURE: Sessions not using adaptive session logic")
+            print("❌ SUCCESS RATE FAILURE: Sessions not consistently generating 12 questions")
         
-        if dual_dimension_results["subcategory_cap_enforcement"]:
+        if dual_dimension_results["intelligent_session_type_usage"]:
+            print("✅ INTELLIGENT SESSIONS: Using 'intelligent_12_question_set' (not fallback)")
+        else:
+            print("❌ FALLBACK USAGE: Sessions using fallback mode instead of adaptive logic")
+        
+        if dual_dimension_results["subcategory_cap_enforcement_max_5"]:
             print("✅ SUBCATEGORY CAPS: Max 5 questions per subcategory enforced")
         else:
             print("❌ SUBCATEGORY CAPS: Subcategory cap enforcement not working")
         
-        if dual_dimension_results["type_within_subcategory_cap_enforcement"]:
-            print("✅ TYPE CAPS: Type within subcategory caps enforced")
+        if dual_dimension_results["type_within_subcategory_caps"]:
+            print("✅ TYPE CAPS: Max 3 for 'Basics', max 2 for specific types enforced")
         else:
             print("❌ TYPE CAPS: Type within subcategory cap enforcement not working")
         
-        if dual_dimension_results["sophisticated_diversity_not_random"]:
-            print("✅ DIVERSITY: Sophisticated diversity enforcement (not random selection)")
+        if dual_dimension_results["six_plus_subcategories_per_session"]:
+            print("✅ LEARNING BREADTH: 6+ unique subcategories per session achieved")
         else:
-            print("❌ DIVERSITY: Sessions appear to use random selection")
+            print("❌ LIMITED BREADTH: Sessions lack sufficient subcategory diversity")
         
-        if dual_dimension_results["priority_order_implementation"]:
-            print("✅ PRIORITY ORDER: Subcategory diversity first, then type diversity within")
+        if dual_dimension_results["session_breadth_not_tsd_dominated"]:
+            print("✅ NOT TSD DOMINATED: Sessions include multiple subcategories, not just Time-Speed-Distance")
         else:
-            print("❌ PRIORITY ORDER: Priority order implementation not confirmed")
+            print("❌ TSD DOMINATED: Sessions dominated by Time-Speed-Distance questions")
         
-        return success_rate >= 75  # Higher threshold for this critical system
+        if dual_dimension_results["eight_plus_subcategory_type_combinations"]:
+            print("✅ OPTIMAL DIVERSITY: 8+ subcategory-type combinations for dual-dimension diversity")
+        else:
+            print("❌ LIMITED DIVERSITY: Insufficient subcategory-type combinations")
+        
+        if dual_dimension_results["learning_breadth_achievement"]:
+            print("✅ COMPREHENSIVE COVERAGE: True learning breadth instead of narrow focus")
+        else:
+            print("❌ NARROW FOCUS: Sessions lack comprehensive coverage")
+        
+        return success_rate >= 80  # High threshold for refined dual-dimension system
 
     def test_canonical_taxonomy_compliance(self):
         """Test Canonical Taxonomy Compliance - Core requirement from review request"""
