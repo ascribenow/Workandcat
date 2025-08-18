@@ -976,13 +976,14 @@ async def get_next_question(
             )
         except Exception as mcq_error:
             logger.warning(f"MCQ generation failed for question {question.id}: {mcq_error}")
-            # Fallback options
-            options = [
-                {"letter": "A", "text": "Option A"},
-                {"letter": "B", "text": "Option B"}, 
-                {"letter": "C", "text": "Option C"},
-                {"letter": "D", "text": "Option D"}
-            ]
+            # Fallback options in correct format (dict with A,B,C,D keys)
+            options = {
+                "A": question.answer or "Option A",
+                "B": "Option B", 
+                "C": "Option C",
+                "D": "Option D",
+                "correct": "A"
+            }
         
         return {
             "question": {
