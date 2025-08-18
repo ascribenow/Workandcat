@@ -316,16 +316,26 @@ RETURN FORMAT:
   "reasoning": "brief_explanation_of_type_choice"
 }}"""
 
-            chat = LlmChat(
-                api_key=self.llm_api_key,
-                session_id=f"categorize_{uuid.uuid4()}",
-                system_message=system_message
-            ).with_model("openai", "gpt-4o")
-
-            user_message = UserMessage(text=f"Question: {stem}")
-            response = await chat.send_message(user_message)
+            # Use direct OpenAI API  
+            import openai
             
-            result = json.loads(response)
+            openai_key = os.getenv('OPENAI_API_KEY')
+            if not openai_key:
+                logger.error("OpenAI API key not found")
+                return "Arithmetic", "Time-Speed-Distance", "Basics"
+                
+            client = openai.OpenAI(api_key=openai_key)
+            
+            response = client.chat.completions.create(
+                model="gpt-4o",
+                messages=[
+                    {"role": "system", "content": system_message},
+                    {"role": "user", "content": f"Question: {stem}"}
+                ],
+                max_tokens=500
+            )
+            
+            result = json.loads(response.choices[0].message.content)
             category = result.get("category")
             subcategory = result.get("subcategory")
             type_of_question = result.get("type_of_question")
