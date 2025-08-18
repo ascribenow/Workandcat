@@ -1648,6 +1648,99 @@ class AdaptiveSessionLogic:
             logger.error(f"Error ordering by difficulty progression: {e}")
             return questions
 
+    def generate_phase_metadata(self, questions: List[Question], user_profile: Dict[str, Any], 
+                               distribution: Dict[str, int], phase_info: Dict[str, Any], 
+                               weak_areas_targeted: int = 0, strong_areas_targeted: int = 0) -> Dict[str, Any]:
+        """Generate enhanced metadata for phase-based sessions"""
+        try:
+            # Base metadata generation
+            base_metadata = self.generate_enhanced_session_metadata(questions, user_profile, distribution)
+            
+            # Add phase-specific metadata
+            phase_metadata = {
+                # Phase information
+                "phase": phase_info.get("phase"),
+                "phase_name": phase_info.get("phase_name"),  
+                "phase_description": phase_info.get("phase_description"),
+                "session_range": phase_info.get("session_range"),
+                "current_session": phase_info.get("current_session"),
+                "session_count": phase_info.get("session_count"),
+                
+                # Phase-specific targeting
+                "weak_areas_targeted": weak_areas_targeted,
+                "strong_areas_targeted": strong_areas_targeted,
+                "is_coverage_phase": phase_info.get("is_coverage_phase", False),
+                "is_strengthen_phase": phase_info.get("is_strengthen_phase", False), 
+                "is_adaptive_phase": phase_info.get("is_adaptive_phase", False),
+                
+                # Phase difficulty distribution
+                "phase_difficulty_distribution": phase_info.get("difficulty_distribution", {}),
+                
+                # Enhanced type-level tracking
+                "enhancement_level": "three_phase_adaptive"
+            }
+            
+            # Merge base and phase metadata
+            enhanced_metadata = {**base_metadata, **phase_metadata}
+            
+            logger.info(f"Generated phase metadata for {phase_info.get('phase_name', 'Unknown')} phase")
+            return enhanced_metadata
+            
+        except Exception as e:
+            logger.error(f"Error generating phase metadata: {e}")
+            # Return base metadata as fallback
+            try:
+                return self.generate_enhanced_session_metadata(questions, user_profile, distribution)
+            except:
+                return {"enhancement_level": "error", "total_questions": len(questions)}
+
+    def get_difficulty_order(self, question: Question) -> int:
+        """Get difficulty order for sorting: Easy=0, Medium=1, Hard=2"""
+        try:
+            difficulty = self.determine_question_difficulty(question)
+            order_map = {"Easy": 0, "Medium": 1, "Hard": 2}
+            return order_map.get(difficulty, 1)  # Default to Medium
+            
+        except Exception as e:
+            logger.error(f"Error getting difficulty order: {e}")
+            return 1  # Default to Medium order
+
+    def determine_question_difficulty(self, question: Question) -> str:
+        """Determine question difficulty based on difficulty_score or difficulty_band"""
+        try:
+            # First try difficulty_band if available
+            if hasattr(question, 'difficulty_band') and question.difficulty_band:
+                return question.difficulty_band
+            
+            # Otherwise use difficulty_score
+            difficulty_score = question.difficulty_score or 0.5
+            
+            if difficulty_score < 0.4:
+                return "Easy"
+            elif difficulty_score < 0.7:
+                return "Medium"
+            else:
+                return "Hard"
+                
+        except Exception as e:
+            logger.error(f"Error determining question difficulty: {e}")
+            return "Medium"  # Safe default
+
+    def get_fallback_question_pool(self, db: Session) -> List[Question]:
+        """Get fallback question pool when specialized pools fail"""
+        try:
+            result = db.execute(
+                select(Question)
+                .where(Question.is_active == True)
+                .order_by(func.random())
+                .limit(50)  # Get more questions for better selection
+            )
+            return result.scalars().all()
+            
+        except Exception as e:
+            logger.error(f"Error getting fallback question pool: {e}")
+            return []
+
     def generate_enhanced_session_metadata(
         self, 
         questions: List[Question], 
