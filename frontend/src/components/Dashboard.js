@@ -75,18 +75,36 @@ export const Dashboard = () => {
     try {
       setLoading(true);
       
+      console.log('Dashboard: Starting to fetch data...');
+      console.log('Dashboard: API endpoint:', API);
+      console.log('Dashboard: User:', user);
+      
       // Fetch mastery data with detailed progress
       // Using global axios authorization header set by AuthProvider
+      console.log('Dashboard: Fetching mastery data...');
       const masteryResponse = await axios.get(`${API}/dashboard/mastery`);
+      console.log('Dashboard: Mastery data received:', masteryResponse.data);
       setMasteryData(masteryResponse.data);
 
       // Fetch overall progress data
+      console.log('Dashboard: Fetching progress data...');
       const progressResponse = await axios.get(`${API}/dashboard/progress`);
+      console.log('Dashboard: Progress data received:', progressResponse.data);
       setProgressData(progressResponse.data);
       
+      console.log('Dashboard: Data loading completed successfully');
+      
     } catch (error) {
-      console.error('Error fetching dashboard data:', error);
+      console.error('Dashboard: Error fetching dashboard data:', error);
+      console.error('Dashboard: Error response:', error.response?.data);
+      console.error('Dashboard: Error status:', error.response?.status);
+      
+      // Set empty data to stop loading state
+      setMasteryData({ mastery_by_topic: [], total_topics: 0, detailed_progress: [] });
+      setProgressData({ total_sessions: 0, total_minutes: 0, current_streak: 0, sessions_this_week: [] });
+      
     } finally {
+      console.log('Dashboard: Setting loading to false');
       setLoading(false);
     }
   };
