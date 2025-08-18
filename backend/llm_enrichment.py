@@ -397,13 +397,23 @@ Guidelines for solution generation:
 
 The detailed solution should be educational and thorough - aim for at least 200-300 words of explanation."""
 
-            chat = LlmChat(
-                api_key=self.llm_api_key,
-                session_id=f"solutions_{uuid.uuid4()}",
-                system_message=system_message
-            ).with_model("openai", "gpt-4o")
-
-            user_message = UserMessage(text=f"""
+            # Use direct OpenAI API
+            import openai
+            
+            openai_key = os.getenv('OPENAI_API_KEY')
+            if not openai_key:
+                logger.error("OpenAI API key not found")
+                approach = f"Apply {subcategory} concepts systematically"
+                detailed = f"This is a {subcategory} problem. Step 1: Understand what is given in the problem. Step 2: Identify what needs to be found. Step 3: Apply the relevant formula or concept. Step 4: Calculate step by step. Step 5: Verify the answer makes sense."
+                return approach, detailed
+                
+            client = openai.OpenAI(api_key=openai_key)
+            
+            response = client.chat.completions.create(
+                model="gpt-4o",
+                messages=[
+                    {"role": "system", "content": system_message},
+                    {"role": "user", "content": f"""
 Question: {stem}
 Correct Answer: {answer}
 Category: {category}
@@ -412,12 +422,12 @@ Subcategory: {subcategory}
 Please provide:
 1. SOLUTION APPROACH: [Brief strategy overview]
 2. DETAILED SOLUTION: [Comprehensive step-by-step explanation with basics]
-""")
+"""}
+                ],
+                max_tokens=1500
+            )
             
-            response = await chat.send_message(user_message)
-            
-            # Parse the response to extract approach and detailed solution
-            response_text = response.strip()
+            response_text = response.choices[0].message.content.strip()
             
             # Try to split the response
             if "DETAILED SOLUTION:" in response_text:
