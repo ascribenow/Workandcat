@@ -118,7 +118,7 @@ class AdaptiveSessionLogic:
             "Set Theory and Venn Diagram": ["Union and Intersection", "Complement and Difference of Sets", "Multi Set Problems"]
         }
 
-    async def create_personalized_session(self, user_id: str, db: AsyncSession) -> Dict[str, Any]:
+    async def create_personalized_session(self, user_id: str, db: Session) -> Dict[str, Any]:
         """
         PHASE 1 ENHANCED: Create a sophisticated 12-question session with PYQ frequency integration
         """
@@ -140,10 +140,10 @@ class AdaptiveSessionLogic:
             
             if len(question_pool) < 12:
                 logger.warning(f"Limited question pool ({len(question_pool)}), falling back to simple selection")
-                return await self.create_simple_fallback_session(user_id, db)
+                return self.create_simple_fallback_session(user_id, db)
             
             # Step 4: Apply PHASE 1 enhanced selection strategies
-            selected_questions = await self.apply_enhanced_selection_strategies(
+            selected_questions = self.apply_enhanced_selection_strategies(
                 user_id, user_profile, question_pool, dynamic_distribution, db
             )
             
@@ -164,12 +164,12 @@ class AdaptiveSessionLogic:
             
         except Exception as e:
             logger.error(f"Error creating enhanced personalized session: {e}")
-            return await self.create_simple_fallback_session(user_id, db)
+            return self.create_simple_fallback_session(user_id, db)
 
     async def calculate_dynamic_category_distribution(
         self, 
         user_profile: Dict[str, Any], 
-        db: AsyncSession
+        db: Session
     ) -> Dict[str, int]:
         """
         PHASE 1: Calculate dynamic category distribution based on student's weakest areas
@@ -205,7 +205,7 @@ class AdaptiveSessionLogic:
             logger.error(f"Error calculating dynamic distribution: {e}")
             return self.base_category_distribution.copy()
 
-    async def identify_weakest_category(self, user_profile: Dict[str, Any], db: AsyncSession) -> Optional[str]:
+    async def identify_weakest_category(self, user_profile: Dict[str, Any], db: Session) -> Optional[str]:
         """
         Identify the category with lowest average mastery
         """
@@ -239,7 +239,7 @@ class AdaptiveSessionLogic:
             logger.error(f"Error identifying weakest category: {e}")
             return None
 
-    async def identify_strongest_category(self, user_profile: Dict[str, Any], db: AsyncSession) -> Optional[str]:
+    async def identify_strongest_category(self, user_profile: Dict[str, Any], db: Session) -> Optional[str]:
         """
         Identify the category with highest average mastery
         """
@@ -274,19 +274,19 @@ class AdaptiveSessionLogic:
             logger.error(f"Error identifying strongest category: {e}")
             return None
 
-    async def analyze_user_learning_profile(self, user_id: str, db: AsyncSession) -> Dict[str, Any]:
+    async def analyze_user_learning_profile(self, user_id: str, db: Session) -> Dict[str, Any]:
         """
         Comprehensive analysis of user's learning patterns and performance
         """
         try:
             # Recent performance (last 7 days)
-            recent_accuracy = await self.calculate_recent_accuracy(user_id, db, days=7)
+            recent_accuracy = self.calculate_recent_accuracy(user_id, db, days=7)
             
             # Overall performance (last 30 days)
-            overall_accuracy = await self.calculate_recent_accuracy(user_id, db, days=30)
+            overall_accuracy = self.calculate_recent_accuracy(user_id, db, days=30)
             
             # Mastery levels by subcategory
-            mastery_data = await self.get_user_mastery_breakdown(user_id, db)
+            mastery_data = self.get_user_mastery_breakdown(user_id, db)
             
             # Categorize subcategories by mastery level
             weak_subcategories = [
@@ -340,12 +340,12 @@ class AdaptiveSessionLogic:
                 'total_attempts': 0
             }
 
-    async def calculate_recent_accuracy(self, user_id: str, db: AsyncSession, days: int = 7) -> float:
+    def calculate_recent_accuracy(self, user_id: str, db: Session, days: int = 7) -> float:
         """Calculate user's accuracy over the last N days"""
         try:
             cutoff_date = datetime.utcnow() - timedelta(days=days)
             
-            result = await db.execute(
+            result = db.execute(
                 select(
                     func.count(Attempt.id).label('total'),
                     func.sum(case((Attempt.correct == True, 1), else_=0)).label('correct')
@@ -368,11 +368,11 @@ class AdaptiveSessionLogic:
             logger.error(f"Error calculating recent accuracy: {e}")
             return 50.0
 
-    async def get_user_mastery_breakdown(self, user_id: str, db: AsyncSession) -> List[Dict[str, Any]]:
+    def get_user_mastery_breakdown(self, user_id: str, db: Session) -> List[Dict[str, Any]]:
         """Get detailed mastery breakdown by subcategory"""
         try:
             # Get all attempts with question details
-            result = await db.execute(
+            result = db.execute(
                 select(
                     Question.subcategory,
                     func.count(Attempt.id).label('total_attempts'),
@@ -400,12 +400,12 @@ class AdaptiveSessionLogic:
             logger.error(f"Error getting mastery breakdown: {e}")
             return []
 
-    async def get_attempt_frequency_by_subcategory(self, user_id: str, db: AsyncSession) -> Dict[str, int]:
+    async def get_attempt_frequency_by_subcategory(self, user_id: str, db: Session) -> Dict[str, int]:
         """Get attempt frequency by subcategory for spaced repetition"""
         try:
             cutoff_date = datetime.utcnow() - timedelta(days=7)
             
-            result = await db.execute(
+            result = db.execute(
                 select(
                     Question.subcategory,
                     func.count(Attempt.id).label('recent_attempts')
@@ -517,13 +517,13 @@ class AdaptiveSessionLogic:
             logger.error(f"Error getting PYQ weighted question pool: {e}")
             return []
 
-    async def apply_enhanced_selection_strategies(
+    def apply_enhanced_selection_strategies(
         self, 
         user_id: str, 
         user_profile: Dict, 
         question_pool: List[Question], 
         dynamic_distribution: Dict[str, int],
-        db: AsyncSession
+        db: Session
     ) -> List[Question]:
         """
         PHASE 1: Apply enhanced selection strategies with all improvements
@@ -547,7 +547,7 @@ class AdaptiveSessionLogic:
             )
             
             # Strategy 4: PHASE 1 - Type diversity enforcement (operates at Category::Subcategory::Type level)
-            diverse_questions = await self.enforce_type_diversity(cooled_questions)
+            diverse_questions = self.enforce_type_diversity(cooled_questions)
             
             # Strategy 5: Ensure question type variety
             final_questions = self.ensure_question_variety(diverse_questions)
@@ -710,7 +710,7 @@ class AdaptiveSessionLogic:
         self, 
         user_id: str, 
         questions: List[Question], 
-        db: AsyncSession
+        db: Session
     ) -> List[Question]:
         """
         PHASE 1: Apply differential cooldown periods based on difficulty
@@ -725,7 +725,7 @@ class AdaptiveSessionLogic:
                 # Check if question is within cooldown period
                 recent_cutoff = datetime.utcnow() - timedelta(days=cooldown_days)
                 
-                recent_attempt_result = await db.execute(
+                recent_attempt_result = db.execute(
                     select(Attempt.id)
                     .where(
                         and_(
@@ -757,7 +757,7 @@ class AdaptiveSessionLogic:
             return questions
 
     
-    async def enforce_type_diversity(self, questions: List[Question]) -> List[Question]:
+    def enforce_type_diversity(self, questions: List[Question]) -> List[Question]:
         """
         Enforce Type diversity caps to prevent domination at Type level
         Operates at (Category, Subcategory, Type) granularity
@@ -976,13 +976,13 @@ class AdaptiveSessionLogic:
             return questions
 
     async def apply_spaced_repetition_filter(self, user_id: str, questions: List[Question], 
-                                           db: AsyncSession) -> List[Question]:
+                                           db: Session) -> List[Question]:
         """Apply spaced repetition principles to avoid recently attempted questions"""
         try:
             # Get recently attempted questions (last 3 days)
             recent_cutoff = datetime.utcnow() - timedelta(days=3)
             
-            recent_attempts = await db.execute(
+            recent_attempts = db.execute(
                 select(Attempt.question_id)
                 .where(
                     and_(
@@ -1200,12 +1200,12 @@ class AdaptiveSessionLogic:
             
         return "Arithmetic"  # Default fallback
 
-    async def create_simple_fallback_session(self, user_id: str, db: AsyncSession) -> Dict[str, Any]:
+    def create_simple_fallback_session(self, user_id: str, db: Session) -> Dict[str, Any]:
         """Fallback to simple random selection if sophisticated logic fails"""
         try:
             logger.info(f"Creating simple fallback session for user {user_id}")
             
-            result = await db.execute(
+            result = db.execute(
                 select(Question)
                 .where(Question.is_active == True)
                 .order_by(func.random())
