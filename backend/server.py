@@ -842,6 +842,7 @@ async def start_session(
                 } for q in questions
             ],
             "metadata": metadata,  # Include dual-dimension diversity metadata
+            "phase_info": phase_info,  # Include three-phase adaptive information
             "personalization": {
                 "applied": personalized,
                 "learning_stage": metadata.get('learning_stage', 'unknown'),
