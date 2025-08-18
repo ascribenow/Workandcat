@@ -312,14 +312,17 @@ class AdaptiveSessionLogic:
             if backfill_notes:
                 logger.info(f"Backfill notes: {backfill_notes}")
             
-            # Add telemetry to questions for metadata inclusion
-            setattr(selected_questions[0] if selected_questions else None, '_quota_telemetry', telemetry)
+            # Add telemetry to return result instead of individual questions
+            result_data = {
+                'selected_questions': selected_questions[:12],
+                'quota_telemetry': telemetry
+            }
             
-            return selected_questions[:12]
+            return result_data  # Return both questions and telemetry
             
         except Exception as e:
             logger.error(f"Error in quota-based coverage selection: {e}")
-            return question_pool[:12]
+            return {'selected_questions': question_pool[:12], 'quota_telemetry': {}}
     
     def fill_difficulty_quota(self, pool: List[Question], quota: int, difficulty: str, 
                              used_combinations: set, category_distribution: Dict[str, int],
