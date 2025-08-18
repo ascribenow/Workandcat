@@ -3966,29 +3966,28 @@ class CATBackendTester:
         return success_rate >= 80  # Higher threshold for final validation
 
 if __name__ == "__main__":
-    print("🚀 CAT BACKEND TESTING - THREE-PHASE ADAPTIVE LEARNING SYSTEM")
+    print("🚀 STARTING FOCUSED THREE-PHASE SYSTEM FIXES VALIDATION")
     print("=" * 80)
     
     tester = CATBackendTester()
     
-    # Run the comprehensive three-phase adaptive learning system test
-    print("\n🎯 RUNNING THREE-PHASE ADAPTIVE LEARNING SYSTEM TEST")
-    print("=" * 60)
-    
-    success = tester.test_three_phase_adaptive_learning_system()
-    
-    print("\n" + "=" * 80)
-    print("FINAL TEST SUMMARY")
-    print("=" * 80)
-    print(f"Tests Run: {tester.tests_run}")
-    print(f"Tests Passed: {tester.tests_passed}")
-    print(f"Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%" if tester.tests_run > 0 else "No tests run")
-    
-    if success:
-        print("🎉 THREE-PHASE ADAPTIVE LEARNING SYSTEM: WORKING!")
-        print("✅ The system is ready for production use with three-phase progression")
-    else:
-        print("❌ THREE-PHASE ADAPTIVE LEARNING SYSTEM: NEEDS FIXES")
-        print("⚠️ Critical issues found that need main agent attention")
-    
-    print("=" * 80)
+    # Run the focused test for three-phase system fixes
+    try:
+        success = tester.test_three_phase_system_fixes()
+        
+        print("\n" + "=" * 80)
+        print("FINAL TEST SUMMARY")
+        print("=" * 80)
+        print(f"Tests Run: {tester.tests_run}")
+        print(f"Tests Passed: {tester.tests_passed}")
+        print(f"Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%" if tester.tests_run > 0 else "No tests run")
+        
+        if success:
+            print("🎉 THREE-PHASE SYSTEM FIXES VALIDATION: PASSED")
+        else:
+            print("❌ THREE-PHASE SYSTEM FIXES VALIDATION: FAILED")
+            
+    except Exception as e:
+        print(f"❌ Testing failed with error: {e}")
+        import traceback
+        traceback.print_exc()
