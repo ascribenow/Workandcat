@@ -593,17 +593,15 @@ class AdaptiveSessionLogic:
                     category_questions = category_groups[category]
                     
                     # Sort by weakness first, then PYQ frequency, then Type diversity
-            # Sort by PYQ frequency and Type diversity for balanced selection
-            prioritized = sorted(
-                category_questions,
-                key=lambda q: (
-                    0 if q.subcategory in user_profile['weak_subcategories'] else
-                    1 if q.subcategory in user_profile['moderate_subcategories'] else 2,
-                    -(q.pyq_frequency_score or 0.5),  # Higher PYQ frequency first
-                    q.type_of_question or 'ZZZ'  # Type diversity (alphabetical for consistency)
-                )
-            )
-    
+                    prioritized = sorted(
+                        category_questions,
+                        key=lambda q: (
+                            0 if q.subcategory in user_profile['weak_subcategories'] else
+                            1 if q.subcategory in user_profile['moderate_subcategories'] else 2,
+                            -(q.pyq_frequency_score or 0.5),  # Higher PYQ frequency first
+                            q.type_of_question or 'ZZZ'  # Type diversity (alphabetical for consistency)
+                        )
+                    )
                     
                     selected.extend(prioritized[:target_count])
                     logger.info(f"Selected {min(target_count, len(prioritized))} questions from {category}")
