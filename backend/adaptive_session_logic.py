@@ -1216,6 +1216,7 @@ class AdaptiveSessionLogic:
                 'subcategory_diversity': len(subcategory_distribution),
                 'type_diversity': len(type_distribution),
                 'category_type_diversity': len(category_type_distribution),
+                'dual_dimension_diversity': len(subcategory_type_distribution),
                 'cooldown_periods_used': self.cooldown_periods,
                 'total_questions': len(questions),
                 'enhancement_level': 'phase_1_advanced'
