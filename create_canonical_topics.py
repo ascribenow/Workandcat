@@ -27,9 +27,9 @@ async def create_canonical_topics():
     print("=" * 60)
     
     try:
-        # Get database session
-        db_gen = get_async_compatible_db()
-        db = await db_gen.__anext__()
+        # Get database session using the correct async pattern
+        db_generator = get_async_compatible_db()
+        db = next(db_generator)  # Get the database session
         
         try:
             # Get existing topics
