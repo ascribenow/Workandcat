@@ -803,28 +803,30 @@ class CATBackendTester:
 
 def main():
     """Main test execution"""
-    print("🚀 STARTING CRITICAL LLM SOLUTION RE-ENRICHMENT TESTING")
+    print("🚀 STARTING CANONICAL TAXONOMY UPDATE TESTING")
     print("=" * 60)
     
     tester = CATBackendTester()
     
-    # Run the critical re-enrichment test
-    success = tester.test_critical_llm_solution_re_enrichment()
+    # Run the canonical taxonomy update test
+    success = tester.test_canonical_taxonomy_update()
     
     print("\n" + "=" * 60)
     print("FINAL TEST SUMMARY")
     print("=" * 60)
     
     if success:
-        print("✅ CRITICAL LLM SOLUTION RE-ENRICHMENT: SUCCESSFUL")
-        print("   Database cleaned of generic solutions")
-        print("   Students protected from misleading content")
-        print("   LLM enrichment pipeline operational")
+        print("✅ CANONICAL TAXONOMY UPDATE: SUCCESSFUL")
+        print("   Database updated with new taxonomy structure")
+        print("   New subcategories added and working")
+        print("   Question classification system operational")
+        print("   LLM enrichment working with new taxonomy")
+        print("   12-question sessions functional")
     else:
-        print("❌ CRITICAL LLM SOLUTION RE-ENRICHMENT: FAILED")
+        print("❌ CANONICAL TAXONOMY UPDATE: FAILED")
         print("   🚨 URGENT ACTION REQUIRED")
-        print("   Generic solutions may still exist")
-        print("   Student experience at risk")
+        print("   Database may not be fully updated")
+        print("   Question enrichment system may have issues")
     
     return success
 
