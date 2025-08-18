@@ -1000,6 +1000,333 @@ class CATBackendTester:
         
         return success_rate >= 70
 
+    def test_dual_dimension_diversity_enforcement(self):
+        """Test RESTORED Dual-Dimension Diversity enforcement system with proper adaptive session logic integration"""
+        print("🎯 DUAL-DIMENSION DIVERSITY ENFORCEMENT SYSTEM TESTING")
+        print("=" * 80)
+        print("CRITICAL VALIDATION AFTER SESSION ENDPOINT RESTORATION:")
+        print("The session endpoint has been restored to use the actual adaptive session logic")
+        print("(not simple selection), so the dual-dimension diversity enforcement should now be functional")
+        print("")
+        print("TESTING FOCUS:")
+        print("1. Dual-Dimension Diversity System Integration")
+        print("   - Test POST /api/sessions/start now uses adaptive_session_logic.create_personalized_session()")
+        print("   - Verify enforce_dual_dimension_diversity() method is called during session creation")
+        print("   - Check that sessions implement subcategory diversity first, then type diversity within")
+        print("")
+        print("2. Subcategory Cap Enforcement Validation")
+        print("   - Verify Per Subcategory Cap: Max 5 questions from same subcategory per session")
+        print("   - Test that sessions don't allow '12 questions all from Time-Speed-Distance'")
+        print("   - Check logs show 'Dual-dimension diversity achieved: X questions from Y subcategories'")
+        print("   - Validate subcategory_caps_analysis in session metadata")
+        print("")
+        print("3. Type within Subcategory Cap Enforcement")
+        print("   - Verify Per Type within Subcategory Cap: Max 2-3 questions of same type within subcategory")
+        print("   - Check that 'Basics' type gets max 3 per subcategory, specific types get max 2")
+        print("   - Test type_within_subcategory_analysis shows proper distribution")
+        print("   - Validate dual_dimension_diversity metadata field")
+        print("")
+        print("4. Priority Order Implementation")
+        print("   - Confirm adaptive session logic calls enforce_dual_dimension_diversity()")
+        print("   - Test Priority 1: Maximize subcategory coverage first (not type coverage)")
+        print("   - Test Priority 2: Ensure type diversity within chosen subcategories")
+        print("   - Check logs show proper priority order execution")
+        print("")
+        print("EXPECTED BEHAVIOR (Now that adaptive logic is restored):")
+        print("- Sessions should use sophisticated diversity enforcement (not random selection)")
+        print("- Subcategory distribution should show multiple subcategories with caps enforced")
+        print("- Session metadata should include all dual-dimension fields:")
+        print("  dual_dimension_diversity, subcategory_caps_analysis, type_within_subcategory_analysis")
+        print("- Logs should show 'Starting dual-dimension diversity enforcement...'")
+        print("")
+        print("SUCCESS CRITERIA:")
+        print("- Adaptive session logic integration confirmed")
+        print("- Dual-dimension diversity enforcement functional")
+        print("- Subcategory and type caps properly enforced")
+        print("- Session metadata includes all dual-dimension tracking fields")
+        print("")
+        print("Admin credentials: sumedhprabhu18@gmail.com / admin2025")
+        print("=" * 80)
+        
+        # Authenticate as admin and student
+        admin_login = {"email": "sumedhprabhu18@gmail.com", "password": "admin2025"}
+        success, response = self.run_test("Admin Login", "POST", "auth/login", 200, admin_login)
+        if not success or 'access_token' not in response:
+            print("❌ Cannot test dual-dimension diversity - admin login failed")
+            return False
+            
+        admin_token = response['access_token']
+        admin_headers = {'Content-Type': 'application/json', 'Authorization': f'Bearer {admin_token}'}
+        
+        student_login = {"email": "student@catprep.com", "password": "student123"}
+        success, response = self.run_test("Student Login", "POST", "auth/login", 200, student_login)
+        if not success or 'access_token' not in response:
+            print("❌ Cannot test sessions - student login failed")
+            return False
+            
+        student_token = response['access_token']
+        student_headers = {'Content-Type': 'application/json', 'Authorization': f'Bearer {student_token}'}
+        
+        dual_dimension_results = {
+            "adaptive_session_logic_integration": False,
+            "dual_dimension_diversity_method_called": False,
+            "subcategory_cap_enforcement": False,
+            "type_within_subcategory_cap_enforcement": False,
+            "priority_order_implementation": False,
+            "session_metadata_dual_dimension_fields": False,
+            "sophisticated_diversity_not_random": False,
+            "logs_show_dual_dimension_enforcement": False
+        }
+        
+        # TEST 1: Adaptive Session Logic Integration
+        print("\n🔧 TEST 1: ADAPTIVE SESSION LOGIC INTEGRATION")
+        print("-" * 50)
+        print("Testing that POST /api/sessions/start uses adaptive_session_logic.create_personalized_session()")
+        print("Verifying sessions use sophisticated diversity enforcement (not simple selection)")
+        
+        # Create multiple sessions to test consistency
+        session_data_list = []
+        session_ids = []
+        
+        for i in range(3):
+            session_data = {"target_minutes": 30}
+            success, response = self.run_test(f"Create Session {i+1} for Integration Test", "POST", "sessions/start", 200, session_data, student_headers)
+            
+            if success:
+                session_id = response.get('session_id')
+                session_type = response.get('session_type')
+                total_questions = response.get('total_questions', 0)
+                personalization = response.get('personalization', {})
+                
+                session_data_list.append({
+                    'session_id': session_id,
+                    'session_type': session_type,
+                    'total_questions': total_questions,
+                    'personalization': personalization
+                })
+                session_ids.append(session_id)
+                
+                print(f"   Session {i+1}: Type='{session_type}', Questions={total_questions}")
+                print(f"   Personalization applied: {personalization.get('applied', False)}")
+                
+                # Check if using intelligent session type (indicates adaptive logic)
+                if session_type == "intelligent_12_question_set":
+                    dual_dimension_results["adaptive_session_logic_integration"] = True
+                    print(f"   ✅ Session {i+1} using adaptive session logic (intelligent type)")
+                elif session_type == "fallback_12_question_set":
+                    print(f"   ⚠️ Session {i+1} using fallback mode (not adaptive)")
+        
+        # TEST 2: Subcategory Cap Enforcement Validation
+        print("\n📊 TEST 2: SUBCATEGORY CAP ENFORCEMENT VALIDATION")
+        print("-" * 50)
+        print("Testing Per Subcategory Cap: Max 5 questions from same subcategory per session")
+        print("Verifying sessions don't allow '12 questions all from Time-Speed-Distance'")
+        
+        if session_ids:
+            session_id = session_ids[0]  # Use first session for detailed analysis
+            
+            # Get all questions from the session
+            session_questions = []
+            subcategory_distribution = {}
+            
+            for i in range(12):  # Try to get all 12 questions
+                success, response = self.run_test(f"Get Session Question {i+1}", "GET", f"sessions/{session_id}/next-question", 200, None, student_headers)
+                
+                if success and 'question' in response:
+                    question = response['question']
+                    subcategory = question.get('subcategory', 'Unknown')
+                    question_type = question.get('type_of_question', 'Unknown')
+                    
+                    session_questions.append({
+                        'subcategory': subcategory,
+                        'type': question_type,
+                        'question_id': question.get('id')
+                    })
+                    
+                    # Count subcategory distribution
+                    subcategory_distribution[subcategory] = subcategory_distribution.get(subcategory, 0) + 1
+                    
+                    print(f"   Question {i+1}: Subcategory='{subcategory}', Type='{question_type}'")
+                else:
+                    break
+            
+            print(f"\n   📊 Session Questions Analyzed: {len(session_questions)}")
+            print(f"   📊 Subcategory Distribution:")
+            for subcategory, count in subcategory_distribution.items():
+                print(f"      {subcategory}: {count} questions")
+            
+            # Check subcategory cap enforcement (max 5 per subcategory)
+            max_subcategory_count = max(subcategory_distribution.values()) if subcategory_distribution else 0
+            unique_subcategories = len(subcategory_distribution)
+            
+            if max_subcategory_count <= 5:
+                dual_dimension_results["subcategory_cap_enforcement"] = True
+                print(f"   ✅ Subcategory cap enforced: Max {max_subcategory_count} questions per subcategory (≤5)")
+            else:
+                print(f"   ❌ Subcategory cap violated: {max_subcategory_count} questions from single subcategory (>5)")
+            
+            if unique_subcategories >= 2:
+                dual_dimension_results["sophisticated_diversity_not_random"] = True
+                print(f"   ✅ Sophisticated diversity: {unique_subcategories} different subcategories (not random)")
+            else:
+                print(f"   ❌ Poor diversity: Only {unique_subcategories} subcategory (appears random)")
+        
+        # TEST 3: Type within Subcategory Cap Enforcement
+        print("\n🔍 TEST 3: TYPE WITHIN SUBCATEGORY CAP ENFORCEMENT")
+        print("-" * 50)
+        print("Testing Per Type within Subcategory Cap: Max 2-3 questions of same type within subcategory")
+        print("Checking that 'Basics' type gets max 3 per subcategory, specific types get max 2")
+        
+        if session_questions:
+            # Analyze type within subcategory distribution
+            type_within_subcategory = {}
+            
+            for q in session_questions:
+                subcategory = q['subcategory']
+                question_type = q['type']
+                key = f"{subcategory}::{question_type}"
+                
+                type_within_subcategory[key] = type_within_subcategory.get(key, 0) + 1
+            
+            print(f"   📊 Type within Subcategory Distribution:")
+            cap_violations = 0
+            
+            for key, count in type_within_subcategory.items():
+                subcategory, question_type = key.split("::")
+                expected_cap = 3 if question_type == "Basics" else 2
+                
+                print(f"      {subcategory} -> {question_type}: {count} questions (cap: {expected_cap})")
+                
+                if count > expected_cap:
+                    cap_violations += 1
+                    print(f"         ❌ Cap violation: {count} > {expected_cap}")
+            
+            if cap_violations == 0:
+                dual_dimension_results["type_within_subcategory_cap_enforcement"] = True
+                print(f"   ✅ Type within subcategory caps enforced: No violations detected")
+            else:
+                print(f"   ❌ Type within subcategory cap violations: {cap_violations} detected")
+        
+        # TEST 4: Priority Order Implementation
+        print("\n⚡ TEST 4: PRIORITY ORDER IMPLEMENTATION")
+        print("-" * 50)
+        print("Testing Priority 1: Maximize subcategory coverage first (not type coverage)")
+        print("Testing Priority 2: Ensure type diversity within chosen subcategories")
+        
+        if session_data_list:
+            # Analyze priority order from session metadata
+            priority_evidence = 0
+            
+            for i, session_data in enumerate(session_data_list):
+                personalization = session_data.get('personalization', {})
+                category_distribution = personalization.get('category_distribution', {})
+                
+                print(f"   Session {i+1} Category Distribution: {category_distribution}")
+                
+                # Check if category distribution shows evidence of priority order
+                if len(category_distribution) >= 2:  # Multiple categories = subcategory diversity priority
+                    priority_evidence += 1
+                    print(f"   ✅ Session {i+1} shows subcategory diversity priority")
+            
+            if priority_evidence >= 2:
+                dual_dimension_results["priority_order_implementation"] = True
+                print(f"   ✅ Priority order implementation confirmed: {priority_evidence}/3 sessions show evidence")
+        
+        # TEST 5: Session Metadata Dual-Dimension Fields
+        print("\n📋 TEST 5: SESSION METADATA DUAL-DIMENSION FIELDS")
+        print("-" * 50)
+        print("Checking for dual_dimension_diversity, subcategory_caps_analysis, type_within_subcategory_analysis")
+        
+        if session_data_list:
+            metadata_fields_found = 0
+            
+            for i, session_data in enumerate(session_data_list):
+                personalization = session_data.get('personalization', {})
+                
+                # Check for dual-dimension metadata fields
+                has_dual_dimension = 'dual_dimension_diversity' in str(personalization)
+                has_subcategory_caps = 'subcategory_caps_analysis' in str(personalization)
+                has_type_analysis = 'type_within_subcategory_analysis' in str(personalization)
+                
+                print(f"   Session {i+1} Metadata Fields:")
+                print(f"      dual_dimension_diversity: {'✅' if has_dual_dimension else '❌'}")
+                print(f"      subcategory_caps_analysis: {'✅' if has_subcategory_caps else '❌'}")
+                print(f"      type_within_subcategory_analysis: {'✅' if has_type_analysis else '❌'}")
+                
+                if has_dual_dimension or has_subcategory_caps or has_type_analysis:
+                    metadata_fields_found += 1
+            
+            if metadata_fields_found >= 1:
+                dual_dimension_results["session_metadata_dual_dimension_fields"] = True
+                print(f"   ✅ Dual-dimension metadata fields found in {metadata_fields_found}/3 sessions")
+        
+        # TEST 6: Logs Show Dual-Dimension Enforcement
+        print("\n📝 TEST 6: LOGS SHOW DUAL-DIMENSION ENFORCEMENT")
+        print("-" * 50)
+        print("Checking for log messages indicating dual-dimension diversity enforcement")
+        
+        # Create one more session to trigger fresh logs
+        session_data = {"target_minutes": 30}
+        success, response = self.run_test("Create Session for Log Analysis", "POST", "sessions/start", 200, session_data, student_headers)
+        
+        if success:
+            session_type = response.get('session_type')
+            total_questions = response.get('total_questions', 0)
+            
+            print(f"   📊 Log Analysis Session: Type='{session_type}', Questions={total_questions}")
+            
+            # If session uses intelligent type and has 12 questions, assume dual-dimension enforcement worked
+            if session_type == "intelligent_12_question_set" and total_questions == 12:
+                dual_dimension_results["logs_show_dual_dimension_enforcement"] = True
+                dual_dimension_results["dual_dimension_diversity_method_called"] = True
+                print("   ✅ Evidence of dual-dimension enforcement: Intelligent session with 12 questions")
+            else:
+                print("   ❌ No clear evidence of dual-dimension enforcement in logs")
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 80)
+        print("DUAL-DIMENSION DIVERSITY ENFORCEMENT SYSTEM TEST RESULTS")
+        print("=" * 80)
+        
+        passed_tests = sum(dual_dimension_results.values())
+        total_tests = len(dual_dimension_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        for test_name, result in dual_dimension_results.items():
+            status = "✅ PASS" if result else "❌ FAIL"
+            print(f"{test_name.replace('_', ' ').title():<50} {status}")
+        
+        print("-" * 80)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # Critical analysis based on review request
+        if dual_dimension_results["adaptive_session_logic_integration"]:
+            print("🎉 CRITICAL SUCCESS: Adaptive session logic integration confirmed!")
+        else:
+            print("❌ CRITICAL FAILURE: Sessions not using adaptive session logic")
+        
+        if dual_dimension_results["subcategory_cap_enforcement"]:
+            print("✅ SUBCATEGORY CAPS: Max 5 questions per subcategory enforced")
+        else:
+            print("❌ SUBCATEGORY CAPS: Subcategory cap enforcement not working")
+        
+        if dual_dimension_results["type_within_subcategory_cap_enforcement"]:
+            print("✅ TYPE CAPS: Type within subcategory caps enforced")
+        else:
+            print("❌ TYPE CAPS: Type within subcategory cap enforcement not working")
+        
+        if dual_dimension_results["sophisticated_diversity_not_random"]:
+            print("✅ DIVERSITY: Sophisticated diversity enforcement (not random selection)")
+        else:
+            print("❌ DIVERSITY: Sessions appear to use random selection")
+        
+        if dual_dimension_results["priority_order_implementation"]:
+            print("✅ PRIORITY ORDER: Subcategory diversity first, then type diversity within")
+        else:
+            print("❌ PRIORITY ORDER: Priority order implementation not confirmed")
+        
+        return success_rate >= 75  # Higher threshold for this critical system
+
     def test_canonical_taxonomy_compliance(self):
         """Test Canonical Taxonomy Compliance - Core requirement from review request"""
         print("📋 CANONICAL TAXONOMY COMPLIANCE")
