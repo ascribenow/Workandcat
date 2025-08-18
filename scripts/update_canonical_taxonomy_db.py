@@ -13,7 +13,7 @@ from dotenv import load_dotenv
 sys.path.append('/app/backend')
 
 from sqlalchemy import create_engine, text, select
-from database import get_async_compatible_db, Topic, Category
+from database import get_async_compatible_db, Topic
 
 load_dotenv()
 
