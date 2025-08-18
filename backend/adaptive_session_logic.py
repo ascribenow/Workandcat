@@ -788,11 +788,11 @@ class AdaptiveSessionLogic:
                 if len(diverse_questions) >= 12:
                     break
             
-            # Ensure minimum Type diversity (at least 8 different Types)
+            # Ensure reasonable Type diversity (at least 3 different Types, up to 8 if available)
             unique_types = len(set(f"{self.get_category_from_subcategory(q.subcategory)}::{q.subcategory}::{q.type_of_question or 'General'}" for q in diverse_questions[:12]))
             
-            if unique_types < 8:
-                logger.info(f"Only {unique_types} unique types, below minimum 8 - adding more diverse questions")
+            if unique_types < 3:
+                logger.info(f"Only {unique_types} unique types, trying to reach minimum 3 - adding more diverse questions")
                 # Try to add more Type-diverse questions if available
                 remaining_questions = [q for q in questions if q not in diverse_questions]
                 for question in remaining_questions:
