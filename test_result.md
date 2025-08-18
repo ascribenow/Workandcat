@@ -181,23 +181,24 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Three-Phase Adaptive Session System - INFRASTRUCTURE WORKING ✅"
-    - "Phase Info Field Population - FIXED ✅"
-    - "Phase A Difficulty Distribution - CRITICAL FAILURE ❌"
-    - "Stratified Sampling Algorithm - NOT IMPLEMENTED ❌"
-    - "Research-Based Solution - FAILED ❌"
+    - "Quota-Based Difficulty Distribution Implementation - CRITICAL FAILURE ❌"
+    - "M9/E2/H1 Quota System - NOT WORKING ❌"
+    - "Ordered Fill Strategy (Hard→Easy→Medium) - MISSING ❌"
+    - "Quota Telemetry (targets vs actual) - INCOMPLETE ❌"
+    - "Binary Acceptance Criteria - PARTIAL ❌"
   stuck_tasks:
-    - "Phase A Difficulty Distribution - showing 100% Medium instead of 75% Medium, 20% Easy, 5% Hard - STRATIFIED SAMPLING COMPLETELY NON-FUNCTIONAL"
-    - "Research-Based Stratified Distribution - claimed solution not implemented in actual code"
+    - "Quota-Based Difficulty Distribution - showing 100% Medium instead of M9/E2/H1 (9 Medium, 2 Easy, 1 Hard) - QUOTA SYSTEM NOT IMPLEMENTED"
+    - "Difficulty Targets in Metadata - only 1/3 sessions have targets set - inconsistent quota application"
+    - "Ordered Fill Strategy - Hard→Easy→Medium selection order not implemented in apply_coverage_selection_strategies"
   test_all: false
-  test_priority: "stratified_difficulty_distribution_algorithm_completely_broken"
-  implementation_status: "infrastructure_excellent_but_core_algorithm_missing"
+  test_priority: "quota_based_difficulty_distribution_critical_failure"
+  implementation_status: "infrastructure_excellent_but_quota_algorithm_missing"
   backend_schema_updated: true
   phase_info_field_issue: "resolved"
-  difficulty_distribution_issue: "critical_failure_algorithm_not_implemented"
-  stratified_sampling_status: "completely_non_functional"
-  research_based_solution_status: "not_implemented_despite_claims"
+  difficulty_distribution_issue: "critical_failure_quota_system_not_implemented"
+  quota_system_status: "not_implemented_despite_infrastructure"
   session_generation_working: true
+  coverage_priority_working: true
   category_mapping_working: true
   type_mastery_api_working: true
   coverage_diversity_working: true
