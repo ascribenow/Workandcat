@@ -202,17 +202,27 @@ Rules:
 4. For multiple choice, provide the option letter and value (e.g., "C) 25")
 5. For numerical answers, include units if applicable"""
 
-            chat = LlmChat(
-                api_key=self.llm_api_key,
-                session_id=f"answer_{uuid.uuid4()}",
-                system_message=system_message
-            ).with_model("openai", "gpt-4o")
-
-            user_message = UserMessage(text=f"Question: {stem}")
-            response = await chat.send_message(user_message)
+            # Use direct OpenAI API
+            import openai
+            
+            openai_key = os.getenv('OPENAI_API_KEY')
+            if not openai_key:
+                logger.error("OpenAI API key not found")
+                return "Unable to generate answer - API key missing"
+                
+            client = openai.OpenAI(api_key=openai_key)
+            
+            response = client.chat.completions.create(
+                model="gpt-4o",
+                messages=[
+                    {"role": "system", "content": system_message},
+                    {"role": "user", "content": f"Question: {stem}"}
+                ],
+                max_tokens=200
+            )
             
             # Clean and validate the answer
-            answer = response.strip()
+            answer = response.choices[0].message.content.strip()
             if len(answer) > 200:  # Answers should be concise
                 answer = answer[:200] + "..."
                 
