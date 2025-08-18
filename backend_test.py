@@ -1840,57 +1840,44 @@ class CATBackendTester:
             return False
 
     def run_all_tests(self):
-        """Run the comprehensive corrected Type diversity enforcement and LLM enrichment tests"""
-        print("🚀 STARTING CORRECTED TYPE DIVERSITY ENFORCEMENT & LLM ENRICHMENT TESTING")
+        """Run the comprehensive FINAL taxonomy triple API success rate test"""
+        print("🚀 STARTING FINAL TAXONOMY TRIPLE API SUCCESS RATE TESTING")
         print("=" * 80)
         print("REVIEW REQUEST VALIDATION:")
-        print("1. LLM Enrichment Priority Verification")
-        print("2. Session Engine Priority Correction") 
-        print("3. Canonical Taxonomy Compliance")
-        print("4. Session Quality with Priority Logic")
+        print("Testing FINAL 100% success rate for taxonomy triple implementation using actual API endpoints")
+        print("CRITICAL FOCUS:")
+        print("- Session Generation via API: POST /api/sessions/start endpoint")
+        print("- 12-question consistency with type_of_question field")
+        print("- Type diversity from available unique types")
+        print("- Canonical taxonomy compliance")
+        print("- API Response Structure and Database Integration")
+        print("- Production Readiness Assessment")
         print("=" * 80)
         
         try:
-            # Run all four core tests from review request
-            print("PHASE 1: LLM Enrichment Priority Verification...")
-            llm_success = self.test_llm_enrichment_priority_verification()
+            # Run the FINAL comprehensive test
+            print("EXECUTING FINAL TAXONOMY TRIPLE API SUCCESS RATE TEST...")
+            final_success = self.test_final_taxonomy_triple_api_success_rate()
             
             print("\n" + "=" * 80)
-            print("PHASE 2: Session Engine Priority Correction...")
-            session_success = self.test_session_engine_priority_correction()
-            
-            print("\n" + "=" * 80)
-            print("PHASE 3: Canonical Taxonomy Compliance...")
-            taxonomy_success = self.test_canonical_taxonomy_compliance()
-            
-            print("\n" + "=" * 80)
-            print("PHASE 4: Session Quality with Priority Logic...")
-            quality_success = self.test_session_quality_with_priority_logic()
-            
-            print("\n" + "=" * 80)
-            print("COMPREHENSIVE TESTING COMPLETED")
+            print("FINAL TESTING COMPLETED")
             print("=" * 80)
             print(f"Tests Run: {self.tests_run}")
             print(f"Tests Passed: {self.tests_passed}")
             print(f"Success Rate: {(self.tests_passed/self.tests_run)*100:.1f}%")
             
-            # Overall success requires all core areas to pass
-            overall_success = llm_success and session_success and taxonomy_success and quality_success
-            
-            print("\n📊 DETAILED RESULTS:")
-            print(f"   LLM Enrichment Priority: {'✅ PASS' if llm_success else '❌ FAIL'}")
-            print(f"   Session Engine Priority: {'✅ PASS' if session_success else '❌ FAIL'}")
-            print(f"   Canonical Taxonomy: {'✅ PASS' if taxonomy_success else '❌ FAIL'}")
-            print(f"   Session Quality Logic: {'✅ PASS' if quality_success else '❌ FAIL'}")
-            
-            if overall_success:
-                print("\n🎉 CORRECTED TYPE DIVERSITY ENFORCEMENT & LLM ENRICHMENT TESTING SUCCESSFUL!")
-                print("✅ All critical requirements from review request validated")
+            print("\n📊 FINAL RESULT:")
+            if final_success:
+                print("🎉 FINAL TAXONOMY TRIPLE API SUCCESS RATE TEST: ✅ PASSED")
+                print("✅ System achieves 100% success rate criteria")
+                print("✅ All critical requirements validated")
+                print("✅ Production ready for taxonomy triple implementation")
             else:
-                print("\n❌ CORRECTED TYPE DIVERSITY ENFORCEMENT & LLM ENRICHMENT TESTING FAILED!")
-                print("❌ Some critical requirements not met")
+                print("❌ FINAL TAXONOMY TRIPLE API SUCCESS RATE TEST: ❌ FAILED")
+                print("❌ System does not meet 100% success rate criteria")
+                print("❌ Critical requirements not satisfied")
                 
-            return overall_success
+            return final_success
             
         except Exception as e:
             print(f"❌ Testing failed with error: {e}")
