@@ -3968,27 +3968,29 @@ class CATBackendTester:
         return success_rate >= 80  # Higher threshold for final validation
 
 if __name__ == "__main__":
+    print("🚀 CAT BACKEND TESTING - THREE-PHASE ADAPTIVE LEARNING SYSTEM")
+    print("=" * 80)
+    
     tester = CATBackendTester()
     
-    print("🚀 Starting Dual-Dimension Diversity Enforcement System Testing with NEW DIVERSE DATASET")
-    print("=" * 80)
+    # Run the comprehensive three-phase adaptive learning system test
+    print("\n🎯 RUNNING THREE-PHASE ADAPTIVE LEARNING SYSTEM TEST")
+    print("=" * 60)
     
-    # Run the dual-dimension diversity enforcement test with the NEW DIVERSE DATASET
-    success = tester.test_dual_dimension_diversity_with_new_diverse_dataset()
+    success = tester.test_three_phase_adaptive_learning_system()
     
     print("\n" + "=" * 80)
-    print("DUAL-DIMENSION DIVERSITY ENFORCEMENT TEST SUMMARY")
+    print("FINAL TEST SUMMARY")
     print("=" * 80)
-    print(f"Tests run: {tester.tests_run}")
-    print(f"Tests passed: {tester.tests_passed}")
+    print(f"Tests Run: {tester.tests_run}")
+    print(f"Tests Passed: {tester.tests_passed}")
+    print(f"Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%" if tester.tests_run > 0 else "No tests run")
     
     if success:
-        print("🎉 DUAL-DIMENSION DIVERSITY ENFORCEMENT WITH NEW DIVERSE DATASET: WORKING!")
-        print("✅ All critical requirements met with 14 subcategories and 23 types")
-        print("✅ System ready for production with proper diversity enforcement")
+        print("🎉 THREE-PHASE ADAPTIVE LEARNING SYSTEM: WORKING!")
+        print("✅ The system is ready for production use with three-phase progression")
     else:
-        print("❌ DUAL-DIMENSION DIVERSITY ENFORCEMENT WITH NEW DIVERSE DATASET: NEEDS IMPROVEMENTS")
-        print("⚠️ Critical requirements not fully met - system needs fixes")
-        print("⚠️ Despite having 14 subcategories and 23 types, diversity enforcement failing")
+        print("❌ THREE-PHASE ADAPTIVE LEARNING SYSTEM: NEEDS FIXES")
+        print("⚠️ Critical issues found that need main agent attention")
     
     print("=" * 80)
