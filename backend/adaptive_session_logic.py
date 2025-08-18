@@ -724,10 +724,19 @@ class AdaptiveSessionLogic:
                 logger.warning(f"Limited question pool for coverage phase, falling back")
                 return self.create_simple_fallback_session(user_id, db)
             
-            # Apply coverage-focused selection
-            selected_questions = self.apply_coverage_selection_strategies(
+            # Apply coverage-focused selection (returns data with telemetry)
+            selection_result = self.apply_coverage_selection_strategies(
                 user_id, user_profile, question_pool, balanced_distribution, phase_info, db
             )
+            
+            # Extract questions and telemetry
+            if isinstance(selection_result, dict) and 'selected_questions' in selection_result:
+                selected_questions = selection_result['selected_questions']
+                quota_telemetry = selection_result.get('quota_telemetry', {})
+            else:
+                # Fallback for legacy return format
+                selected_questions = selection_result
+                quota_telemetry = {}
             
             # Order by easy-to-medium progression
             ordered_questions = self.order_by_coverage_progression(selected_questions, phase_info)
