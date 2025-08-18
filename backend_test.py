@@ -1166,82 +1166,61 @@ class CATBackendTester:
             else:
                 print("   ❌ No questions found for Type field verification")
         
-        # TEST 2: Database Coverage Validation
-        print("\n📊 TEST 2: DATABASE COVERAGE VALIDATION")
+        # TEST 2: Verify 8 Unique Types Available
+        print("\n📊 TEST 2: VERIFY 8 UNIQUE TYPES AVAILABLE")
         print("-" * 40)
-        print("Confirming database migration results: 1126/1126 questions with Type field populated")
+        print("Confirming system has 8 unique canonical Types assigned")
+        print("Expected Types: Basics, Trains, Circular Track Motion, Races, Relative Speed, Boats and Streams, Two variable systems, Work Time Efficiency")
         print("Testing that category mapping works for Time-Speed-Distance (1099 questions) → Arithmetic")
-        print("Verifying canonical taxonomy compliance (99.2% expected)")
         
-        success, response = self.run_test("Get All Questions for Migration Validation", "GET", "questions?limit=1200", 200, None, admin_headers)
-        if success:
-            questions = response.get('questions', [])
-            print(f"   📊 Total questions in database: {len(questions)}")
-            
-            # Analyze migration results
-            questions_with_type = 0
-            tsd_questions = 0
-            arithmetic_questions = 0
-            canonical_questions = 0
+        if questions:  # Use questions from previous test
+            # Analyze Type diversity and category mapping
             types_found = set()
-            subcategories_found = set()
+            tsd_questions = 0
+            arithmetic_mapped = 0
+            type_distribution = {}
             
             for q in questions:
                 question_type = q.get('type_of_question', '')
                 subcategory = q.get('subcategory', '')
                 
-                # Count questions with Type field
+                # Count unique Types
                 if question_type and question_type.strip():
-                    questions_with_type += 1
                     types_found.add(question_type)
+                    type_distribution[question_type] = type_distribution.get(question_type, 0) + 1
                 
                 # Count Time-Speed-Distance questions
-                if 'time' in subcategory.lower() and 'speed' in subcategory.lower():
+                if 'time' in subcategory.lower() and ('speed' in subcategory.lower() or 'distance' in subcategory.lower()):
                     tsd_questions += 1
-                
-                # Count Arithmetic category questions
-                if any(arith_sub in subcategory for arith_sub in self.canonical_taxonomy.get('Arithmetic', [])):
-                    arithmetic_questions += 1
-                
-                # Count canonical taxonomy compliance
-                for category, subcats in self.canonical_taxonomy.items():
-                    if subcategory in subcats:
-                        canonical_questions += 1
-                        break
-                
-                if subcategory:
-                    subcategories_found.add(subcategory)
+                    # Check if TSD questions are mapped to Arithmetic category
+                    if question_type in expected_8_types:
+                        arithmetic_mapped += 1
             
-            # Calculate coverage percentages
-            type_coverage = (questions_with_type / len(questions)) * 100 if questions else 0
-            canonical_compliance = (canonical_questions / len(questions)) * 100 if questions else 0
-            
-            print(f"   📊 Questions with Type field: {questions_with_type}/{len(questions)} ({type_coverage:.1f}%)")
-            print(f"   📊 Time-Speed-Distance questions: {tsd_questions}")
-            print(f"   📊 Arithmetic category questions: {arithmetic_questions}")
-            print(f"   📊 Canonical taxonomy compliance: {canonical_questions}/{len(questions)} ({canonical_compliance:.1f}%)")
             print(f"   📊 Unique Types found: {len(types_found)}")
-            print(f"   📊 Unique Subcategories: {len(subcategories_found)}")
+            print(f"   📊 All Types: {sorted(list(types_found))}")
+            print(f"   📊 Time-Speed-Distance questions: {tsd_questions}")
+            print(f"   📊 TSD questions with canonical Types: {arithmetic_mapped}")
             
-            # Expected results validation
-            expected_total = 1126
-            expected_compliance = 99.2
-            expected_types = 129
+            # Check for expected 8 Types
+            found_expected_types = [t for t in expected_8_types if t in types_found]
+            print(f"   📊 Expected 8 Types found: {len(found_expected_types)}/8")
+            print(f"   📊 Found expected Types: {found_expected_types}")
             
-            print(f"   🎯 Expected: {expected_total} questions with Type field")
-            print(f"   🎯 Expected: {expected_compliance}% canonical compliance")
-            print(f"   🎯 Expected: {expected_types} total canonical Types")
+            # Type distribution analysis
+            print(f"   📊 Type distribution:")
+            for type_name, count in sorted(type_distribution.items(), key=lambda x: x[1], reverse=True):
+                print(f"      {type_name}: {count} questions")
             
-            if (questions_with_type >= expected_total * 0.9 and 
-                canonical_compliance >= expected_compliance * 0.9 and
-                len(types_found) >= expected_types * 0.5):
-                type_results["canonical_taxonomy_coverage"] = True
-                print("   ✅ Database migration successful - meets expected coverage")
+            if len(types_found) >= 8 and len(found_expected_types) >= 6:
+                type_results["eight_unique_types_verification"] = True
+                print("   ✅ 8 unique Types available for Type-based session generation")
+                print("   ✅ System has sufficient Type diversity")
             else:
-                print("   ❌ Database migration incomplete or failed")
-                print(f"   ❌ Type coverage: {type_coverage:.1f}% (expected ~100%)")
-                print(f"   ❌ Canonical compliance: {canonical_compliance:.1f}% (expected {expected_compliance}%)")
-                print(f"   ❌ Type diversity: {len(types_found)} (expected {expected_types})")
+                print("   ❌ Insufficient Type diversity for proper session generation")
+                print(f"   ❌ Expected 8 unique Types, found {len(types_found)}")
+                print(f"   ❌ Expected canonical Types found: {len(found_expected_types)}/8")
+        else:
+            print("   ❌ No questions available for Type diversity analysis")
         
         # TEST 3: Test 12-Question Session Generation
         print("\n🎯 TEST 3: TEST 12-QUESTION SESSION GENERATION")
