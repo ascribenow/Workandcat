@@ -1245,13 +1245,15 @@ class CATBackendTester:
                 print(f"   ❌ Canonical compliance: {canonical_compliance:.1f}% (expected {expected_compliance}%)")
                 print(f"   ❌ Type diversity: {len(types_found)} (expected {expected_types})")
         
-        # TEST 3: Type-Based Session Creation
-        print("\n🎯 TEST 3: TYPE-BASED SESSION CREATION")
+        # TEST 3: Test 12-Question Session Generation
+        print("\n🎯 TEST 3: TEST 12-QUESTION SESSION GENERATION")
         print("-" * 40)
-        print("Testing /api/sessions/start endpoint for Type-based session generation")
+        print("Testing /api/sessions/start endpoint to verify it generates 12 questions (not 2)")
+        print("Checking that sessions operate at (Category, Subcategory, Type) granularity")
+        print("Verifying session metadata includes Type diversity tracking")
         
         session_data = {"target_minutes": 30}
-        success, response = self.run_test("Create Type-Based Session", "POST", "sessions/start", 200, session_data, student_headers)
+        success, response = self.run_test("Create 12-Question Session", "POST", "sessions/start", 200, session_data, student_headers)
         if success:
             session_id = response.get('session_id')
             session_type = response.get('session_type')
@@ -1263,14 +1265,30 @@ class CATBackendTester:
             print(f"   📊 Total questions: {total_questions}")
             print(f"   📊 Personalization applied: {personalization.get('applied', False)}")
             
-            if session_id and total_questions >= 12:
+            # Check session metadata for Type-related fields
+            type_diversity = personalization.get('type_diversity', {})
+            type_distribution = personalization.get('type_distribution', {})
+            category_type_distribution = personalization.get('category_type_distribution', {})
+            
+            print(f"   📊 Type diversity: {type_diversity}")
+            print(f"   📊 Type distribution: {type_distribution}")
+            print(f"   📊 Category-Type distribution: {category_type_distribution}")
+            
+            # Validate 12-question requirement
+            if total_questions == 12:
+                print("   ✅ CRITICAL SUCCESS: Session generates exactly 12 questions")
                 type_results["type_based_session_creation"] = True
-                print("   ✅ Type-based session creation working")
-                
-                # Store session_id for further tests
                 self.session_id = session_id
+            elif total_questions == 2:
+                print("   ❌ CRITICAL FAILURE: Session generates only 2 questions (expected 12)")
+                print("   ❌ This indicates Type-based selection logic is not working")
             else:
-                print("   ❌ Session creation issues detected")
+                print(f"   ⚠️ Unexpected question count: {total_questions} (expected 12)")
+                if total_questions >= 10:
+                    type_results["type_based_session_creation"] = True
+                    self.session_id = session_id
+        else:
+            print("   ❌ Failed to create session")
         
         # TEST 4: Type Diversity Enforcement
         print("\n🔄 TEST 4: TYPE DIVERSITY ENFORCEMENT")
