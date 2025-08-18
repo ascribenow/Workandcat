@@ -1366,3 +1366,65 @@ class AdaptiveSessionLogic:
                 "metadata": {"session_type": "error", "total_questions": 0},
                 "personalization_applied": False
             }
+
+    def determine_user_phase(self, user_id: str, db: Session) -> Dict[str, Any]:
+        """
+        Determine which adaptive phase the user is in based on completed sessions
+        Returns phase info and metadata for session generation
+        """
+        try:
+            # Count completed sessions for this user
+            from sqlalchemy import Session as DBSession
+            session_count = db.query(DBSession).filter(
+                DBSession.user_id == user_id,
+                DBSession.ended_at.isnot(None)  # Only count completed sessions
+            ).count()
+            
+            # Determine phase
+            if session_count < 30:
+                phase = "phase_a"
+                phase_name = "Coverage & Calibration"
+                phase_description = "Building broad exposure across taxonomy, Easy/Medium bias"
+                session_range = "1-30"
+                difficulty_distribution = self.phase_difficulty_distributions["phase_a"]
+            elif session_count < 60:
+                phase = "phase_b" 
+                phase_name = "Strengthen & Stretch"
+                phase_description = "Targeting weak areas + Hard questions in strong areas"
+                session_range = "31-60"
+                difficulty_distribution = self.phase_difficulty_distributions["phase_b"]
+            else:
+                phase = "phase_c"
+                phase_name = "Fully Adaptive"
+                phase_description = "Dynamic adaptation with type-level granularity"
+                session_range = "61+"
+                difficulty_distribution = self.phase_difficulty_distributions["phase_c"]
+            
+            return {
+                "phase": phase,
+                "phase_name": phase_name,
+                "phase_description": phase_description,
+                "session_range": session_range,
+                "session_count": session_count,
+                "current_session": session_count + 1,
+                "difficulty_distribution": difficulty_distribution,
+                "is_coverage_phase": phase == "phase_a",
+                "is_strengthen_phase": phase == "phase_b",
+                "is_adaptive_phase": phase == "phase_c"
+            }
+            
+        except Exception as e:
+            logger.error(f"Error determining user phase: {e}")
+            # Default to Phase A for new users
+            return {
+                "phase": "phase_a",
+                "phase_name": "Coverage & Calibration",
+                "phase_description": "Building broad exposure across taxonomy",
+                "session_range": "1-30", 
+                "session_count": 0,
+                "current_session": 1,
+                "difficulty_distribution": self.phase_difficulty_distributions["phase_a"],
+                "is_coverage_phase": True,
+                "is_strengthen_phase": False,
+                "is_adaptive_phase": False
+            }
