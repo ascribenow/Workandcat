@@ -355,26 +355,34 @@ export const SessionSystem = ({ sessionId: propSessionId, onSessionEnd }) => {
             </div>
 
             {/* MCQ Options */}
-            {currentQuestion.options && !showResult && (
+            {!showResult && (
               <div className="space-y-3 mb-6">
-                {Object.entries(currentQuestion.options).map(([key, value]) => {
-                  if (key === 'correct') return null;
-                  return (
-                    <button
-                      key={key}
-                      onClick={() => handleOptionSelect(value)}
-                      disabled={answerSubmitted}
-                      className={`w-full text-left p-4 rounded-lg border-2 transition-all ${
-                        userAnswer === value
-                          ? 'border-blue-500 bg-blue-50 text-blue-800'
-                          : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-                      } ${answerSubmitted ? 'cursor-not-allowed opacity-75' : 'cursor-pointer'}`}
-                    >
-                      <span className="font-medium text-sm text-gray-500 mr-3">{key.toUpperCase()})</span>
-                      <span>{value}</span>
-                    </button>
-                  );
-                })}
+                {currentQuestion.options ? (
+                  Object.entries(currentQuestion.options).map(([key, value]) => {
+                    if (key === 'correct') return null;
+                    return (
+                      <button
+                        key={key}
+                        onClick={() => handleOptionSelect(value)}
+                        disabled={answerSubmitted}
+                        className={`w-full text-left p-4 rounded-lg border-2 transition-all ${
+                          userAnswer === value
+                            ? 'border-blue-500 bg-blue-50 text-blue-800'
+                            : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                        } ${answerSubmitted ? 'cursor-not-allowed opacity-75' : 'cursor-pointer'}`}
+                      >
+                        <span className="font-medium text-sm text-gray-500 mr-3">{key.toUpperCase()})</span>
+                        <span>{value}</span>
+                      </button>
+                    );
+                  })
+                ) : (
+                  <div className="text-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
+                    <p className="text-gray-600">Loading answer options...</p>
+                    <p className="text-xs text-gray-400 mt-1">If this persists, please refresh the page</p>
+                  </div>
+                )}
               </div>
             )}
 
