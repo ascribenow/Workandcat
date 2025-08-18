@@ -718,44 +718,10 @@ async def start_session(
     try:
         logger.info(f"Starting sophisticated session for user {current_user.id}")
         
-        # TEMPORARY FIX: Use simple question selection to avoid async issues
-        # Get 12 active questions with type_of_question field populated
-        questions_result = await db.execute(
-            select(Question)
-            .where(
-                and_(
-                    Question.is_active == True,
-                    Question.type_of_question.isnot(None),
-                    Question.type_of_question != ''
-                )
-            )
-            .order_by(func.random())
-            .limit(12)
+        # Use adaptive session logic for sophisticated dual-dimension diversity enforcement
+        session_result = adaptive_session_logic.create_personalized_session(
+            current_user.id, db
         )
-        questions = questions_result.scalars().all()
-        
-        if not questions:
-            # Fallback to any active questions
-            questions_result = await db.execute(
-                select(Question)
-                .where(Question.is_active == True)
-                .order_by(func.random())
-                .limit(12)
-            )
-            questions = questions_result.scalars().all()
-        
-        # Create simple session result structure
-        session_result = {
-            "questions": questions,
-            "metadata": {
-                "learning_stage": "intermediate",
-                "recent_accuracy": 75.0,
-                "difficulty_distribution": {"Easy": 4, "Medium": 6, "Hard": 2},
-                "category_distribution": {"Arithmetic": 12},
-                "weak_areas_targeted": 0
-            },
-            "personalization_applied": True
-        }
         
         questions = session_result["questions"]
         metadata = session_result["metadata"]
