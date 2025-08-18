@@ -151,7 +151,7 @@ class AdaptiveSessionLogic:
             ordered_questions = self.order_by_difficulty_progression(selected_questions, user_profile)
             
             # Step 6: Generate enhanced session metadata
-            session_metadata = await self.generate_enhanced_session_metadata(
+            session_metadata = self.generate_enhanced_session_metadata(
                 ordered_questions, user_profile, dynamic_distribution
             )
             
