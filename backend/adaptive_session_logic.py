@@ -644,7 +644,7 @@ class AdaptiveSessionLogic:
             logger.error(f"Error in dynamic category selection: {e}")
             return questions[:12]
 
-    async def select_by_difficulty_with_pyq_weighting(
+    def select_by_difficulty_with_pyq_weighting(
         self, 
         questions: List[Question], 
         user_profile: Dict
