@@ -613,19 +613,24 @@ class CATBackendTester:
         
         return success_rate >= 70
 
-    def test_three_phase_adaptive_learning_system(self):
-        """Test the THREE-PHASE ADAPTIVE LEARNING SYSTEM comprehensively"""
-        print("🎯 THREE-PHASE ADAPTIVE LEARNING SYSTEM TESTING")
+    def test_three_phase_system_fixes(self):
+        """Test the SPECIFIC THREE-PHASE SYSTEM FIXES from review request"""
+        print("🎯 FOCUSED TEST: Three-Phase System Fixes Validation")
         print("=" * 70)
-        print("CRITICAL VALIDATION: Testing complete three-phase adaptive learning enhancement")
-        print("REVIEW REQUEST FOCUS:")
-        print("- Phase A (Sessions 1-30): Coverage & Calibration - 75% Medium, 20% Easy, 5% Hard")
-        print("- Phase B (Sessions 31-60): Strengthen & Stretch - 50% Medium, 30% Hard, 20% Easy")
-        print("- Phase C (Sessions 61+): Fully Adaptive with type-level granularity")
-        print("- Type-Level Mastery Tracking with (Category, Subcategory, Type) tracking")
-        print("- Enhanced Session Telemetry with phase metadata")
-        print("Admin credentials: sumedhprabhu18@gmail.com / admin2025")
-        print("Student credentials: student@catprep.com / student123")
+        print("CRITICAL FIXES APPLIED - VALIDATION NEEDED:")
+        print("1. ✅ Fixed Session import confusion in phase determination logic")
+        print("2. ✅ Added get_category_from_subcategory method to adaptive session logic")
+        print("3. ✅ Enhanced coverage selection debugging for difficulty distribution")
+        print("4. ✅ Database schema updated with TypeMastery table")
+        print("")
+        print("SPECIFIC VALIDATION NEEDED:")
+        print("1. Phase Determination: Verify phase_info field is properly populated")
+        print("2. Phase A Difficulty Distribution: Confirm 75% Medium, 20% Easy, 5% Hard")
+        print("3. Type-Level Mastery Integration: Test TypeMastery records creation")
+        print("4. API Endpoint: Validate /api/mastery/type-breakdown returns data")
+        print("5. Session Metadata: Verify phase information appears in session metadata")
+        print("")
+        print("AUTH: sumedhprabhu18@gmail.com / admin2025, student@catprep.com / student123")
         print("=" * 70)
         
         # Authenticate as admin and student
