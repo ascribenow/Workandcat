@@ -1826,10 +1826,17 @@ class AdaptiveSessionLogic:
     def generate_phase_metadata(self, questions: List[Question], user_profile: Dict[str, Any], 
                                distribution: Dict[str, int], phase_info: Dict[str, Any], 
                                weak_areas_targeted: int = 0, strong_areas_targeted: int = 0) -> Dict[str, Any]:
-        """Generate enhanced metadata for phase-based sessions"""
+        """Generate enhanced metadata for phase-based sessions with quota telemetry"""
         try:
             # Base metadata generation
             base_metadata = self.generate_enhanced_session_metadata(questions, user_profile, distribution)
+            
+            # Extract quota telemetry if available (from quota-based difficulty distribution)
+            quota_telemetry = {}
+            if questions:
+                first_question = questions[0]
+                if hasattr(first_question, '_quota_telemetry'):
+                    quota_telemetry = getattr(first_question, '_quota_telemetry')
             
             # Add phase-specific metadata
             phase_metadata = {
@@ -1851,12 +1858,19 @@ class AdaptiveSessionLogic:
                 # Phase difficulty distribution
                 "phase_difficulty_distribution": phase_info.get("difficulty_distribution", {}),
                 
+                # QUOTA TELEMETRY - Superior difficulty tracking
+                **quota_telemetry,  # Includes difficulty_targets, difficulty_actual, backfill_notes
+                
                 # Enhanced type-level tracking
-                "enhancement_level": "three_phase_adaptive"
+                "enhancement_level": "three_phase_adaptive_quota_system"
             }
             
             # Merge base and phase metadata
             enhanced_metadata = {**base_metadata, **phase_metadata}
+            
+            # Add quota system indicator
+            if quota_telemetry:
+                logger.info(f"Generated phase metadata with QUOTA TELEMETRY: {quota_telemetry}")
             
             logger.info(f"Generated phase metadata for {phase_info.get('phase_name', 'Unknown')} phase")
             return enhanced_metadata
