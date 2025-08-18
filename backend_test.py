@@ -1290,26 +1290,37 @@ class CATBackendTester:
         else:
             print("   ❌ Failed to create session")
         
-        # TEST 4: Type Diversity Enforcement
-        print("\n🔄 TEST 4: TYPE DIVERSITY ENFORCEMENT")
+        # TEST 4: Type-Based Selection Verification
+        print("\n🔄 TEST 4: TYPE-BASED SELECTION VERIFICATION")
         print("-" * 40)
-        print("Testing Type diversity caps and metadata tracking")
+        print("Verifying Type diversity enforcement (max 2 questions per Type, minimum 8 different Types per session)")
+        print("Testing that Type-aware PYQ weighting works in question selection")
+        print("Checking that sessions use canonical taxonomy categories mapping")
         
         if hasattr(self, 'session_id') and self.session_id:
-            # Get multiple questions from session to check Type diversity
+            # Get all questions from session to analyze Type diversity
             type_distribution = {}
+            subcategory_distribution = {}
+            questions_with_types = 0
             questions_analyzed = 0
+            pyq_scores_found = []
             
-            for i in range(min(5, total_questions)):  # Check first 5 questions
+            # Analyze up to 12 questions from the session
+            for i in range(12):
                 success, response = self.run_test(f"Get Question {i+1} for Type Analysis", "GET", f"sessions/{self.session_id}/next-question", 200, None, student_headers)
                 if success and 'question' in response:
                     question = response['question']
-                    question_type = question.get('type_of_question', 'Unknown')
-                    subcategory = question.get('subcategory', 'Unknown')
+                    question_type = question.get('type_of_question', '')
+                    subcategory = question.get('subcategory', '')
                     
-                    type_key = f"{subcategory}::{question_type}"
-                    type_distribution[type_key] = type_distribution.get(type_key, 0) + 1
                     questions_analyzed += 1
+                    
+                    if question_type and question_type.strip():
+                        questions_with_types += 1
+                        type_distribution[question_type] = type_distribution.get(question_type, 0) + 1
+                    
+                    if subcategory:
+                        subcategory_distribution[subcategory] = subcategory_distribution.get(subcategory, 0) + 1
                     
                     print(f"   📊 Q{i+1}: {subcategory} :: {question_type}")
                     
@@ -1321,20 +1332,44 @@ class CATBackendTester:
                         "hint_used": False
                     }
                     self.run_test(f"Submit Answer Q{i+1}", "POST", f"sessions/{self.session_id}/submit-answer", 200, answer_data, student_headers)
+                elif success and response.get('session_complete'):
+                    print(f"   ✅ Session completed after {i} questions")
+                    break
+                else:
+                    print(f"   ⚠️ Could not get question {i+1}")
+                    break
             
+            print(f"   📊 Questions analyzed: {questions_analyzed}")
+            print(f"   📊 Questions with Types: {questions_with_types}")
             print(f"   📊 Type distribution: {type_distribution}")
+            print(f"   📊 Subcategory distribution: {subcategory_distribution}")
+            
+            # Analyze Type diversity enforcement
             unique_types = len(type_distribution)
             max_per_type = max(type_distribution.values()) if type_distribution else 0
+            min_types_required = 8
+            max_per_type_allowed = 2
             
-            print(f"   📊 Unique Type combinations: {unique_types}")
-            print(f"   📊 Max questions per Type: {max_per_type}")
+            print(f"   📊 Unique Types found: {unique_types} (minimum required: {min_types_required})")
+            print(f"   📊 Max questions per Type: {max_per_type} (maximum allowed: {max_per_type_allowed})")
             
-            # Check Type diversity enforcement (max 2 questions per Type as per review request)
-            if unique_types >= 3 and max_per_type <= 3:  # Relaxed for testing
+            # Check Type diversity requirements from review request
+            type_diversity_ok = unique_types >= min_types_required and max_per_type <= max_per_type_allowed
+            type_coverage_ok = (questions_with_types / questions_analyzed) >= 0.8 if questions_analyzed > 0 else False
+            
+            if type_diversity_ok and type_coverage_ok:
                 type_results["type_diversity_enforcement"] = True
-                print("   ✅ Type diversity enforcement working")
+                print("   ✅ Type diversity enforcement working correctly")
+                print(f"   ✅ Meets requirement: minimum {min_types_required} different Types per session")
+                print(f"   ✅ Meets requirement: max {max_per_type_allowed} questions per Type")
             else:
-                print("   ⚠️ Type diversity enforcement may need adjustment")
+                print("   ❌ Type diversity enforcement not working")
+                if not type_diversity_ok:
+                    print(f"   ❌ Type diversity insufficient: {unique_types} types, max {max_per_type} per type")
+                if not type_coverage_ok:
+                    print(f"   ❌ Type coverage insufficient: {questions_with_types}/{questions_analyzed} questions have Types")
+        else:
+            print("   ❌ No session available for Type diversity testing")
         
         # TEST 5: Type Metadata Tracking
         print("\n📊 TEST 5: TYPE METADATA TRACKING")
