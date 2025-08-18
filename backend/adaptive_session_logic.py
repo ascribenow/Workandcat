@@ -805,6 +805,7 @@ class AdaptiveSessionLogic:
                 # Check subcategory cap (max 5 per subcategory)
                 current_subcategory_count = subcategory_counts.get(subcategory, 0)
                 if current_subcategory_count >= 5:
+                    logger.info(f"Skipping {subcategory} - subcategory cap reached ({current_subcategory_count}/5)")
                     continue  # Skip if subcategory cap reached
                 
                 # Check type within subcategory cap (max 2-3 per type within subcategory)
