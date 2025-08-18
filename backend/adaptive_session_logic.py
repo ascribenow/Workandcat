@@ -1060,7 +1060,7 @@ class AdaptiveSessionLogic:
         for category, subcategories in self.canonical_subcategories.items():
             if subcategory in subcategories:
                 return category
-        return "A-Arithmetic"  # Default fallback
+        return "Arithmetic"  # Default fallback
 
     async def create_simple_fallback_session(self, user_id: str, db: AsyncSession) -> Dict[str, Any]:
         """Fallback to simple random selection if sophisticated logic fails"""
