@@ -67,19 +67,19 @@ async def download_and_parse_csv():
         logger.info("✅ CSV file found successfully")
         
         # Parse CSV content
+        questions_data = []
         with open(csv_path, 'r', encoding='utf-8') as f:
             csv_reader = csv.DictReader(f)
-        
-        questions_data = []
-        for row in csv_reader:
-            stem = row.get('stem', '').strip()
-            image_url = row.get('image_url', '').strip()
             
-            if stem:  # Only process rows with actual question stems
-                questions_data.append({
-                    'stem': stem,
-                    'image_url': image_url if image_url else None
-                })
+            for row in csv_reader:
+                stem = row.get('stem', '').strip()
+                image_url = row.get('image_url', '').strip()
+                
+                if stem:  # Only process rows with actual question stems
+                    questions_data.append({
+                        'stem': stem,
+                        'image_url': image_url if image_url else None
+                    })
         
         logger.info(f"✅ Parsed {len(questions_data)} questions from local CSV")
         return questions_data
