@@ -136,9 +136,9 @@ class CanonicalTaxonomyUpdater:
     async def ensure_subcategory_exists(self, db_session, category_name, subcategory_name):
         """Ensure subcategory (Topic) exists in database"""
         try:
-            # Get category
+            # Get category (parent topic)
             result = await db_session.execute(
-                select(Category).where(Category.name == category_name)
+                select(Topic).where(Topic.name == category_name, Topic.parent_id.is_(None))
             )
             category = result.scalar_one_or_none()
             
@@ -150,16 +150,19 @@ class CanonicalTaxonomyUpdater:
             result = await db_session.execute(
                 select(Topic).where(
                     Topic.name == subcategory_name,
-                    Topic.category_id == category.id
+                    Topic.parent_id == category.id
                 )
             )
             topic = result.scalar_one_or_none()
             
             if not topic:
                 # Create new subcategory (Topic)
+                import uuid
                 new_topic = Topic(
                     name=subcategory_name,
-                    category_id=category.id
+                    slug=subcategory_name.lower().replace(' ', '_').replace('-', '_'),
+                    category=category_name,
+                    parent_id=category.id
                 )
                 db_session.add(new_topic)
                 await db_session.flush()
