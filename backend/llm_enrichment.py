@@ -256,12 +256,24 @@ Rules:
 CANONICAL TAXONOMY (LOCKED - USE EXACT LABELS):
 {json.dumps(CANONICAL_TAXONOMY, indent=2)}
 
-RULES:
+CRITICAL RULES:
 1. Use ONLY the exact category and sub-category names from the taxonomy above
-2. Select the most specific type_of_question from the sub-category options
-3. No out-of-vocabulary categories allowed
-4. If admin hints are provided, use them as priors but verify correctness
-5. Return ONLY a JSON object with exact matches
+2. AVOID "Basics" unless the question is truly fundamental/introductory level
+3. Choose the MOST SPECIFIC type_of_question that matches the question content
+4. For Time-Speed-Distance questions, be specific: use "Trains", "Boats and Streams", "Circular Track Motion", "Races", "Relative Speed" when applicable
+5. For complex questions, choose advanced types over "Basics"
+6. If admin hints are provided, use them as priors but verify correctness
+7. Return ONLY a JSON object with exact matches
+
+SPECIFIC TYPE SELECTION GUIDELINES:
+- "Basics" ONLY for simple, introductory questions
+- "Trains" for questions involving trains, platforms, crossing
+- "Boats and Streams" for upstream/downstream, current problems  
+- "Circular Track Motion" for circular tracks, laps, overtaking
+- "Races" for racing, head starts, lead problems
+- "Relative Speed" for opposite/same direction movement
+- "Percentage Change" for increase/decrease problems
+- "Successive Percentage Change" for multiple percentage operations
 
 Admin hints: Category="{hint_category}", Sub-category="{hint_subcategory}"
 
@@ -269,8 +281,9 @@ RETURN FORMAT:
 {{
   "category": "exact_category_name",
   "subcategory": "exact_subcategory_name", 
-  "type_of_question": "exact_type_from_subcategory_list",
-  "confidence": 0.0-1.0
+  "type_of_question": "exact_specific_type_from_subcategory_list",
+  "confidence": 0.0-1.0,
+  "reasoning": "brief_explanation_of_type_choice"
 }}"""
 
             chat = LlmChat(
