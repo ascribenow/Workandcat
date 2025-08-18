@@ -546,8 +546,8 @@ class AdaptiveSessionLogic:
                 user_id, difficulty_questions, db
             )
             
-            # Strategy 4: PHASE 1 - Subcategory diversity enforcement
-            diverse_questions = await self.enforce_subcategory_diversity(cooled_questions)
+            # Strategy 4: PHASE 1 - Type diversity enforcement (operates at Category::Subcategory::Type level)
+            diverse_questions = await self.enforce_type_diversity(cooled_questions)
             
             # Strategy 5: Ensure question type variety
             final_questions = self.ensure_question_variety(diverse_questions)
@@ -592,15 +592,18 @@ class AdaptiveSessionLogic:
                 if category in category_groups:
                     category_questions = category_groups[category]
                     
-                    # Sort by weakness first, then PYQ frequency
-                    prioritized = sorted(
-                        category_questions,
-                        key=lambda q: (
-                            0 if q.subcategory in user_profile['weak_subcategories'] else
-                            1 if q.subcategory in user_profile['moderate_subcategories'] else 2,
-                            -(q.pyq_frequency_score or 0.5)  # Higher PYQ frequency first
-                        )
-                    )
+                    # Sort by weakness first, then PYQ frequency, then Type diversity
+            # Sort by PYQ frequency and Type diversity for balanced selection
+            prioritized = sorted(
+                category_questions,
+                key=lambda q: (
+                    0 if q.subcategory in user_profile['weak_subcategories'] else
+                    1 if q.subcategory in user_profile['moderate_subcategories'] else 2,
+                    -(q.pyq_frequency_score or 0.5),  # Higher PYQ frequency first
+                    q.type_of_question or 'ZZZ'  # Type diversity (alphabetical for consistency)
+                )
+            )
+    
                     
                     selected.extend(prioritized[:target_count])
                     logger.info(f"Selected {min(target_count, len(prioritized))} questions from {category}")
@@ -754,6 +757,65 @@ class AdaptiveSessionLogic:
         except Exception as e:
             logger.error(f"Error applying differential cooldown filter: {e}")
             return questions
+
+    
+    async def enforce_type_diversity(self, questions: List[Question]) -> List[Question]:
+        """
+        Enforce Type diversity caps to prevent domination at Type level
+        Operates at (Category, Subcategory, Type) granularity
+        """
+        try:
+            type_counts = {}
+            diverse_questions = []
+            
+            # Sort questions by PYQ frequency first
+            sorted_questions = sorted(
+                questions, 
+                key=lambda q: -(q.pyq_frequency_score or 0.5)
+            )
+            
+            for question in sorted_questions:
+                # Create Type key as (Category, Subcategory, Type)
+                category = self.get_category_from_subcategory(question.subcategory)
+                type_key = f"{category}::{question.subcategory}::{question.type_of_question or 'General'}"
+                
+                current_count = type_counts.get(type_key, 0)
+                
+                # Allow max 2 questions per Type to ensure diversity
+                if current_count < 2:
+                    diverse_questions.append(question)
+                    type_counts[type_key] = current_count + 1
+                
+                # Stop if we have enough questions
+                if len(diverse_questions) >= 12:
+                    break
+            
+            # Ensure minimum Type diversity (at least 8 different Types)
+            unique_types = len(set(f"{self.get_category_from_subcategory(q.subcategory)}::{q.subcategory}::{q.type_of_question or 'General'}" for q in diverse_questions[:12]))
+            
+            if unique_types < 8:
+                logger.info(f"Only {unique_types} unique types, below minimum 8 - adding more diverse questions")
+                # Try to add more Type-diverse questions if available
+                remaining_questions = [q for q in questions if q not in diverse_questions]
+                for question in remaining_questions:
+                    category = self.get_category_from_subcategory(question.subcategory)
+                    type_key = f"{category}::{question.subcategory}::{question.type_of_question or 'General'}"
+                    
+                    # Check if this Type is not already represented
+                    existing_types = set(f"{self.get_category_from_subcategory(q.subcategory)}::{q.subcategory}::{q.type_of_question or 'General'}" for q in diverse_questions)
+                    if type_key not in existing_types:
+                        diverse_questions.append(question)
+                        if len(set(f"{self.get_category_from_subcategory(q.subcategory)}::{q.subcategory}::{q.type_of_question or 'General'}" for q in diverse_questions[:12])) >= 8:
+                            break
+            
+            final_unique_types = len(set(f"{self.get_category_from_subcategory(q.subcategory)}::{q.subcategory}::{q.type_of_question or 'General'}" for q in diverse_questions[:12]))
+            logger.info(f"Enforced Type diversity: {len(diverse_questions)} questions from {final_unique_types} unique Types")
+            return diverse_questions
+            
+        except Exception as e:
+            logger.error(f"Error enforcing Type diversity: {e}")
+            return questions
+    
 
     async def enforce_subcategory_diversity(self, questions: List[Question]) -> List[Question]:
         """
@@ -1024,19 +1086,38 @@ class AdaptiveSessionLogic:
                 if q.subcategory in user_profile.get('weak_subcategories', [])
             )
             
-            # Enhanced metadata
+            
+                # Type distribution analysis
+                type_distribution = {}
+                category_type_distribution = {}
+                
+                for question in questions:
+                    # Type distribution
+                    question_type = question.type_of_question or 'General'
+                    type_distribution[question_type] = type_distribution.get(question_type, 0) + 1
+                    
+                    # Category-Type combination analysis
+                    category = self.get_category_from_subcategory(question.subcategory)
+                    category_type_key = f"{category}::{question.subcategory}::{question_type}"
+                    category_type_distribution[category_type_key] = category_type_distribution.get(category_type_key, 0) + 1
+    
+                # Enhanced metadata
             metadata = {
                 'learning_stage': user_profile.get('learning_stage', 'unknown'),
                 'recent_accuracy': user_profile.get('recent_accuracy', 0),
                 'difficulty_distribution': difficulty_distribution,
                 'category_distribution': category_distribution,
                 'subcategory_distribution': subcategory_distribution,
+                'type_distribution': type_distribution,
+                'category_type_distribution': category_type_distribution,
                 'weak_areas_targeted': weak_areas_targeted,
                 'dynamic_adjustment_applied': dynamic_distribution != self.base_category_distribution,
                 'base_distribution': self.base_category_distribution,
                 'applied_distribution': dynamic_distribution,
                 'pyq_frequency_analysis': pyq_frequency_stats,
                 'subcategory_diversity': len(subcategory_distribution),
+                'type_diversity': len(type_distribution),
+                'category_type_diversity': len(category_type_distribution),
                 'cooldown_periods_used': self.cooldown_periods,
                 'total_questions': len(questions),
                 'enhancement_level': 'phase_1_advanced'
