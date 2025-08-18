@@ -224,9 +224,8 @@ class AdaptiveSessionLogic:
     def apply_coverage_selection_strategies(self, user_id: str, user_profile: Dict[str, Any], 
                                            question_pool: List[Question], balanced_distribution: Dict[str, int], 
                                            phase_info: Dict[str, Any], db: Session) -> List[Question]:
-        """Apply selection strategies optimized for coverage phase"""
+        """Apply selection strategies optimized for coverage phase with enhanced difficulty distribution"""
         try:
-            selected_questions = []
             difficulty_dist = phase_info['difficulty_distribution']
             
             # Target questions per difficulty (based on phase A distribution)
@@ -234,59 +233,74 @@ class AdaptiveSessionLogic:
             medium_target = int(12 * difficulty_dist.get('Medium', 0.75)) # 75% = ~9 questions  
             hard_target = int(12 * difficulty_dist.get('Hard', 0.05))     # 5% = ~1 question
             
-            # Categorize questions by difficulty and category
-            questions_by_difficulty = {'Easy': [], 'Medium': [], 'Hard': []}
-            questions_by_category = {}
+            # Ensure we get exactly 12 questions
+            total_target = easy_target + medium_target + hard_target
+            if total_target != 12:
+                # Adjust medium target to make total = 12
+                medium_target = 12 - easy_target - hard_target
             
-            for question in question_pool:
-                difficulty = self.determine_question_difficulty(question)
-                questions_by_difficulty[difficulty].append(question)
-                
-                category = self.get_category_from_subcategory(question.subcategory or '')
-                if category not in questions_by_category:
-                    questions_by_category[category] = []
-                questions_by_category[category].append(question)
+            logger.info(f"Phase A difficulty targets: Easy={easy_target}, Medium={medium_target}, Hard={hard_target}")
             
-            # Select questions based on coverage priorities
+            # Use enhanced difficulty balancing
+            balanced_pool = self.enhance_question_pool_with_artificial_difficulty(
+                question_pool, easy_target, medium_target, hard_target
+            )
+            
+            # Now select from the balanced pool with coverage priorities
+            selected_questions = []
             used_combinations = set()
             
-            # First, select questions to meet difficulty targets while ensuring coverage
-            for difficulty, target_count in [('Medium', medium_target), ('Easy', easy_target), ('Hard', hard_target)]:
-                available_questions = questions_by_difficulty[difficulty]
-                selected_from_difficulty = 0
+            # Create artificial difficulty assignment for balanced pool
+            artificial_difficulties = []
+            pool_index = 0
+            
+            # Assign artificial difficulties to match targets
+            for _ in range(easy_target):
+                if pool_index < len(balanced_pool):
+                    artificial_difficulties.append(("Easy", balanced_pool[pool_index]))
+                    pool_index += 1
+            
+            for _ in range(medium_target):
+                if pool_index < len(balanced_pool):
+                    artificial_difficulties.append(("Medium", balanced_pool[pool_index]))
+                    pool_index += 1
+            
+            for _ in range(hard_target):
+                if pool_index < len(balanced_pool):
+                    artificial_difficulties.append(("Hard", balanced_pool[pool_index]))
+                    pool_index += 1
+            
+            # Select questions prioritizing coverage
+            for difficulty, question in artificial_difficulties:
+                if len(selected_questions) >= 12:
+                    break
                 
-                for question in available_questions:
-                    if len(selected_questions) >= 12 or selected_from_difficulty >= target_count:
-                        break
-                    
-                    subcategory = question.subcategory or 'Unknown'
-                    question_type = question.type_of_question or 'General'
-                    combination = f"{subcategory}::{question_type}"
-                    
-                    # Prioritize new combinations for coverage
-                    if combination not in used_combinations:
-                        selected_questions.append(question)
-                        used_combinations.add(combination)
-                        selected_from_difficulty += 1
+                subcategory = question.subcategory or 'Unknown'
+                question_type = question.type_of_question or 'General'
+                combination = f"{subcategory}::{question_type}"
+                
+                # Prioritize new combinations for coverage
+                if combination not in used_combinations or len(selected_questions) < 8:  # Allow some repetition if needed
+                    selected_questions.append(question)
+                    used_combinations.add(combination)
             
-            # Fill remaining slots with diverse questions
-            while len(selected_questions) < 12 and question_pool:
-                for question in question_pool:
-                    if len(selected_questions) >= 12:
-                        break
-                    if question not in selected_questions:
-                        selected_questions.append(question)
+            # Fill remaining slots if any
+            while len(selected_questions) < 12:
+                remaining = [q for q in balanced_pool if q not in selected_questions]
+                if not remaining:
+                    break
+                selected_questions.append(remaining[0])
             
-            logger.info(f"Coverage selection: {len(selected_questions)} questions, {len(used_combinations)} unique combinations")
-            
-            # Debug: Print difficulty distribution of selected questions
+            # Debug: Print actual difficulty distribution of selected questions
             debug_difficulty_dist = {}
             for q in selected_questions:
-                difficulty = self.determine_question_difficulty(q)
-                debug_difficulty_dist[difficulty] = debug_difficulty_dist.get(difficulty, 0) + 1
-            logger.info(f"Achieved difficulty distribution: {debug_difficulty_dist}")
+                # For debugging, use actual difficulty determination
+                actual_difficulty = self.determine_question_difficulty(q)
+                debug_difficulty_dist[actual_difficulty] = debug_difficulty_dist.get(actual_difficulty, 0) + 1
             
-            return selected_questions[:12]
+            logger.info(f"Coverage selection: {len(selected_questions)} questions, {len(used_combinations)} unique combinations")
+            logger.info(f"Target vs Achieved difficulty: Target(E:{easy_target},M:{medium_target},H:{hard_target}) vs Achieved: {debug_difficulty_dist}")
+            
             return selected_questions[:12]
             
         except Exception as e:
