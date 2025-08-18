@@ -4,7 +4,7 @@ Implements EWMA-based mastery calculation with time decay as per specification
 """
 
 import uuid
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any
 from datetime import datetime, timedelta
 from database import Mastery, Attempt, User, Topic, Question
 from sqlalchemy.ext.asyncio import AsyncSession
