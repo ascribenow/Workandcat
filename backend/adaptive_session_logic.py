@@ -1941,10 +1941,10 @@ class AdaptiveSessionLogic:
         """
         try:
             # Count completed sessions for this user
-            from sqlalchemy import Session as DBSession
-            session_count = db.query(DBSession).filter(
-                DBSession.user_id == user_id,
-                DBSession.ended_at.isnot(None)  # Only count completed sessions
+            from database import Session as SessionModel
+            session_count = db.query(SessionModel).filter(
+                SessionModel.user_id == user_id,
+                SessionModel.ended_at.isnot(None)  # Only count completed sessions
             ).count()
             
             # Determine phase
