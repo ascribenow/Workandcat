@@ -1919,7 +1919,7 @@ class AdaptiveSessionLogic:
             return 1  # Default to Medium order
 
     def determine_question_difficulty(self, question: Question) -> str:
-        """Determine question difficulty with enhanced distribution for quota system"""
+        """Determine question difficulty with QUOTA SYSTEM priority - hash-based distribution"""
         try:
             # PRIORITY: Check if question has FORCED difficulty from stratified sampling
             if hasattr(question, '_forced_difficulty'):
@@ -1933,18 +1933,9 @@ class AdaptiveSessionLogic:
                 logger.debug(f"Using artificial difficulty: {artificial_difficulty}")
                 return artificial_difficulty
             
-            # Natural: Try difficulty_band if available and valid
-            if hasattr(question, 'difficulty_band') and question.difficulty_band:
-                band = question.difficulty_band.strip()
-                if band in ['Easy', 'Medium', 'Hard']:
-                    return band
-            
-            # QUOTA SYSTEM ENHANCEMENT: Use position-based classification to create distribution
-            # This ensures we have Easy/Medium/Hard questions for quota system
-            difficulty_score = question.difficulty_score or 0.5
-            
-            # Enhanced thresholds to force distribution (based on question_id for consistency)
-            question_id_hash = hash(str(question.id)) % 100  # Consistent hash 0-99
+            # QUOTA SYSTEM PRIORITY: Use hash-based classification for consistent distribution
+            # This ensures we always have Easy/Medium/Hard questions for quota system
+            question_id_hash = hash(str(question.id)) % 100
             
             # Force distribution: ~25% Easy, ~60% Medium, ~15% Hard
             if question_id_hash < 25:  # 25% Easy
@@ -1953,6 +1944,22 @@ class AdaptiveSessionLogic:
                 return "Medium"
             else:  # 15% Hard
                 return "Hard"
+                
+            # NOTE: Commented out natural difficulty classification as it prevents quota system
+            # Natural: Try difficulty_band if available and valid
+            # if hasattr(question, 'difficulty_band') and question.difficulty_band:
+            #     band = question.difficulty_band.strip()
+            #     if band in ['Easy', 'Medium', 'Hard']:
+            #         return band
+            # 
+            # Natural: Use difficulty_score with adjusted thresholds
+            # difficulty_score = question.difficulty_score or 0.5
+            # if difficulty_score < 0.35:
+            #     return "Easy"
+            # elif difficulty_score < 0.75:
+            #     return "Medium"
+            # else:
+            #     return "Hard"
                 
         except Exception as e:
             logger.error(f"Error determining question difficulty: {e}")
