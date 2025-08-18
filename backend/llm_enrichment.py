@@ -20,46 +20,53 @@ import asyncio
 
 logger = logging.getLogger(__name__)
 
-# Canonical Taxonomy (locked as per spec)
+# Updated Canonical Taxonomy Structure (from CSV document)
 CANONICAL_TAXONOMY = {
     "Arithmetic": {
-        "Time–Speed–Distance (TSD)": ["Basic TSD", "Relative Speed (opposite & same direction)", "Circular Track Motion", "Boats & Streams", "Trains", "Races & Games of Chase"],
-        "Time & Work": ["Work–Time–Efficiency Basics", "Pipes & Cisterns (Inlet/Outlet)", "Work Equivalence (men/women/children/machines)"],
-        "Ratio–Proportion–Variation": ["Simple Ratios", "Compound Ratios", "Direct & Inverse Variation", "Partnership Problems"],
-        "Percentages": ["Basic Percentages", "Percentage Change (Increase/Decrease)", "Successive Percentage Change"],
-        "Averages & Alligation": ["Basic Averages", "Weighted Averages", "Alligation Rule (Mixture of 2 or more entities)"],
-        "Profit–Loss–Discount (PLD)": ["Basic PLD", "Successive PLD", "Marked Price & Cost Price Relations", "Discount Chains"],
-        "Simple & Compound Interest (SI–CI)": ["Basic SI & CI", "Difference between SI & CI", "Fractional Time Period CI"],
-        "Mixtures & Solutions": ["Replacement Problems", "Concentration Change", "Solid–Liquid–Gas Mixtures"]
+        "Time-Speed-Distance": ["Basics", "Relative Speed", "Circular Track Motion", "Boats and Streams", "Trains", "Races"],
+        "Time-Work": ["Work Time Effeciency", "Pipes and Cisterns", "Work Equivalence"],
+        "Ratios and Proportions": ["Simple Rations", "Compound Ratios", "Direct and Inverse Variation", "Partnerships"],
+        "Percentages": ["Basics", "Percentage Change", "Successive Percentage Change"],
+        "Averages and Alligation": ["Basic Averages", "Weighted Averages", "Alligations & Mixtures", "Three Mixture Alligations"],
+        "Profit-Loss-Discount": ["Basics", "Successive Profit/Loss/Discounts", "Marked Price and Cost Price Relations", "Discount Chains"],
+        "Simple and Compound Interest": ["Basics", "Difference between Simple Interest and Compound Interests", "Fractional Time Period Compound Interest"],
+        "Mixtures and Solutions": ["Replacements", "Concentration Change", "Solid-Liquid-Gas Mixtures"],
+        "Partnerships": ["Profit share"]
     },
     "Algebra": {
-        "Linear Equations": ["Two-variable systems", "Three-variable systems", "Special cases (dependent/inconsistent systems)"],
-        "Quadratic Equations": ["Roots & Nature of Roots", "Sum & Product of Roots", "Maximum/Minimum values"],
-        "Inequalities": ["Linear Inequalities", "Quadratic Inequalities", "Modulus/Absolute Value"],
-        "Progressions": ["Arithmetic Progression (AP)", "Geometric Progression (GP)", "Harmonic Progression (HP)", "Mixed Progressions"],
-        "Functions & Graphs": ["Types of Functions (linear, quadratic, polynomial, modulus, step)", "Transformations (shifts, reflections, stretches)", "Domain–Range", "Composition & Inverse Functions"],
-        "Logarithms & Exponents": ["Basic Properties of Logs", "Change of Base Formula", "Solving Log Equations", "Surds & Indices"],
-        "Special Algebraic Identities": ["Expansion & Factorisation", "Cubes & Squares", "Binomial Theorem (Basic)"]
+        "Linear Equations": ["Two variable systems", "Three variable systems", "Dependent and Inconsistent Systems"],
+        "Quadratic Equations": ["Roots & Nature of Roots", "Sum and Product of Roots", "Maximum and Minimum Values"],
+        "Inequalities": ["Linear Inequalities", "Quadratic Inequalities", "Modulus and Absolute Value", "Arithmetic Mean", "Geometric Mean", "Cauchy Schwarz"],
+        "Progressions": ["Arithmetic Progression", "Geometric Progression", "Harmonic Progression", "Mixed Progressions"],
+        "Functions and Graphs": ["Linear Functions", "Quadratic Functions", "Polynomial Functions", "Modulus Functions", "Step Functions", "Transformations", "Domain Range", "Composition and Inverse Functions"],
+        "Logarithms and Exponents": ["Basics", "Change of Base Formula", "Soliving Log Equations", "Surds and Indices"],
+        "Special Algebraic Identities": ["Expansion and Factorisation", "Cubes and Squares", "Binomial Theorem"],
+        "Maxima and Minima": ["Optimsation with Algebraic Expressions"],
+        "Special Polynomials": ["Remainder Theorem", "Factor Theorem"]
     },
-    "Geometry & Mensuration": {
+    "Geometry and Mensuration": {
         "Triangles": ["Properties (Angles, Sides, Medians, Bisectors)", "Congruence & Similarity", "Pythagoras & Converse", "Inradius, Circumradius, Orthocentre"],
         "Circles": ["Tangents & Chords", "Angles in a Circle", "Cyclic Quadrilaterals"],
-        "Polygons": ["Regular Polygons", "Interior/Exterior Angles"],
-        "Coordinate Geometry": ["Distance, Section Formula, Midpoint", "Equation of a Line", "Slope & Intercepts", "Circles in Coordinate Plane", "Parabola, Ellipse, Hyperbola (basic properties only)"],
-        "Mensuration (2D & 3D)": ["Areas (triangle, rectangle, trapezium, circle, sector)", "Volumes (cube, cuboid, cylinder, cone, sphere, hemisphere)", "Surface Areas"],
-        "Trigonometry in Geometry": ["Heights & Distances", "Basic Trigonometric Ratios"]
+        "Polygons": ["Regular Polygons", "Interior / Exterior Angles"],
+        "Coordinate Geometry": ["Distance", "Section Formula", "Midpoint", "Equation of a line", "Slope & Intercepts", "Circles in Coordinate Plane", "Parabola", "Ellipse", "Hyperbola"],
+        "Mensuration 2D": ["Area Triangle", "Area Rectangle", "Area Trapezium", "Area Circle", "Sector"],
+        "Mensuration 3D": ["Volume Cubes", "Volume Cuboid", "Volume Cylinder", "Volume Cone", "Volume Sphere", "Volume Hemisphere", "Surface Areas"],
+        "Trigonometry": ["Heights and Distances", "Basic Trigonometric Ratios"]
     },
     "Number System": {
         "Divisibility": ["Basic Divisibility Rules", "Factorisation of Integers"],
-        "HCF–LCM": ["Euclidean Algorithm", "Product of HCF & LCM"],
-        "Remainders & Modular Arithmetic": ["Basic Remainder Theorem", "Chinese Remainder Theorem", "Cyclicity of Remainders"],
+        "HCF-LCM": ["Euclidean Algorithm", "Product of HCF and LCM"],
+        "Remainders": ["Basic Remainder Theorem", "Chinese Remainder Theorem", "Cyclicity of Remainders (Last Digits)", "Cyclicity of Remainders (Last Two Digits)"],
         "Base Systems": ["Conversion between bases", "Arithmetic in different bases"],
-        "Digit Properties": ["Sum of Digits, Last Digit Patterns", "Palindromes, Repetitive Digits"]
+        "Digit Properties": ["Sum of Digits", "Last Digit Patterns", "Palindromes", "Repetitive Digits"],
+        "Number Properties": ["Perfect Squares", "Perfect Cubes"],
+        "Number Series": ["Sum of Squares", "Sum of Cubes", "Telescopic Series"],
+        "Factorials": ["Properties of Factorials"]
     },
     "Modern Math": {
-        "Permutation–Combination (P&C)": ["Basic Counting Principles", "Circular Permutations", "Permutations with Repetition/Restrictions", "Combinations with Repetition/Restrictions"],
+        "Permutation-Combination": ["Basics", "Circular Permutations", "Permutations with Repetitions", "Permutations with Restrictions", "Combinations with Repetitions", "Combinations with Restrictions"],
         "Probability": ["Classical Probability", "Conditional Probability", "Bayes' Theorem"],
-        "Set Theory & Venn Diagrams": ["Union–Intersection", "Complement & Difference of Sets", "Problems on 2–3 sets"]
+        "Set Theory and Venn Diagram": ["Union and Intersection", "Complement and Difference of Sets", "Multi Set Problems"]
     }
 }
 
