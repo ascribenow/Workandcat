@@ -719,9 +719,14 @@ async def start_session(
         logger.info(f"Starting sophisticated session for user {current_user.id}")
         
         # Use adaptive session logic for sophisticated dual-dimension diversity enforcement
-        session_result = adaptive_session_logic.create_personalized_session(
-            current_user.id, db
-        )
+        # Note: Using synchronous database session for adaptive logic compatibility
+        sync_db = get_database()
+        try:
+            session_result = adaptive_session_logic.create_personalized_session(
+                current_user.id, sync_db
+            )
+        finally:
+            sync_db.close()
         
         questions = session_result["questions"]
         metadata = session_result["metadata"]
