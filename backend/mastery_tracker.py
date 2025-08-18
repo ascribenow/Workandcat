@@ -79,6 +79,197 @@ class MasteryTracker:
         except Exception as e:
             logger.error(f"Error updating mastery after attempt: {e}")
             await db.rollback()
+
+    async def update_type_mastery_after_attempt(self, db: AsyncSession, attempt: Attempt):
+        """Update type-level mastery after a question attempt (for three-phase adaptive system)"""
+        try:
+            # Get question to determine type information
+            question_result = await db.execute(select(Question).where(Question.id == attempt.question_id))
+            question = question_result.scalar_one_or_none()
+            
+            if not question:
+                logger.warning(f"No question found for attempt {attempt.id}")
+                return
+            
+            # Extract taxonomy triple
+            category = self.get_category_from_subcategory(question.subcategory or 'Unknown')
+            subcategory = question.subcategory or 'Unknown'
+            type_of_question = question.type_of_question or 'General'
+            
+            from database import TypeMastery
+            
+            # Get or create type mastery record
+            type_mastery_result = await db.execute(
+                select(TypeMastery).where(
+                    TypeMastery.user_id == attempt.user_id,
+                    TypeMastery.category == category,
+                    TypeMastery.subcategory == subcategory,
+                    TypeMastery.type_of_question == type_of_question
+                )
+            )
+            type_mastery = type_mastery_result.scalar_one_or_none()
+            
+            if not type_mastery:
+                type_mastery = TypeMastery(
+                    user_id=attempt.user_id,
+                    category=category,
+                    subcategory=subcategory,
+                    type_of_question=type_of_question,
+                    total_attempts=0,
+                    correct_attempts=0,
+                    accuracy_rate=0,
+                    avg_time_taken=0,
+                    mastery_score=0,
+                    first_attempt_date=datetime.utcnow(),
+                    last_attempt_date=datetime.utcnow(),
+                    last_updated=datetime.utcnow()
+                )
+                db.add(type_mastery)
+                await db.flush()
+            
+            # Update type mastery with this attempt
+            await self.update_type_mastery_scores(db, type_mastery, attempt)
+            
+            await db.commit()
+            logger.info(f"Updated type mastery for user {attempt.user_id}: {category}>{subcategory}>{type_of_question}")
+            
+        except Exception as e:
+            logger.error(f"Error updating type mastery after attempt: {e}")
+            await db.rollback()
+
+    async def update_type_mastery_scores(self, db: AsyncSession, type_mastery, attempt: Attempt):
+        """Update type-level mastery scores based on attempt"""
+        try:
+            # Update attempt counts
+            type_mastery.total_attempts += 1
+            if attempt.is_correct:
+                type_mastery.correct_attempts += 1
+            
+            # Calculate new accuracy rate
+            type_mastery.accuracy_rate = type_mastery.correct_attempts / type_mastery.total_attempts if type_mastery.total_attempts > 0 else 0
+            
+            # Update average time (EWMA with alpha=0.3)
+            if attempt.time_taken:
+                if type_mastery.avg_time_taken > 0:
+                    type_mastery.avg_time_taken = 0.3 * attempt.time_taken + 0.7 * type_mastery.avg_time_taken
+                else:
+                    type_mastery.avg_time_taken = attempt.time_taken
+            
+            # Calculate mastery score (combination of accuracy and efficiency)
+            accuracy_component = float(type_mastery.accuracy_rate)
+            
+            # Efficiency component based on time
+            efficiency_component = 1.0  # Default to full efficiency
+            if type_mastery.avg_time_taken > 0:
+                # Assume target time is 120 seconds
+                target_time = 120
+                if type_mastery.avg_time_taken <= target_time:
+                    efficiency_component = 1.0
+                else:
+                    efficiency_component = max(0.3, target_time / type_mastery.avg_time_taken)
+            
+            # Combined mastery score (70% accuracy, 30% efficiency)
+            type_mastery.mastery_score = 0.7 * accuracy_component + 0.3 * efficiency_component
+            
+            # Update timestamps
+            type_mastery.last_attempt_date = datetime.utcnow()
+            type_mastery.last_updated = datetime.utcnow()
+            
+            logger.debug(f"Type mastery updated: Accuracy={type_mastery.accuracy_rate:.2f}, Mastery={type_mastery.mastery_score:.2f}")
+            
+        except Exception as e:
+            logger.error(f"Error updating type mastery scores: {e}")
+
+    def get_category_from_subcategory(self, subcategory: str) -> str:
+        """Map subcategory to canonical category for type mastery tracking"""
+        try:
+            # Canonical mapping based on the taxonomy
+            canonical_mapping = {
+                # Arithmetic
+                "Time-Speed-Distance": "Arithmetic",
+                "Time-Work": "Arithmetic", 
+                "Ratios and Proportions": "Arithmetic",
+                "Percentages": "Arithmetic",
+                "Averages and Alligation": "Arithmetic",
+                "Profit-Loss-Discount": "Arithmetic",
+                "Simple and Compound Interest": "Arithmetic",
+                "Mixtures and Solutions": "Arithmetic",
+                "Partnerships": "Arithmetic",
+                
+                # Algebra
+                "Linear Equations": "Algebra",
+                "Quadratic Equations": "Algebra", 
+                "Inequalities": "Algebra",
+                "Progressions": "Algebra",
+                "Functions and Graphs": "Algebra",
+                "Logarithms and Exponents": "Algebra",
+                "Special Algebraic Identities": "Algebra",
+                "Maxima and Minima": "Algebra",
+                "Special Polynomials": "Algebra",
+                
+                # Geometry and Mensuration
+                "Triangles": "Geometry and Mensuration",
+                "Circles": "Geometry and Mensuration",
+                "Polygons": "Geometry and Mensuration",
+                "Lines and Angles": "Geometry and Mensuration",
+                "Coordinate Geometry": "Geometry and Mensuration",
+                "Mensuration 2D": "Geometry and Mensuration", 
+                "Mensuration 3D": "Geometry and Mensuration",
+                
+                # Number System
+                "Divisibility": "Number System",
+                "HCF-LCM": "Number System",
+                "Remainders": "Number System",
+                "Base Systems": "Number System",
+                "Digit Properties": "Number System",
+                "Number Properties": "Number System",
+                "Number Series": "Number System", 
+                "Factorials": "Number System",
+                
+                # Modern Math
+                "Permutation-Combination": "Modern Math",
+                "Probability": "Modern Math",
+                "Set Theory and Venn Diagram": "Modern Math"
+            }
+            
+            return canonical_mapping.get(subcategory, "Arithmetic")  # Default to Arithmetic
+            
+        except Exception as e:
+            logger.error(f"Error mapping subcategory to category: {e}")
+            return "Arithmetic"
+
+    async def get_type_mastery_breakdown(self, db: AsyncSession, user_id: str) -> List[Dict[str, Any]]:
+        """Get detailed type-level mastery breakdown for user"""
+        try:
+            from database import TypeMastery
+            
+            result = await db.execute(
+                select(TypeMastery).where(TypeMastery.user_id == user_id)
+                .order_by(TypeMastery.category, TypeMastery.subcategory, TypeMastery.type_of_question)
+            )
+            type_masteries = result.scalars().all()
+            
+            breakdown = []
+            for tm in type_masteries:
+                breakdown.append({
+                    'category': tm.category,
+                    'subcategory': tm.subcategory, 
+                    'type_of_question': tm.type_of_question,
+                    'total_attempts': tm.total_attempts,
+                    'correct_attempts': tm.correct_attempts,
+                    'accuracy_rate': float(tm.accuracy_rate) if tm.accuracy_rate else 0,
+                    'mastery_score': float(tm.mastery_score) if tm.mastery_score else 0,
+                    'mastery_percentage': float(tm.mastery_score * 100) if tm.mastery_score else 0,
+                    'avg_time_taken': float(tm.avg_time_taken) if tm.avg_time_taken else 0,
+                    'last_attempt_date': tm.last_attempt_date.isoformat() if tm.last_attempt_date else None
+                })
+            
+            logger.info(f"Retrieved {len(breakdown)} type mastery records for user {user_id}")
+            return breakdown
+            
+        except Exception as e:
+            logger.error(f"Error getting type mastery breakdown: {e}")
+            return []
     
     async def update_mastery_scores(self, db: AsyncSession, mastery: Mastery, 
                                   attempt: Attempt, question: Question):
