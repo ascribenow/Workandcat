@@ -615,7 +615,7 @@ Please provide:
         
         # Default video URLs for major topics (placeholder URLs)
         default_videos = {
-            "Time–Speed–Distance (TSD)": "https://youtube.com/watch?v=tsd_basics",
+            "Time-Speed-Distance": "https://youtube.com/watch?v=tsd_basics",
             "Percentages": "https://youtube.com/watch?v=percentage_tricks",
             "Linear Equations": "https://youtube.com/watch?v=linear_equations",
             "Quadratic Equations": "https://youtube.com/watch?v=quadratic_solving"
