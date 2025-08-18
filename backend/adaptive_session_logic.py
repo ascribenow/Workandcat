@@ -136,7 +136,7 @@ class AdaptiveSessionLogic:
             logger.info(f"Dynamic distribution: {dynamic_distribution}")
             
             # Step 3: Get PYQ frequency-weighted question pool
-            question_pool = self.get_pyq_weighted_question_pool(user_profile, db)
+            question_pool = self.get_pyq_weighted_question_pool(user_id, user_profile, db)
             
             if len(question_pool) < 12:
                 logger.warning(f"Limited question pool ({len(question_pool)}), falling back to simple selection")
