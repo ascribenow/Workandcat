@@ -1056,10 +1056,33 @@ class AdaptiveSessionLogic:
             }
 
     def get_category_from_subcategory(self, subcategory: str) -> str:
-        """Map subcategory to main category"""
+        """Map subcategory to canonical category"""
+        if not subcategory:
+            return "Arithmetic"  # Default fallback
+        
+        # Direct mapping based on canonical taxonomy
         for category, subcategories in self.canonical_subcategories.items():
             if subcategory in subcategories:
                 return category
+        
+        # Legacy compatibility mapping for old subcategory names
+        legacy_mapping = {
+            "Time–Speed–Distance (TSD)": "Arithmetic",
+            "Time & Work": "Arithmetic", 
+            "Speed-Time-Distance": "Arithmetic",
+            "Basic Arithmetic": "Arithmetic",
+            "Powers and Roots": "Algebra",
+            "Perimeter and Area": "Geometry and Mensuration",
+            "Basic Operations": "Number System",
+            "HCF–LCM": "Number System",
+            "Remainders & Modular Arithmetic": "Number System",
+            "Permutation–Combination (P&C)": "Modern Math",
+            "Set Theory & Venn Diagrams": "Modern Math"
+        }
+        
+        if subcategory in legacy_mapping:
+            return legacy_mapping[subcategory]
+            
         return "Arithmetic"  # Default fallback
 
     async def create_simple_fallback_session(self, user_id: str, db: AsyncSession) -> Dict[str, Any]:
