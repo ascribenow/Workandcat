@@ -104,17 +104,23 @@ class CanonicalTaxonomyUpdater:
             raise
 
     async def ensure_category_exists(self, db_session, category_name):
-        """Ensure category exists in database"""
+        """Ensure category exists in database as a parent Topic"""
         try:
-            # Check if category exists
+            # Check if category exists as a parent topic
             result = await db_session.execute(
-                select(Category).where(Category.name == category_name)
+                select(Topic).where(Topic.name == category_name, Topic.parent_id.is_(None))
             )
             category = result.scalar_one_or_none()
             
             if not category:
-                # Create new category
-                new_category = Category(name=category_name)
+                # Create new category as parent topic
+                import uuid
+                new_category = Topic(
+                    name=category_name,
+                    slug=category_name.lower().replace(' ', '_').replace('&', 'and'),
+                    category=category_name,
+                    parent_id=None
+                )
                 db_session.add(new_category)
                 await db_session.flush()  # Get the ID
                 
