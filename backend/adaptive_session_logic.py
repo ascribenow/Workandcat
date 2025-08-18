@@ -1750,6 +1750,64 @@ class AdaptiveSessionLogic:
             logger.error(f"Error getting fallback question pool: {e}")
             return []
 
+    def get_category_from_subcategory(self, subcategory: str) -> str:
+        """Map subcategory to canonical category"""
+        try:
+            # Canonical mapping based on the taxonomy  
+            canonical_mapping = {
+                # Arithmetic
+                "Time-Speed-Distance": "Arithmetic",
+                "Time-Work": "Arithmetic", 
+                "Ratios and Proportions": "Arithmetic",
+                "Percentages": "Arithmetic",
+                "Averages and Alligation": "Arithmetic",
+                "Profit-Loss-Discount": "Arithmetic",
+                "Simple and Compound Interest": "Arithmetic",
+                "Mixtures and Solutions": "Arithmetic",
+                "Partnerships": "Arithmetic",
+                
+                # Algebra
+                "Linear Equations": "Algebra",
+                "Quadratic Equations": "Algebra", 
+                "Inequalities": "Algebra",
+                "Progressions": "Algebra",
+                "Functions and Graphs": "Algebra",
+                "Logarithms and Exponents": "Algebra",
+                "Special Algebraic Identities": "Algebra",
+                "Maxima and Minima": "Algebra",
+                "Special Polynomials": "Algebra",
+                
+                # Geometry and Mensuration
+                "Triangles": "Geometry and Mensuration",
+                "Circles": "Geometry and Mensuration",
+                "Polygons": "Geometry and Mensuration",
+                "Lines and Angles": "Geometry and Mensuration",
+                "Coordinate Geometry": "Geometry and Mensuration",
+                "Mensuration 2D": "Geometry and Mensuration", 
+                "Mensuration 3D": "Geometry and Mensuration",
+                
+                # Number System
+                "Divisibility": "Number System",
+                "HCF-LCM": "Number System",
+                "Remainders": "Number System",
+                "Base Systems": "Number System",
+                "Digit Properties": "Number System",
+                "Number Properties": "Number System",
+                "Number Series": "Number System", 
+                "Factorials": "Number System",
+                
+                # Modern Math
+                "Permutation-Combination": "Modern Math",
+                "Probability": "Modern Math",
+                "Set Theory and Venn Diagram": "Modern Math"
+            }
+            
+            return canonical_mapping.get(subcategory, "Arithmetic")  # Default to Arithmetic
+            
+        except Exception as e:
+            logger.error(f"Error mapping subcategory to category: {e}")
+            return "Arithmetic"
+
     def generate_enhanced_session_metadata(
         self, 
         questions: List[Question], 
