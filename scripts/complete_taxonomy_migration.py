@@ -186,10 +186,19 @@ def migrate_questions_to_canonical(db: Session):
             original_subcategory, original_type
         )
         
-        # Find the topic ID for canonical subcategory
+        # Find the topic ID for canonical subcategory (check both old and new category format)
         topic = db.query(Topic).filter(
-            Topic.name == canonical_subcategory,
-            Topic.category == canonical_category
+            Topic.name == canonical_subcategory
+        ).filter(
+            or_(
+                Topic.category == canonical_category,
+                Topic.category == f"A-{canonical_category}" if canonical_category == "Arithmetic" else Topic.category,
+                Topic.category == f"B-{canonical_category}" if canonical_category == "Algebra" else Topic.category,
+                Topic.category == f"C-{canonical_category}" if canonical_category == "Geometry and Mensuration" else Topic.category,
+                Topic.category == f"D-{canonical_category}" if canonical_category == "Number System" else Topic.category,
+                Topic.category == f"E-{canonical_category}" if canonical_category == "Modern Math" else Topic.category,
+                Topic.category.like(f"%{canonical_category}%")
+            )
         ).first()
         
         if topic:
