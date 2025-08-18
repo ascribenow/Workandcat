@@ -1,10 +1,14 @@
 """
-Sophisticated 12-Question Session Logic - PHASE 1 ENHANCED
+Sophisticated 12-Question Session Logic - THREE-PHASE ADAPTIVE ENHANCED
 Adaptive, personalized question selection with:
 - PYQ frequency integration
-- Dynamic category quotas
+- Dynamic category quotas  
 - Subcategory diversity caps
 - Differential cooldowns
+- THREE-PHASE ADAPTIVE PROGRESSION:
+  * Phase A (Sessions 1-30): Coverage & Calibration
+  * Phase B (Sessions 31-60): Strengthen & Stretch  
+  * Phase C (Sessions 61+): Fully Adaptive
 """
 
 import json
