@@ -23,8 +23,10 @@ logger = logging.getLogger(__name__)
 
 class AdaptiveSessionLogic:
     """
-    PHASE 1 ENHANCED: Sophisticated session logic with PYQ frequency integration
-    and advanced selection strategies
+    THREE-PHASE ADAPTIVE ENHANCED: Sophisticated session logic with phase-based progression
+    Phase A (1-30): Coverage & Calibration
+    Phase B (31-60): Strengthen & Stretch
+    Phase C (61+): Fully Adaptive
     """
     
     def __init__(self):
@@ -37,6 +39,32 @@ class AdaptiveSessionLogic:
             "Modern Math": 1                    # 8% - Combinatorics and probability
         }
         
+        # THREE-PHASE DIFFICULTY DISTRIBUTIONS
+        self.phase_difficulty_distributions = {
+            "phase_a": {  # Sessions 1-30: Coverage & Calibration
+                "Easy": 0.2,      # 20%
+                "Medium": 0.75,   # 75% 
+                "Hard": 0.05      # 5%
+            },
+            "phase_b": {  # Sessions 31-60: Strengthen & Stretch
+                "Easy": 0.2,      # 20%
+                "Medium": 0.5,    # 50%
+                "Hard": 0.3       # 30%
+            },
+            "phase_c": {  # Sessions 61+: Fully Adaptive
+                "Easy": 0.15,     # 15%
+                "Medium": 0.55,   # 55%
+                "Hard": 0.3       # 30%
+            }
+        }
+        
+        # Phase allocation percentages for Phase B
+        self.phase_b_allocation = {
+            "weak_areas_easy_medium": 0.45,  # 45% target weak areas with Easy→Medium
+            "strong_areas_hard": 0.35,       # 35% target strong areas with Hard
+            "authentic_distribution": 0.2    # 20% maintain CAT-authentic distribution
+        }
+        
         # PHASE 1: Differential cooldown periods by difficulty (RELAXED FOR TESTING)
         self.cooldown_periods = {
             "Easy": 0,      # No cooldown for now
@@ -45,8 +73,9 @@ class AdaptiveSessionLogic:
         }
         
         # PHASE 1: Subcategory diversity limits (RELAXED FOR LIMITED QUESTION POOL)
-        self.max_questions_per_subcategory = 12  # Allow all questions from single subcategory if needed
-        self.min_subcategories_per_session = 1   # Allow single subcategory sessions if needed
+        self.max_questions_per_subcategory = 5  # Max 5 per subcategory for diversity
+        self.min_subcategories_per_session = 3  # Target minimum 3 subcategories per session
+        self.max_questions_per_type_in_subcategory = 3  # Max 3 per type within subcategory
         
         # Updated canonical taxonomy based on provided CSV document
         self.canonical_subcategories = {
