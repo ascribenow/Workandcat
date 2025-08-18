@@ -1175,6 +1175,27 @@ class AdaptiveSessionLogic:
                 category_type_key = f"{category}::{question.subcategory}::{question_type}"
                 category_type_distribution[category_type_key] = category_type_distribution.get(category_type_key, 0) + 1
 
+            # Dual-dimension diversity analysis
+            subcategory_type_distribution = {}
+            subcategory_caps_analysis = {}
+            type_within_subcategory_analysis = {}
+            
+            for question in questions:
+                subcategory = question.subcategory or 'Unknown'
+                question_type = question.type_of_question or 'General'
+                
+                # Subcategory-Type combination analysis for dual-dimension tracking
+                subcategory_type_key = f"{subcategory}::{question_type}"
+                subcategory_type_distribution[subcategory_type_key] = subcategory_type_distribution.get(subcategory_type_key, 0) + 1
+                
+                # Subcategory caps analysis (max 5 per subcategory)
+                subcategory_caps_analysis[subcategory] = subcategory_caps_analysis.get(subcategory, 0) + 1
+                
+                # Type within subcategory analysis
+                if subcategory not in type_within_subcategory_analysis:
+                    type_within_subcategory_analysis[subcategory] = {}
+                type_within_subcategory_analysis[subcategory][question_type] = type_within_subcategory_analysis[subcategory].get(question_type, 0) + 1
+            
             # Enhanced metadata
             metadata = {
                 'learning_stage': user_profile.get('learning_stage', 'unknown'),
