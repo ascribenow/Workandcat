@@ -652,17 +652,18 @@ class CATBackendTester:
         student_token = response['access_token']
         student_headers = {'Content-Type': 'application/json', 'Authorization': f'Bearer {student_token}'}
         
+        # Focus on the specific fixes mentioned in review request
         three_phase_results = {
-            "phase_determination_logic": False,
-            "phase_a_session_generation": False,
-            "phase_b_session_generation": False,
-            "phase_c_session_generation": False,
-            "type_level_mastery_tracking": False,
-            "enhanced_session_telemetry": False,
-            "api_mastery_type_breakdown": False,
-            "session_progression_testing": False,
-            "phase_metadata_validation": False,
-            "difficulty_distribution_validation": False
+            "phase_info_field_populated": False,
+            "phase_a_difficulty_distribution_correct": False,
+            "type_mastery_records_created": False,
+            "api_mastery_type_breakdown_working": False,
+            "session_metadata_has_phase_info": False,
+            "session_import_confusion_fixed": False,
+            "get_category_from_subcategory_working": False,
+            "coverage_selection_debugging_enhanced": False,
+            "database_schema_typemastery_updated": False,
+            "phase_transitions_working": False
         }
         
         # TEST 1: Phase Determination Logic
