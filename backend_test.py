@@ -1055,32 +1055,48 @@ class CATBackendTester:
 
 def main():
     """Main test execution"""
-    print("🚀 STARTING CANONICAL TAXONOMY UPDATE TESTING")
+    print("🚀 STARTING CANONICAL TAXONOMY DATABASE COMPLETION")
     print("=" * 60)
     
     tester = CATBackendTester()
     
-    # Run the canonical taxonomy update test
-    success = tester.test_canonical_taxonomy_update()
+    # First run the database completion test to add missing elements
+    print("PHASE 1: COMPLETING CANONICAL TAXONOMY DATABASE")
+    completion_success = tester.test_canonical_taxonomy_database_completion()
+    
+    print("\n" + "=" * 60)
+    print("PHASE 2: VERIFYING CANONICAL TAXONOMY UPDATE")
+    print("=" * 60)
+    
+    # Then run the verification test
+    verification_success = tester.test_canonical_taxonomy_update()
     
     print("\n" + "=" * 60)
     print("FINAL TEST SUMMARY")
     print("=" * 60)
     
-    if success:
-        print("✅ CANONICAL TAXONOMY UPDATE: SUCCESSFUL")
-        print("   Database updated with new taxonomy structure")
-        print("   New subcategories added and working")
-        print("   Question classification system operational")
-        print("   LLM enrichment working with new taxonomy")
-        print("   12-question sessions functional")
-    else:
-        print("❌ CANONICAL TAXONOMY UPDATE: FAILED")
-        print("   🚨 URGENT ACTION REQUIRED")
-        print("   Database may not be fully updated")
-        print("   Question enrichment system may have issues")
+    overall_success = completion_success and verification_success
     
-    return success
+    if overall_success:
+        print("🎉 CANONICAL TAXONOMY DATABASE COMPLETION: SUCCESSFUL")
+        print("   ✅ All missing parent topics added to database")
+        print("   ✅ All missing subcategories added to database")
+        print("   ✅ Question classification system operational with complete taxonomy")
+        print("   ✅ Database integrity verified")
+        print("   ✅ Canonical taxonomy migration COMPLETE")
+    elif completion_success:
+        print("⚠️ CANONICAL TAXONOMY DATABASE: PARTIALLY SUCCESSFUL")
+        print("   ✅ Database completion successful")
+        print("   ⚠️ Some verification tests may need attention")
+        print("   📝 Core taxonomy elements are in place")
+    else:
+        print("❌ CANONICAL TAXONOMY DATABASE COMPLETION: FAILED")
+        print("   🚨 URGENT ACTION REQUIRED")
+        print("   ❌ Missing parent topics not added")
+        print("   ❌ Missing subcategories not added")
+        print("   ❌ Question enrichment system cannot work properly")
+    
+    return overall_success
 
 if __name__ == "__main__":
     success = main()
