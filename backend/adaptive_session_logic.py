@@ -449,7 +449,7 @@ class AdaptiveSessionLogic:
         else:  # advanced
             return {"Easy": 2, "Medium": 4, "Hard": 6}  # Challenge focused
 
-    def get_pyq_weighted_question_pool(self, user_id: str, user_profile: Dict, db: Session, target_size: int = 30) -> List[Question]:
+    def get_pyq_weighted_question_pool(self, user_id: str, user_profile: Dict, db: Session, target_size: int = 50) -> List[Question]:
         """
         Get a diverse, weighted question pool for dual-dimension diversity enforcement
         Priority: Ensure subcategory diversity in pool FIRST, then PYQ weighting within subcategories
