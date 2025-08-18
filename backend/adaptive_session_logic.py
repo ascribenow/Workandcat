@@ -706,7 +706,7 @@ class AdaptiveSessionLogic:
             logger.error(f"Error in PYQ-weighted difficulty selection: {e}")
             return questions[:12]  # Fallback to first 12 questions
 
-    async def apply_differential_cooldown_filter(
+    def apply_differential_cooldown_filter(
         self, 
         user_id: str, 
         questions: List[Question], 
