@@ -1753,60 +1753,86 @@ class AdaptiveSessionLogic:
             return "Medium"  # Safe default
 
     def enhance_question_pool_with_artificial_difficulty(self, questions: List[Question], target_easy: int, target_medium: int, target_hard: int) -> List[Question]:
-        """Enhance question pool by artificially balancing difficulties if needed"""
+        """Enhance question pool by artificially balancing difficulties using stratified sampling"""
         try:
-            # Categorize existing questions by difficulty
-            easy_questions = []
-            medium_questions = []
-            hard_questions = []
+            logger.info(f"Applying stratified difficulty balancing: Easy={target_easy}, Medium={target_medium}, Hard={target_hard}")
             
-            for q in questions:
-                difficulty = self.determine_question_difficulty(q)
-                if difficulty == "Easy":
-                    easy_questions.append(q)
-                elif difficulty == "Medium":
-                    medium_questions.append(q)
-                else:
-                    hard_questions.append(q)
+            # Sort questions by their natural difficulty score for stratified selection
+            sorted_questions = sorted(questions, key=lambda q: q.difficulty_score or 0.5)
+            total_questions = len(sorted_questions)
             
-            logger.info(f"Original pool: {len(easy_questions)} Easy, {len(medium_questions)} Medium, {len(hard_questions)} Hard")
+            if total_questions < 12:
+                logger.warning(f"Insufficient questions ({total_questions}) for stratified balancing")
+                return sorted_questions
             
-            # If we don't have enough variety, artificially redistribute some questions
+            # Implement proper stratified sampling based on research
+            # Divide questions into strata based on their relative position
+            strata_size = total_questions // 3
+            
+            # Create three strata
+            easy_stratum = sorted_questions[:strata_size]  # Lowest 1/3 by difficulty score
+            medium_stratum = sorted_questions[strata_size:2*strata_size]  # Middle 1/3
+            hard_stratum = sorted_questions[2*strata_size:]  # Highest 1/3
+            
+            logger.info(f"Strata sizes: Easy={len(easy_stratum)}, Medium={len(medium_stratum)}, Hard={len(hard_stratum)}")
+            
+            # Apply stratified sampling to meet targets
             enhanced_pool = []
             
-            # Add Easy questions (if not enough, convert some Medium to Easy)
-            if len(easy_questions) < target_easy and len(medium_questions) > target_medium:
-                needed = min(target_easy - len(easy_questions), len(medium_questions) - target_medium)
-                enhanced_pool.extend(easy_questions)
-                enhanced_pool.extend(medium_questions[:needed])  # These will be treated as Easy
-                medium_questions = medium_questions[needed:]
-                logger.info(f"Converted {needed} Medium questions to Easy for better distribution")
-            else:
-                enhanced_pool.extend(easy_questions[:target_easy])
+            # Sample from easy stratum (force these to be "Easy")
+            easy_sample = self.sample_from_stratum(easy_stratum, target_easy, "Easy")
+            enhanced_pool.extend(easy_sample)
             
-            # Add Medium questions
-            enhanced_pool.extend(medium_questions[:target_medium])
+            # Sample from medium stratum (force these to be "Medium")
+            medium_sample = self.sample_from_stratum(medium_stratum, target_medium, "Medium")
+            enhanced_pool.extend(medium_sample)
             
-            # Add Hard questions (if not enough, convert some Medium to Hard)  
-            if len(hard_questions) < target_hard and len(medium_questions) > len(enhanced_pool):
-                needed = min(target_hard - len(hard_questions), len(medium_questions) - (len(enhanced_pool) - len(easy_questions)))
-                enhanced_pool.extend(hard_questions)
-                enhanced_pool.extend(medium_questions[-needed:])  # These will be treated as Hard
-                logger.info(f"Converted {needed} Medium questions to Hard for better distribution")
-            else:
-                enhanced_pool.extend(hard_questions[:target_hard])
+            # Sample from hard stratum (force these to be "Hard")
+            hard_sample = self.sample_from_stratum(hard_stratum, target_hard, "Hard")
+            enhanced_pool.extend(hard_sample)
             
-            # Fill remaining slots with any available questions
-            remaining_questions = [q for q in questions if q not in enhanced_pool]
-            while len(enhanced_pool) < 12 and remaining_questions:
-                enhanced_pool.append(remaining_questions.pop(0))
+            # Fill remaining slots if needed
+            while len(enhanced_pool) < 12:
+                remaining_questions = [q for q in sorted_questions if q not in enhanced_pool]
+                if not remaining_questions:
+                    break
+                enhanced_pool.append(remaining_questions[0])
             
-            logger.info(f"Enhanced pool created: {len(enhanced_pool)} total questions")
+            logger.info(f"Stratified enhanced pool: {len(enhanced_pool)} questions created")
             return enhanced_pool[:12]
             
         except Exception as e:
-            logger.error(f"Error enhancing question pool: {e}")
+            logger.error(f"Error in stratified difficulty balancing: {e}")
             return questions[:12]
+
+    def sample_from_stratum(self, stratum: List[Question], target_count: int, forced_difficulty: str) -> List[Question]:
+        """Sample questions from a stratum and assign forced difficulty for artificial balancing"""
+        try:
+            if not stratum or target_count <= 0:
+                return []
+            
+            # If stratum has enough questions, randomly sample
+            if len(stratum) >= target_count:
+                import random
+                sampled = random.sample(stratum, target_count)
+            else:
+                # If not enough, take all and repeat some if needed
+                sampled = stratum.copy()
+                while len(sampled) < target_count and stratum:
+                    import random
+                    sampled.append(random.choice(stratum))
+            
+            # Mark these questions with forced difficulty for tracking
+            for question in sampled:
+                # Add a temporary attribute for artificial difficulty tracking
+                setattr(question, '_artificial_difficulty', forced_difficulty)
+            
+            logger.info(f"Sampled {len(sampled)} questions for {forced_difficulty} difficulty")
+            return sampled[:target_count]
+            
+        except Exception as e:
+            logger.error(f"Error sampling from stratum: {e}")
+            return []
 
     def get_fallback_question_pool(self, db: Session) -> List[Question]:
         """Get fallback question pool when specialized pools fail"""
