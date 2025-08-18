@@ -517,7 +517,7 @@ class AdaptiveSessionLogic:
             logger.error(f"Error getting PYQ weighted question pool: {e}")
             return []
 
-    async def apply_enhanced_selection_strategies(
+    def apply_enhanced_selection_strategies(
         self, 
         user_id: str, 
         user_profile: Dict, 
@@ -537,12 +537,12 @@ class AdaptiveSessionLogic:
             )
             
             # Strategy 2: Difficulty-balanced selection with PYQ weighting
-            difficulty_questions = await self.select_by_difficulty_with_pyq_weighting(
+            difficulty_questions = self.select_by_difficulty_with_pyq_weighting(
                 category_questions, user_profile
             )
             
             # Strategy 3: PHASE 1 - Enhanced differential cooldown filter
-            cooled_questions = await self.apply_differential_cooldown_filter(
+            cooled_questions = self.apply_differential_cooldown_filter(
                 user_id, difficulty_questions, db
             )
             
