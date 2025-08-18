@@ -63,7 +63,11 @@ class CanonicalTaxonomyUpdater:
         print("=" * 60)
         
         try:
-            async for db_session in get_async_compatible_db():
+            # Get database session
+            db_gen = get_async_compatible_db()
+            db_session = await db_gen.__anext__()
+            
+            try:
                 # Update categories and subcategories
                 for category_name, subcategories in self.canonical_taxonomy.items():
                     await self.ensure_category_exists(db_session, category_name)
@@ -72,8 +76,10 @@ class CanonicalTaxonomyUpdater:
                         await self.ensure_subcategory_exists(db_session, category_name, subcategory_name)
                 
                 await db_session.commit()
-                break  # Only process first session
-            
+                
+            finally:
+                await db_session.close()
+                
             # Print final statistics
             print("\n" + "=" * 60)
             print("🎉 CANONICAL TAXONOMY UPDATE COMPLETE!")
