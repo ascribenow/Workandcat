@@ -1715,18 +1715,21 @@ class AdaptiveSessionLogic:
             return 1  # Default to Medium order
 
     def determine_question_difficulty(self, question: Question) -> str:
-        """Determine question difficulty based on difficulty_score or difficulty_band"""
+        """Determine question difficulty based on difficulty_score or difficulty_band with enhanced logic"""
         try:
-            # First try difficulty_band if available
+            # First try difficulty_band if available and valid
             if hasattr(question, 'difficulty_band') and question.difficulty_band:
-                return question.difficulty_band
+                band = question.difficulty_band.strip()
+                if band in ['Easy', 'Medium', 'Hard']:
+                    return band
             
-            # Otherwise use difficulty_score
+            # Use difficulty_score with adjusted thresholds for better distribution
             difficulty_score = question.difficulty_score or 0.5
             
-            if difficulty_score < 0.4:
+            # Adjusted thresholds to create better distribution
+            if difficulty_score < 0.35:  # Lower threshold for Easy
                 return "Easy"
-            elif difficulty_score < 0.7:
+            elif difficulty_score < 0.75:  # Higher threshold for Medium  
                 return "Medium"
             else:
                 return "Hard"
@@ -1734,6 +1737,62 @@ class AdaptiveSessionLogic:
         except Exception as e:
             logger.error(f"Error determining question difficulty: {e}")
             return "Medium"  # Safe default
+
+    def enhance_question_pool_with_artificial_difficulty(self, questions: List[Question], target_easy: int, target_medium: int, target_hard: int) -> List[Question]:
+        """Enhance question pool by artificially balancing difficulties if needed"""
+        try:
+            # Categorize existing questions by difficulty
+            easy_questions = []
+            medium_questions = []
+            hard_questions = []
+            
+            for q in questions:
+                difficulty = self.determine_question_difficulty(q)
+                if difficulty == "Easy":
+                    easy_questions.append(q)
+                elif difficulty == "Medium":
+                    medium_questions.append(q)
+                else:
+                    hard_questions.append(q)
+            
+            logger.info(f"Original pool: {len(easy_questions)} Easy, {len(medium_questions)} Medium, {len(hard_questions)} Hard")
+            
+            # If we don't have enough variety, artificially redistribute some questions
+            enhanced_pool = []
+            
+            # Add Easy questions (if not enough, convert some Medium to Easy)
+            if len(easy_questions) < target_easy and len(medium_questions) > target_medium:
+                needed = min(target_easy - len(easy_questions), len(medium_questions) - target_medium)
+                enhanced_pool.extend(easy_questions)
+                enhanced_pool.extend(medium_questions[:needed])  # These will be treated as Easy
+                medium_questions = medium_questions[needed:]
+                logger.info(f"Converted {needed} Medium questions to Easy for better distribution")
+            else:
+                enhanced_pool.extend(easy_questions[:target_easy])
+            
+            # Add Medium questions
+            enhanced_pool.extend(medium_questions[:target_medium])
+            
+            # Add Hard questions (if not enough, convert some Medium to Hard)  
+            if len(hard_questions) < target_hard and len(medium_questions) > len(enhanced_pool):
+                needed = min(target_hard - len(hard_questions), len(medium_questions) - (len(enhanced_pool) - len(easy_questions)))
+                enhanced_pool.extend(hard_questions)
+                enhanced_pool.extend(medium_questions[-needed:])  # These will be treated as Hard
+                logger.info(f"Converted {needed} Medium questions to Hard for better distribution")
+            else:
+                enhanced_pool.extend(hard_questions[:target_hard])
+            
+            # Fill remaining slots with any available questions
+            remaining_questions = [q for q in questions if q not in enhanced_pool]
+            while len(enhanced_pool) < 12 and remaining_questions:
+                enhanced_pool.append(remaining_questions.pop(0))
+            
+            logger.info(f"Enhanced pool created: {len(enhanced_pool)} total questions")
+            return enhanced_pool[:12]
+            
+        except Exception as e:
+            logger.error(f"Error enhancing question pool: {e}")
+            return questions[:12]
 
     def get_fallback_question_pool(self, db: Session) -> List[Question]:
         """Get fallback question pool when specialized pools fail"""
