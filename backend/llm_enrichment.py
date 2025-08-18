@@ -86,10 +86,29 @@ class LLMEnrichmentPipeline:
         Generic LLM text analysis method for conceptual frequency analysis
         """
         try:
-            llm = LlmChat(api_key=self.llm_api_key)
-            messages = [UserMessage(content=prompt)]
-            response = await llm.achat(messages=messages, model="claude-3-5-sonnet-20241022")
-            return response.message.content
+            # Use direct API keys instead of emergent integrations
+            import openai
+            import anthropic
+            
+            openai_key = os.getenv('OPENAI_API_KEY')
+            anthropic_key = os.getenv('ANTHROPIC_API_KEY')
+            
+            if not openai_key or not anthropic_key:
+                logger.error("OpenAI or Anthropic API keys not found")
+                return "{}"  # Return empty JSON on error
+            
+            # Use OpenAI for analysis
+            openai.api_key = openai_key
+            client = openai.OpenAI(api_key=openai_key)
+            
+            response = client.chat.completions.create(
+                model="gpt-4o",
+                messages=[{"role": "user", "content": prompt}],
+                max_tokens=1000
+            )
+            
+            return response.choices[0].message.content
+            
         except Exception as e:
             logger.error(f"Error in LLM analyze_text: {e}")
             return "{}"  # Return empty JSON on error
