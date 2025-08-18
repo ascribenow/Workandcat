@@ -4277,14 +4277,14 @@ class CATBackendTester:
         return success_rate >= 80  # Higher threshold for final validation
 
 if __name__ == "__main__":
-    print("🚀 STARTING FOCUSED THREE-PHASE SYSTEM FIXES VALIDATION")
+    print("🚀 STARTING STRATIFIED DIFFICULTY DISTRIBUTION TESTING")
     print("=" * 80)
     
     tester = CATBackendTester()
     
-    # Run the focused test for three-phase system fixes
+    # Run the stratified difficulty distribution test based on review request
     try:
-        success = tester.test_three_phase_system_fixes()
+        success = tester.test_stratified_difficulty_distribution()
         
         print("\n" + "=" * 80)
         print("FINAL TEST SUMMARY")
@@ -4294,9 +4294,9 @@ if __name__ == "__main__":
         print(f"Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%" if tester.tests_run > 0 else "No tests run")
         
         if success:
-            print("🎉 THREE-PHASE SYSTEM FIXES VALIDATION: PASSED")
+            print("🎉 STRATIFIED DIFFICULTY DISTRIBUTION TESTING: PASSED")
         else:
-            print("❌ THREE-PHASE SYSTEM FIXES VALIDATION: FAILED")
+            print("❌ STRATIFIED DIFFICULTY DISTRIBUTION TESTING: FAILED")
             
     except Exception as e:
         print(f"❌ Testing failed with error: {e}")
