@@ -1729,8 +1729,14 @@ class AdaptiveSessionLogic:
             return 1  # Default to Medium order
 
     def determine_question_difficulty(self, question: Question) -> str:
-        """Determine question difficulty based on difficulty_score or difficulty_band with enhanced logic"""
+        """Determine question difficulty with support for artificial difficulty assignment"""
         try:
+            # Check if question has artificial difficulty assigned (from stratified sampling)
+            if hasattr(question, '_artificial_difficulty'):
+                artificial_difficulty = getattr(question, '_artificial_difficulty')
+                logger.debug(f"Using artificial difficulty: {artificial_difficulty} for question")
+                return artificial_difficulty
+            
             # First try difficulty_band if available and valid
             if hasattr(question, 'difficulty_band') and question.difficulty_band:
                 band = question.difficulty_band.strip()
