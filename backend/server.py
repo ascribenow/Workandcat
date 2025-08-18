@@ -476,6 +476,7 @@ async def get_questions(
                 "solution_approach": q.solution_approach,
                 "detailed_solution": q.detailed_solution,
                 "subcategory": q.subcategory,
+                "type_of_question": q.type_of_question,  # Add Type field for taxonomy triple
                 "difficulty_band": q.difficulty_band,
                 "difficulty_score": float(q.difficulty_score) if q.difficulty_score else None,
                 "importance_index": float(q.importance_index) if q.importance_index else None,
