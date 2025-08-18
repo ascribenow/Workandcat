@@ -27,7 +27,11 @@ async def create_canonical_topics():
     print("=" * 60)
     
     try:
-        async for db in get_async_compatible_db():
+        # Get database session
+        db_gen = get_async_compatible_db()
+        db = await db_gen.__anext__()
+        
+        try:
             # Get existing topics
             result = await db.execute(select(Topic))
             existing_topics = result.scalars().all()
@@ -134,6 +138,9 @@ async def create_canonical_topics():
             print(f"   ✅ Question classification should now work properly")
             
             return True
+            
+        finally:
+            await db.close()
             
     except Exception as e:
         print(f"❌ Error creating canonical topics: {e}")
