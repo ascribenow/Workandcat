@@ -803,7 +803,7 @@ class AdaptiveSessionLogic:
                     existing_types = set(f"{self.get_category_from_subcategory(q.subcategory)}::{q.subcategory}::{q.type_of_question or 'General'}" for q in diverse_questions)
                     if type_key not in existing_types:
                         diverse_questions.append(question)
-                        if len(set(f"{self.get_category_from_subcategory(q.subcategory)}::{q.subcategory}::{q.type_of_question or 'General'}" for q in diverse_questions[:12])) >= 8:
+                        if len(set(f"{self.get_category_from_subcategory(q.subcategory)}::{q.subcategory}::{q.type_of_question or 'General'}" for q in diverse_questions[:12])) >= 3:
                             break
             
             final_unique_types = len(set(f"{self.get_category_from_subcategory(q.subcategory)}::{q.subcategory}::{q.type_of_question or 'General'}" for q in diverse_questions[:12]))
