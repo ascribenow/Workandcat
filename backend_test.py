@@ -4628,28 +4628,29 @@ class CATBackendTester:
         return success_rate >= 80  # Higher threshold for final validation
 
 if __name__ == "__main__":
-    print("🚀 STARTING STRATIFIED DIFFICULTY DISTRIBUTION TESTING")
+    print("🚀 CAT Backend Testing Suite - Quota-Based Difficulty Distribution")
     print("=" * 80)
     
     tester = CATBackendTester()
     
-    # Run the stratified difficulty distribution test based on review request
-    try:
-        success = tester.test_stratified_difficulty_distribution()
-        
-        print("\n" + "=" * 80)
-        print("FINAL TEST SUMMARY")
-        print("=" * 80)
-        print(f"Tests Run: {tester.tests_run}")
-        print(f"Tests Passed: {tester.tests_passed}")
-        print(f"Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%" if tester.tests_run > 0 else "No tests run")
-        
-        if success:
-            print("🎉 STRATIFIED DIFFICULTY DISTRIBUTION TESTING: PASSED")
-        else:
-            print("❌ STRATIFIED DIFFICULTY DISTRIBUTION TESTING: FAILED")
-            
-    except Exception as e:
-        print(f"❌ Testing failed with error: {e}")
-        import traceback
-        traceback.print_exc()
+    # Run the critical quota-based difficulty distribution test
+    print("\n🎯 RUNNING CRITICAL TEST: Quota-Based Difficulty Distribution Implementation")
+    success = tester.test_quota_based_difficulty_distribution()
+    
+    print(f"\n" + "=" * 80)
+    print("FINAL TEST SUMMARY")
+    print("=" * 80)
+    print(f"Tests Run: {tester.tests_run}")
+    print(f"Tests Passed: {tester.tests_passed}")
+    print(f"Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%" if tester.tests_run > 0 else "No tests run")
+    
+    if success:
+        print("🎉 QUOTA-BASED DIFFICULTY DISTRIBUTION: WORKING!")
+        print("✅ Phase A sessions implement M9/E2/H1 quota system successfully")
+        print("✅ Superior quota-based approach integrates with existing filters")
+    else:
+        print("❌ QUOTA-BASED DIFFICULTY DISTRIBUTION: NEEDS FIXES")
+        print("❌ Phase A sessions still showing 100% Medium distribution")
+        print("❌ Quota system not properly implemented")
+    
+    print("=" * 80)
