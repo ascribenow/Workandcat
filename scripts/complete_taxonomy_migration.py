@@ -17,6 +17,7 @@ sys.path.append('/app/backend')
 from database import *
 from llm_enrichment import CANONICAL_TAXONOMY
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy import or_
 import uuid
 import logging
 
