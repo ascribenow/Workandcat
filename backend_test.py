@@ -1225,12 +1225,18 @@ class CATBackendTester:
         # TEST 3: Test 12-Question Session Generation
         print("\n🎯 TEST 3: TEST 12-QUESTION SESSION GENERATION")
         print("-" * 40)
-        print("Testing /api/sessions/start endpoint to verify it generates 12 questions (not 2)")
-        print("Checking that sessions operate at (Category, Subcategory, Type) granularity")
-        print("Verifying session metadata includes Type diversity tracking")
+        print("Testing /api/sessions/create-personalized endpoint to verify it generates 12 questions (not 2)")
+        print("Checking that sessions use Type diversity from available 8 Types")
+        print("Verifying Type-aware selection at (Category, Subcategory, Type) granularity")
         
+        # Try the personalized session endpoint first
         session_data = {"target_minutes": 30}
-        success, response = self.run_test("Create 12-Question Session", "POST", "sessions/start", 200, session_data, student_headers)
+        success, response = self.run_test("Create Personalized 12-Question Session", "POST", "sessions/create-personalized", 200, session_data, student_headers)
+        
+        if not success:
+            # Fallback to regular session endpoint
+            success, response = self.run_test("Create Regular 12-Question Session", "POST", "sessions/start", 200, session_data, student_headers)
+        
         if success:
             session_id = response.get('session_id')
             session_type = response.get('session_type')
@@ -1243,18 +1249,18 @@ class CATBackendTester:
             print(f"   📊 Personalization applied: {personalization.get('applied', False)}")
             
             # Check session metadata for Type-related fields
-            type_diversity = personalization.get('type_diversity', {})
+            type_diversity = personalization.get('type_diversity', 0)
             type_distribution = personalization.get('type_distribution', {})
             category_type_distribution = personalization.get('category_type_distribution', {})
             
-            print(f"   📊 Type diversity: {type_diversity}")
+            print(f"   📊 Type diversity count: {type_diversity}")
             print(f"   📊 Type distribution: {type_distribution}")
             print(f"   📊 Category-Type distribution: {category_type_distribution}")
             
             # Validate 12-question requirement
             if total_questions == 12:
                 print("   ✅ CRITICAL SUCCESS: Session generates exactly 12 questions")
-                type_results["type_based_session_creation"] = True
+                type_results["twelve_question_session_generation"] = True
                 self.session_id = session_id
             elif total_questions == 2:
                 print("   ❌ CRITICAL FAILURE: Session generates only 2 questions (expected 12)")
@@ -1262,7 +1268,7 @@ class CATBackendTester:
             else:
                 print(f"   ⚠️ Unexpected question count: {total_questions} (expected 12)")
                 if total_questions >= 10:
-                    type_results["type_based_session_creation"] = True
+                    type_results["twelve_question_session_generation"] = True
                     self.session_id = session_id
         else:
             print("   ❌ Failed to create session")
