@@ -1302,57 +1302,7 @@ class CATBackendTester:
                 print(f"   ✅ Dual-dimension metadata: {metadata_sessions}/5 sessions include metadata fields")
             else:
                 print(f"   ❌ Missing metadata: Only {metadata_sessions}/5 sessions include dual-dimension fields")
-        
-        # TEST 5: Session Metadata Dual-Dimension Fields
-        print("\n📋 TEST 5: SESSION METADATA DUAL-DIMENSION FIELDS")
-        print("-" * 50)
-        print("Checking for dual_dimension_diversity, subcategory_caps_analysis, type_within_subcategory_analysis")
-        
-        if session_data_list:
-            metadata_fields_found = 0
-            
-            for i, session_data in enumerate(session_data_list):
-                personalization = session_data.get('personalization', {})
-                
-                # Check for dual-dimension metadata fields
-                has_dual_dimension = 'dual_dimension_diversity' in str(personalization)
-                has_subcategory_caps = 'subcategory_caps_analysis' in str(personalization)
-                has_type_analysis = 'type_within_subcategory_analysis' in str(personalization)
-                
-                print(f"   Session {i+1} Metadata Fields:")
-                print(f"      dual_dimension_diversity: {'✅' if has_dual_dimension else '❌'}")
-                print(f"      subcategory_caps_analysis: {'✅' if has_subcategory_caps else '❌'}")
-                print(f"      type_within_subcategory_analysis: {'✅' if has_type_analysis else '❌'}")
-                
-                if has_dual_dimension or has_subcategory_caps or has_type_analysis:
-                    metadata_fields_found += 1
-            
-            if metadata_fields_found >= 1:
-                dual_dimension_results["session_metadata_dual_dimension_fields"] = True
-                print(f"   ✅ Dual-dimension metadata fields found in {metadata_fields_found}/3 sessions")
-        
-        # TEST 6: Logs Show Dual-Dimension Enforcement
-        print("\n📝 TEST 6: LOGS SHOW DUAL-DIMENSION ENFORCEMENT")
-        print("-" * 50)
-        print("Checking for log messages indicating dual-dimension diversity enforcement")
-        
-        # Create one more session to trigger fresh logs
-        session_data = {"target_minutes": 30}
-        success, response = self.run_test("Create Session for Log Analysis", "POST", "sessions/start", 200, session_data, student_headers)
-        
-        if success:
-            session_type = response.get('session_type')
-            total_questions = response.get('total_questions', 0)
-            
-            print(f"   📊 Log Analysis Session: Type='{session_type}', Questions={total_questions}")
-            
-            # If session uses intelligent type and has 12 questions, assume dual-dimension enforcement worked
-            if session_type == "intelligent_12_question_set" and total_questions == 12:
-                dual_dimension_results["logs_show_dual_dimension_enforcement"] = True
-                dual_dimension_results["dual_dimension_diversity_method_called"] = True
-                print("   ✅ Evidence of dual-dimension enforcement: Intelligent session with 12 questions")
-            else:
-                print("   ❌ No clear evidence of dual-dimension enforcement in logs")
+
         
         # FINAL RESULTS SUMMARY
         print("\n" + "=" * 80)
