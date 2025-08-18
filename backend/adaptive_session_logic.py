@@ -448,73 +448,88 @@ class AdaptiveSessionLogic:
         else:  # advanced
             return {"Easy": 2, "Medium": 4, "Hard": 6}  # Challenge focused
 
-    def get_pyq_weighted_question_pool(self, user_id: str, user_profile: Dict, db: Session) -> List[Question]:
+    def get_pyq_weighted_question_pool(self, user_id: str, user_profile: Dict, db: Session, target_size: int = 30) -> List[Question]:
         """
-        PHASE 1: Get PYQ frequency-weighted personalized question pool
+        Get a diverse, weighted question pool for dual-dimension diversity enforcement
+        Priority: Ensure subcategory diversity in pool FIRST, then PYQ weighting within subcategories
         """
         try:
             question_pool = []
             
-            # Priority 1: Questions from weak areas (60% of pool) - PYQ weighted
-            if user_profile['weak_subcategories']:
-                weak_questions_result = db.execute(
+            # PHASE 1: Get diverse subcategory representation in pool
+            # Get all active subcategories first
+            subcategory_result = db.execute(
+                select(Question.subcategory).distinct()
+                .where(Question.is_active == True)
+            )
+            available_subcategories = [row[0] for row in subcategory_result.all() if row[0]]
+            
+            logger.info(f"Available subcategories for diversity: {len(available_subcategories)}")
+            
+            # PHASE 2: Get questions from each subcategory (diversity-first pool selection)
+            questions_per_subcategory = max(3, target_size // len(available_subcategories)) if available_subcategories else target_size
+            
+            for subcategory in available_subcategories:
+                # Get questions from this subcategory with PYQ weighting
+                subcategory_questions_result = db.execute(
                     select(Question)
                     .where(
                         and_(
                             Question.is_active == True,
-                            Question.subcategory.in_(user_profile['weak_subcategories'])
+                            Question.subcategory == subcategory
                         )
                     )
-                    .order_by(desc(Question.pyq_frequency_score), func.random())  # PYQ frequency weighted
-                    .limit(20)
+                    .order_by(desc(Question.pyq_frequency_score), func.random())
+                    .limit(questions_per_subcategory)
                 )
-                question_pool.extend(weak_questions_result.scalars().all())
+                subcategory_questions = subcategory_questions_result.scalars().all()
+                question_pool.extend(subcategory_questions)
+                
+                logger.info(f"Added {len(subcategory_questions)} questions from {subcategory}")
             
-            # Priority 2: Questions from moderate areas (30% of pool) - PYQ weighted
-            if user_profile['moderate_subcategories']:
-                moderate_questions_result = db.execute(
-                    select(Question)
-                    .where(
-                        and_(
-                            Question.is_active == True,
-                            Question.subcategory.in_(user_profile['moderate_subcategories'])
+            # PHASE 3: Fill remaining slots with high-priority questions if needed
+            if len(question_pool) < target_size:
+                # Priority 1: Questions from weak areas
+                if user_profile['weak_subcategories']:
+                    weak_questions_result = db.execute(
+                        select(Question)
+                        .where(
+                            and_(
+                                Question.is_active == True,
+                                Question.subcategory.in_(user_profile['weak_subcategories'])
+                            )
                         )
+                        .order_by(desc(Question.pyq_frequency_score), func.random())
+                        .limit(target_size - len(question_pool))
                     )
-                    .order_by(desc(Question.pyq_frequency_score), func.random())  # PYQ frequency weighted
-                    .limit(10)
-                )
-                question_pool.extend(moderate_questions_result.scalars().all())
+                    additional_questions = weak_questions_result.scalars().all()
+                    # Add only questions not already in pool
+                    existing_ids = {q.id for q in question_pool}
+                    for q in additional_questions:
+                        if q.id not in existing_ids:
+                            question_pool.append(q)
+                            if len(question_pool) >= target_size:
+                                break
             
-            # Priority 3: Questions from strong areas for retention (10% of pool) - PYQ weighted
-            if user_profile['strong_subcategories']:
-                strong_questions_result = db.execute(
-                    select(Question)
-                    .where(
-                        and_(
-                            Question.is_active == True,
-                            Question.subcategory.in_(user_profile['strong_subcategories'])
-                        )
-                    )
-                    .order_by(desc(Question.pyq_frequency_score), func.random())  # PYQ frequency weighted
-                    .limit(5)
-                )
-                question_pool.extend(strong_questions_result.scalars().all())
+            # PHASE 4: Final quality check and reporting
+            subcategory_distribution = {}
+            type_distribution = {}
             
-            # If not enough personalized questions, add PYQ-weighted random questions
-            if len(question_pool) < 25:
-                additional_questions_result = db.execute(
-                    select(Question)
-                    .where(Question.is_active == True)
-                    .order_by(desc(Question.pyq_frequency_score), func.random())  # PYQ frequency weighted
-                    .limit(30 - len(question_pool))
-                )
-                question_pool.extend(additional_questions_result.scalars().all())
+            for question in question_pool:
+                subcat = question.subcategory or 'Unknown'
+                qtype = question.type_of_question or 'Unknown'
+                subcategory_distribution[subcat] = subcategory_distribution.get(subcat, 0) + 1
+                type_distribution[qtype] = type_distribution.get(qtype, 0) + 1
             
-            logger.info(f"Generated PYQ-weighted pool with {len(question_pool)} questions")
+            logger.info(f"Diverse question pool created: {len(question_pool)} questions")
+            logger.info(f"Subcategory diversity in pool: {len(subcategory_distribution)} subcategories")
+            logger.info(f"Type diversity in pool: {len(type_distribution)} types")
+            logger.info(f"Pool subcategory distribution: {subcategory_distribution}")
+            
             return question_pool
             
         except Exception as e:
-            logger.error(f"Error getting PYQ weighted question pool: {e}")
+            logger.error(f"Error getting diverse PYQ weighted question pool: {e}")
             return []
 
     def apply_enhanced_selection_strategies(
