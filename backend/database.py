@@ -118,6 +118,9 @@ class Question(Base):
     pyq_occurrences_last_10_years = Column(Integer, default=0)
     total_pyq_count = Column(Integer, default=0)
     
+    # MCQ Options (stored during enrichment)
+    mcq_options = Column(Text, nullable=True)  # JSON string of MCQ options
+    
     # Metadata
     video_url = Column(Text, nullable=True)
     tags = Column(Text, default='[]')  # JSON string for SQLite
