@@ -27,6 +27,14 @@ async def clear_existing_questions(db: Session):
     try:
         logger.info("🗑️  Clearing existing questions database...")
         
+        # Clear attempts first (foreign key dependency)
+        attempts_deleted = db.query(Attempt).delete()
+        logger.info(f"Deleted {attempts_deleted} existing attempts")
+        
+        # Clear sessions (may reference questions)
+        sessions_deleted = db.query(StudySession).delete()
+        logger.info(f"Deleted {sessions_deleted} existing sessions")
+        
         # Delete all existing questions
         deleted_count = db.query(Question).delete()
         logger.info(f"Deleted {deleted_count} existing questions")
