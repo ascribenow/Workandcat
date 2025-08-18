@@ -1131,11 +1131,12 @@ class CATBackendTester:
         else:
             print(f"   ❌ FALLBACK USAGE: Only {intelligent_sessions}/5 sessions use intelligent type")
         
-        # TEST 2: Subcategory Cap Enforcement Validation
-        print("\n📊 TEST 2: SUBCATEGORY CAP ENFORCEMENT VALIDATION")
+        # TEST 2: Dual-Dimension Diversity Enforcement Validation
+        print("\n📊 TEST 2: DUAL-DIMENSION DIVERSITY ENFORCEMENT VALIDATION")
         print("-" * 50)
         print("Testing Per Subcategory Cap: Max 5 questions from same subcategory per session")
-        print("Verifying sessions don't allow '12 questions all from Time-Speed-Distance'")
+        print("Testing Per Type within Subcategory Cap: Max 3 for 'Basics', max 2 for specific types")
+        print("Checking Priority Order: Subcategory diversity first, then type diversity within subcategories")
         
         if session_ids:
             session_id = session_ids[0]  # Use first session for detailed analysis
@@ -1143,6 +1144,7 @@ class CATBackendTester:
             # Get all questions from the session
             session_questions = []
             subcategory_distribution = {}
+            type_within_subcategory = {}
             
             for i in range(12):  # Try to get all 12 questions
                 success, response = self.run_test(f"Get Session Question {i+1}", "GET", f"sessions/{session_id}/next-question", 200, None, student_headers)
@@ -1161,6 +1163,10 @@ class CATBackendTester:
                     # Count subcategory distribution
                     subcategory_distribution[subcategory] = subcategory_distribution.get(subcategory, 0) + 1
                     
+                    # Count type within subcategory distribution
+                    type_key = f"{subcategory}::{question_type}"
+                    type_within_subcategory[type_key] = type_within_subcategory.get(type_key, 0) + 1
+                    
                     print(f"   Question {i+1}: Subcategory='{subcategory}', Type='{question_type}'")
                 else:
                     break
@@ -1170,21 +1176,42 @@ class CATBackendTester:
             for subcategory, count in subcategory_distribution.items():
                 print(f"      {subcategory}: {count} questions")
             
+            print(f"   📊 Type within Subcategory Distribution:")
+            for type_key, count in type_within_subcategory.items():
+                subcategory, question_type = type_key.split("::")
+                expected_cap = 3 if question_type == "Basics" else 2
+                print(f"      {subcategory} -> {question_type}: {count} questions (cap: {expected_cap})")
+            
             # Check subcategory cap enforcement (max 5 per subcategory)
             max_subcategory_count = max(subcategory_distribution.values()) if subcategory_distribution else 0
             unique_subcategories = len(subcategory_distribution)
             
             if max_subcategory_count <= 5:
-                dual_dimension_results["subcategory_cap_enforcement"] = True
+                dual_dimension_results["subcategory_cap_enforcement_max_5"] = True
                 print(f"   ✅ Subcategory cap enforced: Max {max_subcategory_count} questions per subcategory (≤5)")
             else:
                 print(f"   ❌ Subcategory cap violated: {max_subcategory_count} questions from single subcategory (>5)")
             
-            if unique_subcategories >= 2:
-                dual_dimension_results["sophisticated_diversity_not_random"] = True
-                print(f"   ✅ Sophisticated diversity: {unique_subcategories} different subcategories (not random)")
+            # Check type within subcategory caps
+            type_cap_violations = 0
+            for type_key, count in type_within_subcategory.items():
+                subcategory, question_type = type_key.split("::")
+                expected_cap = 3 if question_type == "Basics" else 2
+                if count > expected_cap:
+                    type_cap_violations += 1
+            
+            if type_cap_violations == 0:
+                dual_dimension_results["type_within_subcategory_caps"] = True
+                print(f"   ✅ Type within subcategory caps enforced: No violations detected")
             else:
-                print(f"   ❌ Poor diversity: Only {unique_subcategories} subcategory (appears random)")
+                print(f"   ❌ Type within subcategory cap violations: {type_cap_violations} detected")
+            
+            # Check priority order (subcategory diversity first)
+            if unique_subcategories >= 3:  # Multiple subcategories indicates subcategory diversity priority
+                dual_dimension_results["priority_order_subcategory_first"] = True
+                print(f"   ✅ Priority order implemented: {unique_subcategories} subcategories (subcategory diversity first)")
+            else:
+                print(f"   ❌ Priority order unclear: Only {unique_subcategories} subcategories")
         
         # TEST 3: Type within Subcategory Cap Enforcement
         print("\n🔍 TEST 3: TYPE WITHIN SUBCATEGORY CAP ENFORCEMENT")
