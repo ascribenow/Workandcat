@@ -24,7 +24,8 @@ def add_mcq_column():
         
         # Add the column
         try:
-            db.execute("ALTER TABLE questions ADD COLUMN mcq_options TEXT")
+            from sqlalchemy import text
+            db.execute(text("ALTER TABLE questions ADD COLUMN mcq_options TEXT"))
             db.commit()
             logger.info("✅ Successfully added mcq_options column")
             return True
