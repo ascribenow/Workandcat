@@ -182,6 +182,125 @@ class AdaptiveSessionLogic:
             logger.error(f"Error creating three-phase adaptive session: {e}")
             return self.create_simple_fallback_session(user_id, db)
 
+    def get_coverage_weighted_question_pool(self, user_id: str, user_profile: Dict[str, Any], phase_info: Dict[str, Any], db: Session) -> List[Question]:
+        """Get question pool optimized for coverage phase - diverse subcategory-type combinations"""
+        try:
+            # Get all active questions
+            result = db.execute(
+                select(Question)
+                .where(Question.is_active == True)
+                .order_by(func.random())
+            )
+            all_questions = result.scalars().all()
+            
+            # Group by subcategory-type combinations for coverage
+            coverage_groups = {}
+            for question in all_questions:
+                subcategory = question.subcategory or 'Unknown'
+                question_type = question.type_of_question or 'General'
+                coverage_key = f"{subcategory}::{question_type}"
+                
+                if coverage_key not in coverage_groups:
+                    coverage_groups[coverage_key] = []
+                coverage_groups[coverage_key].append(question)
+            
+            # For coverage phase, select 1-2 questions from each unique combination
+            coverage_pool = []
+            for coverage_key, questions in coverage_groups.items():
+                # Take top 2 questions from each combination (sorted by difficulty/frequency)
+                sorted_questions = sorted(questions, key=lambda q: (
+                    q.difficulty_score or 0.5,  # Medium difficulty preference
+                    q.pyq_frequency_score or 0.5
+                ))[:2]
+                coverage_pool.extend(sorted_questions)
+            
+            logger.info(f"Coverage pool: {len(coverage_pool)} questions from {len(coverage_groups)} combinations")
+            return coverage_pool
+            
+        except Exception as e:
+            logger.error(f"Error getting coverage weighted question pool: {e}")
+            return self.get_fallback_question_pool(db)
+
+    def apply_coverage_selection_strategies(self, user_id: str, user_profile: Dict[str, Any], 
+                                           question_pool: List[Question], balanced_distribution: Dict[str, int], 
+                                           phase_info: Dict[str, Any], db: Session) -> List[Question]:
+        """Apply selection strategies optimized for coverage phase"""
+        try:
+            selected_questions = []
+            difficulty_dist = phase_info['difficulty_distribution']
+            
+            # Target questions per difficulty (based on phase A distribution)
+            easy_target = int(12 * difficulty_dist.get('Easy', 0.2))      # 20% = ~2 questions
+            medium_target = int(12 * difficulty_dist.get('Medium', 0.75)) # 75% = ~9 questions  
+            hard_target = int(12 * difficulty_dist.get('Hard', 0.05))     # 5% = ~1 question
+            
+            # Categorize questions by difficulty and category
+            questions_by_difficulty = {'Easy': [], 'Medium': [], 'Hard': []}
+            questions_by_category = {}
+            
+            for question in question_pool:
+                difficulty = self.determine_question_difficulty(question)
+                questions_by_difficulty[difficulty].append(question)
+                
+                category = self.get_category_from_subcategory(question.subcategory or '')
+                if category not in questions_by_category:
+                    questions_by_category[category] = []
+                questions_by_category[category].append(question)
+            
+            # Select questions based on coverage priorities
+            used_combinations = set()
+            
+            # First, select questions to meet difficulty targets while ensuring coverage
+            for difficulty, target_count in [('Medium', medium_target), ('Easy', easy_target), ('Hard', hard_target)]:
+                available_questions = questions_by_difficulty[difficulty]
+                selected_from_difficulty = 0
+                
+                for question in available_questions:
+                    if len(selected_questions) >= 12 or selected_from_difficulty >= target_count:
+                        break
+                    
+                    subcategory = question.subcategory or 'Unknown'
+                    question_type = question.type_of_question or 'General'
+                    combination = f"{subcategory}::{question_type}"
+                    
+                    # Prioritize new combinations for coverage
+                    if combination not in used_combinations:
+                        selected_questions.append(question)
+                        used_combinations.add(combination)
+                        selected_from_difficulty += 1
+            
+            # Fill remaining slots with diverse questions
+            while len(selected_questions) < 12 and question_pool:
+                for question in question_pool:
+                    if len(selected_questions) >= 12:
+                        break
+                    if question not in selected_questions:
+                        selected_questions.append(question)
+            
+            logger.info(f"Coverage selection: {len(selected_questions)} questions, {len(used_combinations)} unique combinations")
+            return selected_questions[:12]
+            
+        except Exception as e:
+            logger.error(f"Error applying coverage selection strategies: {e}")
+            return question_pool[:12]
+
+    def order_by_coverage_progression(self, questions: List[Question], phase_info: Dict[str, Any]) -> List[Question]:
+        """Order questions for coverage phase - Easy to Medium progression"""
+        try:
+            # Sort by difficulty (Easy → Medium → Hard) and subcategory diversity
+            ordered = sorted(questions, key=lambda q: (
+                self.get_difficulty_order(q),      # Easy=0, Medium=1, Hard=2
+                q.subcategory or 'ZZZ',            # Subcategory alphabetically
+                q.pyq_frequency_score or 0.5       # PYQ frequency
+            ))
+            
+            logger.info(f"Coverage progression: {len(ordered)} questions ordered Easy→Medium→Hard")
+            return ordered
+            
+        except Exception as e:
+            logger.error(f"Error ordering coverage progression: {e}")
+            return questions
+
     def create_coverage_phase_session(self, user_id: str, user_profile: Dict[str, Any], phase_info: Dict[str, Any], db: Session) -> Dict[str, Any]:
         """
         Phase A (Sessions 1-30): Coverage & Calibration
