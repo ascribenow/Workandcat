@@ -1177,6 +1177,23 @@ class CATBackendTester:
         
         return success_rate >= 70
 
+    def get_category_from_subcategory(self, subcategory):
+        """Helper method to map subcategory to canonical category"""
+        subcategory_lower = subcategory.lower()
+        
+        if any(term in subcategory_lower for term in ['time', 'speed', 'distance', 'percentage', 'ratio', 'profit', 'loss', 'interest', 'average', 'mixture']):
+            return "Arithmetic"
+        elif any(term in subcategory_lower for term in ['equation', 'algebra', 'progression', 'function', 'logarithm', 'inequality']):
+            return "Algebra"
+        elif any(term in subcategory_lower for term in ['triangle', 'circle', 'polygon', 'geometry', 'mensuration', 'coordinate']):
+            return "Geometry and Mensuration"
+        elif any(term in subcategory_lower for term in ['number', 'divisib', 'hcf', 'lcm', 'remainder', 'digit', 'base']):
+            return "Number System"
+        elif any(term in subcategory_lower for term in ['permutation', 'combination', 'probability', 'set', 'venn']):
+            return "Modern Math"
+        else:
+            return "Arithmetic"  # Default fallback
+
     def test_stratified_difficulty_distribution(self):
         """Test Stratified Difficulty Distribution - FINAL VERIFICATION from review request"""
         print("🎯 FINAL VERIFICATION: Stratified Difficulty Distribution")
