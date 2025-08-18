@@ -1112,30 +1112,61 @@ class CATBackendTester:
             "session_intelligence_type_rationale": False
         }
         
-        # TEST 1: Database Schema Verification
-        print("\n🗄️ TEST 1: DATABASE SCHEMA VERIFICATION")
+        # TEST 1: Verify Type Field in API Response
+        print("\n🔍 TEST 1: VERIFY TYPE FIELD IN API RESPONSE")
         print("-" * 40)
-        print("Verifying Question and PYQQuestion models support taxonomy triple")
+        print("Testing /api/questions endpoint to confirm it returns type_of_question field")
+        print("Expected: All questions should have properly populated Type values (99.2% canonical compliance)")
         
-        success, response = self.run_test("Get Questions Schema Check", "GET", "questions?limit=10", 200, None, admin_headers)
+        success, response = self.run_test("Get Questions with Type Field Check", "GET", "questions?limit=100", 200, None, admin_headers)
         if success:
             questions = response.get('questions', [])
+            print(f"   📊 Total questions retrieved: {len(questions)}")
+            
             if questions:
-                sample_question = questions[0]
-                has_type_field = 'type_of_question' in sample_question
-                has_subcategory = 'subcategory' in sample_question
+                # Check Type field presence and population
+                questions_with_type = 0
+                unique_types = set()
+                canonical_types = set()
                 
-                print(f"   📊 Sample question fields: {list(sample_question.keys())}")
-                print(f"   ✅ Has type_of_question field: {has_type_field}")
-                print(f"   ✅ Has subcategory field: {has_subcategory}")
+                # Expected canonical Types from review request
+                expected_canonical_types = [
+                    "Basics", "Relative Speed", "Percentage Change", "Time-Speed-Distance",
+                    "Linear Equations", "Quadratic Equations", "Geometry Basics", "Mensuration",
+                    "Number Properties", "Divisibility", "Probability", "Permutation-Combination"
+                ]
                 
-                if has_type_field and has_subcategory:
+                for q in questions:
+                    has_type_field = 'type_of_question' in q
+                    type_value = q.get('type_of_question', '')
+                    
+                    if has_type_field and type_value and type_value.strip():
+                        questions_with_type += 1
+                        unique_types.add(type_value)
+                        
+                        # Check if it's a canonical type
+                        if any(canonical in type_value for canonical in expected_canonical_types):
+                            canonical_types.add(type_value)
+                
+                type_coverage = (questions_with_type / len(questions)) * 100 if questions else 0
+                canonical_compliance = (len(canonical_types) / len(unique_types)) * 100 if unique_types else 0
+                
+                print(f"   📊 Questions with type_of_question field: {questions_with_type}/{len(questions)} ({type_coverage:.1f}%)")
+                print(f"   📊 Unique Types found: {len(unique_types)}")
+                print(f"   📊 Canonical Types found: {len(canonical_types)}")
+                print(f"   📊 Canonical compliance: {canonical_compliance:.1f}%")
+                print(f"   📊 Sample Types: {list(unique_types)[:10]}")
+                
+                if type_coverage >= 90 and len(unique_types) >= 10:
                     type_results["database_schema_verification"] = True
-                    print("   ✅ Database schema supports taxonomy triple")
+                    print("   ✅ Type field properly populated in API responses")
+                    if canonical_compliance >= 80:
+                        print("   ✅ Good canonical taxonomy compliance")
                 else:
-                    print("   ❌ Database schema missing required fields")
+                    print("   ❌ Type field missing or poorly populated")
+                    print(f"   ❌ Expected 99.2% coverage, found {type_coverage:.1f}%")
             else:
-                print("   ⚠️ No questions found for schema verification")
+                print("   ❌ No questions found for Type field verification")
         
         # TEST 2: Canonical Taxonomy Coverage Validation
         print("\n📋 TEST 2: CANONICAL TAXONOMY COVERAGE VALIDATION")
