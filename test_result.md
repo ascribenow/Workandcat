@@ -766,9 +766,9 @@ backend:
     implemented: true
     working: false
     file: "/app/backend/adaptive_session_logic.py"
-    stuck_count: 2
-    priority: "high"
-    needs_retesting: false
+    stuck_count: 3
+    priority: "critical"
+    needs_retesting: true
     status_history:
         -working: false
         -agent: "main"
@@ -779,6 +779,9 @@ backend:
         -working: false
         -agent: "testing"
         -comment: "❌ SESSION ENGINE TYPE INTEGRATION STILL NOT WORKING: Despite Type field being populated, session engine still fails to operate at Type level. CRITICAL ISSUES: 1) ❌ SESSIONS STILL CREATE ONLY 2 QUESTIONS: intelligent_12_question_set creates 2 questions instead of 12, indicating fundamental selection logic failure, 2) ❌ NO TYPE METADATA: Session personalization metadata still shows empty type_distribution: {}, category_type_distribution: {}, 3) ❌ TYPE DIVERSITY ENFORCEMENT NOT FUNCTIONAL: Cannot enforce Type diversity caps without proper Type diversity in selection, 4) ❌ INSUFFICIENT TYPE DIVERSITY: Only 3 unique Types available vs required minimum 8 different Types per session. ROOT CAUSE: Session engine cannot operate effectively with only 3 Types when it needs 8+ different Types for proper diversity enforcement."
+        -working: false
+        -agent: "testing"
+        -comment: "❌ SESSION ENGINE TYPE INTEGRATION CRITICAL FAILURE DESPITE PERFECT DATABASE: Database now has 8 unique Types with 100% coverage, but session engine still broken. CRITICAL ISSUES: 1) ❌ SESSIONS STILL CREATE ONLY 2-3 QUESTIONS: Despite having 8 Types available, sessions generate 2-3 questions instead of 12, 2) ❌ TYPE METADATA COMPLETELY MISSING: Session responses show empty type_distribution: {} and category_type_distribution: {}, 3) ❌ TYPE DIVERSITY ENFORCEMENT NOT FUNCTIONING: Session engine not utilizing the 8 available Types for proper diversity, 4) ❌ SESSION INTELLIGENCE LACKS TYPE RATIONALE: No Type-based rationale in session responses. ROOT CAUSE: Session engine (adaptive_session_logic.py) is not properly utilizing the Type diversity available in database. The Type-aware selection logic exists but is not functioning correctly."
 
   - task: "Canonical Taxonomy Coverage Verification"
     implemented: true
