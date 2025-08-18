@@ -2977,58 +2977,23 @@ class CATBackendTester:
 if __name__ == "__main__":
     tester = CATBackendTester()
     
-    print("🚀 CAT BACKEND TESTING SUITE - REFINED DUAL-DIMENSION DIVERSITY ENFORCEMENT")
-    print("=" * 80)
-    print("Testing REFINED Dual-Dimension Diversity enforcement system with improved question pool selection")
-    print("CRITICAL FOCUS: 100% success rate validation and enhanced logging")
-    print("Base URL:", tester.base_url)
+    print("🚀 Starting COMPLETE Dual-Dimension Diversity Enforcement System Testing")
     print("=" * 80)
     
-    # Run comprehensive tests
-    try:
-        # Test the REFINED Dual-Dimension Diversity Enforcement System
-        print("\n" + "="*80)
-        print("RUNNING REFINED DUAL-DIMENSION DIVERSITY ENFORCEMENT TESTS")
-        print("="*80)
-        success = tester.test_refined_dual_dimension_diversity_enforcement()
-        
-        if success:
-            print("🎉 REFINED Dual-Dimension Diversity Enforcement tests PASSED!")
-        else:
-            print("❌ REFINED Dual-Dimension Diversity Enforcement tests FAILED!")
-        
-        # Test the fixed Type-based session system
-        print("\n" + "="*60)
-        print("RUNNING FIXED TYPE-BASED SESSION SYSTEM TESTS")
-        print("="*60)
-        success = tester.test_fixed_type_based_session_system()
-        
-        if success:
-            print("🎉 Fixed Type-based session system tests PASSED!")
-        else:
-            print("❌ Fixed Type-based session system tests FAILED!")
-        
-        # Test session quality with priority logic
-        print("\n" + "="*60)
-        print("RUNNING SESSION QUALITY WITH PRIORITY LOGIC TESTS")
-        print("="*60)
-        success = tester.test_session_quality_with_priority_logic()
-        
-        if success:
-            print("🎉 Session quality with priority logic tests PASSED!")
-        else:
-            print("❌ Session quality with priority logic tests FAILED!")
-        
-    except Exception as e:
-        print(f"❌ Testing failed with error: {e}")
-        import traceback
-        traceback.print_exc()
+    # Run the complete dual-dimension diversity enforcement test
+    success = tester.test_complete_dual_dimension_diversity_enforcement()
     
-    # Final summary
-    print("\n" + "="*80)
-    print("DUAL-DIMENSION DIVERSITY ENFORCEMENT TESTING COMPLETE")
-    print("="*80)
-    print(f"Total tests run: {tester.tests_run}")
+    print("\n" + "=" * 80)
+    print("FINAL TEST SUMMARY")
+    print("=" * 80)
+    print(f"Tests run: {tester.tests_run}")
     print(f"Tests passed: {tester.tests_passed}")
-    print(f"Success rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%" if tester.tests_run > 0 else "No tests run")
-    print("="*80)
+    
+    if success:
+        print("🎉 COMPLETE DUAL-DIMENSION DIVERSITY ENFORCEMENT SYSTEM: WORKING!")
+        print("✅ All critical requirements met - system ready for production")
+    else:
+        print("❌ COMPLETE DUAL-DIMENSION DIVERSITY ENFORCEMENT SYSTEM: NEEDS IMPROVEMENTS")
+        print("⚠️ Critical requirements not fully met - system needs fixes")
+    
+    print("=" * 80)
