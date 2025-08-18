@@ -467,7 +467,7 @@ Please provide:
     def _analyze_tricks_misleading(self, stem: str, category: str) -> float:
         """Analyze trick/misleading elements (1-5)"""
         # Heuristic: certain categories and words indicate tricks
-        tricky_categories = ["Time–Speed–Distance (TSD)", "Percentages", "Profit–Loss–Discount (PLD)"]
+        tricky_categories = ["Time-Speed-Distance", "Percentages", "Profit-Loss-Discount"]
         trick_words = ["except", "not", "least", "maximum", "minimum", "opposite", "reverse"]
         
         score = 1.5
