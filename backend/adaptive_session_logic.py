@@ -806,9 +806,9 @@ class AdaptiveSessionLogic:
                         if len(set(f"{self.get_category_from_subcategory(q.subcategory)}::{q.subcategory}::{q.type_of_question or 'General'}" for q in diverse_questions[:12])) >= 3:
                             break
             
-            # CRITICAL FIX: Ensure exactly 12 questions regardless of Type diversity
+            # FALLBACK ONLY: If Type diversity enforcement resulted in too few questions, pad to reach 12
             if len(diverse_questions) < 12:
-                logger.info(f"Only {len(diverse_questions)} questions after Type diversity, need 12 - padding with additional questions")
+                logger.warning(f"Type diversity enforcement only selected {len(diverse_questions)} questions - using fallback to reach 12")
                 # Add remaining questions to reach 12, prioritizing those not already selected
                 selected_ids = {q.id for q in diverse_questions}
                 remaining_questions = [q for q in questions if q.id not in selected_ids]
@@ -818,10 +818,10 @@ class AdaptiveSessionLogic:
                 
                 needed = 12 - len(diverse_questions)
                 diverse_questions.extend(remaining_sorted[:needed])
-                logger.info(f"Added {min(needed, len(remaining_sorted))} additional questions to reach 12")
+                logger.info(f"FALLBACK: Added {min(needed, len(remaining_sorted))} additional questions to reach 12")
             
             final_unique_types = len(set(f"{self.get_category_from_subcategory(q.subcategory)}::{q.subcategory}::{q.type_of_question or 'General'}" for q in diverse_questions[:12]))
-            logger.info(f"Enforced Type diversity: {len(diverse_questions[:12])} questions from {final_unique_types} unique Types")
+            logger.info(f"Type diversity enforcement: {len(diverse_questions[:12])} questions from {final_unique_types} unique Types")
             return diverse_questions[:12]  # Ensure exactly 12 questions
             
         except Exception as e:
