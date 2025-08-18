@@ -1452,17 +1452,17 @@ class CATBackendTester:
         print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
         
         # Critical analysis
-        if type_results["database_schema_verification"] and type_results["canonical_taxonomy_coverage"]:
+        if type_results["type_field_api_verification"] and type_results["eight_unique_types_verification"]:
             print("🎉 DATABASE FOUNDATION: Ready for Type-based operations!")
         else:
-            print("❌ DATABASE ISSUES: Schema or taxonomy coverage problems")
+            print("❌ DATABASE ISSUES: Schema or Type diversity problems")
         
-        if type_results["type_based_session_creation"] and type_results["type_diversity_enforcement"]:
+        if type_results["twelve_question_session_generation"] and type_results["type_diversity_enforcement"]:
             print("✅ SESSION ENGINE: Type-based session generation working")
         else:
             print("⚠️ SESSION ENGINE: Issues with Type-based functionality")
         
-        if type_results["pyq_type_integration"] and type_results["session_intelligence_type_rationale"]:
+        if type_results["type_aware_pyq_weighting"] and type_results["session_intelligence_type_rationale"]:
             print("✅ INTELLIGENCE: Type-aware PYQ weighting and rationale working")
         else:
             print("❌ INTELLIGENCE: Limited Type-aware functionality")
