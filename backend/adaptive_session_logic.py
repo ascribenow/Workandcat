@@ -532,7 +532,7 @@ class AdaptiveSessionLogic:
             selected_questions = []
             
             # Strategy 1: Dynamic category-balanced selection
-            category_questions = await self.select_by_dynamic_category_distribution(
+            category_questions = self.select_by_dynamic_category_distribution(
                 question_pool, user_profile, dynamic_distribution
             )
             
