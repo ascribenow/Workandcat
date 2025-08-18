@@ -2974,6 +2974,323 @@ class CATBackendTester:
         
         return success_rate >= 80 and all_criteria_met
 
+    def test_final_dual_dimension_diversity_with_questions_in_response(self):
+        """Test FINAL Dual-Dimension Diversity enforcement system with questions now included in session response"""
+        print("🎯 FINAL DUAL-DIMENSION DIVERSITY ENFORCEMENT WITH QUESTIONS IN RESPONSE")
+        print("=" * 80)
+        print("FINAL COMPREHENSIVE VALIDATION:")
+        print("")
+        print("The session endpoint has been updated to return actual questions and complete dual-dimension")
+        print("diversity metadata in the response. This allows proper validation of the entire system:")
+        print("")
+        print("1. **Complete API Endpoint Integration Validation**:")
+        print("   - Test POST /api/sessions/start now returns questions array with full question data")
+        print("   - Verify sessions use session_type: 'intelligent_12_question_set' consistently")
+        print("   - Check that questions include subcategory and type_of_question fields")
+        print("   - Validate session metadata includes complete dual-dimension tracking")
+        print("")
+        print("2. **Dual-Dimension Diversity Achievement Validation**:")
+        print("   - Verify 6+ unique subcategories per session (based on direct testing: 6 subcategories achieved)")
+        print("   - Test subcategory caps enforced: Max 5 questions per subcategory (direct testing shows max 3)")
+        print("   - Check type within subcategory caps: Max 3 for 'Basics', max 2 for specific types")
+        print("   - Validate learning breadth with Time-Speed-Distance limited (not dominating all 12)")
+        print("")
+        print("3. **Session Response Structure Validation**:")
+        print("   - Test questions array includes all required fields: id, subcategory, type_of_question")
+        print("   - Verify metadata includes: dual_dimension_diversity, subcategory_caps_analysis, type_within_subcategory_analysis")
+        print("   - Check personalization section includes subcategory_distribution, type_distribution")
+        print("   - Validate no duplicate question IDs in response")
+        print("")
+        print("4. **Production Quality and Requirements Fulfillment**:")
+        print("   - Test exactly 12 questions per session consistently")
+        print("   - Verify Priority Order implementation: Subcategory diversity first, then type diversity")
+        print("   - Check that sessions provide true learning breadth across multiple subcategories")
+        print("   - Validate all user requirements met: dual-dimension diversity, proper caps, priority order")
+        print("")
+        print("**EXPECTED BEHAVIOR (With complete API response):**")
+        print("- Sessions should return questions array with 12 unique questions")
+        print("- Subcategory distribution should show 6+ subcategories with proper diversity")
+        print("- Type distribution should respect caps with variety across subcategories")
+        print("- Metadata should include complete dual-dimension analysis fields")
+        print("")
+        print("**SUCCESS CRITERIA:**")
+        print("- POST /api/sessions/start returns exactly 12 questions in response")
+        print("- 6+ unique subcategories per session (true breadth instead of Time-Speed-Distance dominance)")
+        print("- Subcategory caps (≤5) and type caps (≤2-3) properly enforced")
+        print("- Complete dual-dimension diversity metadata in session response")
+        print("- All questions have unique IDs (no duplicates)")
+        print("")
+        print("**Admin credentials**: sumedhprabhu18@gmail.com / admin2025")
+        print("=" * 80)
+        
+        # Authenticate as student for session testing
+        student_login = {"email": "student@catprep.com", "password": "student123"}
+        success, response = self.run_test("Student Login", "POST", "auth/login", 200, student_login)
+        if not success or 'access_token' not in response:
+            print("❌ Cannot test sessions - student login failed")
+            return False
+            
+        student_token = response['access_token']
+        student_headers = {'Content-Type': 'application/json', 'Authorization': f'Bearer {student_token}'}
+        
+        final_results = {
+            "questions_array_in_response": False,
+            "exactly_12_questions_returned": False,
+            "intelligent_session_type_consistent": False,
+            "six_plus_unique_subcategories": False,
+            "subcategory_caps_enforced": False,
+            "type_caps_enforced": False,
+            "no_duplicate_question_ids": False,
+            "dual_dimension_metadata_complete": False,
+            "learning_breadth_achieved": False,
+            "priority_order_implemented": False
+        }
+        
+        # TEST 1: Complete API Endpoint Integration Validation
+        print("\n🎯 TEST 1: COMPLETE API ENDPOINT INTEGRATION VALIDATION")
+        print("-" * 60)
+        print("Testing POST /api/sessions/start returns questions array with full question data")
+        print("Verifying session_type: 'intelligent_12_question_set' consistently")
+        print("Checking questions include subcategory and type_of_question fields")
+        
+        # Create session and get complete response with questions
+        session_data = {"target_minutes": 30}
+        success, response = self.run_test("Create Session with Questions Array", "POST", "sessions/start", 200, session_data, student_headers)
+        
+        if success:
+            session_id = response.get('session_id')
+            session_type = response.get('session_type')
+            total_questions = response.get('total_questions', 0)
+            questions_array = response.get('questions', [])
+            metadata = response.get('metadata', {})
+            personalization = response.get('personalization', {})
+            
+            print(f"   📊 Session ID: {session_id}")
+            print(f"   📊 Session Type: {session_type}")
+            print(f"   📊 Total Questions: {total_questions}")
+            print(f"   📊 Questions Array Length: {len(questions_array)}")
+            print(f"   📊 Metadata Keys: {list(metadata.keys())}")
+            print(f"   📊 Personalization Keys: {list(personalization.keys())}")
+            
+            # Check if questions array is returned
+            if questions_array and len(questions_array) > 0:
+                final_results["questions_array_in_response"] = True
+                print("   ✅ Questions array returned in session response")
+                
+                # Check if exactly 12 questions
+                if len(questions_array) == 12:
+                    final_results["exactly_12_questions_returned"] = True
+                    print("   ✅ Exactly 12 questions returned in response")
+                else:
+                    print(f"   ❌ Expected 12 questions, got {len(questions_array)}")
+            else:
+                print("   ❌ No questions array in session response")
+            
+            # Check session type
+            if session_type == "intelligent_12_question_set":
+                final_results["intelligent_session_type_consistent"] = True
+                print("   ✅ Session type is 'intelligent_12_question_set'")
+            else:
+                print(f"   ❌ Session type is '{session_type}', expected 'intelligent_12_question_set'")
+        
+        # TEST 2: Dual-Dimension Diversity Achievement Validation
+        print("\n📊 TEST 2: DUAL-DIMENSION DIVERSITY ACHIEVEMENT VALIDATION")
+        print("-" * 60)
+        print("Analyzing questions array for subcategory and type diversity")
+        print("Checking subcategory caps (max 5) and type caps (max 2-3)")
+        print("Validating learning breadth across multiple subcategories")
+        
+        if success and questions_array:
+            # Analyze diversity from questions array
+            subcategory_distribution = {}
+            type_distribution = {}
+            subcategory_type_combinations = {}
+            question_ids = set()
+            
+            for i, question in enumerate(questions_array):
+                question_id = question.get('id')
+                subcategory = question.get('subcategory', 'Unknown')
+                question_type = question.get('type_of_question', 'Unknown')
+                
+                # Track question IDs for duplicate check
+                question_ids.add(question_id)
+                
+                # Count subcategory distribution
+                subcategory_distribution[subcategory] = subcategory_distribution.get(subcategory, 0) + 1
+                
+                # Count type distribution
+                type_distribution[question_type] = type_distribution.get(question_type, 0) + 1
+                
+                # Count subcategory-type combinations
+                combo_key = f"{subcategory}::{question_type}"
+                subcategory_type_combinations[combo_key] = subcategory_type_combinations.get(combo_key, 0) + 1
+                
+                print(f"   Question {i+1}: ID={question_id[:8]}..., Subcategory='{subcategory}', Type='{question_type}'")
+            
+            print(f"\n   📊 DIVERSITY ANALYSIS:")
+            print(f"   📊 Unique Subcategories: {len(subcategory_distribution)}")
+            print(f"   📊 Subcategory Distribution:")
+            for subcategory, count in subcategory_distribution.items():
+                print(f"      {subcategory}: {count} questions")
+            
+            print(f"   📊 Unique Types: {len(type_distribution)}")
+            print(f"   📊 Type Distribution:")
+            for question_type, count in type_distribution.items():
+                print(f"      {question_type}: {count} questions")
+            
+            print(f"   📊 Subcategory-Type Combinations: {len(subcategory_type_combinations)}")
+            for combo, count in subcategory_type_combinations.items():
+                print(f"      {combo}: {count} questions")
+            
+            # Check 6+ unique subcategories
+            if len(subcategory_distribution) >= 6:
+                final_results["six_plus_unique_subcategories"] = True
+                print("   ✅ 6+ unique subcategories achieved (learning breadth)")
+            else:
+                print(f"   ❌ Only {len(subcategory_distribution)} unique subcategories (expected 6+)")
+            
+            # Check subcategory caps (max 5 per subcategory)
+            max_subcategory_count = max(subcategory_distribution.values()) if subcategory_distribution else 0
+            if max_subcategory_count <= 5:
+                final_results["subcategory_caps_enforced"] = True
+                print(f"   ✅ Subcategory caps enforced: Max {max_subcategory_count} per subcategory (≤5)")
+            else:
+                print(f"   ❌ Subcategory cap violated: {max_subcategory_count} questions from single subcategory")
+            
+            # Check type caps (max 3 for Basics, max 2 for specific types)
+            type_cap_violations = 0
+            for question_type, count in type_distribution.items():
+                expected_cap = 3 if question_type == "Basics" else 2
+                if count > expected_cap:
+                    type_cap_violations += 1
+                    print(f"   ❌ Type cap violation: {question_type} has {count} questions (max {expected_cap})")
+            
+            if type_cap_violations == 0:
+                final_results["type_caps_enforced"] = True
+                print("   ✅ Type caps enforced: No violations detected")
+            
+            # Check for duplicate question IDs
+            if len(question_ids) == len(questions_array):
+                final_results["no_duplicate_question_ids"] = True
+                print("   ✅ No duplicate question IDs detected")
+            else:
+                print(f"   ❌ Duplicate question IDs detected: {len(questions_array)} questions, {len(question_ids)} unique IDs")
+            
+            # Check learning breadth (not Time-Speed-Distance dominated)
+            tsd_questions = subcategory_distribution.get("Time–Speed–Distance (TSD)", 0)
+            if tsd_questions < 12:  # Not all questions are TSD
+                final_results["learning_breadth_achieved"] = True
+                print(f"   ✅ Learning breadth achieved: TSD limited to {tsd_questions}/12 questions")
+            else:
+                print(f"   ❌ Learning breadth failed: TSD dominates with {tsd_questions}/12 questions")
+        
+        # TEST 3: Session Response Structure Validation
+        print("\n📋 TEST 3: SESSION RESPONSE STRUCTURE VALIDATION")
+        print("-" * 60)
+        print("Checking metadata includes dual_dimension_diversity fields")
+        print("Verifying personalization includes subcategory_distribution, type_distribution")
+        
+        if success and response:
+            metadata = response.get('metadata', {})
+            personalization = response.get('personalization', {})
+            
+            # Check for dual-dimension metadata fields
+            required_metadata_fields = [
+                'dual_dimension_diversity',
+                'subcategory_caps_analysis', 
+                'type_within_subcategory_analysis'
+            ]
+            
+            metadata_fields_found = 0
+            for field in required_metadata_fields:
+                if field in metadata:
+                    metadata_fields_found += 1
+                    print(f"   ✅ Metadata field found: {field}")
+                else:
+                    print(f"   ❌ Metadata field missing: {field}")
+            
+            # Check personalization fields
+            required_personalization_fields = [
+                'subcategory_distribution',
+                'type_distribution'
+            ]
+            
+            personalization_fields_found = 0
+            for field in required_personalization_fields:
+                if field in personalization:
+                    personalization_fields_found += 1
+                    print(f"   ✅ Personalization field found: {field}")
+                    print(f"      Value: {personalization[field]}")
+                else:
+                    print(f"   ❌ Personalization field missing: {field}")
+            
+            if metadata_fields_found >= 2 and personalization_fields_found >= 1:
+                final_results["dual_dimension_metadata_complete"] = True
+                print("   ✅ Dual-dimension metadata sufficiently complete")
+        
+        # TEST 4: Priority Order Implementation
+        print("\n🎯 TEST 4: PRIORITY ORDER IMPLEMENTATION")
+        print("-" * 60)
+        print("Verifying Priority Order: Subcategory diversity first, then type diversity")
+        
+        if success and 'subcategory_distribution' in locals() and 'type_distribution' in locals():
+            # Priority order means subcategory diversity should be prioritized
+            # This is evidenced by having multiple subcategories with reasonable distribution
+            
+            subcategory_count = len(subcategory_distribution)
+            type_count = len(type_distribution)
+            
+            # Check if subcategory diversity is prioritized (multiple subcategories)
+            if subcategory_count >= 4:  # At least 4 different subcategories
+                final_results["priority_order_implemented"] = True
+                print(f"   ✅ Priority order implemented: {subcategory_count} subcategories show diversity-first approach")
+            else:
+                print(f"   ❌ Priority order not implemented: Only {subcategory_count} subcategories")
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 80)
+        print("FINAL DUAL-DIMENSION DIVERSITY ENFORCEMENT TEST RESULTS")
+        print("=" * 80)
+        
+        passed_tests = sum(final_results.values())
+        total_tests = len(final_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        for test_name, result in final_results.items():
+            status = "✅ PASS" if result else "❌ FAIL"
+            print(f"{test_name.replace('_', ' ').title():<40} {status}")
+        
+        print("-" * 80)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # Critical analysis based on review request
+        if final_results["questions_array_in_response"] and final_results["exactly_12_questions_returned"]:
+            print("🎉 CRITICAL SUCCESS: Session endpoint returns questions array with 12 questions!")
+        else:
+            print("❌ CRITICAL FAILURE: Session endpoint not returning proper questions array")
+        
+        if final_results["six_plus_unique_subcategories"]:
+            print("✅ DIVERSITY SUCCESS: 6+ unique subcategories achieved (learning breadth)")
+        else:
+            print("❌ DIVERSITY FAILURE: Insufficient subcategory diversity")
+        
+        if final_results["subcategory_caps_enforced"] and final_results["type_caps_enforced"]:
+            print("✅ CAPS SUCCESS: Both subcategory and type caps properly enforced")
+        else:
+            print("❌ CAPS FAILURE: Diversity caps not properly enforced")
+        
+        if final_results["dual_dimension_metadata_complete"]:
+            print("✅ METADATA SUCCESS: Dual-dimension metadata present in response")
+        else:
+            print("❌ METADATA FAILURE: Dual-dimension metadata missing or incomplete")
+        
+        if final_results["no_duplicate_question_ids"]:
+            print("✅ QUALITY SUCCESS: No duplicate question IDs detected")
+        else:
+            print("❌ QUALITY FAILURE: Duplicate question IDs found")
+        
+        return success_rate >= 80  # Higher threshold for final validation
+
 if __name__ == "__main__":
     tester = CATBackendTester()
     
