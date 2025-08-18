@@ -18,6 +18,31 @@ class CATBackendTester:
         self.diagnostic_id = None
         self.session_id = None
         self.plan_id = None
+        
+        # New canonical taxonomy structure from review request
+        self.canonical_taxonomy = {
+            "Arithmetic": [
+                "Time–Speed–Distance (TSD)", "Time & Work", "Ratio–Proportion–Variation",
+                "Percentages", "Averages & Alligation", "Profit–Loss–Discount (PLD)",
+                "Simple & Compound Interest (SI–CI)", "Mixtures & Solutions", "Partnerships"
+            ],
+            "Algebra": [
+                "Linear Equations", "Quadratic Equations", "Inequalities", "Progressions",
+                "Functions & Graphs", "Logarithms & Exponents", "Special Algebraic Identities",
+                "Maxima and Minima", "Special Polynomials"
+            ],
+            "Geometry and Mensuration": [
+                "Triangles", "Circles", "Polygons", "Coordinate Geometry",
+                "Trigonometry in Geometry", "Mensuration 2D", "Mensuration 3D"
+            ],
+            "Number System": [
+                "Divisibility", "HCF–LCM", "Remainders & Modular Arithmetic",
+                "Base Systems", "Digit Properties", "Number Properties", "Number Series", "Factorials"
+            ],
+            "Modern Math": [
+                "Permutation–Combination (P&C)", "Probability", "Set Theory & Venn Diagrams"
+            ]
+        }
 
     def run_test(self, name, method, endpoint, expected_status, data=None, headers=None):
         """Run a single API test"""
