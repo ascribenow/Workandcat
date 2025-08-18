@@ -154,6 +154,15 @@ export const SessionSystem = ({ sessionId: propSessionId, onSessionEnd }) => {
         setCurrentQuestion(question);
         setSessionProgress(progress);
         
+        // Debug: Log question structure to identify missing options issue
+        console.log('Question loaded:', {
+          id: question.id,
+          stem: question.stem?.substring(0, 50) + '...',
+          hasOptions: !!question.options,
+          optionKeys: question.options ? Object.keys(question.options) : [],
+          optionCount: question.options ? Object.keys(question.options).length : 0
+        });
+        
         // Calculate session number if not already set
         if (!sessionNumber && progress) {
           // For now, use a simple calculation based on progress or timestamp
