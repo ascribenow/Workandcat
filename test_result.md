@@ -805,9 +805,9 @@ backend:
     implemented: true
     working: false
     file: "/app/backend/adaptive_session_logic.py"
-    stuck_count: 2
-    priority: "high"
-    needs_retesting: false
+    stuck_count: 3
+    priority: "critical"
+    needs_retesting: true
     status_history:
         -working: false
         -agent: "main"
