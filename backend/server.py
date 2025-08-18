@@ -325,6 +325,70 @@ async def submit_answer(
         logger.error(f"Error submitting answer: {e}")
         raise HTTPException(status_code=500, detail="Error submitting answer")
 
+@app.get("/api/mastery/type-breakdown")
+async def get_type_mastery_breakdown(
+    current_user: User = Depends(require_auth),
+    db: AsyncSession = Depends(get_async_compatible_db)
+):
+    """Get detailed type-level mastery breakdown for enhanced dashboard"""
+    try:
+        logger.info(f"Fetching type mastery breakdown for user {current_user.id}")
+        
+        # Get type-level mastery breakdown
+        type_breakdown = await mastery_tracker.get_type_mastery_breakdown(db, current_user.id)
+        
+        # Calculate summary statistics
+        total_types = len(type_breakdown)
+        mastered_types = sum(1 for item in type_breakdown if item['mastery_percentage'] >= 80)
+        weak_types = sum(1 for item in type_breakdown if item['mastery_percentage'] < 60)
+        total_attempts = sum(item['total_attempts'] for item in type_breakdown)
+        
+        # Group by category for dashboard display
+        category_summaries = {}
+        for item in type_breakdown:
+            category = item['category']
+            if category not in category_summaries:
+                category_summaries[category] = {
+                    'category': category,
+                    'total_types': 0,
+                    'mastered_types': 0,
+                    'weak_types': 0,
+                    'avg_mastery': 0,
+                    'types': []
+                }
+            
+            category_summaries[category]['total_types'] += 1
+            category_summaries[category]['types'].append(item)
+            
+            if item['mastery_percentage'] >= 80:
+                category_summaries[category]['mastered_types'] += 1
+            if item['mastery_percentage'] < 60:
+                category_summaries[category]['weak_types'] += 1
+        
+        # Calculate average mastery per category
+        for category_data in category_summaries.values():
+            if category_data['types']:
+                category_data['avg_mastery'] = sum(t['mastery_percentage'] for t in category_data['types']) / len(category_data['types'])
+        
+        response = {
+            "type_breakdown": type_breakdown,
+            "summary": {
+                "total_types": total_types,
+                "mastered_types": mastered_types,  
+                "weak_types": weak_types,
+                "total_attempts": total_attempts,
+                "overall_mastery": sum(item['mastery_percentage'] for item in type_breakdown) / total_types if total_types > 0 else 0
+            },
+            "category_summaries": list(category_summaries.values())
+        }
+        
+        logger.info(f"Retrieved type mastery breakdown: {total_types} types, {mastered_types} mastered, {weak_types} weak")
+        return response
+        
+    except Exception as e:
+        logger.error(f"Error getting type mastery breakdown: {e}")
+        raise HTTPException(status_code=500, detail="Error retrieving type mastery data")
+
 @api_router.post("/admin/init-topics")
 async def init_basic_topics(
     current_user: User = Depends(require_admin),
