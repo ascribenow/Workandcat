@@ -468,7 +468,7 @@ class AdaptiveSessionLogic:
             logger.info(f"Available subcategories for diversity: {len(available_subcategories)}")
             
             # PHASE 2: Get questions from each subcategory (diversity-first pool selection)
-            questions_per_subcategory = max(3, target_size // len(available_subcategories)) if available_subcategories else target_size
+            questions_per_subcategory = min(3, target_size // len(available_subcategories)) if available_subcategories else target_size
             
             for subcategory in available_subcategories:
                 # Get questions from this subcategory with PYQ weighting
