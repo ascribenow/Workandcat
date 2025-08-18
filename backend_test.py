@@ -1079,19 +1079,22 @@ class CATBackendTester:
             "learning_breadth_achievement": False
         }
         
-        # TEST 1: Adaptive Session Logic Integration
-        print("\n🔧 TEST 1: ADAPTIVE SESSION LOGIC INTEGRATION")
+        # TEST 1: 100% Success Rate Validation
+        print("\n🎯 TEST 1: 100% SUCCESS RATE VALIDATION")
         print("-" * 50)
-        print("Testing that POST /api/sessions/start uses adaptive_session_logic.create_personalized_session()")
-        print("Verifying sessions use sophisticated diversity enforcement (not simple selection)")
+        print("Testing POST /api/sessions/start to verify it consistently generates exactly 12 questions")
+        print("Verifying sessions use session_type: 'intelligent_12_question_set' (not fallback)")
+        print("Checking that adaptive session logic runs without errors")
         
-        # Create multiple sessions to test consistency
+        # Create multiple sessions to test 100% success rate
         session_data_list = []
         session_ids = []
+        session_question_counts = []
+        session_types = []
         
-        for i in range(3):
+        for i in range(5):  # Test 5 sessions for consistency
             session_data = {"target_minutes": 30}
-            success, response = self.run_test(f"Create Session {i+1} for Integration Test", "POST", "sessions/start", 200, session_data, student_headers)
+            success, response = self.run_test(f"Create Session {i+1} for Success Rate Test", "POST", "sessions/start", 200, session_data, student_headers)
             
             if success:
                 session_id = response.get('session_id')
@@ -1106,16 +1109,27 @@ class CATBackendTester:
                     'personalization': personalization
                 })
                 session_ids.append(session_id)
+                session_question_counts.append(total_questions)
+                session_types.append(session_type)
                 
                 print(f"   Session {i+1}: Type='{session_type}', Questions={total_questions}")
                 print(f"   Personalization applied: {personalization.get('applied', False)}")
-                
-                # Check if using intelligent session type (indicates adaptive logic)
-                if session_type == "intelligent_12_question_set":
-                    dual_dimension_results["adaptive_session_logic_integration"] = True
-                    print(f"   ✅ Session {i+1} using adaptive session logic (intelligent type)")
-                elif session_type == "fallback_12_question_set":
-                    print(f"   ⚠️ Session {i+1} using fallback mode (not adaptive)")
+        
+        # Analyze 100% success rate
+        twelve_question_sessions = sum(1 for count in session_question_counts if count == 12)
+        intelligent_sessions = sum(1 for stype in session_types if stype == "intelligent_12_question_set")
+        
+        if twelve_question_sessions == 5:  # All 5 sessions have exactly 12 questions
+            dual_dimension_results["hundred_percent_success_rate"] = True
+            print("   ✅ 100% SUCCESS RATE: All sessions generate exactly 12 questions")
+        else:
+            print(f"   ❌ SUCCESS RATE FAILURE: Only {twelve_question_sessions}/5 sessions have 12 questions")
+        
+        if intelligent_sessions >= 4:  # At least 4/5 sessions use intelligent type
+            dual_dimension_results["intelligent_session_type_usage"] = True
+            print("   ✅ INTELLIGENT SESSION TYPE: Sessions use adaptive logic (not fallback)")
+        else:
+            print(f"   ❌ FALLBACK USAGE: Only {intelligent_sessions}/5 sessions use intelligent type")
         
         # TEST 2: Subcategory Cap Enforcement Validation
         print("\n📊 TEST 2: SUBCATEGORY CAP ENFORCEMENT VALIDATION")
