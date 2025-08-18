@@ -46,19 +46,21 @@ async def clear_existing_questions(db: Session):
         return False
 
 async def download_and_parse_csv():
-    """Download and parse the CSV file"""
+    """Load and parse the local CSV file"""
     try:
-        logger.info("📥 Downloading new questions CSV file...")
+        logger.info("📥 Loading new questions CSV file from /app/Questions_16Aug25_Fixed.csv...")
         
-        csv_url = "https://customer-assets.emergentagent.com/job_twelvr-adaptive/artifacts/0io56n41_Questions_16Aug25_Fixed.csv"
-        response = requests.get(csv_url)
-        response.raise_for_status()
+        # Read local CSV file
+        csv_path = "/app/Questions_16Aug25_Fixed.csv"
+        if not os.path.exists(csv_path):
+            logger.error(f"CSV file not found at {csv_path}")
+            return []
         
-        logger.info("✅ CSV file downloaded successfully")
+        logger.info("✅ CSV file found successfully")
         
         # Parse CSV content
-        csv_content = response.text
-        csv_reader = csv.DictReader(io.StringIO(csv_content))
+        with open(csv_path, 'r', encoding='utf-8') as f:
+            csv_reader = csv.DictReader(f)
         
         questions_data = []
         for row in csv_reader:
