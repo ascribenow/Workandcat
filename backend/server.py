@@ -966,7 +966,7 @@ async def get_next_question(
         if not question:
             raise HTTPException(status_code=404, detail="Question not found")
         
-        # Generate MCQ options (with fallback)
+        # Generate MCQ options (with enhanced fallback for production reliability)
         try:
             options = await mcq_generator.generate_options(
                 question.stem, 
@@ -976,12 +976,31 @@ async def get_next_question(
             )
         except Exception as mcq_error:
             logger.warning(f"MCQ generation failed for question {question.id}: {mcq_error}")
-            # Fallback options in correct format (dict with A,B,C,D keys)
+            # Enhanced fallback options with better variety
+            import random
+            import re
+            
+            # Try to extract numerical values from question for more meaningful options
+            numbers = re.findall(r'\d+\.?\d*', question.stem)
+            base_value = float(numbers[0]) if numbers else 100
+            
+            # Generate mathematically plausible options
+            correct_value = question.answer or str(int(base_value))
+            try:
+                correct_num = float(correct_value.replace('%', '').replace('$', '').strip())
+            except:
+                correct_num = base_value
+                
+            # Create plausible distractors
+            distractor1 = int(correct_num * 0.8) if correct_num > 10 else correct_num - 2
+            distractor2 = int(correct_num * 1.2) if correct_num > 10 else correct_num + 3  
+            distractor3 = int(correct_num * 1.5) if correct_num > 10 else correct_num * 2
+            
             options = {
-                "A": question.answer or "Option A",
-                "B": "Option B", 
-                "C": "Option C",
-                "D": "Option D",
+                "A": str(correct_num),
+                "B": str(distractor1), 
+                "C": str(distractor2),
+                "D": str(distractor3),
                 "correct": "A"
             }
         
