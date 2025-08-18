@@ -2304,6 +2304,8 @@ class AdaptiveSessionLogic:
                 SessionModel.ended_at.isnot(None)  # Only count completed sessions
             ).count()
             
+            logger.info(f"User {user_id} phase determination: Found {session_count} completed sessions")
+            
             # Determine phase
             if session_count < 30:
                 phase = "phase_a"
@@ -2324,13 +2326,16 @@ class AdaptiveSessionLogic:
                 session_range = "61+"
                 difficulty_distribution = self.phase_difficulty_distributions["phase_c"]
             
+            current_session = session_count + 1
+            logger.info(f"User {user_id} assigned to {phase_name} (Session {current_session})")
+            
             return {
                 "phase": phase,
                 "phase_name": phase_name,
                 "phase_description": phase_description,
                 "session_range": session_range,
                 "session_count": session_count,
-                "current_session": session_count + 1,
+                "current_session": current_session,
                 "difficulty_distribution": difficulty_distribution,
                 "is_coverage_phase": phase == "phase_a",
                 "is_strengthen_phase": phase == "phase_b",
