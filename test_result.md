@@ -453,20 +453,20 @@ test_plan:
     - "Complete Taxonomy Triple Migration - COMPLETED ✅"
     - "PYQ Type Integration - WORKING ✅"
   stuck_tasks:
-    - "Session Engine Type Integration - sessions create only 2-3 questions instead of 12 despite 8 Types available"
+    - "Session Engine Type Integration - sessions create only 2-4 questions instead of 12 despite 8 Types available"
     - "Type Diversity Enforcement - session metadata shows empty type_distribution and category_type_distribution"
     - "Session Intelligence Type Rationale - no Type-based rationale in session responses"
   test_all: false
   test_priority: "critical_session_engine_failure"
   taxonomy_triple_status: "database_complete_session_broken"
   migration_status: "complete_8_types_achieved"
-  type_based_session_testing_date: "2025-01-16"
+  type_based_session_testing_date: "2025-01-18"
   type_based_session_testing_status: "database_ready_session_broken"
-  success_rate: "45.5%"
-  backend_endpoints_tested: 11
-  critical_issues: 6
+  success_rate: "30.0%"
+  backend_endpoints_tested: 8
+  critical_issues: 4
   type_field_populated: true
-  type_diversity_achieved: true
+  type_diversity_achieved: false
   eight_unique_types: true
   canonical_compliance: "100%"
   session_question_count_issue: true
