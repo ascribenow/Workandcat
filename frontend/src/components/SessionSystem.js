@@ -390,10 +390,12 @@ export const SessionSystem = ({ sessionId: propSessionId, onSessionEnd }) => {
             {!showResult && (
               <button
                 onClick={submitAnswer}
-                disabled={!userAnswer || loading || answerSubmitted}
+                disabled={!userAnswer || loading || answerSubmitted || !currentQuestion.options}
                 className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
               >
-                {loading ? 'Submitting...' : 'Submit Answer'}
+                {loading ? 'Submitting...' : 
+                 !currentQuestion.options ? 'Loading options...' :
+                 'Submit Answer'}
               </button>
             )}
 
