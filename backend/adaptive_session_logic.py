@@ -889,14 +889,26 @@ class AdaptiveSessionLogic:
                 diverse_questions = diverse_questions[:12]  # Truncate if over 12
             elif len(diverse_questions) < 12:
                 logger.warning(f"Still only have {len(diverse_questions)} questions - using emergency fallback")
-                # Emergency fallback if still under 12
-                while len(diverse_questions) < 12 and questions:
-                    fallback_question = questions[len(diverse_questions) % len(questions)]
-                    if fallback_question not in diverse_questions:
-                        diverse_questions.append(fallback_question)
+                # Emergency fallback: add any remaining questions to reach 12
+                selected_ids = {q.id for q in diverse_questions}
+                remaining_questions = [q for q in questions if q.id not in selected_ids]
+                
+                # Add remaining questions one by one
+                for question in remaining_questions:
+                    if len(diverse_questions) >= 12:
+                        break
+                    diverse_questions.append(question)
+                    logger.info(f"Emergency: Added {question.subcategory}::{question.type_of_question}")
+                
+                # If still under 12, duplicate best questions
+                while len(diverse_questions) < 12:
+                    if questions:
+                        best_question = questions[0]  # Take first (highest PYQ frequency)
+                        diverse_questions.append(best_question)
+                        logger.info(f"Emergency: Duplicated {best_question.subcategory}::{best_question.type_of_question}")
                     else:
-                        # If we've exhausted unique questions, duplicate high-quality ones
-                        diverse_questions.append(questions[0])
+                        break
+                
                 logger.info(f"Emergency fallback completed: {len(diverse_questions)} questions")
             
             # FINAL REPORTING
