@@ -44,36 +44,78 @@ class AdaptiveSessionLogic:
         self.max_questions_per_subcategory = 12  # Allow all questions from single subcategory if needed
         self.min_subcategories_per_session = 1   # Allow single subcategory sessions if needed
         
-        # Subcategory mapping
+        # Updated canonical taxonomy based on provided CSV document
         self.canonical_subcategories = {
-            "A-Arithmetic": [
-                "Time–Speed–Distance (TSD)", "Time & Work", "Ratio–Proportion–Variation",
-                "Percentages", "Averages & Alligation", "Profit–Loss–Discount (PLD)",
-                "Simple & Compound Interest (SI–CI)", "Mixtures & Solutions",
-                # Additional subcategories from current question database
-                "Speed-Time-Distance", "Basic Arithmetic"
+            "Arithmetic": [
+                "Time-Speed-Distance", "Time-Work", "Ratios and Proportions", 
+                "Percentages", "Averages and Alligation", "Profit-Loss-Discount",
+                "Simple and Compound Interest", "Mixtures and Solutions", "Partnerships"
             ],
-            "B-Algebra": [
+            "Algebra": [
                 "Linear Equations", "Quadratic Equations", "Inequalities", "Progressions",
-                "Functions & Graphs", "Logarithms & Exponents", "Special Algebraic Identities",
-                # Additional subcategories from current question database
-                "Powers and Roots"
+                "Functions and Graphs", "Logarithms and Exponents", "Special Algebraic Identities",
+                "Maxima and Minima", "Special Polynomials"
             ],
-            "C-Geometry & Mensuration": [
+            "Geometry and Mensuration": [
                 "Triangles", "Circles", "Polygons", "Coordinate Geometry",
-                "Mensuration (2D & 3D)", "Trigonometry in Geometry",
-                # Additional subcategories from current question database
-                "Perimeter and Area"
+                "Mensuration 2D", "Mensuration 3D", "Trigonometry"
             ],
-            "D-Number System": [
-                "Divisibility", "HCF–LCM", "Remainders & Modular Arithmetic",
-                "Base Systems", "Digit Properties",
-                # Additional subcategories from current question database
-                "Basic Operations"
+            "Number System": [
+                "Divisibility", "HCF-LCM", "Remainders", "Base Systems",
+                "Digit Properties", "Number Properties", "Number Series", "Factorials"
             ],
-            "E-Modern Math": [
-                "Permutation–Combination (P&C)", "Probability", "Set Theory & Venn Diagrams"
+            "Modern Math": [
+                "Permutation-Combination", "Probability", "Set Theory and Venn Diagram"
             ]
+        }
+
+        # Detailed question types mapping based on canonical taxonomy CSV
+        self.question_types_mapping = {
+            # Arithmetic
+            "Time-Speed-Distance": ["Basics", "Relative Speed", "Circular Track Motion", "Boats and Streams", "Trains", "Races"],
+            "Time-Work": ["Work Time Effeciency", "Pipes and Cisterns", "Work Equivalence"],
+            "Ratios and Proportions": ["Simple Rations", "Compound Ratios", "Direct and Inverse Variation", "Partnerships"],
+            "Percentages": ["Basics", "Percentage Change", "Successive Percentage Change"],
+            "Averages and Alligation": ["Basic Averages", "Weighted Averages", "Alligations & Mixtures", "Three Mixture Alligations"],
+            "Profit-Loss-Discount": ["Basics", "Successive Profit/Loss/Discounts", "Marked Price and Cost Price Relations", "Discount Chains"],
+            "Simple and Compound Interest": ["Basics", "Difference between Simple Interest and Compound Interests", "Fractional Time Period Compound Interest"],
+            "Mixtures and Solutions": ["Replacements", "Concentration Change", "Solid-Liquid-Gas Mixtures"],
+            "Partnerships": ["Profit share"],
+            
+            # Algebra
+            "Linear Equations": ["Two variable systems", "Three variable systems", "Dependent and Inconsistent Systems"],
+            "Quadratic Equations": ["Roots & Nature of Roots", "Sum and Product of Roots", "Maximum and Minimum Values"],
+            "Inequalities": ["Linear Inequalities", "Quadratic Inequalities", "Modulus and Absolute Value", "Arithmetic Mean", "Geometric Mean", "Cauchy Schwarz"],
+            "Progressions": ["Arithmetic Progression", "Geometric Progression", "Harmonic Progression", "Mixed Progressions"],
+            "Functions and Graphs": ["Linear Functions", "Quadratic Functions", "Polynomial Functions", "Modulus Functions", "Step Functions", "Transformations", "Domain Range", "Composition and Inverse Functions"],
+            "Logarithms and Exponents": ["Basics", "Change of Base Formula", "Soliving Log Equations", "Surds and Indices"],
+            "Special Algebraic Identities": ["Expansion and Factorisation", "Cubes and Squares", "Binomial Theorem"],
+            "Maxima and Minima": ["Optimsation with Algebraic Expressions"],
+            "Special Polynomials": ["Remainder Theorem", "Factor Theorem"],
+            
+            # Geometry and Mensuration
+            "Triangles": ["Properties (Angles, Sides, Medians, Bisectors)", "Congruence & Similarity", "Pythagoras & Converse", "Inradius, Circumradius, Orthocentre"],
+            "Circles": ["Tangents & Chords", "Angles in a Circle", "Cyclic Quadrilaterals"],
+            "Polygons": ["Regular Polygons", "Interior / Exterior Angles"],
+            "Coordinate Geometry": ["Distance", "Section Formula", "Midpoint", "Equation of a line", "Slope & Intercepts", "Circles in Coordinate Plane", "Parabola", "Ellipse", "Hyperbola"],
+            "Mensuration 2D": ["Area Triangle", "Area Rectangle", "Area Trapezium", "Area Circle", "Sector"],
+            "Mensuration 3D": ["Volume Cubes", "Volume Cuboid", "Volume Cylinder", "Volume Cone", "Volume Sphere", "Volume Hemisphere", "Surface Areas"],
+            "Trigonometry": ["Heights and Distances", "Basic Trigonometric Ratios"],
+            
+            # Number System
+            "Divisibility": ["Basic Divisibility Rules", "Factorisation of Integers"],
+            "HCF-LCM": ["Euclidean Algorithm", "Product of HCF and LCM"],
+            "Remainders": ["Basic Remainder Theorem", "Chinese Remainder Theorem", "Cyclicity of Remainders (Last Digits)", "Cyclicity of Remainders (Last Two Digits)"],
+            "Base Systems": ["Conversion between bases", "Arithmetic in different bases"],
+            "Digit Properties": ["Sum of Digits", "Last Digit Patterns", "Palindromes", "Repetitive Digits"],
+            "Number Properties": ["Perfect Squares", "Perfect Cubes"],
+            "Number Series": ["Sum of Squares", "Sum of Cubes", "Telescopic Series"],
+            "Factorials": ["Properties of Factorials"],
+            
+            # Modern Math
+            "Permutation-Combination": ["Basics", "Circular Permutations", "Permutations with Repetitions", "Permutations with Restrictions", "Combinations with Repetitions", "Combinations with Restrictions"],
+            "Probability": ["Classical Probability", "Conditional Probability", "Bayes' Theorem"],
+            "Set Theory and Venn Diagram": ["Union and Intersection", "Complement and Difference of Sets", "Multi Set Problems"]
         }
 
     async def create_personalized_session(self, user_id: str, db: AsyncSession) -> Dict[str, Any]:
