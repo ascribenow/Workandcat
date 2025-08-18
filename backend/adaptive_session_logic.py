@@ -254,6 +254,7 @@ class AdaptiveSessionLogic:
             
             for question in question_pool:
                 difficulty = self.determine_question_difficulty(question)
+                logger.debug(f"Question {question.id} classified as {difficulty}")  # Debug classification
                 if difficulty == "Hard":
                     hard_pool.append(question)
                 elif difficulty == "Easy":
@@ -262,6 +263,14 @@ class AdaptiveSessionLogic:
                     medium_pool.append(question)
             
             logger.info(f"Difficulty pools: Hard={len(hard_pool)}, Easy={len(easy_pool)}, Medium={len(medium_pool)}")
+            
+            # Debug: Check first few classifications
+            if len(question_pool) >= 3:
+                for i, question in enumerate(question_pool[:3]):
+                    difficulty = self.determine_question_difficulty(question)
+                    question_id_hash = hash(str(question.id)) % 100
+                    logger.info(f"DEBUG Question {i+1}: ID={question.id}, Hash={question_id_hash}, Classified={difficulty}")
+            
             
             # Step 3: Fill by stratum in order with existing filters
             selected_questions = []
