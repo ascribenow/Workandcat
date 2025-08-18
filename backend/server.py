@@ -309,8 +309,9 @@ async def submit_answer(
         db.add(attempt)
         await db.commit()
         
-        # Update mastery tracking
+        # Update mastery tracking (both topic-level and type-level)
         await mastery_tracker.update_mastery_after_attempt(db, attempt)
+        await mastery_tracker.update_type_mastery_after_attempt(db, attempt)  # New type-level tracking
         
         # Return feedback
         return {
