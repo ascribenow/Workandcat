@@ -1084,22 +1084,21 @@ class AdaptiveSessionLogic:
                 if q.subcategory in user_profile.get('weak_subcategories', [])
             )
             
+            # Type distribution analysis
+            type_distribution = {}
+            category_type_distribution = {}
             
-                # Type distribution analysis
-                type_distribution = {}
-                category_type_distribution = {}
+            for question in questions:
+                # Type distribution
+                question_type = question.type_of_question or 'General'
+                type_distribution[question_type] = type_distribution.get(question_type, 0) + 1
                 
-                for question in questions:
-                    # Type distribution
-                    question_type = question.type_of_question or 'General'
-                    type_distribution[question_type] = type_distribution.get(question_type, 0) + 1
-                    
-                    # Category-Type combination analysis
-                    category = self.get_category_from_subcategory(question.subcategory)
-                    category_type_key = f"{category}::{question.subcategory}::{question_type}"
-                    category_type_distribution[category_type_key] = category_type_distribution.get(category_type_key, 0) + 1
-    
-                # Enhanced metadata
+                # Category-Type combination analysis
+                category = self.get_category_from_subcategory(question.subcategory)
+                category_type_key = f"{category}::{question.subcategory}::{question_type}"
+                category_type_distribution[category_type_key] = category_type_distribution.get(category_type_key, 0) + 1
+
+            # Enhanced metadata
             metadata = {
                 'learning_stage': user_profile.get('learning_stage', 'unknown'),
                 'recent_accuracy': user_profile.get('recent_accuracy', 0),
