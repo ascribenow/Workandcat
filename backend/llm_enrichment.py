@@ -819,7 +819,7 @@ RULES:
             # Return default enrichment on failure
             return {
                 "category": "Arithmetic",
-                "subcategory": "Time–Speed–Distance (TSD)",
+                "subcategory": "Time-Speed-Distance",
                 "solution_approach": "Standard approach",
                 "detailed_solution": "Detailed solution pending",
                 "difficulty_score": 3.0,
