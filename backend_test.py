@@ -2604,9 +2604,9 @@ if __name__ == "__main__":
         success = tester.test_refined_dual_dimension_diversity_enforcement()
         
         if success:
-            print("🎉 Dual-Dimension Diversity Enforcement tests PASSED!")
+            print("🎉 REFINED Dual-Dimension Diversity Enforcement tests PASSED!")
         else:
-            print("❌ Dual-Dimension Diversity Enforcement tests FAILED!")
+            print("❌ REFINED Dual-Dimension Diversity Enforcement tests FAILED!")
         
         # Test the fixed Type-based session system
         print("\n" + "="*60)
