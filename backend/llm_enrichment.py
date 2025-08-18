@@ -295,7 +295,7 @@ RETURN FORMAT:
             else:
                 logger.warning(f"Invalid categorization: {category}, {subcategory}, {type_of_question}")
                 # Fallback to first options if invalid
-                return "Arithmetic", "Time–Speed–Distance (TSD)", "Basic TSD"
+                return "Arithmetic", "Time-Speed-Distance", "Basics"
                 
         except Exception as e:
             logger.error(f"Categorization error: {e}")
