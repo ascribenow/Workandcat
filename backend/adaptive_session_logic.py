@@ -448,7 +448,7 @@ class AdaptiveSessionLogic:
         else:  # advanced
             return {"Easy": 2, "Medium": 4, "Hard": 6}  # Challenge focused
 
-    async def get_pyq_weighted_question_pool(self, user_id: str, user_profile: Dict, db: AsyncSession) -> List[Question]:
+    def get_pyq_weighted_question_pool(self, user_id: str, user_profile: Dict, db: Session) -> List[Question]:
         """
         PHASE 1: Get PYQ frequency-weighted personalized question pool
         """
