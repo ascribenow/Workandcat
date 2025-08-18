@@ -1116,13 +1116,13 @@ class CATBackendTester:
         type_results = {
             "admin_authentication": True,
             "student_authentication": True,
-            "type_field_api_verification": False,
-            "eight_unique_types_verification": False,
             "twelve_question_session_generation": False,
-            "type_diversity_enforcement": False,
-            "category_mapping_verification": False,
+            "type_diversity_validation_3_minimum": False,
             "session_metadata_type_tracking": False,
-            "type_aware_pyq_weighting": False,
+            "category_mapping_verification": False,
+            "type_field_in_questions": False,
+            "session_logs_final_selection_12": False,
+            "no_type_diversity_reduction": False,
             "session_intelligence_type_rationale": False
         }
         
