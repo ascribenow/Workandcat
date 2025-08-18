@@ -96,38 +96,76 @@
 # END - Testing Protocol - DO NOT EDIT OR REMOVE THIS SECTION
 #====================================================================================================
 
-user_problem_statement: "Update the database with the new canonical taxonomy structure. This is critical to ensure the question enrichment system works properly with the updated taxonomy.
+user_problem_statement: "Replace the existing questions database with new data from Questions_16Aug25_Fixed.csv and run LLM enrichment to properly classify questions with diverse taxonomy triples (Category, Subcategory, Type). The goal is to test the dual-dimension diversity enforcement system with a truly diverse dataset instead of the previous dataset that was 98.4% Time-Speed-Distance subcategory and 96.4% Basics type."
 
-**CRITICAL UPDATE REQUIRED:**
+backend:
+  - task: "Database Replacement with New CSV"
+    implemented: true
+    working: true
+    file: "/app/scripts/replace_questions_database.py"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: false
+    status_history:
+        -working: true
+        -agent: "main"
+        -comment: "✅ DATABASE REPLACEMENT COMPLETED SUCCESSFULLY: Successfully replaced old database (1,127 questions deleted) with 94 new diverse questions from Questions_16Aug25_Fixed.csv. Questions cover HCF/LCM, Number System, Perfect Squares, Factors, Remainders, etc. - much more diverse than previous Time-Speed-Distance dominated dataset."
 
-Based on the new canonical taxonomy from the CSV document, we need to update the database to include all the new subcategories and categories. The system has been updated to use:
+  - task: "LLM Enrichment with OpenAI API Integration"
+    implemented: true
+    working: true
+    file: "/app/backend/llm_enrichment.py, /app/scripts/re_enrich_with_openai.py"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: false
+    status_history:
+        -working: true
+        -agent: "main"
+        -comment: "🎉 LLM ENRICHMENT WITH OPENAI API - MASSIVE SUCCESS! Successfully converted system from EMERGENT_LLM_KEY to direct OpenAI API usage. Re-enriched all 94 questions with outstanding diversity results: 14 unique subcategories (vs 1 before), 23 unique types (vs 1 before). Achieved diversity target with subcategories like HCF-LCM (16q), Divisibility (15q), Remainders (14q), Number Properties (6q), and types like Basics (33q), Factorisation of Integers (9q), Chinese Remainder Theorem (6q), Perfect Squares (5q). System now ready for proper dual-dimension diversity testing."
 
-**New Categories:**
-- Arithmetic (instead of A-Arithmetic)
-- Algebra (instead of B-Algebra) 
-- Geometry and Mensuration (instead of C-Geometry & Mensuration)
-- Number System (instead of D-Number System)
-- Modern Math (instead of E-Modern Math)
+  - task: "Dual-Dimension Diversity System Testing with New Dataset"
+    implemented: true
+    working: false
+    file: "/app/backend/adaptive_session_logic.py"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: true
+    status_history:
+        -working: false
+        -agent: "main"
+        -comment: "📝 READY FOR TESTING: Database replacement and LLM enrichment completed successfully. New dataset has excellent diversity (14 subcategories, 23 types vs previous 1 each). The dual-dimension diversity enforcement system should now work properly with this diverse dataset. Need to test session generation to validate subcategory diversity enforcement (max 5 per subcategory) and type diversity enforcement (max 3 for Basics, 2-3 per type within subcategories) are working."
 
-**New Subcategories Added:**
-- Partnerships (under Arithmetic)
-- Maxima and Minima (under Algebra)
-- Special Polynomials (under Algebra)
-- Mensuration 2D (under Geometry and Mensuration)
-- Mensuration 3D (under Geometry and Mensuration)
-- Number Properties (under Number System)
-- Number Series (under Number System)
-- Factorials (under Number System)
+metadata:
+  created_by: "main_agent"
+  version: "6.0"
+  test_sequence: 7
+  run_ui: false
+  database_replacement_date: "2025-01-18"
+  database_replacement_status: "completed_successfully"
+  llm_enrichment_status: "completed_with_excellent_diversity"
+  questions_imported: 94
+  questions_enriched: 94
+  final_subcategories: 14
+  final_types: 23
+  diversity_target_achieved: true
 
-**TASKS:**
-1. **Update Topics Table**: Add all missing subcategories from the canonical taxonomy
-2. **Test Question Classification**: Verify that questions can be properly classified using the new taxonomy
-3. **Test LLM Enrichment**: Ensure the LLM enrichment works with the updated taxonomy structure
-4. **Validate Session Creation**: Confirm that 12-question sessions work with the new category structure
+test_plan:
+  current_focus:
+    - "Dual-Dimension Diversity System Testing with New Dataset - CRITICAL ✅"
+    - "Session Generation with Diverse Questions - READY FOR TESTING"
+    - "Subcategory Caps Enforcement (max 5 per subcategory) - NEEDS VALIDATION"
+    - "Type Diversity Enforcement (max 3 for Basics, 2-3 per type) - NEEDS VALIDATION"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "dual_dimension_diversity_with_new_dataset"
+  database_replacement_status: "completed_successfully"
+  llm_enrichment_status: "completed_successfully"
+  data_diversity_status: "excellent"
+  ready_for_backend_testing: true
 
-**Use admin credentials**: sumedhprabhu18@gmail.com / admin2025
-
-This update is essential for the proper functioning of the question classification and session generation systems."
+agent_communication:
+    -agent: "main"
+    -message: "🎉 DATABASE REPLACEMENT AND LLM ENRICHMENT COMPLETED SUCCESSFULLY! Major achievements: 1) ✅ Successfully replaced entire questions database with 94 diverse questions from Questions_16Aug25_Fixed.csv, 2) ✅ Configured direct OpenAI API integration (replacing EMERGENT_LLM_KEY), 3) ✅ Completed full LLM re-enrichment with outstanding diversity results: 14 unique subcategories (vs 1 before) and 23 unique types (vs 1 before), 4) ✅ Achieved excellent distribution including HCF-LCM (16q), Divisibility (15q), Remainders (14q), Number Properties (6q), and diverse types like Factorisation of Integers (9q), Chinese Remainder Theorem (6q), Perfect Squares (5q), 5) ✅ System now has the data diversity needed to properly test dual-dimension diversity enforcement. Previous dataset was 98.4% Time-Speed-Distance + 96.4% Basics, now we have genuine diversity across 14 subcategories and 23 types. READY FOR BACKEND TESTING to validate dual-dimension diversity enforcement works with this new diverse dataset."
 
 backend:
   - task: "Canonical Taxonomy Database Update"
