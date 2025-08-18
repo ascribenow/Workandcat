@@ -927,6 +927,7 @@ async def get_next_question(
         
         # Parse question IDs from JSON string
         try:
+            import json
             question_ids = json.loads(session.units) if session.units else []
         except (json.JSONDecodeError, TypeError):
             raise HTTPException(status_code=500, detail="Invalid session data")
