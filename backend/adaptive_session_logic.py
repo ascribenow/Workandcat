@@ -224,151 +224,240 @@ class AdaptiveSessionLogic:
     def apply_coverage_selection_strategies(self, user_id: str, user_profile: Dict[str, Any], 
                                            question_pool: List[Question], balanced_distribution: Dict[str, int], 
                                            phase_info: Dict[str, Any], db: Session) -> List[Question]:
-        """Apply selection strategies optimized for coverage phase with PROPER stratified sampling"""
+        """Apply QUOTA-BASED difficulty distribution for coverage phase - superior approach"""
         try:
             difficulty_dist = phase_info['difficulty_distribution']
             
-            # Target questions per difficulty (based on phase A distribution)
-            easy_target = int(12 * difficulty_dist.get('Easy', 0.2))      # 20% = ~2 questions
-            medium_target = int(12 * difficulty_dist.get('Medium', 0.75)) # 75% = ~9 questions  
-            hard_target = int(12 * difficulty_dist.get('Hard', 0.05))     # 5% = ~1 question
+            # Step 1: Set quotas upfront (compute counts from percentages once)
+            easy_quota = int(12 * difficulty_dist.get('Easy', 0.2))      # 20% = 2 questions
+            medium_quota = int(12 * difficulty_dist.get('Medium', 0.75)) # 75% = 9 questions  
+            hard_quota = int(12 * difficulty_dist.get('Hard', 0.05))     # 5% = 1 question
             
-            # Ensure we get exactly 12 questions
-            total_target = easy_target + medium_target + hard_target
-            if total_target != 12:
-                medium_target = 12 - easy_target - hard_target
+            # Ensure exactly 12 questions
+            total_quota = easy_quota + medium_quota + hard_quota
+            if total_quota != 12:
+                medium_quota = 12 - easy_quota - hard_quota
             
-            logger.info(f"Phase A STRATIFIED targets: Easy={easy_target}, Medium={medium_target}, Hard={hard_target}")
+            # Store in metadata for telemetry
+            difficulty_targets = {
+                'Easy': easy_quota,
+                'Medium': medium_quota, 
+                'Hard': hard_quota
+            }
             
-            # PROPER STRATIFIED SAMPLING: Force distribution using research-based approach
-            return self.force_stratified_distribution(
-                question_pool, easy_target, medium_target, hard_target
-            )
+            logger.info(f"QUOTA-BASED targets: Easy={easy_quota}, Medium={medium_quota}, Hard={hard_quota}")
             
-        except Exception as e:
-            logger.error(f"Error applying stratified coverage selection: {e}")
-            return question_pool[:12]
-    
-    def force_stratified_distribution(self, questions: List[Question], easy_target: int, medium_target: int, hard_target: int) -> List[Question]:
-        """Force exact difficulty distribution using proper stratified sampling (based on research)"""
-        try:
-            import random
+            # Step 2: Categorize question pool into difficulty pools
+            hard_pool = []
+            easy_pool = []
+            medium_pool = []
             
-            # Step 1: Sort all questions by difficulty_score to create strata
-            sorted_questions = sorted(questions, key=lambda q: q.difficulty_score or 0.5)
-            total_questions = len(sorted_questions)
+            for question in question_pool:
+                difficulty = self.determine_question_difficulty(question)
+                if difficulty == "Hard":
+                    hard_pool.append(question)
+                elif difficulty == "Easy":
+                    easy_pool.append(question)
+                else:
+                    medium_pool.append(question)
             
-            if total_questions < 12:
-                logger.warning(f"Insufficient questions for stratified sampling: {total_questions}")
-                return sorted_questions
+            logger.info(f"Difficulty pools: Hard={len(hard_pool)}, Easy={len(easy_pool)}, Medium={len(medium_pool)}")
             
-            # Step 2: Create difficulty strata based on position (not natural difficulty)
-            # This ensures we FORCE the distribution regardless of natural classification
-            third_size = total_questions // 3
-            
-            easy_stratum = sorted_questions[:third_size]                    # Lowest third -> Easy
-            medium_stratum = sorted_questions[third_size:2*third_size]      # Middle third -> Medium  
-            hard_stratum = sorted_questions[2*third_size:]                  # Highest third -> Hard
-            
-            logger.info(f"STRATIFIED strata: Easy={len(easy_stratum)}, Medium={len(medium_stratum)}, Hard={len(hard_stratum)}")
-            
-            # Step 3: Sample from each stratum according to targets (FORCE distribution)
+            # Step 3: Fill by stratum in order with existing filters
             selected_questions = []
             used_combinations = set()
+            backfill_notes = []
             
-            # Sample Easy questions (from lowest difficulty stratum)
-            easy_sampled = self.sample_with_coverage_priority(easy_stratum, easy_target, "Easy", used_combinations)
-            selected_questions.extend(easy_sampled)
+            # Fill Hard (H1): pick 1 from Hard pool with all filters
+            hard_selected = self.fill_difficulty_quota(
+                hard_pool, hard_quota, "Hard", used_combinations, 
+                balanced_distribution, selected_questions
+            )
+            selected_questions.extend(hard_selected)
             
-            # Sample Medium questions (from middle difficulty stratum)  
-            medium_sampled = self.sample_with_coverage_priority(medium_stratum, medium_target, "Medium", used_combinations)
-            selected_questions.extend(medium_sampled)
+            # Fill Easy (E2): pick 2 from Easy pool with all filters  
+            easy_selected = self.fill_difficulty_quota(
+                easy_pool, easy_quota, "Easy", used_combinations,
+                balanced_distribution, selected_questions
+            )
+            selected_questions.extend(easy_selected)
             
-            # Sample Hard questions (from highest difficulty stratum)
-            hard_sampled = self.sample_with_coverage_priority(hard_stratum, hard_target, "Hard", used_combinations)
-            selected_questions.extend(hard_sampled)
+            # Fill Medium (M9): fill remaining from Medium pool
+            medium_selected = self.fill_difficulty_quota(
+                medium_pool, medium_quota, "Medium", used_combinations,
+                balanced_distribution, selected_questions
+            )
+            selected_questions.extend(medium_selected)
             
-            # Fill any remaining slots
-            while len(selected_questions) < 12:
-                remaining = [q for q in sorted_questions if q not in selected_questions]
-                if not remaining:
-                    break
-                selected_questions.append(remaining[0])
+            # Step 4: Single backfill pass if pools were short
+            if len(selected_questions) < 12:
+                backfilled = self.perform_backfill(
+                    selected_questions, hard_pool, easy_pool, medium_pool,
+                    difficulty_targets, used_combinations, backfill_notes
+                )
+                selected_questions.extend(backfilled)
             
-            # Step 4: Mark questions with FORCED difficulty for validation
-            for i, question in enumerate(selected_questions[:easy_target]):
-                setattr(question, '_forced_difficulty', 'Easy')
-            for i, question in enumerate(selected_questions[easy_target:easy_target+medium_target]):
-                setattr(question, '_forced_difficulty', 'Medium')
-            for i, question in enumerate(selected_questions[easy_target+medium_target:]):
-                setattr(question, '_forced_difficulty', 'Hard')
+            # Step 5: Generate telemetry
+            difficulty_actual = self.calculate_actual_difficulty_distribution(selected_questions)
             
-            # Step 5: Validate the forced distribution
-            final_difficulty_counts = {'Easy': easy_target, 'Medium': medium_target, 'Hard': hard_target}
-            logger.info(f"FORCED stratified distribution: {final_difficulty_counts}")
+            # Store telemetry in session metadata format
+            telemetry = {
+                'difficulty_targets': difficulty_targets,
+                'difficulty_actual': difficulty_actual,
+                'backfill_notes': backfill_notes if backfill_notes else None,
+                'quota_system_used': True
+            }
+            
+            logger.info(f"QUOTA RESULTS: Targets={difficulty_targets} vs Actual={difficulty_actual}")
+            if backfill_notes:
+                logger.info(f"Backfill notes: {backfill_notes}")
+            
+            # Add telemetry to questions for metadata inclusion
+            setattr(selected_questions[0] if selected_questions else None, '_quota_telemetry', telemetry)
             
             return selected_questions[:12]
             
         except Exception as e:
-            logger.error(f"Error in forced stratified distribution: {e}")
-            return questions[:12]
+            logger.error(f"Error in quota-based coverage selection: {e}")
+            return question_pool[:12]
     
-    def sample_with_coverage_priority(self, stratum: List[Question], target_count: int, forced_difficulty: str, used_combinations: set) -> List[Question]:
-        """Sample from stratum with coverage priority and forced difficulty assignment"""
+    def fill_difficulty_quota(self, pool: List[Question], quota: int, difficulty: str, 
+                             used_combinations: set, category_distribution: Dict[str, int],
+                             already_selected: List[Question]) -> List[Question]:
+        """Fill quota for specific difficulty with existing category/coverage filters"""
         try:
-            if not stratum or target_count <= 0:
+            if quota <= 0 or not pool:
                 return []
             
             import random
+            selected = []
             
-            # Prioritize questions with new subcategory-type combinations for coverage
+            # Apply coverage priority within this difficulty pool
             coverage_prioritized = []
             fallback_questions = []
             
-            for question in stratum:
+            for question in pool:
                 subcategory = question.subcategory or 'Unknown'
-                question_type = question.type_of_question or 'General'
+                question_type = question.type_of_question or 'General'  
                 combination = f"{subcategory}::{question_type}"
                 
+                # Check if this question would exceed category quotas
+                category = self.get_category_from_subcategory(subcategory)
+                category_count = sum(1 for q in already_selected + selected 
+                                   if self.get_category_from_subcategory(q.subcategory or '') == category)
+                category_limit = category_distribution.get(category, 99)
+                
+                if category_count >= category_limit:
+                    continue  # Skip if would exceed category quota
+                
+                # Prioritize new combinations for coverage
                 if combination not in used_combinations:
                     coverage_prioritized.append(question)
                 else:
                     fallback_questions.append(question)
             
-            # Sample prioritizing coverage, then fallback
-            sampled = []
-            
-            # First, take from coverage_prioritized up to target
-            available_coverage = min(len(coverage_prioritized), target_count)
+            # Sample from coverage_prioritized first, then fallback
+            available_coverage = min(len(coverage_prioritized), quota)
             if available_coverage > 0:
-                sampled.extend(random.sample(coverage_prioritized, available_coverage))
+                selected.extend(random.sample(coverage_prioritized, available_coverage))
             
-            # Fill remaining slots from fallback if needed
-            remaining_needed = target_count - len(sampled)
+            # Fill remaining from fallback if needed
+            remaining_needed = quota - len(selected)
             if remaining_needed > 0 and fallback_questions:
                 available_fallback = min(len(fallback_questions), remaining_needed)
-                sampled.extend(random.sample(fallback_questions, available_fallback))
+                selected.extend(random.sample(fallback_questions, available_fallback))
             
-            # If still not enough, repeat questions as needed
-            while len(sampled) < target_count and stratum:
-                sampled.append(random.choice(stratum))
-            
-            # Mark combinations as used and assign forced difficulty
-            for question in sampled:
+            # Update used combinations
+            for question in selected:
                 subcategory = question.subcategory or 'Unknown'
                 question_type = question.type_of_question or 'General'
                 combination = f"{subcategory}::{question_type}"
                 used_combinations.add(combination)
-                
-                # Assign forced difficulty for later validation
-                setattr(question, '_forced_difficulty', forced_difficulty)
             
-            logger.info(f"Sampled {len(sampled)} questions for FORCED {forced_difficulty} difficulty")
-            return sampled[:target_count]
+            logger.info(f"Filled {difficulty} quota: {len(selected)}/{quota} questions")
+            return selected
             
         except Exception as e:
-            logger.error(f"Error sampling with coverage priority: {e}")
+            logger.error(f"Error filling {difficulty} quota: {e}")
             return []
+    
+    def perform_backfill(self, selected_questions: List[Question], hard_pool: List[Question], 
+                        easy_pool: List[Question], medium_pool: List[Question],
+                        difficulty_targets: Dict[str, int], used_combinations: set, 
+                        backfill_notes: List[str]) -> List[Question]:
+        """Single-pass backfill with clear logging"""
+        try:
+            needed = 12 - len(selected_questions)
+            if needed <= 0:
+                return []
+            
+            import random
+            backfilled = []
+            
+            # Determine which pools were short
+            actual_counts = self.calculate_actual_difficulty_distribution(selected_questions)
+            
+            # Backfill logic: H short → M, E short → M, M short → E then H
+            if actual_counts.get('Hard', 0) < difficulty_targets.get('Hard', 0):
+                # Hard was short, backfill from Medium
+                available_medium = [q for q in medium_pool if q not in selected_questions]
+                if available_medium and len(backfilled) < needed:
+                    backfill_q = random.choice(available_medium)
+                    backfilled.append(backfill_q)
+                    backfill_notes.append(f"Hard short by 1 → filled from Medium")
+            
+            if actual_counts.get('Easy', 0) < difficulty_targets.get('Easy', 0) and len(backfilled) < needed:
+                # Easy was short, backfill from Medium
+                available_medium = [q for q in medium_pool if q not in selected_questions + backfilled]
+                shortage = difficulty_targets.get('Easy', 0) - actual_counts.get('Easy', 0)
+                for _ in range(min(shortage, len(available_medium), needed - len(backfilled))):
+                    backfill_q = random.choice(available_medium)
+                    backfilled.append(backfill_q) 
+                    available_medium.remove(backfill_q)
+                if shortage > 0:
+                    backfill_notes.append(f"Easy short by {shortage} → filled from Medium")
+            
+            if len(backfilled) < needed:
+                # Still need more, Medium was short - backfill from Easy first, then Hard
+                remaining_needed = needed - len(backfilled)
+                
+                # Try Easy first
+                available_easy = [q for q in easy_pool if q not in selected_questions + backfilled]
+                easy_backfill = min(len(available_easy), remaining_needed)
+                if easy_backfill > 0:
+                    backfilled.extend(random.sample(available_easy, easy_backfill))
+                    backfill_notes.append(f"Medium short → filled {easy_backfill} from Easy")
+                
+                # Then Hard if still needed
+                if len(backfilled) < needed:
+                    available_hard = [q for q in hard_pool if q not in selected_questions + backfilled]
+                    hard_backfill = min(len(available_hard), needed - len(backfilled))
+                    if hard_backfill > 0:
+                        backfilled.extend(random.sample(available_hard, hard_backfill))
+                        backfill_notes.append(f"Medium short → filled {hard_backfill} from Hard")
+            
+            logger.info(f"Backfilled {len(backfilled)} questions: {backfill_notes}")
+            return backfilled
+            
+        except Exception as e:
+            logger.error(f"Error in backfill: {e}")
+            return []
+    
+    def calculate_actual_difficulty_distribution(self, questions: List[Question]) -> Dict[str, int]:
+        """Calculate actual difficulty distribution of selected questions"""
+        try:
+            actual = {'Easy': 0, 'Medium': 0, 'Hard': 0}
+            
+            for question in questions:
+                difficulty = self.determine_question_difficulty(question)
+                if difficulty in actual:
+                    actual[difficulty] += 1
+            
+            return actual
+            
+        except Exception as e:
+            logger.error(f"Error calculating actual difficulty distribution: {e}")
+            return {'Easy': 0, 'Medium': 0, 'Hard': 0}
 
     def order_by_coverage_progression(self, questions: List[Question], phase_info: Dict[str, Any]) -> List[Question]:
         """Order questions for coverage phase - Easy to Medium progression"""
