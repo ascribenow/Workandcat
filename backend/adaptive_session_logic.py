@@ -457,7 +457,7 @@ class AdaptiveSessionLogic:
             
             # Priority 1: Questions from weak areas (60% of pool) - PYQ weighted
             if user_profile['weak_subcategories']:
-                weak_questions_result = await db.execute(
+                weak_questions_result = db.execute(
                     select(Question)
                     .where(
                         and_(
@@ -472,7 +472,7 @@ class AdaptiveSessionLogic:
             
             # Priority 2: Questions from moderate areas (30% of pool) - PYQ weighted
             if user_profile['moderate_subcategories']:
-                moderate_questions_result = await db.execute(
+                moderate_questions_result = db.execute(
                     select(Question)
                     .where(
                         and_(
@@ -487,7 +487,7 @@ class AdaptiveSessionLogic:
             
             # Priority 3: Questions from strong areas for retention (10% of pool) - PYQ weighted
             if user_profile['strong_subcategories']:
-                strong_questions_result = await db.execute(
+                strong_questions_result = db.execute(
                     select(Question)
                     .where(
                         and_(
@@ -502,7 +502,7 @@ class AdaptiveSessionLogic:
             
             # If not enough personalized questions, add PYQ-weighted random questions
             if len(question_pool) < 25:
-                additional_questions_result = await db.execute(
+                additional_questions_result = db.execute(
                     select(Question)
                     .where(Question.is_active == True)
                     .order_by(desc(Question.pyq_frequency_score), func.random())  # PYQ frequency weighted
