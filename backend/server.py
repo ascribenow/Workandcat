@@ -966,85 +966,99 @@ async def get_next_question(
         if not question:
             raise HTTPException(status_code=404, detail="Question not found")
         
-        # Generate MCQ options (with enhanced fallback for production reliability)
-        try:
-            options = await mcq_generator.generate_options(
-                question.stem, 
-                question.subcategory, 
-                question.difficulty_band or "Medium", 
-                question.answer
-            )
-        except Exception as mcq_error:
-            logger.warning(f"MCQ generation failed for question {question.id}: {mcq_error}")
-            # Enhanced fallback with meaningful mathematical options
-            import random
-            import re
-            
-            # Extract numbers from question for context-aware options
-            numbers = re.findall(r'\d+\.?\d*', question.stem)
-            question_stem = question.stem.lower()
-            
-            # Determine question type and generate appropriate options
-            if 'factor' in question_stem and numbers:
-                # Factors question - generate factor-based options
-                base_num = int(float(numbers[0])) if numbers else 8
-                options = {
-                    "A": str(base_num + 2),
-                    "B": str(base_num * 2),
-                    "C": str(base_num + 4), 
-                    "D": str(base_num * 3),
-                    "correct": "B"
-                }
-            elif 'time' in question_stem or 'speed' in question_stem:
-                # Time-speed-distance question
-                options = {
-                    "A": "2 hours",
-                    "B": "3 hours",
-                    "C": "4 hours",
-                    "D": "5 hours", 
-                    "correct": "C"
-                }
-            elif 'percentage' in question_stem or '%' in question.stem:
-                # Percentage question
-                options = {
-                    "A": "25%",
-                    "B": "50%", 
-                    "C": "75%",
-                    "D": "100%",
-                    "correct": "B"
-                }
-            elif any(word in question_stem for word in ['area', 'volume', 'perimeter']):
-                # Geometry question
-                base = int(float(numbers[0])) if numbers else 20
-                options = {
-                    "A": f"{base} sq units",
-                    "B": f"{base * 2} sq units",
-                    "C": f"{base * 3} sq units", 
-                    "D": f"{base * 4} sq units",
-                    "correct": "C"
-                }
-            elif numbers and len(numbers) >= 2:
-                # General numerical question - use extracted numbers
-                num1, num2 = float(numbers[0]), float(numbers[1])
-                result = int(num1 + num2)
-                options = {
-                    "A": str(result - 5),
-                    "B": str(result),
-                    "C": str(result + 10),
-                    "D": str(result * 2),
-                    "correct": "B"
-                }
-            else:
-                # Default mathematical options
-                options = {
-                    "A": "12",
-                    "B": "18",
-                    "C": "24", 
-                    "D": "36",
-                    "correct": "C"
-                }
-            
-            logger.info(f"Generated contextual fallback options for question type: {question.stem[:50]}...")
+        # Use stored MCQ options first, then generate if needed
+        options = None
+        
+        # First, try to use pre-stored MCQ options from enrichment
+        if question.mcq_options:
+            try:
+                import json
+                options = json.loads(question.mcq_options)
+                logger.info(f"Using stored MCQ options for question {question.id}")
+            except Exception as json_error:
+                logger.warning(f"Failed to parse stored MCQ options: {json_error}")
+        
+        # If no stored options, generate new ones
+        if not options:
+            try:
+                logger.info(f"Generating new MCQ options for question {question.id}")
+                options = await mcq_generator.generate_options(
+                    question.stem, 
+                    question.subcategory, 
+                    question.difficulty_band or "Medium", 
+                    question.answer
+                )
+            except Exception as mcq_error:
+                logger.warning(f"MCQ generation failed for question {question.id}: {mcq_error}")
+                # Enhanced fallback with meaningful mathematical options
+                import random
+                import re
+                
+                # Extract numbers from question for context-aware options
+                numbers = re.findall(r'\d+\.?\d*', question.stem)
+                question_stem = question.stem.lower()
+                
+                # Determine question type and generate appropriate options
+                if 'factor' in question_stem and numbers:
+                    # Factors question - generate factor-based options
+                    base_num = int(float(numbers[0])) if numbers else 8
+                    options = {
+                        "A": str(base_num + 2),
+                        "B": str(base_num * 2),
+                        "C": str(base_num + 4), 
+                        "D": str(base_num * 3),
+                        "correct": "B"
+                    }
+                elif 'time' in question_stem or 'speed' in question_stem:
+                    # Time-speed-distance question
+                    options = {
+                        "A": "2 hours",
+                        "B": "3 hours",
+                        "C": "4 hours",
+                        "D": "5 hours", 
+                        "correct": "C"
+                    }
+                elif 'percentage' in question_stem or '%' in question.stem:
+                    # Percentage question
+                    options = {
+                        "A": "25%",
+                        "B": "50%", 
+                        "C": "75%",
+                        "D": "100%",
+                        "correct": "B"
+                    }
+                elif any(word in question_stem for word in ['area', 'volume', 'perimeter']):
+                    # Geometry question
+                    base = int(float(numbers[0])) if numbers else 20
+                    options = {
+                        "A": f"{base} sq units",
+                        "B": f"{base * 2} sq units",
+                        "C": f"{base * 3} sq units", 
+                        "D": f"{base * 4} sq units",
+                        "correct": "C"
+                    }
+                elif numbers and len(numbers) >= 2:
+                    # General numerical question - use extracted numbers
+                    num1, num2 = float(numbers[0]), float(numbers[1])
+                    result = int(num1 + num2)
+                    options = {
+                        "A": str(result - 5),
+                        "B": str(result),
+                        "C": str(result + 10),
+                        "D": str(result * 2),
+                        "correct": "B"
+                    }
+                else:
+                    # Default mathematical options
+                    options = {
+                        "A": "12",
+                        "B": "18",
+                        "C": "24", 
+                        "D": "36",
+                        "correct": "C"
+                    }
+                
+                logger.info(f"Generated contextual fallback options for question type: {question.stem[:50]}...")
         
         return {
             "question": {
