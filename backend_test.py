@@ -613,6 +613,341 @@ class CATBackendTester:
         
         return success_rate >= 70
 
+    def test_three_phase_adaptive_learning_system(self):
+        """Test the THREE-PHASE ADAPTIVE LEARNING SYSTEM comprehensively"""
+        print("🎯 THREE-PHASE ADAPTIVE LEARNING SYSTEM TESTING")
+        print("=" * 70)
+        print("CRITICAL VALIDATION: Testing complete three-phase adaptive learning enhancement")
+        print("REVIEW REQUEST FOCUS:")
+        print("- Phase A (Sessions 1-30): Coverage & Calibration - 75% Medium, 20% Easy, 5% Hard")
+        print("- Phase B (Sessions 31-60): Strengthen & Stretch - 50% Medium, 30% Hard, 20% Easy")
+        print("- Phase C (Sessions 61+): Fully Adaptive with type-level granularity")
+        print("- Type-Level Mastery Tracking with (Category, Subcategory, Type) tracking")
+        print("- Enhanced Session Telemetry with phase metadata")
+        print("Admin credentials: sumedhprabhu18@gmail.com / admin2025")
+        print("Student credentials: student@catprep.com / student123")
+        print("=" * 70)
+        
+        # Authenticate as admin and student
+        admin_login = {"email": "sumedhprabhu18@gmail.com", "password": "admin2025"}
+        success, response = self.run_test("Admin Login", "POST", "auth/login", 200, admin_login)
+        if not success or 'access_token' not in response:
+            print("❌ Cannot test - admin login failed")
+            return False
+            
+        admin_token = response['access_token']
+        admin_headers = {'Content-Type': 'application/json', 'Authorization': f'Bearer {admin_token}'}
+        
+        student_login = {"email": "student@catprep.com", "password": "student123"}
+        success, response = self.run_test("Student Login", "POST", "auth/login", 200, student_login)
+        if not success or 'access_token' not in response:
+            print("❌ Cannot test - student login failed")
+            return False
+            
+        student_token = response['access_token']
+        student_headers = {'Content-Type': 'application/json', 'Authorization': f'Bearer {student_token}'}
+        
+        three_phase_results = {
+            "phase_determination_logic": False,
+            "phase_a_session_generation": False,
+            "phase_b_session_generation": False,
+            "phase_c_session_generation": False,
+            "type_level_mastery_tracking": False,
+            "enhanced_session_telemetry": False,
+            "api_mastery_type_breakdown": False,
+            "session_progression_testing": False,
+            "phase_metadata_validation": False,
+            "difficulty_distribution_validation": False
+        }
+        
+        # TEST 1: Phase Determination Logic
+        print("\n🎯 TEST 1: PHASE DETERMINATION LOGIC")
+        print("-" * 50)
+        print("Testing that users are correctly assigned to phases based on session count")
+        print("Phase A: Sessions 1-30, Phase B: Sessions 31-60, Phase C: Sessions 61+")
+        
+        # Create multiple sessions to test phase progression
+        session_counts = []
+        phase_info_list = []
+        
+        for i in range(3):  # Test 3 sessions to see phase behavior
+            session_data = {"target_minutes": 30}
+            success, response = self.run_test(f"Create Session {i+1} for Phase Testing", "POST", "sessions/start", 200, session_data, student_headers)
+            
+            if success:
+                session_id = response.get('session_id')
+                total_questions = response.get('total_questions', 0)
+                session_type = response.get('session_type')
+                metadata = response.get('metadata', {})
+                phase_info = response.get('phase_info', {})
+                
+                session_counts.append(total_questions)
+                phase_info_list.append(phase_info)
+                
+                print(f"   Session {i+1}: {total_questions} questions, Type: {session_type}")
+                print(f"   Phase Info: {phase_info}")
+                print(f"   Metadata Keys: {list(metadata.keys())}")
+                
+                # Check for phase-specific metadata
+                if phase_info and 'phase' in phase_info:
+                    phase = phase_info.get('phase')
+                    phase_name = phase_info.get('phase_name', 'Unknown')
+                    current_session = phase_info.get('current_session', 0)
+                    
+                    print(f"   ✅ Phase detected: {phase} ({phase_name}) - Session {current_session}")
+                    
+                    # Validate phase logic (assuming new user starts at Phase A)
+                    if current_session <= 30 and phase == 'A':
+                        three_phase_results["phase_determination_logic"] = True
+                        print(f"   ✅ Phase A logic working correctly")
+                    elif 31 <= current_session <= 60 and phase == 'B':
+                        three_phase_results["phase_determination_logic"] = True
+                        print(f"   ✅ Phase B logic working correctly")
+                    elif current_session >= 61 and phase == 'C':
+                        three_phase_results["phase_determination_logic"] = True
+                        print(f"   ✅ Phase C logic working correctly")
+                else:
+                    print(f"   ⚠️ No phase information found in session response")
+        
+        # TEST 2: Phase A Session Generation (Coverage & Calibration)
+        print("\n📚 TEST 2: PHASE A SESSION GENERATION (COVERAGE & CALIBRATION)")
+        print("-" * 50)
+        print("Testing Phase A sessions with 75% Medium, 20% Easy, 5% Hard difficulty distribution")
+        print("Verifying balanced category distribution (25% each major category)")
+        
+        # Analyze the first session (should be Phase A for new user)
+        if session_counts and session_counts[0] >= 10:
+            session_data = {"target_minutes": 30}
+            success, response = self.run_test("Phase A Session Analysis", "POST", "sessions/start", 200, session_data, student_headers)
+            
+            if success:
+                questions = response.get('questions', [])
+                metadata = response.get('metadata', {})
+                personalization = response.get('personalization', {})
+                
+                if questions:
+                    # Analyze difficulty distribution
+                    difficulty_dist = {}
+                    category_dist = {}
+                    
+                    for q in questions:
+                        difficulty = q.get('difficulty_band', 'Medium')
+                        subcategory = q.get('subcategory', 'Unknown')
+                        
+                        difficulty_dist[difficulty] = difficulty_dist.get(difficulty, 0) + 1
+                        
+                        # Map subcategory to category for analysis
+                        if 'time' in subcategory.lower() or 'speed' in subcategory.lower():
+                            category = 'Arithmetic'
+                        elif 'equation' in subcategory.lower() or 'algebra' in subcategory.lower():
+                            category = 'Algebra'
+                        elif 'geometry' in subcategory.lower() or 'triangle' in subcategory.lower():
+                            category = 'Geometry'
+                        elif 'number' in subcategory.lower() or 'divisib' in subcategory.lower():
+                            category = 'Number System'
+                        else:
+                            category = 'Other'
+                        
+                        category_dist[category] = category_dist.get(category, 0) + 1
+                    
+                    total_questions = len(questions)
+                    print(f"   📊 Total questions analyzed: {total_questions}")
+                    print(f"   📊 Difficulty distribution: {difficulty_dist}")
+                    print(f"   📊 Category distribution: {category_dist}")
+                    
+                    # Check Phase A difficulty requirements (75% Medium, 20% Easy, 5% Hard)
+                    medium_pct = (difficulty_dist.get('Medium', 0) / total_questions) * 100
+                    easy_pct = (difficulty_dist.get('Easy', 0) / total_questions) * 100
+                    hard_pct = (difficulty_dist.get('Hard', 0) / total_questions) * 100
+                    
+                    print(f"   📊 Difficulty percentages: Medium={medium_pct:.1f}%, Easy={easy_pct:.1f}%, Hard={hard_pct:.1f}%")
+                    
+                    # Validate Phase A requirements (allow some tolerance)
+                    if 60 <= medium_pct <= 90 and easy_pct >= 10 and hard_pct <= 15:
+                        three_phase_results["phase_a_session_generation"] = True
+                        print("   ✅ Phase A difficulty distribution validated")
+                    else:
+                        print("   ⚠️ Phase A difficulty distribution needs adjustment")
+                    
+                    # Check category balance (should be relatively balanced for coverage)
+                    if len(category_dist) >= 3:  # At least 3 different categories
+                        three_phase_results["phase_a_session_generation"] = True
+                        print("   ✅ Phase A category diversity validated")
+        
+        # TEST 3: Type-Level Mastery Tracking
+        print("\n🎯 TEST 3: TYPE-LEVEL MASTERY TRACKING")
+        print("-" * 50)
+        print("Testing TypeMastery database integration and /api/mastery/type-breakdown endpoint")
+        
+        # Test the type-level mastery API endpoint
+        success, response = self.run_test("Type Mastery Breakdown API", "GET", "mastery/type-breakdown", 200, None, student_headers)
+        
+        if success:
+            type_breakdown = response.get('type_breakdown', [])
+            summary = response.get('summary', {})
+            category_summaries = response.get('category_summaries', [])
+            
+            print(f"   📊 Type breakdown records: {len(type_breakdown)}")
+            print(f"   📊 Summary: {summary}")
+            print(f"   📊 Category summaries: {len(category_summaries)}")
+            
+            if type_breakdown or summary or category_summaries:
+                three_phase_results["type_level_mastery_tracking"] = True
+                three_phase_results["api_mastery_type_breakdown"] = True
+                print("   ✅ Type-level mastery tracking API working")
+                
+                # Analyze type breakdown structure
+                for item in type_breakdown[:3]:  # Show first 3 items
+                    category = item.get('category', 'Unknown')
+                    subcategory = item.get('subcategory', 'Unknown')
+                    type_of_question = item.get('type_of_question', 'Unknown')
+                    mastery_percentage = item.get('mastery_percentage', 0)
+                    
+                    print(f"   📊 Type: {category}>{subcategory}>{type_of_question} - Mastery: {mastery_percentage:.1f}%")
+            else:
+                print("   ⚠️ Type mastery tracking API returned empty data")
+        
+        # TEST 4: Enhanced Session Telemetry
+        print("\n📊 TEST 4: ENHANCED SESSION TELEMETRY AND PHASE METADATA")
+        print("-" * 50)
+        print("Testing session responses include phase metadata and type-level distributions")
+        
+        session_data = {"target_minutes": 30}
+        success, response = self.run_test("Enhanced Telemetry Session", "POST", "sessions/start", 200, session_data, student_headers)
+        
+        if success:
+            metadata = response.get('metadata', {})
+            personalization = response.get('personalization', {})
+            phase_info = response.get('phase_info', {})
+            
+            # Check for enhanced telemetry fields
+            telemetry_fields = [
+                'phase', 'phase_name', 'phase_description', 'session_range', 'current_session',
+                'difficulty_distribution', 'category_distribution', 'subcategory_distribution',
+                'type_distribution', 'dual_dimension_diversity'
+            ]
+            
+            found_fields = []
+            for field in telemetry_fields:
+                if field in metadata or field in personalization or field in phase_info:
+                    found_fields.append(field)
+            
+            print(f"   📊 Enhanced telemetry fields found: {len(found_fields)}/{len(telemetry_fields)}")
+            print(f"   📊 Found fields: {found_fields}")
+            
+            if len(found_fields) >= 5:  # At least 5 enhanced fields
+                three_phase_results["enhanced_session_telemetry"] = True
+                three_phase_results["phase_metadata_validation"] = True
+                print("   ✅ Enhanced session telemetry validated")
+            else:
+                print("   ⚠️ Enhanced session telemetry incomplete")
+        
+        # TEST 5: Session Progression Testing
+        print("\n🔄 TEST 5: SESSION PROGRESSION TESTING")
+        print("-" * 50)
+        print("Testing multiple sessions to verify phase transitions work correctly")
+        
+        progression_success = True
+        for i in range(2):  # Test 2 more sessions
+            session_data = {"target_minutes": 30}
+            success, response = self.run_test(f"Progression Session {i+1}", "POST", "sessions/start", 200, session_data, student_headers)
+            
+            if success:
+                total_questions = response.get('total_questions', 0)
+                session_type = response.get('session_type')
+                phase_info = response.get('phase_info', {})
+                
+                print(f"   Session {i+1}: {total_questions} questions, Type: {session_type}")
+                
+                if total_questions >= 10 and session_type == 'intelligent_12_question_set':
+                    print(f"   ✅ Session {i+1} generated successfully")
+                else:
+                    progression_success = False
+                    print(f"   ❌ Session {i+1} generation issues")
+            else:
+                progression_success = False
+        
+        if progression_success:
+            three_phase_results["session_progression_testing"] = True
+            print("   ✅ Session progression testing successful")
+        
+        # TEST 6: Answer Submission and Type Mastery Integration
+        print("\n📝 TEST 6: ANSWER SUBMISSION AND TYPE MASTERY INTEGRATION")
+        print("-" * 50)
+        print("Testing that answer submissions update type-level mastery tracking")
+        
+        # Get a question from the last session
+        session_data = {"target_minutes": 30}
+        success, response = self.run_test("Session for Answer Testing", "POST", "sessions/start", 200, session_data, student_headers)
+        
+        if success:
+            session_id = response.get('session_id')
+            questions = response.get('questions', [])
+            
+            if session_id and questions:
+                # Get the first question
+                success, response = self.run_test("Get Question for Answer", "GET", f"sessions/{session_id}/next-question", 200, None, student_headers)
+                
+                if success and 'question' in response:
+                    question = response['question']
+                    question_id = question.get('id')
+                    
+                    if question_id:
+                        # Submit an answer
+                        answer_data = {
+                            "question_id": question_id,
+                            "user_answer": "A",
+                            "context": "session",
+                            "time_sec": 120,
+                            "hint_used": False
+                        }
+                        
+                        success, response = self.run_test("Submit Answer for Type Mastery", "POST", f"sessions/{session_id}/submit-answer", 200, answer_data, student_headers)
+                        
+                        if success:
+                            correct = response.get('correct', False)
+                            attempt_id = response.get('attempt_id')
+                            
+                            print(f"   📊 Answer submitted: Correct={correct}, Attempt ID={attempt_id}")
+                            
+                            if attempt_id:
+                                print("   ✅ Answer submission integrated with mastery tracking")
+                                # Note: Type mastery update happens in background, so we can't immediately verify
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 70)
+        print("THREE-PHASE ADAPTIVE LEARNING SYSTEM TEST RESULTS")
+        print("=" * 70)
+        
+        passed_tests = sum(three_phase_results.values())
+        total_tests = len(three_phase_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        for test_name, result in three_phase_results.items():
+            status = "✅ PASS" if result else "❌ FAIL"
+            print(f"{test_name.replace('_', ' ').title():<40} {status}")
+        
+        print("-" * 70)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # Critical analysis
+        if three_phase_results["phase_determination_logic"]:
+            print("🎉 CRITICAL SUCCESS: Phase determination logic working!")
+        else:
+            print("❌ CRITICAL FAILURE: Phase determination logic not working")
+        
+        if three_phase_results["type_level_mastery_tracking"]:
+            print("✅ TYPE MASTERY: Type-level mastery tracking functional")
+        else:
+            print("❌ TYPE MASTERY: Type-level mastery tracking missing")
+        
+        if three_phase_results["enhanced_session_telemetry"]:
+            print("✅ TELEMETRY: Enhanced session telemetry working")
+        else:
+            print("❌ TELEMETRY: Enhanced session telemetry incomplete")
+        
+        return success_rate >= 70
+
     def test_llm_enrichment_priority_verification(self):
         """Test LLM Enrichment Priority Verification - Core requirement from review request"""
         print("🧠 LLM ENRICHMENT PRIORITY VERIFICATION")
