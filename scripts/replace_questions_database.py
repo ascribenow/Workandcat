@@ -88,10 +88,45 @@ async def download_and_parse_csv():
         logger.error(f"Error loading/parsing local CSV: {e}")
         return []
 
+async def ensure_default_topic(db: Session):
+    """Ensure we have at least one topic to assign questions to"""
+    try:
+        # Check if any topics exist
+        existing_topic = db.query(Topic).first()
+        if existing_topic:
+            logger.info(f"Using existing topic: {existing_topic.name} (ID: {existing_topic.id})")
+            return existing_topic.id
+        
+        # Create a default topic if none exist
+        logger.info("Creating default topic for question import...")
+        default_topic = Topic(
+            id=str(uuid.uuid4()),
+            name="General Quantitative Aptitude",
+            category="Arithmetic", 
+            subcategory="General",
+            difficulty_band="Medium"
+        )
+        db.add(default_topic)
+        db.commit()
+        
+        logger.info(f"Created default topic: {default_topic.name} (ID: {default_topic.id})")
+        return default_topic.id
+        
+    except Exception as e:
+        logger.error(f"Error ensuring default topic: {e}")
+        db.rollback()
+        return None
+
 async def import_questions_to_database(questions_data: list, db: Session):
     """Import new questions to database without LLM enrichment first"""
     try:
         logger.info("📥 Importing questions to database...")
+        
+        # Ensure we have a default topic to assign questions to
+        default_topic_id = await ensure_default_topic(db)
+        if not default_topic_id:
+            logger.error("Could not create/find a default topic")
+            return 0
         
         imported_count = 0
         
@@ -106,7 +141,7 @@ async def import_questions_to_database(questions_data: list, db: Session):
                     detailed_solution="", # Will be enriched later
                     subcategory="", # Will be enriched later
                     type_of_question="", # Will be enriched later
-                    topic_id=None, # Will be set during enrichment
+                    topic_id=default_topic_id, # Assign to default topic
                     difficulty_band="Medium", # Default
                     difficulty_score=0.5, # Default
                     importance_index=0.5, # Default
