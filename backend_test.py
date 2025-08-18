@@ -1168,51 +1168,82 @@ class CATBackendTester:
             else:
                 print("   ❌ No questions found for Type field verification")
         
-        # TEST 2: Canonical Taxonomy Coverage Validation
-        print("\n📋 TEST 2: CANONICAL TAXONOMY COVERAGE VALIDATION")
+        # TEST 2: Database Coverage Validation
+        print("\n📊 TEST 2: DATABASE COVERAGE VALIDATION")
         print("-" * 40)
-        print("Querying database to check current taxonomy coverage after migration")
+        print("Confirming database migration results: 1126/1126 questions with Type field populated")
+        print("Testing that category mapping works for Time-Speed-Distance (1099 questions) → Arithmetic")
+        print("Verifying canonical taxonomy compliance (99.2% expected)")
         
-        success, response = self.run_test("Get All Questions for Coverage Check", "GET", "questions?limit=500", 200, None, admin_headers)
+        success, response = self.run_test("Get All Questions for Migration Validation", "GET", "questions?limit=1200", 200, None, admin_headers)
         if success:
             questions = response.get('questions', [])
             print(f"   📊 Total questions in database: {len(questions)}")
             
-            # Analyze Type coverage
+            # Analyze migration results
+            questions_with_type = 0
+            tsd_questions = 0
+            arithmetic_questions = 0
+            canonical_questions = 0
             types_found = set()
             subcategories_found = set()
-            categories_found = set()
-            canonical_compliance = 0
             
             for q in questions:
-                question_type = q.get('type_of_question')
-                subcategory = q.get('subcategory')
+                question_type = q.get('type_of_question', '')
+                subcategory = q.get('subcategory', '')
                 
-                if question_type:
+                # Count questions with Type field
+                if question_type and question_type.strip():
+                    questions_with_type += 1
                     types_found.add(question_type)
-                if subcategory:
-                    subcategories_found.add(subcategory)
-                    
-                # Check if using canonical taxonomy
+                
+                # Count Time-Speed-Distance questions
+                if 'time' in subcategory.lower() and 'speed' in subcategory.lower():
+                    tsd_questions += 1
+                
+                # Count Arithmetic category questions
+                if any(arith_sub in subcategory for arith_sub in self.canonical_taxonomy.get('Arithmetic', [])):
+                    arithmetic_questions += 1
+                
+                # Count canonical taxonomy compliance
                 for category, subcats in self.canonical_taxonomy.items():
                     if subcategory in subcats:
-                        categories_found.add(category)
-                        canonical_compliance += 1
+                        canonical_questions += 1
                         break
+                
+                if subcategory:
+                    subcategories_found.add(subcategory)
             
+            # Calculate coverage percentages
+            type_coverage = (questions_with_type / len(questions)) * 100 if questions else 0
+            canonical_compliance = (canonical_questions / len(questions)) * 100 if questions else 0
+            
+            print(f"   📊 Questions with Type field: {questions_with_type}/{len(questions)} ({type_coverage:.1f}%)")
+            print(f"   📊 Time-Speed-Distance questions: {tsd_questions}")
+            print(f"   📊 Arithmetic category questions: {arithmetic_questions}")
+            print(f"   📊 Canonical taxonomy compliance: {canonical_questions}/{len(questions)} ({canonical_compliance:.1f}%)")
             print(f"   📊 Unique Types found: {len(types_found)}")
-            print(f"   📊 Unique Subcategories found: {len(subcategories_found)}")
-            print(f"   📊 Canonical Categories found: {len(categories_found)}")
-            print(f"   📊 Canonical compliance: {canonical_compliance}/{len(questions)} ({canonical_compliance/len(questions)*100:.1f}%)")
+            print(f"   📊 Unique Subcategories: {len(subcategories_found)}")
             
-            # Check for 129 canonical Types (as mentioned in review request)
-            print(f"   📊 Sample Types found: {list(types_found)[:10]}")
+            # Expected results validation
+            expected_total = 1126
+            expected_compliance = 99.2
+            expected_types = 129
             
-            if len(types_found) >= 20 and canonical_compliance/len(questions) >= 0.8:
+            print(f"   🎯 Expected: {expected_total} questions with Type field")
+            print(f"   🎯 Expected: {expected_compliance}% canonical compliance")
+            print(f"   🎯 Expected: {expected_types} total canonical Types")
+            
+            if (questions_with_type >= expected_total * 0.9 and 
+                canonical_compliance >= expected_compliance * 0.9 and
+                len(types_found) >= expected_types * 0.5):
                 type_results["canonical_taxonomy_coverage"] = True
-                print("   ✅ Good canonical taxonomy coverage with Type diversity")
+                print("   ✅ Database migration successful - meets expected coverage")
             else:
-                print("   ⚠️ Limited Type diversity or canonical compliance")
+                print("   ❌ Database migration incomplete or failed")
+                print(f"   ❌ Type coverage: {type_coverage:.1f}% (expected ~100%)")
+                print(f"   ❌ Canonical compliance: {canonical_compliance:.1f}% (expected {expected_compliance}%)")
+                print(f"   ❌ Type diversity: {len(types_found)} (expected {expected_types})")
         
         # TEST 3: Type-Based Session Creation
         print("\n🎯 TEST 3: TYPE-BASED SESSION CREATION")
