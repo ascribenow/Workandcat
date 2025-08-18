@@ -2588,20 +2588,20 @@ class CATBackendTester:
 if __name__ == "__main__":
     tester = CATBackendTester()
     
-    print("🚀 CAT BACKEND TESTING SUITE - DUAL-DIMENSION DIVERSITY ENFORCEMENT")
+    print("🚀 CAT BACKEND TESTING SUITE - REFINED DUAL-DIMENSION DIVERSITY ENFORCEMENT")
     print("=" * 80)
-    print("Testing NEW Dual-Dimension Diversity enforcement system")
-    print("CRITICAL FOCUS: Subcategory diversity first, then type diversity within subcategories")
+    print("Testing REFINED Dual-Dimension Diversity enforcement system with improved question pool selection")
+    print("CRITICAL FOCUS: 100% success rate validation and enhanced logging")
     print("Base URL:", tester.base_url)
     print("=" * 80)
     
     # Run comprehensive tests
     try:
-        # Test the NEW Dual-Dimension Diversity Enforcement System
+        # Test the REFINED Dual-Dimension Diversity Enforcement System
         print("\n" + "="*80)
-        print("RUNNING DUAL-DIMENSION DIVERSITY ENFORCEMENT TESTS")
+        print("RUNNING REFINED DUAL-DIMENSION DIVERSITY ENFORCEMENT TESTS")
         print("="*80)
-        success = tester.test_dual_dimension_diversity_enforcement()
+        success = tester.test_refined_dual_dimension_diversity_enforcement()
         
         if success:
             print("🎉 Dual-Dimension Diversity Enforcement tests PASSED!")
