@@ -1014,7 +1014,11 @@ async def get_next_question(
                 "has_image": question.has_image,
                 "image_url": question.image_url,
                 "image_alt_text": question.image_alt_text,
-                "options": options
+                "options": options,
+                # Include solutions (with fallback when enrichment is missing)
+                "answer": question.answer or options.get("A", "Answer not available"),
+                "solution_approach": question.solution_approach or "Solution approach will be provided after enrichment",
+                "detailed_solution": question.detailed_solution or "Detailed solution will be provided after enrichment"
             },
             "session_progress": {
                 "current_question": answered_count + 1,
