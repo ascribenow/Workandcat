@@ -1470,34 +1470,36 @@ class CATBackendTester:
         return success_rate >= 70
 
 def main():
-    """Main test execution"""
-    print("🚀 STARTING TYPE-BASED SESSION GENERATION TESTING")
+    """Main test execution for taxonomy triple with 8 unique Types"""
+    print("🚀 STARTING TAXONOMY TRIPLE WITH 8 UNIQUE TYPES TESTING")
     print("=" * 60)
     
     tester = CATBackendTester()
     
-    # Test the complete taxonomy triple implementation
-    print("TESTING: Complete Taxonomy Triple (Category, Subcategory, Type) Implementation")
-    type_success = tester.test_complete_taxonomy_triple_implementation()
+    # Test the taxonomy triple implementation with 8 unique Types
+    print("TESTING: Taxonomy Triple Implementation with 8 Unique Types")
+    type_success = tester.test_taxonomy_triple_with_8_unique_types()
     
     print("\n" + "=" * 60)
     print("FINAL TEST SUMMARY")
     print("=" * 60)
     
     if type_success:
-        print("🎉 TYPE-BASED SESSION GENERATION: SUCCESSFUL")
-        print("   ✅ Database schema supports taxonomy triple")
-        print("   ✅ Canonical taxonomy coverage verified")
-        print("   ✅ Type-based session generation working")
+        print("🎉 TAXONOMY TRIPLE WITH 8 UNIQUE TYPES: SUCCESSFUL")
+        print("   ✅ Type field properly exposed in API responses")
+        print("   ✅ 8 unique Types available for session generation")
+        print("   ✅ 12-question session generation working")
         print("   ✅ Type diversity enforcement operational")
-        print("   ✅ Type metadata tracking functional")
-        print("   ✅ PYQ Type integration working")
+        print("   ✅ Category mapping verified (TSD → Arithmetic)")
+        print("   ✅ Session metadata includes Type tracking")
+        print("   ✅ Type-aware PYQ weighting functional")
         print("   ✅ Session intelligence provides Type-based rationale")
     else:
-        print("❌ TYPE-BASED SESSION GENERATION: ISSUES DETECTED")
+        print("❌ TAXONOMY TRIPLE WITH 8 UNIQUE TYPES: ISSUES DETECTED")
         print("   🚨 URGENT ACTION REQUIRED")
-        print("   ❌ Some Type-based functionality not working properly")
+        print("   ❌ Type-based session generation not working properly")
         print("   ❌ May need further development or debugging")
+        print("   ❌ Sessions may still generate only 2 questions instead of 12")
     
     return type_success
 
