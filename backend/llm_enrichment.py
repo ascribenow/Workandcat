@@ -299,7 +299,7 @@ RETURN FORMAT:
                 
         except Exception as e:
             logger.error(f"Categorization error: {e}")
-            return "Arithmetic", "Time–Speed–Distance (TSD)", "Basic TSD"
+            return "Arithmetic", "Time-Speed-Distance", "Basics"
     
     async def generate_solutions(self, stem: str, answer: str, category: str, subcategory: str) -> Tuple[str, str]:
         """
