@@ -1495,7 +1495,7 @@ def main():
     
     # Test the complete taxonomy triple implementation
     print("TESTING: Complete Taxonomy Triple (Category, Subcategory, Type) Implementation")
-    type_success = tester.test_type_based_session_generation()
+    type_success = tester.test_complete_taxonomy_triple_implementation()
     
     print("\n" + "=" * 60)
     print("FINAL TEST SUMMARY")
