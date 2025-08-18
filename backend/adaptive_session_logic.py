@@ -159,7 +159,8 @@ class AdaptiveSessionLogic:
                 "questions": ordered_questions,
                 "metadata": session_metadata,
                 "personalization_applied": True,
-                "enhancement_level": "phase_1_advanced"
+                "enhancement_level": "phase_1_advanced",
+                "session_type": "intelligent_12_question_set"  # Add session type for API compatibility
             }
             
         except Exception as e:
