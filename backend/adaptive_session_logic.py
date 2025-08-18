@@ -558,7 +558,7 @@ class AdaptiveSessionLogic:
             logger.error(f"Error applying enhanced selection strategies: {e}")
             return question_pool[:12]
 
-    async def select_by_dynamic_category_distribution(
+    def select_by_dynamic_category_distribution(
         self, 
         questions: List[Question], 
         user_profile: Dict,
