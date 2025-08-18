@@ -3294,11 +3294,11 @@ class CATBackendTester:
 if __name__ == "__main__":
     tester = CATBackendTester()
     
-    print("🚀 Starting COMPLETE Dual-Dimension Diversity Enforcement System Testing")
+    print("🚀 Starting FINAL Dual-Dimension Diversity Enforcement System Testing")
     print("=" * 80)
     
-    # Run the complete dual-dimension diversity enforcement test
-    success = tester.test_complete_dual_dimension_diversity_enforcement()
+    # Run the FINAL dual-dimension diversity enforcement test with questions in response
+    success = tester.test_final_dual_dimension_diversity_with_questions_in_response()
     
     print("\n" + "=" * 80)
     print("FINAL TEST SUMMARY")
@@ -3307,10 +3307,10 @@ if __name__ == "__main__":
     print(f"Tests passed: {tester.tests_passed}")
     
     if success:
-        print("🎉 COMPLETE DUAL-DIMENSION DIVERSITY ENFORCEMENT SYSTEM: WORKING!")
+        print("🎉 FINAL DUAL-DIMENSION DIVERSITY ENFORCEMENT SYSTEM: WORKING!")
         print("✅ All critical requirements met - system ready for production")
     else:
-        print("❌ COMPLETE DUAL-DIMENSION DIVERSITY ENFORCEMENT SYSTEM: NEEDS IMPROVEMENTS")
+        print("❌ FINAL DUAL-DIMENSION DIVERSITY ENFORCEMENT SYSTEM: NEEDS IMPROVEMENTS")
         print("⚠️ Critical requirements not fully met - system needs fixes")
     
     print("=" * 80)
