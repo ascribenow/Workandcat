@@ -87,7 +87,318 @@ class CATBackendTester:
             print(f"❌ Failed - Error: {str(e)}")
             return False, {}
 
-    def test_critical_llm_solution_re_enrichment(self):
+    def test_canonical_taxonomy_update(self):
+        """Test the new canonical taxonomy structure update"""
+        print("🎯 CANONICAL TAXONOMY UPDATE TESTING")
+        print("=" * 60)
+        print("Testing database update with new canonical taxonomy structure")
+        print("Admin credentials: sumedhprabhu18@gmail.com / admin2025")
+        print("=" * 60)
+        
+        # First authenticate as admin
+        admin_login = {
+            "email": "sumedhprabhu18@gmail.com",
+            "password": "admin2025"
+        }
+        
+        success, response = self.run_test("Admin Login", "POST", "auth/login", 200, admin_login)
+        if not success or 'access_token' not in response:
+            print("❌ Cannot test taxonomy update - admin login failed")
+            return False
+            
+        self.admin_token = response['access_token']
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {self.admin_token}'
+        }
+        
+        taxonomy_results = {
+            "admin_authentication": True,
+            "topics_table_update": False,
+            "new_subcategories_added": False,
+            "question_classification_test": False,
+            "llm_enrichment_with_taxonomy": False,
+            "session_creation_with_taxonomy": False,
+            "category_structure_validation": False,
+            "subcategory_coverage_validation": False
+        }
+        
+        # TEST 1: Initialize/Update Topics Table
+        print("\n🗄️ TEST 1: TOPICS TABLE UPDATE")
+        print("-" * 40)
+        print("Initializing topics table with canonical taxonomy")
+        
+        success, response = self.run_test("Initialize Topics Table", "POST", "admin/init-topics", 200, {}, headers)
+        if success:
+            print(f"   ✅ Topics initialization response: {response.get('message', 'Success')}")
+            taxonomy_results["topics_table_update"] = True
+        else:
+            print("   ❌ Failed to initialize topics table")
+        
+        # TEST 2: Verify New Subcategories Added
+        print("\n📋 TEST 2: NEW SUBCATEGORIES VERIFICATION")
+        print("-" * 40)
+        print("Checking if all new subcategories from canonical taxonomy are present")
+        
+        # Get all questions to see available subcategories
+        success, response = self.run_test("Get Questions for Subcategory Check", "GET", "questions?limit=100", 200, None, headers)
+        if success:
+            questions = response.get('questions', [])
+            found_subcategories = set()
+            
+            for q in questions:
+                subcategory = q.get('subcategory')
+                if subcategory:
+                    found_subcategories.add(subcategory)
+            
+            print(f"   📊 Found {len(found_subcategories)} unique subcategories in database")
+            
+            # Check for new subcategories from canonical taxonomy
+            new_subcategories = [
+                "Partnerships", "Maxima and Minima", "Special Polynomials",
+                "Mensuration 2D", "Mensuration 3D", "Number Properties", 
+                "Number Series", "Factorials"
+            ]
+            
+            found_new = []
+            missing_new = []
+            
+            for subcat in new_subcategories:
+                if subcat in found_subcategories:
+                    found_new.append(subcat)
+                else:
+                    missing_new.append(subcat)
+            
+            print(f"   ✅ Found new subcategories: {found_new}")
+            if missing_new:
+                print(f"   ⚠️ Missing new subcategories: {missing_new}")
+            
+            if len(found_new) > 0:
+                taxonomy_results["new_subcategories_added"] = True
+                print("   ✅ New subcategories successfully added to database")
+            else:
+                print("   ❌ No new subcategories found - may need manual addition")
+        
+        # TEST 3: Question Classification Test
+        print("\n🔍 TEST 3: QUESTION CLASSIFICATION WITH NEW TAXONOMY")
+        print("-" * 40)
+        print("Testing question creation and classification with new taxonomy structure")
+        
+        # Test question for each new category
+        test_questions = [
+            {
+                "stem": "TAXONOMY TEST: In a partnership, A invests Rs. 5000 and B invests Rs. 7000. If the profit is Rs. 2400, what is A's share?",
+                "hint_category": "Arithmetic",
+                "hint_subcategory": "Partnerships",
+                "source": "Taxonomy Test"
+            },
+            {
+                "stem": "TAXONOMY TEST: Find the maximum value of the function f(x) = -x² + 4x + 5.",
+                "hint_category": "Algebra", 
+                "hint_subcategory": "Maxima and Minima",
+                "source": "Taxonomy Test"
+            },
+            {
+                "stem": "TAXONOMY TEST: Find the area of a rectangle with length 12 cm and width 8 cm.",
+                "hint_category": "Geometry and Mensuration",
+                "hint_subcategory": "Mensuration 2D",
+                "source": "Taxonomy Test"
+            }
+        ]
+        
+        created_questions = []
+        for i, test_q in enumerate(test_questions):
+            success, response = self.run_test(f"Create Test Question {i+1}", "POST", "questions", 200, test_q, headers)
+            if success and 'question_id' in response:
+                created_questions.append({
+                    'id': response['question_id'],
+                    'subcategory': test_q['hint_subcategory']
+                })
+                print(f"   ✅ Created question for {test_q['hint_subcategory']}")
+            else:
+                print(f"   ❌ Failed to create question for {test_q['hint_subcategory']}")
+        
+        if len(created_questions) > 0:
+            taxonomy_results["question_classification_test"] = True
+            print(f"   ✅ Successfully created {len(created_questions)} questions with new taxonomy")
+        
+        # TEST 4: LLM Enrichment with New Taxonomy
+        print("\n🤖 TEST 4: LLM ENRICHMENT WITH NEW TAXONOMY")
+        print("-" * 40)
+        print("Testing LLM enrichment works with updated taxonomy structure")
+        
+        if created_questions:
+            # Wait for LLM processing
+            print("   ⏳ Waiting 15 seconds for LLM enrichment...")
+            time.sleep(15)
+            
+            # Check enrichment results
+            success, response = self.run_test("Check LLM Enrichment Results", "GET", "questions?limit=50", 200, None, headers)
+            if success:
+                questions = response.get('questions', [])
+                enriched_count = 0
+                
+                for created_q in created_questions:
+                    for q in questions:
+                        if q.get('id') == created_q['id']:
+                            answer = q.get('answer', '')
+                            solution = q.get('solution_approach', '')
+                            
+                            # Check if enriched (not generic)
+                            if (answer and answer != "To be generated by LLM" and 
+                                solution and "Mathematical approach" not in solution):
+                                enriched_count += 1
+                                print(f"   ✅ Question enriched for {created_q['subcategory']}")
+                            break
+                
+                if enriched_count > 0:
+                    taxonomy_results["llm_enrichment_with_taxonomy"] = True
+                    print(f"   ✅ LLM enrichment working with new taxonomy ({enriched_count}/{len(created_questions)} questions)")
+                else:
+                    print("   ⚠️ LLM enrichment may need more time or has issues")
+        
+        # TEST 5: Session Creation with New Taxonomy
+        print("\n🎯 TEST 5: SESSION CREATION WITH NEW TAXONOMY")
+        print("-" * 40)
+        print("Testing 12-question session creation works with updated taxonomy")
+        
+        # Login as student for session testing
+        student_login = {
+            "email": "student@catprep.com",
+            "password": "student123"
+        }
+        
+        success, response = self.run_test("Student Login for Session Test", "POST", "auth/login", 200, student_login)
+        if success and 'access_token' in response:
+            student_token = response['access_token']
+            student_headers = {
+                'Content-Type': 'application/json',
+                'Authorization': f'Bearer {student_token}'
+            }
+            
+            # Create session
+            session_data = {"target_minutes": 30}
+            success, response = self.run_test("Create Session with New Taxonomy", "POST", "sessions/start", 200, session_data, student_headers)
+            if success and 'session_id' in response:
+                session_id = response['session_id']
+                session_type = response.get('session_type', 'unknown')
+                total_questions = response.get('total_questions', 0)
+                
+                print(f"   ✅ Session created: {session_id}")
+                print(f"   📊 Session type: {session_type}")
+                print(f"   📊 Total questions: {total_questions}")
+                
+                if total_questions >= 12:
+                    taxonomy_results["session_creation_with_taxonomy"] = True
+                    print("   ✅ 12-question session working with new taxonomy")
+                else:
+                    print(f"   ⚠️ Session has only {total_questions} questions (expected 12)")
+                
+                # Test getting questions from session
+                success, response = self.run_test("Get Question from Session", "GET", f"sessions/{session_id}/next-question", 200, None, student_headers)
+                if success and 'question' in response:
+                    question = response['question']
+                    subcategory = question.get('subcategory', '')
+                    print(f"   ✅ Retrieved question with subcategory: {subcategory}")
+                    
+                    # Check if it's using new taxonomy
+                    if subcategory in [item for sublist in self.canonical_taxonomy.values() for item in sublist]:
+                        print("   ✅ Question uses canonical taxonomy subcategory")
+            else:
+                print("   ❌ Failed to create session")
+        else:
+            print("   ❌ Failed to login as student")
+        
+        # TEST 6: Category Structure Validation
+        print("\n📊 TEST 6: CATEGORY STRUCTURE VALIDATION")
+        print("-" * 40)
+        print("Validating new category structure (without A-, B-, C- prefixes)")
+        
+        success, response = self.run_test("Get Dashboard for Category Check", "GET", "dashboard/mastery", 200, None, headers)
+        if success:
+            mastery_data = response.get('mastery_by_topic', [])
+            found_categories = set()
+            
+            for topic in mastery_data:
+                category = topic.get('category_name', '')
+                if category:
+                    found_categories.add(category)
+            
+            print(f"   📊 Found categories: {list(found_categories)}")
+            
+            # Check for new category names (without prefixes)
+            expected_categories = ["Arithmetic", "Algebra", "Geometry and Mensuration", "Number System", "Modern Math"]
+            new_format_found = any(cat in found_categories for cat in expected_categories)
+            
+            if new_format_found:
+                taxonomy_results["category_structure_validation"] = True
+                print("   ✅ New category structure detected")
+            else:
+                print("   ⚠️ Still using old category format (A-Arithmetic, B-Algebra, etc.)")
+        
+        # TEST 7: Subcategory Coverage Validation
+        print("\n📋 TEST 7: SUBCATEGORY COVERAGE VALIDATION")
+        print("-" * 40)
+        print("Validating comprehensive subcategory coverage")
+        
+        success, response = self.run_test("Get Detailed Progress", "GET", "dashboard/mastery", 200, None, headers)
+        if success:
+            detailed_progress = response.get('detailed_progress', [])
+            covered_subcategories = set()
+            
+            for progress in detailed_progress:
+                subcategory = progress.get('subcategory', '')
+                if subcategory:
+                    covered_subcategories.add(subcategory)
+            
+            print(f"   📊 Total subcategories covered: {len(covered_subcategories)}")
+            
+            # Check coverage of canonical taxonomy
+            all_canonical_subcategories = [item for sublist in self.canonical_taxonomy.values() for item in sublist]
+            coverage_count = sum(1 for subcat in all_canonical_subcategories if subcat in covered_subcategories)
+            coverage_percentage = (coverage_count / len(all_canonical_subcategories)) * 100
+            
+            print(f"   📊 Canonical taxonomy coverage: {coverage_count}/{len(all_canonical_subcategories)} ({coverage_percentage:.1f}%)")
+            
+            if coverage_percentage >= 50:
+                taxonomy_results["subcategory_coverage_validation"] = True
+                print("   ✅ Good subcategory coverage of canonical taxonomy")
+            else:
+                print("   ⚠️ Low subcategory coverage - may need more questions")
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 60)
+        print("CANONICAL TAXONOMY UPDATE RESULTS")
+        print("=" * 60)
+        
+        passed_tests = sum(taxonomy_results.values())
+        total_tests = len(taxonomy_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        for test_name, result in taxonomy_results.items():
+            status = "✅ PASS" if result else "❌ FAIL"
+            print(f"{test_name.replace('_', ' ').title():<40} {status}")
+            
+        print("-" * 60)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # Critical analysis
+        if taxonomy_results["topics_table_update"] and taxonomy_results["new_subcategories_added"]:
+            print("🎉 TAXONOMY UPDATE SUCCESS: Database updated with new structure!")
+        else:
+            print("❌ TAXONOMY UPDATE ISSUES: Database may not be fully updated")
+        
+        if taxonomy_results["question_classification_test"] and taxonomy_results["llm_enrichment_with_taxonomy"]:
+            print("✅ QUESTION SYSTEM: Working with new taxonomy")
+        else:
+            print("⚠️ QUESTION SYSTEM: May have issues with new taxonomy")
+        
+        if taxonomy_results["session_creation_with_taxonomy"]:
+            print("✅ SESSION SYSTEM: 12-question sessions working with new taxonomy")
+        else:
+            print("❌ SESSION SYSTEM: Issues with new taxonomy structure")
+        
+        return success_rate >= 70
         """CRITICAL: Test and fix all questions with generic/wrong solutions in database"""
         print("🚨 CRITICAL LLM SOLUTION RE-ENRICHMENT TESTING")
         print("=" * 60)
