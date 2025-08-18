@@ -1053,11 +1053,16 @@ class CATBackendTester:
             
         return success_rate >= 70
 
-    def test_type_based_session_generation(self):
-        """Test complete taxonomy triple (Category, Subcategory, Type) implementation"""
-        print("🎯 TYPE-BASED SESSION GENERATION TESTING")
+    def test_complete_taxonomy_triple_implementation(self):
+        """Test complete taxonomy triple (Category, Subcategory, Type) implementation after migration and API fixes"""
+        print("🎯 COMPLETE TAXONOMY TRIPLE IMPLEMENTATION TESTING")
         print("=" * 60)
-        print("Testing complete taxonomy triple implementation with Type-based session generation")
+        print("Testing complete taxonomy triple (Category, Subcategory, Type) implementation after migration and API fixes")
+        print("CRITICAL TESTING OBJECTIVES:")
+        print("1. Verify Type field in API response (/api/questions endpoint)")
+        print("2. Test 12-Question Session Generation (/api/sessions/start endpoint)")
+        print("3. Type-Based Selection Verification (Type diversity enforcement)")
+        print("4. Database Coverage Validation (1126/1126 questions with Type field)")
         print("Admin credentials: sumedhprabhu18@gmail.com / admin2025")
         print("=" * 60)
         
