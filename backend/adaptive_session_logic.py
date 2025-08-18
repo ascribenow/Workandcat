@@ -814,6 +814,7 @@ class AdaptiveSessionLogic:
                 # Use cap of 3 for "Basics" type (most common), 2 for specific types
                 type_cap = 3 if question_type == "Basics" else 2
                 if current_type_count >= type_cap:
+                    logger.info(f"Skipping {subcategory}::{question_type} - type cap reached ({current_type_count}/{type_cap})")
                     continue  # Skip if type within subcategory cap reached
                 
                 # Add question - satisfies both caps
