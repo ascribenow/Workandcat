@@ -813,8 +813,8 @@ class AdaptiveSessionLogic:
                 type_within_subcategory_key = f"{subcategory}::{question_type}"
                 current_type_count = type_within_subcategory_counts.get(type_within_subcategory_key, 0)
                 
-                # Use cap of 3 for "Basics" type (most common), 2 for specific types
-                type_cap = 3 if question_type == "Basics" else 2
+                # Use cap of 2 for "Basics" type (stricter), 1-2 for specific types
+                type_cap = 2 if question_type == "Basics" else 1
                 if current_type_count >= type_cap:
                     logger.info(f"Skipping {subcategory}::{question_type} - type cap reached ({current_type_count}/{type_cap})")
                     continue  # Skip if type within subcategory cap reached
