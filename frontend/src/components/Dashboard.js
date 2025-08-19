@@ -277,7 +277,7 @@ export const Dashboard = () => {
       case 'study-plan':
         return <StudyPlanSystem />;
       case 'session':
-        return <SessionSystem sessionId={activeSessionId} onSessionEnd={handleSessionEnd} />;
+        return <SessionSystem sessionId={activeSessionId} sessionMetadata={sessionMetadata} onSessionEnd={handleSessionEnd} />;
       default:
         return renderDashboard();
     }
