@@ -1641,3 +1641,16 @@ LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 2025-08-19 15:58:35,788 - INFO - 
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:58:50 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:58:50,177 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:58:50,178 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:58:52,389 - INFO -   ✅ Improved formatting
+2025-08-19 15:58:52,589 - INFO - 
+🔄 [125/126] Processing formatting...
+2025-08-19 15:58:52,590 - INFO -   📝 Question: If N and x are positive integers such that N^N = 2¹⁶⁰ and N²...
+2025-08-19 15:58:52,590 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:58:52,590 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:58:52 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:58:52,590 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini

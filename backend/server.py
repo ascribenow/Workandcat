@@ -1644,6 +1644,108 @@ async def get_simple_taxonomy_dashboard(
 
 # Admin Routes
 
+@api_router.post("/admin/auto-enrich-all")
+async def auto_enrich_all_questions(current_user: User = Depends(require_admin)):
+    """
+    AUTOMATIC ENRICHMENT API - Follows your schema directive automatically
+    NO MORE MANUAL SCRIPTS - Enriches all questions with consistent, high-quality content
+    """
+    try:
+        logger.info("🚀 Starting automatic enrichment of all questions...")
+        
+        # Get all questions that need enrichment
+        from database import SessionLocal
+        db = SessionLocal()
+        try:
+            questions = db.query(Question).filter(
+                or_(
+                    Question.solution_approach == None,
+                    Question.detailed_solution == None,
+                    Question.solution_approach == "To Be Enriched",
+                    Question.detailed_solution == "To Be Enriched",
+                    Question.solution_approach == "",
+                    Question.detailed_solution == "",
+                )
+            ).all()
+            
+            if not questions:
+                return {
+                    "success": True,
+                    "message": "All questions are already enriched",
+                    "total_questions": 0,
+                    "enrichment_needed": 0
+                }
+            
+            logger.info(f"📊 Found {len(questions)} questions needing enrichment")
+            
+            # Use automatic enrichment service
+            auto_service = get_auto_enrichment_service()
+            results = await auto_service.batch_enrich_questions(questions, db)
+            
+            logger.info(f"🎉 Automatic enrichment completed!")
+            logger.info(f"📈 Success rate: {results['success_rate']:.1f}%")
+            logger.info(f"📊 Average quality: {results['average_quality']:.1f}")
+            
+            return {
+                "success": True,
+                "message": "Automatic enrichment completed successfully",
+                "results": results,
+                "schema_compliance": "All enrichment follows your 3-section schema directive",
+                "quality_control": "Anthropic validation included for maximum quality"
+            }
+        finally:
+            db.close()
+            
+    except Exception as e:
+        logger.error(f"❌ Auto-enrichment failed: {e}")
+        return {
+            "success": False,
+            "error": str(e),
+            "message": "Automatic enrichment encountered an error"
+        }
+
+@api_router.post("/admin/enrich-question/{question_id}")
+async def auto_enrich_single_question(question_id: str, current_user: User = Depends(require_admin)):
+    """
+    AUTOMATIC SINGLE QUESTION ENRICHMENT - Schema compliant, high quality
+    """
+    try:
+        from database import SessionLocal
+        db = SessionLocal()
+        try:
+            question = db.query(Question).filter(Question.id == question_id).first()
+            
+            if not question:
+                return {"success": False, "error": "Question not found"}
+            
+            # Use automatic enrichment service
+            auto_service = get_auto_enrichment_service()
+            result = await auto_service.enrich_question_automatically(question, db)
+            
+            if result["success"]:
+                return {
+                    "success": True,
+                    "message": "Question enriched successfully",
+                    "quality_score": result.get("quality_score"),
+                    "llm_used": result.get("llm_used"),
+                    "schema_compliant": True
+                }
+            else:
+                return {
+                    "success": False,
+                    "error": result.get("error"),
+                    "message": "Question enrichment failed"
+                }
+        finally:
+            db.close()
+                
+    except Exception as e:
+        logger.error(f"❌ Single question auto-enrichment failed: {e}")
+        return {
+            "success": False,
+            "error": str(e)
+        }
+
 @api_router.get("/admin/export-questions-csv")
 async def export_questions_csv(
     current_user: User = Depends(require_admin),
