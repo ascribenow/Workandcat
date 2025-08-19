@@ -6,6 +6,7 @@ Enrich newly added questions from CSV with LLM-generated content
 import sys
 import os
 sys.path.append('/app/backend')
+sys.path.append('/app/scripts')
 
 from database import *
 from human_friendly_solution_generator import HumanFriendlySolutionGenerator
