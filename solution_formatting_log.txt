@@ -306,3 +306,26 @@ LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 [92m15:33:38 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
 2025-08-19 15:33:38,493 - INFO - Wrapper: Completed Call, calling success_handler
 2025-08-19 15:33:38,493 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:33:40,602 - INFO -   ✅ Improved formatting
+2025-08-19 15:33:40,802 - INFO - 
+🔄 [24/126] Processing formatting...
+2025-08-19 15:33:40,802 - INFO -   📝 Question: What is the smallest number that has exactly 12 factors?...
+2025-08-19 15:33:40,802 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:33:40,802 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:33:40 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:33:40,803 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:33:44 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:33:44,936 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:33:44,937 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:33:47,057 - INFO -   ✅ Improved formatting
+2025-08-19 15:33:47,257 - INFO - 
+🔄 [25/126] Processing formatting...
+2025-08-19 15:33:47,258 - INFO -   📝 Question: The sum of the first two natural numbers, each having 15 fac...
+2025-08-19 15:33:47,258 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:33:47,258 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:33:47 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:33:47,259 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
