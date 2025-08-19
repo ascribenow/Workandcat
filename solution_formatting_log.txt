@@ -472,3 +472,16 @@ LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 2025-08-19 15:36:03,848 - INFO - 
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:36:22 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:36:22,302 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:36:22,303 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:36:24,464 - INFO -   ✅ Improved formatting
+2025-08-19 15:36:24,664 - INFO - 
+🔄 [37/126] Processing formatting...
+2025-08-19 15:36:24,664 - INFO -   📝 Question: N leaves a remainder of 4 when ÷ 33, what are the possible r...
+2025-08-19 15:36:24,664 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:36:24,664 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:36:24 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:36:24,665 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
