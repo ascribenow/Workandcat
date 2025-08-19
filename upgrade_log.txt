@@ -2616,3 +2616,30 @@ LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 2025-08-19 19:20:37,248 - INFO - 
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:20:47 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:20:47,018 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:20:47,018 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:20:47,020 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:20:47 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:20:47,021 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:20:48 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:20:48,873 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:20:48,874 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:20:48,875 - INFO -   📊 Overall Score: 10/10
+2025-08-19 19:20:48,875 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:20:51,124 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:20:51,124 - INFO -      Quality Score: 10
+2025-08-19 19:20:51,124 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:20:51,625 - INFO - 
+🔄 [42/127] Upgrading...
+2025-08-19 19:20:51,625 - INFO - 🔄 Upgrading: Three numbers leave remainders of 43, 47 and 49 on division ...
+2025-08-19 19:20:51,625 - INFO -    Issues: Contains $ signs, Explanation missing or too short
+2025-08-19 19:20:51,625 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): Three numbers leave remainders of 43, 47 and 49 on division ...
+2025-08-19 19:20:51,625 - INFO - 📂 Category: Time-Speed-Distance -> Basics
+2025-08-19 19:20:51,625 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:20:51 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:20:51,626 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
