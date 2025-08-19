@@ -206,7 +206,7 @@ Generate both solution approach and detailed solution:""")
                     detailed = self.clean_text(response_text)
                 
                 logger.info(f"  ✅ Google Gemini generated enhanced solutions")
-                return approach[:500], detailed[:2500]
+                return approach[:300], detailed[:2000]
                 
         except Exception as gemini_error:
             logger.warning(f"  ❌ Google Gemini failed for solutions: {gemini_error}")
