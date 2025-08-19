@@ -263,7 +263,7 @@ Please provide:
                     detailed = response_text
                 
                 logger.info(f"  ✅ OpenAI generated enhanced solutions")
-                return approach[:500], detailed[:2500]
+                return approach[:300], detailed[:2000]
                 
         except Exception as openai_error:
             logger.warning(f"  ❌ OpenAI failed for solutions: {openai_error}")
