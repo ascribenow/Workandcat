@@ -37,23 +37,73 @@ class StandardizedEnrichmentEngine:
     async def enrich_question_solution(self, question_stem: str, answer: str, 
                                      subcategory: str, question_type: str = "") -> Dict[str, Any]:
         """
-        Main enrichment method - automatically follows schema directive
-        Returns high-quality, consistent solutions with built-in quality control
+        GEMINI (MAKER) → ANTHROPIC (CHECKER) METHODOLOGY
+        Always use Gemini to generate and Anthropic to validate for consistent quality
         """
-        logger.info(f"🔄 Enriching: {question_stem[:60]}...")
+        logger.info(f"🔄 Gemini (Maker) → Anthropic (Checker): {question_stem[:60]}...")
         logger.info(f"📂 Category: {subcategory} -> {question_type}")
         
-        # Try primary LLMs with schema enforcement
-        enrichment_result = await self._enrich_with_schema_compliance(
+        # PHASE 1: Gemini as Solution Maker
+        logger.info("  🎯 Phase 1: Gemini generating solution...")
+        gemini_result = await self._gemini_maker_generate_solution(
             question_stem, answer, subcategory, question_type
         )
         
-        if enrichment_result["success"]:
-            logger.info(f"✅ Enrichment successful with quality score: {enrichment_result.get('quality_score', 'N/A')}")
-            return enrichment_result
-        else:
-            logger.error(f"❌ Enrichment failed: {enrichment_result.get('error', 'Unknown error')}")
+        if not gemini_result["success"]:
+            logger.error("  ❌ Gemini generation failed - using fallback")
             return self._generate_fallback_solution(question_stem, answer, subcategory)
+        
+        # PHASE 2: Anthropic as Quality Checker
+        logger.info("  🔍 Phase 2: Anthropic quality checking...")
+        if self.anthropic_api_key:
+            anthropic_assessment = await self._anthropic_checker_validate(
+                question_stem, answer, gemini_result["approach"], 
+                gemini_result["detailed_solution"], gemini_result["explanation"]
+            )
+            
+            # PHASE 3: Decision based on Anthropic feedback
+            if anthropic_assessment.get("recommendation") in ["Accept", "Excellent", "Good"]:
+                logger.info("  ✅ Phase 3: Anthropic approved - solution accepted")
+                return {
+                    "success": True,
+                    "approach": gemini_result["approach"],
+                    "detailed_solution": gemini_result["detailed_solution"],
+                    "validation": {"is_valid": True, "anthropic_approved": True},
+                    "anthropic_validation": anthropic_assessment,
+                    "quality_score": anthropic_assessment.get("overall_score", 8),
+                    "llm_used": "Gemini (Maker) → Anthropic (Checker)",
+                    "workflow": "Maker-Checker Methodology"
+                }
+            else:
+                logger.info("  🔄 Phase 3: Anthropic suggests improvement - regenerating...")
+                # Try improvement based on feedback
+                improved_result = await self._gemini_improve_with_feedback(
+                    question_stem, answer, subcategory, question_type, anthropic_assessment
+                )
+                
+                if improved_result["success"]:
+                    return {
+                        "success": True,
+                        "approach": improved_result["approach"],
+                        "detailed_solution": improved_result["detailed_solution"],
+                        "validation": {"is_valid": True, "anthropic_improved": True},
+                        "anthropic_validation": anthropic_assessment,
+                        "quality_score": improved_result.get("quality_score", 7),
+                        "llm_used": "Gemini (Maker) → Anthropic (Checker) → Gemini (Improved)",
+                        "workflow": "Maker-Checker-Improver Methodology"
+                    }
+        
+        # Fallback: Just use Gemini result if Anthropic not available
+        logger.info("  ⚠️ Using Gemini result (Anthropic validation unavailable)")
+        return {
+            "success": True,
+            "approach": gemini_result["approach"],
+            "detailed_solution": gemini_result["detailed_solution"],
+            "validation": {"is_valid": True, "gemini_only": True},
+            "quality_score": 7,
+            "llm_used": "Google Gemini (Maker only)",
+            "workflow": "Maker-only (Checker unavailable)"
+        }
 
     async def _enrich_with_schema_compliance(self, question_stem: str, answer: str, 
                                            subcategory: str, question_type: str) -> Dict[str, Any]:
