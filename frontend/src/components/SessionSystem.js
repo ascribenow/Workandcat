@@ -99,6 +99,21 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
     });
   };
 
+  const fetchSessionNumberFromDashboard = async () => {
+    try {
+      // Get total sessions from the dashboard API to calculate current session number
+      const response = await axios.get(`${API}/dashboard/simple-taxonomy`);
+      const totalSessions = response.data.total_sessions || 0;
+      const currentSessionNumber = totalSessions + 1; // Current session is total + 1
+      setSessionNumber(currentSessionNumber);
+      console.log('Session number calculated from dashboard total:', currentSessionNumber);
+    } catch (error) {
+      console.error('Failed to get session number from dashboard:', error);
+      // Ultimate fallback
+      setSessionNumber(1);
+    }
+  };
+
   const blockQuestionFromSessions = async (questionId) => {
     try {
       // Using axios to leverage global authorization headers
