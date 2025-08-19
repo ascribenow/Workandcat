@@ -52,3 +52,13 @@ LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
 INFO:__main__:  ✅ Google Gemini generated MCQ options (correct: C)
 INFO:__main__:  ✅ Complete success (4/4 components)
+INFO:__main__:
+🔄 [3/126] Processing question...
+INFO:__main__:  📝 Question: How many pairs of positive integers x, y exist such that HCF...
+INFO:__main__:  📂 Category: HCF-LCM -> Product of HCF and LCM
+INFO:__main__:  ✅ Using existing answer: 6
+INFO:__main__:  🎯 Generating comprehensive solutions with Google Gemini...
+[92m15:13:40 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+INFO:LiteLLM:
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
