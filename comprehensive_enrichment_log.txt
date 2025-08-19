@@ -894,3 +894,528 @@ INFO:__main__:  🎯 Generating comprehensive solutions with Google Gemini...
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 INFO:LiteLLM:
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:22:50 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
+INFO:__main__:  ✅ Google Gemini generated comprehensive solutions
+INFO:__main__:  🎯 Generating MCQ options with Google Gemini...
+[92m15:22:50 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+INFO:LiteLLM:
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:22:50 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
+INFO:__main__:  ✅ Google Gemini generated MCQ options (correct: B)
+INFO:__main__:  ✅ Complete success (4/4 components)
+INFO:__main__:
+📈 PROGRESS UPDATE [40/126]
+INFO:__main__:   ✅ Complete successes: 40
+INFO:__main__:   ⚠️ Partial successes: 0
+INFO:__main__:   ❌ Failures: 0
+INFO:__main__:   ⏱️ Estimated remaining time: 20.8 minutes
+INFO:__main__:
+🔄 [41/126] Processing question...
+INFO:__main__:  📝 Question: How many positive integers are there from 0 to 1000 that lea...
+INFO:__main__:  📂 Category: Remainders -> Chinese Remainder Theorem
+INFO:__main__:  ✅ Using existing answer: 71
+INFO:__main__:  🎯 Generating comprehensive solutions with Google Gemini...
+[92m15:22:53 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+INFO:LiteLLM:
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:22:58 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
+INFO:__main__:  ✅ Google Gemini generated comprehensive solutions
+INFO:__main__:  🎯 Generating MCQ options with Google Gemini...
+[92m15:22:58 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+INFO:LiteLLM:
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:22:59 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
+INFO:__main__:  ✅ Google Gemini generated MCQ options (correct: D)
+INFO:__main__:  ✅ Complete success (4/4 components)
+INFO:__main__:
+🔄 [42/126] Processing question...
+INFO:__main__:  📝 Question: Three numbers leave remainders of 43, 47 and 49 on division ...
+INFO:__main__:  📂 Category: Time-Speed-Distance -> Basics
+INFO:__main__:  ✅ Using existing answer: N = 60
+INFO:__main__:  🎯 Generating comprehensive solutions with Google Gemini...
+[92m15:23:01 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+INFO:LiteLLM:
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:23:11 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
+INFO:__main__:  ✅ Google Gemini generated comprehensive solutions
+INFO:__main__:  🎯 Generating MCQ options with Google Gemini...
+[92m15:23:11 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+INFO:LiteLLM:
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:23:12 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
+INFO:__main__:  ✅ Google Gemini generated MCQ options (correct: A)
+INFO:__main__:  ✅ Complete success (4/4 components)
+INFO:__main__:
+🔄 [43/126] Processing question...
+INFO:__main__:  📝 Question: A number leaves a remainder 3 on division by 14, and leaves ...
+INFO:__main__:  📂 Category: Remainders -> Basic Remainder Theorem
+INFO:__main__:  ✅ Using existing answer: 4
+INFO:__main__:  🎯 Generating comprehensive solutions with Google Gemini...
+[92m15:23:15 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+INFO:LiteLLM:
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:23:27 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
+INFO:__main__:  ✅ Google Gemini generated comprehensive solutions
+INFO:__main__:  🎯 Generating MCQ options with Google Gemini...
+[92m15:23:27 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+INFO:LiteLLM:
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:23:28 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
+INFO:__main__:  ✅ Google Gemini generated MCQ options (correct: D)
+INFO:__main__:  ✅ Complete success (4/4 components)
+INFO:__main__:
+🔄 [44/126] Processing question...
+INFO:__main__:  📝 Question: Consider a large number N = 1234567891011121314………979899100....
+INFO:__main__:  📂 Category: Remainders -> Basic Remainder Theorem
+INFO:__main__:  ✅ Using existing answer: 0
+INFO:__main__:  🎯 Generating comprehensive solutions with Google Gemini...
+[92m15:23:30 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+INFO:LiteLLM:
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:23:52 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
+INFO:__main__:  ✅ Google Gemini generated comprehensive solutions
+INFO:__main__:  🎯 Generating MCQ options with Google Gemini...
+[92m15:23:52 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+INFO:LiteLLM:
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:23:52 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
+INFO:__main__:  ✅ Google Gemini generated MCQ options (correct: B)
+INFO:__main__:  ✅ Complete success (4/4 components)
+INFO:__main__:
+🔄 [45/126] Processing question...
+INFO:__main__:  📝 Question: Given a number, N = 55⁵ + 17⁵ – 72⁵, then which of the follo...
+INFO:__main__:  📂 Category: Time-Speed-Distance -> Basics
+INFO:__main__:  ✅ Using existing answer: N is divisible by 11.
+INFO:__main__:  🎯 Generating comprehensive solutions with Google Gemini...
+[92m15:23:55 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+INFO:LiteLLM:
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:23:59 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
+INFO:__main__:  ✅ Google Gemini generated comprehensive solutions
+INFO:__main__:  🎯 Generating MCQ options with Google Gemini...
+[92m15:23:59 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+INFO:LiteLLM:
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:23:59 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
+INFO:__main__:  ✅ Google Gemini generated MCQ options (correct: C)
+INFO:__main__:  ✅ Complete success (4/4 components)
+INFO:__main__:
+🔄 [46/126] Processing question...
+INFO:__main__:  📝 Question: The integers 573921 and 575713 when ÷ a 3 digit number leave...
+INFO:__main__:  📂 Category: Divisibility -> Basic Divisibility Rules
+INFO:__main__:  ✅ Using existing answer: 896
+INFO:__main__:  🎯 Generating comprehensive solutions with Google Gemini...
+[92m15:24:02 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+INFO:LiteLLM:
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:24:10 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
+INFO:__main__:  ✅ Google Gemini generated comprehensive solutions
+INFO:__main__:  🎯 Generating MCQ options with Google Gemini...
+[92m15:24:10 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+INFO:LiteLLM:
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:24:11 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
+INFO:__main__:  ✅ Google Gemini generated MCQ options (correct: A)
+INFO:__main__:  ✅ Complete success (4/4 components)
+INFO:__main__:
+🔄 [47/126] Processing question...
+INFO:__main__:  📝 Question: If N = (24³ + 25³ + 26³ + 27³), then N ÷ 102 leaves a remain...
+INFO:__main__:  📂 Category: Remainders -> Basic Remainder Theorem
+INFO:__main__:  ✅ Using existing answer: 41
+INFO:__main__:  🎯 Generating comprehensive solutions with Google Gemini...
+[92m15:24:13 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+INFO:LiteLLM:
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:24:28 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
+INFO:__main__:  ✅ Google Gemini generated comprehensive solutions
+INFO:__main__:  🎯 Generating MCQ options with Google Gemini...
+[92m15:24:28 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+INFO:LiteLLM:
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:24:29 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
+INFO:__main__:  ✅ Google Gemini generated MCQ options (correct: B)
+INFO:__main__:  ✅ Complete success (4/4 components)
+INFO:__main__:
+🔄 [48/126] Processing question...
+INFO:__main__:  📝 Question: A school has less than 5000 students and if the students are...
+INFO:__main__:  📂 Category: Remainders -> Chinese Remainder Theorem
+INFO:__main__:  ✅ Using existing answer: 376
+INFO:__main__:  🎯 Generating comprehensive solutions with Google Gemini...
+[92m15:24:32 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+INFO:LiteLLM:
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:24:47 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
+INFO:__main__:  ✅ Google Gemini generated comprehensive solutions
+INFO:__main__:  🎯 Generating MCQ options with Google Gemini...
+[92m15:24:47 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+INFO:LiteLLM:
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:24:48 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
+INFO:__main__:  ✅ Google Gemini generated MCQ options (correct: B)
+INFO:__main__:  ✅ Complete success (4/4 components)
+INFO:__main__:
+🔄 [49/126] Processing question...
+INFO:__main__:  📝 Question: A number n! is written in base 6 and base 8 notation. Its ba...
+INFO:__main__:  📂 Category: Time-Speed-Distance -> Basics
+INFO:__main__:  ✅ Using existing answer: The smallest \( n \) is 25. There is no \( n \) beyond 25 that will satisfy these precise conditions simultaneously, as found through analyzing factorial prime factor deconstructions for base conditions. Hence, only 1 value of \( n \) satisfies this.
+INFO:__main__:  🎯 Generating comprehensive solutions with Google Gemini...
+[92m15:24:51 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+INFO:LiteLLM:
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:25:04 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
+INFO:__main__:  ✅ Google Gemini generated comprehensive solutions
+INFO:__main__:  🎯 Generating MCQ options with Google Gemini...
+[92m15:25:04 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+INFO:LiteLLM:
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:25:05 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
+WARNING:__main__:  ❌ Google Gemini failed for MCQ: Invalid \escape: line 2 column 35 (char 36)
+INFO:__main__:  ✅ Generated smart fallback MCQ options (correct: D)
+INFO:__main__:  ✅ Complete success (4/4 components)
+INFO:__main__:
+🔄 [50/126] Processing question...
+INFO:__main__:  📝 Question: Given N is a positive integer less than 31, how many values ...
+INFO:__main__:  📂 Category: Divisibility -> Factorisation of Integers
+INFO:__main__:  ✅ Using existing answer: 7
+INFO:__main__:  🎯 Generating comprehensive solutions with Google Gemini...
+[92m15:25:07 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+INFO:LiteLLM:
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:25:47 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
+INFO:__main__:  ✅ Google Gemini generated comprehensive solutions
+INFO:__main__:  🎯 Generating MCQ options with Google Gemini...
+[92m15:25:47 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+INFO:LiteLLM:
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:25:47 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
+INFO:__main__:  ✅ Google Gemini generated MCQ options (correct: B)
+INFO:__main__:  ✅ Complete success (4/4 components)
+INFO:__main__:
+📈 PROGRESS UPDATE [50/126]
+INFO:__main__:   ✅ Complete successes: 50
+INFO:__main__:   ⚠️ Partial successes: 0
+INFO:__main__:   ❌ Failures: 0
+INFO:__main__:   ⏱️ Estimated remaining time: 19.2 minutes
+INFO:__main__:
+🔄 [51/126] Processing question...
+INFO:__main__:  📝 Question: How many values can natural number n take, if n! is a multip...
+INFO:__main__:  📂 Category: Time-Speed-Distance -> Basics
+INFO:__main__:  ✅ Using existing answer: 48
+INFO:__main__:  🎯 Generating comprehensive solutions with Google Gemini...
+[92m15:25:50 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+INFO:LiteLLM:
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:26:05 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
+INFO:__main__:  ✅ Google Gemini generated comprehensive solutions
+INFO:__main__:  🎯 Generating MCQ options with Google Gemini...
+[92m15:26:05 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+INFO:LiteLLM:
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:26:05 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
+INFO:__main__:  ✅ Google Gemini generated MCQ options (correct: A)
+INFO:__main__:  ✅ Complete success (4/4 components)
+INFO:__main__:
+🔄 [52/126] Processing question...
+INFO:__main__:  📝 Question: How many values can natural number n take, if n! is a multip...
+INFO:__main__:  📂 Category: Factorials -> Properties of Factorials
+INFO:__main__:  ✅ Using existing answer: 79
+INFO:__main__:  🎯 Generating comprehensive solutions with Google Gemini...
+[92m15:26:08 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+INFO:LiteLLM:
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:26:23 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
+INFO:__main__:  ✅ Google Gemini generated comprehensive solutions
+INFO:__main__:  🎯 Generating MCQ options with Google Gemini...
+[92m15:26:23 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+INFO:LiteLLM:
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:26:24 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
+INFO:__main__:  ✅ Google Gemini generated MCQ options (correct: A)
+INFO:__main__:  ✅ Complete success (4/4 components)
+INFO:__main__:
+🔄 [53/126] Processing question...
+INFO:__main__:  📝 Question: How many trailing zeroes (zeroes at the end of the number) d...
+INFO:__main__:  📂 Category: Factorials -> Properties of Factorials
+INFO:__main__:  ✅ Using existing answer: 14
+INFO:__main__:  🎯 Generating comprehensive solutions with Google Gemini...
+[92m15:26:26 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+INFO:LiteLLM:
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:26:30 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
+INFO:__main__:  ✅ Google Gemini generated comprehensive solutions
+INFO:__main__:  🎯 Generating MCQ options with Google Gemini...
+[92m15:26:30 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+INFO:LiteLLM:
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:26:31 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
+INFO:__main__:  ✅ Google Gemini generated MCQ options (correct: C)
+INFO:__main__:  ✅ Complete success (4/4 components)
+INFO:__main__:
+🔄 [54/126] Processing question...
+INFO:__main__:  📝 Question: What is the highest power of 12 that divides 54!?...
+INFO:__main__:  📂 Category: Factorials -> Properties of Factorials
+INFO:__main__:  ✅ Using existing answer: 24
+INFO:__main__:  🎯 Generating comprehensive solutions with Google Gemini...
+[92m15:26:33 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+INFO:LiteLLM:
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:26:41 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
+INFO:__main__:  ✅ Google Gemini generated comprehensive solutions
+INFO:__main__:  🎯 Generating MCQ options with Google Gemini...
+[92m15:26:41 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+INFO:LiteLLM:
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:26:42 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
+INFO:__main__:  ✅ Google Gemini generated MCQ options (correct: D)
+INFO:__main__:  ✅ Complete success (4/4 components)
+INFO:__main__:
+🔄 [55/126] Processing question...
+INFO:__main__:  📝 Question: Find the least number n such that no factorial has n trailin...
+INFO:__main__:  📂 Category: Time-Speed-Distance -> Basics
+INFO:__main__:  ✅ Using existing answer: 24
+INFO:__main__:  🎯 Generating comprehensive solutions with Google Gemini...
+[92m15:26:45 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+INFO:LiteLLM:
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:26:58 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
+INFO:__main__:  ✅ Google Gemini generated comprehensive solutions
+INFO:__main__:  🎯 Generating MCQ options with Google Gemini...
+[92m15:26:58 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+INFO:LiteLLM:
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:26:59 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
+INFO:__main__:  ✅ Google Gemini generated MCQ options (correct: B)
+INFO:__main__:  ✅ Complete success (4/4 components)
+INFO:__main__:
+🔄 [56/126] Processing question...
+INFO:__main__:  📝 Question: When 40! is expressed in base 8 form, what is the last non–z...
+INFO:__main__:  📂 Category: Base Systems -> Arithmetic in different bases
+INFO:__main__:  ✅ Using existing answer: 4
+INFO:__main__:  🎯 Generating comprehensive solutions with Google Gemini...
+[92m15:27:01 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+INFO:LiteLLM:
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:27:08 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
+INFO:__main__:  ✅ Google Gemini generated comprehensive solutions
+INFO:__main__:  🎯 Generating MCQ options with Google Gemini...
+[92m15:27:08 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+INFO:LiteLLM:
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:27:08 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
+INFO:__main__:  ✅ Google Gemini generated MCQ options (correct: C)
+INFO:__main__:  ✅ Complete success (4/4 components)
+INFO:__main__:
+🔄 [57/126] Processing question...
+INFO:__main__:  📝 Question: Let K be the largest number with exactly 3 factors that divi...
+INFO:__main__:  📂 Category: Time-Speed-Distance -> Basics
+INFO:__main__:  ✅ Using existing answer: 12
+INFO:__main__:  🎯 Generating comprehensive solutions with Google Gemini...
+[92m15:27:11 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+INFO:LiteLLM:
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:27:17 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
+INFO:__main__:  ✅ Google Gemini generated comprehensive solutions
+INFO:__main__:  🎯 Generating MCQ options with Google Gemini...
+[92m15:27:17 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+INFO:LiteLLM:
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:27:18 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
+INFO:__main__:  ✅ Google Gemini generated MCQ options (correct: D)
+INFO:__main__:  ✅ Complete success (4/4 components)
+INFO:__main__:
+🔄 [58/126] Processing question...
+INFO:__main__:  📝 Question: How many numbers with distinct digits are possible product o...
+INFO:__main__:  📂 Category: Permutation-Combination -> Combinations with Restrictions
+INFO:__main__:  ✅ Using existing answer: 8
+INFO:__main__:  🎯 Generating comprehensive solutions with Google Gemini...
+[92m15:27:20 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+INFO:LiteLLM:
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:27:24 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
+INFO:__main__:  ✅ Google Gemini generated comprehensive solutions
+INFO:__main__:  🎯 Generating MCQ options with Google Gemini...
+[92m15:27:24 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+INFO:LiteLLM:
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:27:25 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
+INFO:__main__:  ✅ Google Gemini generated MCQ options (correct: A)
+INFO:__main__:  ✅ Complete success (4/4 components)
+INFO:__main__:
+🔄 [59/126] Processing question...
+INFO:__main__:  📝 Question: A page is torn from a novel. The sum of the remaining page n...
+INFO:__main__:  📂 Category: Digit Properties -> Sum of Digits
+INFO:__main__:  ✅ Using existing answer: 101
+INFO:__main__:  🎯 Generating comprehensive solutions with Google Gemini...
+[92m15:27:28 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+INFO:LiteLLM:
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:27:42 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
+INFO:__main__:  ✅ Google Gemini generated comprehensive solutions
+INFO:__main__:  🎯 Generating MCQ options with Google Gemini...
+[92m15:27:42 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+INFO:LiteLLM:
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:27:42 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
+INFO:__main__:  ✅ Google Gemini generated MCQ options (correct: A)
+INFO:__main__:  ✅ Complete success (4/4 components)
+INFO:__main__:
+🔄 [60/126] Processing question...
+INFO:__main__:  📝 Question: A 4-digit number of the form aabb is a perfect square. What ...
+INFO:__main__:  📂 Category: Number Properties -> Perfect Squares
+INFO:__main__:  ✅ Using existing answer: 3
+INFO:__main__:  🎯 Generating comprehensive solutions with Google Gemini...
+[92m15:27:45 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+INFO:LiteLLM:
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:27:53 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
+INFO:__main__:  ✅ Google Gemini generated comprehensive solutions
+INFO:__main__:  🎯 Generating MCQ options with Google Gemini...
+[92m15:27:53 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+INFO:LiteLLM:
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:27:53 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
+INFO:__main__:  ✅ Google Gemini generated MCQ options (correct: A)
+INFO:__main__:  ✅ Complete success (4/4 components)
+INFO:__main__:
+📈 PROGRESS UPDATE [60/126]
+INFO:__main__:   ✅ Complete successes: 60
+INFO:__main__:   ⚠️ Partial successes: 0
+INFO:__main__:   ❌ Failures: 0
+INFO:__main__:   ⏱️ Estimated remaining time: 16.2 minutes
+INFO:__main__:
+🔄 [61/126] Processing question...
+INFO:__main__:  📝 Question: What are the last two digits of the number 7⁴⁵?...
+INFO:__main__:  📂 Category: Remainders -> Cyclicity of Remainders (Last Two Digits)
+INFO:__main__:  ✅ Using existing answer: 07
+INFO:__main__:  🎯 Generating comprehensive solutions with Google Gemini...
+[92m15:27:56 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+INFO:LiteLLM:
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:28:01 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
+INFO:__main__:  ✅ Google Gemini generated comprehensive solutions
+INFO:__main__:  🎯 Generating MCQ options with Google Gemini...
+[92m15:28:01 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+INFO:LiteLLM:
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:28:02 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
+INFO:__main__:  ✅ Google Gemini generated MCQ options (correct: A)
+INFO:__main__:  ✅ Complete success (4/4 components)
+INFO:__main__:
+🔄 [62/126] Processing question...
+INFO:__main__:  📝 Question: n² + 5n + 6 is a multiple of 6. n is natural number less tha...
+INFO:__main__:  📂 Category: Time-Speed-Distance -> Basics
+INFO:__main__:  ✅ Using existing answer: 16
+INFO:__main__:  🎯 Generating comprehensive solutions with Google Gemini...
+[92m15:28:04 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+INFO:LiteLLM:
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:28:26 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
+INFO:__main__:  ✅ Google Gemini generated comprehensive solutions
+INFO:__main__:  🎯 Generating MCQ options with Google Gemini...
+[92m15:28:26 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+INFO:LiteLLM:
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:28:27 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
+INFO:__main__:  ✅ Google Gemini generated MCQ options (correct: B)
+INFO:__main__:  ✅ Complete success (4/4 components)
+INFO:__main__:
+🔄 [63/126] Processing question...
+INFO:__main__:  📝 Question: [x] is the greatest integer less than or equal to x. Find th...
+INFO:__main__:  📂 Category: Divisibility -> Basic Divisibility Rules
+INFO:__main__:  ✅ Using existing answer: 60
+INFO:__main__:  🎯 Generating comprehensive solutions with Google Gemini...
+[92m15:28:29 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+INFO:LiteLLM:
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
