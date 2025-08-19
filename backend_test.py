@@ -1194,6 +1194,250 @@ class CATBackendTester:
         else:
             return "Arithmetic"  # Default fallback
 
+    def test_admin_panel_quality_management(self):
+        """Test admin panel functionality after moving quality check buttons from PYQ Upload to Question Upload dashboard"""
+        print("🔧 ADMIN PANEL QUALITY MANAGEMENT TESTING")
+        print("=" * 70)
+        print("REVIEW REQUEST FOCUS:")
+        print("Testing admin panel functionality after moving quality check buttons")
+        print("from PYQ Upload to Question Upload dashboard")
+        print("")
+        print("SPECIFIC TESTS REQUIRED:")
+        print("1. Admin Authentication: Login with sumedhprabhu18@gmail.com / admin2025")
+        print("2. Question Quality Check API: Test /api/admin/check-question-quality endpoint")
+        print("3. Solution Re-enrichment API: Test /api/admin/re-enrich-all-questions endpoint")
+        print("4. API Functionality: Verify endpoints work correctly after frontend changes")
+        print("")
+        print("EXPECTED BEHAVIOR:")
+        print("- Admin authentication should work")
+        print("- Quality check API should return proper quality analysis")
+        print("- Re-enrichment API should be accessible (even if not run fully)")
+        print("- All admin functions should be operational")
+        print("=" * 70)
+        
+        admin_results = {
+            "admin_authentication": False,
+            "quality_check_api_accessible": False,
+            "quality_check_returns_analysis": False,
+            "re_enrichment_api_accessible": False,
+            "re_enrichment_returns_status": False,
+            "admin_endpoints_functional": False
+        }
+        
+        # TEST 1: Admin Authentication
+        print("\n🔐 TEST 1: ADMIN AUTHENTICATION")
+        print("-" * 50)
+        print("Testing admin login with credentials: sumedhprabhu18@gmail.com / admin2025")
+        
+        admin_login = {
+            "email": "sumedhprabhu18@gmail.com",
+            "password": "admin2025"
+        }
+        
+        success, response = self.run_test("Admin Login", "POST", "auth/login", 200, admin_login)
+        if success and 'access_token' in response:
+            self.admin_token = response['access_token']
+            admin_results["admin_authentication"] = True
+            
+            # Verify admin status
+            admin_headers = {
+                'Content-Type': 'application/json',
+                'Authorization': f'Bearer {self.admin_token}'
+            }
+            
+            success, user_info = self.run_test("Get Admin User Info", "GET", "auth/me", 200, None, admin_headers)
+            if success:
+                is_admin = user_info.get('is_admin', False)
+                email = user_info.get('email', '')
+                
+                print(f"   ✅ Admin authenticated successfully")
+                print(f"   📊 Email: {email}")
+                print(f"   📊 Admin status: {is_admin}")
+                
+                if is_admin and email == "sumedhprabhu18@gmail.com":
+                    print("   ✅ Admin privileges confirmed")
+                else:
+                    print("   ⚠️ Admin privileges not confirmed")
+            else:
+                print("   ❌ Failed to verify admin user info")
+        else:
+            print("   ❌ Admin authentication failed")
+            print("   ❌ Cannot proceed with admin endpoint testing")
+            return False
+        
+        admin_headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {self.admin_token}'
+        }
+        
+        # TEST 2: Question Quality Check API
+        print("\n📊 TEST 2: QUESTION QUALITY CHECK API")
+        print("-" * 50)
+        print("Testing /api/admin/check-question-quality endpoint")
+        print("Verifying quality analysis functionality")
+        
+        success, response = self.run_test("Question Quality Check", "POST", "admin/check-question-quality", 200, {}, admin_headers)
+        
+        if success:
+            admin_results["quality_check_api_accessible"] = True
+            print("   ✅ Quality check API accessible")
+            
+            # Analyze response structure
+            status = response.get('status')
+            quality_score = response.get('quality_score')
+            total_questions = response.get('total_questions')
+            total_issues = response.get('total_issues')
+            issues = response.get('issues', {})
+            recommendations = response.get('recommendations', {})
+            
+            print(f"   📊 Status: {status}")
+            print(f"   📊 Quality Score: {quality_score}%")
+            print(f"   📊 Total Questions: {total_questions}")
+            print(f"   📊 Total Issues: {total_issues}")
+            
+            if status == "success" and quality_score is not None:
+                admin_results["quality_check_returns_analysis"] = True
+                print("   ✅ Quality check returns proper analysis")
+                
+                # Show issue breakdown
+                if issues:
+                    print("   📊 Issue Breakdown:")
+                    for issue_type, issue_list in issues.items():
+                        if isinstance(issue_list, list):
+                            print(f"      {issue_type}: {len(issue_list)} issues")
+                        else:
+                            print(f"      {issue_type}: {issue_list}")
+                
+                # Show recommendations
+                if recommendations:
+                    print("   📊 Recommendations:")
+                    for rec_key, rec_value in recommendations.items():
+                        print(f"      {rec_key}: {rec_value}")
+            else:
+                print("   ⚠️ Quality check response incomplete")
+        else:
+            print("   ❌ Quality check API not accessible")
+        
+        # TEST 3: Solution Re-enrichment API
+        print("\n🔄 TEST 3: SOLUTION RE-ENRICHMENT API")
+        print("-" * 50)
+        print("Testing /api/admin/re-enrich-all-questions endpoint")
+        print("Verifying re-enrichment functionality (without full execution)")
+        
+        success, response = self.run_test("Solution Re-enrichment", "POST", "admin/re-enrich-all-questions", 200, {}, admin_headers)
+        
+        if success:
+            admin_results["re_enrichment_api_accessible"] = True
+            print("   ✅ Re-enrichment API accessible")
+            
+            # Analyze response structure
+            status = response.get('status')
+            message = response.get('message')
+            processed = response.get('processed')
+            success_count = response.get('success')
+            failed_count = response.get('failed')
+            details = response.get('details')
+            
+            print(f"   📊 Status: {status}")
+            print(f"   📊 Message: {message}")
+            print(f"   📊 Processed: {processed}")
+            print(f"   📊 Success: {success_count}")
+            print(f"   📊 Failed: {failed_count}")
+            
+            if status == "success" and message:
+                admin_results["re_enrichment_returns_status"] = True
+                print("   ✅ Re-enrichment returns proper status")
+                
+                if details:
+                    print(f"   📊 Details: {details}")
+                    
+                if processed is not None:
+                    if processed == 0:
+                        print("   ✅ No questions needed re-enrichment (good quality)")
+                    else:
+                        print(f"   ✅ Processed {processed} questions for re-enrichment")
+            else:
+                print("   ⚠️ Re-enrichment response incomplete")
+        else:
+            print("   ❌ Re-enrichment API not accessible")
+        
+        # TEST 4: Admin Endpoints Functional Check
+        print("\n🔧 TEST 4: ADMIN ENDPOINTS FUNCTIONAL CHECK")
+        print("-" * 50)
+        print("Verifying all admin functions are operational after frontend changes")
+        
+        # Test admin root endpoint
+        success, response = self.run_test("Admin Root Check", "GET", "", 200, None, admin_headers)
+        if success:
+            features = response.get('features', [])
+            admin_email = response.get('admin_email')
+            
+            print(f"   📊 Admin email in response: {admin_email}")
+            print(f"   📊 Available features: {len(features)}")
+            
+            if admin_email == "sumedhprabhu18@gmail.com":
+                print("   ✅ Admin email correctly configured")
+            
+            if features and len(features) > 0:
+                admin_results["admin_endpoints_functional"] = True
+                print("   ✅ Admin endpoints functional")
+                print("   📊 Features available:")
+                for feature in features:
+                    print(f"      - {feature}")
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 70)
+        print("ADMIN PANEL QUALITY MANAGEMENT TEST RESULTS")
+        print("=" * 70)
+        
+        passed_tests = sum(admin_results.values())
+        total_tests = len(admin_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        for test_name, result in admin_results.items():
+            status = "✅ PASS" if result else "❌ FAIL"
+            print(f"{test_name.replace('_', ' ').title():<40} {status}")
+        
+        print("-" * 70)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # Critical analysis based on review request
+        print("\n🎯 CRITICAL ADMIN FUNCTIONALITY ANALYSIS:")
+        
+        if admin_results["admin_authentication"]:
+            print("✅ ADMIN AUTH: Authentication working with correct credentials")
+        else:
+            print("❌ ADMIN AUTH: Authentication failed - check credentials")
+        
+        if admin_results["quality_check_api_accessible"] and admin_results["quality_check_returns_analysis"]:
+            print("✅ QUALITY CHECK: API working and returning proper analysis")
+        else:
+            print("❌ QUALITY CHECK: API not working properly")
+        
+        if admin_results["re_enrichment_api_accessible"] and admin_results["re_enrichment_returns_status"]:
+            print("✅ RE-ENRICHMENT: API working and accessible")
+        else:
+            print("❌ RE-ENRICHMENT: API not working properly")
+        
+        if admin_results["admin_endpoints_functional"]:
+            print("✅ ADMIN FUNCTIONS: All admin functions operational")
+        else:
+            print("❌ ADMIN FUNCTIONS: Some admin functions may not be working")
+        
+        print("\n🎉 CONCLUSION:")
+        if success_rate >= 80:
+            print("✅ Admin panel functionality is working properly after frontend changes")
+            print("✅ Quality check and re-enrichment APIs are functional")
+            print("✅ Moving buttons from PYQ Upload to Question Upload did not break backend APIs")
+        elif success_rate >= 60:
+            print("⚠️ Admin panel mostly functional but some issues detected")
+            print("⚠️ May need minor fixes to ensure full functionality")
+        else:
+            print("❌ Admin panel has significant issues")
+            print("❌ Backend APIs may have been affected by frontend changes")
+        
+        return success_rate >= 70
+
     def test_session_completion_fix(self):
         """Test the session completion fix that should resolve the session numbering issue"""
         print("🎯 SESSION COMPLETION FIX TESTING")
