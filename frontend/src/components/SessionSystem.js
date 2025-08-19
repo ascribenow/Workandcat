@@ -50,8 +50,19 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
   useEffect(() => {
     if (sessionId) {
       fetchNextQuestion();
+      
+      // Set session number immediately if not available from metadata
+      if (!sessionNumber) {
+        if (sessionMetadata?.phase_info?.current_session) {
+          setSessionNumber(sessionMetadata.phase_info.current_session);
+          console.log('Session number set from useEffect metadata:', sessionMetadata.phase_info.current_session);
+        } else {
+          console.log('Session metadata not available, fetching from dashboard...');
+          fetchSessionNumberFromDashboard();
+        }
+      }
     }
-  }, [sessionId]);
+  }, [sessionId, sessionMetadata]);
 
   const handleImagePreload = async (imageUrl) => {
     if (!imageUrl) return true;
