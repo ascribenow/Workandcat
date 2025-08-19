@@ -272,16 +272,17 @@ Generate 3 plausible wrong answers for this question. The correct answer is alre
                 json_str = response_text[start_idx:end_idx]
                 result = json.loads(json_str)
                 
-                # Validate and format
-                if all(field in result for field in ["option_a", "option_b", "option_c", "option_d", "correct_label"]):
-                    options = {
-                        "A": result["option_a"],
-                        "B": result["option_b"], 
-                        "C": result["option_c"],
-                        "D": result["option_d"],
-                        "correct": result["correct_label"].upper()
-                    }
-                    logger.info(f"  ✅ OpenAI generated MCQ options")
+                # Validate new format with wrong answers
+                if all(field in result for field in ["wrong_answer_1", "wrong_answer_2", "wrong_answer_3"]):
+                    wrong_answers = [
+                        result["wrong_answer_1"],
+                        result["wrong_answer_2"], 
+                        result["wrong_answer_3"]
+                    ]
+                    
+                    # Randomize placement of correct answer
+                    options = randomize_mcq_placement(answer, wrong_answers)
+                    logger.info(f"  ✅ OpenAI generated MCQ options with randomized placement (correct: {options['correct']})")
                     return options
                     
     except Exception as openai_error:
