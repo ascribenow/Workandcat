@@ -117,18 +117,25 @@ class AttemptSubmission(BaseModel):
 # Utility Functions
 
 def clean_solution_text(text: str) -> str:
-    """Clean solution text while preserving human-friendly mathematical notation"""
+    """Clean solution text while preserving line breaks and formatting for proper display"""
     if not text:
         return text
     
-    # Preserve human-friendly mathematical notation (x², √16, 45/3, etc.)
-    # Only remove excessive whitespace and formatting artifacts
+    # Preserve line breaks and proper formatting - DO NOT COLLAPSE NEWLINES
+    # Only clean up excessive whitespace while preserving structure
     
-    # Clean up multiple spaces and newlines
-    cleaned = re.sub(r'\s+', ' ', text)
-    cleaned = re.sub(r'\n\s*\n', '\n\n', cleaned)
+    # Remove excessive spaces (but preserve single spaces and line breaks)
+    cleaned = re.sub(r'[ \t]+', ' ', text)  # Only collapse horizontal whitespace
     
-    # Remove leading/trailing whitespace
+    # Preserve double line breaks for paragraph separation
+    cleaned = re.sub(r'\n\s*\n\s*\n+', '\n\n', cleaned)  # Max 2 consecutive newlines
+    
+    # Remove trailing whitespace from each line but preserve line breaks
+    lines = cleaned.split('\n')
+    cleaned_lines = [line.rstrip() for line in lines]
+    cleaned = '\n'.join(cleaned_lines)
+    
+    # Remove leading/trailing whitespace from entire text
     cleaned = cleaned.strip()
     
     return cleaned
