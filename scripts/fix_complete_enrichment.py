@@ -301,18 +301,16 @@ Generate 3 plausible wrong answers for this question. The correct answer is alre
                     model="claude-3-haiku-20240307",
                     max_tokens=300,
                     messages=[
-                        {"role": "user", "content": f"""Generate 4 MCQ options for this question. Return ONLY valid JSON:
+                        {"role": "user", "content": f"""Generate 3 plausible wrong answers for this question. Return ONLY valid JSON:
 
 Question: {stem}
 Correct Answer: {answer}
 
 Format:
 {{
-  "option_a": "value",
-  "option_b": "value", 
-  "option_c": "value",
-  "option_d": "value",
-  "correct_label": "A"
+  "wrong_answer_1": "plausible incorrect value",
+  "wrong_answer_2": "plausible incorrect value", 
+  "wrong_answer_3": "plausible incorrect value"
 }}"""}
                     ]
                 )
