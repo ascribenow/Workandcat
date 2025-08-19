@@ -1532,3 +1532,16 @@ LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 2025-08-19 15:55:52,156 - INFO - 
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:56:06 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:56:06,629 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:56:06,630 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:56:08,861 - INFO -   ✅ Improved formatting
+2025-08-19 15:56:09,062 - INFO - 
+🔄 [117/126] Processing formatting...
+2025-08-19 15:56:09,062 - INFO -   📝 Question: When 40! is expressed in base 8 form, what is the last nonâ...
+2025-08-19 15:56:09,062 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:56:09,062 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:56:09 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:56:09,063 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
