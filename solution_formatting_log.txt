@@ -1402,3 +1402,7 @@ LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 2025-08-19 15:53:45,045 - INFO - 
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:53:55 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:53:55,619 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:53:55,620 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:53:57,746 - INFO -   ✅ Improved formatting
