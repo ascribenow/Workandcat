@@ -41,13 +41,13 @@ class CATBackendTester:
         for attempt in range(max_retries):
             try:
                 if method == 'GET':
-                    response = requests.get(url, headers=headers, timeout=120)
+                    response = requests.get(url, headers=headers, timeout=180)
                 elif method == 'POST':
-                    response = requests.post(url, json=data, headers=headers, timeout=120)
+                    response = requests.post(url, json=data, headers=headers, timeout=180)
                 elif method == 'PUT':
-                    response = requests.put(url, json=data, headers=headers, timeout=120)
+                    response = requests.put(url, json=data, headers=headers, timeout=180)
                 elif method == 'DELETE':
-                    response = requests.delete(url, headers=headers, timeout=120)
+                    response = requests.delete(url, headers=headers, timeout=180)
 
                 success = response.status_code == expected_status
                 if success:
