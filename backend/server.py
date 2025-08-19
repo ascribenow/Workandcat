@@ -1469,6 +1469,125 @@ async def get_progress_dashboard(
         logger.error(f"Error getting progress dashboard: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@api_router.get("/dashboard/simple-taxonomy")
+async def get_simple_taxonomy_dashboard(
+    current_user: User = Depends(require_auth),
+    db: AsyncSession = Depends(get_async_compatible_db)
+):
+    """Get simplified dashboard with complete canonical taxonomy and attempt counts by difficulty"""
+    try:
+        # Define the complete canonical taxonomy as requested
+        canonical_taxonomy = {
+            "Arithmetic": {
+                "Time-Speed-Distance": ["Basics", "Relative Speed", "Circular Track Motion", "Boats and Streams", "Trains", "Races"],
+                "Time-Work": ["Work Time Effeciency", "Pipes and Cisterns", "Work Equivalence"],
+                "Ratios and Proportions": ["Simple Rations", "Compound Ratios", "Direct and Inverse Variation", "Partnerships"],
+                "Percentages": ["Basics", "Percentage Change", "Successive Percentage Change"],
+                "Averages and Alligation": ["Basic Averages", "Weighted Averages", "Alligations & Mixtures", "Three Mixture Alligations"],
+                "Profit-Loss-Discount": ["Basics", "Successive Profit/Loss/Discounts", "Marked Price and Cost Price Relations", "Discount Chains"],
+                "Simple and Compound Interest": ["Basics", "Difference between Simple Interest and Compound Interests", "Fractional Time Period Compound Interest"],
+                "Mixtures and Solutions": ["Replacements", "Concentration Change", "Solid-Liquid-Gas Mixtures"],
+                "Partnerships": ["Profit share"]
+            },
+            "Algebra": {
+                "Linear Equations": ["Two variable systems", "Three variable systems", "Dependent and Inconsistent Systems"],
+                "Quadratic Equations": ["Roots & Nature of Roots", "Sum and Product of Roots", "Maximum and Minimum Values"],
+                "Inequalities": ["Linear Inequalities", "Quadratic Inequalities", "Modulus and Absolute Value", "Arithmetic Mean", "Geometric Mean", "Cauchy Schwarz"],
+                "Progressions": ["Arithmetic Progression", "Geometric Progression", "Harmonic Progression", "Mixed Progressions"],
+                "Functions and Graphs": ["Linear Functions", "Quadratic Functions", "Polynomial Functions", "Modulus Functions", "Step Functions", "Transformations", "Domain Range", "Composition and Inverse Functions"],
+                "Logarithms and Exponents": ["Basics", "Change of Base Formula", "Soliving Log Equations", "Surds and Indices"],
+                "Special Algebraic Identities": ["Expansion and Factorisation", "Cubes and Squares", "Binomial Theorem"],
+                "Maxima and Minima": ["Optimsation with Algebraic Expressions"],
+                "Special Polynomials": ["Remainder Theorem", "Factor Theorem"]
+            },
+            "Geometry and Mensuration": {
+                "Triangles": ["Properties (Angles, Sides, Medians, Bisectors)", "Congruence & Similarity", "Pythagoras & Converse", "Inradius, Circumradius, Orthocentre"],
+                "Circles": ["Tangents & Chords", "Angles in a Circle", "Cyclic Quadrilaterals"],
+                "Polygons": ["Regular Polygons", "Interior / Exterior Angles"],
+                "Coordinate Geometry": ["Distance", "Section Formula", "Midpoint", "Equation of a line", "Slope & Intercepts", "Circles in Coordinate Plane", "Parabola", "Ellipse", "Hyperbola"],
+                "Mensuration 2D": ["Area Triangle", "Area Rectangle", "Area Trapezium", "Area Circle", "Sector"],
+                "Mensuration 3D": ["Volume Cubes", "Volume Cuboid", "Volume Cylinder", "Volume Cone", "Volume Sphere", "Volume Hemisphere", "Surface Areas"],
+                "Trigonometry": ["Heights and Distances", "Basic Trigonometric Ratios"]
+            },
+            "Number System": {
+                "Divisibility": ["Basic Divisibility Rules", "Factorisation of Integers"],
+                "HCF-LCM": ["Euclidean Algorithm", "Product of HCF and LCM"],
+                "Remainders": ["Basic Remainder Theorem", "Chinese Remainder Theorem", "Cyclicity of Remainders (Last Digits)", "Cyclicity of Remainders (Last Two Digits)"],
+                "Base Systems": ["Conversion between bases", "Arithmetic in different bases"],
+                "Digit Properties": ["Sum of Digits", "Last Digit Patterns", "Palindromes", "Repetitive Digits"],
+                "Number Properties": ["Perfect Squares", "Perfect Cubes"],
+                "Number Series": ["Sum of Squares", "Sum of Cubes", "Telescopic Series"],
+                "Factorials": ["Properties of Factorials"]
+            },
+            "Modern Math": {
+                "Permutation-Combination": ["Basics", "Circular Permutations", "Permutations with Repetitions", "Permutations with Restrictions", "Combinations with Repetitions", "Combinations with Restrictions"],
+                "Probability": ["Classical Probability", "Conditional Probability", "Bayes' Theorem"],
+                "Set Theory and Venn Diagram": ["Union and Intersection", "Complement and Difference of Sets", "Multi Set Problems"]
+            }
+        }
+        
+        # Get user's attempt data grouped by subcategory, type, and difficulty
+        attempt_query = await db.execute(
+            select(
+                Question.subcategory,
+                Question.type_of_question,
+                Question.difficulty_band,
+                func.count(Attempt.id).label('attempt_count')
+            )
+            .join(Attempt, Question.id == Attempt.question_id)
+            .where(Attempt.user_id == current_user.id)
+            .group_by(Question.subcategory, Question.type_of_question, Question.difficulty_band)
+        )
+        
+        attempt_data = attempt_query.fetchall()
+        
+        # Get total sessions count
+        sessions_result = await db.execute(
+            select(func.count(Session.id))
+            .where(Session.user_id == current_user.id)
+        )
+        total_sessions = sessions_result.scalar() or 0
+        
+        # Build the response data
+        taxonomy_data = []
+        
+        for category, subcategories in canonical_taxonomy.items():
+            for subcategory, types in subcategories.items():
+                for type_name in types:
+                    # Find attempt counts for this specific combination
+                    easy_count = 0
+                    medium_count = 0
+                    hard_count = 0
+                    
+                    for row in attempt_data:
+                        if (row.subcategory == subcategory and 
+                            row.type_of_question == type_name):
+                            if row.difficulty_band == 'Easy':
+                                easy_count = row.attempt_count
+                            elif row.difficulty_band == 'Medium':
+                                medium_count = row.attempt_count
+                            elif row.difficulty_band == 'Hard' or row.difficulty_band == 'Difficult':
+                                hard_count = row.attempt_count
+                    
+                    taxonomy_data.append({
+                        "category": category,
+                        "subcategory": subcategory,
+                        "type": type_name,
+                        "easy_attempts": easy_count,
+                        "medium_attempts": medium_count,
+                        "hard_attempts": hard_count,
+                        "total_attempts": easy_count + medium_count + hard_count
+                    })
+        
+        return {
+            "total_sessions": total_sessions,
+            "taxonomy_data": taxonomy_data
+        }
+        
+    except Exception as e:
+        logger.error(f"Error getting simple taxonomy dashboard: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 # Admin Routes
 
 @api_router.get("/admin/export-questions-csv")
