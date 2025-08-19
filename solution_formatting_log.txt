@@ -1618,3 +1618,13 @@ LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 [92m15:58:17 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
 2025-08-19 15:58:17,574 - INFO - Wrapper: Completed Call, calling success_handler
 2025-08-19 15:58:17,575 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:58:19,808 - INFO -   ✅ Improved formatting
+2025-08-19 15:58:20,008 - INFO - 
+🔄 [123/126] Processing formatting...
+2025-08-19 15:58:20,008 - INFO -   📝 Question: If N = (24³ + 25³ + 26³ + 27³), then N divided by 102 leaves...
+2025-08-19 15:58:20,008 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:58:20,008 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:58:20 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:58:20,009 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
