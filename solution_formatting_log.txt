@@ -701,3 +701,26 @@ LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 [92m15:40:46 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
 2025-08-19 15:40:46,493 - INFO - Wrapper: Completed Call, calling success_handler
 2025-08-19 15:40:46,494 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:40:48,621 - INFO -   ✅ Improved formatting
+2025-08-19 15:40:48,821 - INFO - 
+🔄 [54/126] Processing formatting...
+2025-08-19 15:40:48,822 - INFO -   📝 Question: What is the highest power of 12 that divides 54!?...
+2025-08-19 15:40:48,822 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:40:48,822 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:40:48 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:40:48,823 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:40:57 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:40:57,020 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:40:57,020 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:40:59,129 - INFO -   ✅ Improved formatting
+2025-08-19 15:40:59,329 - INFO - 
+🔄 [55/126] Processing formatting...
+2025-08-19 15:40:59,330 - INFO -   📝 Question: Find the least number n such that no factorial has n trailin...
+2025-08-19 15:40:59,330 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:40:59,330 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:40:59 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:40:59,332 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
