@@ -19,6 +19,12 @@ from formulas import (
     calculate_learning_impact
 )
 import asyncio
+from sqlalchemy.orm import Session
+from database import Question
+from enrichment_schema_manager import enrichment_schema, quality_controller
+from standardized_enrichment_engine import standardized_enricher
+import openai
+from dotenv import load_dotenv
 
 logger = logging.getLogger(__name__)
 
