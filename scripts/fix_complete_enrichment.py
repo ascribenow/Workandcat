@@ -237,29 +237,27 @@ async def generate_mcq_options_with_fallback(stem: str, answer: str, subcategory
             response = client.chat.completions.create(
                 model="gpt-4o-mini",
                 messages=[
-                    {"role": "system", "content": f"""You are an expert CAT math tutor creating multiple choice questions. Generate 4 realistic mathematical options for the given question with exactly 1 correct answer and 3 carefully crafted wrong answers.
+                    {"role": "system", "content": f"""You are an expert CAT math tutor creating multiple choice questions. Generate exactly 3 plausible wrong answers for the given question. The correct answer is already provided.
 
 RULES:
-1. Generate exactly 4 numerical/mathematical options
-2. Make wrong answers plausible but incorrect based on common student errors
-3. Ensure options are distinct values  
+1. Generate exactly 3 wrong answers that are plausible but incorrect
+2. Base wrong answers on common student errors for this type of problem
+3. Make sure all values are distinct from the correct answer
 4. Match the difficulty level: {difficulty}
 5. Return ONLY valid JSON, no other text
 
 REQUIRED JSON FORMAT:
 {{
-  "option_a": "actual mathematical answer/value",
-  "option_b": "actual mathematical answer/value", 
-  "option_c": "actual mathematical answer/value",
-  "option_d": "actual mathematical answer/value",
-  "correct_label": "A"
+  "wrong_answer_1": "plausible incorrect value",
+  "wrong_answer_2": "plausible incorrect value", 
+  "wrong_answer_3": "plausible incorrect value"
 }}"""},
                     {"role": "user", "content": f"""Question: {stem}
 Correct Answer: {answer}
 Sub-category: {subcategory}
 Difficulty: {difficulty}
 
-Generate 4 MCQ options where one matches the correct answer and three are plausible wrong answers. Return ONLY the JSON object."""}
+Generate 3 plausible wrong answers for this question. The correct answer is already "{answer}". Return ONLY the JSON object with 3 wrong answers."""}
                 ],
                 max_tokens=300
             )
