@@ -963,3 +963,242 @@ LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 2025-08-19 15:44:52,576 - INFO - 
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:45:42 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:45:42,616 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:45:42,617 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:45:45,101 - INFO -   ✅ Improved formatting
+2025-08-19 15:45:45,301 - INFO - 
+🔄 [74/126] Processing formatting...
+2025-08-19 15:45:45,301 - INFO -   📝 Question: How many three-digit numbers are greater than 100 and increa...
+2025-08-19 15:45:45,301 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:45:45,301 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:45:45 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:45:45,302 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:45:49 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:45:49,145 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:45:49,146 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:45:51,259 - INFO -   ✅ Improved formatting
+2025-08-19 15:45:51,460 - INFO - 
+🔄 [75/126] Processing formatting...
+2025-08-19 15:45:51,460 - INFO -   📝 Question: Let N, x and y be positive integers such that N = x + y, 2 <...
+2025-08-19 15:45:51,460 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:45:51,460 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:45:51 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:45:51,461 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:46:19 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:46:19,130 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:46:19,131 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:46:21,359 - INFO -   ✅ Improved formatting
+2025-08-19 15:46:21,560 - INFO - 
+🔄 [76/126] Processing formatting...
+2025-08-19 15:46:21,560 - INFO -   📝 Question: How many pairs (a,b) of positive integers are there such tha...
+2025-08-19 15:46:21,560 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:46:21,560 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:46:21 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:46:21,561 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:46:24 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:46:24,979 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:46:24,979 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:46:27,178 - INFO -   ✅ Improved formatting
+2025-08-19 15:46:27,379 - INFO - 
+🔄 [77/126] Processing formatting...
+2025-08-19 15:46:27,379 - INFO -   📝 Question: If x and y are positive real numbers satisfying x + y = 102,...
+2025-08-19 15:46:27,379 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:46:27,379 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:46:27 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:46:27,380 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:47:19 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:47:19,269 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:47:19,270 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:47:21,644 - INFO -   ✅ Improved formatting
+2025-08-19 15:47:21,844 - INFO - 
+🔄 [78/126] Processing formatting...
+2025-08-19 15:47:21,844 - INFO -   📝 Question: How many 4-digit numbers, each greater than 1000 and each ha...
+2025-08-19 15:47:21,844 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:47:21,844 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:47:21 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:47:21,845 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:47:38 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:47:38,083 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:47:38,083 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:47:40,201 - INFO -   ✅ Improved formatting
+2025-08-19 15:47:40,401 - INFO - 
+🔄 [79/126] Processing formatting...
+2025-08-19 15:47:40,402 - INFO -   📝 Question: How many 3-digit numbers are there, for which the product of...
+2025-08-19 15:47:40,402 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:47:40,402 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:47:40 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:47:40,403 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:47:57 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:47:57,494 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:47:57,495 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:47:59,702 - INFO -   ✅ Improved formatting
+2025-08-19 15:47:59,903 - INFO - 
+🔄 [80/126] Processing formatting...
+2025-08-19 15:47:59,903 - INFO -   📝 Question: The mean of all 4 digit even natural numbers of the form 'aa...
+2025-08-19 15:47:59,903 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:47:59,903 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:47:59 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:47:59,904 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:48:14 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:48:14,977 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:48:14,978 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:48:17,086 - INFO -   ✅ Improved formatting
+2025-08-19 15:48:17,086 - INFO - 
+📈 PROGRESS [80/126]
+2025-08-19 15:48:17,086 - INFO -    ✅ Improved: 80
+2025-08-19 15:48:17,086 - INFO -    ✅ Already good: 0
+2025-08-19 15:48:17,086 - INFO -    ❌ Failed: 0
+2025-08-19 15:48:17,287 - INFO - 
+🔄 [81/126] Processing formatting...
+2025-08-19 15:48:17,287 - INFO -   📝 Question: Among 100 students, x1 have birthdays in January, x2 have bi...
+2025-08-19 15:48:17,287 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:48:17,287 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:48:17 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:48:17,288 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:48:20 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:48:20,261 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:48:20,261 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:48:22,431 - INFO -   ✅ Improved formatting
+2025-08-19 15:48:22,631 - INFO - 
+🔄 [82/126] Processing formatting...
+2025-08-19 15:48:22,631 - INFO -   📝 Question: If a, b and c are positive integers such that ab = 432, bc =...
+2025-08-19 15:48:22,631 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:48:22,631 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:48:22 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:48:22,632 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:48:28 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:48:28,329 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:48:28,330 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:48:30,486 - INFO -   ✅ Improved formatting
+2025-08-19 15:48:30,687 - INFO - 
+🔄 [83/126] Processing formatting...
+2025-08-19 15:48:30,687 - INFO -   📝 Question: In a six-digit number, the sixth, that is, the rightmost, di...
+2025-08-19 15:48:30,687 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:48:30,687 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:48:30 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:48:30,688 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:48:36 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:48:36,809 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:48:36,810 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:48:39,015 - INFO -   ✅ Improved formatting
+2025-08-19 15:48:39,216 - INFO - 
+🔄 [84/126] Processing formatting...
+2025-08-19 15:48:39,216 - INFO -   📝 Question: If the sum of squares of two numbers is 97, then which one o...
+2025-08-19 15:48:39,216 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:48:39,216 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:48:39 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:48:39,217 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:48:45 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:48:45,444 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:48:45,445 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:48:47,617 - INFO -   ✅ Improved formatting
+2025-08-19 15:48:47,817 - INFO - 
+🔄 [85/126] Processing formatting...
+2025-08-19 15:48:47,817 - INFO -   📝 Question: How many two-digit numbers, with a non-zero digit in the uni...
+2025-08-19 15:48:47,817 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:48:47,817 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:48:47 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:48:47,818 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:48:56 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:48:56,414 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:48:56,415 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:48:58,607 - INFO -   ✅ Improved formatting
+2025-08-19 15:48:58,808 - INFO - 
+🔄 [86/126] Processing formatting...
+2025-08-19 15:48:58,808 - INFO -   📝 Question: While multiplying three real numbers, Ashok took one of the ...
+2025-08-19 15:48:58,808 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:48:58,808 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:48:58 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:48:58,809 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:49:16 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:49:16,696 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:49:16,697 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:49:18,942 - INFO -   ✅ Improved formatting
+2025-08-19 15:49:19,143 - INFO - 
+🔄 [87/126] Processing formatting...
+2025-08-19 15:49:19,143 - INFO -   📝 Question: The numbers 1, 2,..., 9 are arranged in a 3 X 3 square grid ...
+2025-08-19 15:49:19,143 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:49:19,143 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:49:19 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:49:19,144 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:49:41 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:49:41,922 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:49:41,923 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:49:44,053 - INFO -   ✅ Improved formatting
+2025-08-19 15:49:44,254 - INFO - 
+🔄 [88/126] Processing formatting...
+2025-08-19 15:49:44,254 - INFO -   📝 Question: If the product of three consecutive positive integers is 156...
+2025-08-19 15:49:44,254 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:49:44,254 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:49:44 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:49:44,255 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:49:50 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:49:50,272 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:49:50,273 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:49:52,512 - INFO -   ✅ Improved formatting
+2025-08-19 15:49:52,712 - INFO - 
+🔄 [89/126] Processing formatting...
+2025-08-19 15:49:52,712 - INFO -   📝 Question: How many different pairs (a, b) of positive integers are the...
+2025-08-19 15:49:52,712 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:49:52,712 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:49:52 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:49:52,713 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:50:23 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:50:23,442 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:50:23,443 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:50:25,723 - INFO -   ✅ Improved formatting
+2025-08-19 15:50:25,924 - INFO - 
+🔄 [90/126] Processing formatting...
+2025-08-19 15:50:25,924 - INFO -   📝 Question: Consider a class of 40 students whose average weight is 40 k...
+2025-08-19 15:50:25,924 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:50:25,924 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:50:25 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:50:25,925 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:50:40 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:50:40,548 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:50:40,549 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:50:42,674 - INFO -   ✅ Improved formatting
+2025-08-19 15:50:42,875 - INFO - 
+🔄 [91/126] Processing formatting...
+2025-08-19 15:50:42,875 - INFO -   📝 Question: The average score in an examination of 10 students of a clas...
+2025-08-19 15:50:42,875 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:50:42,875 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:50:42 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:50:42,876 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
