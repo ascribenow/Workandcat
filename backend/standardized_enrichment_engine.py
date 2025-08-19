@@ -175,11 +175,17 @@ Quality will be checked by expert validator."""
             
             if validation["is_valid"]:
                 logger.info(f"  ✅ Gemini generated valid schema-compliant solution")
+                
+                # Clean the generated content to remove any LaTeX artifacts including $ signs
+                clean_approach = self.clean_human_friendly_text(validation["approach"])
+                clean_detailed = self.clean_human_friendly_text(validation["detailed_solution"])
+                clean_explanation = self.clean_human_friendly_text(validation["explanation"])
+                
                 return {
                     "success": True,
-                    "approach": validation["approach"],
-                    "detailed_solution": validation["detailed_solution"],
-                    "explanation": validation["explanation"],
+                    "approach": clean_approach,
+                    "detailed_solution": clean_detailed,
+                    "explanation": clean_explanation,
                     "validation": validation
                 }
             else:
