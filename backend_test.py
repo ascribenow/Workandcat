@@ -6407,17 +6407,21 @@ class CATBackendTester:
 
 
 if __name__ == "__main__":
-    print("🔍 CAT BACKEND TESTING - SESSION NUMBERING ISSUE DEBUG")
+    print("🎯 CAT BACKEND TESTING - SESSION COMPLETION FIX")
     print("=" * 80)
-    print("USER REPORT: Session interface shows random number #791 instead of proper sequential numbers")
-    print("TESTING FOCUS: Debug session numbering data flow from backend to frontend")
-    print("REVIEW REQUEST: Test dashboard API, session creation, and session status endpoints")
+    print("CRITICAL FIX IMPLEMENTED:")
+    print("- Added session completion logic in submit_session_answer endpoint")
+    print("- Sessions now get marked with ended_at when all questions are answered")
+    print("- This should fix the session counting in determine_user_phase function")
+    print("")
+    print("TESTING FOCUS: Validate session completion fix resolves session numbering issue")
+    print("REVIEW REQUEST: Test session completion, counting, sequential numbering, dashboard consistency")
     print("=" * 80)
     
     tester = CATBackendTester()
     
-    print("\n🎯 RUNNING SESSION NUMBERING DEBUG TEST")
-    success = tester.test_session_numbering_issue_debug()
+    print("\n🎯 RUNNING SESSION COMPLETION FIX TEST")
+    success = tester.test_session_completion_fix()
     
     print(f"\n" + "=" * 80)
     print("FINAL TEST SUMMARY")
@@ -6427,13 +6431,14 @@ if __name__ == "__main__":
     print(f"Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%" if tester.tests_run > 0 else "No tests run")
     
     if success:
-        print("🎉 SESSION NUMBERING DEBUG: SUCCESS!")
-        print("✅ Backend APIs are providing correct session numbering data")
-        print("✅ Dashboard API returns proper total_sessions")
-        print("✅ Session creation provides sequential numbering")
+        print("🎉 SESSION COMPLETION FIX: SUCCESS!")
+        print("✅ Session completion logic working properly")
+        print("✅ Sessions marked as complete with ended_at")
+        print("✅ Sequential session numbering working")
+        print("✅ Dashboard consistency maintained")
     else:
-        print("❌ SESSION NUMBERING DEBUG: ISSUES FOUND")
-        print("❌ Backend session numbering logic has problems")
+        print("❌ SESSION COMPLETION FIX: ISSUES FOUND")
+        print("❌ Session completion logic has problems")
         print("❌ Review test results for specific root causes")
     
     print("=" * 80)
