@@ -346,27 +346,24 @@ Format:
         numbers = re.findall(r'-?\d+\.?\d*', answer)
         if numbers:
             base_value = float(numbers[0])
-            options = {
-                "A": str(int(base_value) if base_value.is_integer() else base_value),
-                "B": str(int(base_value * 2) if (base_value * 2).is_integer() else base_value * 2),
-                "C": str(int(base_value / 2) if (base_value / 2).is_integer() else base_value / 2),
-                "D": str(int(base_value + 1) if (base_value + 1).is_integer() else base_value + 1),
-                "correct": "A"
-            }
-            logger.info(f"  ✅ Generated smart fallback MCQ options")
+            wrong_answers = [
+                str(int(base_value * 2) if (base_value * 2).is_integer() else base_value * 2),
+                str(int(base_value / 2) if (base_value / 2).is_integer() else base_value / 2),
+                str(int(base_value + 1) if (base_value + 1).is_integer() else base_value + 1)
+            ]
+            
+            # Randomize placement  
+            options = randomize_mcq_placement(answer, wrong_answers)
+            logger.info(f"  ✅ Generated smart fallback MCQ options with randomized placement (correct: {options['correct']})")
             return options
     except:
         pass
     
-    # Ultimate fallback
-    logger.warning("  ⚠️ Using basic fallback MCQ options")
-    return {
-        "A": answer,
-        "B": "Alternative 1",
-        "C": "Alternative 2",
-        "D": "Alternative 3",
-        "correct": "A"
-    }
+    # Ultimate fallback - also randomize
+    wrong_answers = ["Alternative 1", "Alternative 2", "Alternative 3"]
+    options = randomize_mcq_placement(answer, wrong_answers)
+    logger.warning(f"  ⚠️ Using basic fallback MCQ options with randomized placement (correct: {options['correct']})")
+    return options
 
 async def fix_all_enrichment():
     """Fix all missing enrichment data with comprehensive LLM processing"""
