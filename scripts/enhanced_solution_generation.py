@@ -332,16 +332,26 @@ The correct answer is {answer}."""
         return approach, detailed
 
     def clean_text(self, text: str) -> str:
-        """Clean text by removing unwanted formatting artifacts"""
+        """Clean text by removing unwanted formatting artifacts and LaTeX"""
         if not text:
             return text
             
-        # Remove excessive parentheses and formatting artifacts
-        cleaned = text.replace("((", "(").replace("))", ")")
-        cleaned = cleaned.replace("**", "").replace("##", "")
+        # Remove LaTeX formatting
+        cleaned = text.replace("\\(", "").replace("\\)", "")
+        cleaned = cleaned.replace("\\[", "").replace("\\]", "")
+        cleaned = cleaned.replace("$$", "").replace("$", "")
+        
+        # Remove markdown formatting
+        cleaned = cleaned.replace("**", "").replace("##", "").replace("***", "")
+        cleaned = cleaned.replace("((", "(").replace("))", ")")
+        
+        # Clean up incomplete numbered points (common issue)
+        import re
+        # Remove incomplete numbered points like "2." at the end with no text after
+        cleaned = re.sub(r'\n\d+\.\s*$', '', cleaned)
+        cleaned = re.sub(r'\d+\.\s*$', '', cleaned)
         
         # Clean up multiple spaces and newlines
-        import re
         cleaned = re.sub(r'\s+', ' ', cleaned)
         cleaned = re.sub(r'\n\s*\n', '\n\n', cleaned)
         
