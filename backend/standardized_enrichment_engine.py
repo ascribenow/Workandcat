@@ -126,22 +126,27 @@ class StandardizedEnrichmentEngine:
 
 Correct Answer: {answer}
 
-Create a complete solution following the EXACT three-section schema:
+Create a complete solution with THREE DISTINCT sections:
 
-**APPROACH:**
-[2-3 sentences: exam strategy tip, highlight entry point, no answer reveal]
+**APPROACH:** (HOW to solve - METHOD/STRATEGY)
+[2-3 sentences showing the strategic approach to attack this problem - what method to use, what to notice first, entry point]
 
-**DETAILED SOLUTION:**
+**DETAILED SOLUTION:** (Execution of the approach)
 **Step 1:** [First step with clear reasoning]
 **Step 2:** [Continue with logical progression]
 **Step 3:** [Show calculations systematically]
 **Step N:** [Final verification]
 **✅ Final Answer: {answer}**
 
-**EXPLANATION:**
-[1-2 sentences: big-picture takeaway, exam tip for similar problems]
+**EXPLANATION:** (WHY it works - CONCEPT/PRINCIPLE)  
+[1-2 sentences about the general principle/concept that makes this method work - big-picture takeaway for similar problems]
 
-CRITICAL: Follow the schema EXACTLY. Quality will be checked by expert validator."""
+CRITICAL DISTINCTION:
+- APPROACH = HOW to solve (strategy/method)  
+- EXPLANATION = WHY it works (concept/principle)
+- Make sure these are DIFFERENT and serve different purposes!
+
+Quality will be checked by expert validator."""
             
             user_message = UserMessage(text=user_prompt)
             response = await chat.send_message(user_message)
