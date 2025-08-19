@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { useAuth } from './AuthProvider';
-import MathJaxRenderer from './MathJaxRenderer';
 
 // Smart API URL detection (same as in AuthProvider)
 const getBackendURL = () => {
