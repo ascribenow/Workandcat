@@ -155,3 +155,154 @@ LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 2025-08-19 15:31:27,459 - INFO - 
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:31:38 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:31:38,192 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:31:38,193 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:31:40,342 - INFO -   ✅ Improved formatting
+2025-08-19 15:31:40,542 - INFO - 
+🔄 [13/126] Processing formatting...
+2025-08-19 15:31:40,542 - INFO -   📝 Question: How many factors of 1080 are perfect squares?...
+2025-08-19 15:31:40,542 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:31:40,542 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:31:40 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:31:40,543 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:31:50 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:31:50,905 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:31:50,906 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:31:53,080 - INFO -   ✅ Improved formatting
+2025-08-19 15:31:53,280 - INFO - 
+🔄 [14/126] Processing formatting...
+2025-08-19 15:31:53,281 - INFO -   📝 Question: How many factors of 2⁵ × 3⁶ × 5² are perfect squares?...
+2025-08-19 15:31:53,281 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:31:53,281 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:31:53 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:31:53,282 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:31:55 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:31:55,983 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:31:55,985 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:31:58,103 - INFO -   ✅ Improved formatting
+2025-08-19 15:31:58,304 - INFO - 
+🔄 [15/126] Processing formatting...
+2025-08-19 15:31:58,304 - INFO -   📝 Question: How many factors of 2⁴ × 5³ × 7⁴ are odd numbers?...
+2025-08-19 15:31:58,304 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:31:58,304 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:31:58 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:31:58,305 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:32:00 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:32:00,100 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:32:00,100 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:32:02,205 - INFO -   ✅ Improved formatting
+2025-08-19 15:32:02,406 - INFO - 
+🔄 [16/126] Processing formatting...
+2025-08-19 15:32:02,406 - INFO -   📝 Question: How many factors of the number 2⁸×3⁶×5⁴×10⁵ are multiples of...
+2025-08-19 15:32:02,406 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:32:02,406 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:32:02 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:32:02,407 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:32:14 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:32:14,483 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:32:14,484 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:32:16,595 - INFO -   ✅ Improved formatting
+2025-08-19 15:32:16,796 - INFO - 
+🔄 [17/126] Processing formatting...
+2025-08-19 15:32:16,796 - INFO -   📝 Question: Number N = 2⁶×5⁵×7⁶×10⁷; how many factors of N are even numb...
+2025-08-19 15:32:16,796 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:32:16,796 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:32:16 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:32:16,797 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:32:25 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:32:25,980 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:32:25,980 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:32:28,190 - INFO -   ✅ Improved formatting
+2025-08-19 15:32:28,390 - INFO - 
+🔄 [18/126] Processing formatting...
+2025-08-19 15:32:28,390 - INFO -   📝 Question: Numbers A, B, C and D have 16, 28, 30 and 27 factors. Which ...
+2025-08-19 15:32:28,390 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:32:28,391 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:32:28 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:32:28,391 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:32:45 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:32:45,567 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:32:45,568 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:32:47,646 - INFO -   ✅ Improved formatting
+2025-08-19 15:32:47,847 - INFO - 
+🔄 [19/126] Processing formatting...
+2025-08-19 15:32:47,847 - INFO -   📝 Question: If a three digit number 'abc' has 3 factors, how many factor...
+2025-08-19 15:32:47,847 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:32:47,847 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:32:47 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:32:47,848 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:32:59 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:32:59,055 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:32:59,056 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:33:01,222 - INFO -   ✅ Improved formatting
+2025-08-19 15:33:01,422 - INFO - 
+🔄 [20/126] Processing formatting...
+2025-08-19 15:33:01,422 - INFO -   📝 Question: How many numbers are there less than 100 that cannot be writ...
+2025-08-19 15:33:01,422 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:33:01,422 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:33:01 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:33:01,423 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:33:10 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:33:10,031 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:33:10,032 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:33:12,235 - INFO -   ✅ Improved formatting
+2025-08-19 15:33:12,235 - INFO - 
+📈 PROGRESS [20/126]
+2025-08-19 15:33:12,235 - INFO -    ✅ Improved: 20
+2025-08-19 15:33:12,235 - INFO -    ✅ Already good: 0
+2025-08-19 15:33:12,235 - INFO -    ❌ Failed: 0
+2025-08-19 15:33:12,436 - INFO - 
+🔄 [21/126] Processing formatting...
+2025-08-19 15:33:12,436 - INFO -   📝 Question: Find the smallest number that has exactly 18 factors....
+2025-08-19 15:33:12,436 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:33:12,436 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:33:12 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:33:12,437 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:33:27 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:33:27,364 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:33:27,365 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:33:29,575 - INFO -   ✅ Improved formatting
+2025-08-19 15:33:29,776 - INFO - 
+🔄 [22/126] Processing formatting...
+2025-08-19 15:33:29,776 - INFO -   📝 Question: A number N² has 15 factors. How many factors can N have?...
+2025-08-19 15:33:29,776 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:33:29,776 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:33:29 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:33:29,777 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:33:33 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:33:33,435 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:33:33,436 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:33:35,665 - INFO -   ✅ Improved formatting
+2025-08-19 15:33:35,866 - INFO - 
+🔄 [23/126] Processing formatting...
+2025-08-19 15:33:35,866 - INFO -   📝 Question: If a three digit number 'abc' has 2 factors (where a, b, c a...
+2025-08-19 15:33:35,866 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:33:35,866 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:33:35 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:33:35,867 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:33:38 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:33:38,493 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:33:38,493 - INFO -   ✅ Generated well-formatted solution
