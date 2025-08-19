@@ -332,3 +332,13 @@ LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 [92m15:33:56 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
 2025-08-19 15:33:56,318 - INFO - Wrapper: Completed Call, calling success_handler
 2025-08-19 15:33:56,319 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:33:58,672 - INFO -   ✅ Improved formatting
+2025-08-19 15:33:58,873 - INFO - 
+🔄 [26/126] Processing formatting...
+2025-08-19 15:33:58,873 - INFO -   📝 Question: The number of positive integers less than 50, having exactly...
+2025-08-19 15:33:58,873 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:33:58,873 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:33:58 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:33:58,874 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
