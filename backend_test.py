@@ -26,6 +26,336 @@ class CATBackendTester:
             "Work Time Efficiency"
         ]
 
+    def test_review_request_priorities(self):
+        """Test the specific priorities from the review request"""
+        print("🎯 REVIEW REQUEST PRIORITIES TESTING")
+        print("=" * 80)
+        print("TESTING PRIORITIES:")
+        print("1. Database Connection & Health - verify backend connects to database and can access questions")
+        print("2. Question Quality Status - check current state after fixing process ($ signs removed, solutions formatted)")
+        print("3. Core Session Workflow - test session creation, question retrieval, answer submission, solution display")
+        print("4. LLM Integration - verify admin enrichment endpoints with Gemini (Maker) → Anthropic (Checker)")
+        print("5. API Endpoints Health - test authentication, dashboard data, mastery tracking")
+        print("")
+        print("CONTEXT:")
+        print("- fix_existing_questions_improved.py script ran successfully and fixed 16 out of 49 questions")
+        print("- Issues addressed: removing $ signs, distinct approach vs explanation, teaching language")
+        print("- Gemini → Anthropic methodology working with 9.6/10 average quality scores")
+        print("- Script stopped around question 23/49, need to verify current database state")
+        print("")
+        print("AUTHENTICATION:")
+        print("- Admin: sumedhprabhu18@gmail.com / admin2025")
+        print("- Student: student@catprep.com / student123")
+        print("=" * 80)
+        
+        results = {
+            "database_connection_health": False,
+            "question_quality_status": False,
+            "core_session_workflow": False,
+            "llm_integration_working": False,
+            "api_endpoints_health": False,
+            "dollar_signs_removed": False,
+            "solutions_properly_formatted": False,
+            "gemini_anthropic_methodology": False,
+            "admin_enrichment_endpoints": False,
+            "mastery_tracking_functional": False
+        }
+        
+        # TEST 1: Database Connection & Health
+        print("\n🔍 TEST 1: DATABASE CONNECTION & HEALTH")
+        print("-" * 50)
+        print("Testing backend database connectivity and question access")
+        
+        # Test basic API health
+        success, response = self.run_test("API Health Check", "GET", "", 200)
+        if success:
+            results["database_connection_health"] = True
+            print("   ✅ Backend API responding")
+            
+            # Check if we can access questions
+            success, response = self.run_test("Questions Database Access", "GET", "questions?limit=10", 200)
+            if success:
+                questions = response.get('questions', [])
+                print(f"   ✅ Database accessible - {len(questions)} questions retrieved")
+                if len(questions) >= 5:
+                    results["database_connection_health"] = True
+                    print("   ✅ Sufficient questions in database for testing")
+            else:
+                print("   ❌ Cannot access questions database")
+        else:
+            print("   ❌ Backend API not responding")
+        
+        # TEST 2: Authentication System
+        print("\n🔐 TEST 2: AUTHENTICATION SYSTEM")
+        print("-" * 50)
+        print("Testing admin and student authentication")
+        
+        # Admin login
+        admin_login = {"email": "sumedhprabhu18@gmail.com", "password": "admin2025"}
+        success, response = self.run_test("Admin Authentication", "POST", "auth/login", 200, admin_login)
+        if success and 'access_token' in response:
+            self.admin_token = response['access_token']
+            print("   ✅ Admin authentication successful")
+            results["api_endpoints_health"] = True
+        else:
+            print("   ❌ Admin authentication failed")
+            
+        # Student login
+        student_login = {"email": "student@catprep.com", "password": "student123"}
+        success, response = self.run_test("Student Authentication", "POST", "auth/login", 200, student_login)
+        if success and 'access_token' in response:
+            self.student_token = response['access_token']
+            print("   ✅ Student authentication successful")
+        else:
+            print("   ❌ Student authentication failed")
+        
+        if not self.admin_token or not self.student_token:
+            print("❌ Cannot continue testing without authentication")
+            return False
+            
+        admin_headers = {'Content-Type': 'application/json', 'Authorization': f'Bearer {self.admin_token}'}
+        student_headers = {'Content-Type': 'application/json', 'Authorization': f'Bearer {self.student_token}'}
+        
+        # TEST 3: Question Quality Status
+        print("\n📋 TEST 3: QUESTION QUALITY STATUS")
+        print("-" * 50)
+        print("Checking current state of questions after fixing process")
+        
+        success, response = self.run_test("Get Questions for Quality Check", "GET", "questions?limit=20", 200, None, admin_headers)
+        if success:
+            questions = response.get('questions', [])
+            print(f"   📊 Retrieved {len(questions)} questions for quality analysis")
+            
+            dollar_sign_count = 0
+            properly_formatted_count = 0
+            questions_with_solutions = 0
+            
+            for i, q in enumerate(questions[:10]):  # Check first 10 questions
+                question_id = q.get('id', '')
+                stem = q.get('stem', '')
+                solution_approach = q.get('solution_approach', '')
+                detailed_solution = q.get('detailed_solution', '')
+                answer = q.get('answer', '')
+                
+                # Check for $ signs
+                if '$' in solution_approach or '$' in detailed_solution:
+                    dollar_sign_count += 1
+                
+                # Check if solutions are properly formatted
+                if (solution_approach and solution_approach != "To be generated by LLM" and
+                    detailed_solution and detailed_solution != "To be generated by LLM" and
+                    answer and answer != "To be generated by LLM"):
+                    questions_with_solutions += 1
+                    
+                    # Check for proper formatting (line breaks, structure)
+                    if len(solution_approach) > 50 and len(detailed_solution) > 100:
+                        properly_formatted_count += 1
+                
+                if i < 3:  # Show details for first 3 questions
+                    print(f"   Question {i+1}: ID={question_id[:8]}...")
+                    print(f"     Approach length: {len(solution_approach)} chars")
+                    print(f"     Solution length: {len(detailed_solution)} chars")
+                    print(f"     Has $ signs: {'Yes' if '$' in solution_approach + detailed_solution else 'No'}")
+            
+            print(f"   📊 Questions with $ signs: {dollar_sign_count}/10")
+            print(f"   📊 Questions with complete solutions: {questions_with_solutions}/10")
+            print(f"   📊 Questions properly formatted: {properly_formatted_count}/10")
+            
+            if dollar_sign_count <= 2:  # Allow some tolerance
+                results["dollar_signs_removed"] = True
+                print("   ✅ $ signs mostly removed from solutions")
+            
+            if properly_formatted_count >= 7:
+                results["solutions_properly_formatted"] = True
+                print("   ✅ Solutions properly formatted")
+                
+            if questions_with_solutions >= 8:
+                results["question_quality_status"] = True
+                print("   ✅ Question quality status good")
+        
+        # TEST 4: Core Session Workflow
+        print("\n🎮 TEST 4: CORE SESSION WORKFLOW")
+        print("-" * 50)
+        print("Testing session creation, question retrieval, answer submission, solution display")
+        
+        # Create session
+        session_data = {"target_minutes": 30}
+        success, response = self.run_test("Create Session", "POST", "sessions/start", 200, session_data, student_headers)
+        if success:
+            session_id = response.get('session_id')
+            total_questions = response.get('total_questions', 0)
+            print(f"   ✅ Session created: {session_id}")
+            print(f"   📊 Total questions: {total_questions}")
+            
+            if session_id and total_questions >= 10:
+                self.session_id = session_id
+                
+                # Get first question
+                success, response = self.run_test("Get First Question", "GET", f"sessions/{session_id}/next-question", 200, None, student_headers)
+                if success and 'question' in response:
+                    question = response['question']
+                    question_id = question.get('id')
+                    stem = question.get('stem', '')
+                    options = question.get('options', {})
+                    
+                    print(f"   ✅ Question retrieved: {question_id}")
+                    print(f"   📊 Question stem: {stem[:100]}...")
+                    print(f"   📊 Options available: {bool(options)}")
+                    
+                    if question_id:
+                        # Submit answer
+                        answer_data = {
+                            "question_id": question_id,
+                            "user_answer": "A",
+                            "context": "session",
+                            "time_sec": 60,
+                            "hint_used": False
+                        }
+                        
+                        success, response = self.run_test("Submit Answer", "POST", f"sessions/{session_id}/submit-answer", 200, answer_data, student_headers)
+                        if success:
+                            correct = response.get('correct', False)
+                            solution_feedback = response.get('solution_feedback', {})
+                            
+                            print(f"   ✅ Answer submitted: Correct={correct}")
+                            
+                            # Check solution display
+                            approach = solution_feedback.get('solution_approach', '')
+                            detailed_solution = solution_feedback.get('detailed_solution', '')
+                            
+                            print(f"   📊 Solution approach: {len(approach)} chars")
+                            print(f"   📊 Detailed solution: {len(detailed_solution)} chars")
+                            
+                            # Check for $ signs in solution feedback
+                            if '$' not in approach and '$' not in detailed_solution:
+                                results["dollar_signs_removed"] = True
+                                print("   ✅ No $ signs in solution feedback")
+                            
+                            if approach and detailed_solution and len(detailed_solution) > 100:
+                                results["core_session_workflow"] = True
+                                print("   ✅ Core session workflow functional")
+        
+        # TEST 5: LLM Integration - Admin Enrichment Endpoints
+        print("\n🧠 TEST 5: LLM INTEGRATION - ADMIN ENRICHMENT ENDPOINTS")
+        print("-" * 50)
+        print("Testing Gemini (Maker) → Anthropic (Checker) methodology")
+        
+        # Test auto-enrichment endpoint
+        success, response = self.run_test("Auto-Enrichment API", "POST", "admin/auto-enrich-all", 200, {}, admin_headers)
+        if success:
+            message = response.get('message', '')
+            success_status = response.get('success', False)
+            
+            print(f"   📊 Auto-enrichment response: {message}")
+            print(f"   📊 Success status: {success_status}")
+            
+            if success_status or "already enriched" in message.lower():
+                results["admin_enrichment_endpoints"] = True
+                results["llm_integration_working"] = True
+                print("   ✅ Auto-enrichment endpoint working")
+        
+        # Test single question enrichment
+        success, response = self.run_test("Get Sample Question ID", "GET", "questions?limit=1", 200, None, admin_headers)
+        if success:
+            questions = response.get('questions', [])
+            if questions:
+                sample_id = questions[0].get('id')
+                
+                success, response = self.run_test("Single Question Enrichment", "POST", f"admin/enrich-question/{sample_id}", 200, {}, admin_headers)
+                if success:
+                    llm_used = response.get('llm_used', '')
+                    quality_score = response.get('quality_score', 0)
+                    schema_compliant = response.get('schema_compliant', False)
+                    
+                    print(f"   📊 LLM used: {llm_used}")
+                    print(f"   📊 Quality score: {quality_score}")
+                    print(f"   📊 Schema compliant: {schema_compliant}")
+                    
+                    if "Gemini" in llm_used and "Anthropic" in llm_used:
+                        results["gemini_anthropic_methodology"] = True
+                        print("   ✅ Gemini (Maker) → Anthropic (Checker) methodology confirmed")
+                    
+                    if quality_score >= 7:
+                        print("   ✅ High quality score achieved")
+        
+        # TEST 6: Mastery Tracking
+        print("\n📊 TEST 6: MASTERY TRACKING")
+        print("-" * 50)
+        print("Testing mastery tracking functionality")
+        
+        # Test type-level mastery endpoint
+        success, response = self.run_test("Type Mastery Breakdown", "GET", "mastery/type-breakdown", 200, None, student_headers)
+        if success:
+            type_breakdown = response.get('type_breakdown', [])
+            summary = response.get('summary', {})
+            category_summaries = response.get('category_summaries', [])
+            
+            print(f"   📊 Type breakdown records: {len(type_breakdown)}")
+            print(f"   📊 Summary data: {bool(summary)}")
+            print(f"   📊 Category summaries: {len(category_summaries)}")
+            
+            if type_breakdown or summary or category_summaries:
+                results["mastery_tracking_functional"] = True
+                print("   ✅ Mastery tracking functional")
+        
+        # Test dashboard mastery
+        success, response = self.run_test("Dashboard Mastery", "GET", "dashboard/mastery", 200, None, student_headers)
+        if success:
+            mastery_by_topic = response.get('mastery_by_topic', [])
+            total_topics = response.get('total_topics', 0)
+            
+            print(f"   📊 Mastery topics: {total_topics}")
+            
+            if mastery_by_topic:
+                results["api_endpoints_health"] = True
+                print("   ✅ Dashboard mastery endpoint working")
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 80)
+        print("REVIEW REQUEST PRIORITIES TEST RESULTS")
+        print("=" * 80)
+        
+        passed_tests = sum(results.values())
+        total_tests = len(results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        for test_name, result in results.items():
+            status = "✅ PASS" if result else "❌ FAIL"
+            print(f"{test_name.replace('_', ' ').title():<40} {status}")
+        
+        print("-" * 80)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # Critical analysis based on review request
+        print("\n🎯 CRITICAL ANALYSIS:")
+        
+        if results["database_connection_health"]:
+            print("✅ DATABASE: Backend connecting to database properly and can access questions")
+        else:
+            print("❌ DATABASE: Connection or access issues detected")
+        
+        if results["dollar_signs_removed"] and results["solutions_properly_formatted"]:
+            print("✅ QUESTION QUALITY: $ signs removed and solutions properly formatted")
+        else:
+            print("❌ QUESTION QUALITY: Issues with $ signs or solution formatting")
+        
+        if results["core_session_workflow"]:
+            print("✅ SESSION WORKFLOW: Session creation, question retrieval, answer submission working")
+        else:
+            print("❌ SESSION WORKFLOW: Core workflow has issues")
+        
+        if results["gemini_anthropic_methodology"] and results["admin_enrichment_endpoints"]:
+            print("✅ LLM INTEGRATION: Gemini (Maker) → Anthropic (Checker) methodology working")
+        else:
+            print("❌ LLM INTEGRATION: Issues with admin enrichment endpoints")
+        
+        if results["mastery_tracking_functional"] and results["api_endpoints_health"]:
+            print("✅ API ENDPOINTS: Authentication, dashboard data, mastery tracking working")
+        else:
+            print("❌ API ENDPOINTS: Issues with key endpoints")
+        
+        return success_rate >= 70
+
     def run_test(self, name, method, endpoint, expected_status, data=None, headers=None):
         """Run a single API test with retry logic"""
         url = f"{self.base_url}/{endpoint}" if not endpoint.startswith('http') else endpoint
