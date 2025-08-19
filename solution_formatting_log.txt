@@ -1584,3 +1584,21 @@ LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 2025-08-19 15:57:13,512 - INFO - 
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:57:38 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:57:38,765 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:57:38,765 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:57:40,856 - INFO -   ✅ Improved formatting
+2025-08-19 15:57:40,856 - INFO - 
+📈 PROGRESS [120/126]
+2025-08-19 15:57:40,856 - INFO -    ✅ Improved: 120
+2025-08-19 15:57:40,856 - INFO -    ✅ Already good: 0
+2025-08-19 15:57:40,856 - INFO -    ❌ Failed: 0
+2025-08-19 15:57:41,056 - INFO - 
+🔄 [121/126] Processing formatting...
+2025-08-19 15:57:41,056 - INFO -   📝 Question: Given a number, N = 55⁵ + 17⁵ â 72⁵, then which of the fol...
+2025-08-19 15:57:41,056 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:57:41,056 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:57:41 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:57:41,057 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
