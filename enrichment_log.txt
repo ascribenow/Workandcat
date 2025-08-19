@@ -420,3 +420,15 @@ INFO:human_friendly_solution_generator:  🎯 Generating human-friendly solution
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 INFO:LiteLLM:
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m14:26:18 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
+INFO:human_friendly_solution_generator:  ✅ Google Gemini generated human-friendly solutions
+INFO:__main__:  Generating MCQ options...
+INFO:__main__:  Trying Google Gemini for MCQ generation...
+[92m14:26:18 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+INFO:LiteLLM:
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m14:26:19 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
+INFO:__main__:  ✅ Google Gemini generated MCQ options with randomized placement (correct: B)
