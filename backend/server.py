@@ -47,8 +47,17 @@ load_dotenv(ROOT_DIR / '.env')
 DATABASE_URL = os.getenv("DATABASE_URL")
 EMERGENT_LLM_KEY = os.getenv("EMERGENT_LLM_KEY")
 
-# Initialize services
+# Initialize enrichment services
 llm_pipeline = LLMEnrichmentPipeline(EMERGENT_LLM_KEY)
+auto_enrichment_service = None  # Will be initialized when needed
+
+def get_auto_enrichment_service():
+    """Get or create the automatic enrichment service"""
+    global auto_enrichment_service
+    if auto_enrichment_service is None:
+        from llm_enrichment import LLMEnrichmentService
+        auto_enrichment_service = LLMEnrichmentService()
+    return auto_enrichment_service
 mcq_generator = MCQGenerator(EMERGENT_LLM_KEY)
 enhanced_question_processor = EnhancedQuestionProcessor(llm_pipeline)  # PHASE 1: Enhanced processing
 study_planner = StudyPlanner()
