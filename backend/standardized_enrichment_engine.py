@@ -162,6 +162,8 @@ CRITICAL DISTINCTION:
 - APPROACH = HOW to solve (strategy/method)  
 - EXPLANATION = WHY it works (concept/principle)
 - Make sure these are DIFFERENT and serve different purposes!
+- ❌ NEVER use LaTeX dollar signs ($) or LaTeX commands - use plain Unicode math
+- ✅ Use clean mathematical notation: ×, ÷, ², ³, √, etc.
 
 Quality will be checked by expert validator."""
             
