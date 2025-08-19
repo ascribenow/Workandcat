@@ -469,31 +469,37 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
                     
                     {/* Solution Approach */}
                     {result.solution_feedback.solution_approach && (
-                      <div className="mb-4">
-                        <h5 className="font-medium text-blue-700 mb-2">Approach:</h5>
-                        <p className="text-blue-600 leading-relaxed">
-                          {result.solution_feedback.solution_approach}
-                        </p>
+                      <div className="mb-6">
+                        <h5 className="font-semibold text-blue-800 mb-3 text-lg">📋 Approach:</h5>
+                        <MathJaxRenderer className="bg-white p-4 rounded-lg border border-blue-100">
+                          <div className="text-gray-800 leading-relaxed text-base">
+                            {result.solution_feedback.solution_approach}
+                          </div>
+                        </MathJaxRenderer>
                       </div>
                     )}
 
                     {/* Detailed Solution */}
                     {result.solution_feedback.detailed_solution && (
-                      <div className="mb-4">
-                        <h5 className="font-medium text-blue-700 mb-2">Detailed Solution:</h5>
-                        <div className="text-blue-600 leading-relaxed whitespace-pre-line">
-                          {result.solution_feedback.detailed_solution}
-                        </div>
+                      <div className="mb-6">
+                        <h5 className="font-semibold text-blue-800 mb-3 text-lg">📖 Detailed Solution:</h5>
+                        <MathJaxRenderer className="bg-white p-6 rounded-lg border border-blue-100">
+                          <div className="text-gray-800 leading-relaxed whitespace-pre-line text-base">
+                            {result.solution_feedback.detailed_solution}
+                          </div>
+                        </MathJaxRenderer>
                       </div>
                     )}
 
                     {/* Explanation */}
                     {result.solution_feedback.explanation && (
                       <div>
-                        <h5 className="font-medium text-blue-700 mb-2">Explanation:</h5>
-                        <p className="text-blue-600 leading-relaxed">
-                          {result.solution_feedback.explanation}
-                        </p>
+                        <h5 className="font-semibold text-blue-800 mb-3 text-lg">💡 Explanation:</h5>
+                        <MathJaxRenderer className="bg-white p-4 rounded-lg border border-blue-100">
+                          <div className="text-gray-800 leading-relaxed">
+                            {result.solution_feedback.explanation}
+                          </div>
+                        </MathJaxRenderer>
                       </div>
                     )}
                   </div>
