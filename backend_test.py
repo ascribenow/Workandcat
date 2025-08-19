@@ -1194,6 +1194,265 @@ class CATBackendTester:
         else:
             return "Arithmetic"  # Default fallback
 
+    def test_session_numbering_issue_debug(self):
+        """Debug the session numbering issue - Test specific endpoints as requested"""
+        print("🔍 SESSION NUMBERING ISSUE DEBUG")
+        print("=" * 70)
+        print("USER REPORT: Session interface shows random number #791 instead of proper sequential numbers")
+        print("TESTING REQUIREMENTS:")
+        print("1. Dashboard API Response (/api/dashboard/simple-taxonomy) - verify total_sessions")
+        print("2. Session Creation Response (/api/sessions/start) - verify phase_info.current_session")
+        print("3. Session Status Check (/api/sessions/current-status) - existing sessions")
+        print("4. Verify Session Count Logic - backend session counting")
+        print("")
+        print("EXPECTED BEHAVIOR:")
+        print("- Dashboard API returns total_sessions (e.g., 62)")
+        print("- Session creation returns phase_info.current_session (e.g., 63)")
+        print("- Frontend should use these values instead of random timestamp calculation")
+        print("")
+        print("CREDENTIALS: student@catprep.com / student123")
+        print("=" * 70)
+        
+        # Authenticate as student
+        student_login = {"email": "student@catprep.com", "password": "student123"}
+        success, response = self.run_test("Student Login", "POST", "auth/login", 200, student_login)
+        if not success or 'access_token' not in response:
+            print("❌ Cannot test - student login failed")
+            return False
+            
+        student_token = response['access_token']
+        student_headers = {'Content-Type': 'application/json', 'Authorization': f'Bearer {student_token}'}
+        
+        session_numbering_results = {
+            "dashboard_api_total_sessions": False,
+            "dashboard_api_response_format": False,
+            "session_creation_phase_info": False,
+            "session_creation_current_session": False,
+            "session_status_check_working": False,
+            "session_count_logic_consistent": False,
+            "sequential_numbering_logic": False,
+            "no_random_timestamp_numbers": False
+        }
+        
+        dashboard_total_sessions = None
+        
+        # TEST 1: Dashboard API Response - /api/dashboard/simple-taxonomy
+        print("\n🎯 TEST 1: DASHBOARD API RESPONSE")
+        print("-" * 50)
+        print("Testing /api/dashboard/simple-taxonomy endpoint")
+        print("Verifying it returns correct total_sessions field")
+        
+        success, response = self.run_test("Dashboard Simple Taxonomy API", "GET", "dashboard/simple-taxonomy", 200, None, student_headers)
+        
+        if success:
+            total_sessions = response.get('total_sessions')
+            taxonomy_data = response.get('taxonomy_data', [])
+            
+            print(f"   📊 Total sessions from dashboard: {total_sessions}")
+            print(f"   📊 Taxonomy data entries: {len(taxonomy_data)}")
+            
+            if total_sessions is not None and isinstance(total_sessions, int):
+                session_numbering_results["dashboard_api_total_sessions"] = True
+                session_numbering_results["dashboard_api_response_format"] = True
+                dashboard_total_sessions = total_sessions
+                print(f"   ✅ Dashboard API returns total_sessions: {total_sessions}")
+                
+                # Check if it's a reasonable number (not random like 791)
+                if 0 <= total_sessions <= 1000:
+                    print(f"   ✅ Total sessions value is reasonable: {total_sessions}")
+                else:
+                    print(f"   ⚠️ Total sessions value seems unusual: {total_sessions}")
+            else:
+                print("   ❌ Dashboard API missing or invalid total_sessions field")
+        else:
+            print("   ❌ Dashboard API request failed")
+        
+        # TEST 2: Session Creation Response - /api/sessions/start
+        print("\n🎯 TEST 2: SESSION CREATION RESPONSE")
+        print("-" * 50)
+        print("Testing /api/sessions/start endpoint")
+        print("Verifying phase_info.current_session is populated correctly")
+        
+        session_data = {"target_minutes": 30}
+        success, response = self.run_test("Create Session for Numbering Test", "POST", "sessions/start", 200, session_data, student_headers)
+        
+        if success:
+            session_id = response.get('session_id')
+            phase_info = response.get('phase_info', {})
+            metadata = response.get('metadata', {})
+            total_questions = response.get('total_questions', 0)
+            
+            print(f"   📊 Session ID: {session_id}")
+            print(f"   📊 Phase info: {phase_info}")
+            print(f"   📊 Total questions: {total_questions}")
+            
+            # Check phase_info structure
+            if phase_info and isinstance(phase_info, dict):
+                current_session = phase_info.get('current_session')
+                phase = phase_info.get('phase')
+                phase_name = phase_info.get('phase_name')
+                
+                print(f"   📊 Current session from phase_info: {current_session}")
+                print(f"   📊 Phase: {phase}")
+                print(f"   📊 Phase name: {phase_name}")
+                
+                if current_session is not None:
+                    session_numbering_results["session_creation_phase_info"] = True
+                    session_numbering_results["session_creation_current_session"] = True
+                    print(f"   ✅ Phase info contains current_session: {current_session}")
+                    
+                    # Verify sequential logic
+                    if dashboard_total_sessions is not None:
+                        expected_session_number = dashboard_total_sessions + 1
+                        if current_session == expected_session_number:
+                            session_numbering_results["sequential_numbering_logic"] = True
+                            print(f"   ✅ Sequential numbering logic correct: {dashboard_total_sessions} + 1 = {current_session}")
+                        else:
+                            print(f"   ⚠️ Sequential numbering mismatch: expected {expected_session_number}, got {current_session}")
+                    
+                    # Check if it's not a random timestamp-like number
+                    if current_session < 10000:  # Reasonable session number
+                        session_numbering_results["no_random_timestamp_numbers"] = True
+                        print(f"   ✅ Session number is reasonable (not timestamp-like): {current_session}")
+                    else:
+                        print(f"   ❌ Session number looks like timestamp: {current_session}")
+                else:
+                    print("   ❌ Phase info missing current_session field")
+            else:
+                print("   ❌ Phase info field is empty or invalid")
+                
+            # Also check metadata for session info
+            if metadata:
+                metadata_session = metadata.get('current_session')
+                metadata_phase = metadata.get('phase')
+                print(f"   📊 Metadata current_session: {metadata_session}")
+                print(f"   📊 Metadata phase: {metadata_phase}")
+        else:
+            print("   ❌ Session creation failed")
+        
+        # TEST 3: Session Status Check - /api/sessions/current-status
+        print("\n🎯 TEST 3: SESSION STATUS CHECK")
+        print("-" * 50)
+        print("Testing /api/sessions/current-status endpoint")
+        print("Checking what's returned for existing sessions")
+        
+        success, response = self.run_test("Session Current Status", "GET", "sessions/current-status", 200, None, student_headers)
+        
+        if success:
+            active_session = response.get('active_session', False)
+            session_id = response.get('session_id')
+            progress = response.get('progress', {})
+            message = response.get('message', '')
+            
+            print(f"   📊 Active session: {active_session}")
+            print(f"   📊 Session ID: {session_id}")
+            print(f"   📊 Progress: {progress}")
+            print(f"   📊 Message: {message}")
+            
+            session_numbering_results["session_status_check_working"] = True
+            print("   ✅ Session status check endpoint working")
+            
+            if active_session and session_id:
+                print("   ✅ Active session found with valid session ID")
+            else:
+                print("   ℹ️ No active session (this is normal)")
+        else:
+            print("   ❌ Session status check failed")
+        
+        # TEST 4: Session Count Logic Consistency
+        print("\n🎯 TEST 4: SESSION COUNT LOGIC CONSISTENCY")
+        print("-" * 50)
+        print("Testing consistency between dashboard count and session creation")
+        
+        # Create multiple sessions to test consistency
+        session_numbers = []
+        for i in range(3):
+            session_data = {"target_minutes": 30}
+            success, response = self.run_test(f"Consistency Test Session {i+1}", "POST", "sessions/start", 200, session_data, student_headers)
+            
+            if success:
+                phase_info = response.get('phase_info', {})
+                current_session = phase_info.get('current_session')
+                
+                if current_session is not None:
+                    session_numbers.append(current_session)
+                    print(f"   Session {i+1}: current_session = {current_session}")
+                else:
+                    print(f"   Session {i+1}: current_session = None")
+        
+        print(f"   📊 Session numbers collected: {session_numbers}")
+        
+        # Check for consistency and sequential logic
+        if len(session_numbers) >= 2:
+            # Check if numbers are sequential or at least increasing
+            is_sequential = all(session_numbers[i] <= session_numbers[i+1] for i in range(len(session_numbers)-1))
+            
+            if is_sequential:
+                session_numbering_results["session_count_logic_consistent"] = True
+                print("   ✅ Session count logic is consistent (numbers increase)")
+            else:
+                print("   ⚠️ Session numbers are not sequential")
+                
+            # Check if all numbers are reasonable (not timestamp-like)
+            all_reasonable = all(num < 10000 for num in session_numbers if num is not None)
+            if all_reasonable:
+                print("   ✅ All session numbers are reasonable (not timestamp-like)")
+            else:
+                print("   ❌ Some session numbers look like timestamps")
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 70)
+        print("SESSION NUMBERING ISSUE DEBUG RESULTS")
+        print("=" * 70)
+        
+        passed_tests = sum(session_numbering_results.values())
+        total_tests = len(session_numbering_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        for test_name, result in session_numbering_results.items():
+            status = "✅ PASS" if result else "❌ FAIL"
+            print(f"{test_name.replace('_', ' ').title():<40} {status}")
+        
+        print("-" * 70)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # Critical analysis for session numbering issue
+        print("\n🔍 SESSION NUMBERING ISSUE ANALYSIS:")
+        
+        if session_numbering_results["dashboard_api_total_sessions"]:
+            print(f"✅ DASHBOARD API: Returns total_sessions = {dashboard_total_sessions}")
+        else:
+            print("❌ DASHBOARD API: Missing or invalid total_sessions field")
+        
+        if session_numbering_results["session_creation_current_session"]:
+            print("✅ SESSION CREATION: phase_info.current_session is populated")
+        else:
+            print("❌ SESSION CREATION: phase_info.current_session is missing - THIS IS THE ISSUE!")
+        
+        if session_numbering_results["sequential_numbering_logic"]:
+            print("✅ SEQUENTIAL LOGIC: Dashboard count + 1 = session number")
+        else:
+            print("❌ SEQUENTIAL LOGIC: Session numbering logic is broken")
+        
+        if session_numbering_results["no_random_timestamp_numbers"]:
+            print("✅ NO RANDOM NUMBERS: Session numbers are reasonable")
+        else:
+            print("❌ RANDOM NUMBERS: Session numbers look like timestamps (like #791)")
+        
+        # Root cause analysis
+        print("\n🎯 ROOT CAUSE ANALYSIS:")
+        if not session_numbering_results["session_creation_current_session"]:
+            print("❌ CRITICAL ISSUE: phase_info.current_session is not being populated by backend")
+            print("   This means frontend falls back to timestamp-based calculation")
+            print("   Frontend shows random numbers like #791 because backend doesn't provide proper session number")
+        elif not session_numbering_results["sequential_numbering_logic"]:
+            print("❌ LOGIC ISSUE: Backend provides session number but logic is incorrect")
+            print("   Session number doesn't match dashboard total + 1")
+        else:
+            print("✅ BACKEND OK: Issue might be in frontend session number display logic")
+        
+        return success_rate >= 70
+
     def test_quota_based_difficulty_distribution(self):
         """Test Quota-Based Difficulty Distribution Implementation - CRITICAL TEST from review request"""
         print("🎯 CRITICAL TEST: Quota-Based Difficulty Distribution Implementation")
