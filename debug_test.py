@@ -2,7 +2,7 @@ import requests
 import json
 
 # Test the specific failing endpoints
-base_url = "https://aptitude-coach-1.preview.emergentagent.com/api"
+base_url = "https://unicode-math-adapt.preview.emergentagent.com/api"
 
 # Login as student first
 login_data = {

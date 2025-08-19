@@ -6,7 +6,7 @@ import time
 import os
 
 class CATBackendTester:
-    def __init__(self, base_url="https://ec6534f5-c32a-4d25-b114-ca1499cfa9ca.preview.emergentagent.com/api"):
+    def __init__(self, base_url="https://unicode-math-adapt.preview.emergentagent.com/api"):
         self.base_url = base_url
         self.student_user = None
         self.admin_user = None
