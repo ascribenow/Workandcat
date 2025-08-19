@@ -41,6 +41,7 @@ export const Dashboard = () => {
   const [masteryData, setMasteryData] = useState(null);
   const [progressData, setProgressData] = useState(null);
   const [activeSessionId, setActiveSessionId] = useState(null);
+  const [sessionMetadata, setSessionMetadata] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
