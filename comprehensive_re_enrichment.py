@@ -188,6 +188,9 @@ Generate comprehensive solution with APPROACH, DETAILED SOLUTION, and EXPLANATIO
         
         import re
         
+        # Remove LaTeX dollar signs first
+        text = text.replace('$', '')
+        
         # Convert LaTeX to plain mathematical notation
         text = re.sub(r'\\frac\{([^}]+)\}\{([^}]+)\}', r'\1/\2', text)
         text = re.sub(r'\\sqrt\{([^}]+)\}', r'√\1', text)
@@ -195,7 +198,7 @@ Generate comprehensive solution with APPROACH, DETAILED SOLUTION, and EXPLANATIO
         text = re.sub(r'([a-zA-Z0-9]+)\^([0-9]+)', lambda m: f'{m.group(1)}{self.superscript_number(m.group(2))}', text)
         
         # Remove LaTeX delimiters
-        text = text.replace('$', '').replace('\\(', '').replace('\\)', '')
+        text = text.replace('\\(', '').replace('\\)', '')
         text = text.replace('\\[', '').replace('\\]', '')
         
         # Convert symbols
