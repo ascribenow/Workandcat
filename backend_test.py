@@ -6139,16 +6139,17 @@ class CATBackendTester:
 
 
 if __name__ == "__main__":
-    print("🎯 CAT BACKEND TESTING - SIMPLE TAXONOMY DASHBOARD API")
+    print("🔍 CAT BACKEND TESTING - SESSION NUMBERING ISSUE DEBUG")
     print("=" * 80)
-    print("TESTING FOCUS: New simplified dashboard API endpoint validation")
-    print("REVIEW REQUEST: /api/dashboard/simple-taxonomy endpoint testing")
+    print("USER REPORT: Session interface shows random number #791 instead of proper sequential numbers")
+    print("TESTING FOCUS: Debug session numbering data flow from backend to frontend")
+    print("REVIEW REQUEST: Test dashboard API, session creation, and session status endpoints")
     print("=" * 80)
     
     tester = CATBackendTester()
     
-    print("\n🎯 RUNNING SIMPLE TAXONOMY DASHBOARD API TEST")
-    success = tester.test_simple_taxonomy_dashboard_api()
+    print("\n🎯 RUNNING SESSION NUMBERING DEBUG TEST")
+    success = tester.test_session_numbering_issue_debug()
     
     print(f"\n" + "=" * 80)
     print("FINAL TEST SUMMARY")
@@ -6158,14 +6159,13 @@ if __name__ == "__main__":
     print(f"Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%" if tester.tests_run > 0 else "No tests run")
     
     if success:
-        print("🎉 SIMPLE TAXONOMY DASHBOARD API: SUCCESS!")
-        print("✅ Endpoint accessible and responding correctly")
-        print("✅ Data structure with total_sessions and taxonomy_data")
-        print("✅ Canonical taxonomy structure implemented")
-        print("✅ Difficulty level attempt counts working")
+        print("🎉 SESSION NUMBERING DEBUG: SUCCESS!")
+        print("✅ Backend APIs are providing correct session numbering data")
+        print("✅ Dashboard API returns proper total_sessions")
+        print("✅ Session creation provides sequential numbering")
     else:
-        print("❌ SIMPLE TAXONOMY DASHBOARD API: NEEDS ATTENTION")
-        print("❌ Some components still need fixes")
-        print("❌ Review test results for specific issues")
+        print("❌ SESSION NUMBERING DEBUG: ISSUES FOUND")
+        print("❌ Backend session numbering logic has problems")
+        print("❌ Review test results for specific root causes")
     
     print("=" * 80)
