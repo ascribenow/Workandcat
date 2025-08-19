@@ -1480,3 +1480,29 @@ LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 2025-08-19 15:55:10,745 - INFO - 
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:55:31 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:55:31,785 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:55:31,786 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:55:33,956 - INFO -   ✅ Improved formatting
+2025-08-19 15:55:34,157 - INFO - 
+🔄 [113/126] Processing formatting...
+2025-08-19 15:55:34,157 - INFO -   📝 Question: How many pairs (a,b) of positive integers are there such tha...
+2025-08-19 15:55:34,157 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:55:34,157 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:55:34 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:55:34,158 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:55:38 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:55:38,236 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:55:38,237 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:55:40,353 - INFO -   ✅ Improved formatting
+2025-08-19 15:55:40,554 - INFO - 
+🔄 [114/126] Processing formatting...
+2025-08-19 15:55:40,554 - INFO -   📝 Question: Let a and b be natural numbers. If a²+ab+a=14 and b²+ab+b=28...
+2025-08-19 15:55:40,554 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:55:40,554 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:55:40 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:55:40,555 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
