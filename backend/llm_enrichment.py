@@ -938,6 +938,127 @@ RULES:
             }
 
 
+class LLMEnrichmentService:
+    """
+    Main LLM enrichment service that automatically follows the standardized schema directive
+    NO MORE MANUAL SCRIPTS - Handles all enrichment automatically with quality control
+    """
+    
+    def __init__(self):
+        load_dotenv()
+        self.standardized_enricher = standardized_enricher
+        logger.info("🎯 LLM Enrichment Service initialized with automatic schema compliance")
+    
+    async def enrich_question_automatically(self, question: Question, db: Session) -> Dict[str, Any]:
+        """
+        Main enrichment method - automatically follows your schema directive
+        This is the ONLY method you need to call for consistent, high-quality enrichment
+        """
+        try:
+            logger.info(f"🔄 Auto-enriching question: {question.stem[:60]}...")
+            
+            # Use standardized enricher with schema compliance
+            enrichment_result = await self.standardized_enricher.enrich_question_solution(
+                question_stem=question.stem,
+                answer=question.answer or "To be determined",
+                subcategory=question.subcategory or "General",
+                question_type=question.type_of_question or "Problem Solving"
+            )
+            
+            if enrichment_result["success"]:
+                # Update question with enriched content
+                question.solution_approach = enrichment_result["approach"]
+                question.detailed_solution = enrichment_result["detailed_solution"]
+                
+                # Generate MCQ options if needed
+                if not question.mcq_options:
+                    mcq_result = await self.standardized_enricher.generate_mcq_options_with_schema(
+                        question.stem,
+                        enrichment_result.get("final_answer", question.answer or "Unknown"),
+                        question.subcategory or "General"
+                    )
+                    question.mcq_options = json.dumps(mcq_result)
+                
+                # Commit changes
+                db.commit()
+                
+                logger.info(f"✅ Auto-enrichment successful (Quality: {enrichment_result.get('quality_score', 'N/A')})")
+                return {
+                    "success": True,
+                    "quality_score": enrichment_result.get("quality_score"),
+                    "llm_used": enrichment_result.get("llm_used"),
+                    "validation_passed": enrichment_result.get("validation", {}).get("is_valid", False)
+                }
+            else:
+                logger.error(f"❌ Auto-enrichment failed: {enrichment_result.get('error')}")
+                return {"success": False, "error": enrichment_result.get("error")}
+                
+        except Exception as e:
+            logger.error(f"❌ Exception in auto-enrichment: {e}")
+            return {"success": False, "error": str(e)}
+    
+    async def batch_enrich_questions(self, questions: List[Question], db: Session) -> Dict[str, Any]:
+        """
+        Batch enrichment with automatic schema compliance for multiple questions
+        Perfect for processing large datasets without manual intervention
+        """
+        logger.info(f"🚀 Starting batch auto-enrichment for {len(questions)} questions")
+        
+        results = {
+            "total_questions": len(questions),
+            "successful": 0,
+            "failed": 0,
+            "quality_scores": [],
+            "failed_questions": []
+        }
+        
+        for i, question in enumerate(questions):
+            try:
+                logger.info(f"🔄 [{i+1}/{len(questions)}] Processing: {question.stem[:50]}...")
+                
+                enrichment_result = await self.enrich_question_automatically(question, db)
+                
+                if enrichment_result["success"]:
+                    results["successful"] += 1
+                    if "quality_score" in enrichment_result:
+                        results["quality_scores"].append(enrichment_result["quality_score"])
+                else:
+                    results["failed"] += 1
+                    results["failed_questions"].append({
+                        "question_id": question.id,
+                        "error": enrichment_result.get("error")
+                    })
+                
+                # Small delay to be nice to APIs
+                await asyncio.sleep(0.3)
+                
+                # Progress update every 10 questions
+                if (i + 1) % 10 == 0:
+                    avg_quality = sum(results["quality_scores"]) / len(results["quality_scores"]) if results["quality_scores"] else 0
+                    logger.info(f"📊 Progress [{i+1}/{len(questions)}]: {results['successful']} success, {results['failed']} failed, avg quality: {avg_quality:.1f}")
+                
+            except Exception as e:
+                logger.error(f"❌ Exception processing question {i+1}: {e}")
+                results["failed"] += 1
+                results["failed_questions"].append({
+                    "question_id": question.id,
+                    "error": str(e)
+                })
+        
+        # Final results
+        avg_quality = sum(results["quality_scores"]) / len(results["quality_scores"]) if results["quality_scores"] else 0
+        success_rate = results["successful"] / results["total_questions"] * 100
+        
+        logger.info(f"🎉 Batch auto-enrichment completed!")
+        logger.info(f"📊 Results: {results['successful']}/{results['total_questions']} successful ({success_rate:.1f}%)")
+        logger.info(f"📈 Average quality score: {avg_quality:.1f}")
+        
+        results["success_rate"] = success_rate
+        results["average_quality"] = avg_quality
+        
+        return results
+
+
 # Usage example and testing
 async def test_enrichment():
     """Test the enrichment pipeline"""

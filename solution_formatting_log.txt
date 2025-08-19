@@ -1454,3 +1454,19 @@ LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 2025-08-19 15:54:35,851 - INFO - 
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:55:00 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:55:00,090 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:55:00,091 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:55:02,278 - INFO -   ✅ Improved formatting
+2025-08-19 15:55:02,478 - INFO - 
+🔄 [111/126] Processing formatting...
+2025-08-19 15:55:02,478 - INFO -   📝 Question: A number 4¹⁶ + 1 is divisible by x. Which among the followin...
+2025-08-19 15:55:02,478 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:55:02,478 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:55:02 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:55:02,479 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:55:08 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:55:08,146 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:55:08,147 - INFO -   ✅ Generated well-formatted solution
