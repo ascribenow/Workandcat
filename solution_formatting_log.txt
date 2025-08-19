@@ -685,3 +685,19 @@ LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 2025-08-19 15:40:24,580 - INFO - 
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:40:41 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:40:41,529 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:40:41,530 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:40:43,747 - INFO -   ✅ Improved formatting
+2025-08-19 15:40:43,947 - INFO - 
+🔄 [53/126] Processing formatting...
+2025-08-19 15:40:43,948 - INFO -   📝 Question: How many trailing zeroes (zeroes at the end of the number) d...
+2025-08-19 15:40:43,948 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:40:43,948 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:40:43 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:40:43,949 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:40:46 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:40:46,493 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:40:46,494 - INFO -   ✅ Generated well-formatted solution
