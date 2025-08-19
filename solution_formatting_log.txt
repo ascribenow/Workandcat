@@ -1363,3 +1363,42 @@ LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 2025-08-19 15:53:20,903 - INFO - 
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:53:25 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:53:25,596 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:53:25,597 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:53:27,724 - INFO -   ✅ Improved formatting
+2025-08-19 15:53:27,924 - INFO - 
+🔄 [104/126] Processing formatting...
+2025-08-19 15:53:27,924 - INFO -   📝 Question: What is the remainder when (13¹⁰⁰ + 17¹⁰⁰) is divided by 25?...
+2025-08-19 15:53:27,924 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:53:27,924 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:53:27 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:53:27,925 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:53:30 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:53:30,964 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:53:30,965 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:53:33,134 - INFO -   ✅ Improved formatting
+2025-08-19 15:53:33,335 - INFO - 
+🔄 [105/126] Processing formatting...
+2025-08-19 15:53:33,335 - INFO -   📝 Question: A number when divided by 18 leaves a remainder 7. The same n...
+2025-08-19 15:53:33,335 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:53:33,335 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:53:33 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:53:33,336 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:53:42 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:53:42,679 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:53:42,680 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:53:44,843 - INFO -   ✅ Improved formatting
+2025-08-19 15:53:45,044 - INFO - 
+🔄 [106/126] Processing formatting...
+2025-08-19 15:53:45,044 - INFO -   📝 Question: N leaves a remainder of 4 when divided by 33, what are the p...
+2025-08-19 15:53:45,044 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:53:45,044 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:53:45 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:53:45,045 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
