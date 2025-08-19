@@ -125,12 +125,22 @@ export const Dashboard = () => {
         
         setActiveSessionId(existingSessionId);
         
-        // For resumed sessions, we need to get the session metadata separately
-        // For now, we'll let the SessionSystem handle it
-        setSessionMetadata(null);
-        
-        // Optional: Show resumption message
-        console.log(`Resuming session: Question ${progress.next_question} of ${progress.total}`);
+        // For resumed sessions, create a minimal metadata object with session number calculation
+        try {
+          const dashboardResponse = await axios.get(`${API}/dashboard/simple-taxonomy`);
+          const totalSessions = dashboardResponse.data.total_sessions || 0;
+          const currentSession = totalSessions + 1; // Current session number
+          
+          setSessionMetadata({
+            phase_info: {
+              current_session: currentSession
+            }
+          });
+          console.log(`Resuming session #${currentSession}: Question ${progress.next_question} of ${progress.total}`);
+        } catch (error) {
+          console.error('Failed to get session metadata for resumed session:', error);
+          setSessionMetadata(null);
+        }
         
         return true;
       } else {
