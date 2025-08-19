@@ -150,6 +150,7 @@ export const Dashboard = () => {
 
   const handleSessionEnd = () => {
     setActiveSessionId(null);
+    setSessionMetadata(null);
     setCurrentView('dashboard');
     fetchDashboardData(); // Refresh dashboard data
   };
