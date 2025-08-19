@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useAuth } from './AuthProvider';
 import { StudyPlanSystem } from './StudyPlanSystem';
 import { SessionSystem } from './SessionSystem';
+import { SimpleDashboard } from './SimpleDashboard';
 import PYQFilesTable from './PYQFilesTable';
 
 // Smart API URL detection (same as in AuthProvider)
