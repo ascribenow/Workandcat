@@ -444,6 +444,7 @@ Focus on the specific areas mentioned in the feedback."""
             "approach_quality": "Unknown",
             "detailed_quality": "Unknown",
             "explanation_quality": "Unknown",
+            "approach_explanation_distinct": "Unknown",
             "overall_score": 5,
             "recommendation": "Improve",
             "specific_feedback": "Unknown",
@@ -459,6 +460,8 @@ Focus on the specific areas mentioned in the feedback."""
                 validation["detailed_quality"] = line.split(':', 1)[1].strip()
             elif 'EXPLANATION_QUALITY:' in line:
                 validation["explanation_quality"] = line.split(':', 1)[1].strip()
+            elif 'APPROACH_EXPLANATION_DISTINCT:' in line:
+                validation["approach_explanation_distinct"] = line.split(':', 1)[1].strip()
             elif 'OVERALL_SCORE:' in line:
                 try:
                     validation["overall_score"] = int(line.split(':')[1].strip())
