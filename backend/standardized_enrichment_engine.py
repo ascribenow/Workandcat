@@ -681,35 +681,61 @@ CRITICAL: Follow the schema EXACTLY. All three sections are mandatory."""
 
     def _generate_fallback_solution(self, question_stem: str, answer: str, subcategory: str) -> Dict[str, Any]:
         """
-        Generate fallback solution that still follows the schema
+        Generate fallback solution that still follows the schema - but NEVER use this for upgraded questions
+        This should only be used if ALL LLMs fail completely
         """
-        logger.info("  🔄 Generating schema-compliant fallback solution...")
+        logger.warning("  🚨 USING EMERGENCY FALLBACK - This indicates a serious LLM failure!")
         
-        # Create schema-compliant fallback
-        approach = f"Identify the key {subcategory} concept in this problem and apply the standard solution method systematically. Look for the mathematical pattern or formula that directly addresses what the question is asking."
+        # Create problem-specific fallback based on the actual question
+        import re
         
-        detailed_solution = f"""**Step 1:** Analyze the given information and identify what needs to be found.
-Review the question carefully to understand the mathematical relationship involved.
+        # Try to identify problem type from the question
+        question_lower = question_stem.lower()
+        
+        if 'remainder' in question_lower:
+            approach = f"Since this problem involves remainders, we need to use modular arithmetic or find patterns in the division results to solve for the specific value that satisfies all given conditions."
+            detailed_solution = f"""**Step 1:** Identify the remainder conditions given in the problem.
+Analyze what specific remainders are required for different divisors.
 
-**Step 2:** Apply the appropriate {subcategory} method or formula.
-Use the standard approach for this type of problem to set up the solution.
+**Step 2:** Apply the appropriate remainder theorem or find the pattern.
+Use systematic checking or mathematical relationships to find the solution.
 
-**Step 3:** Perform the calculations systematically.
-Work through each calculation step-by-step to ensure accuracy.
+**Step 3:** Verify that our answer satisfies all remainder conditions.
+**✅ Final Answer: {answer}**"""
+            explanation = f"Remainder problems often have underlying patterns or can be solved using modular arithmetic principles that relate different remainder conditions."
+            
+        elif any(word in question_lower for word in ['factor', 'multiple', 'divisible']):
+            approach = f"Since this problem involves factors or multiples, we need to use prime factorization or divisibility rules to find the specific value that meets the given criteria."
+            detailed_solution = f"""**Step 1:** Break down the problem using prime factorization or divisibility concepts.
+Identify what factors or multiples we need to work with.
 
-**Step 4:** Verify the result makes sense in the problem context.
-**✅ Final Answer: {answer}**
+**Step 2:** Apply the appropriate mathematical operations to find the solution.
+Use systematic calculation based on the factorization or divisibility requirements.
 
-**KEY INSIGHT:**
-This {subcategory} problem demonstrates the importance of systematic application of mathematical principles to reach the correct solution efficiently."""
+**Step 3:** Verify our answer meets all the stated conditions.
+**✅ Final Answer: {answer}**"""
+            explanation = f"Problems involving factors and multiples rely on the fundamental theorem of arithmetic and properties of divisibility."
+            
+        else:
+            # Most generic case - but still try to be somewhat specific
+            approach = f"Looking at this {subcategory} problem, we need to identify the key mathematical relationship and apply the appropriate solution method systematically."
+            detailed_solution = f"""**Step 1:** Analyze the given information and identify the mathematical relationship involved.
+
+**Step 2:** Apply the appropriate {subcategory} method to solve for the required value.
+
+**Step 3:** Perform the necessary calculations and verify the result.
+**✅ Final Answer: {answer}**"""
+            explanation = f"This type of {subcategory} problem demonstrates how mathematical principles can be applied systematically to reach the correct solution."
+        
+        logger.warning(f"  ⚠️ Generated emergency fallback for {subcategory} problem")
         
         return {
             "success": True,
             "approach": approach,
             "detailed_solution": detailed_solution,
-            "validation": {"is_valid": True, "fallback_used": True},
-            "quality_score": 6,  # Lower score for fallback
-            "llm_used": "Schema-compliant fallback"
+            "validation": {"is_valid": True, "emergency_fallback": True},
+            "quality_score": 4,  # Low score for fallback
+            "llm_used": "Emergency fallback generation"
         }
 
     async def generate_mcq_options_with_schema(self, question_stem: str, answer: str, 
