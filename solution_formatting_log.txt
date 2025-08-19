@@ -129,3 +129,19 @@ LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 2025-08-19 15:31:08,787 - INFO - 
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:31:19 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:31:19,630 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:31:19,630 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:31:21,835 - INFO -   ✅ Improved formatting
+2025-08-19 15:31:22,035 - INFO - 
+🔄 [11/126] Processing formatting...
+2025-08-19 15:31:22,035 - INFO -   📝 Question: Find the HCF of 2/3,4/6,8/27...
+2025-08-19 15:31:22,036 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:31:22,036 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:31:22 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:31:22,036 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:31:25 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:31:25,107 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:31:25,108 - INFO -   ✅ Generated well-formatted solution
