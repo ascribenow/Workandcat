@@ -151,25 +151,32 @@ Provide only the final numerical answer or expression."""}
 
 TASK: Generate two types of solutions for the given question:
 
-1. SOLUTION APPROACH: A concise 2-3 sentence strategic overview of how to solve this type of problem
+1. SOLUTION APPROACH: A complete 2-3 sentence strategic overview of how to solve this type of problem
 2. DETAILED SOLUTION: A comprehensive step-by-step explanation with theoretical foundations
+
+CRITICAL FORMATTING REQUIREMENTS:
+- Use PLAIN TEXT only - no LaTeX, no \( \), no \[ \], no special formatting
+- Write mathematical expressions in simple text (e.g., "x^2 + 3x - 5" not "\(x^2 + 3x - 5\)")
+- Use standard symbols: ÷ for division, × for multiplication, ^ for exponents
+- Complete all numbered points - never end abruptly with incomplete thoughts
+- Keep solution approach under 300 characters to avoid truncation
+- Keep detailed solution under 2000 characters total
 
 QUALITY REQUIREMENTS:
 - Clear, logical progression of steps
 - Explain WHY each step is necessary
 - Include relevant mathematical concepts and formulas
-- Use proper mathematical notation
 - Assume student needs foundational understanding
 - No unwanted parentheses or formatting artifacts
 - Clean, professional presentation
 
 STRUCTURE:
-SOLUTION APPROACH: [Strategic overview]
+SOLUTION APPROACH: [Complete strategic overview in plain text]
 
 DETAILED SOLUTION:
 Step 1: [Clear explanation with reasoning]
-Step 2: [Mathematical operations with logic]
-...
+Step 2: [Mathematical operations with logic]  
+Step 3: [Continue calculations]
 Conclusion: [Final verification and insight]"""
                 ).with_model("gemini", "gemini-2.0-flash")
                 
