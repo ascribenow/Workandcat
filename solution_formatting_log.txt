@@ -1319,3 +1319,21 @@ LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 2025-08-19 15:52:22,427 - INFO - 
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:52:26 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:52:26,828 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:52:26,829 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:52:29,021 - INFO -   ✅ Improved formatting
+2025-08-19 15:52:29,021 - INFO - 
+📈 PROGRESS [100/126]
+2025-08-19 15:52:29,022 - INFO -    ✅ Improved: 100
+2025-08-19 15:52:29,023 - INFO -    ✅ Already good: 0
+2025-08-19 15:52:29,023 - INFO -    ❌ Failed: 0
+2025-08-19 15:52:29,223 - INFO - 
+🔄 [101/126] Processing formatting...
+2025-08-19 15:52:29,223 - INFO -   📝 Question: How many factors of 2⁴ Ã 3⁵ Ã 10⁴ are perfect squares whic...
+2025-08-19 15:52:29,224 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:52:29,224 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:52:29 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:52:29,225 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
