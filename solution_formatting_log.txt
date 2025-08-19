@@ -1293,3 +1293,29 @@ LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 2025-08-19 15:52:04,087 - INFO - 
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:52:14 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:52:14,513 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:52:14,514 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:52:16,682 - INFO -   ✅ Improved formatting
+2025-08-19 15:52:16,882 - INFO - 
+🔄 [99/126] Processing formatting...
+2025-08-19 15:52:16,883 - INFO -   📝 Question: A number N² has 15 factors. How many factors can N have?...
+2025-08-19 15:52:16,883 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:52:16,883 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:52:16 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:52:16,884 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:52:20 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:52:20,068 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:52:20,069 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:52:22,179 - INFO -   ✅ Improved formatting
+2025-08-19 15:52:22,379 - INFO - 
+🔄 [100/126] Processing formatting...
+2025-08-19 15:52:22,379 - INFO -   📝 Question: How many of the integers 1, 2, â¦ , 120, are divisible by n...
+2025-08-19 15:52:22,379 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:52:22,379 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:52:22 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:52:22,427 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini

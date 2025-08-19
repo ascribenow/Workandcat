@@ -1,6 +1,8 @@
+#!/usr/bin/env python3
 """
-Advanced LLM Enrichment Pipeline for CAT Preparation Platform
-Implements sophisticated scoring algorithms as per specification
+LLM Enrichment Service for CAT Questions
+Handles AI-powered question enrichment with AUTOMATIC SCHEMA COMPLIANCE
+NOW USES STANDARDIZED ENRICHMENT ENGINE - NO MORE MANUAL SCRIPTS NEEDED
 """
 
 import json
