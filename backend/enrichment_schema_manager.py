@@ -20,17 +20,21 @@ class EnrichmentSchemaManager:
     ENRICHMENT_DIRECTIVE = """
 📘 ENRICHMENT SCHEMA FOR QUESTION SOLUTIONS
 
-You MUST enrich every solution into exactly THREE sections following this schema:
+You MUST enrich every solution into exactly THREE DISTINCT sections following this schema:
 
 **1. APPROACH** (2-3 sentences)
-Purpose: Short preview of how to attack the problem
-- Written like an exam strategy tip
+Purpose: Short preview of HOW to attack the problem - the METHOD/STRATEGY
+- Written like an exam strategy tip showing the approach to use
 - Highlight what student should notice and which method/tool to apply
+- Focus on the STRATEGY and ENTRY POINT to solve the problem
 - ❌ Don't restate the problem or give the answer
 - ✅ Do highlight the "entry point" (e.g., symmetry, divisibility, factorization, standard formula)
 
+EXAMPLE APPROACH:
+"Since the question asks for the smallest 7-digit number divisible by 43, we start with 1,000,000 (the smallest 7-digit number) and adjust it upward to the next multiple of 43. This approach avoids trial-and-error by using division and remainders directly."
+
 **2. DETAILED SOLUTION** (Step-by-step)
-Purpose: Clear, visual step-by-step logical reasoning
+Purpose: Clear, visual step-by-step logical reasoning showing the execution
 - Break into numbered steps: **Step 1:**, **Step 2:**, etc.
 - Use clean formatting instead of raw LaTeX code
 - ✅ Always annotate each step with reasoning ("Why we do this")
@@ -38,11 +42,18 @@ Purpose: Clear, visual step-by-step logical reasoning
 - ✅ Highlight final answer with **✅ Final Answer: [answer]**
 
 **3. EXPLANATION** (1-2 sentences max)
-Purpose: Big-picture takeaway and concept reinforcement
-- Not a rehash of steps
-- Summarize why the method works
+Purpose: Big-picture takeaway and CONCEPT REINFORCEMENT - WHY this method works
+- NOT a rehash of steps or approach
+- Summarize the GENERAL PRINCIPLE or CONCEPT behind why this method works
 - ✅ Should build intuition for similar problems
-- ✅ Give student tip for exam scenarios
+- ✅ Give student tip for exam scenarios - the CONCEPTUAL UNDERSTANDING
+
+EXAMPLE EXPLANATION:
+"Whenever you need the smallest multiple of a divisor above a certain threshold, divide the threshold by the divisor, note the remainder, and add just enough to eliminate the remainder. This saves time compared to testing numbers one by one."
+
+🎯 KEY DISTINCTION:
+- APPROACH = HOW to solve (method/strategy)
+- EXPLANATION = WHY it works (concept/principle)
 
 🎯 QUALITY STANDARDS:
 - Output must feel like a teacher explaining to a student, not computer logs
@@ -51,7 +62,7 @@ Purpose: Big-picture takeaway and concept reinforcement
 - No LaTeX unless explicitly requested
 - Teaching aid quality, not repetition
 
-CRITICAL: Follow this schema EXACTLY. All three sections are mandatory.
+CRITICAL: Follow this schema EXACTLY. All three sections are mandatory and must be DISTINCT from each other.
 """
 
     @staticmethod
