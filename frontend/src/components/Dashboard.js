@@ -832,13 +832,27 @@ ${data.success > 0 ? '✅ Students will now see proper question-specific solutio
             {activeTab === 'questions' && (
               <div>
                 <div className="flex justify-between items-center mb-8">
-                  <h2 className="text-2xl font-semibold text-gray-900">Question Upload</h2>
-                  <button
-                    onClick={() => handleExportQuestions()}
-                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-medium flex items-center"
-                  >
-                    📊 Export All Questions (CSV)
-                  </button>
+                  <h2 className="text-2xl font-semibold text-gray-900">Question Management</h2>
+                  <div className="flex space-x-3">
+                    <button
+                      onClick={() => handleCheckQuestionQuality()}
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium flex items-center"
+                    >
+                      🔍 Check Quality
+                    </button>
+                    <button
+                      onClick={() => handleReEnrichQuestions()}
+                      className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-medium flex items-center"
+                    >
+                      🔧 Fix Solutions
+                    </button>
+                    <button
+                      onClick={() => handleExportQuestions()}
+                      className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-medium flex items-center"
+                    >
+                      📊 Export All Questions (CSV)
+                    </button>
+                  </div>
                 </div>
 
                 {/* Upload Type Selection */}
