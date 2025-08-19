@@ -108,26 +108,15 @@ class AttemptSubmission(BaseModel):
 # Utility Functions
 
 def clean_solution_text(text: str) -> str:
-    """Clean solution text by removing problematic formatting while preserving LaTeX for MathJax rendering"""
+    """Clean solution text while preserving human-friendly mathematical notation"""
     if not text:
         return text
     
-    # PRESERVE LaTeX delimiters for MathJax rendering
-    # Only remove problematic LaTeX artifacts, not the delimiters themselves
-    cleaned = text.replace("\\(", "").replace("\\)", "")  # Remove display math delimiters
-    cleaned = cleaned.replace("\\[", "").replace("\\]", "")  # Remove display math delimiters
-    # DO NOT remove $ delimiters - they are needed for MathJax inline math rendering
-    
-    # Remove markdown formatting
-    cleaned = cleaned.replace("**", "").replace("##", "").replace("***", "")
-    cleaned = cleaned.replace("((", "(").replace("))", ")")
-    
-    # Fix incomplete numbered points (common issue with truncation)
-    cleaned = re.sub(r'\n\d+\.\s*$', '', cleaned)
-    cleaned = re.sub(r'\d+\.\s*$', '', cleaned)
+    # Preserve human-friendly mathematical notation (x², √16, 45/3, etc.)
+    # Only remove excessive whitespace and formatting artifacts
     
     # Clean up multiple spaces and newlines
-    cleaned = re.sub(r'\s+', ' ', cleaned)
+    cleaned = re.sub(r'\s+', ' ', text)
     cleaned = re.sub(r'\n\s*\n', '\n\n', cleaned)
     
     # Remove leading/trailing whitespace
