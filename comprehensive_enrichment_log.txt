@@ -216,3 +216,53 @@ INFO:__main__:  🎯 Generating comprehensive solutions with Google Gemini...
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 INFO:LiteLLM:
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:15:23 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
+INFO:__main__:  ✅ Google Gemini generated comprehensive solutions
+INFO:__main__:  🎯 Generating MCQ options with Google Gemini...
+[92m15:15:23 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+INFO:LiteLLM:
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:15:23 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
+INFO:__main__:  ✅ Google Gemini generated MCQ options (correct: D)
+INFO:__main__:  ✅ Complete success (4/4 components)
+INFO:__main__:
+📈 PROGRESS UPDATE [10/126]
+INFO:__main__:   ✅ Complete successes: 10
+INFO:__main__:   ⚠️ Partial successes: 0
+INFO:__main__:   ❌ Failures: 0
+INFO:__main__:   ⏱️ Estimated remaining time: 25.9 minutes
+INFO:__main__:
+🔄 [11/126] Processing question...
+INFO:__main__:  📝 Question: Find the HCF of 2/3,4/6,8/27...
+INFO:__main__:  📂 Category: Time-Speed-Distance -> Basics
+INFO:__main__:  ✅ Using existing answer: 2/27
+INFO:__main__:  🎯 Generating comprehensive solutions with Google Gemini...
+[92m15:15:26 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+INFO:LiteLLM:
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:15:30 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
+INFO:__main__:  ✅ Google Gemini generated comprehensive solutions
+INFO:__main__:  🎯 Generating MCQ options with Google Gemini...
+[92m15:15:30 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+INFO:LiteLLM:
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:15:31 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
+INFO:__main__:  ✅ Google Gemini generated MCQ options (correct: A)
+INFO:__main__:  ✅ Complete success (4/4 components)
+INFO:__main__:
+🔄 [12/126] Processing question...
+INFO:__main__:  📝 Question: The sum of the factors of a number is 124. What is the numbe...
+INFO:__main__:  📂 Category: Divisibility -> Factorisation of Integers
+INFO:__main__:  ✅ Using existing answer: 60
+INFO:__main__:  🎯 Generating comprehensive solutions with Google Gemini...
+[92m15:15:33 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+INFO:LiteLLM:
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
