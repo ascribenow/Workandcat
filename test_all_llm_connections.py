@@ -59,7 +59,7 @@ async def test_anthropic_claude():
             api_key=anthropic_api_key,
             session_id="connection_test",
             system_message="You are a test assistant. Respond with exactly: 'Anthropic connection working'"
-        ).with_model("anthropic", "claude-3-5-sonnet")
+        ).with_model("anthropic", "claude-3-haiku-20240307")
         
         user_message = UserMessage(text="Test connection")
         response = await chat.send_message(user_message)
