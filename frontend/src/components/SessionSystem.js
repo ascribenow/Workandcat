@@ -471,11 +471,11 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
                     {result.solution_feedback.solution_approach && (
                       <div className="mb-6">
                         <h5 className="font-semibold text-blue-800 mb-3 text-lg">📋 Approach:</h5>
-                        <MathJaxRenderer className="bg-white p-4 rounded-lg border border-blue-100">
+                        <div className="bg-white p-4 rounded-lg border border-blue-100">
                           <div className="text-gray-800 leading-relaxed text-base">
                             {result.solution_feedback.solution_approach}
                           </div>
-                        </MathJaxRenderer>
+                        </div>
                       </div>
                     )}
 
@@ -483,11 +483,11 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
                     {result.solution_feedback.detailed_solution && (
                       <div className="mb-6">
                         <h5 className="font-semibold text-blue-800 mb-3 text-lg">📖 Detailed Solution:</h5>
-                        <MathJaxRenderer className="bg-white p-6 rounded-lg border border-blue-100">
+                        <div className="bg-white p-6 rounded-lg border border-blue-100">
                           <div className="text-gray-800 leading-relaxed whitespace-pre-line text-base">
                             {result.solution_feedback.detailed_solution}
                           </div>
-                        </MathJaxRenderer>
+                        </div>
                       </div>
                     )}
 
@@ -495,11 +495,11 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
                     {result.solution_feedback.explanation && (
                       <div>
                         <h5 className="font-semibold text-blue-800 mb-3 text-lg">💡 Explanation:</h5>
-                        <MathJaxRenderer className="bg-white p-4 rounded-lg border border-blue-100">
+                        <div className="bg-white p-4 rounded-lg border border-blue-100">
                           <div className="text-gray-800 leading-relaxed">
                             {result.solution_feedback.explanation}
                           </div>
-                        </MathJaxRenderer>
+                        </div>
                       </div>
                     )}
                   </div>
