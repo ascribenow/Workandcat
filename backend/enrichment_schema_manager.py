@@ -58,8 +58,10 @@ EXAMPLE EXPLANATION:
 🎯 QUALITY STANDARDS:
 - Output must feel like a teacher explaining to a student, not computer logs
 - Visually clean, professional, and exam-ready
-- Use Markdown formatting, Unicode math symbols
-- No LaTeX unless explicitly requested
+- Use Markdown formatting, Unicode math symbols (×, ÷, ², ³, √)
+- ❌ NEVER use LaTeX dollar signs ($) or LaTeX commands
+- ❌ No LaTeX syntax: avoid $, \frac{}, \sqrt{}, etc.
+- ✅ Use plain Unicode mathematical notation instead
 - Teaching aid quality, not repetition
 
 CRITICAL: Follow this schema EXACTLY. All three sections are mandatory and must be DISTINCT from each other.
