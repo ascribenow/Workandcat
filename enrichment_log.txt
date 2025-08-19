@@ -1,0 +1,14 @@
+🐘 Using PostgreSQL database (Production)
+INFO:__main__:🚀 Starting enrichment of newly added questions...
+INFO:__main__:✅ API keys found - ready for enrichment
+INFO:__main__:📊 Found 21 questions needing enrichment
+INFO:human_friendly_solution_generator:🔑 API Keys Status:
+INFO:human_friendly_solution_generator:   Google Gemini: ✅ Available
+INFO:__main__:
+🔄 [1/21] Processing: The sum of the digits of a number N is 23. The rem...
+INFO:__main__:  Classifying question...
+INFO:__main__:  Classifying question with Google Gemini...
+[92m14:22:59 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+INFO:LiteLLM:
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
