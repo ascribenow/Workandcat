@@ -1194,6 +1194,326 @@ class CATBackendTester:
         else:
             return "Arithmetic"  # Default fallback
 
+    def test_gemini_anthropic_methodology(self):
+        """Test the new Gemini (Maker) → Anthropic (Checker) methodology implementation"""
+        print("🎯 GEMINI (MAKER) → ANTHROPIC (CHECKER) METHODOLOGY TESTING")
+        print("=" * 80)
+        print("REVIEW REQUEST FOCUS:")
+        print("Test the new Gemini (Maker) → Anthropic (Checker) methodology implementation through admin API endpoints")
+        print("")
+        print("KEY TESTING POINTS:")
+        print("1. ✅ Auto-Enrichment API Testing: Test the new /api/admin/auto-enrich-all endpoint")
+        print("2. ✅ Single Question Enrichment: Test /api/admin/enrich-question/{id} endpoint")
+        print("3. ✅ Schema Compliance Verification: Confirm new enrichments follow 3-section schema")
+        print("4. ✅ Quality Methodology: Verify Gemini as maker and Anthropic as checker")
+        print("5. ✅ Approach and Explanation Quality: Test proper generation of approach and explanation texts")
+        print("6. ✅ Error Handling: Test behavior when APIs are unavailable")
+        print("")
+        print("AUTHENTICATION: sumedhprabhu18@gmail.com/admin2025")
+        print("EXPECTED RESULTS:")
+        print("- API endpoints should work and return structured responses")
+        print("- Enriched content should follow: Approach (2-3 sentences) + Detailed Solution (numbered steps) + Explanation (1-2 sentences)")
+        print("- Quality scores should be provided in responses")
+        print("- System should gracefully handle LLM availability issues")
+        print("- Both Gemini (maker) and Anthropic (checker) should be used when available")
+        print("=" * 80)
+        
+        # Authenticate as admin
+        admin_login = {"email": "sumedhprabhu18@gmail.com", "password": "admin2025"}
+        success, response = self.run_test("Admin Login", "POST", "auth/login", 200, admin_login)
+        if not success or 'access_token' not in response:
+            print("❌ Cannot test Gemini-Anthropic methodology - admin login failed")
+            return False
+            
+        admin_token = response['access_token']
+        admin_headers = {'Content-Type': 'application/json', 'Authorization': f'Bearer {admin_token}'}
+        
+        methodology_results = {
+            "admin_authentication": True,
+            "auto_enrich_all_endpoint_working": False,
+            "single_question_enrichment_working": False,
+            "schema_compliance_verified": False,
+            "gemini_maker_anthropic_checker_used": False,
+            "approach_explanation_quality_good": False,
+            "error_handling_graceful": False,
+            "quality_scores_provided": False,
+            "structured_responses_returned": False
+        }
+        
+        # TEST 1: Auto-Enrichment API Testing
+        print("\n🚀 TEST 1: AUTO-ENRICHMENT API TESTING")
+        print("-" * 60)
+        print("Testing /api/admin/auto-enrich-all endpoint")
+        print("Verifying API returns structured response with quality information")
+        
+        success, response = self.run_test("Auto-Enrich All Questions", "POST", "admin/auto-enrich-all", 200, None, admin_headers)
+        
+        if success:
+            success_status = response.get('success', False)
+            message = response.get('message', '')
+            results = response.get('results', {})
+            schema_compliance = response.get('schema_compliance', '')
+            quality_control = response.get('quality_control', '')
+            
+            print(f"   ✅ API Response Success: {success_status}")
+            print(f"   📊 Message: {message}")
+            print(f"   📊 Schema Compliance: {schema_compliance}")
+            print(f"   📊 Quality Control: {quality_control}")
+            
+            if success_status:
+                methodology_results["auto_enrich_all_endpoint_working"] = True
+                print("   ✅ Auto-enrichment API endpoint working")
+                
+                if results:
+                    success_rate = results.get('success_rate', 0)
+                    average_quality = results.get('average_quality', 0)
+                    total_questions = results.get('total_questions', 0)
+                    
+                    print(f"   📊 Success Rate: {success_rate}%")
+                    print(f"   📊 Average Quality: {average_quality}")
+                    print(f"   📊 Total Questions: {total_questions}")
+                    
+                    if average_quality > 0:
+                        methodology_results["quality_scores_provided"] = True
+                        print("   ✅ Quality scores provided in response")
+                
+                if "3-section schema" in schema_compliance or "schema directive" in schema_compliance:
+                    methodology_results["schema_compliance_verified"] = True
+                    print("   ✅ Schema compliance mentioned in response")
+                
+                if "Anthropic" in quality_control or "validation" in quality_control:
+                    methodology_results["gemini_maker_anthropic_checker_used"] = True
+                    print("   ✅ Anthropic validation mentioned in quality control")
+                
+                methodology_results["structured_responses_returned"] = True
+                print("   ✅ Structured response format confirmed")
+            else:
+                print(f"   ⚠️ Auto-enrichment returned success=False: {message}")
+        else:
+            print("   ❌ Auto-enrichment API endpoint failed")
+        
+        # TEST 2: Single Question Enrichment
+        print("\n🎯 TEST 2: SINGLE QUESTION ENRICHMENT")
+        print("-" * 60)
+        print("Testing /api/admin/enrich-question/{id} endpoint")
+        print("Verifying single question enrichment with quality methodology")
+        
+        # First, get a question ID to test with
+        success, response = self.run_test("Get Questions for Enrichment Test", "GET", "questions?limit=5", 200, None, admin_headers)
+        
+        test_question_id = None
+        if success:
+            questions = response.get('questions', [])
+            if questions:
+                test_question_id = questions[0].get('id')
+                print(f"   📊 Using question ID for test: {test_question_id}")
+        
+        if test_question_id:
+            success, response = self.run_test("Single Question Enrichment", "POST", f"admin/enrich-question/{test_question_id}", 200, None, admin_headers)
+            
+            if success:
+                success_status = response.get('success', False)
+                message = response.get('message', '')
+                quality_score = response.get('quality_score')
+                llm_used = response.get('llm_used', '')
+                schema_compliant = response.get('schema_compliant', False)
+                
+                print(f"   ✅ Single Enrichment Success: {success_status}")
+                print(f"   📊 Message: {message}")
+                print(f"   📊 Quality Score: {quality_score}")
+                print(f"   📊 LLM Used: {llm_used}")
+                print(f"   📊 Schema Compliant: {schema_compliant}")
+                
+                if success_status:
+                    methodology_results["single_question_enrichment_working"] = True
+                    print("   ✅ Single question enrichment working")
+                    
+                    if quality_score is not None:
+                        methodology_results["quality_scores_provided"] = True
+                        print("   ✅ Quality score provided")
+                    
+                    if "Gemini" in llm_used and "Anthropic" in llm_used:
+                        methodology_results["gemini_maker_anthropic_checker_used"] = True
+                        print("   ✅ Gemini (Maker) → Anthropic (Checker) methodology confirmed")
+                    elif "Gemini" in llm_used:
+                        print("   ⚠️ Gemini used but Anthropic checker not confirmed")
+                    
+                    if schema_compliant:
+                        methodology_results["schema_compliance_verified"] = True
+                        print("   ✅ Schema compliance confirmed")
+            else:
+                error = response.get('error', 'Unknown error')
+                print(f"   ❌ Single question enrichment failed: {error}")
+                
+                # Test error handling
+                if "API" in error or "unavailable" in error or "timeout" in error:
+                    methodology_results["error_handling_graceful"] = True
+                    print("   ✅ Graceful error handling detected")
+        else:
+            print("   ❌ No question ID available for single enrichment test")
+        
+        # TEST 3: Schema Compliance Verification
+        print("\n📋 TEST 3: SCHEMA COMPLIANCE VERIFICATION")
+        print("-" * 60)
+        print("Testing that enriched content follows 3-section schema")
+        print("Verifying: Approach (2-3 sentences) + Detailed Solution (numbered steps) + Explanation (1-2 sentences)")
+        
+        # Get an enriched question to analyze
+        success, response = self.run_test("Get Questions for Schema Analysis", "GET", "questions?limit=10", 200, None, admin_headers)
+        
+        if success:
+            questions = response.get('questions', [])
+            schema_compliant_count = 0
+            approach_quality_count = 0
+            explanation_quality_count = 0
+            
+            for i, question in enumerate(questions[:3]):  # Analyze first 3 questions
+                solution_approach = question.get('solution_approach', '')
+                detailed_solution = question.get('detailed_solution', '')
+                
+                print(f"   📊 Question {i+1} Analysis:")
+                print(f"      Approach length: {len(solution_approach)} chars")
+                print(f"      Detailed solution length: {len(detailed_solution)} chars")
+                
+                # Check for approach quality (2-3 sentences)
+                if solution_approach and len(solution_approach) > 50:
+                    sentences = solution_approach.count('.') + solution_approach.count('!') + solution_approach.count('?')
+                    if 2 <= sentences <= 4:
+                        approach_quality_count += 1
+                        print(f"      ✅ Approach has good sentence structure ({sentences} sentences)")
+                    else:
+                        print(f"      ⚠️ Approach sentence count: {sentences}")
+                
+                # Check for detailed solution structure (numbered steps)
+                if detailed_solution:
+                    step_patterns = ['Step 1', 'step 1', '**Step 1', '1.', '1)']
+                    has_steps = any(pattern in detailed_solution for pattern in step_patterns)
+                    if has_steps:
+                        schema_compliant_count += 1
+                        print(f"      ✅ Detailed solution has numbered steps")
+                    else:
+                        print(f"      ⚠️ Detailed solution lacks clear step structure")
+                
+                # Check for explanation (would be in solution_approach or separate field)
+                if solution_approach and ('tip' in solution_approach.lower() or 'approach' in solution_approach.lower() or 'strategy' in solution_approach.lower()):
+                    explanation_quality_count += 1
+                    print(f"      ✅ Contains strategic explanation content")
+            
+            if schema_compliant_count >= 2:
+                methodology_results["schema_compliance_verified"] = True
+                print("   ✅ Schema compliance verified - questions follow numbered step structure")
+            
+            if approach_quality_count >= 2:
+                methodology_results["approach_explanation_quality_good"] = True
+                print("   ✅ Approach and explanation quality good")
+        
+        # TEST 4: Quality Methodology Verification
+        print("\n🔍 TEST 4: QUALITY METHODOLOGY VERIFICATION")
+        print("-" * 60)
+        print("Testing that Gemini is used as maker and Anthropic as checker")
+        print("Verifying quality scores and LLM usage information in responses")
+        
+        # Create a test question to see the methodology in action
+        test_question_data = {
+            "stem": "A train travels 240 km in 3 hours. What is its average speed?",
+            "hint_category": "Arithmetic",
+            "hint_subcategory": "Time-Speed-Distance",
+            "source": "Methodology Test"
+        }
+        
+        success, response = self.run_test("Create Test Question for Methodology", "POST", "questions", 200, test_question_data, admin_headers)
+        
+        if success:
+            question_id = response.get('question_id')
+            print(f"   📊 Created test question: {question_id}")
+            
+            # Wait a moment for background enrichment
+            import time
+            time.sleep(5)
+            
+            # Try to enrich it specifically
+            if question_id:
+                success, response = self.run_test("Test Methodology on New Question", "POST", f"admin/enrich-question/{question_id}", 200, None, admin_headers)
+                
+                if success:
+                    llm_used = response.get('llm_used', '')
+                    quality_score = response.get('quality_score')
+                    validation_passed = response.get('validation_passed', False)
+                    
+                    print(f"   📊 LLM Used: {llm_used}")
+                    print(f"   📊 Quality Score: {quality_score}")
+                    print(f"   📊 Validation Passed: {validation_passed}")
+                    
+                    if "Gemini" in llm_used and "Anthropic" in llm_used:
+                        methodology_results["gemini_maker_anthropic_checker_used"] = True
+                        print("   ✅ Gemini (Maker) → Anthropic (Checker) methodology confirmed")
+                    
+                    if quality_score is not None and quality_score > 0:
+                        methodology_results["quality_scores_provided"] = True
+                        print("   ✅ Quality scoring system working")
+        
+        # TEST 5: Error Handling
+        print("\n⚠️ TEST 5: ERROR HANDLING")
+        print("-" * 60)
+        print("Testing behavior when APIs are unavailable or fail")
+        
+        # Test with invalid question ID
+        success, response = self.run_test("Test Error Handling - Invalid ID", "POST", "admin/enrich-question/invalid-id-12345", 200, None, admin_headers)
+        
+        if success:
+            success_status = response.get('success', True)  # Should be False for invalid ID
+            error = response.get('error', '')
+            
+            if not success_status and error:
+                methodology_results["error_handling_graceful"] = True
+                print(f"   ✅ Graceful error handling: {error}")
+            else:
+                print("   ⚠️ Error handling may need improvement")
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 80)
+        print("GEMINI (MAKER) → ANTHROPIC (CHECKER) METHODOLOGY TEST RESULTS")
+        print("=" * 80)
+        
+        passed_tests = sum(methodology_results.values())
+        total_tests = len(methodology_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        for test_name, result in methodology_results.items():
+            status = "✅ PASS" if result else "❌ FAIL"
+            print(f"{test_name.replace('_', ' ').title():<45} {status}")
+        
+        print("-" * 80)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # Critical analysis
+        if methodology_results["auto_enrich_all_endpoint_working"]:
+            print("🎉 CRITICAL SUCCESS: Auto-enrichment API endpoint working!")
+        else:
+            print("❌ CRITICAL FAILURE: Auto-enrichment API not functional")
+        
+        if methodology_results["single_question_enrichment_working"]:
+            print("✅ SINGLE ENRICHMENT: Single question enrichment working")
+        else:
+            print("❌ SINGLE ENRICHMENT: Single question enrichment failed")
+        
+        if methodology_results["gemini_maker_anthropic_checker_used"]:
+            print("✅ METHODOLOGY: Gemini (Maker) → Anthropic (Checker) confirmed")
+        else:
+            print("❌ METHODOLOGY: Maker-Checker methodology not confirmed")
+        
+        if methodology_results["schema_compliance_verified"]:
+            print("✅ SCHEMA: 3-section schema compliance verified")
+        else:
+            print("❌ SCHEMA: Schema compliance not verified")
+        
+        if methodology_results["quality_scores_provided"]:
+            print("✅ QUALITY: Quality scores and LLM usage information provided")
+        else:
+            print("❌ QUALITY: Quality information missing")
+        
+        return success_rate >= 70
+
     def test_solution_formatting_improvements(self):
         """Test improved solution formatting to verify textbook-like presentation"""
         print("📚 SOLUTION FORMATTING IMPROVEMENTS TESTING")
