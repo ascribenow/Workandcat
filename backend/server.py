@@ -105,6 +105,35 @@ class AttemptSubmission(BaseModel):
     time_sec: Optional[int] = None
     hint_used: bool = False
 
+# Utility Functions
+
+def clean_solution_text(text: str) -> str:
+    """Clean solution text by removing LaTeX formatting and fixing truncation issues"""
+    if not text:
+        return text
+    
+    # Remove LaTeX formatting
+    cleaned = text.replace("\\(", "").replace("\\)", "")
+    cleaned = cleaned.replace("\\[", "").replace("\\]", "")
+    cleaned = cleaned.replace("$$", "").replace("$", "")
+    
+    # Remove markdown formatting
+    cleaned = cleaned.replace("**", "").replace("##", "").replace("***", "")
+    cleaned = cleaned.replace("((", "(").replace("))", ")")
+    
+    # Fix incomplete numbered points (common issue with truncation)
+    cleaned = re.sub(r'\n\d+\.\s*$', '', cleaned)
+    cleaned = re.sub(r'\d+\.\s*$', '', cleaned)
+    
+    # Clean up multiple spaces and newlines
+    cleaned = re.sub(r'\s+', ' ', cleaned)
+    cleaned = re.sub(r'\n\s*\n', '\n\n', cleaned)
+    
+    # Remove leading/trailing whitespace
+    cleaned = cleaned.strip()
+    
+    return cleaned
+
 # Core API Routes
 
 @api_router.get("/")
