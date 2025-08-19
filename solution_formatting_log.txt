@@ -498,3 +498,138 @@ LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 2025-08-19 15:36:34,391 - INFO - 
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:37:04 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:37:04,697 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:37:04,698 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:37:06,944 - INFO -   ✅ Improved formatting
+2025-08-19 15:37:07,144 - INFO - 
+🔄 [39/126] Processing formatting...
+2025-08-19 15:37:07,144 - INFO -   📝 Question: N² leaves a remainder of 1 when ÷ 24. What are the possible ...
+2025-08-19 15:37:07,144 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:37:07,144 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:37:07 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:37:07,145 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:37:18 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:37:18,537 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:37:18,538 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:37:20,682 - INFO -   ✅ Improved formatting
+2025-08-19 15:37:20,883 - INFO - 
+🔄 [40/126] Processing formatting...
+2025-08-19 15:37:20,883 - INFO -   📝 Question: A prime number p greater than 100 leaves a remainder q on di...
+2025-08-19 15:37:20,883 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:37:20,883 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:37:20 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:37:20,884 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:37:27 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:37:27,980 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:37:27,981 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:37:30,122 - INFO -   ✅ Improved formatting
+2025-08-19 15:37:30,122 - INFO - 
+📈 PROGRESS [40/126]
+2025-08-19 15:37:30,123 - INFO -    ✅ Improved: 40
+2025-08-19 15:37:30,123 - INFO -    ✅ Already good: 0
+2025-08-19 15:37:30,123 - INFO -    ❌ Failed: 0
+2025-08-19 15:37:30,323 - INFO - 
+🔄 [41/126] Processing formatting...
+2025-08-19 15:37:30,324 - INFO -   📝 Question: How many positive integers are there from 0 to 1000 that lea...
+2025-08-19 15:37:30,324 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:37:30,324 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:37:30 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:37:30,325 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:37:47 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:37:47,684 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:37:47,685 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:37:49,794 - INFO -   ✅ Improved formatting
+2025-08-19 15:37:49,994 - INFO - 
+🔄 [42/126] Processing formatting...
+2025-08-19 15:37:49,994 - INFO -   📝 Question: Three numbers leave remainders of 43, 47 and 49 on division ...
+2025-08-19 15:37:49,994 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:37:49,994 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:37:49 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:37:49,995 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:38:06 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:38:06,930 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:38:06,931 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:38:09,014 - INFO -   ✅ Improved formatting
+2025-08-19 15:38:09,214 - INFO - 
+🔄 [43/126] Processing formatting...
+2025-08-19 15:38:09,214 - INFO -   📝 Question: A number leaves a remainder 3 on division by 14, and leaves ...
+2025-08-19 15:38:09,214 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:38:09,214 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:38:09 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:38:09,215 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:38:18 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:38:18,067 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:38:18,068 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:38:20,328 - INFO -   ✅ Improved formatting
+2025-08-19 15:38:20,529 - INFO - 
+🔄 [44/126] Processing formatting...
+2025-08-19 15:38:20,529 - INFO -   📝 Question: Consider a large number N = 1234567891011121314………979899100....
+2025-08-19 15:38:20,529 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:38:20,529 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:38:20 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:38:20,530 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:38:31 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:38:31,558 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:38:31,559 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:38:33,714 - INFO -   ✅ Improved formatting
+2025-08-19 15:38:33,915 - INFO - 
+🔄 [45/126] Processing formatting...
+2025-08-19 15:38:33,915 - INFO -   📝 Question: Given a number, N = 55⁵ + 17⁵ – 72⁵, then which of the follo...
+2025-08-19 15:38:33,915 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:38:33,915 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:38:33 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:38:33,916 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:38:36 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:38:36,221 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:38:36,222 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:38:38,441 - INFO -   ✅ Improved formatting
+2025-08-19 15:38:38,641 - INFO - 
+🔄 [46/126] Processing formatting...
+2025-08-19 15:38:38,641 - INFO -   📝 Question: The integers 573921 and 575713 when ÷ a 3 digit number leave...
+2025-08-19 15:38:38,642 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:38:38,642 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:38:38 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:38:38,642 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:38:43 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:38:43,165 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:38:43,166 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:38:45,255 - INFO -   ✅ Improved formatting
+2025-08-19 15:38:45,456 - INFO - 
+🔄 [47/126] Processing formatting...
+2025-08-19 15:38:45,456 - INFO -   📝 Question: If N = (24³ + 25³ + 26³ + 27³), then N ÷ 102 leaves a remain...
+2025-08-19 15:38:45,456 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:38:45,456 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:38:45 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:38:45,457 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:38:53 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:38:53,175 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:38:53,176 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:38:55,282 - INFO -   ✅ Improved formatting
+2025-08-19 15:38:55,483 - INFO - 
+🔄 [48/126] Processing formatting...
+2025-08-19 15:38:55,483 - INFO -   📝 Question: A school has less than 5000 students and if the students are...
+2025-08-19 15:38:55,483 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:38:55,483 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:38:55 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:38:55,484 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
