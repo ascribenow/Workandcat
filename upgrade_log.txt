@@ -518,3 +518,669 @@ LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
 LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
 2025-08-19 19:11:26,134 - INFO - 
 LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:11:27 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:11:27,434 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:11:27,434 - INFO -   ❌ Needs upgrade: Contains $ signs, Explanation missing or too short
+2025-08-19 19:11:27,635 - INFO - 
+[51/127] Assessing quality...
+2025-08-19 19:11:27,636 - INFO - 🔍 Assessing: How many values can natural number n take, if n! is a multip...
+[92m19:11:27 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:11:27,637 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:11:29 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:11:29,048 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:11:29,049 - INFO -   ❌ Needs upgrade: Contains $ signs, Explanation missing or too short
+2025-08-19 19:11:29,250 - INFO - 
+[52/127] Assessing quality...
+2025-08-19 19:11:29,250 - INFO - 🔍 Assessing: How many values can natural number n take, if n! is a multip...
+[92m19:11:29 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:11:29,251 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:11:30 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:11:30,685 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:11:30,685 - INFO -   ❌ Needs upgrade: Contains $ signs, Explanation missing or too short
+2025-08-19 19:11:30,886 - INFO - 
+[53/127] Assessing quality...
+2025-08-19 19:11:30,886 - INFO - 🔍 Assessing: How many trailing zeroes (zeroes at the end of the number) d...
+[92m19:11:30 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:11:30,887 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:11:31 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:11:31,700 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:11:31,700 - INFO -   ❌ Needs upgrade: Explanation missing or too short
+2025-08-19 19:11:31,901 - INFO - 
+[54/127] Assessing quality...
+2025-08-19 19:11:31,901 - INFO - 🔍 Assessing: What is the highest power of 12 that divides 54!?...
+[92m19:11:31 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:11:31,902 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2025-08-19 19:11:32,008 - WARNING -   ⚠️ Anthropic assessment failed: Failed to generate chat completion: litellm.RateLimitError: AnthropicException - {"type":"error","error":{"type":"rate_limit_error","message":"This request would exceed your organization's (13bbc67f-e1a0-40cc-b3a2-c8c319c96090) maximum usage increase rate for input tokens per minute. Please scale up your input tokens usage more gradually to stay within the acceleration limit. For details, refer to: https://docs.anthropic.com/en/api/rate-limits."},"request_id":"req_011CSHbfbQYLkLqYNCSjJpj6"}
+2025-08-19 19:11:32,008 - INFO -   ❌ Needs upgrade: Contains $ signs, Explanation missing or too short
+2025-08-19 19:11:32,209 - INFO - 
+[55/127] Assessing quality...
+2025-08-19 19:11:32,209 - INFO - 🔍 Assessing: Find the least number n such that no factorial has n trailin...
+[92m19:11:32 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:11:32,210 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2025-08-19 19:11:32,327 - WARNING -   ⚠️ Anthropic assessment failed: Failed to generate chat completion: litellm.RateLimitError: AnthropicException - {"type":"error","error":{"type":"rate_limit_error","message":"This request would exceed your organization's (13bbc67f-e1a0-40cc-b3a2-c8c319c96090) maximum usage increase rate for input tokens per minute. Please scale up your input tokens usage more gradually to stay within the acceleration limit. For details, refer to: https://docs.anthropic.com/en/api/rate-limits."},"request_id":"req_011CSHbfckA7ooyAK3ZgPy6p"}
+2025-08-19 19:11:32,327 - INFO -   ❌ Needs upgrade: Contains $ signs, Explanation missing or too short
+2025-08-19 19:11:32,528 - INFO - 
+[56/127] Assessing quality...
+2025-08-19 19:11:32,528 - INFO - 🔍 Assessing: When 40! is expressed in base 8 form, what is the last non–z...
+[92m19:11:32 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:11:32,529 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2025-08-19 19:11:32,688 - WARNING -   ⚠️ Anthropic assessment failed: Failed to generate chat completion: litellm.RateLimitError: AnthropicException - {"type":"error","error":{"type":"rate_limit_error","message":"This request would exceed your organization's (13bbc67f-e1a0-40cc-b3a2-c8c319c96090) maximum usage increase rate for input tokens per minute. Please scale up your input tokens usage more gradually to stay within the acceleration limit. For details, refer to: https://docs.anthropic.com/en/api/rate-limits."},"request_id":"req_011CSHbfe7GPtCDVUkMg7zYY"}
+2025-08-19 19:11:32,688 - INFO -   ❌ Needs upgrade: Contains $ signs, Explanation missing or too short
+2025-08-19 19:11:32,889 - INFO - 
+[57/127] Assessing quality...
+2025-08-19 19:11:32,889 - INFO - 🔍 Assessing: Let K be the largest number with exactly 3 factors that divi...
+[92m19:11:32 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:11:32,890 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2025-08-19 19:11:33,003 - WARNING -   ⚠️ Anthropic assessment failed: Failed to generate chat completion: litellm.RateLimitError: AnthropicException - {"type":"error","error":{"type":"rate_limit_error","message":"This request would exceed your organization's (13bbc67f-e1a0-40cc-b3a2-c8c319c96090) maximum usage increase rate for input tokens per minute. Please scale up your input tokens usage more gradually to stay within the acceleration limit. For details, refer to: https://docs.anthropic.com/en/api/rate-limits."},"request_id":"req_011CSHbffg25mhkqYK9sx1HT"}
+2025-08-19 19:11:33,003 - INFO -   ❌ Needs upgrade: Contains $ signs, Explanation missing or too short
+2025-08-19 19:11:33,203 - INFO - 
+[58/127] Assessing quality...
+2025-08-19 19:11:33,204 - INFO - 🔍 Assessing: How many numbers with distinct digits are possible product o...
+[92m19:11:33 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:11:33,205 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2025-08-19 19:11:33,309 - WARNING -   ⚠️ Anthropic assessment failed: Failed to generate chat completion: litellm.RateLimitError: AnthropicException - {"type":"error","error":{"type":"rate_limit_error","message":"This request would exceed your organization's (13bbc67f-e1a0-40cc-b3a2-c8c319c96090) maximum usage increase rate for input tokens per minute. Please scale up your input tokens usage more gradually to stay within the acceleration limit. For details, refer to: https://docs.anthropic.com/en/api/rate-limits."},"request_id":"req_011CSHbfgz9rDVcJ9SF4BM9k"}
+2025-08-19 19:11:33,309 - INFO -   ❌ Needs upgrade: Explanation missing or too short
+2025-08-19 19:11:33,509 - INFO - 
+[59/127] Assessing quality...
+2025-08-19 19:11:33,509 - INFO - 🔍 Assessing: A page is torn from a novel. The sum of the remaining page n...
+[92m19:11:33 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:11:33,510 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2025-08-19 19:11:33,669 - WARNING -   ⚠️ Anthropic assessment failed: Failed to generate chat completion: litellm.RateLimitError: AnthropicException - {"type":"error","error":{"type":"rate_limit_error","message":"This request would exceed your organization's (13bbc67f-e1a0-40cc-b3a2-c8c319c96090) maximum usage increase rate for input tokens per minute. Please scale up your input tokens usage more gradually to stay within the acceleration limit. For details, refer to: https://docs.anthropic.com/en/api/rate-limits."},"request_id":"req_011CSHbfiPjXFt9F112iYGfj"}
+2025-08-19 19:11:33,669 - INFO -   ❌ Needs upgrade: Contains $ signs, Explanation missing or too short
+2025-08-19 19:11:33,870 - INFO - 
+[60/127] Assessing quality...
+2025-08-19 19:11:33,870 - INFO - 🔍 Assessing: A 4-digit number of the form aabb is a perfect square. What ...
+[92m19:11:33 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:11:33,871 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2025-08-19 19:11:33,981 - WARNING -   ⚠️ Anthropic assessment failed: Failed to generate chat completion: litellm.RateLimitError: AnthropicException - {"type":"error","error":{"type":"rate_limit_error","message":"This request would exceed your organization's (13bbc67f-e1a0-40cc-b3a2-c8c319c96090) maximum usage increase rate for input tokens per minute. Please scale up your input tokens usage more gradually to stay within the acceleration limit. For details, refer to: https://docs.anthropic.com/en/api/rate-limits."},"request_id":"req_011CSHbfjqJWreyDnnMCKLws"}
+2025-08-19 19:11:33,981 - INFO -   ❌ Needs upgrade: Contains $ signs, Explanation missing or too short
+2025-08-19 19:11:33,981 - INFO - 
+📈 ASSESSMENT PROGRESS [60/127]
+2025-08-19 19:11:33,982 - INFO -    Questions needing upgrade: 60
+2025-08-19 19:11:34,182 - INFO - 
+[61/127] Assessing quality...
+2025-08-19 19:11:34,182 - INFO - 🔍 Assessing: What are the last two digits of the number 7⁴⁵?...
+[92m19:11:34 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:11:34,183 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2025-08-19 19:11:34,459 - WARNING -   ⚠️ Anthropic assessment failed: Failed to generate chat completion: litellm.RateLimitError: AnthropicException - {"type":"error","error":{"type":"rate_limit_error","message":"This request would exceed your organization's (13bbc67f-e1a0-40cc-b3a2-c8c319c96090) maximum usage increase rate for input tokens per minute. Please scale up your input tokens usage more gradually to stay within the acceleration limit. For details, refer to: https://docs.anthropic.com/en/api/rate-limits."},"request_id":"req_011CSHbfmAAn7QSJhPGX6VRC"}
+2025-08-19 19:11:34,459 - INFO -   ❌ Needs upgrade: Contains $ signs, Explanation missing or too short
+2025-08-19 19:11:34,659 - INFO - 
+[62/127] Assessing quality...
+2025-08-19 19:11:34,660 - INFO - 🔍 Assessing: n² + 5n + 6 is a multiple of 6. n is natural number less tha...
+[92m19:11:34 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:11:34,661 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2025-08-19 19:11:34,772 - WARNING -   ⚠️ Anthropic assessment failed: Failed to generate chat completion: litellm.RateLimitError: AnthropicException - {"type":"error","error":{"type":"rate_limit_error","message":"This request would exceed your organization's (13bbc67f-e1a0-40cc-b3a2-c8c319c96090) maximum usage increase rate for input tokens per minute. Please scale up your input tokens usage more gradually to stay within the acceleration limit. For details, refer to: https://docs.anthropic.com/en/api/rate-limits."},"request_id":"req_011CSHbfoDwe2fTfQkpfiBwz"}
+2025-08-19 19:11:34,772 - INFO -   ❌ Needs upgrade: Explanation missing or too short
+2025-08-19 19:11:34,972 - INFO - 
+[63/127] Assessing quality...
+2025-08-19 19:11:34,972 - INFO - 🔍 Assessing: [x] is the greatest integer less than or equal to x. Find th...
+[92m19:11:34 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:11:34,973 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2025-08-19 19:11:35,061 - WARNING -   ⚠️ Anthropic assessment failed: Failed to generate chat completion: litellm.RateLimitError: AnthropicException - {"type":"error","error":{"type":"rate_limit_error","message":"This request would exceed your organization's (13bbc67f-e1a0-40cc-b3a2-c8c319c96090) maximum usage increase rate for input tokens per minute. Please scale up your input tokens usage more gradually to stay within the acceleration limit. For details, refer to: https://docs.anthropic.com/en/api/rate-limits."},"request_id":"req_011CSHbfpXpyzeq5kp6y92ep"}
+2025-08-19 19:11:35,061 - INFO -   ❌ Needs upgrade: Contains $ signs, Explanation missing or too short
+2025-08-19 19:11:35,262 - INFO - 
+[64/127] Assessing quality...
+2025-08-19 19:11:35,262 - INFO - 🔍 Assessing: Positive numbers 1 to 55, inclusive are placed in 5 groups o...
+[92m19:11:35 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:11:35,263 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2025-08-19 19:11:35,366 - WARNING -   ⚠️ Anthropic assessment failed: Failed to generate chat completion: litellm.RateLimitError: AnthropicException - {"type":"error","error":{"type":"rate_limit_error","message":"This request would exceed your organization's (13bbc67f-e1a0-40cc-b3a2-c8c319c96090) maximum usage increase rate for input tokens per minute. Please scale up your input tokens usage more gradually to stay within the acceleration limit. For details, refer to: https://docs.anthropic.com/en/api/rate-limits."},"request_id":"req_011CSHbfqnykKm9PpqwjtihD"}
+2025-08-19 19:11:35,366 - INFO -   ❌ Needs upgrade: Contains $ signs, Explanation missing or too short
+2025-08-19 19:11:35,566 - INFO - 
+[65/127] Assessing quality...
+2025-08-19 19:11:35,566 - INFO - 🔍 Assessing: N is an 80-digit positive integer (in the decimal scale). Al...
+[92m19:11:35 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:11:35,567 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2025-08-19 19:11:35,749 - WARNING -   ⚠️ Anthropic assessment failed: Failed to generate chat completion: litellm.RateLimitError: AnthropicException - {"type":"error","error":{"type":"rate_limit_error","message":"This request would exceed your organization's (13bbc67f-e1a0-40cc-b3a2-c8c319c96090) maximum usage increase rate for input tokens per minute. Please scale up your input tokens usage more gradually to stay within the acceleration limit. For details, refer to: https://docs.anthropic.com/en/api/rate-limits."},"request_id":"req_011CSHbfs86SZ1w1XPeoZy1g"}
+2025-08-19 19:11:35,749 - INFO -   ❌ Needs upgrade: Contains $ signs, Explanation missing or too short
+2025-08-19 19:11:35,949 - INFO - 
+[66/127] Assessing quality...
+2025-08-19 19:11:35,949 - INFO - 🔍 Assessing: A number 4¹⁶ + 1 is divisible by x. Which among the followin...
+[92m19:11:35 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:11:35,950 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2025-08-19 19:11:36,080 - WARNING -   ⚠️ Anthropic assessment failed: Failed to generate chat completion: litellm.RateLimitError: AnthropicException - {"type":"error","error":{"type":"rate_limit_error","message":"This request would exceed your organization's (13bbc67f-e1a0-40cc-b3a2-c8c319c96090) maximum usage increase rate for input tokens per minute. Please scale up your input tokens usage more gradually to stay within the acceleration limit. For details, refer to: https://docs.anthropic.com/en/api/rate-limits."},"request_id":"req_011CSHbftm53Ex9Z3XoPQBW6"}
+2025-08-19 19:11:36,080 - INFO -   ❌ Needs upgrade: Contains $ signs, Explanation missing or too short
+2025-08-19 19:11:36,280 - INFO - 
+[67/127] Assessing quality...
+2025-08-19 19:11:36,281 - INFO - 🔍 Assessing: Which among the following is the smallest 7 digit number tha...
+[92m19:11:36 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:11:36,281 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2025-08-19 19:11:36,413 - WARNING -   ⚠️ Anthropic assessment failed: Failed to generate chat completion: litellm.RateLimitError: AnthropicException - {"type":"error","error":{"type":"rate_limit_error","message":"This request would exceed your organization's (13bbc67f-e1a0-40cc-b3a2-c8c319c96090) maximum usage increase rate for input tokens per minute. Please scale up your input tokens usage more gradually to stay within the acceleration limit. For details, refer to: https://docs.anthropic.com/en/api/rate-limits."},"request_id":"req_011CSHbfv8BQ4fki2e7A5trP"}
+2025-08-19 19:11:36,413 - INFO -   ❌ Needs upgrade: Explanation missing or too short
+2025-08-19 19:11:36,613 - INFO - 
+[68/127] Assessing quality...
+2025-08-19 19:11:36,613 - INFO - 🔍 Assessing: How many 3-digit positive integers, with digits a, b and c e...
+[92m19:11:36 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:11:36,614 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2025-08-19 19:11:36,794 - WARNING -   ⚠️ Anthropic assessment failed: Failed to generate chat completion: litellm.RateLimitError: AnthropicException - {"type":"error","error":{"type":"rate_limit_error","message":"This request would exceed your organization's (13bbc67f-e1a0-40cc-b3a2-c8c319c96090) maximum usage increase rate for input tokens per minute. Please scale up your input tokens usage more gradually to stay within the acceleration limit. For details, refer to: https://docs.anthropic.com/en/api/rate-limits."},"request_id":"req_011CSHbfwZVv5X5JQhj8vcqd"}
+2025-08-19 19:11:36,794 - INFO -   ❌ Needs upgrade: Explanation missing or too short
+2025-08-19 19:11:36,995 - INFO - 
+[69/127] Assessing quality...
+2025-08-19 19:11:36,995 - INFO - 🔍 Assessing: If a and b are non-negative real numbers such that a+2b=6, t...
+[92m19:11:36 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:11:36,996 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2025-08-19 19:11:37,119 - WARNING -   ⚠️ Anthropic assessment failed: Failed to generate chat completion: litellm.RateLimitError: AnthropicException - {"type":"error","error":{"type":"rate_limit_error","message":"This request would exceed your organization's (13bbc67f-e1a0-40cc-b3a2-c8c319c96090) maximum usage increase rate for input tokens per minute. Please scale up your input tokens usage more gradually to stay within the acceleration limit. For details, refer to: https://docs.anthropic.com/en/api/rate-limits."},"request_id":"req_011CSHbfyDTvwwEshY5mvmhD"}
+2025-08-19 19:11:37,119 - INFO -   ❌ Needs upgrade: Contains $ signs, Explanation missing or too short
+2025-08-19 19:11:37,320 - INFO - 
+[70/127] Assessing quality...
+2025-08-19 19:11:37,320 - INFO - 🔍 Assessing: Let a and b be natural numbers. If a²+ab+a=14 and b²+ab+b=28...
+[92m19:11:37 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:11:37,321 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2025-08-19 19:11:37,460 - WARNING -   ⚠️ Anthropic assessment failed: Failed to generate chat completion: litellm.RateLimitError: AnthropicException - {"type":"error","error":{"type":"rate_limit_error","message":"This request would exceed your organization's (13bbc67f-e1a0-40cc-b3a2-c8c319c96090) maximum usage increase rate for input tokens per minute. Please scale up your input tokens usage more gradually to stay within the acceleration limit. For details, refer to: https://docs.anthropic.com/en/api/rate-limits."},"request_id":"req_011CSHbfzbZJg1qRydoyC5xq"}
+2025-08-19 19:11:37,460 - INFO -   ❌ Needs upgrade: Contains $ signs, Explanation missing or too short
+2025-08-19 19:11:37,660 - INFO - 
+[71/127] Assessing quality...
+2025-08-19 19:11:37,660 - INFO - 🔍 Assessing: A four-digit number is formed by using only the digits 1, 2 ...
+[92m19:11:37 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:11:37,661 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2025-08-19 19:11:37,768 - WARNING -   ⚠️ Anthropic assessment failed: Failed to generate chat completion: litellm.RateLimitError: AnthropicException - {"type":"error","error":{"type":"rate_limit_error","message":"This request would exceed your organization's (13bbc67f-e1a0-40cc-b3a2-c8c319c96090) maximum usage increase rate for input tokens per minute. Please scale up your input tokens usage more gradually to stay within the acceleration limit. For details, refer to: https://docs.anthropic.com/en/api/rate-limits."},"request_id":"req_011CSHbg2383g2xLkRbRLJYX"}
+2025-08-19 19:11:37,768 - INFO -   ❌ Needs upgrade: Explanation missing or too short
+2025-08-19 19:11:37,969 - INFO - 
+[72/127] Assessing quality...
+2025-08-19 19:11:37,969 - INFO - 🔍 Assessing: For a 4-digit number, the sum of its digits in the thousands...
+[92m19:11:37 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:11:37,970 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2025-08-19 19:11:38,080 - WARNING -   ⚠️ Anthropic assessment failed: Failed to generate chat completion: litellm.RateLimitError: AnthropicException - {"type":"error","error":{"type":"rate_limit_error","message":"This request would exceed your organization's (13bbc67f-e1a0-40cc-b3a2-c8c319c96090) maximum usage increase rate for input tokens per minute. Please scale up your input tokens usage more gradually to stay within the acceleration limit. For details, refer to: https://docs.anthropic.com/en/api/rate-limits."},"request_id":"req_011CSHbg3M1DQYXQHGs2g52S"}
+2025-08-19 19:11:38,080 - INFO -   ❌ Needs upgrade: Contains $ signs, Explanation missing or too short
+2025-08-19 19:11:38,280 - INFO - 
+[73/127] Assessing quality...
+2025-08-19 19:11:38,280 - INFO - 🔍 Assessing: The natural numbers are divided into groups as (1), (2, 3, 4...
+[92m19:11:38 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:11:38,281 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2025-08-19 19:11:38,456 - WARNING -   ⚠️ Anthropic assessment failed: Failed to generate chat completion: litellm.RateLimitError: AnthropicException - {"type":"error","error":{"type":"rate_limit_error","message":"This request would exceed your organization's (13bbc67f-e1a0-40cc-b3a2-c8c319c96090) maximum usage increase rate for input tokens per minute. Please scale up your input tokens usage more gradually to stay within the acceleration limit. For details, refer to: https://docs.anthropic.com/en/api/rate-limits."},"request_id":"req_011CSHbg4icJTCv84RZNV75g"}
+2025-08-19 19:11:38,457 - INFO -   ❌ Needs upgrade: Contains $ signs, Explanation missing or too short
+2025-08-19 19:11:38,657 - INFO - 
+[74/127] Assessing quality...
+2025-08-19 19:11:38,657 - INFO - 🔍 Assessing: How many three-digit numbers are greater than 100 and increa...
+[92m19:11:38 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:11:38,658 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2025-08-19 19:11:38,772 - WARNING -   ⚠️ Anthropic assessment failed: Failed to generate chat completion: litellm.RateLimitError: AnthropicException - {"type":"error","error":{"type":"rate_limit_error","message":"This request would exceed your organization's (13bbc67f-e1a0-40cc-b3a2-c8c319c96090) maximum usage increase rate for input tokens per minute. Please scale up your input tokens usage more gradually to stay within the acceleration limit. For details, refer to: https://docs.anthropic.com/en/api/rate-limits."},"request_id":"req_011CSHbg6KbXrs65nXcC1HbP"}
+2025-08-19 19:11:38,772 - INFO -   ❌ Needs upgrade: Contains $ signs, Explanation missing or too short
+2025-08-19 19:11:38,973 - INFO - 
+[75/127] Assessing quality...
+2025-08-19 19:11:38,973 - INFO - 🔍 Assessing: Let N, x and y be positive integers such that N = x + y, 2 <...
+[92m19:11:38 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:11:38,974 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2025-08-19 19:11:39,100 - WARNING -   ⚠️ Anthropic assessment failed: Failed to generate chat completion: litellm.RateLimitError: AnthropicException - {"type":"error","error":{"type":"rate_limit_error","message":"This request would exceed your organization's (13bbc67f-e1a0-40cc-b3a2-c8c319c96090) maximum usage increase rate for input tokens per minute. Please scale up your input tokens usage more gradually to stay within the acceleration limit. For details, refer to: https://docs.anthropic.com/en/api/rate-limits."},"request_id":"req_011CSHbg7gx9HTUaJsMChZCB"}
+2025-08-19 19:11:39,100 - INFO -   ❌ Needs upgrade: Contains $ signs, Explanation missing or too short
+2025-08-19 19:11:39,301 - INFO - 
+[76/127] Assessing quality...
+2025-08-19 19:11:39,301 - INFO - 🔍 Assessing: How many pairs (a,b) of positive integers are there such tha...
+[92m19:11:39 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:11:39,302 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2025-08-19 19:11:39,403 - WARNING -   ⚠️ Anthropic assessment failed: Failed to generate chat completion: litellm.RateLimitError: AnthropicException - {"type":"error","error":{"type":"rate_limit_error","message":"This request would exceed your organization's (13bbc67f-e1a0-40cc-b3a2-c8c319c96090) maximum usage increase rate for input tokens per minute. Please scale up your input tokens usage more gradually to stay within the acceleration limit. For details, refer to: https://docs.anthropic.com/en/api/rate-limits."},"request_id":"req_011CSHbg943tCTwjp1ZP25hE"}
+2025-08-19 19:11:39,403 - INFO -   ❌ Needs upgrade: Contains $ signs, Explanation missing or too short
+2025-08-19 19:11:39,604 - INFO - 
+[77/127] Assessing quality...
+2025-08-19 19:11:39,604 - INFO - 🔍 Assessing: If x and y are positive real numbers satisfying x + y = 102,...
+[92m19:11:39 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:11:39,605 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2025-08-19 19:11:39,721 - WARNING -   ⚠️ Anthropic assessment failed: Failed to generate chat completion: litellm.RateLimitError: AnthropicException - {"type":"error","error":{"type":"rate_limit_error","message":"This request would exceed your organization's (13bbc67f-e1a0-40cc-b3a2-c8c319c96090) maximum usage increase rate for input tokens per minute. Please scale up your input tokens usage more gradually to stay within the acceleration limit. For details, refer to: https://docs.anthropic.com/en/api/rate-limits."},"request_id":"req_011CSHbgANBLansiiASTZV3c"}
+2025-08-19 19:11:39,721 - INFO -   ❌ Needs upgrade: Explanation missing or too short
+2025-08-19 19:11:39,921 - INFO - 
+[78/127] Assessing quality...
+2025-08-19 19:11:39,922 - INFO - 🔍 Assessing: How many 4-digit numbers, each greater than 1000 and each ha...
+[92m19:11:39 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:11:39,922 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2025-08-19 19:11:40,080 - WARNING -   ⚠️ Anthropic assessment failed: Failed to generate chat completion: litellm.RateLimitError: AnthropicException - {"type":"error","error":{"type":"rate_limit_error","message":"This request would exceed your organization's (13bbc67f-e1a0-40cc-b3a2-c8c319c96090) maximum usage increase rate for input tokens per minute. Please scale up your input tokens usage more gradually to stay within the acceleration limit. For details, refer to: https://docs.anthropic.com/en/api/rate-limits."},"request_id":"req_011CSHbgBvCPvRi56rS5zoEE"}
+2025-08-19 19:11:40,080 - INFO -   ❌ Needs upgrade: Contains $ signs, Explanation missing or too short
+2025-08-19 19:11:40,280 - INFO - 
+[79/127] Assessing quality...
+2025-08-19 19:11:40,280 - INFO - 🔍 Assessing: How many 3-digit numbers are there, for which the product of...
+[92m19:11:40 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:11:40,281 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2025-08-19 19:11:40,441 - WARNING -   ⚠️ Anthropic assessment failed: Failed to generate chat completion: litellm.RateLimitError: AnthropicException - {"type":"error","error":{"type":"rate_limit_error","message":"This request would exceed your organization's (13bbc67f-e1a0-40cc-b3a2-c8c319c96090) maximum usage increase rate for input tokens per minute. Please scale up your input tokens usage more gradually to stay within the acceleration limit. For details, refer to: https://docs.anthropic.com/en/api/rate-limits."},"request_id":"req_011CSHbgDHoE7UFuzuW3BcE7"}
+2025-08-19 19:11:40,441 - INFO -   ❌ Needs upgrade: Explanation missing or too short
+2025-08-19 19:11:40,641 - INFO - 
+[80/127] Assessing quality...
+2025-08-19 19:11:40,642 - INFO - 🔍 Assessing: The mean of all 4 digit even natural numbers of the form 'aa...
+[92m19:11:40 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:11:40,642 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2025-08-19 19:11:40,750 - WARNING -   ⚠️ Anthropic assessment failed: Failed to generate chat completion: litellm.RateLimitError: AnthropicException - {"type":"error","error":{"type":"rate_limit_error","message":"This request would exceed your organization's (13bbc67f-e1a0-40cc-b3a2-c8c319c96090) maximum usage increase rate for input tokens per minute. Please scale up your input tokens usage more gradually to stay within the acceleration limit. For details, refer to: https://docs.anthropic.com/en/api/rate-limits."},"request_id":"req_011CSHbgEpKnw77eTnegN18k"}
+2025-08-19 19:11:40,750 - INFO -   ❌ Needs upgrade: Contains $ signs, Explanation missing or too short
+2025-08-19 19:11:40,750 - INFO - 
+📈 ASSESSMENT PROGRESS [80/127]
+2025-08-19 19:11:40,750 - INFO -    Questions needing upgrade: 80
+2025-08-19 19:11:40,951 - INFO - 
+[81/127] Assessing quality...
+2025-08-19 19:11:40,951 - INFO - 🔍 Assessing: Among 100 students, x1 have birthdays in January, x2 have bi...
+[92m19:11:40 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:11:40,952 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2025-08-19 19:11:41,064 - WARNING -   ⚠️ Anthropic assessment failed: Failed to generate chat completion: litellm.RateLimitError: AnthropicException - {"type":"error","error":{"type":"rate_limit_error","message":"This request would exceed your organization's (13bbc67f-e1a0-40cc-b3a2-c8c319c96090) maximum usage increase rate for input tokens per minute. Please scale up your input tokens usage more gradually to stay within the acceleration limit. For details, refer to: https://docs.anthropic.com/en/api/rate-limits."},"request_id":"req_011CSHbgG8T7Yy1XXqC4n42k"}
+2025-08-19 19:11:41,064 - INFO -   ❌ Needs upgrade: Explanation missing or too short
+2025-08-19 19:11:41,265 - INFO - 
+[82/127] Assessing quality...
+2025-08-19 19:11:41,265 - INFO - 🔍 Assessing: If a, b and c are positive integers such that ab = 432, bc =...
+[92m19:11:41 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:11:41,266 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2025-08-19 19:11:41,401 - WARNING -   ⚠️ Anthropic assessment failed: Failed to generate chat completion: litellm.RateLimitError: AnthropicException - {"type":"error","error":{"type":"rate_limit_error","message":"This request would exceed your organization's (13bbc67f-e1a0-40cc-b3a2-c8c319c96090) maximum usage increase rate for input tokens per minute. Please scale up your input tokens usage more gradually to stay within the acceleration limit. For details, refer to: https://docs.anthropic.com/en/api/rate-limits."},"request_id":"req_011CSHbgHUp9ADNtSafRbYEG"}
+2025-08-19 19:11:41,402 - INFO -   ❌ Needs upgrade: Contains $ signs, Explanation missing or too short
+2025-08-19 19:11:41,602 - INFO - 
+[83/127] Assessing quality...
+2025-08-19 19:11:41,602 - INFO - 🔍 Assessing: In a six-digit number, the sixth, that is, the rightmost, di...
+[92m19:11:41 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:11:41,603 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2025-08-19 19:11:41,725 - WARNING -   ⚠️ Anthropic assessment failed: Failed to generate chat completion: litellm.RateLimitError: AnthropicException - {"type":"error","error":{"type":"rate_limit_error","message":"This request would exceed your organization's (13bbc67f-e1a0-40cc-b3a2-c8c319c96090) maximum usage increase rate for input tokens per minute. Please scale up your input tokens usage more gradually to stay within the acceleration limit. For details, refer to: https://docs.anthropic.com/en/api/rate-limits."},"request_id":"req_011CSHbgJttjHGdFwWJzSTER"}
+2025-08-19 19:11:41,725 - INFO -   ❌ Needs upgrade: Contains $ signs, Explanation missing or too short
+2025-08-19 19:11:41,926 - INFO - 
+[84/127] Assessing quality...
+2025-08-19 19:11:41,926 - INFO - 🔍 Assessing: If the sum of squares of two numbers is 97, then which one o...
+[92m19:11:41 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:11:41,927 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2025-08-19 19:11:42,125 - WARNING -   ⚠️ Anthropic assessment failed: Failed to generate chat completion: litellm.RateLimitError: AnthropicException - {"type":"error","error":{"type":"rate_limit_error","message":"This request would exceed your organization's (13bbc67f-e1a0-40cc-b3a2-c8c319c96090) maximum usage increase rate for input tokens per minute. Please scale up your input tokens usage more gradually to stay within the acceleration limit. For details, refer to: https://docs.anthropic.com/en/api/rate-limits."},"request_id":"req_011CSHbgLGzKzGs8BmfcgnjC"}
+2025-08-19 19:11:42,125 - INFO -   ❌ Needs upgrade: Contains $ signs, Explanation missing or too short
+2025-08-19 19:11:42,325 - INFO - 
+[85/127] Assessing quality...
+2025-08-19 19:11:42,325 - INFO - 🔍 Assessing: How many two-digit numbers, with a non-zero digit in the uni...
+[92m19:11:42 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:11:42,326 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2025-08-19 19:11:42,432 - WARNING -   ⚠️ Anthropic assessment failed: Failed to generate chat completion: litellm.RateLimitError: AnthropicException - {"type":"error","error":{"type":"rate_limit_error","message":"This request would exceed your organization's (13bbc67f-e1a0-40cc-b3a2-c8c319c96090) maximum usage increase rate for input tokens per minute. Please scale up your input tokens usage more gradually to stay within the acceleration limit. For details, refer to: https://docs.anthropic.com/en/api/rate-limits."},"request_id":"req_011CSHbgMyvqpHwCuaKWADwS"}
+2025-08-19 19:11:42,432 - INFO -   ❌ Needs upgrade: Contains $ signs, Explanation missing or too short
+2025-08-19 19:11:42,632 - INFO - 
+[86/127] Assessing quality...
+2025-08-19 19:11:42,632 - INFO - 🔍 Assessing: While multiplying three real numbers, Ashok took one of the ...
+[92m19:11:42 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:11:42,633 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2025-08-19 19:11:42,779 - WARNING -   ⚠️ Anthropic assessment failed: Failed to generate chat completion: litellm.RateLimitError: AnthropicException - {"type":"error","error":{"type":"rate_limit_error","message":"This request would exceed your organization's (13bbc67f-e1a0-40cc-b3a2-c8c319c96090) maximum usage increase rate for input tokens per minute. Please scale up your input tokens usage more gradually to stay within the acceleration limit. For details, refer to: https://docs.anthropic.com/en/api/rate-limits."},"request_id":"req_011CSHbgPJoZgn6LCdiboR6k"}
+2025-08-19 19:11:42,779 - INFO -   ❌ Needs upgrade: Contains $ signs, Explanation missing or too short
+2025-08-19 19:11:42,980 - INFO - 
+[87/127] Assessing quality...
+2025-08-19 19:11:42,980 - INFO - 🔍 Assessing: The numbers 1, 2,..., 9 are arranged in a 3 X 3 square grid ...
+[92m19:11:42 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:11:42,981 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2025-08-19 19:11:43,091 - WARNING -   ⚠️ Anthropic assessment failed: Failed to generate chat completion: litellm.RateLimitError: AnthropicException - {"type":"error","error":{"type":"rate_limit_error","message":"This request would exceed your organization's (13bbc67f-e1a0-40cc-b3a2-c8c319c96090) maximum usage increase rate for input tokens per minute. Please scale up your input tokens usage more gradually to stay within the acceleration limit. For details, refer to: https://docs.anthropic.com/en/api/rate-limits."},"request_id":"req_011CSHbgQn6wCaXTRmJrBMXs"}
+2025-08-19 19:11:43,091 - INFO -   ❌ Needs upgrade: Contains $ signs, Explanation missing or too short
+2025-08-19 19:11:43,292 - INFO - 
+[88/127] Assessing quality...
+2025-08-19 19:11:43,292 - INFO - 🔍 Assessing: If the product of three consecutive positive integers is 156...
+[92m19:11:43 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:11:43,293 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2025-08-19 19:11:43,442 - WARNING -   ⚠️ Anthropic assessment failed: Failed to generate chat completion: litellm.RateLimitError: AnthropicException - {"type":"error","error":{"type":"rate_limit_error","message":"This request would exceed your organization's (13bbc67f-e1a0-40cc-b3a2-c8c319c96090) maximum usage increase rate for input tokens per minute. Please scale up your input tokens usage more gradually to stay within the acceleration limit. For details, refer to: https://docs.anthropic.com/en/api/rate-limits."},"request_id":"req_011CSHbgSEugAVWTyaWNVSSr"}
+2025-08-19 19:11:43,442 - INFO -   ❌ Needs upgrade: Contains $ signs, Explanation missing or too short
+2025-08-19 19:11:43,642 - INFO - 
+[89/127] Assessing quality...
+2025-08-19 19:11:43,642 - INFO - 🔍 Assessing: How many different pairs (a, b) of positive integers are the...
+[92m19:11:43 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:11:43,643 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2025-08-19 19:11:43,767 - WARNING -   ⚠️ Anthropic assessment failed: Failed to generate chat completion: litellm.RateLimitError: AnthropicException - {"type":"error","error":{"type":"rate_limit_error","message":"This request would exceed your organization's (13bbc67f-e1a0-40cc-b3a2-c8c319c96090) maximum usage increase rate for input tokens per minute. Please scale up your input tokens usage more gradually to stay within the acceleration limit. For details, refer to: https://docs.anthropic.com/en/api/rate-limits."},"request_id":"req_011CSHbgTfVS2AKEZo1E1KPx"}
+2025-08-19 19:11:43,767 - INFO -   ❌ Needs upgrade: Contains $ signs, Explanation missing or too short
+2025-08-19 19:11:43,967 - INFO - 
+[90/127] Assessing quality...
+2025-08-19 19:11:43,968 - INFO - 🔍 Assessing: Consider a class of 40 students whose average weight is 40 k...
+[92m19:11:43 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:11:43,968 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2025-08-19 19:11:44,176 - WARNING -   ⚠️ Anthropic assessment failed: Failed to generate chat completion: litellm.RateLimitError: AnthropicException - {"type":"error","error":{"type":"rate_limit_error","message":"This request would exceed your organization's (13bbc67f-e1a0-40cc-b3a2-c8c319c96090) maximum usage increase rate for input tokens per minute. Please scale up your input tokens usage more gradually to stay within the acceleration limit. For details, refer to: https://docs.anthropic.com/en/api/rate-limits."},"request_id":"req_011CSHbgVBX8PA56FtQLBoCT"}
+2025-08-19 19:11:44,176 - INFO -   ❌ Needs upgrade: Contains $ signs, Explanation missing or too short
+2025-08-19 19:11:44,377 - INFO - 
+[91/127] Assessing quality...
+2025-08-19 19:11:44,377 - INFO - 🔍 Assessing: The average score in an examination of 10 students of a clas...
+[92m19:11:44 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:11:44,378 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2025-08-19 19:11:44,487 - WARNING -   ⚠️ Anthropic assessment failed: Failed to generate chat completion: litellm.RateLimitError: AnthropicException - {"type":"error","error":{"type":"rate_limit_error","message":"This request would exceed your organization's (13bbc67f-e1a0-40cc-b3a2-c8c319c96090) maximum usage increase rate for input tokens per minute. Please scale up your input tokens usage more gradually to stay within the acceleration limit. For details, refer to: https://docs.anthropic.com/en/api/rate-limits."},"request_id":"req_011CSHbgWkGvvhMRLjK5CXRo"}
+2025-08-19 19:11:44,487 - INFO -   ❌ Needs upgrade: Explanation missing or too short
+2025-08-19 19:11:44,688 - INFO - 
+[92/127] Assessing quality...
+2025-08-19 19:11:44,688 - INFO - 🔍 Assessing: The ratio of a two-digit natural number to a number formed b...
+[92m19:11:44 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:11:44,689 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2025-08-19 19:11:44,825 - WARNING -   ⚠️ Anthropic assessment failed: Failed to generate chat completion: litellm.RateLimitError: AnthropicException - {"type":"error","error":{"type":"rate_limit_error","message":"This request would exceed your organization's (13bbc67f-e1a0-40cc-b3a2-c8c319c96090) maximum usage increase rate for input tokens per minute. Please scale up your input tokens usage more gradually to stay within the acceleration limit. For details, refer to: https://docs.anthropic.com/en/api/rate-limits."},"request_id":"req_011CSHbgY7debp84WUPZ3S2M"}
+2025-08-19 19:11:44,825 - INFO -   ❌ Needs upgrade: Contains $ signs, Explanation missing or too short
+2025-08-19 19:11:45,026 - INFO - 
+[93/127] Assessing quality...
+2025-08-19 19:11:45,026 - INFO - 🔍 Assessing: Three friends A, B and C play a game in a pub. The rules are...
+[92m19:11:45 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:11:45,027 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2025-08-19 19:11:45,257 - WARNING -   ⚠️ Anthropic assessment failed: Failed to generate chat completion: litellm.RateLimitError: AnthropicException - {"type":"error","error":{"type":"rate_limit_error","message":"This request would exceed your organization's (13bbc67f-e1a0-40cc-b3a2-c8c319c96090) maximum usage increase rate for input tokens per minute. Please scale up your input tokens usage more gradually to stay within the acceleration limit. For details, refer to: https://docs.anthropic.com/en/api/rate-limits."},"request_id":"req_011CSHbgZYhUdmCaqFdHCAFF"}
+2025-08-19 19:11:45,257 - INFO -   ❌ Needs upgrade: Contains $ signs, Explanation missing or too short
+2025-08-19 19:11:45,457 - INFO - 
+[94/127] Assessing quality...
+2025-08-19 19:11:45,457 - INFO - 🔍 Assessing: Recently a band was to perform in India. However, there was ...
+[92m19:11:45 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:11:45,458 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2025-08-19 19:11:45,628 - WARNING -   ⚠️ Anthropic assessment failed: Failed to generate chat completion: litellm.RateLimitError: AnthropicException - {"type":"error","error":{"type":"rate_limit_error","message":"This request would exceed your organization's (13bbc67f-e1a0-40cc-b3a2-c8c319c96090) maximum usage increase rate for input tokens per minute. Please scale up your input tokens usage more gradually to stay within the acceleration limit. For details, refer to: https://docs.anthropic.com/en/api/rate-limits."},"request_id":"req_011CSHbgbTnzJcaCdv8rA9r1"}
+2025-08-19 19:11:45,628 - INFO -   ❌ Needs upgrade: Explanation missing or too short
+2025-08-19 19:11:45,829 - INFO - 
+[95/127] Assessing quality...
+2025-08-19 19:11:45,829 - INFO - 🔍 Assessing: How many factors of 2⁵ × 3⁶ × 5² are perfect squares?...
+[92m19:11:45 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:11:45,830 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2025-08-19 19:11:45,932 - WARNING -   ⚠️ Anthropic assessment failed: Failed to generate chat completion: litellm.RateLimitError: AnthropicException - {"type":"error","error":{"type":"rate_limit_error","message":"This request would exceed your organization's (13bbc67f-e1a0-40cc-b3a2-c8c319c96090) maximum usage increase rate for input tokens per minute. Please scale up your input tokens usage more gradually to stay within the acceleration limit. For details, refer to: https://docs.anthropic.com/en/api/rate-limits."},"request_id":"req_011CSHbgcy5eU5jgnR4kCYCK"}
+2025-08-19 19:11:45,932 - INFO -   ❌ Needs upgrade: Contains $ signs, Explanation missing or too short
+2025-08-19 19:11:46,132 - INFO - 
+[96/127] Assessing quality...
+2025-08-19 19:11:46,132 - INFO - 🔍 Assessing: How many factors of the number 2⁸×3⁶×5⁴×10⁵ are multiples of...
+[92m19:11:46 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:11:46,133 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2025-08-19 19:11:46,263 - WARNING -   ⚠️ Anthropic assessment failed: Failed to generate chat completion: litellm.RateLimitError: AnthropicException - {"type":"error","error":{"type":"rate_limit_error","message":"This request would exceed your organization's (13bbc67f-e1a0-40cc-b3a2-c8c319c96090) maximum usage increase rate for input tokens per minute. Please scale up your input tokens usage more gradually to stay within the acceleration limit. For details, refer to: https://docs.anthropic.com/en/api/rate-limits."},"request_id":"req_011CSHbgeKSLkUZAr4DMQGEk"}
+2025-08-19 19:11:46,263 - INFO -   ❌ Needs upgrade: Explanation missing or too short
+2025-08-19 19:11:46,463 - INFO - 
+[97/127] Assessing quality...
+2025-08-19 19:11:46,463 - INFO - 🔍 Assessing: How many of the integers 1, 2, â¦ , 120, are divisible by n...
+[92m19:11:46 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:11:46,464 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2025-08-19 19:11:46,725 - WARNING -   ⚠️ Anthropic assessment failed: Failed to generate chat completion: litellm.RateLimitError: AnthropicException - {"type":"error","error":{"type":"rate_limit_error","message":"This request would exceed your organization's (13bbc67f-e1a0-40cc-b3a2-c8c319c96090) maximum usage increase rate for input tokens per minute. Please scale up your input tokens usage more gradually to stay within the acceleration limit. For details, refer to: https://docs.anthropic.com/en/api/rate-limits."},"request_id":"req_011CSHbgfmFrutkzfrzKcedU"}
+2025-08-19 19:11:46,725 - INFO -   ❌ Needs upgrade: Explanation missing or too short
+2025-08-19 19:11:46,926 - INFO - 
+[98/127] Assessing quality...
+2025-08-19 19:11:46,926 - INFO - 🔍 Assessing: The sum of the digits of a number N is 23. The remainder whe...
+[92m19:11:46 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:11:46,927 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2025-08-19 19:11:47,038 - WARNING -   ⚠️ Anthropic assessment failed: Failed to generate chat completion: litellm.RateLimitError: AnthropicException - {"type":"error","error":{"type":"rate_limit_error","message":"This request would exceed your organization's (13bbc67f-e1a0-40cc-b3a2-c8c319c96090) maximum usage increase rate for input tokens per minute. Please scale up your input tokens usage more gradually to stay within the acceleration limit. For details, refer to: https://docs.anthropic.com/en/api/rate-limits."},"request_id":"req_011CSHbghgbirun5SRmp5WcG"}
+2025-08-19 19:11:47,038 - INFO -   ❌ Needs upgrade: Contains $ signs, Explanation missing or too short
+2025-08-19 19:11:47,238 - INFO - 
+[99/127] Assessing quality...
+2025-08-19 19:11:47,239 - INFO - 🔍 Assessing: A number N² has 15 factors. How many factors can N have?...
+[92m19:11:47 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:11:47,239 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2025-08-19 19:11:47,332 - WARNING -   ⚠️ Anthropic assessment failed: Failed to generate chat completion: litellm.RateLimitError: AnthropicException - {"type":"error","error":{"type":"rate_limit_error","message":"This request would exceed your organization's (13bbc67f-e1a0-40cc-b3a2-c8c319c96090) maximum usage increase rate for input tokens per minute. Please scale up your input tokens usage more gradually to stay within the acceleration limit. For details, refer to: https://docs.anthropic.com/en/api/rate-limits."},"request_id":"req_011CSHbgizj3vaJcvb5SRxX6"}
+2025-08-19 19:11:47,332 - INFO -   ❌ Needs upgrade: Contains $ signs, Explanation missing or too short
+2025-08-19 19:11:47,533 - INFO - 
+[100/127] Assessing quality...
+2025-08-19 19:11:47,533 - INFO - 🔍 Assessing: What is the remainder when (13¹⁰⁰ + 17¹⁰⁰) is divided by 25?...
+[92m19:11:47 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:11:47,534 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2025-08-19 19:11:47,637 - WARNING -   ⚠️ Anthropic assessment failed: Failed to generate chat completion: litellm.RateLimitError: AnthropicException - {"type":"error","error":{"type":"rate_limit_error","message":"This request would exceed your organization's (13bbc67f-e1a0-40cc-b3a2-c8c319c96090) maximum usage increase rate for input tokens per minute. Please scale up your input tokens usage more gradually to stay within the acceleration limit. For details, refer to: https://docs.anthropic.com/en/api/rate-limits."},"request_id":"req_011CSHbgkFshuxvSQnWUG4Wx"}
+2025-08-19 19:11:47,637 - INFO -   ❌ Needs upgrade: Explanation missing or too short
+2025-08-19 19:11:47,638 - INFO - 
+📈 ASSESSMENT PROGRESS [100/127]
+2025-08-19 19:11:47,638 - INFO -    Questions needing upgrade: 100
+2025-08-19 19:11:47,838 - INFO - 
+[101/127] Assessing quality...
+2025-08-19 19:11:47,838 - INFO - 🔍 Assessing: A number when divided by 18 leaves a remainder 7. The same n...
+[92m19:11:47 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:11:47,839 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2025-08-19 19:11:47,981 - WARNING -   ⚠️ Anthropic assessment failed: Failed to generate chat completion: litellm.RateLimitError: AnthropicException - {"type":"error","error":{"type":"rate_limit_error","message":"This request would exceed your organization's (13bbc67f-e1a0-40cc-b3a2-c8c319c96090) maximum usage increase rate for input tokens per minute. Please scale up your input tokens usage more gradually to stay within the acceleration limit. For details, refer to: https://docs.anthropic.com/en/api/rate-limits."},"request_id":"req_011CSHbgmhwTECQDJ6UQYDNn"}
+2025-08-19 19:11:47,982 - INFO -   ❌ Needs upgrade: Contains $ signs, Explanation missing or too short
