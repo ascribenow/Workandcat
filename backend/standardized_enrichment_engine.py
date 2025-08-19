@@ -374,23 +374,25 @@ Quality Feedback from Expert Checker:
 
 Correct Answer: {answer}
 
-Create an IMPROVED solution addressing the expert feedback:
+Create an IMPROVED solution with THREE DISTINCT sections addressing the feedback:
 
 {feedback_text}
 
-Follow the exact schema format with improvements:
+**APPROACH:** (HOW to solve - METHOD/STRATEGY)
+[Improved 2-3 sentences showing the strategic approach - what method to use, what pattern to recognize]
 
-**APPROACH:**
-[Improved 2-3 sentences addressing feedback]
-
-**DETAILED SOLUTION:**
+**DETAILED SOLUTION:** (Execution)
 **Step 1:** [Enhanced first step]
 **Step 2:** [Continue with better clarity]
 **Step N:** [Final verification]
 **✅ Final Answer: {answer}**
 
-**EXPLANATION:**
-[Improved 1-2 sentences addressing feedback]
+**EXPLANATION:** (WHY it works - CONCEPT/PRINCIPLE)
+[Improved 1-2 sentences about the general principle that makes this method work - different from approach]
+
+CRITICAL: Make APPROACH and EXPLANATION serve different purposes:
+- APPROACH = Strategic method/how to attack
+- EXPLANATION = Conceptual principle/why it works
 
 Focus on the specific areas mentioned in the feedback."""
             
