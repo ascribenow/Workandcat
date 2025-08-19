@@ -198,6 +198,31 @@ Please provide:
     detailed = f"This is a {subcategory} problem from {category}. Step 1: Identify what is given. Step 2: Determine what to find. Step 3: Apply relevant formula. Step 4: Calculate step by step. Step 5: Verify the answer."
     return approach, detailed
 
+def randomize_mcq_placement(correct_answer: str, wrong_answers: list) -> dict:
+    """Randomize the placement of correct answer among MCQ options"""
+    import random
+    
+    # Create list of all options with correct answer
+    all_options = [correct_answer] + wrong_answers[:3]  # Ensure only 3 wrong answers
+    
+    # Shuffle the options
+    random.shuffle(all_options)
+    
+    # Find which position the correct answer ended up in
+    correct_position = all_options.index(correct_answer)
+    correct_labels = ["A", "B", "C", "D"]
+    
+    # Create the final MCQ dictionary
+    mcq_options = {
+        "A": all_options[0],
+        "B": all_options[1], 
+        "C": all_options[2],
+        "D": all_options[3],
+        "correct": correct_labels[correct_position]
+    }
+    
+    return mcq_options
+
 async def generate_mcq_options_with_fallback(stem: str, answer: str, subcategory: str, difficulty: str = "Medium") -> dict:
     """Generate MCQ options with OpenAI primary, Anthropic fallback"""
     try:
