@@ -924,3 +924,16 @@ LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 2025-08-19 15:44:04,601 - INFO - 
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:44:11 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:44:11,232 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:44:11,233 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:44:13,391 - INFO -   ✅ Improved formatting
+2025-08-19 15:44:13,592 - INFO - 
+🔄 [71/126] Processing formatting...
+2025-08-19 15:44:13,592 - INFO -   📝 Question: A four-digit number is formed by using only the digits 1, 2 ...
+2025-08-19 15:44:13,592 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:44:13,592 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:44:13 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:44:13,593 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
