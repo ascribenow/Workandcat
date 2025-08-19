@@ -1441,3 +1441,16 @@ LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 2025-08-19 15:54:26,741 - INFO - 
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:54:33 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:54:33,385 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:54:33,385 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:54:35,649 - INFO -   ✅ Improved formatting
+2025-08-19 15:54:35,850 - INFO - 
+🔄 [110/126] Processing formatting...
+2025-08-19 15:54:35,850 - INFO -   📝 Question: What is the remainder when we divide 3⁹⁰ + 5⁹⁰ by 34?...
+2025-08-19 15:54:35,850 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:54:35,850 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:54:35 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:54:35,851 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini

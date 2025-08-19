@@ -9,7 +9,7 @@ import json
 import hashlib
 import uuid
 import os
-from typing import Dict, Any, Tuple
+from typing import Dict, Any, Tuple, List
 from datetime import datetime
 import logging
 from formulas import (
