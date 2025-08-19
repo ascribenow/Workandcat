@@ -163,12 +163,18 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
           optionCount: question.options ? Object.keys(question.options).length : 0
         });
         
-        // Calculate session number if not already set
-        if (!sessionNumber && progress) {
-          // For now, use a simple calculation based on progress or timestamp
-          // In the future, this could come from the backend
-          const sessionNum = Math.floor(Date.now() / 1000) % 1000; // Simple session number
-          setSessionNumber(sessionNum);
+        // Set session number from metadata if not already set
+        if (!sessionNumber) {
+          if (sessionMetadata?.phase_info?.current_session) {
+            // Use the correct session number from backend
+            setSessionNumber(sessionMetadata.phase_info.current_session);
+            console.log('Session number set from metadata:', sessionMetadata.phase_info.current_session);
+          } else {
+            // Fallback to progress-based calculation
+            const sessionNum = progress?.current_question || 1;
+            setSessionNumber(sessionNum);
+            console.log('Session number set from progress fallback:', sessionNum);
+          }
         }
         
         setImageLoading(false);
