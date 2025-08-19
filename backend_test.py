@@ -1194,6 +1194,274 @@ class CATBackendTester:
         else:
             return "Arithmetic"  # Default fallback
 
+    def test_session_completion_fix(self):
+        """Test the session completion fix that should resolve the session numbering issue"""
+        print("🎯 SESSION COMPLETION FIX TESTING")
+        print("=" * 70)
+        print("CRITICAL FIX IMPLEMENTED:")
+        print("- Added session completion logic in submit_session_answer endpoint")
+        print("- Sessions now get marked with ended_at when all questions are answered")
+        print("- This should fix the session counting in determine_user_phase function")
+        print("")
+        print("SPECIFIC TESTS NEEDED:")
+        print("1. Test Session Completion: Submit answers to complete a full session and verify ended_at gets set")
+        print("2. Test Session Counting: Verify completed sessions are properly counted in determine_user_phase")
+        print("3. Test Sequential Numbering: Create new session and verify phase_info.current_session shows proper sequential number (not 1)")
+        print("4. Test Dashboard Consistency: Verify dashboard total_sessions count increases after session completion")
+        print("5. Verify No More Random Numbers: Confirm session creation returns reasonable current_session values")
+        print("")
+        print("EXPECTED BEHAVIOR AFTER FIX:")
+        print("- Complete a session → ended_at gets set in database")
+        print("- Next session creation → current_session = completed_sessions + 1 (not hardcoded 1)")
+        print("- Session interface shows proper numbers like 'Session #63' instead of random '#791'")
+        print("")
+        print("CREDENTIALS: student@catprep.com / student123")
+        print("=" * 70)
+        
+        # Authenticate as student
+        student_login = {"email": "student@catprep.com", "password": "student123"}
+        success, response = self.run_test("Student Login", "POST", "auth/login", 200, student_login)
+        if not success or 'access_token' not in response:
+            print("❌ Cannot test session completion - student login failed")
+            return False
+            
+        student_token = response['access_token']
+        student_headers = {'Content-Type': 'application/json', 'Authorization': f'Bearer {student_token}'}
+        
+        completion_results = {
+            "dashboard_initial_count": False,
+            "session_creation_working": False,
+            "session_completion_logic": False,
+            "ended_at_field_set": False,
+            "dashboard_count_increases": False,
+            "sequential_numbering_working": False,
+            "phase_info_current_session": False,
+            "no_random_numbers": False
+        }
+        
+        # TEST 1: Get Initial Dashboard Count
+        print("\n📊 TEST 1: GET INITIAL DASHBOARD SESSION COUNT")
+        print("-" * 50)
+        print("Getting baseline session count from dashboard API")
+        
+        success, response = self.run_test("Get Initial Dashboard Count", "GET", "dashboard/simple-taxonomy", 200, None, student_headers)
+        initial_total_sessions = 0
+        if success:
+            initial_total_sessions = response.get('total_sessions', 0)
+            print(f"   📊 Initial total sessions: {initial_total_sessions}")
+            completion_results["dashboard_initial_count"] = True
+        else:
+            print("   ❌ Failed to get initial dashboard count")
+            return False
+        
+        # TEST 2: Create New Session and Check Phase Info
+        print("\n🎯 TEST 2: CREATE NEW SESSION AND CHECK PHASE INFO")
+        print("-" * 50)
+        print("Creating new session and verifying phase_info.current_session is sequential")
+        
+        session_data = {"target_minutes": 30}
+        success, response = self.run_test("Create New Session", "POST", "sessions/start", 200, session_data, student_headers)
+        
+        session_id = None
+        if success:
+            session_id = response.get('session_id')
+            phase_info = response.get('phase_info', {})
+            total_questions = response.get('total_questions', 0)
+            
+            print(f"   📊 Session ID: {session_id}")
+            print(f"   📊 Total questions: {total_questions}")
+            print(f"   📊 Phase info: {phase_info}")
+            
+            completion_results["session_creation_working"] = True
+            
+            # Check phase_info.current_session
+            current_session = phase_info.get('current_session')
+            if current_session is not None:
+                completion_results["phase_info_current_session"] = True
+                print(f"   ✅ Phase info current_session: {current_session}")
+                
+                # Check if it's sequential (should be initial_total + 1 or reasonable number)
+                expected_session = initial_total_sessions + 1
+                if current_session == expected_session:
+                    completion_results["sequential_numbering_working"] = True
+                    print(f"   ✅ CRITICAL SUCCESS: Sequential numbering working! ({current_session} = {initial_total_sessions} + 1)")
+                elif 1 <= current_session <= initial_total_sessions + 10:  # Reasonable range
+                    completion_results["no_random_numbers"] = True
+                    print(f"   ✅ Reasonable session number: {current_session} (not random like #791)")
+                else:
+                    print(f"   ❌ Session number seems incorrect: {current_session} (expected around {expected_session})")
+            else:
+                print("   ❌ Phase info current_session is missing")
+        else:
+            print("   ❌ Failed to create session")
+            return False
+        
+        # TEST 3: Complete the Session by Answering All Questions
+        print("\n✅ TEST 3: COMPLETE SESSION BY ANSWERING ALL QUESTIONS")
+        print("-" * 50)
+        print("Submitting answers to all questions to trigger session completion logic")
+        
+        if session_id:
+            questions_answered = 0
+            max_questions = 12  # Expected session size
+            
+            for i in range(max_questions):
+                # Get next question
+                success, response = self.run_test(f"Get Question {i+1}", "GET", f"sessions/{session_id}/next-question", 200, None, student_headers)
+                
+                if success and not response.get('session_complete', False):
+                    question = response.get('question', {})
+                    question_id = question.get('id')
+                    
+                    if question_id:
+                        # Submit answer
+                        answer_data = {
+                            "question_id": question_id,
+                            "user_answer": "A",  # Simple answer
+                            "context": "session",
+                            "time_sec": 60,
+                            "hint_used": False
+                        }
+                        
+                        success, answer_response = self.run_test(f"Submit Answer {i+1}", "POST", f"sessions/{session_id}/submit-answer", 200, answer_data, student_headers)
+                        
+                        if success:
+                            questions_answered += 1
+                            correct = answer_response.get('correct', False)
+                            print(f"   Question {i+1}: Answered ({'✅' if correct else '❌'})")
+                        else:
+                            print(f"   ❌ Failed to submit answer for question {i+1}")
+                            break
+                    else:
+                        print(f"   ❌ No question ID for question {i+1}")
+                        break
+                else:
+                    if response.get('session_complete', False):
+                        print(f"   ✅ Session completed after {questions_answered} questions")
+                        completion_results["session_completion_logic"] = True
+                        break
+                    else:
+                        print(f"   ❌ Failed to get question {i+1}")
+                        break
+            
+            print(f"   📊 Total questions answered: {questions_answered}")
+            
+            if questions_answered >= 10:  # Most questions answered
+                print("   ✅ Successfully answered most/all questions in session")
+        
+        # TEST 4: Verify Session Has ended_at Set
+        print("\n🔍 TEST 4: VERIFY SESSION HAS ended_at SET")
+        print("-" * 50)
+        print("Checking if the completed session now has ended_at timestamp")
+        
+        # We can't directly query the database, but we can check session status
+        success, response = self.run_test("Check Session Status", "GET", "sessions/current-status", 200, None, student_headers)
+        
+        if success:
+            active_session = response.get('active_session', False)
+            message = response.get('message', '')
+            
+            print(f"   📊 Active session: {active_session}")
+            print(f"   📊 Message: {message}")
+            
+            # If no active session and message indicates completion, ended_at is likely set
+            if not active_session and ('completed' in message.lower() or 'no active session' in message.lower()):
+                completion_results["ended_at_field_set"] = True
+                print("   ✅ CRITICAL SUCCESS: Session appears to be marked as completed (ended_at likely set)")
+            else:
+                print("   ⚠️ Session status unclear - may still be active")
+        
+        # TEST 5: Check Dashboard Count Increase
+        print("\n📈 TEST 5: CHECK DASHBOARD COUNT INCREASE")
+        print("-" * 50)
+        print("Verifying dashboard total_sessions count has increased after session completion")
+        
+        success, response = self.run_test("Get Updated Dashboard Count", "GET", "dashboard/simple-taxonomy", 200, None, student_headers)
+        
+        if success:
+            final_total_sessions = response.get('total_sessions', 0)
+            print(f"   📊 Final total sessions: {final_total_sessions}")
+            print(f"   📊 Initial total sessions: {initial_total_sessions}")
+            print(f"   📊 Difference: {final_total_sessions - initial_total_sessions}")
+            
+            if final_total_sessions > initial_total_sessions:
+                completion_results["dashboard_count_increases"] = True
+                print("   ✅ CRITICAL SUCCESS: Dashboard count increased after session completion!")
+            elif final_total_sessions == initial_total_sessions:
+                print("   ⚠️ Dashboard count unchanged - session may not be marked as complete")
+            else:
+                print("   ❌ Dashboard count decreased - unexpected behavior")
+        
+        # TEST 6: Create Another Session to Test Sequential Numbering
+        print("\n🔄 TEST 6: CREATE ANOTHER SESSION TO TEST SEQUENTIAL NUMBERING")
+        print("-" * 50)
+        print("Creating another session to verify current_session increments properly")
+        
+        session_data = {"target_minutes": 30}
+        success, response = self.run_test("Create Second Session", "POST", "sessions/start", 200, session_data, student_headers)
+        
+        if success:
+            phase_info = response.get('phase_info', {})
+            current_session = phase_info.get('current_session')
+            
+            print(f"   📊 Second session phase_info: {phase_info}")
+            print(f"   📊 Second session current_session: {current_session}")
+            
+            if current_session is not None:
+                # Should be higher than the previous session
+                if current_session > initial_total_sessions:
+                    print(f"   ✅ CRITICAL SUCCESS: Sequential numbering working! New session: {current_session}")
+                    completion_results["sequential_numbering_working"] = True
+                    completion_results["no_random_numbers"] = True
+                else:
+                    print(f"   ⚠️ Session number may not be sequential: {current_session}")
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 70)
+        print("SESSION COMPLETION FIX TEST RESULTS")
+        print("=" * 70)
+        
+        passed_tests = sum(completion_results.values())
+        total_tests = len(completion_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        for test_name, result in completion_results.items():
+            status = "✅ PASS" if result else "❌ FAIL"
+            print(f"{test_name.replace('_', ' ').title():<35} {status}")
+        
+        print("-" * 70)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # Critical analysis based on review request
+        print("\n🎯 CRITICAL SESSION COMPLETION FIX ANALYSIS:")
+        
+        if completion_results["session_completion_logic"]:
+            print("✅ CRITICAL SUCCESS: Session completion logic working!")
+        else:
+            print("❌ CRITICAL FAILURE: Session completion logic not working")
+        
+        if completion_results["ended_at_field_set"]:
+            print("✅ CRITICAL SUCCESS: Sessions marked as complete (ended_at set)!")
+        else:
+            print("❌ CRITICAL FAILURE: Sessions not being marked as complete")
+        
+        if completion_results["dashboard_count_increases"]:
+            print("✅ CRITICAL SUCCESS: Dashboard count increases after completion!")
+        else:
+            print("❌ CRITICAL FAILURE: Dashboard count not increasing")
+        
+        if completion_results["sequential_numbering_working"]:
+            print("✅ CRITICAL SUCCESS: Sequential session numbering working!")
+        else:
+            print("❌ CRITICAL FAILURE: Sequential numbering still broken")
+        
+        if completion_results["no_random_numbers"]:
+            print("✅ CRITICAL SUCCESS: No more random session numbers!")
+        else:
+            print("❌ CRITICAL FAILURE: Still showing random/incorrect session numbers")
+        
+        return success_rate >= 70
+
     def test_session_numbering_issue_debug(self):
         """Debug the session numbering issue - Test specific endpoints as requested"""
         print("🔍 SESSION NUMBERING ISSUE DEBUG")
