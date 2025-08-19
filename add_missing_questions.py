@@ -134,7 +134,7 @@ def add_questions_to_database(missing_questions):
             
             values = (
                 question_id, topic_id, stem, has_image, image_url_clean,
-                'To Be Classified', 'To Be Classified', None, None, None,  # Will be enriched later
+                'To Be Classified', 'To Be Classified', 'To Be Enriched', 'To Be Enriched', 'To Be Enriched',  # Will be enriched later
                 5.0, 'Medium', 'Medium', 5.0,
                 'Medium', 5.0, 'Medium', 5.0,
                 True, 1, 'CSV Import - Missing Questions'
