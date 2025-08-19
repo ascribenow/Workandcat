@@ -106,10 +106,16 @@ class StandardizedEnrichmentEngine:
         
         # Fallback: Just use Gemini result if Anthropic not available
         logger.info("  ⚠️ Using Gemini result (Anthropic validation unavailable)")
+        
+        # Format final solution with explanation embedded even for fallback
+        final_approach, final_detailed = enrichment_schema.format_final_solution(
+            gemini_result["approach"], gemini_result["detailed_solution"], gemini_result.get("explanation", "")
+        )
+        
         return {
             "success": True,
-            "approach": gemini_result["approach"],
-            "detailed_solution": gemini_result["detailed_solution"],
+            "approach": final_approach,
+            "detailed_solution": final_detailed,
             "validation": {"is_valid": True, "gemini_only": True},
             "quality_score": 7,
             "llm_used": "Google Gemini (Maker only)",
