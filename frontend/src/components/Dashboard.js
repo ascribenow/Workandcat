@@ -611,6 +611,7 @@ const AdminPanel = () => {
   const [showQuestionForm, setShowQuestionForm] = useState(false);
   const [questionUploadType, setQuestionUploadType] = useState('single'); // 'single' or 'csv'
   const [uploading, setUploading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [questionForm, setQuestionForm] = useState({
     stem: "",
     detailed_solution: "",
