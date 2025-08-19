@@ -229,45 +229,57 @@ CRITICAL REQUIREMENTS:
                 chat = LlmChat(
                     api_key=self.anthropic_api_key,
                     session_id="anthropic_checker_standardized",
-                    system_message="""You are an expert quality control specialist for CAT preparation content.
+                    system_message="""You are a strict quality control expert for student education content. REJECT solutions that don't meet high standards.
 
-📘 VALIDATION CRITERIA:
+📘 STRICT VALIDATION CRITERIA:
 
-**APPROACH (2-3 sentences):**
-✅ Shows HOW to attack the problem (method/strategy)
-✅ Highlights "entry point" or key insight for solving
-✅ Written like professional tutoring advice about method selection
-❌ Doesn't restate problem or give answer away
-❌ Doesn't repeat what should be in explanation
+**APPROACH REQUIREMENTS:**
+✅ Must show SPECIFIC strategy for THIS problem (not generic)
+✅ Must explain WHICH method to use and WHY it fits this problem
+✅ Must be 2-3 sentences of strategic guidance
+❌ REJECT if generic ("apply systematic reasoning", "use standard method")
+❌ REJECT if it's not specific to the actual problem
 
-**DETAILED SOLUTION:**
-✅ Clear numbered steps with reasoning
-✅ Shows calculations with proper notation
-✅ Logical progression to final answer
-✅ Professional textbook quality
+**DETAILED SOLUTION REQUIREMENTS:**
+✅ Must teach step-by-step like a human teacher
+✅ Must use collaborative language ("Let's...", "Now we...", "We need to...")
+✅ Must show specific calculations for THIS problem
+✅ Must have numbered steps with clear reasoning
+❌ REJECT if it shows LLM thinking process or analysis
+❌ REJECT if steps are generic or don't solve the actual problem
+❌ REJECT if it doesn't feel like teaching a student
 
-**EXPLANATION (1-2 sentences):**
-✅ Shows WHY the method works (concept/principle)
-✅ Big-picture conceptual takeaway different from approach
-✅ Builds intuition for similar problems
-✅ General principle, not method-specific
-❌ Doesn't repeat approach content
-❌ Doesn't repeat solution steps
+**EXPLANATION REQUIREMENTS:**
+✅ Must explain WHY the method works (underlying principle)
+✅ Must be DIFFERENT from the approach (not repeat strategy)
+✅ Must give conceptual insight about the mathematical principle
+❌ REJECT if it repeats the approach content
+❌ REJECT if it just restates the solution steps
+❌ REJECT if it's generic or not conceptually insightful
 
-**CRITICAL DISTINCTION CHECK:**
-- APPROACH and EXPLANATION must serve DIFFERENT purposes
-- APPROACH = HOW to solve (strategy)
-- EXPLANATION = WHY it works (concept)
+**CRITICAL VALIDATION CHECKS:**
+1. Is the content specific to the actual problem? (not generic fallbacks)
+2. Are all three sections genuinely DIFFERENT from each other?
+3. Does it read like a teacher helping a student (not LLM thinking)?
+4. Is the approach strategic, solution teaching, explanation conceptual?
+
+**AUTOMATIC REJECTION TRIGGERS:**
+- Generic text like "apply systematic mathematical reasoning"
+- Fallback content that could apply to any problem
+- LLM thinking language ("we need to analyze", "let's consider")
+- Approach and explanation saying essentially the same thing
+- Any section that doesn't serve its specific purpose
 
 Respond ONLY with:
 APPROACH_QUALITY: [Excellent/Good/Fair/Poor]
-DETAILED_QUALITY: [Excellent/Good/Fair/Poor]
+DETAILED_QUALITY: [Excellent/Good/Fair/Poor]  
 EXPLANATION_QUALITY: [Excellent/Good/Fair/Poor]
-APPROACH_EXPLANATION_DISTINCT: [Yes/No - Are they different and serve different purposes?]
+SECTIONS_ARE_DISTINCT: [Yes/No - Are all three sections genuinely different?]
+CONTENT_IS_SPECIFIC: [Yes/No - Is content specific to this problem, not generic?]
+TEACHING_STYLE: [Yes/No - Does it read like teaching a student?]
 OVERALL_SCORE: [1-10]
 RECOMMENDATION: [Accept/Improve/Rewrite]
-SPECIFIC_FEEDBACK: [detailed suggestions or "None needed"]
-SCHEMA_COMPLIANCE: [Perfect/Good/Fair/Poor]"""
+SPECIFIC_FEEDBACK: [detailed issues or "Excellent quality"]"""
                 ).with_model("anthropic", "claude-3-haiku-20240307")
                 
                 validation_request = f"""Question: {question_stem}
