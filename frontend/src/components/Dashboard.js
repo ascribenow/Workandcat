@@ -133,8 +133,10 @@ export const Dashboard = () => {
         // No active session, create new one
         const response = await axios.post(`${API}/sessions/start`, {});
         setActiveSessionId(response.data.session_id);
+        setSessionMetadata(response.data); // Capture session metadata including phase_info
         
         console.log('Started new session:', response.data.session_id);
+        console.log('Session metadata:', response.data.phase_info);
         return true;
       }
     } catch (err) {
