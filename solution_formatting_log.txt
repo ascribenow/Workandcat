@@ -38,3 +38,94 @@ LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 2025-08-19 15:29:49,426 - INFO - 
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:29:57 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:29:57,235 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:29:57,236 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:29:59,444 - INFO -   ✅ Improved formatting
+2025-08-19 15:29:59,644 - INFO - 
+🔄 [4/126] Processing formatting...
+2025-08-19 15:29:59,644 - INFO -   📝 Question: Sum of two numbers x, y = 1050. What is the maximum value of...
+2025-08-19 15:29:59,644 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:29:59,644 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:29:59 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:29:59,645 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:30:02 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:30:02,873 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:30:02,874 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:30:05,085 - INFO -   ✅ Improved formatting
+2025-08-19 15:30:05,286 - INFO - 
+🔄 [5/126] Processing formatting...
+2025-08-19 15:30:05,286 - INFO -   📝 Question: The sum of two non co–prime numbers added to their HCF gives...
+2025-08-19 15:30:05,286 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:30:05,286 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:30:05 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:30:05,287 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:30:11 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:30:11,607 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:30:11,607 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:30:13,791 - INFO -   ✅ Improved formatting
+2025-08-19 15:30:13,992 - INFO - 
+🔄 [6/126] Processing formatting...
+2025-08-19 15:30:13,992 - INFO -   📝 Question: There are 2 numbers such that a > b, HCF (a, b) = h and LCM ...
+2025-08-19 15:30:13,992 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:30:13,992 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:30:13 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:30:13,993 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:30:27 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:30:27,090 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:30:27,090 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:30:29,170 - INFO -   ✅ Improved formatting
+2025-08-19 15:30:29,370 - INFO - 
+🔄 [7/126] Processing formatting...
+2025-08-19 15:30:29,370 - INFO -   📝 Question: 6 different sweet varieties of count 32, 216, 136, 88, 184, ...
+2025-08-19 15:30:29,370 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:30:29,370 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:30:29 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:30:29,371 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:30:35 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:30:35,859 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:30:35,860 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:30:38,024 - INFO -   ✅ Improved formatting
+2025-08-19 15:30:38,224 - INFO - 
+🔄 [8/126] Processing formatting...
+2025-08-19 15:30:38,224 - INFO -   📝 Question: In a large school auditorium, the students are made to sit t...
+2025-08-19 15:30:38,225 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:30:38,225 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:30:38 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:30:38,226 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:30:49 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:30:49,860 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:30:49,861 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:30:51,982 - INFO -   ✅ Improved formatting
+2025-08-19 15:30:52,183 - INFO - 
+🔄 [9/126] Processing formatting...
+2025-08-19 15:30:52,183 - INFO -   📝 Question: LCM of 2 natural numbers p and q where p > q is 935. What is...
+2025-08-19 15:30:52,183 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:30:52,183 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:30:52 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:30:52,184 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:31:06 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:31:06,416 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:31:06,417 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:31:08,585 - INFO -   ✅ Improved formatting
+2025-08-19 15:31:08,786 - INFO - 
+🔄 [10/126] Processing formatting...
+2025-08-19 15:31:08,786 - INFO -   📝 Question: 4 logs of woods of lengths 5 1/4 m, 1 13/15 m, 3 1/2 m and 4...
+2025-08-19 15:31:08,786 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:31:08,786 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:31:08 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:31:08,787 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
