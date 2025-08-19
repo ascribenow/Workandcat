@@ -1202,3 +1202,58 @@ LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 2025-08-19 15:50:42,876 - INFO - 
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:50:52 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:50:52,361 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:50:52,363 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:50:54,555 - INFO -   ✅ Improved formatting
+2025-08-19 15:50:54,755 - INFO - 
+🔄 [92/126] Processing formatting...
+2025-08-19 15:50:54,755 - INFO -   📝 Question: The ratio of a two-digit natural number to a number formed b...
+2025-08-19 15:50:54,755 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:50:54,755 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:50:54 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:50:54,756 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:51:01 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:51:01,972 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:51:01,973 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:51:04,163 - INFO -   ✅ Improved formatting
+2025-08-19 15:51:04,363 - INFO - 
+🔄 [93/126] Processing formatting...
+2025-08-19 15:51:04,363 - INFO -   📝 Question: Three friends A, B and C play a game in a pub. The rules are...
+2025-08-19 15:51:04,363 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:51:04,363 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:51:04 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:51:04,364 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:51:17 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:51:17,276 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:51:17,277 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:51:19,461 - INFO -   ✅ Improved formatting
+2025-08-19 15:51:19,661 - INFO - 
+🔄 [94/126] Processing formatting...
+2025-08-19 15:51:19,661 - INFO -   📝 Question: Recently a band was to perform in India. However, there was ...
+2025-08-19 15:51:19,661 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:51:19,661 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:51:19 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:51:19,662 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:51:25 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:51:25,005 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:51:25,005 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:51:27,201 - INFO -   ✅ Improved formatting
+2025-08-19 15:51:27,401 - INFO - 
+🔄 [95/126] Processing formatting...
+2025-08-19 15:51:27,401 - INFO -   📝 Question: There are 2 numbers such that a > b, HCF (a, b) = h and LCM ...
+2025-08-19 15:51:27,401 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:51:27,401 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:51:27 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:51:27,402 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:51:30 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:51:30,694 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:51:30,695 - INFO -   ✅ Generated well-formatted solution
