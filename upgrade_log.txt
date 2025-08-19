@@ -1,0 +1,81 @@
+2025-08-19 19:10:05,794 - INFO - 🔄 Existing Question Upgrader Initialized
+2025-08-19 19:10:05,794 - INFO -    Anthropic Checker: ✅
+2025-08-19 19:10:05,794 - INFO - 🔄 Starting comprehensive upgrade of existing questions...
+2025-08-19 19:10:05,794 - INFO - 🚀 STARTING COMPREHENSIVE UPGRADE OF EXISTING QUESTIONS
+2025-08-19 19:10:05,794 - INFO - ================================================================================
+2025-08-19 19:10:05,794 - INFO - Objectives:
+2025-08-19 19:10:05,794 - INFO - 1. Remove $ signs from existing solutions
+2025-08-19 19:10:05,794 - INFO - 2. Ensure proper Approach vs Explanation distinction
+2025-08-19 19:10:05,794 - INFO - 3. Apply new Gemini (Maker) → Anthropic (Checker) methodology
+2025-08-19 19:10:05,794 - INFO - 4. Upgrade all questions to new quality standards
+2025-08-19 19:10:09,220 - INFO - 📊 Found 127 existing questions to assess
+2025-08-19 19:10:09,220 - INFO - 
+🔍 PHASE 1: QUALITY ASSESSMENT
+2025-08-19 19:10:09,220 - INFO - ==================================================
+2025-08-19 19:10:09,220 - INFO - 
+[1/127] Assessing quality...
+2025-08-19 19:10:09,220 - INFO - 🔍 Assessing: Find the smallest number that leaves a remainder of 4 on div...
+[92m19:10:11 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:10:11,404 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:10:12 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:10:12,670 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:10:12,672 - INFO -   ❌ Needs upgrade: Contains $ signs, Explanation missing or too short
+2025-08-19 19:10:12,873 - INFO - 
+[2/127] Assessing quality...
+2025-08-19 19:10:12,873 - INFO - 🔍 Assessing: How many pairs of positive integers x, y exist such that HCF...
+[92m19:10:12 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:10:12,874 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:10:14 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:10:14,166 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:10:14,166 - INFO -   ❌ Needs upgrade: Contains $ signs, Explanation missing or too short
+2025-08-19 19:10:14,367 - INFO - 
+[3/127] Assessing quality...
+2025-08-19 19:10:14,367 - INFO - 🔍 Assessing: How many pairs of positive integers x, y exist such that HCF...
+[92m19:10:14 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:10:14,368 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:10:15 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:10:15,510 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:10:15,511 - INFO -   ❌ Needs upgrade: Contains $ signs, Explanation missing or too short
+2025-08-19 19:10:15,712 - INFO - 
+[4/127] Assessing quality...
+2025-08-19 19:10:15,712 - INFO - 🔍 Assessing: Sum of two numbers x, y = 1050. What is the maximum value of...
+[92m19:10:15 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:10:15,713 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:10:16 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:10:16,835 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:10:16,838 - INFO -   ❌ Needs upgrade: Explanation missing or too short
+2025-08-19 19:10:17,040 - INFO - 
+[5/127] Assessing quality...
+2025-08-19 19:10:17,041 - INFO - 🔍 Assessing: The sum of two non co–prime numbers added to their HCF gives...
+[92m19:10:17 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:10:17,042 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:10:18 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:10:18,138 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:10:18,139 - INFO -   ❌ Needs upgrade: Explanation missing or too short
+2025-08-19 19:10:18,340 - INFO - 
+[6/127] Assessing quality...
+2025-08-19 19:10:18,340 - INFO - 🔍 Assessing: There are 2 numbers such that a > b, HCF (a, b) = h and LCM ...
+[92m19:10:18 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:10:18,341 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:10:19 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:10:19,568 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:10:19,568 - INFO -   ❌ Needs upgrade: Contains $ signs, Explanation missing or too short
+2025-08-19 19:10:19,769 - INFO - 
+[7/127] Assessing quality...
+2025-08-19 19:10:19,769 - INFO - 🔍 Assessing: 6 different sweet varieties of count 32, 216, 136, 88, 184, ...
+[92m19:10:19 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:10:19,770 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
