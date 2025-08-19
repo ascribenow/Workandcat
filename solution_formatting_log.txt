@@ -724,3 +724,29 @@ LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 2025-08-19 15:40:59,332 - INFO - 
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:41:17 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:41:17,043 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:41:17,043 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:41:19,164 - INFO -   ✅ Improved formatting
+2025-08-19 15:41:19,365 - INFO - 
+🔄 [56/126] Processing formatting...
+2025-08-19 15:41:19,365 - INFO -   📝 Question: When 40! is expressed in base 8 form, what is the last non–z...
+2025-08-19 15:41:19,365 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:41:19,365 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:41:19 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:41:19,366 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:41:27 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:41:27,391 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:41:27,392 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:41:29,542 - INFO -   ✅ Improved formatting
+2025-08-19 15:41:29,742 - INFO - 
+🔄 [57/126] Processing formatting...
+2025-08-19 15:41:29,742 - INFO -   📝 Question: Let K be the largest number with exactly 3 factors that divi...
+2025-08-19 15:41:29,742 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:41:29,743 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:41:29 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:41:29,743 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
