@@ -1952,3 +1952,30 @@ LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
 2025-08-19 19:15:10,988 - INFO - 
 LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:15:13 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:15:13,725 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:15:13,726 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:15:13,727 - INFO -   📊 Overall Score: 10/10
+2025-08-19 19:15:13,727 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:15:15,922 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:15:15,922 - INFO -      Quality Score: 10
+2025-08-19 19:15:15,922 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:15:16,423 - INFO - 
+🔄 [17/127] Upgrading...
+2025-08-19 19:15:16,423 - INFO - 🔄 Upgrading: Number N = 2⁶×5⁵×7⁶×10⁷; how many factors of N are even numb...
+2025-08-19 19:15:16,423 - INFO -    Issues: Explanation missing or too short
+2025-08-19 19:15:16,423 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): Number N = 2⁶×5⁵×7⁶×10⁷; how many factors of N are even numb...
+2025-08-19 19:15:16,423 - INFO - 📂 Category: Divisibility -> Basic Divisibility Rules
+2025-08-19 19:15:16,423 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:15:16 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:15:16,424 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:15:22 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:15:22,477 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:15:22,478 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:15:22,479 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:15:22 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:15:22,480 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
