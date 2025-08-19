@@ -1,0 +1,257 @@
+2025-08-19 16:03:20,664 - INFO - 🔍 Anthropic Quality Checker Initialized
+2025-08-19 16:03:20,664 - INFO -    Anthropic (Checker): ✅
+2025-08-19 16:03:20,664 - INFO -    Google Gemini (Maker): ✅
+2025-08-19 16:03:20,664 - INFO - 🎯 Starting Anthropic Quality Assessment...
+2025-08-19 16:03:20,664 - INFO - 🔍 STARTING ANTHROPIC QUALITY ASSESSMENT
+2025-08-19 16:03:20,664 - INFO - ======================================================================
+2025-08-19 16:03:23,457 - INFO - 📊 Assessing 20 questions...
+2025-08-19 16:03:23,458 - INFO - 
+🔍 [1/20] Assessing quality...
+2025-08-19 16:03:23,458 - INFO - 🔍 Checking quality: If a, b and c are positive integers such that ab = 432, bc =...
+[92m16:03:25 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-5-sonnet-20241022; provider = anthropic
+2025-08-19 16:03:25,610 - INFO - 
+LiteLLM completion() model= claude-3-5-sonnet-20241022; provider = anthropic
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2025-08-19 16:03:25,807 - ERROR -   ❌ Assessment failed: Failed to generate chat completion: litellm.AuthenticationError: AnthropicException - {"type":"error","error":{"type":"authentication_error","message":"invalid x-api-key"},"request_id":"req_011CSHMKe6LDEbck4a1rMYv1"}
+2025-08-19 16:03:26,307 - INFO - 
+🔍 [2/20] Assessing quality...
+2025-08-19 16:03:26,308 - INFO - 🔍 Checking quality: If the sum of squares of two numbers is 97, then which one o...
+[92m16:03:26 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-5-sonnet-20241022; provider = anthropic
+2025-08-19 16:03:26,309 - INFO - 
+LiteLLM completion() model= claude-3-5-sonnet-20241022; provider = anthropic
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2025-08-19 16:03:26,397 - ERROR -   ❌ Assessment failed: Failed to generate chat completion: litellm.AuthenticationError: AnthropicException - {"type":"error","error":{"type":"authentication_error","message":"invalid x-api-key"},"request_id":"req_011CSHMKgesYQNXzrLsMWmFp"}
+2025-08-19 16:03:26,898 - INFO - 
+🔍 [3/20] Assessing quality...
+2025-08-19 16:03:26,898 - INFO - 🔍 Checking quality: How many values can natural number n take, if n! is a multip...
+[92m16:03:26 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-5-sonnet-20241022; provider = anthropic
+2025-08-19 16:03:26,899 - INFO - 
+LiteLLM completion() model= claude-3-5-sonnet-20241022; provider = anthropic
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2025-08-19 16:03:26,978 - ERROR -   ❌ Assessment failed: Failed to generate chat completion: litellm.AuthenticationError: AnthropicException - {"type":"error","error":{"type":"authentication_error","message":"invalid x-api-key"},"request_id":"req_011CSHMKjAvvXVUNAnZWk3MV"}
+2025-08-19 16:03:27,479 - INFO - 
+🔍 [4/20] Assessing quality...
+2025-08-19 16:03:27,479 - INFO - 🔍 Checking quality: What is the remainder when we divide 3⁹⁰ + 5⁹⁰ by 34?...
+[92m16:03:27 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-5-sonnet-20241022; provider = anthropic
+2025-08-19 16:03:27,480 - INFO - 
+LiteLLM completion() model= claude-3-5-sonnet-20241022; provider = anthropic
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2025-08-19 16:03:27,583 - ERROR -   ❌ Assessment failed: Failed to generate chat completion: litellm.AuthenticationError: AnthropicException - {"type":"error","error":{"type":"authentication_error","message":"invalid x-api-key"},"request_id":"req_011CSHMKmiiZWnWUCZPSK8UA"}
+2025-08-19 16:03:28,084 - INFO - 
+🔍 [5/20] Assessing quality...
+2025-08-19 16:03:28,084 - INFO - 🔍 Checking quality: A number 4¹⁶ + 1 is divisible by x. Which among the followin...
+[92m16:03:28 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-5-sonnet-20241022; provider = anthropic
+2025-08-19 16:03:28,085 - INFO - 
+LiteLLM completion() model= claude-3-5-sonnet-20241022; provider = anthropic
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2025-08-19 16:03:28,171 - ERROR -   ❌ Assessment failed: Failed to generate chat completion: litellm.AuthenticationError: AnthropicException - {"type":"error","error":{"type":"authentication_error","message":"invalid x-api-key"},"request_id":"req_011CSHMKpH1MBs7kwnp6iQQe"}
+2025-08-19 16:03:28,672 - INFO - 
+🔍 [6/20] Assessing quality...
+2025-08-19 16:03:28,672 - INFO - 🔍 Checking quality: If N and x are positive integers such that N^N = 2¹⁶⁰ and N²...
+[92m16:03:28 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-5-sonnet-20241022; provider = anthropic
+2025-08-19 16:03:28,673 - INFO - 
+LiteLLM completion() model= claude-3-5-sonnet-20241022; provider = anthropic
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2025-08-19 16:03:28,773 - ERROR -   ❌ Assessment failed: Failed to generate chat completion: litellm.AuthenticationError: AnthropicException - {"type":"error","error":{"type":"authentication_error","message":"invalid x-api-key"},"request_id":"req_011CSHMKroZSxxA7VCQTvXPD"}
+2025-08-19 16:03:29,273 - INFO - 
+🔍 [7/20] Assessing quality...
+2025-08-19 16:03:29,273 - INFO - 🔍 Checking quality: The numbers 1, 2,..., 9 are arranged in a 3 X 3 square grid ...
+[92m16:03:29 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-5-sonnet-20241022; provider = anthropic
+2025-08-19 16:03:29,274 - INFO - 
+LiteLLM completion() model= claude-3-5-sonnet-20241022; provider = anthropic
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2025-08-19 16:03:29,358 - ERROR -   ❌ Assessment failed: Failed to generate chat completion: litellm.AuthenticationError: AnthropicException - {"type":"error","error":{"type":"authentication_error","message":"invalid x-api-key"},"request_id":"req_011CSHMKuLcW8FwSYgQNMWb9"}
+2025-08-19 16:03:29,859 - INFO - 
+🔍 [8/20] Assessing quality...
+2025-08-19 16:03:29,859 - INFO - 🔍 Checking quality: How many factors of 2⁴ × 3⁵ × 10⁴ are perfect squares which ...
+[92m16:03:29 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-5-sonnet-20241022; provider = anthropic
+2025-08-19 16:03:29,860 - INFO - 
+LiteLLM completion() model= claude-3-5-sonnet-20241022; provider = anthropic
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2025-08-19 16:03:29,936 - ERROR -   ❌ Assessment failed: Failed to generate chat completion: litellm.AuthenticationError: AnthropicException - {"type":"error","error":{"type":"authentication_error","message":"invalid x-api-key"},"request_id":"req_011CSHMKwpgoEZRzZD13ZrBW"}
+2025-08-19 16:03:30,437 - INFO - 
+🔍 [9/20] Assessing quality...
+2025-08-19 16:03:30,437 - INFO - 🔍 Checking quality: How many factors of 2⁵ × 3⁶ × 5² are perfect squares?...
+[92m16:03:30 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-5-sonnet-20241022; provider = anthropic
+2025-08-19 16:03:30,438 - INFO - 
+LiteLLM completion() model= claude-3-5-sonnet-20241022; provider = anthropic
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2025-08-19 16:03:30,528 - ERROR -   ❌ Assessment failed: Failed to generate chat completion: litellm.AuthenticationError: AnthropicException - {"type":"error","error":{"type":"authentication_error","message":"invalid x-api-key"},"request_id":"req_011CSHMKzLF2GAr6LjrHJb68"}
+2025-08-19 16:03:31,029 - INFO - 
+🔍 [10/20] Assessing quality...
+2025-08-19 16:03:31,029 - INFO - 🔍 Checking quality: Number N = 2⁶×5⁵×7⁶×10⁷; how many factors of N are even numb...
+[92m16:03:31 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-5-sonnet-20241022; provider = anthropic
+2025-08-19 16:03:31,030 - INFO - 
+LiteLLM completion() model= claude-3-5-sonnet-20241022; provider = anthropic
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2025-08-19 16:03:31,135 - ERROR -   ❌ Assessment failed: Failed to generate chat completion: litellm.AuthenticationError: AnthropicException - {"type":"error","error":{"type":"authentication_error","message":"invalid x-api-key"},"request_id":"req_011CSHML2qZGt6HwjYvQKwbg"}
+2025-08-19 16:03:31,635 - INFO - 
+🔍 [11/20] Assessing quality...
+2025-08-19 16:03:31,635 - INFO - 🔍 Checking quality: How many values can natural number n take, if n! is a multip...
+[92m16:03:31 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-5-sonnet-20241022; provider = anthropic
+2025-08-19 16:03:31,636 - INFO - 
+LiteLLM completion() model= claude-3-5-sonnet-20241022; provider = anthropic
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2025-08-19 16:03:31,721 - ERROR -   ❌ Assessment failed: Failed to generate chat completion: litellm.AuthenticationError: AnthropicException - {"type":"error","error":{"type":"authentication_error","message":"invalid x-api-key"},"request_id":"req_011CSHML5SaTNksMgiPYuqjh"}
+2025-08-19 16:03:32,222 - INFO - 
+🔍 [12/20] Assessing quality...
+2025-08-19 16:03:32,222 - INFO - 🔍 Checking quality: What is the remainder when we divide 3⁹⁰ + 5⁹⁰ by 34?...
+[92m16:03:32 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-5-sonnet-20241022; provider = anthropic
+2025-08-19 16:03:32,223 - INFO - 
+LiteLLM completion() model= claude-3-5-sonnet-20241022; provider = anthropic
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2025-08-19 16:03:32,311 - ERROR -   ❌ Assessment failed: Failed to generate chat completion: litellm.AuthenticationError: AnthropicException - {"type":"error","error":{"type":"authentication_error","message":"invalid x-api-key"},"request_id":"req_011CSHML7yNvyABrQwLU8mn8"}
+2025-08-19 16:03:32,812 - INFO - 
+🔍 [13/20] Assessing quality...
+2025-08-19 16:03:32,812 - INFO - 🔍 Checking quality: If N = (24³ + 25³ + 26³ + 27³), then N ÷ 102 leaves a remain...
+[92m16:03:32 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-5-sonnet-20241022; provider = anthropic
+2025-08-19 16:03:32,813 - INFO - 
+LiteLLM completion() model= claude-3-5-sonnet-20241022; provider = anthropic
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2025-08-19 16:03:32,916 - ERROR -   ❌ Assessment failed: Failed to generate chat completion: litellm.AuthenticationError: AnthropicException - {"type":"error","error":{"type":"authentication_error","message":"invalid x-api-key"},"request_id":"req_011CSHMLAYALrxrhj7hdz8TL"}
+2025-08-19 16:03:33,416 - INFO - 
+🔍 [14/20] Assessing quality...
+2025-08-19 16:03:33,416 - INFO - 🔍 Checking quality: What is the highest power of 12 that divides 54!?...
+[92m16:03:33 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-5-sonnet-20241022; provider = anthropic
+2025-08-19 16:03:33,417 - INFO - 
+LiteLLM completion() model= claude-3-5-sonnet-20241022; provider = anthropic
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2025-08-19 16:03:33,508 - ERROR -   ❌ Assessment failed: Failed to generate chat completion: litellm.AuthenticationError: AnthropicException - {"type":"error","error":{"type":"authentication_error","message":"invalid x-api-key"},"request_id":"req_011CSHMLD4TsG7EMPgXLLh2a"}
+2025-08-19 16:03:34,009 - INFO - 
+🔍 [15/20] Assessing quality...
+2025-08-19 16:03:34,009 - INFO - 🔍 Checking quality: Number N = 2⁶×5⁵×7⁶×10⁷; how many factors of N are even numb...
+[92m16:03:34 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-5-sonnet-20241022; provider = anthropic
+2025-08-19 16:03:34,010 - INFO - 
+LiteLLM completion() model= claude-3-5-sonnet-20241022; provider = anthropic
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2025-08-19 16:03:34,094 - ERROR -   ❌ Assessment failed: Failed to generate chat completion: litellm.AuthenticationError: AnthropicException - {"type":"error","error":{"type":"authentication_error","message":"invalid x-api-key"},"request_id":"req_011CSHMLFbX6ey1gMyCzFBPC"}
+2025-08-19 16:03:34,595 - INFO - 
+🔍 [16/20] Assessing quality...
+2025-08-19 16:03:34,595 - INFO - 🔍 Checking quality: How many positive integers are there from 0 to 1000 that lea...
+[92m16:03:34 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-5-sonnet-20241022; provider = anthropic
+2025-08-19 16:03:34,596 - INFO - 
+LiteLLM completion() model= claude-3-5-sonnet-20241022; provider = anthropic
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2025-08-19 16:03:34,694 - ERROR -   ❌ Assessment failed: Failed to generate chat completion: litellm.AuthenticationError: AnthropicException - {"type":"error","error":{"type":"authentication_error","message":"invalid x-api-key"},"request_id":"req_011CSHMLJ666iZj6twSNRZw7"}
+2025-08-19 16:03:35,194 - INFO - 
+🔍 [17/20] Assessing quality...
+2025-08-19 16:03:35,194 - INFO - 🔍 Checking quality: The natural numbers are divided into groups as (1), (2, 3, 4...
+[92m16:03:35 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-5-sonnet-20241022; provider = anthropic
+2025-08-19 16:03:35,195 - INFO - 
+LiteLLM completion() model= claude-3-5-sonnet-20241022; provider = anthropic
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2025-08-19 16:03:35,296 - ERROR -   ❌ Assessment failed: Failed to generate chat completion: litellm.AuthenticationError: AnthropicException - {"type":"error","error":{"type":"authentication_error","message":"invalid x-api-key"},"request_id":"req_011CSHMLLhbZUkJsR2oDnJpN"}
+2025-08-19 16:03:35,797 - INFO - 
+🔍 [18/20] Assessing quality...
+2025-08-19 16:03:35,797 - INFO - 🔍 Checking quality: There are 2 numbers such that a > b, HCF (a, b) = h and LCM ...
+[92m16:03:35 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-5-sonnet-20241022; provider = anthropic
+2025-08-19 16:03:35,798 - INFO - 
+LiteLLM completion() model= claude-3-5-sonnet-20241022; provider = anthropic
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2025-08-19 16:03:35,882 - ERROR -   ❌ Assessment failed: Failed to generate chat completion: litellm.AuthenticationError: AnthropicException - {"type":"error","error":{"type":"authentication_error","message":"invalid x-api-key"},"request_id":"req_011CSHMLPE9fHKqkgyB9g1nt"}
+2025-08-19 16:03:36,382 - INFO - 
+🔍 [19/20] Assessing quality...
+2025-08-19 16:03:36,382 - INFO - 🔍 Checking quality: How many numbers with distinct digits are possible product o...
+[92m16:03:36 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-5-sonnet-20241022; provider = anthropic
+2025-08-19 16:03:36,383 - INFO - 
+LiteLLM completion() model= claude-3-5-sonnet-20241022; provider = anthropic
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2025-08-19 16:03:36,491 - ERROR -   ❌ Assessment failed: Failed to generate chat completion: litellm.AuthenticationError: AnthropicException - {"type":"error","error":{"type":"authentication_error","message":"invalid x-api-key"},"request_id":"req_011CSHMLRkxB4kcKJzwiKjyR"}
+2025-08-19 16:03:36,991 - INFO - 
+🔍 [20/20] Assessing quality...
+2025-08-19 16:03:36,991 - INFO - 🔍 Checking quality: A page is torn from a novel. The sum of the remaining page n...
+[92m16:03:36 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-5-sonnet-20241022; provider = anthropic
+2025-08-19 16:03:36,992 - INFO - 
+LiteLLM completion() model= claude-3-5-sonnet-20241022; provider = anthropic
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2025-08-19 16:03:37,080 - ERROR -   ❌ Assessment failed: Failed to generate chat completion: litellm.AuthenticationError: AnthropicException - {"type":"error","error":{"type":"authentication_error","message":"invalid x-api-key"},"request_id":"req_011CSHMLUME4s7fQN1FUnYkD"}
+2025-08-19 16:03:37,581 - INFO - 
+🎉 QUALITY ASSESSMENT COMPLETED!
+2025-08-19 16:03:37,581 - INFO - ======================================================================
+2025-08-19 16:03:37,581 - INFO - 📊 Total assessments: 0
+2025-08-19 16:03:37,581 - INFO - ❌ Poor quality: 0
+2025-08-19 16:03:37,581 - INFO - ⚠️ Needs improvement: 0
+2025-08-19 16:03:37,581 - INFO - ✅ Good quality: 0
+2025-08-19 16:03:37,581 - INFO - 
+🔍 SAMPLE QUALITY ISSUES:
+2025-08-19 16:03:37,581 - INFO - ✅ Quality assessment completed successfully!
