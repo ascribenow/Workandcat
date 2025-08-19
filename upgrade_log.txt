@@ -2643,3 +2643,2254 @@ LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 2025-08-19 19:20:51,626 - INFO - 
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:21:08 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:21:08,550 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:21:08,551 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:21:08,552 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:21:08 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:21:08,553 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:21:10 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:21:10,910 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:21:10,911 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:21:10,912 - INFO -   📊 Overall Score: 10/10
+2025-08-19 19:21:10,912 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:21:13,114 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:21:13,114 - INFO -      Quality Score: 10
+2025-08-19 19:21:13,114 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:21:13,615 - INFO - 
+🔄 [43/127] Upgrading...
+2025-08-19 19:21:13,615 - INFO - 🔄 Upgrading: A number leaves a remainder 3 on division by 14, and leaves ...
+2025-08-19 19:21:13,615 - INFO -    Issues: Contains $ signs, Explanation missing or too short
+2025-08-19 19:21:13,615 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): A number leaves a remainder 3 on division by 14, and leaves ...
+2025-08-19 19:21:13,615 - INFO - 📂 Category: Remainders -> Basic Remainder Theorem
+2025-08-19 19:21:13,615 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:21:13 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:21:13,616 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:21:25 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:21:25,561 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:21:25,562 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:21:25,564 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:21:25 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:21:25,565 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:21:28 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:21:28,535 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:21:28,536 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:21:28,536 - INFO -   📊 Overall Score: 10/10
+2025-08-19 19:21:28,536 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:21:30,714 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:21:30,714 - INFO -      Quality Score: 10
+2025-08-19 19:21:30,714 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:21:31,214 - INFO - 
+🔄 [44/127] Upgrading...
+2025-08-19 19:21:31,215 - INFO - 🔄 Upgrading: Consider a large number N = 1234567891011121314………979899100....
+2025-08-19 19:21:31,215 - INFO -    Issues: Contains $ signs, Explanation missing or too short
+2025-08-19 19:21:31,215 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): Consider a large number N = 1234567891011121314………979899100....
+2025-08-19 19:21:31,215 - INFO - 📂 Category: Remainders -> Basic Remainder Theorem
+2025-08-19 19:21:31,215 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:21:31 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:21:31,216 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:21:42 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:21:42,806 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:21:42,807 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:21:42,809 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:21:42 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:21:42,810 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:21:45 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:21:45,665 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:21:45,666 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:21:45,666 - INFO -   📊 Overall Score: 10/10
+2025-08-19 19:21:45,666 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:21:47,859 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:21:47,860 - INFO -      Quality Score: 10
+2025-08-19 19:21:47,861 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:21:48,362 - INFO - 
+🔄 [45/127] Upgrading...
+2025-08-19 19:21:48,362 - INFO - 🔄 Upgrading: Given a number, N = 55⁵ + 17⁵ – 72⁵, then which of the follo...
+2025-08-19 19:21:48,362 - INFO -    Issues: Explanation missing or too short
+2025-08-19 19:21:48,362 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): Given a number, N = 55⁵ + 17⁵ – 72⁵, then which of the follo...
+2025-08-19 19:21:48,362 - INFO - 📂 Category: Time-Speed-Distance -> Basics
+2025-08-19 19:21:48,362 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:21:48 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:21:48,363 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:21:50 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:21:50,319 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:21:50,320 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:21:50,321 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:21:50 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:21:50,322 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:21:52 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:21:52,010 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:21:52,010 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:21:52,011 - INFO -   📊 Overall Score: 10/10
+2025-08-19 19:21:52,011 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:21:54,144 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:21:54,144 - INFO -      Quality Score: 10
+2025-08-19 19:21:54,144 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:21:54,644 - INFO - 
+🔄 [46/127] Upgrading...
+2025-08-19 19:21:54,645 - INFO - 🔄 Upgrading: The integers 573921 and 575713 when ÷ a 3 digit number leave...
+2025-08-19 19:21:54,645 - INFO -    Issues: Contains $ signs, Explanation missing or too short
+2025-08-19 19:21:54,645 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): The integers 573921 and 575713 when ÷ a 3 digit number leave...
+2025-08-19 19:21:54,645 - INFO - 📂 Category: Divisibility -> Basic Divisibility Rules
+2025-08-19 19:21:54,645 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:21:54 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:21:54,646 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:21:59 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:21:59,815 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:21:59,815 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:21:59,816 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:21:59 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:21:59,818 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:22:01 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:22:01,921 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:22:01,921 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:22:01,922 - INFO -   📊 Overall Score: 10/10
+2025-08-19 19:22:01,922 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:22:04,127 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:22:04,127 - INFO -      Quality Score: 10
+2025-08-19 19:22:04,127 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:22:04,628 - INFO - 
+🔄 [47/127] Upgrading...
+2025-08-19 19:22:04,628 - INFO - 🔄 Upgrading: If N = (24³ + 25³ + 26³ + 27³), then N ÷ 102 leaves a remain...
+2025-08-19 19:22:04,628 - INFO -    Issues: Explanation missing or too short
+2025-08-19 19:22:04,628 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): If N = (24³ + 25³ + 26³ + 27³), then N ÷ 102 leaves a remain...
+2025-08-19 19:22:04,628 - INFO - 📂 Category: Remainders -> Basic Remainder Theorem
+2025-08-19 19:22:04,628 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:22:04 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:22:04,629 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:22:20 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:22:20,581 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:22:20,582 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:22:20,584 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:22:20 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:22:20,585 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:22:22 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:22:22,693 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:22:22,694 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:22:22,694 - INFO -   📊 Overall Score: 10/10
+2025-08-19 19:22:22,695 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:22:24,891 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:22:24,891 - INFO -      Quality Score: 10
+2025-08-19 19:22:24,891 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:22:25,392 - INFO - 
+🔄 [48/127] Upgrading...
+2025-08-19 19:22:25,392 - INFO - 🔄 Upgrading: A school has less than 5000 students and if the students are...
+2025-08-19 19:22:25,392 - INFO -    Issues: Contains $ signs, Explanation missing or too short
+2025-08-19 19:22:25,392 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): A school has less than 5000 students and if the students are...
+2025-08-19 19:22:25,392 - INFO - 📂 Category: Remainders -> Chinese Remainder Theorem
+2025-08-19 19:22:25,392 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:22:25 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:22:25,393 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:22:37 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:22:37,030 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:22:37,032 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:22:37,035 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:22:37 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:22:37,039 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:22:40 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:22:40,181 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:22:40,182 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:22:40,182 - INFO -   📊 Overall Score: 10/10
+2025-08-19 19:22:40,182 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:22:42,337 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:22:42,337 - INFO -      Quality Score: 10
+2025-08-19 19:22:42,337 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:22:42,838 - INFO - 
+🔄 [49/127] Upgrading...
+2025-08-19 19:22:42,838 - INFO - 🔄 Upgrading: A number n! is written in base 6 and base 8 notation. Its ba...
+2025-08-19 19:22:42,838 - INFO -    Issues: Explanation missing or too short
+2025-08-19 19:22:42,838 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): A number n! is written in base 6 and base 8 notation. Its ba...
+2025-08-19 19:22:42,838 - INFO - 📂 Category: Time-Speed-Distance -> Basics
+2025-08-19 19:22:42,838 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:22:42 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:22:42,839 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:22:54 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:22:54,475 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:22:54,476 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:22:54,477 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:22:54 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:22:54,478 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:22:57 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:22:57,084 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:22:57,085 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:22:57,085 - INFO -   📊 Overall Score: 10/10
+2025-08-19 19:22:57,085 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:22:59,276 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:22:59,276 - INFO -      Quality Score: 10
+2025-08-19 19:22:59,276 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:22:59,777 - INFO - 
+🔄 [50/127] Upgrading...
+2025-08-19 19:22:59,777 - INFO - 🔄 Upgrading: Given N is a positive integer less than 31, how many values ...
+2025-08-19 19:22:59,777 - INFO -    Issues: Contains $ signs, Explanation missing or too short
+2025-08-19 19:22:59,777 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): Given N is a positive integer less than 31, how many values ...
+2025-08-19 19:22:59,777 - INFO - 📂 Category: Divisibility -> Factorisation of Integers
+2025-08-19 19:22:59,777 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:22:59 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:22:59,778 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:23:17 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:23:17,498 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:23:17,499 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:23:17,501 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:23:17 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:23:17,502 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:23:19 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:23:19,503 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:23:19,503 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:23:19,504 - INFO -   📊 Overall Score: 10/10
+2025-08-19 19:23:19,504 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:23:21,695 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:23:21,695 - INFO -      Quality Score: 10
+2025-08-19 19:23:21,695 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:23:21,695 - INFO - 
+📈 UPGRADE PROGRESS [50/127]
+2025-08-19 19:23:21,695 - INFO -    Successful: 49
+2025-08-19 19:23:21,695 - INFO -    Failed: 1
+2025-08-19 19:23:21,695 - INFO -    Average quality: 9.7
+2025-08-19 19:23:22,196 - INFO - 
+🔄 [51/127] Upgrading...
+2025-08-19 19:23:22,196 - INFO - 🔄 Upgrading: How many values can natural number n take, if n! is a multip...
+2025-08-19 19:23:22,196 - INFO -    Issues: Contains $ signs, Explanation missing or too short
+2025-08-19 19:23:22,196 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): How many values can natural number n take, if n! is a multip...
+2025-08-19 19:23:22,196 - INFO - 📂 Category: Time-Speed-Distance -> Basics
+2025-08-19 19:23:22,196 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:23:22 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:23:22,197 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:23:51 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:23:51,356 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:23:51,357 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:23:51,360 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:23:51 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:23:51,360 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:23:54 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:23:54,289 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:23:54,290 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:23:54,290 - INFO -   📊 Overall Score: 10/10
+2025-08-19 19:23:54,290 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:23:56,469 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:23:56,469 - INFO -      Quality Score: 10
+2025-08-19 19:23:56,469 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:23:56,970 - INFO - 
+🔄 [52/127] Upgrading...
+2025-08-19 19:23:56,970 - INFO - 🔄 Upgrading: How many values can natural number n take, if n! is a multip...
+2025-08-19 19:23:56,970 - INFO -    Issues: Contains $ signs, Explanation missing or too short
+2025-08-19 19:23:56,970 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): How many values can natural number n take, if n! is a multip...
+2025-08-19 19:23:56,970 - INFO - 📂 Category: Factorials -> Properties of Factorials
+2025-08-19 19:23:56,970 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:23:56 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:23:56,971 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:24:06 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:24:06,962 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:24:06,963 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:24:06,964 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:24:06 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:24:06,965 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:24:10 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:24:10,055 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:24:10,056 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:24:10,056 - INFO -   📊 Overall Score: 10/10
+2025-08-19 19:24:10,056 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:24:12,217 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:24:12,217 - INFO -      Quality Score: 10
+2025-08-19 19:24:12,217 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:24:12,717 - INFO - 
+🔄 [53/127] Upgrading...
+2025-08-19 19:24:12,718 - INFO - 🔄 Upgrading: How many trailing zeroes (zeroes at the end of the number) d...
+2025-08-19 19:24:12,718 - INFO -    Issues: Explanation missing or too short
+2025-08-19 19:24:12,718 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): How many trailing zeroes (zeroes at the end of the number) d...
+2025-08-19 19:24:12,718 - INFO - 📂 Category: Factorials -> Properties of Factorials
+2025-08-19 19:24:12,718 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:24:12 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:24:12,719 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:24:15 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:24:15,436 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:24:15,437 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:24:15,437 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:24:15 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:24:15,438 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:24:16 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:24:16,315 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:24:16,316 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:24:16,316 - INFO -   📊 Overall Score: 10/10
+2025-08-19 19:24:16,316 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:24:18,518 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:24:18,518 - INFO -      Quality Score: 10
+2025-08-19 19:24:18,518 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:24:19,019 - INFO - 
+🔄 [54/127] Upgrading...
+2025-08-19 19:24:19,019 - INFO - 🔄 Upgrading: What is the highest power of 12 that divides 54!?...
+2025-08-19 19:24:19,019 - INFO -    Issues: Contains $ signs, Explanation missing or too short
+2025-08-19 19:24:19,019 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): What is the highest power of 12 that divides 54!?...
+2025-08-19 19:24:19,019 - INFO - 📂 Category: Factorials -> Properties of Factorials
+2025-08-19 19:24:19,019 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:24:19 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:24:19,020 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:24:25 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:24:25,122 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:24:25,123 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:24:25,124 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:24:25 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:24:25,125 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:24:27 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:24:27,619 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:24:27,620 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:24:27,621 - INFO -   📊 Overall Score: 10/10
+2025-08-19 19:24:27,621 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:24:29,866 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:24:29,866 - INFO -      Quality Score: 10
+2025-08-19 19:24:29,866 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:24:30,367 - INFO - 
+🔄 [55/127] Upgrading...
+2025-08-19 19:24:30,367 - INFO - 🔄 Upgrading: Find the least number n such that no factorial has n trailin...
+2025-08-19 19:24:30,367 - INFO -    Issues: Contains $ signs, Explanation missing or too short
+2025-08-19 19:24:30,367 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): Find the least number n such that no factorial has n trailin...
+2025-08-19 19:24:30,367 - INFO - 📂 Category: Time-Speed-Distance -> Basics
+2025-08-19 19:24:30,367 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:24:30 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:24:30,368 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:24:44 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:24:44,729 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:24:44,730 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:24:44,732 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:24:44 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:24:44,733 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:24:47 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:24:47,181 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:24:47,181 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:24:47,182 - INFO -   📊 Overall Score: 10/10
+2025-08-19 19:24:47,182 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:24:49,367 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:24:49,367 - INFO -      Quality Score: 10
+2025-08-19 19:24:49,367 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:24:49,868 - INFO - 
+🔄 [56/127] Upgrading...
+2025-08-19 19:24:49,868 - INFO - 🔄 Upgrading: When 40! is expressed in base 8 form, what is the last non–z...
+2025-08-19 19:24:49,868 - INFO -    Issues: Contains $ signs, Explanation missing or too short
+2025-08-19 19:24:49,868 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): When 40! is expressed in base 8 form, what is the last non–z...
+2025-08-19 19:24:49,868 - INFO - 📂 Category: Base Systems -> Arithmetic in different bases
+2025-08-19 19:24:49,868 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:24:49 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:24:49,869 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:24:57 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:24:57,110 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:24:57,111 - WARNING -   ⚠️ Gemini output failed schema validation: ['Missing highlighted final answer']
+2025-08-19 19:24:57,112 - ERROR -   ❌ Gemini generation failed - using fallback
+2025-08-19 19:24:57,112 - INFO -   🔄 Generating schema-compliant fallback solution...
+2025-08-19 19:24:59,243 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:24:59,244 - INFO -      Quality Score: 6
+2025-08-19 19:24:59,244 - INFO -      Workflow: N/A
+2025-08-19 19:24:59,744 - INFO - 
+🔄 [57/127] Upgrading...
+2025-08-19 19:24:59,745 - INFO - 🔄 Upgrading: Let K be the largest number with exactly 3 factors that divi...
+2025-08-19 19:24:59,745 - INFO -    Issues: Contains $ signs, Explanation missing or too short
+2025-08-19 19:24:59,745 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): Let K be the largest number with exactly 3 factors that divi...
+2025-08-19 19:24:59,745 - INFO - 📂 Category: Time-Speed-Distance -> Basics
+2025-08-19 19:24:59,745 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:24:59 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:24:59,746 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:25:11 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:25:11,594 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:25:11,595 - WARNING -   ⚠️ Gemini output failed schema validation: ['Missing highlighted final answer']
+2025-08-19 19:25:11,596 - ERROR -   ❌ Gemini generation failed - using fallback
+2025-08-19 19:25:11,596 - INFO -   🔄 Generating schema-compliant fallback solution...
+2025-08-19 19:25:13,767 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:25:13,767 - INFO -      Quality Score: 6
+2025-08-19 19:25:13,767 - INFO -      Workflow: N/A
+2025-08-19 19:25:14,268 - INFO - 
+🔄 [58/127] Upgrading...
+2025-08-19 19:25:14,268 - INFO - 🔄 Upgrading: How many numbers with distinct digits are possible product o...
+2025-08-19 19:25:14,268 - INFO -    Issues: Explanation missing or too short
+2025-08-19 19:25:14,268 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): How many numbers with distinct digits are possible product o...
+2025-08-19 19:25:14,268 - INFO - 📂 Category: Permutation-Combination -> Combinations with Restrictions
+2025-08-19 19:25:14,268 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:25:14 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:25:14,269 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:25:18 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:25:18,380 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:25:18,381 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:25:18,382 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:25:18 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:25:18,383 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:25:20 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:25:20,518 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:25:20,519 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:25:20,519 - INFO -   📊 Overall Score: 10/10
+2025-08-19 19:25:20,519 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:25:22,672 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:25:22,672 - INFO -      Quality Score: 10
+2025-08-19 19:25:22,672 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:25:23,173 - INFO - 
+🔄 [59/127] Upgrading...
+2025-08-19 19:25:23,173 - INFO - 🔄 Upgrading: A page is torn from a novel. The sum of the remaining page n...
+2025-08-19 19:25:23,173 - INFO -    Issues: Contains $ signs, Explanation missing or too short
+2025-08-19 19:25:23,173 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): A page is torn from a novel. The sum of the remaining page n...
+2025-08-19 19:25:23,173 - INFO - 📂 Category: Digit Properties -> Sum of Digits
+2025-08-19 19:25:23,173 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:25:23 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:25:23,174 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:25:35 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:25:35,118 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:25:35,119 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:25:35,120 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:25:35 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:25:35,122 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:25:36 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:25:36,804 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:25:36,805 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:25:36,805 - INFO -   📊 Overall Score: 9/10
+2025-08-19 19:25:36,805 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:25:38,988 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:25:38,988 - INFO -      Quality Score: 9
+2025-08-19 19:25:38,988 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:25:39,489 - INFO - 
+🔄 [60/127] Upgrading...
+2025-08-19 19:25:39,489 - INFO - 🔄 Upgrading: A 4-digit number of the form aabb is a perfect square. What ...
+2025-08-19 19:25:39,489 - INFO -    Issues: Contains $ signs, Explanation missing or too short
+2025-08-19 19:25:39,489 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): A 4-digit number of the form aabb is a perfect square. What ...
+2025-08-19 19:25:39,489 - INFO - 📂 Category: Number Properties -> Perfect Squares
+2025-08-19 19:25:39,489 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:25:39 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:25:39,490 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:25:45 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:25:45,116 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:25:45,117 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:25:45,118 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:25:45 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:25:45,119 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:25:46 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:25:46,927 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:25:46,928 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:25:46,928 - INFO -   📊 Overall Score: 10/10
+2025-08-19 19:25:46,928 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:25:49,161 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:25:49,161 - INFO -      Quality Score: 10
+2025-08-19 19:25:49,161 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:25:49,161 - INFO - 
+📈 UPGRADE PROGRESS [60/127]
+2025-08-19 19:25:49,162 - INFO -    Successful: 59
+2025-08-19 19:25:49,162 - INFO -    Failed: 1
+2025-08-19 19:25:49,162 - INFO -    Average quality: 9.6
+2025-08-19 19:25:49,662 - INFO - 
+🔄 [61/127] Upgrading...
+2025-08-19 19:25:49,662 - INFO - 🔄 Upgrading: What are the last two digits of the number 7⁴⁵?...
+2025-08-19 19:25:49,662 - INFO -    Issues: Contains $ signs, Explanation missing or too short
+2025-08-19 19:25:49,662 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): What are the last two digits of the number 7⁴⁵?...
+2025-08-19 19:25:49,662 - INFO - 📂 Category: Remainders -> Cyclicity of Remainders (Last Two Digits)
+2025-08-19 19:25:49,662 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:25:49 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:25:49,663 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:25:52 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:25:52,454 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:25:52,455 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:25:52,456 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:25:52 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:25:52,456 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:25:54 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:25:54,787 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:25:54,788 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:25:54,788 - INFO -   📊 Overall Score: 10/10
+2025-08-19 19:25:54,788 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:25:57,010 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:25:57,010 - INFO -      Quality Score: 10
+2025-08-19 19:25:57,010 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:25:57,511 - INFO - 
+🔄 [62/127] Upgrading...
+2025-08-19 19:25:57,511 - INFO - 🔄 Upgrading: n² + 5n + 6 is a multiple of 6. n is natural number less tha...
+2025-08-19 19:25:57,511 - INFO -    Issues: Explanation missing or too short
+2025-08-19 19:25:57,511 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): n² + 5n + 6 is a multiple of 6. n is natural number less tha...
+2025-08-19 19:25:57,511 - INFO - 📂 Category: Time-Speed-Distance -> Basics
+2025-08-19 19:25:57,511 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:25:57 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:25:57,512 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:26:11 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:26:11,644 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:26:11,645 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:26:11,647 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:26:11 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:26:11,648 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:26:13 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:26:13,554 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:26:13,554 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:26:13,555 - INFO -   📊 Overall Score: 10/10
+2025-08-19 19:26:13,555 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:26:15,698 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:26:15,698 - INFO -      Quality Score: 10
+2025-08-19 19:26:15,698 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:26:16,199 - INFO - 
+🔄 [63/127] Upgrading...
+2025-08-19 19:26:16,199 - INFO - 🔄 Upgrading: [x] is the greatest integer less than or equal to x. Find th...
+2025-08-19 19:26:16,199 - INFO -    Issues: Contains $ signs, Explanation missing or too short
+2025-08-19 19:26:16,199 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): [x] is the greatest integer less than or equal to x. Find th...
+2025-08-19 19:26:16,199 - INFO - 📂 Category: Divisibility -> Basic Divisibility Rules
+2025-08-19 19:26:16,199 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:26:16 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:26:16,200 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:26:26 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:26:26,136 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:26:26,136 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:26:26,138 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:26:26 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:26:26,139 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:26:28 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:26:28,183 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:26:28,184 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:26:28,184 - INFO -   📊 Overall Score: 10/10
+2025-08-19 19:26:28,184 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:26:30,377 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:26:30,378 - INFO -      Quality Score: 10
+2025-08-19 19:26:30,378 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:26:30,878 - INFO - 
+🔄 [64/127] Upgrading...
+2025-08-19 19:26:30,878 - INFO - 🔄 Upgrading: Positive numbers 1 to 55, inclusive are placed in 5 groups o...
+2025-08-19 19:26:30,879 - INFO -    Issues: Contains $ signs, Explanation missing or too short
+2025-08-19 19:26:30,879 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): Positive numbers 1 to 55, inclusive are placed in 5 groups o...
+2025-08-19 19:26:30,879 - INFO - 📂 Category: Averages and Alligation -> Basic Averages
+2025-08-19 19:26:30,879 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:26:30 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:26:30,880 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:26:34 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:26:34,967 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:26:34,968 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:26:34,969 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:26:34 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:26:34,970 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:26:36 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:26:36,985 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:26:36,985 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:26:36,986 - INFO -   📊 Overall Score: 10/10
+2025-08-19 19:26:36,986 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:26:39,183 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:26:39,183 - INFO -      Quality Score: 10
+2025-08-19 19:26:39,183 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:26:39,684 - INFO - 
+🔄 [65/127] Upgrading...
+2025-08-19 19:26:39,684 - INFO - 🔄 Upgrading: N is an 80-digit positive integer (in the decimal scale). Al...
+2025-08-19 19:26:39,684 - INFO -    Issues: Contains $ signs, Explanation missing or too short
+2025-08-19 19:26:39,684 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): N is an 80-digit positive integer (in the decimal scale). Al...
+2025-08-19 19:26:39,684 - INFO - 📂 Category: Divisibility -> Basic Divisibility Rules
+2025-08-19 19:26:39,684 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:26:39 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:26:39,685 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:26:59 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:26:59,479 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:26:59,480 - WARNING -   ⚠️ Gemini output failed schema validation: ['Missing highlighted final answer']
+2025-08-19 19:26:59,480 - ERROR -   ❌ Gemini generation failed - using fallback
+2025-08-19 19:26:59,480 - INFO -   🔄 Generating schema-compliant fallback solution...
+2025-08-19 19:27:01,725 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:27:01,725 - INFO -      Quality Score: 6
+2025-08-19 19:27:01,725 - INFO -      Workflow: N/A
+2025-08-19 19:27:02,226 - INFO - 
+🔄 [66/127] Upgrading...
+2025-08-19 19:27:02,226 - INFO - 🔄 Upgrading: A number 4¹⁶ + 1 is divisible by x. Which among the followin...
+2025-08-19 19:27:02,226 - INFO -    Issues: Contains $ signs, Explanation missing or too short
+2025-08-19 19:27:02,226 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): A number 4¹⁶ + 1 is divisible by x. Which among the followin...
+2025-08-19 19:27:02,226 - INFO - 📂 Category: Divisibility -> Basic Divisibility Rules
+2025-08-19 19:27:02,226 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:27:02 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:27:02,227 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:27:16 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:27:16,918 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:27:16,919 - WARNING -   ⚠️ Gemini output failed schema validation: ['Missing highlighted final answer']
+2025-08-19 19:27:16,920 - ERROR -   ❌ Gemini generation failed - using fallback
+2025-08-19 19:27:16,920 - INFO -   🔄 Generating schema-compliant fallback solution...
+2025-08-19 19:27:19,113 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:27:19,113 - INFO -      Quality Score: 6
+2025-08-19 19:27:19,113 - INFO -      Workflow: N/A
+2025-08-19 19:27:19,614 - INFO - 
+🔄 [67/127] Upgrading...
+2025-08-19 19:27:19,614 - INFO - 🔄 Upgrading: Which among the following is the smallest 7 digit number tha...
+2025-08-19 19:27:19,614 - INFO -    Issues: Explanation missing or too short
+2025-08-19 19:27:19,614 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): Which among the following is the smallest 7 digit number tha...
+2025-08-19 19:27:19,614 - INFO - 📂 Category: Divisibility -> Basic Divisibility Rules
+2025-08-19 19:27:19,614 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:27:19 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:27:19,615 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:27:23 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:27:23,232 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:27:23,233 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:27:23,234 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:27:23 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:27:23,235 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:27:26 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:27:26,424 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:27:26,425 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:27:26,426 - INFO -   📊 Overall Score: 10/10
+2025-08-19 19:27:26,426 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:27:28,557 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:27:28,557 - INFO -      Quality Score: 10
+2025-08-19 19:27:28,557 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:27:29,058 - INFO - 
+🔄 [68/127] Upgrading...
+2025-08-19 19:27:29,058 - INFO - 🔄 Upgrading: How many 3-digit positive integers, with digits a, b and c e...
+2025-08-19 19:27:29,058 - INFO -    Issues: Explanation missing or too short
+2025-08-19 19:27:29,058 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): How many 3-digit positive integers, with digits a, b and c e...
+2025-08-19 19:27:29,058 - INFO - 📂 Category: Time-Speed-Distance -> Basics
+2025-08-19 19:27:29,058 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:27:29 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:27:29,059 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:27:34 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:27:34,403 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:27:34,404 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:27:34,405 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:27:34 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:27:34,405 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:27:37 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:27:37,041 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:27:37,041 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:27:37,042 - INFO -   📊 Overall Score: 10/10
+2025-08-19 19:27:37,042 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:27:39,286 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:27:39,286 - INFO -      Quality Score: 10
+2025-08-19 19:27:39,286 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:27:39,787 - INFO - 
+🔄 [69/127] Upgrading...
+2025-08-19 19:27:39,787 - INFO - 🔄 Upgrading: If a and b are non-negative real numbers such that a+2b=6, t...
+2025-08-19 19:27:39,787 - INFO -    Issues: Contains $ signs, Explanation missing or too short
+2025-08-19 19:27:39,787 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): If a and b are non-negative real numbers such that a+2b=6, t...
+2025-08-19 19:27:39,787 - INFO - 📂 Category: Linear Equations -> Two variable systems
+2025-08-19 19:27:39,787 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:27:39 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:27:39,788 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:27:43 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:27:43,422 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:27:43,422 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:27:43,423 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:27:43 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:27:43,424 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:27:45 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:27:45,806 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:27:45,807 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:27:45,808 - INFO -   📊 Overall Score: 10/10
+2025-08-19 19:27:45,808 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:27:48,000 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:27:48,000 - INFO -      Quality Score: 10
+2025-08-19 19:27:48,000 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:27:48,501 - INFO - 
+🔄 [70/127] Upgrading...
+2025-08-19 19:27:48,501 - INFO - 🔄 Upgrading: Let a and b be natural numbers. If a²+ab+a=14 and b²+ab+b=28...
+2025-08-19 19:27:48,501 - INFO -    Issues: Contains $ signs, Explanation missing or too short
+2025-08-19 19:27:48,501 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): Let a and b be natural numbers. If a²+ab+a=14 and b²+ab+b=28...
+2025-08-19 19:27:48,501 - INFO - 📂 Category: Quadratic Equations -> Roots & Nature of Roots
+2025-08-19 19:27:48,501 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:27:48 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:27:48,503 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:28:00 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:28:00,453 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:28:00,454 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:28:00,455 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:28:00 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:28:00,456 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:28:02 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:28:02,269 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:28:02,270 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:28:02,271 - INFO -   📊 Overall Score: 10/10
+2025-08-19 19:28:02,272 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:28:04,424 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:28:04,424 - INFO -      Quality Score: 10
+2025-08-19 19:28:04,424 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:28:04,424 - INFO - 
+📈 UPGRADE PROGRESS [70/127]
+2025-08-19 19:28:04,424 - INFO -    Successful: 69
+2025-08-19 19:28:04,424 - INFO -    Failed: 1
+2025-08-19 19:28:04,424 - INFO -    Average quality: 9.5
+2025-08-19 19:28:04,925 - INFO - 
+🔄 [71/127] Upgrading...
+2025-08-19 19:28:04,925 - INFO - 🔄 Upgrading: A four-digit number is formed by using only the digits 1, 2 ...
+2025-08-19 19:28:04,925 - INFO -    Issues: Explanation missing or too short
+2025-08-19 19:28:04,925 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): A four-digit number is formed by using only the digits 1, 2 ...
+2025-08-19 19:28:04,925 - INFO - 📂 Category: Time-Speed-Distance -> Basics
+2025-08-19 19:28:04,925 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:28:04 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:28:04,926 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:28:20 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:28:20,176 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:28:20,177 - WARNING -   ⚠️ Gemini output failed schema validation: ['Missing highlighted final answer']
+2025-08-19 19:28:20,178 - ERROR -   ❌ Gemini generation failed - using fallback
+2025-08-19 19:28:20,178 - INFO -   🔄 Generating schema-compliant fallback solution...
+2025-08-19 19:28:22,417 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:28:22,417 - INFO -      Quality Score: 6
+2025-08-19 19:28:22,417 - INFO -      Workflow: N/A
+2025-08-19 19:28:22,918 - INFO - 
+🔄 [72/127] Upgrading...
+2025-08-19 19:28:22,918 - INFO - 🔄 Upgrading: For a 4-digit number, the sum of its digits in the thousands...
+2025-08-19 19:28:22,918 - INFO -    Issues: Contains $ signs, Explanation missing or too short
+2025-08-19 19:28:22,918 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): For a 4-digit number, the sum of its digits in the thousands...
+2025-08-19 19:28:22,918 - INFO - 📂 Category: Digit Properties -> Sum of Digits
+2025-08-19 19:28:22,918 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:28:22 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:28:22,919 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:28:40 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:28:40,220 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:28:40,221 - WARNING -   ⚠️ Gemini output failed schema validation: ['Missing highlighted final answer']
+2025-08-19 19:28:40,221 - ERROR -   ❌ Gemini generation failed - using fallback
+2025-08-19 19:28:40,221 - INFO -   🔄 Generating schema-compliant fallback solution...
+2025-08-19 19:28:42,411 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:28:42,411 - INFO -      Quality Score: 6
+2025-08-19 19:28:42,411 - INFO -      Workflow: N/A
+2025-08-19 19:28:42,912 - INFO - 
+🔄 [73/127] Upgrading...
+2025-08-19 19:28:42,912 - INFO - 🔄 Upgrading: The natural numbers are divided into groups as (1), (2, 3, 4...
+2025-08-19 19:28:42,912 - INFO -    Issues: Contains $ signs, Explanation missing or too short
+2025-08-19 19:28:42,912 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): The natural numbers are divided into groups as (1), (2, 3, 4...
+2025-08-19 19:28:42,912 - INFO - 📂 Category: Number Series -> Telescopic Series
+2025-08-19 19:28:42,912 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:28:42 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:28:42,913 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:29:06 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:29:06,636 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:29:06,637 - WARNING -   ⚠️ Gemini output failed schema validation: ['Missing highlighted final answer']
+2025-08-19 19:29:06,638 - ERROR -   ❌ Gemini generation failed - using fallback
+2025-08-19 19:29:06,638 - INFO -   🔄 Generating schema-compliant fallback solution...
+2025-08-19 19:29:08,802 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:29:08,803 - INFO -      Quality Score: 6
+2025-08-19 19:29:08,804 - INFO -      Workflow: N/A
+2025-08-19 19:29:09,304 - INFO - 
+🔄 [74/127] Upgrading...
+2025-08-19 19:29:09,305 - INFO - 🔄 Upgrading: How many three-digit numbers are greater than 100 and increa...
+2025-08-19 19:29:09,305 - INFO -    Issues: Contains $ signs, Explanation missing or too short
+2025-08-19 19:29:09,305 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): How many three-digit numbers are greater than 100 and increa...
+2025-08-19 19:29:09,305 - INFO - 📂 Category: Time-Speed-Distance -> Basics
+2025-08-19 19:29:09,305 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:29:09 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:29:09,306 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:29:13 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:29:13,371 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:29:13,372 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:29:13,373 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:29:13 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:29:13,374 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:29:14 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:29:14,849 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:29:14,850 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:29:14,850 - INFO -   📊 Overall Score: 10/10
+2025-08-19 19:29:14,850 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:29:16,967 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:29:16,967 - INFO -      Quality Score: 10
+2025-08-19 19:29:16,967 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:29:17,468 - INFO - 
+🔄 [75/127] Upgrading...
+2025-08-19 19:29:17,468 - INFO - 🔄 Upgrading: Let N, x and y be positive integers such that N = x + y, 2 <...
+2025-08-19 19:29:17,468 - INFO -    Issues: Contains $ signs, Explanation missing or too short
+2025-08-19 19:29:17,468 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): Let N, x and y be positive integers such that N = x + y, 2 <...
+2025-08-19 19:29:17,468 - INFO - 📂 Category: Linear Equations -> Two variable systems
+2025-08-19 19:29:17,468 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:29:17 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:29:17,469 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:29:41 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:29:41,461 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:29:41,462 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:29:41,464 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:29:41 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:29:41,465 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:29:43 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:29:43,170 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:29:43,171 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:29:43,172 - INFO -   📊 Overall Score: 10/10
+2025-08-19 19:29:43,172 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:29:45,451 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:29:45,451 - INFO -      Quality Score: 10
+2025-08-19 19:29:45,451 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:29:45,952 - INFO - 
+🔄 [76/127] Upgrading...
+2025-08-19 19:29:45,952 - INFO - 🔄 Upgrading: How many pairs (a,b) of positive integers are there such tha...
+2025-08-19 19:29:45,952 - INFO -    Issues: Contains $ signs, Explanation missing or too short
+2025-08-19 19:29:45,952 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): How many pairs (a,b) of positive integers are there such tha...
+2025-08-19 19:29:45,952 - INFO - 📂 Category: Number Properties -> Perfect Squares
+2025-08-19 19:29:45,952 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:29:45 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:29:45,953 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:29:50 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:29:50,492 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:29:50,493 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:29:50,494 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:29:50 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:29:50,494 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:29:52 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:29:52,513 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:29:52,514 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:29:52,514 - INFO -   📊 Overall Score: 10/10
+2025-08-19 19:29:52,515 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:29:54,708 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:29:54,709 - INFO -      Quality Score: 10
+2025-08-19 19:29:54,709 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:29:55,209 - INFO - 
+🔄 [77/127] Upgrading...
+2025-08-19 19:29:55,209 - INFO - 🔄 Upgrading: If x and y are positive real numbers satisfying x + y = 102,...
+2025-08-19 19:29:55,210 - INFO -    Issues: Explanation missing or too short
+2025-08-19 19:29:55,210 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): If x and y are positive real numbers satisfying x + y = 102,...
+2025-08-19 19:29:55,210 - INFO - 📂 Category: Time-Speed-Distance -> Basics
+2025-08-19 19:29:55,210 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:29:55 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:29:55,211 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:30:39 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:30:39,233 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:30:39,235 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:30:39,238 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:30:39 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:30:39,239 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:30:41 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:30:41,339 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:30:41,339 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:30:41,340 - INFO -   📊 Overall Score: 10/10
+2025-08-19 19:30:41,340 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:30:43,760 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:30:43,760 - INFO -      Quality Score: 10
+2025-08-19 19:30:43,760 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:30:44,261 - INFO - 
+🔄 [78/127] Upgrading...
+2025-08-19 19:30:44,261 - INFO - 🔄 Upgrading: How many 4-digit numbers, each greater than 1000 and each ha...
+2025-08-19 19:30:44,261 - INFO -    Issues: Contains $ signs, Explanation missing or too short
+2025-08-19 19:30:44,261 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): How many 4-digit numbers, each greater than 1000 and each ha...
+2025-08-19 19:30:44,261 - INFO - 📂 Category: Time-Speed-Distance -> Basics
+2025-08-19 19:30:44,261 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:30:44 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:30:44,262 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:30:56 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:30:56,285 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:30:56,286 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:30:56,288 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:30:56 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:30:56,289 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:30:58 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:30:58,206 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:30:58,207 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:30:58,207 - INFO -   📊 Overall Score: 10/10
+2025-08-19 19:30:58,208 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:31:00,361 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:31:00,361 - INFO -      Quality Score: 10
+2025-08-19 19:31:00,361 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:31:00,862 - INFO - 
+🔄 [79/127] Upgrading...
+2025-08-19 19:31:00,862 - INFO - 🔄 Upgrading: How many 3-digit numbers are there, for which the product of...
+2025-08-19 19:31:00,862 - INFO -    Issues: Explanation missing or too short
+2025-08-19 19:31:00,862 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): How many 3-digit numbers are there, for which the product of...
+2025-08-19 19:31:00,862 - INFO - 📂 Category: Time-Speed-Distance -> Basics
+2025-08-19 19:31:00,862 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:31:00 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:31:00,863 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:31:05 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:31:05,145 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:31:05,145 - WARNING -   ⚠️ Gemini output failed schema validation: ['Detailed solution missing proper **Step 1:**, **Step 2:** structure']
+2025-08-19 19:31:05,146 - ERROR -   ❌ Gemini generation failed - using fallback
+2025-08-19 19:31:05,146 - INFO -   🔄 Generating schema-compliant fallback solution...
+2025-08-19 19:31:07,297 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:31:07,298 - INFO -      Quality Score: 6
+2025-08-19 19:31:07,298 - INFO -      Workflow: N/A
+2025-08-19 19:31:07,798 - INFO - 
+🔄 [80/127] Upgrading...
+2025-08-19 19:31:07,798 - INFO - 🔄 Upgrading: The mean of all 4 digit even natural numbers of the form 'aa...
+2025-08-19 19:31:07,798 - INFO -    Issues: Contains $ signs, Explanation missing or too short
+2025-08-19 19:31:07,798 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): The mean of all 4 digit even natural numbers of the form 'aa...
+2025-08-19 19:31:07,798 - INFO - 📂 Category: Time-Speed-Distance -> Basics
+2025-08-19 19:31:07,798 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:31:07 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:31:07,799 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:31:25 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:31:25,311 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:31:25,312 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:31:25,313 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:31:25 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:31:25,314 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:31:27 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:31:27,326 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:31:27,327 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:31:27,327 - INFO -   📊 Overall Score: 10/10
+2025-08-19 19:31:27,327 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:31:29,513 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:31:29,513 - INFO -      Quality Score: 10
+2025-08-19 19:31:29,513 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:31:29,513 - INFO - 
+📈 UPGRADE PROGRESS [80/127]
+2025-08-19 19:31:29,513 - INFO -    Successful: 79
+2025-08-19 19:31:29,513 - INFO -    Failed: 1
+2025-08-19 19:31:29,513 - INFO -    Average quality: 9.4
+2025-08-19 19:31:30,014 - INFO - 
+🔄 [81/127] Upgrading...
+2025-08-19 19:31:30,014 - INFO - 🔄 Upgrading: Among 100 students, x1 have birthdays in January, x2 have bi...
+2025-08-19 19:31:30,014 - INFO -    Issues: Explanation missing or too short
+2025-08-19 19:31:30,014 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): Among 100 students, x1 have birthdays in January, x2 have bi...
+2025-08-19 19:31:30,014 - INFO - 📂 Category: Time-Speed-Distance -> Basics
+2025-08-19 19:31:30,014 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:31:30 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:31:30,015 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:31:32 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:31:32,825 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:31:32,826 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:31:32,827 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:31:32 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:31:32,828 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:31:33 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:31:33,880 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:31:33,881 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:31:33,882 - INFO -   📊 Overall Score: 10/10
+2025-08-19 19:31:33,882 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:31:36,080 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:31:36,080 - INFO -      Quality Score: 10
+2025-08-19 19:31:36,080 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:31:36,581 - INFO - 
+🔄 [82/127] Upgrading...
+2025-08-19 19:31:36,581 - INFO - 🔄 Upgrading: If a, b and c are positive integers such that ab = 432, bc =...
+2025-08-19 19:31:36,581 - INFO -    Issues: Contains $ signs, Explanation missing or too short
+2025-08-19 19:31:36,581 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): If a, b and c are positive integers such that ab = 432, bc =...
+2025-08-19 19:31:36,581 - INFO - 📂 Category: Linear Equations -> Three variable systems
+2025-08-19 19:31:36,581 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:31:36 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:31:36,582 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:31:52 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:31:52,196 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:31:52,197 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:31:52,199 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:31:52 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:31:52,200 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:31:55 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:31:55,179 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:31:55,180 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:31:55,180 - INFO -   📊 Overall Score: 10/10
+2025-08-19 19:31:55,181 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:31:57,405 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:31:57,405 - INFO -      Quality Score: 10
+2025-08-19 19:31:57,406 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:31:57,907 - INFO - 
+🔄 [83/127] Upgrading...
+2025-08-19 19:31:57,907 - INFO - 🔄 Upgrading: In a six-digit number, the sixth, that is, the rightmost, di...
+2025-08-19 19:31:57,907 - INFO -    Issues: Contains $ signs, Explanation missing or too short
+2025-08-19 19:31:57,907 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): In a six-digit number, the sixth, that is, the rightmost, di...
+2025-08-19 19:31:57,907 - INFO - 📂 Category: Time-Speed-Distance -> Basics
+2025-08-19 19:31:57,907 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:31:57 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:31:57,908 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:32:08 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:32:08,846 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:32:08,847 - WARNING -   ⚠️ Gemini output failed schema validation: ['Detailed solution missing proper **Step 1:**, **Step 2:** structure']
+2025-08-19 19:32:08,848 - ERROR -   ❌ Gemini generation failed - using fallback
+2025-08-19 19:32:08,848 - INFO -   🔄 Generating schema-compliant fallback solution...
+2025-08-19 19:32:11,066 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:32:11,066 - INFO -      Quality Score: 6
+2025-08-19 19:32:11,066 - INFO -      Workflow: N/A
+2025-08-19 19:32:11,567 - INFO - 
+🔄 [84/127] Upgrading...
+2025-08-19 19:32:11,567 - INFO - 🔄 Upgrading: If the sum of squares of two numbers is 97, then which one o...
+2025-08-19 19:32:11,567 - INFO -    Issues: Contains $ signs, Explanation missing or too short
+2025-08-19 19:32:11,567 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): If the sum of squares of two numbers is 97, then which one o...
+2025-08-19 19:32:11,567 - INFO - 📂 Category: Number Properties -> Perfect Squares
+2025-08-19 19:32:11,567 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:32:11 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:32:11,568 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:32:17 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:32:17,896 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:32:17,897 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:32:17,897 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:32:17 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:32:17,899 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:32:19 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:32:19,854 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:32:19,855 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:32:19,856 - INFO -   📊 Overall Score: 10/10
+2025-08-19 19:32:19,856 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:32:22,059 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:32:22,059 - INFO -      Quality Score: 10
+2025-08-19 19:32:22,059 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:32:22,560 - INFO - 
+🔄 [85/127] Upgrading...
+2025-08-19 19:32:22,560 - INFO - 🔄 Upgrading: How many two-digit numbers, with a non-zero digit in the uni...
+2025-08-19 19:32:22,560 - INFO -    Issues: Contains $ signs, Explanation missing or too short
+2025-08-19 19:32:22,560 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): How many two-digit numbers, with a non-zero digit in the uni...
+2025-08-19 19:32:22,560 - INFO - 📂 Category: Digit Properties -> Last Digit Patterns
+2025-08-19 19:32:22,560 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:32:22 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:32:22,561 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:32:33 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:32:33,428 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:32:33,429 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:32:33,431 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:32:33 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:32:33,432 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:32:36 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:32:36,020 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:32:36,021 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:32:36,021 - INFO -   📊 Overall Score: 10/10
+2025-08-19 19:32:36,021 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:32:38,218 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:32:38,218 - INFO -      Quality Score: 10
+2025-08-19 19:32:38,218 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:32:38,719 - INFO - 
+🔄 [86/127] Upgrading...
+2025-08-19 19:32:38,719 - INFO - 🔄 Upgrading: While multiplying three real numbers, Ashok took one of the ...
+2025-08-19 19:32:38,719 - INFO -    Issues: Contains $ signs, Explanation missing or too short
+2025-08-19 19:32:38,719 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): While multiplying three real numbers, Ashok took one of the ...
+2025-08-19 19:32:38,719 - INFO - 📂 Category: Quadratic Equations -> Sum and Product of Roots
+2025-08-19 19:32:38,719 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:32:38 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:32:38,721 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:32:58 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:32:58,741 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:32:58,742 - WARNING -   ⚠️ Gemini output failed schema validation: ['Missing highlighted final answer']
+2025-08-19 19:32:58,743 - ERROR -   ❌ Gemini generation failed - using fallback
+2025-08-19 19:32:58,743 - INFO -   🔄 Generating schema-compliant fallback solution...
+2025-08-19 19:33:00,973 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:33:00,973 - INFO -      Quality Score: 6
+2025-08-19 19:33:00,973 - INFO -      Workflow: N/A
+2025-08-19 19:33:01,474 - INFO - 
+🔄 [87/127] Upgrading...
+2025-08-19 19:33:01,474 - INFO - 🔄 Upgrading: The numbers 1, 2,..., 9 are arranged in a 3 X 3 square grid ...
+2025-08-19 19:33:01,474 - INFO -    Issues: Contains $ signs, Explanation missing or too short
+2025-08-19 19:33:01,474 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): The numbers 1, 2,..., 9 are arranged in a 3 X 3 square grid ...
+2025-08-19 19:33:01,474 - INFO - 📂 Category: Linear Equations -> Three variable systems
+2025-08-19 19:33:01,474 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:33:01 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:33:01,475 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:33:17 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:33:17,041 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:33:17,042 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:33:17,043 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:33:17 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:33:17,044 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:33:19 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:33:19,686 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:33:19,687 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:33:19,687 - INFO -   📊 Overall Score: 10/10
+2025-08-19 19:33:19,687 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:33:21,895 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:33:21,895 - INFO -      Quality Score: 10
+2025-08-19 19:33:21,895 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:33:22,396 - INFO - 
+🔄 [88/127] Upgrading...
+2025-08-19 19:33:22,396 - INFO - 🔄 Upgrading: If the product of three consecutive positive integers is 156...
+2025-08-19 19:33:22,396 - INFO -    Issues: Contains $ signs, Explanation missing or too short
+2025-08-19 19:33:22,396 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): If the product of three consecutive positive integers is 156...
+2025-08-19 19:33:22,396 - INFO - 📂 Category: Time-Speed-Distance -> Basics
+2025-08-19 19:33:22,396 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:33:22 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:33:22,397 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:33:27 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:33:27,711 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:33:27,712 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:33:27,713 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:33:27 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:33:27,714 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:33:29 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:33:29,416 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:33:29,417 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:33:29,418 - INFO -   📊 Overall Score: 9/10
+2025-08-19 19:33:29,418 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:33:31,579 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:33:31,580 - INFO -      Quality Score: 9
+2025-08-19 19:33:31,580 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:33:32,080 - INFO - 
+🔄 [89/127] Upgrading...
+2025-08-19 19:33:32,080 - INFO - 🔄 Upgrading: How many different pairs (a, b) of positive integers are the...
+2025-08-19 19:33:32,081 - INFO -    Issues: Contains $ signs, Explanation missing or too short
+2025-08-19 19:33:32,081 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): How many different pairs (a, b) of positive integers are the...
+2025-08-19 19:33:32,081 - INFO - 📂 Category: Linear Equations -> Two variable systems
+2025-08-19 19:33:32,081 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:33:32 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:33:32,081 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:33:45 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:33:45,980 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:33:45,981 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:33:45,982 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:33:45 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:33:45,983 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:33:47 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:33:47,907 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:33:47,908 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:33:47,908 - INFO -   📊 Overall Score: 10/10
+2025-08-19 19:33:47,908 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:33:50,054 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:33:50,054 - INFO -      Quality Score: 10
+2025-08-19 19:33:50,054 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:33:50,555 - INFO - 
+🔄 [90/127] Upgrading...
+2025-08-19 19:33:50,555 - INFO - 🔄 Upgrading: Consider a class of 40 students whose average weight is 40 k...
+2025-08-19 19:33:50,555 - INFO -    Issues: Contains $ signs, Explanation missing or too short
+2025-08-19 19:33:50,555 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): Consider a class of 40 students whose average weight is 40 k...
+2025-08-19 19:33:50,555 - INFO - 📂 Category: Averages and Alligation -> Weighted Averages
+2025-08-19 19:33:50,555 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:33:50 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:33:50,556 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:34:06 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:34:06,263 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:34:06,264 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:34:06,266 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:34:06 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:34:06,267 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:34:08 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:34:08,773 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:34:08,774 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:34:08,774 - INFO -   📊 Overall Score: 10/10
+2025-08-19 19:34:08,775 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:34:11,008 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:34:11,008 - INFO -      Quality Score: 10
+2025-08-19 19:34:11,008 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:34:11,008 - INFO - 
+📈 UPGRADE PROGRESS [90/127]
+2025-08-19 19:34:11,008 - INFO -    Successful: 89
+2025-08-19 19:34:11,008 - INFO -    Failed: 1
+2025-08-19 19:34:11,008 - INFO -    Average quality: 9.3
+2025-08-19 19:34:11,509 - INFO - 
+🔄 [91/127] Upgrading...
+2025-08-19 19:34:11,509 - INFO - 🔄 Upgrading: The average score in an examination of 10 students of a clas...
+2025-08-19 19:34:11,509 - INFO -    Issues: Explanation missing or too short
+2025-08-19 19:34:11,509 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): The average score in an examination of 10 students of a clas...
+2025-08-19 19:34:11,509 - INFO - 📂 Category: Averages and Alligation -> Basic Averages
+2025-08-19 19:34:11,509 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:34:11 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:34:11,510 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:34:25 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:34:25,453 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:34:25,454 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:34:25,455 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:34:25 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:34:25,457 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:34:27 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:34:27,477 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:34:27,477 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:34:27,478 - INFO -   📊 Overall Score: 10/10
+2025-08-19 19:34:27,478 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:34:29,644 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:34:29,644 - INFO -      Quality Score: 10
+2025-08-19 19:34:29,644 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:34:30,145 - INFO - 
+🔄 [92/127] Upgrading...
+2025-08-19 19:34:30,145 - INFO - 🔄 Upgrading: The ratio of a two-digit natural number to a number formed b...
+2025-08-19 19:34:30,145 - INFO -    Issues: Contains $ signs, Explanation missing or too short
+2025-08-19 19:34:30,145 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): The ratio of a two-digit natural number to a number formed b...
+2025-08-19 19:34:30,145 - INFO - 📂 Category: Time-Speed-Distance -> Basics
+2025-08-19 19:34:30,145 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:34:30 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:34:30,146 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:34:54 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:34:54,751 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:34:54,751 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:34:54,754 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:34:54 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:34:54,755 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:34:56 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:34:56,278 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:34:56,279 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:34:56,280 - INFO -   📊 Overall Score: 9/10
+2025-08-19 19:34:56,280 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:34:58,508 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:34:58,509 - INFO -      Quality Score: 9
+2025-08-19 19:34:58,509 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:34:59,009 - INFO - 
+🔄 [93/127] Upgrading...
+2025-08-19 19:34:59,009 - INFO - 🔄 Upgrading: Three friends A, B and C play a game in a pub. The rules are...
+2025-08-19 19:34:59,009 - INFO -    Issues: Contains $ signs, Explanation missing or too short
+2025-08-19 19:34:59,009 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): Three friends A, B and C play a game in a pub. The rules are...
+2025-08-19 19:34:59,009 - INFO - 📂 Category: Time-Speed-Distance -> Basics
+2025-08-19 19:34:59,009 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:34:59 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:34:59,011 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:35:06 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:35:06,667 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:35:06,668 - WARNING -   ⚠️ Gemini output failed schema validation: ['Detailed solution missing proper **Step 1:**, **Step 2:** structure']
+2025-08-19 19:35:06,669 - ERROR -   ❌ Gemini generation failed - using fallback
+2025-08-19 19:35:06,669 - INFO -   🔄 Generating schema-compliant fallback solution...
+2025-08-19 19:35:08,879 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:35:08,880 - INFO -      Quality Score: 6
+2025-08-19 19:35:08,880 - INFO -      Workflow: N/A
+2025-08-19 19:35:09,380 - INFO - 
+🔄 [94/127] Upgrading...
+2025-08-19 19:35:09,381 - INFO - 🔄 Upgrading: Recently a band was to perform in India. However, there was ...
+2025-08-19 19:35:09,381 - INFO -    Issues: Explanation missing or too short
+2025-08-19 19:35:09,381 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): Recently a band was to perform in India. However, there was ...
+2025-08-19 19:35:09,381 - INFO - 📂 Category: Profit-Loss-Discount -> Discount Chains
+2025-08-19 19:35:09,381 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:35:09 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:35:09,382 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:35:21 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:35:21,939 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:35:21,940 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:35:21,941 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:35:21 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:35:21,942 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:35:24 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:35:24,973 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:35:24,974 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:35:24,975 - INFO -   📊 Overall Score: 10/10
+2025-08-19 19:35:24,975 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:35:27,164 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:35:27,164 - INFO -      Quality Score: 10
+2025-08-19 19:35:27,165 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:35:27,666 - INFO - 
+🔄 [95/127] Upgrading...
+2025-08-19 19:35:27,666 - INFO - 🔄 Upgrading: How many factors of 2⁵ × 3⁶ × 5² are perfect squares?...
+2025-08-19 19:35:27,666 - INFO -    Issues: Contains $ signs, Explanation missing or too short
+2025-08-19 19:35:27,666 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): How many factors of 2⁵ × 3⁶ × 5² are perfect squares?...
+2025-08-19 19:35:27,666 - INFO - 📂 Category: Number Properties -> Perfect Squares
+2025-08-19 19:35:27,666 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:35:27 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:35:27,667 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:35:30 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:35:30,799 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:35:30,800 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:35:30,801 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:35:30 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:35:30,801 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:35:32 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:35:32,426 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:35:32,428 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:35:32,429 - INFO -   📊 Overall Score: 10/10
+2025-08-19 19:35:32,429 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:35:34,588 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:35:34,588 - INFO -      Quality Score: 10
+2025-08-19 19:35:34,588 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:35:35,089 - INFO - 
+🔄 [96/127] Upgrading...
+2025-08-19 19:35:35,089 - INFO - 🔄 Upgrading: How many factors of the number 2⁸×3⁶×5⁴×10⁵ are multiples of...
+2025-08-19 19:35:35,089 - INFO -    Issues: Explanation missing or too short
+2025-08-19 19:35:35,089 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): How many factors of the number 2⁸×3⁶×5⁴×10⁵ are multiples of...
+2025-08-19 19:35:35,089 - INFO - 📂 Category: Number Properties -> Factorisation of Integers
+2025-08-19 19:35:35,089 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:35:35 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:35:35,090 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:35:45 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:35:45,154 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:35:45,155 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:35:45,156 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:35:45 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:35:45,157 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:35:47 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:35:47,266 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:35:47,267 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:35:47,268 - INFO -   📊 Overall Score: 10/10
+2025-08-19 19:35:47,268 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:35:47,268 - ERROR -   ❌ Upgrade exception: list index out of range
+2025-08-19 19:35:47,768 - INFO - 
+🔄 [97/127] Upgrading...
+2025-08-19 19:35:47,769 - INFO - 🔄 Upgrading: How many of the integers 1, 2, â¦ , 120, are divisible by n...
+2025-08-19 19:35:47,769 - INFO -    Issues: Explanation missing or too short
+2025-08-19 19:35:47,769 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): How many of the integers 1, 2, â¦ , 120, are divisible by n...
+2025-08-19 19:35:47,769 - INFO - 📂 Category: Divisibility -> Applications
+2025-08-19 19:35:47,769 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:35:47 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:35:47,770 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:35:51 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:35:51,271 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:35:51,271 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:35:51,272 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:35:51 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:35:51,273 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:35:53 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:35:53,805 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:35:53,805 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:35:53,806 - INFO -   📊 Overall Score: 10/10
+2025-08-19 19:35:53,806 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:35:55,970 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:35:55,970 - INFO -      Quality Score: 10
+2025-08-19 19:35:55,970 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:35:56,471 - INFO - 
+🔄 [98/127] Upgrading...
+2025-08-19 19:35:56,471 - INFO - 🔄 Upgrading: The sum of the digits of a number N is 23. The remainder whe...
+2025-08-19 19:35:56,472 - INFO -    Issues: Contains $ signs, Explanation missing or too short
+2025-08-19 19:35:56,472 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): The sum of the digits of a number N is 23. The remainder whe...
+2025-08-19 19:35:56,472 - INFO - 📂 Category: Number Properties -> Advanced Applications
+2025-08-19 19:35:56,472 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:35:56 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:35:56,473 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:36:07 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:36:07,767 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:36:07,768 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:36:07,770 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:36:07 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:36:07,770 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:36:09 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:36:09,736 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:36:09,737 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:36:09,738 - INFO -   📊 Overall Score: 10/10
+2025-08-19 19:36:09,738 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:36:11,917 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:36:11,917 - INFO -      Quality Score: 10
+2025-08-19 19:36:11,917 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:36:12,418 - INFO - 
+🔄 [99/127] Upgrading...
+2025-08-19 19:36:12,418 - INFO - 🔄 Upgrading: A number N² has 15 factors. How many factors can N have?...
+2025-08-19 19:36:12,418 - INFO -    Issues: Contains $ signs, Explanation missing or too short
+2025-08-19 19:36:12,418 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): A number N² has 15 factors. How many factors can N have?...
+2025-08-19 19:36:12,418 - INFO - 📂 Category: Number Properties -> Factorisation of Integers
+2025-08-19 19:36:12,418 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:36:12 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:36:12,419 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:36:15 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:36:15,710 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:36:15,711 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:36:15,712 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:36:15 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:36:15,713 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:36:16 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:36:16,482 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:36:16,483 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:36:16,483 - INFO -   📊 Overall Score: 10/10
+2025-08-19 19:36:16,483 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:36:18,691 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:36:18,692 - INFO -      Quality Score: 10
+2025-08-19 19:36:18,692 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:36:19,192 - INFO - 
+🔄 [100/127] Upgrading...
+2025-08-19 19:36:19,193 - INFO - 🔄 Upgrading: What is the remainder when (13¹⁰⁰ + 17¹⁰⁰) is divided by 25?...
+2025-08-19 19:36:19,193 - INFO -    Issues: Explanation missing or too short
+2025-08-19 19:36:19,193 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): What is the remainder when (13¹⁰⁰ + 17¹⁰⁰) is divided by 25?...
+2025-08-19 19:36:19,193 - INFO - 📂 Category: Remainders -> Advanced Applications
+2025-08-19 19:36:19,193 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:36:19 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:36:19,194 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:36:26 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:36:26,653 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:36:26,653 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:36:26,654 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:36:26 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:36:26,655 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:36:29 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:36:29,975 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:36:29,976 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:36:29,976 - INFO -   📊 Overall Score: 10/10
+2025-08-19 19:36:29,977 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:36:32,187 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:36:32,188 - INFO -      Quality Score: 10
+2025-08-19 19:36:32,188 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:36:32,188 - INFO - 
+📈 UPGRADE PROGRESS [100/127]
+2025-08-19 19:36:32,188 - INFO -    Successful: 98
+2025-08-19 19:36:32,188 - INFO -    Failed: 2
+2025-08-19 19:36:32,188 - INFO -    Average quality: 9.4
+2025-08-19 19:36:32,689 - INFO - 
+🔄 [101/127] Upgrading...
+2025-08-19 19:36:32,689 - INFO - 🔄 Upgrading: A number when divided by 18 leaves a remainder 7. The same n...
+2025-08-19 19:36:32,689 - INFO -    Issues: Contains $ signs, Explanation missing or too short
+2025-08-19 19:36:32,689 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): A number when divided by 18 leaves a remainder 7. The same n...
+2025-08-19 19:36:32,689 - INFO - 📂 Category: Remainders -> Basics
+2025-08-19 19:36:32,689 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:36:32 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:36:32,690 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:36:54 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:36:54,803 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:36:54,804 - WARNING -   ⚠️ Gemini output failed schema validation: ['Missing highlighted final answer']
+2025-08-19 19:36:54,805 - ERROR -   ❌ Gemini generation failed - using fallback
+2025-08-19 19:36:54,805 - INFO -   🔄 Generating schema-compliant fallback solution...
+2025-08-19 19:36:57,033 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:36:57,033 - INFO -      Quality Score: 6
+2025-08-19 19:36:57,033 - INFO -      Workflow: N/A
+2025-08-19 19:36:57,534 - INFO - 
+🔄 [102/127] Upgrading...
+2025-08-19 19:36:57,534 - INFO - 🔄 Upgrading: A number 4¹⁶ + 1 is divisible by x. Which among the followin...
+2025-08-19 19:36:57,534 - INFO -    Issues: Explanation missing or too short
+2025-08-19 19:36:57,534 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): A number 4¹⁶ + 1 is divisible by x. Which among the followin...
+2025-08-19 19:36:57,534 - INFO - 📂 Category: Number Properties -> Applications
+2025-08-19 19:36:57,534 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:36:57 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:36:57,535 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:37:04 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:37:04,614 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:37:04,615 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:37:04,616 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:37:04 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:37:04,617 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:37:06 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:37:06,938 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:37:06,938 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:37:06,939 - INFO -   📊 Overall Score: 10/10
+2025-08-19 19:37:06,939 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:37:09,075 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:37:09,075 - INFO -      Quality Score: 10
+2025-08-19 19:37:09,075 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:37:09,576 - INFO - 
+🔄 [103/127] Upgrading...
+2025-08-19 19:37:09,576 - INFO - 🔄 Upgrading: What are the last two digits of the number 7⁴⁵?...
+2025-08-19 19:37:09,576 - INFO -    Issues: Explanation missing or too short
+2025-08-19 19:37:09,576 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): What are the last two digits of the number 7⁴⁵?...
+2025-08-19 19:37:09,576 - INFO - 📂 Category: Remainders -> Basic Calculations
+2025-08-19 19:37:09,576 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:37:09 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:37:09,577 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:37:13 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:37:13,239 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:37:13,240 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:37:13,241 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:37:13 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:37:13,241 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:37:14 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:37:14,185 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:37:14,185 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:37:14,186 - INFO -   📊 Overall Score: 10/10
+2025-08-19 19:37:14,186 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:37:16,326 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:37:16,327 - INFO -      Quality Score: 10
+2025-08-19 19:37:16,327 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:37:16,827 - INFO - 
+🔄 [104/127] Upgrading...
+2025-08-19 19:37:16,827 - INFO - 🔄 Upgrading: There are 2 numbers such that a > b, HCF (a, b) = h and LCM ...
+2025-08-19 19:37:16,827 - INFO -    Issues: Explanation missing or too short
+2025-08-19 19:37:16,827 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): There are 2 numbers such that a > b, HCF (a, b) = h and LCM ...
+2025-08-19 19:37:16,827 - INFO - 📂 Category: HCF-LCM -> Basics
+2025-08-19 19:37:16,827 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:37:16 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:37:16,829 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:37:20 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:37:20,014 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:37:20,015 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:37:20,016 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:37:20 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:37:20,017 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:37:20 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:37:20,847 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:37:20,848 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:37:20,848 - INFO -   📊 Overall Score: 10/10
+2025-08-19 19:37:20,848 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:37:23,012 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:37:23,012 - INFO -      Quality Score: 10
+2025-08-19 19:37:23,012 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:37:23,513 - INFO - 
+🔄 [105/127] Upgrading...
+2025-08-19 19:37:23,513 - INFO - 🔄 Upgrading: When 40! is expressed in base 8 form, what is the last nonâ...
+2025-08-19 19:37:23,513 - INFO -    Issues: Contains $ signs, Explanation missing or too short
+2025-08-19 19:37:23,513 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): When 40! is expressed in base 8 form, what is the last nonâ...
+2025-08-19 19:37:23,513 - INFO - 📂 Category: Factorials -> Properties of Factorials
+2025-08-19 19:37:23,513 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:37:23 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:37:23,514 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:37:31 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:37:31,078 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:37:31,079 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:37:31,080 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:37:31 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:37:31,081 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:37:33 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:37:33,862 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:37:33,862 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:37:33,863 - INFO -   📊 Overall Score: 10/10
+2025-08-19 19:37:33,863 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:37:36,093 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:37:36,093 - INFO -      Quality Score: 10
+2025-08-19 19:37:36,093 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:37:36,594 - INFO - 
+🔄 [106/127] Upgrading...
+2025-08-19 19:37:36,594 - INFO - 🔄 Upgrading: How many different pairs (a, b) of positive integers are the...
+2025-08-19 19:37:36,594 - INFO -    Issues: Contains $ signs, Explanation missing or too short
+2025-08-19 19:37:36,594 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): How many different pairs (a, b) of positive integers are the...
+2025-08-19 19:37:36,594 - INFO - 📂 Category: Number Properties -> Factorisation of Integers
+2025-08-19 19:37:36,594 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:37:36 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:37:36,595 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:37:53 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:37:53,574 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:37:53,575 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:37:53,576 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:37:53 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:37:53,577 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:37:55 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:37:55,661 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:37:55,661 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:37:55,662 - INFO -   📊 Overall Score: 10/10
+2025-08-19 19:37:55,662 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:37:57,795 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:37:57,795 - INFO -      Quality Score: 10
+2025-08-19 19:37:57,795 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:37:58,296 - INFO - 
+🔄 [107/127] Upgrading...
+2025-08-19 19:37:58,296 - INFO - 🔄 Upgrading: How many values can natural number n take, if n! is a multip...
+2025-08-19 19:37:58,296 - INFO -    Issues: Contains $ signs, Explanation missing or too short
+2025-08-19 19:37:58,296 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): How many values can natural number n take, if n! is a multip...
+2025-08-19 19:37:58,296 - INFO - 📂 Category: Number Properties -> Properties of Factorials
+2025-08-19 19:37:58,296 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:37:58 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:37:58,297 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:38:13 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:38:13,767 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:38:13,767 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:38:13,768 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:38:13 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:38:13,770 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:38:17 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:38:17,102 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:38:17,103 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:38:17,103 - INFO -   📊 Overall Score: 10/10
+2025-08-19 19:38:17,104 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:38:19,310 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:38:19,310 - INFO -      Quality Score: 10
+2025-08-19 19:38:19,310 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:38:19,811 - INFO - 
+🔄 [108/127] Upgrading...
+2025-08-19 19:38:19,811 - INFO - 🔄 Upgrading: How many values can natural number n take, if n! is a multip...
+2025-08-19 19:38:19,811 - INFO -    Issues: Contains $ signs, Explanation missing or too short
+2025-08-19 19:38:19,811 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): How many values can natural number n take, if n! is a multip...
+2025-08-19 19:38:19,811 - INFO - 📂 Category: Number Properties -> Properties of Factorials
+2025-08-19 19:38:19,811 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:38:19 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:38:19,812 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:38:32 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:38:32,742 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:38:32,743 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:38:32,745 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:38:32 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:38:32,745 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:38:35 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:38:35,093 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:38:35,094 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:38:35,095 - INFO -   📊 Overall Score: 10/10
+2025-08-19 19:38:35,095 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:38:37,311 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:38:37,312 - INFO -      Quality Score: 10
+2025-08-19 19:38:37,312 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:38:37,812 - INFO - 
+🔄 [109/127] Upgrading...
+2025-08-19 19:38:37,813 - INFO - 🔄 Upgrading: n² + 5n + 6 is a multiple of 6. n is natural number less tha...
+2025-08-19 19:38:37,813 - INFO -    Issues: Contains $ signs, Explanation missing or too short
+2025-08-19 19:38:37,813 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): n² + 5n + 6 is a multiple of 6. n is natural number less tha...
+2025-08-19 19:38:37,813 - INFO - 📂 Category: Number Properties -> Divisibility
+2025-08-19 19:38:37,813 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:38:37 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:38:37,814 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:38:56 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:38:56,770 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:38:56,771 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:38:56,773 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:38:56 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:38:56,774 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:38:59 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:38:59,773 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:38:59,774 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:38:59,774 - INFO -   📊 Overall Score: 10/10
+2025-08-19 19:38:59,774 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:39:02,029 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:39:02,029 - INFO -      Quality Score: 10
+2025-08-19 19:39:02,029 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:39:02,530 - INFO - 
+🔄 [110/127] Upgrading...
+2025-08-19 19:39:02,530 - INFO - 🔄 Upgrading: The integers 573921 and 575713 when divided by a 3 digit num...
+2025-08-19 19:39:02,530 - INFO -    Issues: Explanation missing or too short
+2025-08-19 19:39:02,530 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): The integers 573921 and 575713 when divided by a 3 digit num...
+2025-08-19 19:39:02,530 - INFO - 📂 Category: Remainders -> Applications
+2025-08-19 19:39:02,530 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:39:02 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:39:02,531 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:39:07 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:39:07,273 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:39:07,274 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:39:07,275 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:39:07 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:39:07,276 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:39:09 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:39:09,476 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:39:09,477 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:39:09,477 - INFO -   📊 Overall Score: 10/10
+2025-08-19 19:39:09,477 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:39:09,477 - ERROR -   ❌ Upgrade exception: list index out of range
+2025-08-19 19:39:09,478 - INFO - 
+📈 UPGRADE PROGRESS [110/127]
+2025-08-19 19:39:09,478 - INFO -    Successful: 107
+2025-08-19 19:39:09,478 - INFO -    Failed: 3
+2025-08-19 19:39:09,478 - INFO -    Average quality: 9.4
+2025-08-19 19:39:09,979 - INFO - 
+🔄 [111/127] Upgrading...
+2025-08-19 19:39:09,979 - INFO - 🔄 Upgrading: What is the remainder when we divide 3⁹⁰ + 5⁹⁰ by 34?...
+2025-08-19 19:39:09,979 - INFO -    Issues: Contains $ signs, Explanation missing or too short
+2025-08-19 19:39:09,979 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): What is the remainder when we divide 3⁹⁰ + 5⁹⁰ by 34?...
+2025-08-19 19:39:09,979 - INFO - 📂 Category: Remainders -> Applications
+2025-08-19 19:39:09,979 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:39:09 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:39:09,980 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:39:36 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:39:36,978 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:39:36,979 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:39:36,981 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:39:36 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:39:36,982 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:39:38 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:39:38,156 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:39:38,157 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:39:38,157 - INFO -   📊 Overall Score: 10/10
+2025-08-19 19:39:38,157 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:39:40,386 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:39:40,386 - INFO -      Quality Score: 10
+2025-08-19 19:39:40,386 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:39:40,887 - INFO - 
+🔄 [112/127] Upgrading...
+2025-08-19 19:39:40,887 - INFO - 🔄 Upgrading: N² leaves a remainder of 1 when divided by 24. What are the ...
+2025-08-19 19:39:40,887 - INFO -    Issues: Explanation missing or too short
+2025-08-19 19:39:40,887 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): N² leaves a remainder of 1 when divided by 24. What are the ...
+2025-08-19 19:39:40,887 - INFO - 📂 Category: Remainders -> Applications
+2025-08-19 19:39:40,887 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:39:40 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:39:40,888 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:39:45 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:39:45,527 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:39:45,528 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:39:45,529 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:39:45 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:39:45,530 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:39:47 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:39:47,337 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:39:47,337 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:39:47,338 - INFO -   📊 Overall Score: 10/10
+2025-08-19 19:39:47,338 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:39:49,509 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:39:49,509 - INFO -      Quality Score: 10
+2025-08-19 19:39:49,509 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:39:50,010 - INFO - 
+🔄 [113/127] Upgrading...
+2025-08-19 19:39:50,010 - INFO - 🔄 Upgrading: If N and x are positive integers such that N^N = 2¹⁶⁰ and N²...
+2025-08-19 19:39:50,010 - INFO -    Issues: Contains $ signs, Explanation missing or too short
+2025-08-19 19:39:50,010 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): If N and x are positive integers such that N^N = 2¹⁶⁰ and N²...
+2025-08-19 19:39:50,010 - INFO - 📂 Category: Number Properties -> Applications
+2025-08-19 19:39:50,010 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:39:50 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:39:50,011 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:40:07 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:40:07,070 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:40:07,071 - WARNING -   ⚠️ Gemini output failed schema validation: ['Missing highlighted final answer']
+2025-08-19 19:40:07,072 - ERROR -   ❌ Gemini generation failed - using fallback
+2025-08-19 19:40:07,072 - INFO -   🔄 Generating schema-compliant fallback solution...
+2025-08-19 19:40:09,218 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:40:09,218 - INFO -      Quality Score: 6
+2025-08-19 19:40:09,218 - INFO -      Workflow: N/A
+2025-08-19 19:40:09,719 - INFO - 
+🔄 [114/127] Upgrading...
+2025-08-19 19:40:09,719 - INFO - 🔄 Upgrading: How many pairs (a,b) of positive integers are there such tha...
+2025-08-19 19:40:09,719 - INFO -    Issues: Contains $ signs, Explanation missing or too short
+2025-08-19 19:40:09,719 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): How many pairs (a,b) of positive integers are there such tha...
+2025-08-19 19:40:09,719 - INFO - 📂 Category: Number Properties -> Factorisation of Integers
+2025-08-19 19:40:09,719 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:40:09 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:40:09,720 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:40:13 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:40:13,571 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:40:13,572 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:40:13,573 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:40:13 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:40:13,574 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:40:15 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:40:15,276 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:40:15,277 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:40:15,277 - INFO -   📊 Overall Score: 10/10
+2025-08-19 19:40:15,279 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:40:17,448 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:40:17,448 - INFO -      Quality Score: 10
+2025-08-19 19:40:17,448 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:40:17,949 - INFO - 
+🔄 [115/127] Upgrading...
+2025-08-19 19:40:17,949 - INFO - 🔄 Upgrading: How many factors of 2⁴ × 5³ × 7⁴ are odd numbers?...
+2025-08-19 19:40:17,949 - INFO -    Issues: Explanation missing or too short
+2025-08-19 19:40:17,949 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): How many factors of 2⁴ × 5³ × 7⁴ are odd numbers?...
+2025-08-19 19:40:17,949 - INFO - 📂 Category: Number Properties -> Basics
+2025-08-19 19:40:17,949 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:40:17 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:40:17,950 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:40:20 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:40:20,356 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:40:20,357 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:40:20,358 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:40:20 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:40:20,359 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:40:21 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:40:21,777 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:40:21,777 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:40:21,778 - INFO -   📊 Overall Score: 10/10
+2025-08-19 19:40:21,778 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:40:23,956 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:40:23,956 - INFO -      Quality Score: 10
+2025-08-19 19:40:23,956 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:40:24,457 - INFO - 
+🔄 [116/127] Upgrading...
+2025-08-19 19:40:24,457 - INFO - 🔄 Upgrading: If N = (24³ + 25³ + 26³ + 27³), then N divided by 102 leaves...
+2025-08-19 19:40:24,457 - INFO -    Issues: Explanation missing or too short
+2025-08-19 19:40:24,457 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): If N = (24³ + 25³ + 26³ + 27³), then N divided by 102 leaves...
+2025-08-19 19:40:24,457 - INFO - 📂 Category: Remainders -> Basic Calculations
+2025-08-19 19:40:24,457 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:40:24 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:40:24,458 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:40:30 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:40:30,154 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:40:30,155 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:40:30,156 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:40:30 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:40:30,157 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:40:32 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:40:32,859 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:40:32,860 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:40:32,861 - INFO -   📊 Overall Score: 10/10
+2025-08-19 19:40:32,861 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:40:35,072 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:40:35,072 - INFO -      Quality Score: 10
+2025-08-19 19:40:35,072 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:40:35,573 - INFO - 
+🔄 [117/127] Upgrading...
+2025-08-19 19:40:35,573 - INFO - 🔄 Upgrading: Consider a large number N = 1234567891011121314â¦â¦â¦9798...
+2025-08-19 19:40:35,573 - INFO -    Issues: Contains $ signs, Explanation missing or too short
+2025-08-19 19:40:35,573 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): Consider a large number N = 1234567891011121314â¦â¦â¦9798...
+2025-08-19 19:40:35,573 - INFO - 📂 Category: Remainders -> Sum of Digits
+2025-08-19 19:40:35,573 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:40:35 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:40:35,574 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:41:00 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:41:00,308 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:41:00,310 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:41:00,314 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:41:00 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:41:00,315 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:41:01 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:41:01,949 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:41:01,950 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:41:01,951 - INFO -   📊 Overall Score: 8/10
+2025-08-19 19:41:01,951 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:41:04,149 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:41:04,149 - INFO -      Quality Score: 8
+2025-08-19 19:41:04,149 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:41:04,650 - INFO - 
+🔄 [118/127] Upgrading...
+2025-08-19 19:41:04,650 - INFO - 🔄 Upgrading: Given a number, N = 55⁵ + 17⁵ â 72⁵, then which of the fol...
+2025-08-19 19:41:04,650 - INFO -    Issues: Explanation missing or too short
+2025-08-19 19:41:04,650 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): Given a number, N = 55⁵ + 17⁵ â 72⁵, then which of the fol...
+2025-08-19 19:41:04,650 - INFO - 📂 Category: Number Properties -> Applications
+2025-08-19 19:41:04,650 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:41:04 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:41:04,651 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:41:16 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:41:16,424 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:41:16,425 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:41:16,427 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:41:16 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:41:16,428 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:41:18 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:41:18,466 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:41:18,468 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:41:18,469 - INFO -   📊 Overall Score: 10/10
+2025-08-19 19:41:18,469 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:41:20,622 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:41:20,622 - INFO -      Quality Score: 10
+2025-08-19 19:41:20,622 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:41:21,123 - INFO - 
+🔄 [119/127] Upgrading...
+2025-08-19 19:41:21,123 - INFO - 🔄 Upgrading: Let K be the largest number with exactly 3 factors that divi...
+2025-08-19 19:41:21,123 - INFO -    Issues: Contains $ signs, Explanation missing or too short
+2025-08-19 19:41:21,123 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): Let K be the largest number with exactly 3 factors that divi...
+2025-08-19 19:41:21,123 - INFO - 📂 Category: Number Properties -> Factorisation of Integers
+2025-08-19 19:41:21,123 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:41:21 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:41:21,124 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:41:35 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:41:35,312 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:41:35,313 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:41:35,315 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:41:35 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:41:35,316 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:41:37 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:41:37,681 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:41:37,681 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:41:37,681 - INFO -   📊 Overall Score: 10/10
+2025-08-19 19:41:37,682 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:41:39,929 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:41:39,929 - INFO -      Quality Score: 10
+2025-08-19 19:41:39,929 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:41:40,430 - INFO - 
+🔄 [120/127] Upgrading...
+2025-08-19 19:41:40,430 - INFO - 🔄 Upgrading: Let a and b be natural numbers. If a²+ab+a=14 and b²+ab+b=28...
+2025-08-19 19:41:40,430 - INFO -    Issues: Contains $ signs, Explanation missing or too short
+2025-08-19 19:41:40,430 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): Let a and b be natural numbers. If a²+ab+a=14 and b²+ab+b=28...
+2025-08-19 19:41:40,430 - INFO - 📂 Category: Algebra -> Basic Calculations
+2025-08-19 19:41:40,430 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:41:40 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:41:40,431 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:41:44 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:41:44,624 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:41:44,625 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:41:44,626 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:41:44 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:41:44,627 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:41:46 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:41:46,394 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:41:46,395 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:41:46,396 - INFO -   📊 Overall Score: 10/10
+2025-08-19 19:41:46,396 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:41:48,527 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:41:48,527 - INFO -      Quality Score: 10
+2025-08-19 19:41:48,527 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:41:48,527 - INFO - 
+📈 UPGRADE PROGRESS [120/127]
+2025-08-19 19:41:48,527 - INFO -    Successful: 117
+2025-08-19 19:41:48,527 - INFO -    Failed: 3
+2025-08-19 19:41:48,527 - INFO -    Average quality: 9.4
+2025-08-19 19:41:49,028 - INFO - 
+🔄 [121/127] Upgrading...
+2025-08-19 19:41:49,028 - INFO - 🔄 Upgrading: N leaves a remainder of 4 when divided by 33, what are the p...
+2025-08-19 19:41:49,028 - INFO -    Issues: Explanation missing or too short
+2025-08-19 19:41:49,028 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): N leaves a remainder of 4 when divided by 33, what are the p...
+2025-08-19 19:41:49,028 - INFO - 📂 Category: Remainders -> Basic Calculations
+2025-08-19 19:41:49,028 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:41:49 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:41:49,029 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:41:54 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:41:54,885 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:41:54,886 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:41:54,887 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:41:54 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:41:54,887 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:41:57 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:41:57,447 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:41:57,448 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:41:57,448 - INFO -   📊 Overall Score: 10/10
+2025-08-19 19:41:57,448 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:41:59,649 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:41:59,649 - INFO -      Quality Score: 10
+2025-08-19 19:41:59,649 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:42:00,150 - INFO - 
+🔄 [122/127] Upgrading...
+2025-08-19 19:42:00,150 - INFO - 🔄 Upgrading: How many pairs (m,n) of positive integers satisfy the equati...
+2025-08-19 19:42:00,150 - INFO -    Issues: Contains $ signs, Explanation missing or too short
+2025-08-19 19:42:00,150 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): How many pairs (m,n) of positive integers satisfy the equati...
+2025-08-19 19:42:00,150 - INFO - 📂 Category: Number Properties -> Factorisation of Integers
+2025-08-19 19:42:00,150 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:42:00 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:42:00,151 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:42:09 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:42:09,659 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:42:09,660 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:42:09,660 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:42:09 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:42:09,662 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:42:11 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:42:11,423 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:42:11,423 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:42:11,424 - INFO -   📊 Overall Score: 10/10
+2025-08-19 19:42:11,424 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:42:13,689 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:42:13,689 - INFO -      Quality Score: 10
+2025-08-19 19:42:13,689 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:42:14,190 - INFO - 
+🔄 [123/127] Upgrading...
+2025-08-19 19:42:14,190 - INFO - 🔄 Upgrading: The sum of two non coâprime numbers added to their HCF giv...
+2025-08-19 19:42:14,190 - INFO -    Issues: Contains $ signs, Explanation missing or too short
+2025-08-19 19:42:14,190 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): The sum of two non coâprime numbers added to their HCF giv...
+2025-08-19 19:42:14,190 - INFO - 📂 Category: HCF-LCM -> Applications
+2025-08-19 19:42:14,190 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:42:14 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:42:14,191 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:42:23 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:42:23,050 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:42:23,051 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:42:23,052 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:42:23 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:42:23,053 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:42:25 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:42:25,017 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:42:25,017 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:42:25,018 - INFO -   📊 Overall Score: 10/10
+2025-08-19 19:42:25,018 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:42:27,236 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:42:27,236 - INFO -      Quality Score: 10
+2025-08-19 19:42:27,236 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:42:27,737 - INFO - 
+🔄 [124/127] Upgrading...
+2025-08-19 19:42:27,737 - INFO - 🔄 Upgrading: How many factors of 2⁴ Ã 3⁵ Ã 10⁴ are perfect squares whic...
+2025-08-19 19:42:27,737 - INFO -    Issues: Contains $ signs, Explanation missing or too short
+2025-08-19 19:42:27,737 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): How many factors of 2⁴ Ã 3⁵ Ã 10⁴ are perfect squares whic...
+2025-08-19 19:42:27,737 - INFO - 📂 Category: Number Properties -> Perfect Squares
+2025-08-19 19:42:27,737 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:42:27 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:42:27,739 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:42:36 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:42:36,129 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:42:36,130 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:42:36,131 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:42:36 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:42:36,132 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:42:39 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:42:39,134 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:42:39,135 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:42:39,136 - INFO -   📊 Overall Score: 10/10
+2025-08-19 19:42:39,136 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:42:41,356 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:42:41,356 - INFO -      Quality Score: 10
+2025-08-19 19:42:41,356 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:42:41,857 - INFO - 
+🔄 [125/127] Upgrading...
+2025-08-19 19:42:41,857 - INFO - 🔄 Upgrading: Number N = 2⁶×5⁵×7⁶×10⁷; how many factors of N are even numb...
+2025-08-19 19:42:41,857 - INFO -    Issues: Explanation missing or too short
+2025-08-19 19:42:41,857 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): Number N = 2⁶×5⁵×7⁶×10⁷; how many factors of N are even numb...
+2025-08-19 19:42:41,857 - INFO - 📂 Category: Number Properties -> Factorisation of Integers
+2025-08-19 19:42:41,857 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:42:41 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:42:41,858 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:43:02 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:43:02,170 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:43:02,171 - WARNING -   ⚠️ Gemini output failed schema validation: ['Missing highlighted final answer']
+2025-08-19 19:43:02,172 - ERROR -   ❌ Gemini generation failed - using fallback
+2025-08-19 19:43:02,172 - INFO -   🔄 Generating schema-compliant fallback solution...
+2025-08-19 19:43:04,392 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:43:04,392 - INFO -      Quality Score: 6
+2025-08-19 19:43:04,392 - INFO -      Workflow: N/A
+2025-08-19 19:43:04,892 - INFO - 
+🔄 [126/127] Upgrading...
+2025-08-19 19:43:04,893 - INFO - 🔄 Upgrading: The natural numbers are divided into groups as (1), (2, 3, 4...
+2025-08-19 19:43:04,893 - INFO -    Issues: Contains $ signs, Explanation missing or too short
+2025-08-19 19:43:04,893 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): The natural numbers are divided into groups as (1), (2, 3, 4...
+2025-08-19 19:43:04,893 - INFO - 📂 Category: Arithmetic Progressions -> Advanced Applications
+2025-08-19 19:43:04,893 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:43:04 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:43:04,894 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:43:35 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:43:35,800 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:43:35,801 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:43:35,804 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:43:35 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:43:35,805 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:43:38 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:43:38,025 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:43:38,026 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:43:38,026 - INFO -   📊 Overall Score: 10/10
+2025-08-19 19:43:38,027 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:43:40,195 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:43:40,195 - INFO -      Quality Score: 10
+2025-08-19 19:43:40,195 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:43:40,696 - INFO - 
+🔄 [127/127] Upgrading...
+2025-08-19 19:43:40,696 - INFO - 🔄 Upgrading: A train travels 240 km in 3 hours. What is its average speed...
+2025-08-19 19:43:40,696 - INFO -    Issues: Explanation missing or too short
+2025-08-19 19:43:40,696 - INFO - 🔄 Gemini (Maker) → Anthropic (Checker): A train travels 240 km in 3 hours. What is its average speed...
+2025-08-19 19:43:40,696 - INFO - 📂 Category: Time-Speed-Distance -> Basics
+2025-08-19 19:43:40,696 - INFO -   🎯 Phase 1: Gemini generating solution...
+[92m19:43:40 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 19:43:40,697 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m19:43:42 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:43:42,814 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:43:42,815 - INFO -   ✅ Gemini generated valid schema-compliant solution
+2025-08-19 19:43:42,816 - INFO -   🔍 Phase 2: Anthropic quality checking...
+[92m19:43:42 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+2025-08-19 19:43:42,817 - INFO - 
+LiteLLM completion() model= claude-3-haiku-20240307; provider = anthropic
+[92m19:43:43 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:43:43,507 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 19:43:43,508 - INFO -   📊 Anthropic Assessment: Accept
+2025-08-19 19:43:43,508 - INFO -   📊 Overall Score: 10/10
+2025-08-19 19:43:43,508 - INFO -   ✅ Phase 3: Anthropic approved - solution accepted
+2025-08-19 19:43:45,654 - INFO -   ✅ Upgraded successfully
+2025-08-19 19:43:45,654 - INFO -      Quality Score: 10
+2025-08-19 19:43:45,654 - INFO -      Workflow: Maker-Checker Methodology
+2025-08-19 19:43:46,155 - INFO - 
+🎉 COMPREHENSIVE UPGRADE COMPLETED!
+2025-08-19 19:43:46,155 - INFO - ================================================================================
+2025-08-19 19:43:46,155 - INFO - 📊 FINAL RESULTS:
+2025-08-19 19:43:46,155 - INFO -    Total questions in database: 127
+2025-08-19 19:43:46,155 - INFO -    Questions that needed upgrade: 127
+2025-08-19 19:43:46,155 - INFO -    Successful upgrades: 124
+2025-08-19 19:43:46,155 - INFO -    Failed upgrades: 3
+2025-08-19 19:43:46,155 - INFO -    Upgrade success rate: 97.6%
+2025-08-19 19:43:46,155 - INFO -    Average quality score: 9.4/10
+2025-08-19 19:43:46,155 - INFO - 
+✅ DATABASE STATUS:
+2025-08-19 19:43:46,155 - INFO -    Questions with new enrichment standards: 124
+2025-08-19 19:43:46,155 - INFO -    Questions already meeting standards: 0
+2025-08-19 19:43:46,155 - INFO -    Total high-quality questions: 124
+2025-08-19 19:43:46,155 - INFO - ✅ Comprehensive upgrade completed successfully!
