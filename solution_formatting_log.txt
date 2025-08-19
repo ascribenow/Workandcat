@@ -1470,3 +1470,13 @@ LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 [92m15:55:08 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
 2025-08-19 15:55:08,146 - INFO - Wrapper: Completed Call, calling success_handler
 2025-08-19 15:55:08,147 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:55:10,530 - INFO -   ✅ Improved formatting
+2025-08-19 15:55:10,731 - INFO - 
+🔄 [112/126] Processing formatting...
+2025-08-19 15:55:10,731 - INFO -   📝 Question: The natural numbers are divided into groups as (1), (2, 3, 4...
+2025-08-19 15:55:10,731 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:55:10,731 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:55:10 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:55:10,745 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
