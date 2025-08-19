@@ -633,3 +633,55 @@ LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 2025-08-19 15:38:55,484 - INFO - 
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:39:27 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:39:27,555 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:39:27,555 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:39:29,738 - INFO -   ✅ Improved formatting
+2025-08-19 15:39:29,939 - INFO - 
+🔄 [49/126] Processing formatting...
+2025-08-19 15:39:29,939 - INFO -   📝 Question: A number n! is written in base 6 and base 8 notation. Its ba...
+2025-08-19 15:39:29,939 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:39:29,939 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:39:29 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:39:29,940 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:39:44 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:39:44,255 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:39:44,256 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:39:46,421 - INFO -   ✅ Improved formatting
+2025-08-19 15:39:46,622 - INFO - 
+🔄 [50/126] Processing formatting...
+2025-08-19 15:39:46,622 - INFO -   📝 Question: Given N is a positive integer less than 31, how many values ...
+2025-08-19 15:39:46,622 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:39:46,622 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:39:46 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:39:46,623 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:40:00 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:40:00,610 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:40:00,610 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:40:02,780 - INFO -   ✅ Improved formatting
+2025-08-19 15:40:02,980 - INFO - 
+🔄 [51/126] Processing formatting...
+2025-08-19 15:40:02,980 - INFO -   📝 Question: How many values can natural number n take, if n! is a multip...
+2025-08-19 15:40:02,980 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:40:02,980 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:40:02 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:40:02,981 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:40:22 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:40:22,288 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:40:22,289 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:40:24,378 - INFO -   ✅ Improved formatting
+2025-08-19 15:40:24,579 - INFO - 
+🔄 [52/126] Processing formatting...
+2025-08-19 15:40:24,579 - INFO -   📝 Question: How many values can natural number n take, if n! is a multip...
+2025-08-19 15:40:24,579 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:40:24,579 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:40:24 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:40:24,580 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini

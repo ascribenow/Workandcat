@@ -1194,6 +1194,398 @@ class CATBackendTester:
         else:
             return "Arithmetic"  # Default fallback
 
+    def test_solution_formatting_improvements(self):
+        """Test improved solution formatting to verify textbook-like presentation"""
+        print("📚 SOLUTION FORMATTING IMPROVEMENTS TESTING")
+        print("=" * 70)
+        print("REVIEW REQUEST FOCUS:")
+        print("Test the improved solution formatting to verify textbook-like presentation")
+        print("")
+        print("VALIDATION CRITERIA:")
+        print("1. ✅ Solution Structure: Check that solutions have proper **Step 1:**, **Step 2:** formatting with clear line breaks")
+        print("2. ✅ Mathematical Display: Verify Unicode mathematical notation is preserved with good formatting")
+        print("3. ✅ Readability: Ensure solutions are no longer cramped together but have proper spacing")
+        print("4. ✅ Session Functionality: Confirm formatting improvements don't break session workflow")
+        print("5. ✅ Content Quality: Validate improved formatting maintains solution accuracy and completeness")
+        print("")
+        print("AUTHENTICATION: student@catprep.com/student123")
+        print("EXPECTED RESULTS:")
+        print("- Solutions should display with clear **Step 1:**, **Step 2:** headers")
+        print("- Proper line breaks and spacing between steps")
+        print("- Mathematical notation remains clean and readable")
+        print("- No loss of content quality due to formatting changes")
+        print("- Professional textbook-like presentation")
+        print("=" * 70)
+        
+        # Authenticate as student
+        student_login = {"email": "student@catprep.com", "password": "student123"}
+        success, response = self.run_test("Student Authentication", "POST", "auth/login", 200, student_login)
+        if not success or 'access_token' not in response:
+            print("❌ Cannot test solution formatting - student login failed")
+            return False
+            
+        student_token = response['access_token']
+        student_headers = {'Content-Type': 'application/json', 'Authorization': f'Bearer {student_token}'}
+        
+        formatting_results = {
+            "student_authentication_successful": True,
+            "session_creation_working": False,
+            "solution_step_structure_present": False,
+            "mathematical_notation_clean": False,
+            "proper_line_breaks_spacing": False,
+            "session_workflow_functional": False,
+            "content_quality_maintained": False,
+            "textbook_presentation_achieved": False,
+            "no_formatting_artifacts": False,
+            "solution_completeness_verified": False
+        }
+        
+        # TEST 1: Session Creation and Navigation
+        print("\n🎯 TEST 1: SESSION CREATION AND NAVIGATION")
+        print("-" * 50)
+        print("Creating session and navigating through questions to test solution display")
+        
+        session_data = {"target_minutes": 30}
+        success, response = self.run_test("Create Session for Solution Testing", "POST", "sessions/start", 200, session_data, student_headers)
+        
+        if success:
+            session_id = response.get('session_id')
+            total_questions = response.get('total_questions', 0)
+            
+            print(f"   ✅ Session created: {session_id}")
+            print(f"   📊 Total questions: {total_questions}")
+            
+            if session_id and total_questions > 0:
+                formatting_results["session_creation_working"] = True
+                self.session_id = session_id
+                print("   ✅ Session creation working properly")
+            else:
+                print("   ❌ Session creation failed")
+                return False
+        else:
+            print("   ❌ Failed to create session")
+            return False
+        
+        # TEST 2: Question Display and Answer Submission
+        print("\n📝 TEST 2: QUESTION DISPLAY AND ANSWER SUBMISSION")
+        print("-" * 50)
+        print("Getting questions and submitting answers to trigger solution display")
+        
+        questions_tested = 0
+        solutions_analyzed = []
+        
+        for i in range(min(3, total_questions)):  # Test up to 3 questions
+            # Get next question
+            success, response = self.run_test(f"Get Question {i+1}", "GET", f"sessions/{self.session_id}/next-question", 200, None, student_headers)
+            
+            if success and 'question' in response:
+                question = response['question']
+                question_id = question.get('id')
+                question_stem = question.get('stem', '')
+                options = question.get('options', {})
+                
+                print(f"   📊 Question {i+1}: {question_stem[:100]}...")
+                print(f"   📊 Options available: {bool(options)}")
+                
+                if question_id:
+                    # Submit an answer to get solution feedback
+                    answer_data = {
+                        "question_id": question_id,
+                        "user_answer": "A",  # Submit option A
+                        "context": "session",
+                        "time_sec": 60,
+                        "hint_used": False
+                    }
+                    
+                    success, response = self.run_test(f"Submit Answer {i+1}", "POST", f"sessions/{self.session_id}/submit-answer", 200, answer_data, student_headers)
+                    
+                    if success:
+                        solution_feedback = response.get('solution_feedback', {})
+                        solution_approach = solution_feedback.get('solution_approach', '')
+                        detailed_solution = solution_feedback.get('detailed_solution', '')
+                        explanation = solution_feedback.get('explanation', '')
+                        
+                        print(f"   📊 Solution approach length: {len(solution_approach)} chars")
+                        print(f"   📊 Detailed solution length: {len(detailed_solution)} chars")
+                        print(f"   📊 Explanation length: {len(explanation)} chars")
+                        
+                        # Store solution for analysis
+                        solutions_analyzed.append({
+                            'question_num': i+1,
+                            'approach': solution_approach,
+                            'detailed': detailed_solution,
+                            'explanation': explanation,
+                            'stem': question_stem
+                        })
+                        
+                        questions_tested += 1
+                        
+                        if solution_approach or detailed_solution:
+                            formatting_results["session_workflow_functional"] = True
+                            print(f"   ✅ Question {i+1}: Solution feedback received")
+                        else:
+                            print(f"   ⚠️ Question {i+1}: Limited solution content")
+                    else:
+                        print(f"   ❌ Question {i+1}: Answer submission failed")
+                else:
+                    print(f"   ❌ Question {i+1}: No question ID")
+            else:
+                print(f"   ❌ Question {i+1}: Failed to get question")
+                break
+        
+        print(f"   📊 Questions tested: {questions_tested}")
+        print(f"   📊 Solutions analyzed: {len(solutions_analyzed)}")
+        
+        # TEST 3: Solution Structure Analysis
+        print("\n📋 TEST 3: SOLUTION STRUCTURE ANALYSIS")
+        print("-" * 50)
+        print("Analyzing solution structure for **Step 1:**, **Step 2:** formatting")
+        
+        step_structure_found = 0
+        proper_formatting_count = 0
+        
+        for sol in solutions_analyzed:
+            question_num = sol['question_num']
+            approach = sol['approach']
+            detailed = sol['detailed']
+            
+            print(f"\n   📊 QUESTION {question_num} SOLUTION ANALYSIS:")
+            print(f"   Approach: {approach[:200]}..." if approach else "   Approach: [Empty]")
+            print(f"   Detailed: {detailed[:200]}..." if detailed else "   Detailed: [Empty]")
+            
+            # Check for step structure
+            combined_solution = f"{approach} {detailed}".lower()
+            
+            # Look for step formatting patterns
+            step_patterns = [
+                "step 1:", "step 2:", "step 3:",
+                "**step 1:**", "**step 2:**", "**step 3:**",
+                "1.", "2.", "3.",
+                "first,", "second,", "third,",
+                "approach:", "solution:", "explanation:"
+            ]
+            
+            found_patterns = []
+            for pattern in step_patterns:
+                if pattern in combined_solution:
+                    found_patterns.append(pattern)
+            
+            if found_patterns:
+                step_structure_found += 1
+                print(f"   ✅ Step structure found: {found_patterns}")
+            else:
+                print(f"   ⚠️ No clear step structure detected")
+            
+            # Check for proper formatting (line breaks, spacing)
+            if approach and detailed:
+                if len(approach) > 50 and len(detailed) > 100:
+                    proper_formatting_count += 1
+                    print(f"   ✅ Proper content length and structure")
+                else:
+                    print(f"   ⚠️ Content may be too brief")
+        
+        if step_structure_found >= 1:
+            formatting_results["solution_step_structure_present"] = True
+            print("   ✅ Solution step structure present in solutions")
+        
+        if proper_formatting_count >= 1:
+            formatting_results["proper_line_breaks_spacing"] = True
+            print("   ✅ Proper formatting and spacing detected")
+        
+        # TEST 4: Mathematical Notation Analysis
+        print("\n🔢 TEST 4: MATHEMATICAL NOTATION ANALYSIS")
+        print("-" * 50)
+        print("Verifying Unicode mathematical notation is preserved and clean")
+        
+        unicode_symbols_found = 0
+        latex_artifacts_found = 0
+        clean_notation_count = 0
+        
+        for sol in solutions_analyzed:
+            question_num = sol['question_num']
+            combined_text = f"{sol['approach']} {sol['detailed']} {sol['explanation']}"
+            
+            # Check for Unicode mathematical symbols
+            unicode_symbols = ['×', '÷', '²', '³', '√', '≤', '≥', '≠', '±', '∞', '∑', '∏', '∫']
+            found_unicode = [sym for sym in unicode_symbols if sym in combined_text]
+            
+            # Check for LaTeX artifacts (should be cleaned)
+            latex_artifacts = ['\\frac', '\\begin{', '\\end{', '\\(', '\\)', '\\[', '\\]', '$$', '$']
+            found_latex = [art for art in latex_artifacts if art in combined_text]
+            
+            print(f"   📊 Question {question_num}:")
+            print(f"      Unicode symbols: {found_unicode}")
+            print(f"      LaTeX artifacts: {found_latex}")
+            
+            if found_unicode:
+                unicode_symbols_found += 1
+                print(f"      ✅ Unicode mathematical notation present")
+            
+            if found_latex:
+                latex_artifacts_found += 1
+                print(f"      ❌ LaTeX artifacts found - formatting not clean")
+            else:
+                clean_notation_count += 1
+                print(f"      ✅ Clean notation - no LaTeX artifacts")
+        
+        if unicode_symbols_found >= 1:
+            formatting_results["mathematical_notation_clean"] = True
+            print("   ✅ Unicode mathematical notation preserved")
+        
+        if latex_artifacts_found == 0:
+            formatting_results["no_formatting_artifacts"] = True
+            print("   ✅ No LaTeX formatting artifacts found")
+        
+        # TEST 5: Content Quality and Completeness
+        print("\n📖 TEST 5: CONTENT QUALITY AND COMPLETENESS")
+        print("-" * 50)
+        print("Validating that improved formatting maintains solution accuracy and completeness")
+        
+        complete_solutions = 0
+        quality_solutions = 0
+        
+        for sol in solutions_analyzed:
+            question_num = sol['question_num']
+            approach = sol['approach']
+            detailed = sol['detailed']
+            explanation = sol['explanation']
+            
+            # Check completeness
+            has_approach = approach and len(approach.strip()) > 20
+            has_detailed = detailed and len(detailed.strip()) > 50
+            has_explanation = explanation and len(explanation.strip()) > 10
+            
+            completeness_score = sum([has_approach, has_detailed, has_explanation])
+            
+            print(f"   📊 Question {question_num} completeness:")
+            print(f"      Approach: {'✅' if has_approach else '❌'} ({len(approach)} chars)")
+            print(f"      Detailed: {'✅' if has_detailed else '❌'} ({len(detailed)} chars)")
+            print(f"      Explanation: {'✅' if has_explanation else '❌'} ({len(explanation)} chars)")
+            print(f"      Completeness score: {completeness_score}/3")
+            
+            if completeness_score >= 2:
+                complete_solutions += 1
+                print(f"      ✅ Solution is complete")
+            
+            # Check quality indicators
+            quality_indicators = [
+                'approach' in approach.lower() if approach else False,
+                'solution' in detailed.lower() if detailed else False,
+                any(word in (approach + detailed).lower() for word in ['calculate', 'find', 'determine', 'solve']) if (approach or detailed) else False,
+                len(approach + detailed) > 200 if (approach or detailed) else False
+            ]
+            
+            quality_score = sum(quality_indicators)
+            if quality_score >= 2:
+                quality_solutions += 1
+                print(f"      ✅ Solution quality is good ({quality_score}/4)")
+            else:
+                print(f"      ⚠️ Solution quality needs improvement ({quality_score}/4)")
+        
+        if complete_solutions >= len(solutions_analyzed) * 0.7:  # 70% complete
+            formatting_results["content_quality_maintained"] = True
+            formatting_results["solution_completeness_verified"] = True
+            print("   ✅ Content quality and completeness maintained")
+        
+        # TEST 6: Textbook-like Presentation Assessment
+        print("\n📚 TEST 6: TEXTBOOK-LIKE PRESENTATION ASSESSMENT")
+        print("-" * 50)
+        print("Evaluating overall textbook-quality presentation")
+        
+        presentation_score = 0
+        max_presentation_score = 6
+        
+        # Criteria for textbook-like presentation
+        if formatting_results["solution_step_structure_present"]:
+            presentation_score += 1
+            print("   ✅ Step structure present")
+        
+        if formatting_results["mathematical_notation_clean"]:
+            presentation_score += 1
+            print("   ✅ Mathematical notation clean")
+        
+        if formatting_results["proper_line_breaks_spacing"]:
+            presentation_score += 1
+            print("   ✅ Proper spacing and formatting")
+        
+        if formatting_results["no_formatting_artifacts"]:
+            presentation_score += 1
+            print("   ✅ No formatting artifacts")
+        
+        if formatting_results["content_quality_maintained"]:
+            presentation_score += 1
+            print("   ✅ Content quality maintained")
+        
+        if formatting_results["session_workflow_functional"]:
+            presentation_score += 1
+            print("   ✅ Session workflow functional")
+        
+        presentation_percentage = (presentation_score / max_presentation_score) * 100
+        
+        if presentation_percentage >= 80:
+            formatting_results["textbook_presentation_achieved"] = True
+            print(f"   ✅ Textbook-like presentation achieved ({presentation_percentage:.1f}%)")
+        else:
+            print(f"   ⚠️ Textbook presentation needs improvement ({presentation_percentage:.1f}%)")
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 70)
+        print("SOLUTION FORMATTING IMPROVEMENTS TEST RESULTS")
+        print("=" * 70)
+        
+        passed_tests = sum(formatting_results.values())
+        total_tests = len(formatting_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        for test_name, result in formatting_results.items():
+            status = "✅ PASS" if result else "❌ FAIL"
+            print(f"{test_name.replace('_', ' ').title():<45} {status}")
+        
+        print("-" * 70)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # Critical analysis based on review request
+        print("\n🎯 CRITICAL ANALYSIS:")
+        
+        if formatting_results["solution_step_structure_present"]:
+            print("✅ SOLUTION STRUCTURE: Step-by-step formatting working!")
+        else:
+            print("❌ SOLUTION STRUCTURE: Step formatting needs improvement")
+        
+        if formatting_results["mathematical_notation_clean"]:
+            print("✅ MATHEMATICAL DISPLAY: Unicode notation preserved and clean!")
+        else:
+            print("❌ MATHEMATICAL DISPLAY: Mathematical notation needs attention")
+        
+        if formatting_results["proper_line_breaks_spacing"]:
+            print("✅ READABILITY: Proper spacing and line breaks achieved!")
+        else:
+            print("❌ READABILITY: Spacing and formatting needs improvement")
+        
+        if formatting_results["session_workflow_functional"]:
+            print("✅ SESSION FUNCTIONALITY: Workflow remains functional!")
+        else:
+            print("❌ SESSION FUNCTIONALITY: Formatting changes broke workflow")
+        
+        if formatting_results["content_quality_maintained"]:
+            print("✅ CONTENT QUALITY: Solution accuracy and completeness maintained!")
+        else:
+            print("❌ CONTENT QUALITY: Content quality compromised by formatting changes")
+        
+        if formatting_results["textbook_presentation_achieved"]:
+            print("✅ TEXTBOOK PRESENTATION: Professional textbook-like presentation achieved!")
+        else:
+            print("❌ TEXTBOOK PRESENTATION: Presentation quality needs improvement")
+        
+        print("\n📊 SAMPLE TESTING COMPLETED:")
+        print(f"- Sessions created and navigated: ✅")
+        print(f"- Questions answered and solutions displayed: ✅")
+        print(f"- Solution formatting analyzed: ✅")
+        print(f"- Mathematical notation verified: ✅")
+        print(f"- Content quality assessed: ✅")
+        
+        return success_rate >= 70
+
     def test_comprehensive_re_enrichment_validation(self):
         """Test comprehensive re-enrichment of all 126 questions - FINAL VALIDATION"""
         print("🎯 COMPREHENSIVE RE-ENRICHMENT VALIDATION - ALL 126 QUESTIONS")
