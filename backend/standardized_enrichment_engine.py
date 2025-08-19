@@ -8,7 +8,7 @@ import os
 import json
 import logging
 import asyncio
-from typing import Tuple, Dict, Any, Optional
+from typing import Tuple, Dict, Any, Optional, List
 from dotenv import load_dotenv
 from enrichment_schema_manager import enrichment_schema, quality_controller
 
