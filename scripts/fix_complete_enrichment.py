@@ -107,7 +107,7 @@ async def generate_solutions_with_fallback(stem: str, answer: str, category: str
         return await generate_solutions_legacy_fallback(stem, answer, category, subcategory)
 
 async def generate_solutions_legacy_fallback(stem: str, answer: str, category: str, subcategory: str) -> tuple:
-    """Generate solutions with OpenAI primary, Anthropic fallback"""
+    """Legacy solution generation with OpenAI primary, Anthropic fallback"""
     try:
         # Try OpenAI first
         import openai
