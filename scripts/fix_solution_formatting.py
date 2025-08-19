@@ -92,7 +92,7 @@ async def fix_solution_formatting():
                 enhanced_approach, enhanced_detailed = await generator.generate_enhanced_solutions_with_fallback(
                     question.stem,
                     question.answer or "Unknown",
-                    question.category or "General",
+                    "Quantitative Aptitude",  # Use generic category 
                     question.subcategory or "General"
                 )
                 
