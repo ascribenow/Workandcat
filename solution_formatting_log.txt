@@ -1257,3 +1257,26 @@ LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 [92m15:51:30 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
 2025-08-19 15:51:30,694 - INFO - Wrapper: Completed Call, calling success_handler
 2025-08-19 15:51:30,695 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:51:32,940 - INFO -   ✅ Improved formatting
+2025-08-19 15:51:33,140 - INFO - 
+🔄 [96/126] Processing formatting...
+2025-08-19 15:51:33,141 - INFO -   📝 Question: How many factors of 2⁵ × 3⁶ × 5² are perfect squares?...
+2025-08-19 15:51:33,141 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:51:33,141 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:51:33 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:51:33,141 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:51:37 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:51:37,270 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:51:37,270 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:51:39,535 - INFO -   ✅ Improved formatting
+2025-08-19 15:51:39,735 - INFO - 
+🔄 [97/126] Processing formatting...
+2025-08-19 15:51:39,735 - INFO -   📝 Question: How many factors of the number 2⁸×3⁶×5⁴×10⁵ are multiples of...
+2025-08-19 15:51:39,735 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:51:39,735 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:51:39 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:51:39,736 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
