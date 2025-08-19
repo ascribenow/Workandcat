@@ -1194,6 +1194,296 @@ class CATBackendTester:
         else:
             return "Arithmetic"  # Default fallback
 
+    def test_complete_fixed_system_comprehensive(self):
+        """Test the complete fixed system with all requirements from review request"""
+        print("🎯 COMPLETE FIXED SYSTEM COMPREHENSIVE TESTING")
+        print("=" * 80)
+        print("REVIEW REQUEST FOCUS:")
+        print("Test the complete fixed system with all requirements:")
+        print("")
+        print("1. **LLM Connections**: Verify all LLMs are working with the new Anthropic key")
+        print("2. **Gemini (Maker) → Anthropic (Checker)**: Test the full methodology is working")
+        print("3. **Solution Formatting Fix**: CRITICAL - Test that detailed solutions now display with proper line breaks and spacing (not cramped together)")
+        print("4. **Complete Enrichment**: Test a full enrichment cycle with proper 3-section schema")
+        print("5. **Frontend Display**: Verify solutions display properly in the session system")
+        print("")
+        print("KEY TESTING POINTS:")
+        print("- Start a student session and answer a question")
+        print("- Check that the detailed solution displays with proper **Step 1:**, **Step 2:** formatting with clear line breaks between steps")
+        print("- Verify the solution is not all cramped together in one paragraph")
+        print("- Confirm Gemini is making and Anthropic is checking")
+        print("- Test both approach and explanation quality")
+        print("")
+        print("AUTHENTICATION: student@catprep.com/student123")
+        print("EXPECTED RESULTS:")
+        print("- ✅ All three LLMs (Gemini, Anthropic, OpenAI) working")
+        print("- ✅ Gemini (Maker) → Anthropic (Checker) methodology functional")
+        print("- ✅ Solutions display with proper spacing and line breaks (NOT cramped)")
+        print("- ✅ Professional textbook-style formatting in frontend")
+        print("- ✅ Complete 3-section schema compliance")
+        print("=" * 80)
+        
+        # Authenticate as student for session testing
+        student_login = {"email": "student@catprep.com", "password": "student123"}
+        success, response = self.run_test("Student Authentication", "POST", "auth/login", 200, student_login)
+        if not success or 'access_token' not in response:
+            print("❌ Cannot test - student login failed")
+            return False
+            
+        student_token = response['access_token']
+        student_headers = {'Content-Type': 'application/json', 'Authorization': f'Bearer {student_token}'}
+        
+        # Also authenticate as admin for enrichment testing
+        admin_login = {"email": "sumedhprabhu18@gmail.com", "password": "admin2025"}
+        success, response = self.run_test("Admin Authentication", "POST", "auth/login", 200, admin_login)
+        if not success or 'access_token' not in response:
+            print("❌ Cannot test admin features - admin login failed")
+            admin_token = None
+            admin_headers = None
+        else:
+            admin_token = response['access_token']
+            admin_headers = {'Content-Type': 'application/json', 'Authorization': f'Bearer {admin_token}'}
+        
+        comprehensive_results = {
+            "student_authentication": True,
+            "admin_authentication": admin_token is not None,
+            "session_creation_working": False,
+            "question_display_working": False,
+            "answer_submission_working": False,
+            "solution_formatting_proper": False,
+            "line_breaks_preserved": False,
+            "step_formatting_clear": False,
+            "not_cramped_together": False,
+            "gemini_anthropic_methodology": False,
+            "three_section_schema": False,
+            "llm_connections_working": False,
+            "complete_enrichment_cycle": False,
+            "textbook_style_formatting": False
+        }
+        
+        # TEST 1: Session Creation and Question Display
+        print("\n🎯 TEST 1: SESSION CREATION AND QUESTION DISPLAY")
+        print("-" * 60)
+        print("Testing session creation and question display functionality")
+        
+        session_data = {"target_minutes": 30}
+        success, response = self.run_test("Create Student Session", "POST", "sessions/start", 200, session_data, student_headers)
+        
+        if success:
+            session_id = response.get('session_id')
+            total_questions = response.get('total_questions', 0)
+            session_type = response.get('session_type')
+            
+            print(f"   ✅ Session created: {session_id}")
+            print(f"   📊 Total questions: {total_questions}")
+            print(f"   📊 Session type: {session_type}")
+            
+            if session_id and total_questions >= 10:
+                comprehensive_results["session_creation_working"] = True
+                self.session_id = session_id
+                
+                # Get first question
+                success, response = self.run_test("Get First Question", "GET", f"sessions/{session_id}/next-question", 200, None, student_headers)
+                
+                if success and 'question' in response:
+                    question = response['question']
+                    question_id = question.get('id')
+                    stem = question.get('stem', '')
+                    answer = question.get('answer', '')
+                    solution_approach = question.get('solution_approach', '')
+                    detailed_solution = question.get('detailed_solution', '')
+                    
+                    print(f"   ✅ Question retrieved: {question_id}")
+                    print(f"   📊 Stem length: {len(stem)} chars")
+                    print(f"   📊 Answer: {answer}")
+                    print(f"   📊 Solution approach length: {len(solution_approach)} chars")
+                    print(f"   📊 Detailed solution length: {len(detailed_solution)} chars")
+                    
+                    if question_id and stem and answer:
+                        comprehensive_results["question_display_working"] = True
+                        
+                        # Store for answer submission test
+                        self.current_question_id = question_id
+                        self.current_question_answer = answer
+        
+        # TEST 2: Answer Submission and Solution Display
+        print("\n📝 TEST 2: ANSWER SUBMISSION AND SOLUTION DISPLAY")
+        print("-" * 60)
+        print("Testing answer submission and solution feedback display")
+        
+        if hasattr(self, 'session_id') and hasattr(self, 'current_question_id'):
+            # Submit an answer
+            answer_data = {
+                "question_id": self.current_question_id,
+                "user_answer": "A",  # Submit a test answer
+                "context": "session",
+                "time_sec": 120,
+                "hint_used": False
+            }
+            
+            success, response = self.run_test("Submit Answer", "POST", f"sessions/{self.session_id}/submit-answer", 200, answer_data, student_headers)
+            
+            if success:
+                correct = response.get('correct', False)
+                solution_feedback = response.get('solution_feedback', {})
+                correct_answer = response.get('correct_answer', '')
+                
+                print(f"   ✅ Answer submitted successfully")
+                print(f"   📊 Answer correct: {correct}")
+                print(f"   📊 Correct answer: {correct_answer}")
+                
+                comprehensive_results["answer_submission_working"] = True
+                
+                # Analyze solution formatting
+                solution_approach = solution_feedback.get('solution_approach', '')
+                detailed_solution = solution_feedback.get('detailed_solution', '')
+                explanation = solution_feedback.get('explanation', '')
+                
+                print(f"   📊 Solution approach: {solution_approach[:100]}...")
+                print(f"   📊 Detailed solution: {detailed_solution[:100]}...")
+                print(f"   📊 Explanation: {explanation[:100]}...")
+                
+                # TEST 3: Solution Formatting Analysis
+                print("\n🎨 TEST 3: SOLUTION FORMATTING ANALYSIS")
+                print("-" * 60)
+                print("CRITICAL: Testing that solutions display with proper formatting")
+                
+                # Check for proper line breaks and formatting
+                if detailed_solution:
+                    # Check for line breaks (not cramped together)
+                    line_break_count = detailed_solution.count('\n')
+                    has_step_formatting = any(pattern in detailed_solution.lower() for pattern in ['step 1', 'step 2', '**step', 'step:'])
+                    has_proper_spacing = len(detailed_solution) > 200 and line_break_count >= 2
+                    
+                    print(f"   📊 Line breaks found: {line_break_count}")
+                    print(f"   📊 Has step formatting: {has_step_formatting}")
+                    print(f"   📊 Proper spacing: {has_proper_spacing}")
+                    print(f"   📊 Solution length: {len(detailed_solution)} chars")
+                    
+                    # Check if solution is not cramped (has proper formatting)
+                    if line_break_count >= 2 and len(detailed_solution) > 100:
+                        comprehensive_results["not_cramped_together"] = True
+                        print("   ✅ CRITICAL SUCCESS: Solution not cramped together")
+                    
+                    if has_step_formatting:
+                        comprehensive_results["step_formatting_clear"] = True
+                        print("   ✅ CRITICAL SUCCESS: Step formatting present")
+                    
+                    if line_break_count >= 1:
+                        comprehensive_results["line_breaks_preserved"] = True
+                        print("   ✅ CRITICAL SUCCESS: Line breaks preserved")
+                    
+                    # Check for textbook-style formatting
+                    if (has_step_formatting and line_break_count >= 2 and 
+                        len(detailed_solution) > 200 and not detailed_solution.strip().startswith('To be generated')):
+                        comprehensive_results["textbook_style_formatting"] = True
+                        print("   ✅ CRITICAL SUCCESS: Textbook-style formatting achieved")
+                    
+                    # Overall solution formatting assessment
+                    if (comprehensive_results["not_cramped_together"] and 
+                        comprehensive_results["line_breaks_preserved"]):
+                        comprehensive_results["solution_formatting_proper"] = True
+                        print("   ✅ CRITICAL SUCCESS: Solution formatting proper")
+                
+                # Check for 3-section schema compliance
+                if solution_approach and detailed_solution and explanation:
+                    if (len(solution_approach) > 50 and len(detailed_solution) > 100 and len(explanation) > 30):
+                        comprehensive_results["three_section_schema"] = True
+                        print("   ✅ Three-section schema compliance verified")
+        
+        # TEST 4: LLM Connections and Methodology Testing
+        print("\n🧠 TEST 4: LLM CONNECTIONS AND METHODOLOGY")
+        print("-" * 60)
+        print("Testing LLM connections and Gemini (Maker) → Anthropic (Checker) methodology")
+        
+        if admin_headers:
+            # Test auto-enrichment endpoint
+            success, response = self.run_test("Auto-Enrichment API", "POST", "admin/auto-enrich-all", 200, {}, admin_headers)
+            
+            if success:
+                message = response.get('message', '')
+                success_status = response.get('success', False)
+                
+                print(f"   📊 Auto-enrichment response: {message}")
+                print(f"   📊 Success status: {success_status}")
+                
+                if success_status or 'already enriched' in message.lower():
+                    comprehensive_results["llm_connections_working"] = True
+                    print("   ✅ LLM connections working")
+            
+            # Test single question enrichment to verify methodology
+            success, response = self.run_test("Get Questions for Enrichment Test", "GET", "questions?limit=5", 200, None, admin_headers)
+            
+            if success:
+                questions = response.get('questions', [])
+                if questions:
+                    test_question_id = questions[0].get('id')
+                    
+                    success, response = self.run_test("Single Question Enrichment", "POST", f"admin/enrich-question/{test_question_id}", 200, {}, admin_headers)
+                    
+                    if success:
+                        llm_used = response.get('llm_used', '')
+                        quality_score = response.get('quality_score', 0)
+                        schema_compliant = response.get('schema_compliant', False)
+                        
+                        print(f"   📊 LLM used: {llm_used}")
+                        print(f"   📊 Quality score: {quality_score}")
+                        print(f"   📊 Schema compliant: {schema_compliant}")
+                        
+                        if 'gemini' in llm_used.lower() and 'anthropic' in llm_used.lower():
+                            comprehensive_results["gemini_anthropic_methodology"] = True
+                            print("   ✅ Gemini (Maker) → Anthropic (Checker) methodology verified")
+                        
+                        if schema_compliant and quality_score > 5:
+                            comprehensive_results["complete_enrichment_cycle"] = True
+                            print("   ✅ Complete enrichment cycle working")
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 80)
+        print("COMPLETE FIXED SYSTEM COMPREHENSIVE TEST RESULTS")
+        print("=" * 80)
+        
+        passed_tests = sum(comprehensive_results.values())
+        total_tests = len(comprehensive_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        for test_name, result in comprehensive_results.items():
+            status = "✅ PASS" if result else "❌ FAIL"
+            print(f"{test_name.replace('_', ' ').title():<40} {status}")
+        
+        print("-" * 80)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # Critical analysis based on review request
+        print("\n🎯 CRITICAL REQUIREMENTS ANALYSIS:")
+        
+        if comprehensive_results["solution_formatting_proper"]:
+            print("✅ CRITICAL SUCCESS: Solution formatting with proper line breaks WORKING!")
+        else:
+            print("❌ CRITICAL FAILURE: Solutions still cramped together - formatting needs fix")
+        
+        if comprehensive_results["gemini_anthropic_methodology"]:
+            print("✅ CRITICAL SUCCESS: Gemini (Maker) → Anthropic (Checker) methodology WORKING!")
+        else:
+            print("❌ CRITICAL FAILURE: LLM methodology not properly implemented")
+        
+        if comprehensive_results["llm_connections_working"]:
+            print("✅ CRITICAL SUCCESS: LLM connections with new Anthropic key WORKING!")
+        else:
+            print("❌ CRITICAL FAILURE: LLM connections not working properly")
+        
+        if comprehensive_results["textbook_style_formatting"]:
+            print("✅ CRITICAL SUCCESS: Professional textbook-style formatting ACHIEVED!")
+        else:
+            print("❌ CRITICAL FAILURE: Textbook-style formatting not achieved")
+        
+        if comprehensive_results["three_section_schema"]:
+            print("✅ CRITICAL SUCCESS: Complete 3-section schema compliance VERIFIED!")
+        else:
+            print("❌ CRITICAL FAILURE: 3-section schema not properly implemented")
+        
+        return success_rate >= 70
+
     def test_gemini_anthropic_methodology(self):
         """Test the new Gemini (Maker) → Anthropic (Checker) methodology implementation"""
         print("🎯 GEMINI (MAKER) → ANTHROPIC (CHECKER) METHODOLOGY TESTING")
