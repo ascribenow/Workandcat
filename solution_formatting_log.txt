@@ -1519,3 +1519,16 @@ LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 2025-08-19 15:55:47,104 - INFO - 
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:55:49 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:55:49,844 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:55:49,845 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:55:51,953 - INFO -   ✅ Improved formatting
+2025-08-19 15:55:52,154 - INFO - 
+🔄 [116/126] Processing formatting...
+2025-08-19 15:55:52,154 - INFO -   📝 Question: Let K be the largest number with exactly 3 factors that divi...
+2025-08-19 15:55:52,155 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:55:52,155 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:55:52 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:55:52,156 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
