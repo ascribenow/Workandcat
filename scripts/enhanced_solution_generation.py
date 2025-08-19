@@ -311,7 +311,7 @@ Please provide:
                     detailed = response_text
                 
                 logger.info(f"  ✅ Anthropic generated enhanced solutions")
-                return approach[:500], detailed[:2500]
+                return approach[:300], detailed[:2000]
                 
         except Exception as anthropic_error:
             logger.error(f"  ❌ Anthropic also failed for solutions: {anthropic_error}")
