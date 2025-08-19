@@ -1353,3 +1353,13 @@ LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 [92m15:53:18 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
 2025-08-19 15:53:18,562 - INFO - Wrapper: Completed Call, calling success_handler
 2025-08-19 15:53:18,563 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:53:20,701 - INFO -   ✅ Improved formatting
+2025-08-19 15:53:20,902 - INFO - 
+🔄 [103/126] Processing formatting...
+2025-08-19 15:53:20,902 - INFO -   📝 Question: The integers 573921 and 575713 when divided by a 3 digit num...
+2025-08-19 15:53:20,902 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:53:20,902 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:53:20 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:53:20,903 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
