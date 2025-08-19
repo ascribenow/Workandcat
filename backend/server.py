@@ -1154,6 +1154,31 @@ async def submit_session_answer(
         except Exception as e:
             logger.warning(f"Mastery update failed: {e}")
         
+        # Check if session is now complete (all questions answered)
+        try:
+            question_ids = json.loads(session.units) if session.units else []
+        except (json.JSONDecodeError, TypeError):
+            question_ids = []
+        
+        if question_ids:
+            session_attempts_result = await db.execute(
+                select(func.count(Attempt.id.distinct()))
+                .where(
+                    Attempt.user_id == current_user.id,
+                    Attempt.question_id.in_(question_ids),
+                    Attempt.created_at >= session.started_at
+                )
+            )
+            answered_session_questions = session_attempts_result.scalar() or 0
+            total_session_questions = len(question_ids)
+            
+            # Mark session as complete if all questions answered
+            if answered_session_questions >= total_session_questions and not session.ended_at:
+                from datetime import datetime
+                session.ended_at = datetime.utcnow()
+                await db.commit()
+                logger.info(f"Session {session_id} marked as complete for user {current_user.id}")
+        
         # Always return comprehensive feedback with solution
         return {
             "correct": is_correct,
