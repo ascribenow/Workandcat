@@ -459,3 +459,42 @@ INFO:human_friendly_solution_generator:  🎯 Generating human-friendly solution
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 INFO:LiteLLM:
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m14:26:43 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
+INFO:human_friendly_solution_generator:  ✅ Google Gemini generated human-friendly solutions
+INFO:__main__:  Generating MCQ options...
+INFO:__main__:  Trying Google Gemini for MCQ generation...
+[92m14:26:43 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+INFO:LiteLLM:
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m14:26:44 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
+INFO:__main__:  ✅ Google Gemini generated MCQ options with randomized placement (correct: A)
+INFO:__main__:  ✅ Complete success - Factorials -> Properties of Factorials
+INFO:__main__:
+🔄 [13/21] Processing: When 40! is expressed in base 8 form, what is the ...
+INFO:__main__:  Classifying question...
+INFO:__main__:  Classifying question with Google Gemini...
+[92m14:26:45 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+INFO:LiteLLM:
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m14:26:46 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
+INFO:__main__:  ✅ Classified: Factorials -> Properties of Factorials
+INFO:__main__:  Generating answer...
+INFO:__main__:  Trying Google Gemini for answer generation...
+[92m14:26:46 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+INFO:LiteLLM:
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m14:26:46 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
+INFO:__main__:  ✅ Google Gemini generated answer: 4
+INFO:__main__:  Generating human-friendly solutions...
+INFO:human_friendly_solution_generator:  🎯 Generating human-friendly solutions with Google Gemini...
+[92m14:26:46 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+INFO:LiteLLM:
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
