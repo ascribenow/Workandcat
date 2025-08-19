@@ -1545,3 +1545,16 @@ LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 2025-08-19 15:56:09,063 - INFO - 
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:56:21 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:56:21,645 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:56:21,646 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:56:23,819 - INFO -   ✅ Improved formatting
+2025-08-19 15:56:24,020 - INFO - 
+🔄 [118/126] Processing formatting...
+2025-08-19 15:56:24,020 - INFO -   📝 Question: n² + 5n + 6 is a multiple of 6. n is natural number less tha...
+2025-08-19 15:56:24,020 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:56:24,020 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:56:24 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:56:24,021 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
