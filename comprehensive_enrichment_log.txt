@@ -2553,3 +2553,13 @@ LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
 INFO:__main__:  ✅ Google Gemini generated MCQ options (correct: D)
 INFO:__main__:  ✅ Complete success (4/4 components)
+INFO:__main__:
+🔄 [113/126] Processing question...
+INFO:__main__:  📝 Question: A number when divided by 18 leaves a remainder 7. The same n...
+INFO:__main__:  📂 Category: Remainders -> Basics
+INFO:__main__:  ✅ Using existing answer: 6
+INFO:__main__:  🎯 Generating comprehensive solutions with Google Gemini...
+[92m15:41:07 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+INFO:LiteLLM:
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
