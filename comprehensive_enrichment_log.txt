@@ -183,3 +183,14 @@ LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 [92m15:14:46 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
 INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
 INFO:__main__:  ✅ Google Gemini generated MCQ options (correct: B)
+INFO:__main__:  ✅ Complete success (4/4 components)
+INFO:__main__:
+🔄 [9/126] Processing question...
+INFO:__main__:  📝 Question: LCM of 2 natural numbers p and q where p > q is 935. What is...
+INFO:__main__:  📂 Category: HCF-LCM -> Product of HCF and LCM
+INFO:__main__:  ✅ Using existing answer: 17
+INFO:__main__:  🎯 Generating comprehensive solutions with Google Gemini...
+[92m15:14:48 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+INFO:LiteLLM:
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
