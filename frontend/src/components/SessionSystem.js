@@ -166,14 +166,13 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
         // Set session number from metadata if not already set
         if (!sessionNumber) {
           if (sessionMetadata?.phase_info?.current_session) {
-            // Use the correct session number from backend
+            // Use the correct session number from backend phase_info
             setSessionNumber(sessionMetadata.phase_info.current_session);
             console.log('Session number set from metadata:', sessionMetadata.phase_info.current_session);
           } else {
-            // Fallback to progress-based calculation
-            const sessionNum = progress?.current_question || 1;
-            setSessionNumber(sessionNum);
-            console.log('Session number set from progress fallback:', sessionNum);
+            // For resumed sessions or when metadata is not available,
+            // get session count from dashboard API
+            fetchSessionNumberFromDashboard();
           }
         }
         
