@@ -125,6 +125,10 @@ export const Dashboard = () => {
         
         setActiveSessionId(existingSessionId);
         
+        // For resumed sessions, we need to get the session metadata separately
+        // For now, we'll let the SessionSystem handle it
+        setSessionMetadata(null);
+        
         // Optional: Show resumption message
         console.log(`Resuming session: Question ${progress.next_question} of ${progress.total}`);
         
