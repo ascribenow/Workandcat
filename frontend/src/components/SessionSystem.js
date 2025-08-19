@@ -189,19 +189,7 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
           optionCount: question.options ? Object.keys(question.options).length : 0
         });
         
-        // Set session number from metadata if not already set
-        if (!sessionNumber) {
-          if (sessionMetadata?.phase_info?.current_session) {
-            // Use the correct session number from backend phase_info
-            setSessionNumber(sessionMetadata.phase_info.current_session);
-            console.log('Session number set from metadata:', sessionMetadata.phase_info.current_session);
-          } else {
-            // For resumed sessions or when metadata is not available,
-            // get session count from dashboard API (async call)
-            console.log('Fetching session number from dashboard...');
-            fetchSessionNumberFromDashboard();
-          }
-        }
+        // Session number is now handled in useEffect to avoid race conditions
         
         setImageLoading(false);
         setImageLoadFailed(false);
