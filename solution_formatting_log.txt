@@ -1506,3 +1506,16 @@ LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 2025-08-19 15:55:40,555 - INFO - 
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:55:44 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:55:44,733 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:55:44,734 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:55:46,901 - INFO -   ✅ Improved formatting
+2025-08-19 15:55:47,102 - INFO - 
+🔄 [115/126] Processing formatting...
+2025-08-19 15:55:47,102 - INFO -   📝 Question: What are the last two digits of the number 7⁴⁵?...
+2025-08-19 15:55:47,103 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:55:47,103 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:55:47 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:55:47,104 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
