@@ -820,3 +820,55 @@ LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 2025-08-19 15:42:12,168 - INFO - 
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:42:53 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:42:53,451 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:42:53,452 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:42:55,935 - INFO -   ✅ Improved formatting
+2025-08-19 15:42:56,135 - INFO - 
+🔄 [63/126] Processing formatting...
+2025-08-19 15:42:56,136 - INFO -   📝 Question: [x] is the greatest integer less than or equal to x. Find th...
+2025-08-19 15:42:56,136 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:42:56,136 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:42:56 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:42:56,137 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:43:08 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:43:08,027 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:43:08,028 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:43:10,259 - INFO -   ✅ Improved formatting
+2025-08-19 15:43:10,460 - INFO - 
+🔄 [64/126] Processing formatting...
+2025-08-19 15:43:10,460 - INFO -   📝 Question: Positive numbers 1 to 55, inclusive are placed in 5 groups o...
+2025-08-19 15:43:10,460 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:43:10,460 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:43:10 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:43:10,461 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:43:18 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:43:18,273 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:43:18,274 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:43:20,407 - INFO -   ✅ Improved formatting
+2025-08-19 15:43:20,607 - INFO - 
+🔄 [65/126] Processing formatting...
+2025-08-19 15:43:20,607 - INFO -   📝 Question: N is an 80-digit positive integer (in the decimal scale). Al...
+2025-08-19 15:43:20,607 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:43:20,607 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:43:20 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:43:20,608 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:43:29 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:43:29,618 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:43:29,619 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:43:31,780 - INFO -   ✅ Improved formatting
+2025-08-19 15:43:31,981 - INFO - 
+🔄 [66/126] Processing formatting...
+2025-08-19 15:43:31,981 - INFO -   📝 Question: A number 4¹⁶ + 1 is divisible by x. Which among the followin...
+2025-08-19 15:43:31,981 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:43:31,981 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:43:31 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:43:31,982 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
