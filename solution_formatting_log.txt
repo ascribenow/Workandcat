@@ -1558,3 +1558,16 @@ LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 2025-08-19 15:56:24,021 - INFO - 
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:56:44 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:56:44,894 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:56:44,894 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:56:47,045 - INFO -   ✅ Improved formatting
+2025-08-19 15:56:47,246 - INFO - 
+🔄 [119/126] Processing formatting...
+2025-08-19 15:56:47,246 - INFO -   📝 Question: How many values can natural number n take, if n! is a multip...
+2025-08-19 15:56:47,246 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:56:47,246 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:56:47 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:56:47,247 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
