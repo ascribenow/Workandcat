@@ -139,33 +139,38 @@ class StandardizedEnrichmentEngine:
                 system_message=system_prompt
             ).with_model("gemini", "gemini-2.0-flash")
             
-            user_prompt = f"""Question: {question_stem}
+            user_prompt = f"""You are a mathematics TEACHER sitting with a STUDENT. Help them solve this specific problem:
 
+Question: {question_stem}
 Correct Answer: {answer}
 
-Create a complete solution with THREE DISTINCT sections:
+Create three DISTINCT sections for the student:
 
-**APPROACH:** (HOW to solve - METHOD/STRATEGY)
-[2-3 sentences showing the strategic approach to attack this problem - what method to use, what to notice first, entry point]
+**APPROACH:** (What STRATEGY should the student use?)
+Write 2-3 sentences telling the student WHICH method to use and WHY that method fits this specific problem. Point out what they should notice first. Be specific to this problem - no generic text!
 
-**DETAILED SOLUTION:** (Execution of the approach)
-**Step 1:** [First step with clear reasoning]
-**Step 2:** [Continue with logical progression]
-**Step 3:** [Show calculations systematically]
+Example: "Since this problem gives us two numbers with the same remainder, we should use the fact that their difference must be divisible by the divisor. Let's find 575713 - 573921 and then look for 3-digit factors of that difference."
+
+**DETAILED SOLUTION:** (Teach the student step-by-step)
+Walk the student through solving THIS specific problem. Use collaborative language like "Let's...", "Now we...", "We need to...". Show each calculation and explain why you're doing it.
+
+**Step 1:** [What we need to do first and why]
+**Step 2:** [Next step with clear reasoning]  
+**Step 3:** [Continue with specific calculations]
 **Step N:** [Final verification]
 **✅ Final Answer: {answer}**
 
-**EXPLANATION:** (WHY it works - CONCEPT/PRINCIPLE)  
-[1-2 sentences about the general principle/concept that makes this method work - big-picture takeaway for similar problems]
+**EXPLANATION:** (Why does this method work?)
+Give the student the big-picture mathematical insight about WHY this method works in general. This should be DIFFERENT from the approach - focus on the underlying principle.
 
-CRITICAL DISTINCTION:
-- APPROACH = HOW to solve (strategy/method)  
-- EXPLANATION = WHY it works (concept/principle)
-- Make sure these are DIFFERENT and serve different purposes!
-- ❌ NEVER use LaTeX dollar signs ($) or LaTeX commands - use plain Unicode math
-- ✅ Use clean mathematical notation: ×, ÷, ², ³, √, etc.
+Example: "This works because when two numbers have the same remainder, their difference eliminates the remainder part, leaving only multiples of the divisor. This principle applies to any remainder problems involving differences."
 
-Quality will be checked by expert validator."""
+CRITICAL REQUIREMENTS:
+- Be specific to the actual problem - no generic fallbacks
+- Write as a teacher helping a student, not showing your thinking process  
+- Make APPROACH, DETAILED SOLUTION, and EXPLANATION completely different
+- Focus on THIS specific problem, not general methods
+- Use collaborative teaching tone throughout"""
             
             user_message = UserMessage(text=user_prompt)
             response = await chat.send_message(user_message)
