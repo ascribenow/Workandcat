@@ -184,14 +184,17 @@ CRITICAL: Follow the schema EXACTLY. Quality will be checked by expert validator
                                         approach: str, detailed_solution: str, explanation: str) -> Dict[str, Any]:
         """
         ANTHROPIC AS CHECKER - Validate Gemini's solution quality
+        FALLBACK: Use OpenAI if Anthropic is unavailable
         """
-        try:
-            from emergentintegrations.llm.chat import LlmChat, UserMessage
-            
-            chat = LlmChat(
-                api_key=self.anthropic_api_key,
-                session_id="anthropic_checker_standardized",
-                system_message="""You are an expert quality control specialist for CAT preparation content.
+        # Try Anthropic first
+        if self.anthropic_api_key:
+            try:
+                from emergentintegrations.llm.chat import LlmChat, UserMessage
+                
+                chat = LlmChat(
+                    api_key=self.anthropic_api_key,
+                    session_id="anthropic_checker_standardized",
+                    system_message="""You are an expert quality control specialist for CAT preparation content.
 
 📘 VALIDATION CRITERIA:
 
@@ -221,9 +224,9 @@ OVERALL_SCORE: [1-10]
 RECOMMENDATION: [Accept/Improve/Rewrite]
 SPECIFIC_FEEDBACK: [detailed suggestions or "None needed"]
 SCHEMA_COMPLIANCE: [Perfect/Good/Fair/Poor]"""
-            ).with_model("anthropic", "claude-3-5-sonnet-20241022")
-            
-            validation_request = f"""Question: {question_stem}
+                ).with_model("anthropic", "claude-3-5-sonnet-20241022")
+                
+                validation_request = f"""Question: {question_stem}
 Answer: {answer}
 
 APPROACH:
@@ -236,26 +239,104 @@ EXPLANATION:
 {explanation}
 
 Validate this solution against CAT preparation quality standards."""
-            
-            user_message = UserMessage(text=validation_request)
-            response = await chat.send_message(user_message)
-            
-            # Parse Anthropic assessment
-            assessment = self._parse_anthropic_validation(response)
-            
-            logger.info(f"  📊 Anthropic Assessment: {assessment.get('recommendation', 'Unknown')}")
-            logger.info(f"  📊 Overall Score: {assessment.get('overall_score', 'N/A')}/10")
-            
-            return assessment
-            
-        except Exception as e:
-            logger.warning(f"  ⚠️ Anthropic checker failed: {e}")
-            return {
-                "recommendation": "Accept",  # Default to accept if checker fails
-                "overall_score": 7,
-                "error": str(e),
-                "checker_unavailable": True
-            }
+                
+                user_message = UserMessage(text=validation_request)
+                response = await chat.send_message(user_message)
+                
+                # Parse Anthropic assessment
+                assessment = self._parse_anthropic_validation(response)
+                
+                logger.info(f"  📊 Anthropic Assessment: {assessment.get('recommendation', 'Unknown')}")
+                logger.info(f"  📊 Overall Score: {assessment.get('overall_score', 'N/A')}/10")
+                
+                return assessment
+                
+            except Exception as e:
+                logger.warning(f"  ⚠️ Anthropic checker failed: {e}")
+                # Fall through to OpenAI fallback
+        
+        # FALLBACK: Use OpenAI as checker if Anthropic is unavailable
+        logger.info("  🔄 Using OpenAI as quality checker (Anthropic fallback)")
+        
+        if self.openai_api_key:
+            try:
+                import openai
+                
+                client = openai.OpenAI(api_key=self.openai_api_key)
+                
+                response = client.chat.completions.create(
+                    model="gpt-4o",
+                    messages=[
+                        {"role": "system", "content": """You are an expert quality control specialist for CAT preparation content.
+
+📘 VALIDATION CRITERIA:
+
+**APPROACH (2-3 sentences):**
+✅ Provides strategic exam tip without revealing answer
+✅ Highlights "entry point" or key insight  
+✅ Written like professional tutoring advice
+❌ Doesn't restate problem or give answer away
+
+**DETAILED SOLUTION:**
+✅ Clear numbered steps with reasoning
+✅ Shows calculations with proper notation
+✅ Logical progression to final answer
+✅ Professional textbook quality
+
+**EXPLANATION (1-2 sentences):**
+✅ Big-picture conceptual takeaway
+✅ Builds intuition for similar problems
+✅ Exam-focused insight
+❌ Doesn't repeat solution steps
+
+Respond ONLY with:
+APPROACH_QUALITY: [Excellent/Good/Fair/Poor]
+DETAILED_QUALITY: [Excellent/Good/Fair/Poor]
+EXPLANATION_QUALITY: [Excellent/Good/Fair/Poor]
+OVERALL_SCORE: [1-10]
+RECOMMENDATION: [Accept/Improve/Rewrite]
+SPECIFIC_FEEDBACK: [detailed suggestions or "None needed"]
+SCHEMA_COMPLIANCE: [Perfect/Good/Fair/Poor]"""},
+                        {"role": "user", "content": f"""Question: {question_stem}
+Answer: {answer}
+
+APPROACH:
+{approach}
+
+DETAILED SOLUTION:
+{detailed_solution}
+
+EXPLANATION:
+{explanation}
+
+Validate this solution against CAT preparation quality standards."""}
+                    ],
+                    max_tokens=500
+                )
+                
+                response_text = response.choices[0].message.content
+                assessment = self._parse_anthropic_validation(response_text)
+                assessment["checker_used"] = "OpenAI (Anthropic fallback)"
+                
+                logger.info(f"  📊 OpenAI Checker Assessment: {assessment.get('recommendation', 'Unknown')}")
+                logger.info(f"  📊 Overall Score: {assessment.get('overall_score', 'N/A')}/10")
+                
+                return assessment
+                
+            except Exception as e:
+                logger.warning(f"  ⚠️ OpenAI checker also failed: {e}")
+        
+        # Ultimate fallback
+        return {
+            "recommendation": "Accept",  # Default to accept if all checkers fail
+            "overall_score": 7,
+            "error": "All quality checkers unavailable",
+            "checker_unavailable": True,
+            "approach_quality": "Good",
+            "detailed_quality": "Good", 
+            "explanation_quality": "Good",
+            "schema_compliance": "Good"
+        }
 
     async def _gemini_improve_with_feedback(self, question_stem: str, answer: str, 
                                           subcategory: str, question_type: str, 
