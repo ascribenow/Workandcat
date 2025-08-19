@@ -750,3 +750,60 @@ LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 2025-08-19 15:41:29,743 - INFO - 
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:41:40 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:41:40,301 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:41:40,302 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:41:42,574 - INFO -   ✅ Improved formatting
+2025-08-19 15:41:42,775 - INFO - 
+🔄 [58/126] Processing formatting...
+2025-08-19 15:41:42,775 - INFO -   📝 Question: How many numbers with distinct digits are possible product o...
+2025-08-19 15:41:42,775 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:41:42,775 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:41:42 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:41:42,776 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:41:44 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:41:44,704 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:41:44,705 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:41:46,786 - INFO -   ✅ Improved formatting
+2025-08-19 15:41:46,986 - INFO - 
+🔄 [59/126] Processing formatting...
+2025-08-19 15:41:46,986 - INFO -   📝 Question: A page is torn from a novel. The sum of the remaining page n...
+2025-08-19 15:41:46,986 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:41:46,986 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:41:46 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:41:46,987 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:41:55 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:41:55,849 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:41:55,850 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:41:58,006 - INFO -   ✅ Improved formatting
+2025-08-19 15:41:58,207 - INFO - 
+🔄 [60/126] Processing formatting...
+2025-08-19 15:41:58,207 - INFO -   📝 Question: A 4-digit number of the form aabb is a perfect square. What ...
+2025-08-19 15:41:58,207 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:41:58,207 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:41:58 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:41:58,208 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:42:04 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:42:04,232 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:42:04,233 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:42:06,428 - INFO -   ✅ Improved formatting
+2025-08-19 15:42:06,428 - INFO - 
+📈 PROGRESS [60/126]
+2025-08-19 15:42:06,429 - INFO -    ✅ Improved: 60
+2025-08-19 15:42:06,429 - INFO -    ✅ Already good: 0
+2025-08-19 15:42:06,429 - INFO -    ❌ Failed: 0
+2025-08-19 15:42:06,630 - INFO - 
+🔄 [61/126] Processing formatting...
+2025-08-19 15:42:06,630 - INFO -   📝 Question: What are the last two digits of the number 7⁴⁵?...
+2025-08-19 15:42:06,630 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:42:06,630 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:42:06 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:42:06,631 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
