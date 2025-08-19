@@ -124,8 +124,13 @@ def clean_solution_text(text: str) -> str:
     # Preserve line breaks and proper formatting - DO NOT COLLAPSE NEWLINES
     # Only clean up excessive whitespace while preserving structure
     
+    # Remove LaTeX dollar signs and other LaTeX artifacts
+    cleaned = text.replace('$', '')  # Remove all dollar signs
+    cleaned = cleaned.replace('\\(', '').replace('\\)', '')  # Remove LaTeX delimiters
+    cleaned = cleaned.replace('\\[', '').replace('\\]', '')  # Remove LaTeX display delimiters
+    
     # Remove excessive spaces (but preserve single spaces and line breaks)
-    cleaned = re.sub(r'[ \t]+', ' ', text)  # Only collapse horizontal whitespace
+    cleaned = re.sub(r'[ \t]+', ' ', cleaned)  # Only collapse horizontal whitespace
     
     # Preserve double line breaks for paragraph separation
     cleaned = re.sub(r'\n\s*\n\s*\n+', '\n\n', cleaned)  # Max 2 consecutive newlines
