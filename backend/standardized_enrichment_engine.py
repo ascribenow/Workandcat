@@ -64,10 +64,16 @@ class StandardizedEnrichmentEngine:
             # PHASE 3: Decision based on Anthropic feedback
             if anthropic_assessment.get("recommendation") in ["Accept", "Excellent", "Good"]:
                 logger.info("  ✅ Phase 3: Anthropic approved - solution accepted")
+                
+                # Format final solution with explanation embedded
+                final_approach, final_detailed = enrichment_schema.format_final_solution(
+                    gemini_result["approach"], gemini_result["detailed_solution"], gemini_result["explanation"]
+                )
+                
                 return {
                     "success": True,
-                    "approach": gemini_result["approach"],
-                    "detailed_solution": gemini_result["detailed_solution"],
+                    "approach": final_approach,
+                    "detailed_solution": final_detailed,
                     "validation": {"is_valid": True, "anthropic_approved": True},
                     "anthropic_validation": anthropic_assessment,
                     "quality_score": anthropic_assessment.get("overall_score", 8),
