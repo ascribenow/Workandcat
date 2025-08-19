@@ -194,12 +194,17 @@ Generate both solution approach and detailed solution:""")
                 if "DETAILED SOLUTION:" in response_text:
                     parts = response_text.split("DETAILED SOLUTION:", 1)
                     
-                    # Extract approach
+                    # Extract approach - remove the header and clean
                     approach_part = parts[0].replace("SOLUTION APPROACH:", "").strip()
                     approach = self.clean_text(approach_part)
                     
                     # Extract detailed solution
                     detailed = self.clean_text(parts[1].strip())
+                    
+                    # Ensure approach is not truncated - if it's very short, regenerate
+                    if len(approach) < 50:
+                        approach = f"To solve this {subcategory} problem, identify the given values, apply the relevant formula, and convert units as needed."
+                        
                 else:
                     # Fallback parsing if format is different
                     approach = f"Solve this {subcategory} problem systematically using standard mathematical principles"
