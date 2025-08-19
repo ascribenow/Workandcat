@@ -20,6 +20,7 @@ import logging
 import json
 import asyncio
 import random
+import re
 import shutil
 import mimetypes
 from docx import Document
