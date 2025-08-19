@@ -1628,3 +1628,16 @@ LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 2025-08-19 15:58:20,009 - INFO - 
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:58:33 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:58:33,422 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:58:33,423 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:58:35,586 - INFO -   ✅ Improved formatting
+2025-08-19 15:58:35,787 - INFO - 
+🔄 [124/126] Processing formatting...
+2025-08-19 15:58:35,787 - INFO -   📝 Question: The sum of two non coâprime numbers added to their HCF giv...
+2025-08-19 15:58:35,787 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:58:35,787 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:58:35 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:58:35,788 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
