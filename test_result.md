@@ -184,18 +184,20 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Session Numbering Fix Implementation - COMPLETED ✅"
+    - "Session Completion Fix Implementation - COMPLETED ✅"
     - "Dashboard Consistency Logic - WORKING ✅"
     - "Console Logging Verification - WORKING ✅"
     - "New vs Resumed Sessions - BOTH WORKING ✅"
     - "Phase Information Display - ACCURATE ✅"
+    - "Sequential Session Numbering - WORKING ✅"
+    - "Session ended_at Timestamp - WORKING ✅"
   stuck_tasks:
     - "Quota-Based Difficulty Distribution - showing 100% Medium instead of M9/E2/H1 (9 Medium, 2 Easy, 1 Hard) - QUOTA SYSTEM NOT IMPLEMENTED"
     - "Difficulty Targets in Metadata - only 1/3 sessions have targets set - inconsistent quota application"
     - "Ordered Fill Strategy - Hard→Easy→Medium selection order not implemented in apply_coverage_selection_strategies"
   test_all: false
-  test_priority: "session_numbering_fix_completed_successfully"
-  implementation_status: "session_numbering_fix_working_perfectly"
+  test_priority: "session_completion_fix_validated_successfully"
+  implementation_status: "session_completion_fix_working_perfectly"
   backend_schema_updated: true
   phase_info_field_issue: "resolved"
   difficulty_distribution_issue: "critical_failure_quota_system_not_implemented"
@@ -212,6 +214,10 @@ test_plan:
   new_session_numbering_working: true
   resumed_session_numbering_working: true
   phase_information_accurate: true
+  session_completion_fix_status: "completed_successfully"
+  session_ended_at_working: true
+  dashboard_count_increases: true
+  sequential_numbering_working: true
 
 agent_communication:
     -agent: "main"
