@@ -88,10 +88,15 @@ class StandardizedEnrichmentEngine:
                 )
                 
                 if improved_result["success"]:
+                    # Format final solution with explanation embedded  
+                    final_approach, final_detailed = enrichment_schema.format_final_solution(
+                        improved_result["approach"], improved_result["detailed_solution"], improved_result.get("explanation", "")
+                    )
+                    
                     return {
                         "success": True,
-                        "approach": improved_result["approach"],
-                        "detailed_solution": improved_result["detailed_solution"],
+                        "approach": final_approach,
+                        "detailed_solution": final_detailed,
                         "validation": {"is_valid": True, "anthropic_improved": True},
                         "anthropic_validation": anthropic_assessment,
                         "quality_score": improved_result.get("quality_score", 7),
