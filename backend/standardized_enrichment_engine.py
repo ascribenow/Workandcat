@@ -800,5 +800,36 @@ Generate 3 plausible wrong answers. Return ONLY the JSON object.""")
             wrong_answers = ["Option 1", "Option 2", "Option 3"]
             return self._randomize_mcq_placement(answer, wrong_answers)
 
+    def clean_human_friendly_text(self, text: str) -> str:
+        """Clean text and ensure human-friendly mathematical notation"""
+        if not text:
+            return text
+        
+        import re
+        
+        # Remove LaTeX dollar signs first
+        text = text.replace('$', '')
+        
+        # Convert LaTeX to plain mathematical notation
+        text = re.sub(r'\\frac\{([^}]+)\}\{([^}]+)\}', r'\1/\2', text)
+        text = re.sub(r'\\sqrt\{([^}]+)\}', r'√\1', text)
+        text = re.sub(r'([a-zA-Z0-9]+)\^\{([0-9]+)\}', lambda m: f'{m.group(1)}{self.superscript_number(m.group(2))}', text)
+        text = re.sub(r'([a-zA-Z0-9]+)\^([0-9]+)', lambda m: f'{m.group(1)}{self.superscript_number(m.group(2))}', text)
+        
+        # Remove LaTeX delimiters
+        text = text.replace('\\(', '').replace('\\)', '')
+        text = text.replace('\\[', '').replace('\\]', '')
+        
+        # Convert symbols
+        text = text.replace('\\times', '×').replace('\\div', '÷')
+        text = text.replace('\\le', '≤').replace('\\ge', '≥')
+        text = text.replace('\\ne', '≠').replace('\\approx', '≈')
+        
+        # Clean up whitespace but preserve line breaks
+        text = re.sub(r'[ \t]+', ' ', text)  # Only collapse horizontal whitespace
+        text = text.strip()
+        
+        return text
+
 # Singleton instance for global use
 standardized_enricher = StandardizedEnrichmentEngine()
