@@ -1280,3 +1280,16 @@ LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 2025-08-19 15:51:39,736 - INFO - 
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:52:01 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:52:01,689 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:52:01,690 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:52:03,885 - INFO -   ✅ Improved formatting
+2025-08-19 15:52:04,085 - INFO - 
+🔄 [98/126] Processing formatting...
+2025-08-19 15:52:04,086 - INFO -   📝 Question: Number N = 2⁶×5⁵×7⁶×10⁷; how many factors of N are even numb...
+2025-08-19 15:52:04,086 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:52:04,086 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:52:04 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:52:04,087 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
