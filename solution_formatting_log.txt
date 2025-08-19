@@ -872,3 +872,16 @@ LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 2025-08-19 15:43:31,982 - INFO - 
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:43:44 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:43:44,074 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:43:44,074 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:43:46,177 - INFO -   ✅ Improved formatting
+2025-08-19 15:43:46,378 - INFO - 
+🔄 [67/126] Processing formatting...
+2025-08-19 15:43:46,378 - INFO -   📝 Question: Which among the following is the smallest 7 digit number tha...
+2025-08-19 15:43:46,378 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:43:46,378 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:43:46 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:43:46,379 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
