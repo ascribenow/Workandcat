@@ -224,7 +224,7 @@ OVERALL_SCORE: [1-10]
 RECOMMENDATION: [Accept/Improve/Rewrite]
 SPECIFIC_FEEDBACK: [detailed suggestions or "None needed"]
 SCHEMA_COMPLIANCE: [Perfect/Good/Fair/Poor]"""
-                ).with_model("anthropic", "claude-3-5-sonnet")
+                ).with_model("anthropic", "claude-3-haiku-20240307")
                 
                 validation_request = f"""Question: {question_stem}
 Answer: {answer}
