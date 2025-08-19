@@ -885,3 +885,42 @@ LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 2025-08-19 15:43:46,379 - INFO - 
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:43:50 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:43:50,882 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:43:50,883 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:43:53,008 - INFO -   ✅ Improved formatting
+2025-08-19 15:43:53,209 - INFO - 
+🔄 [68/126] Processing formatting...
+2025-08-19 15:43:53,209 - INFO -   📝 Question: How many 3-digit positive integers, with digits a, b and c e...
+2025-08-19 15:43:53,209 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:43:53,209 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:43:53 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:43:53,210 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:43:56 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:43:56,715 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:43:56,716 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:43:58,919 - INFO -   ✅ Improved formatting
+2025-08-19 15:43:59,119 - INFO - 
+🔄 [69/126] Processing formatting...
+2025-08-19 15:43:59,119 - INFO -   📝 Question: If a and b are non-negative real numbers such that a+2b=6, t...
+2025-08-19 15:43:59,119 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:43:59,119 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:43:59 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:43:59,120 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:44:02 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:44:02,251 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:44:02,252 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:44:04,399 - INFO -   ✅ Improved formatting
+2025-08-19 15:44:04,600 - INFO - 
+🔄 [70/126] Processing formatting...
+2025-08-19 15:44:04,600 - INFO -   📝 Question: Let a and b be natural numbers. If a²+ab+a=14 and b²+ab+b=28...
+2025-08-19 15:44:04,600 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:44:04,600 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:44:04 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:44:04,601 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
