@@ -286,10 +286,11 @@ Validate this solution against CAT preparation quality standards."""
 📘 VALIDATION CRITERIA:
 
 **APPROACH (2-3 sentences):**
-✅ Provides strategic exam tip without revealing answer
-✅ Highlights "entry point" or key insight  
-✅ Written like professional tutoring advice
+✅ Shows HOW to attack the problem (method/strategy)
+✅ Highlights "entry point" or key insight for solving
+✅ Written like professional tutoring advice about method selection
 ❌ Doesn't restate problem or give answer away
+❌ Doesn't repeat what should be in explanation
 
 **DETAILED SOLUTION:**
 ✅ Clear numbered steps with reasoning
@@ -298,15 +299,23 @@ Validate this solution against CAT preparation quality standards."""
 ✅ Professional textbook quality
 
 **EXPLANATION (1-2 sentences):**
-✅ Big-picture conceptual takeaway
+✅ Shows WHY the method works (concept/principle)
+✅ Big-picture conceptual takeaway different from approach
 ✅ Builds intuition for similar problems
-✅ Exam-focused insight
+✅ General principle, not method-specific
+❌ Doesn't repeat approach content
 ❌ Doesn't repeat solution steps
+
+**CRITICAL DISTINCTION CHECK:**
+- APPROACH and EXPLANATION must serve DIFFERENT purposes
+- APPROACH = HOW to solve (strategy)
+- EXPLANATION = WHY it works (concept)
 
 Respond ONLY with:
 APPROACH_QUALITY: [Excellent/Good/Fair/Poor]
 DETAILED_QUALITY: [Excellent/Good/Fair/Poor]
 EXPLANATION_QUALITY: [Excellent/Good/Fair/Poor]
+APPROACH_EXPLANATION_DISTINCT: [Yes/No - Are they different and serve different purposes?]
 OVERALL_SCORE: [1-10]
 RECOMMENDATION: [Accept/Improve/Rewrite]
 SPECIFIC_FEEDBACK: [detailed suggestions or "None needed"]
