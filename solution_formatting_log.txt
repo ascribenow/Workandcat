@@ -937,3 +937,16 @@ LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 2025-08-19 15:44:13,593 - INFO - 
 LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+[92m15:44:27 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:44:27,824 - INFO - Wrapper: Completed Call, calling success_handler
+2025-08-19 15:44:27,824 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:44:29,958 - INFO -   ✅ Improved formatting
+2025-08-19 15:44:30,158 - INFO - 
+🔄 [72/126] Processing formatting...
+2025-08-19 15:44:30,158 - INFO -   📝 Question: For a 4-digit number, the sum of its digits in the thousands...
+2025-08-19 15:44:30,158 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:44:30,158 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:44:30 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:44:30,159 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
