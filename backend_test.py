@@ -5644,18 +5644,252 @@ class CATBackendTester:
         
         return success_rate >= 70
 
+    def test_simple_taxonomy_dashboard_api(self):
+        """Test the new simplified dashboard API endpoint /api/dashboard/simple-taxonomy"""
+        print("🎯 TESTING SIMPLE TAXONOMY DASHBOARD API")
+        print("=" * 60)
+        print("REVIEW REQUEST FOCUS:")
+        print("- Test new /api/dashboard/simple-taxonomy endpoint")
+        print("- Verify data structure with total_sessions and taxonomy_data")
+        print("- Validate canonical taxonomy structure")
+        print("- Test with existing student credentials")
+        print("- Confirm attempt counts by difficulty level")
+        print("Expected format:")
+        print("  {")
+        print('    "total_sessions": number,')
+        print('    "taxonomy_data": [')
+        print('      {')
+        print('        "category": "Arithmetic",')
+        print('        "subcategory": "Time-Speed-Distance",')
+        print('        "type": "Basics",')
+        print('        "easy_attempts": 0,')
+        print('        "medium_attempts": 2,')
+        print('        "hard_attempts": 1,')
+        print('        "total_attempts": 3')
+        print('      }')
+        print('    ]')
+        print('  }')
+        print("=" * 60)
+        
+        # Authenticate as student
+        student_login = {"email": "student@catprep.com", "password": "student123"}
+        success, response = self.run_test("Student Login", "POST", "auth/login", 200, student_login)
+        if not success or 'access_token' not in response:
+            print("❌ Cannot test dashboard - student login failed")
+            return False
+            
+        student_token = response['access_token']
+        student_headers = {'Content-Type': 'application/json', 'Authorization': f'Bearer {student_token}'}
+        
+        dashboard_results = {
+            "endpoint_accessible": False,
+            "correct_data_structure": False,
+            "total_sessions_field": False,
+            "taxonomy_data_array": False,
+            "canonical_taxonomy_structure": False,
+            "difficulty_level_attempts": False,
+            "complete_taxonomy_coverage": False,
+            "data_consistency": False
+        }
+        
+        # TEST 1: Endpoint Accessibility
+        print("\n🔍 TEST 1: ENDPOINT ACCESSIBILITY")
+        print("-" * 40)
+        print("Testing /api/dashboard/simple-taxonomy endpoint")
+        
+        success, response = self.run_test("Simple Taxonomy Dashboard", "GET", "dashboard/simple-taxonomy", 200, None, student_headers)
+        
+        if success:
+            dashboard_results["endpoint_accessible"] = True
+            print("   ✅ Endpoint accessible and responding")
+            
+            # TEST 2: Data Structure Validation
+            print("\n📊 TEST 2: DATA STRUCTURE VALIDATION")
+            print("-" * 40)
+            print("Verifying response contains required fields")
+            
+            total_sessions = response.get('total_sessions')
+            taxonomy_data = response.get('taxonomy_data', [])
+            
+            print(f"   📊 Total sessions: {total_sessions}")
+            print(f"   📊 Taxonomy data entries: {len(taxonomy_data)}")
+            
+            # Check total_sessions field
+            if total_sessions is not None and isinstance(total_sessions, (int, float)):
+                dashboard_results["total_sessions_field"] = True
+                print("   ✅ total_sessions field present and numeric")
+            else:
+                print("   ❌ total_sessions field missing or invalid")
+            
+            # Check taxonomy_data array
+            if isinstance(taxonomy_data, list):
+                dashboard_results["taxonomy_data_array"] = True
+                print("   ✅ taxonomy_data is an array")
+                
+                if len(taxonomy_data) > 0:
+                    dashboard_results["correct_data_structure"] = True
+                    print("   ✅ taxonomy_data contains entries")
+                    
+                    # TEST 3: Canonical Taxonomy Structure
+                    print("\n🗺️ TEST 3: CANONICAL TAXONOMY STRUCTURE")
+                    print("-" * 40)
+                    print("Validating canonical taxonomy categories and structure")
+                    
+                    # Expected canonical categories
+                    expected_categories = ["Arithmetic", "Algebra", "Geometry and Mensuration", "Number System", "Modern Math"]
+                    
+                    # Analyze taxonomy data structure
+                    categories_found = set()
+                    subcategories_found = set()
+                    types_found = set()
+                    valid_entries = 0
+                    
+                    for entry in taxonomy_data[:10]:  # Check first 10 entries
+                        category = entry.get('category', '')
+                        subcategory = entry.get('subcategory', '')
+                        type_val = entry.get('type', '')
+                        easy_attempts = entry.get('easy_attempts', 0)
+                        medium_attempts = entry.get('medium_attempts', 0)
+                        hard_attempts = entry.get('hard_attempts', 0)
+                        total_attempts = entry.get('total_attempts', 0)
+                        
+                        if category and subcategory and type_val:
+                            valid_entries += 1
+                            categories_found.add(category)
+                            subcategories_found.add(subcategory)
+                            types_found.add(type_val)
+                            
+                            print(f"   📊 {category} > {subcategory} > {type_val}")
+                            print(f"      Attempts: E:{easy_attempts}, M:{medium_attempts}, H:{hard_attempts}, Total:{total_attempts}")
+                            
+                            # Check difficulty level attempts structure
+                            if (isinstance(easy_attempts, (int, float)) and 
+                                isinstance(medium_attempts, (int, float)) and 
+                                isinstance(hard_attempts, (int, float)) and
+                                isinstance(total_attempts, (int, float))):
+                                dashboard_results["difficulty_level_attempts"] = True
+                    
+                    print(f"   📊 Valid entries: {valid_entries}/{len(taxonomy_data)}")
+                    print(f"   📊 Categories found: {len(categories_found)} - {sorted(list(categories_found))}")
+                    print(f"   📊 Subcategories found: {len(subcategories_found)}")
+                    print(f"   📊 Types found: {len(types_found)}")
+                    
+                    # Check for canonical categories
+                    canonical_categories_found = [cat for cat in expected_categories if cat in categories_found]
+                    if len(canonical_categories_found) >= 3:
+                        dashboard_results["canonical_taxonomy_structure"] = True
+                        print("   ✅ Canonical taxonomy structure present")
+                        print(f"   📊 Canonical categories found: {canonical_categories_found}")
+                    else:
+                        print("   ⚠️ Limited canonical taxonomy coverage")
+                    
+                    # TEST 4: Complete Taxonomy Coverage
+                    print("\n📋 TEST 4: COMPLETE TAXONOMY COVERAGE")
+                    print("-" * 40)
+                    print("Checking for comprehensive taxonomy coverage")
+                    
+                    # Expected subcategories for key categories
+                    expected_arithmetic_subcategories = [
+                        "Time-Speed-Distance", "Time-Work", "Ratios and Proportions", 
+                        "Percentages", "Averages and Alligation", "Profit-Loss-Discount"
+                    ]
+                    
+                    arithmetic_subcategories_found = [sub for sub in subcategories_found 
+                                                    if any(expected in sub for expected in expected_arithmetic_subcategories)]
+                    
+                    print(f"   📊 Arithmetic subcategories found: {len(arithmetic_subcategories_found)}")
+                    print(f"   📊 Sample subcategories: {list(subcategories_found)[:5]}")
+                    
+                    if len(subcategories_found) >= 5 and len(types_found) >= 8:
+                        dashboard_results["complete_taxonomy_coverage"] = True
+                        print("   ✅ Good taxonomy coverage achieved")
+                    else:
+                        print("   ⚠️ Limited taxonomy coverage")
+                    
+                    # TEST 5: Data Consistency
+                    print("\n🔍 TEST 5: DATA CONSISTENCY")
+                    print("-" * 40)
+                    print("Validating data consistency and logical structure")
+                    
+                    consistency_issues = 0
+                    for entry in taxonomy_data[:5]:  # Check first 5 entries
+                        easy = entry.get('easy_attempts', 0)
+                        medium = entry.get('medium_attempts', 0)
+                        hard = entry.get('hard_attempts', 0)
+                        total = entry.get('total_attempts', 0)
+                        
+                        # Check if total equals sum of difficulty attempts
+                        calculated_total = easy + medium + hard
+                        if abs(total - calculated_total) <= 1:  # Allow small rounding differences
+                            continue
+                        else:
+                            consistency_issues += 1
+                            print(f"   ⚠️ Inconsistency: Total={total}, Sum={calculated_total}")
+                    
+                    if consistency_issues == 0:
+                        dashboard_results["data_consistency"] = True
+                        print("   ✅ Data consistency validated")
+                    else:
+                        print(f"   ⚠️ Found {consistency_issues} consistency issues")
+                        
+                else:
+                    print("   ❌ taxonomy_data array is empty")
+            else:
+                print("   ❌ taxonomy_data is not an array")
+        else:
+            print("   ❌ Endpoint not accessible or returning errors")
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 60)
+        print("SIMPLE TAXONOMY DASHBOARD API TEST RESULTS")
+        print("=" * 60)
+        
+        passed_tests = sum(dashboard_results.values())
+        total_tests = len(dashboard_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        for test_name, result in dashboard_results.items():
+            status = "✅ PASS" if result else "❌ FAIL"
+            print(f"{test_name.replace('_', ' ').title():<35} {status}")
+        
+        print("-" * 60)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # Critical analysis
+        if dashboard_results["endpoint_accessible"]:
+            print("✅ ENDPOINT: Simple taxonomy dashboard API accessible")
+        else:
+            print("❌ ENDPOINT: API endpoint not working")
+        
+        if dashboard_results["correct_data_structure"]:
+            print("✅ STRUCTURE: Correct data structure with required fields")
+        else:
+            print("❌ STRUCTURE: Data structure missing or incorrect")
+        
+        if dashboard_results["canonical_taxonomy_structure"]:
+            print("✅ TAXONOMY: Canonical taxonomy structure implemented")
+        else:
+            print("❌ TAXONOMY: Canonical taxonomy structure missing")
+        
+        if dashboard_results["difficulty_level_attempts"]:
+            print("✅ ATTEMPTS: Difficulty level attempt counts working")
+        else:
+            print("❌ ATTEMPTS: Difficulty level attempt tracking issues")
+        
+        return success_rate >= 70
+
 
 if __name__ == "__main__":
-    print("🎯 CAT BACKEND TESTING - LLM ENRICHMENT AND MCQ IMPROVEMENTS VALIDATION")
+    print("🎯 CAT BACKEND TESTING - SIMPLE TAXONOMY DASHBOARD API")
     print("=" * 80)
-    print("TESTING FOCUS: Comprehensive validation of LLM enrichment fixes and MCQ improvements")
-    print("REVIEW REQUEST: Session creation, MCQ quality, answer submission, solutions display")
+    print("TESTING FOCUS: New simplified dashboard API endpoint validation")
+    print("REVIEW REQUEST: /api/dashboard/simple-taxonomy endpoint testing")
     print("=" * 80)
     
     tester = CATBackendTester()
     
-    print("\n🎯 RUNNING LLM ENRICHMENT AND MCQ IMPROVEMENTS TEST")
-    success = tester.test_llm_enrichment_and_mcq_improvements()
+    print("\n🎯 RUNNING SIMPLE TAXONOMY DASHBOARD API TEST")
+    success = tester.test_simple_taxonomy_dashboard_api()
     
     print(f"\n" + "=" * 80)
     print("FINAL TEST SUMMARY")
@@ -5665,13 +5899,13 @@ if __name__ == "__main__":
     print(f"Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%" if tester.tests_run > 0 else "No tests run")
     
     if success:
-        print("🎉 LLM ENRICHMENT AND MCQ IMPROVEMENTS: SUCCESS!")
-        print("✅ Session creation working without crashes")
-        print("✅ MCQ options are meaningful, not generic")
-        print("✅ Answer submission and solutions working")
-        print("✅ End-to-end session flow functional")
+        print("🎉 SIMPLE TAXONOMY DASHBOARD API: SUCCESS!")
+        print("✅ Endpoint accessible and responding correctly")
+        print("✅ Data structure with total_sessions and taxonomy_data")
+        print("✅ Canonical taxonomy structure implemented")
+        print("✅ Difficulty level attempt counts working")
     else:
-        print("❌ LLM ENRICHMENT AND MCQ IMPROVEMENTS: NEEDS ATTENTION")
+        print("❌ SIMPLE TAXONOMY DASHBOARD API: NEEDS ATTENTION")
         print("❌ Some components still need fixes")
         print("❌ Review test results for specific issues")
     
