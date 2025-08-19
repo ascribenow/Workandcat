@@ -831,5 +831,13 @@ Generate 3 plausible wrong answers. Return ONLY the JSON object.""")
         
         return text
 
+    def superscript_number(self, number: str) -> str:
+        """Convert a number string to superscript Unicode characters"""
+        superscript_map = {
+            '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴',
+            '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹'
+        }
+        return ''.join(superscript_map.get(digit, digit) for digit in number)
+
 # Singleton instance for global use
 standardized_enricher = StandardizedEnrichmentEngine()
