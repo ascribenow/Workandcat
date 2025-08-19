@@ -145,3 +145,13 @@ LiteLLM completion() model= gemini-2.0-flash; provider = gemini
 [92m15:31:25 - LiteLLM:INFO[0m: utils.py:1262 - Wrapper: Completed Call, calling success_handler
 2025-08-19 15:31:25,107 - INFO - Wrapper: Completed Call, calling success_handler
 2025-08-19 15:31:25,108 - INFO -   ✅ Generated well-formatted solution
+2025-08-19 15:31:27,258 - INFO -   ✅ Improved formatting
+2025-08-19 15:31:27,458 - INFO - 
+🔄 [12/126] Processing formatting...
+2025-08-19 15:31:27,458 - INFO -   📝 Question: The sum of the factors of a number is 124. What is the numbe...
+2025-08-19 15:31:27,458 - INFO -   🔧 Improving solution formatting...
+2025-08-19 15:31:27,458 - INFO -   🎯 Generating well-formatted solution with Google Gemini...
+[92m15:31:27 - LiteLLM:INFO[0m: utils.py:3296 - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
+2025-08-19 15:31:27,459 - INFO - 
+LiteLLM completion() model= gemini-2.0-flash; provider = gemini
