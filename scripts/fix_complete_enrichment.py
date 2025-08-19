@@ -87,6 +87,26 @@ Question: {stem}"""}
     return "Answer could not be generated - manual review required"
 
 async def generate_solutions_with_fallback(stem: str, answer: str, category: str, subcategory: str) -> tuple:
+    """Generate solutions using enhanced Google Gemini system with OpenAI/Anthropic fallbacks"""
+    try:
+        # Use enhanced solution generation system with Google Gemini primary
+        from enhanced_solution_generation import EnhancedSolutionGenerator
+        generator = EnhancedSolutionGenerator()
+        
+        approach, detailed = await generator.generate_enhanced_solutions_with_fallback(
+            stem, answer, category, subcategory
+        )
+        
+        logger.info(f"  ✅ Enhanced solutions generated")
+        return approach, detailed
+        
+    except Exception as enhanced_error:
+        logger.warning(f"  ⚠️ Enhanced generator failed, using legacy fallback: {enhanced_error}")
+        
+        # Legacy fallback method
+        return await generate_solutions_legacy_fallback(stem, answer, category, subcategory)
+
+async def generate_solutions_legacy_fallback(stem: str, answer: str, category: str, subcategory: str) -> tuple:
     """Generate solutions with OpenAI primary, Anthropic fallback"""
     try:
         # Try OpenAI first
