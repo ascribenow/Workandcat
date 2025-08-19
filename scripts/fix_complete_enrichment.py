@@ -87,24 +87,39 @@ Question: {stem}"""}
     return "Answer could not be generated - manual review required"
 
 async def generate_solutions_with_fallback(stem: str, answer: str, category: str, subcategory: str) -> tuple:
-    """Generate solutions using enhanced Google Gemini system with OpenAI/Anthropic fallbacks"""
+    """Generate solutions using mathematical solution generator with proper LaTeX formatting"""
     try:
-        # Use enhanced solution generation system with Google Gemini primary
-        from enhanced_solution_generation import EnhancedSolutionGenerator
-        generator = EnhancedSolutionGenerator()
+        # Use mathematical solution generation system with Google Gemini primary
+        from mathematical_solution_generator import MathematicalSolutionGenerator
+        generator = MathematicalSolutionGenerator()
         
-        approach, detailed = await generator.generate_enhanced_solutions_with_fallback(
+        approach, detailed = await generator.generate_textbook_quality_solutions(
             stem, answer, category, subcategory
         )
         
-        logger.info(f"  ✅ Enhanced solutions generated")
+        logger.info(f"  ✅ Mathematical solutions generated with LaTeX formatting")
         return approach, detailed
         
-    except Exception as enhanced_error:
-        logger.warning(f"  ⚠️ Enhanced generator failed, using legacy fallback: {enhanced_error}")
+    except Exception as math_error:
+        logger.warning(f"  ⚠️ Mathematical generator failed, using enhanced fallback: {math_error}")
         
-        # Legacy fallback method
-        return await generate_solutions_legacy_fallback(stem, answer, category, subcategory)
+        # Enhanced fallback method
+        try:
+            from enhanced_solution_generation import EnhancedSolutionGenerator
+            generator = EnhancedSolutionGenerator()
+            
+            approach, detailed = await generator.generate_enhanced_solutions_with_fallback(
+                stem, answer, category, subcategory
+            )
+            
+            logger.info(f"  ✅ Enhanced solutions generated")
+            return approach, detailed
+            
+        except Exception as enhanced_error:
+            logger.warning(f"  ⚠️ Enhanced generator also failed, using legacy fallback: {enhanced_error}")
+            
+            # Legacy fallback method
+            return await generate_solutions_legacy_fallback(stem, answer, category, subcategory)
 
 async def generate_solutions_legacy_fallback(stem: str, answer: str, category: str, subcategory: str) -> tuple:
     """Legacy solution generation with OpenAI primary, Anthropic fallback"""
