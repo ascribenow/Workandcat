@@ -30,7 +30,7 @@ const getBackendURL = () => {
 const BACKEND_URL = getBackendURL();
 const API = BACKEND_URL ? `${BACKEND_URL}/api` : '/api';
 
-export const SessionSystem = ({ sessionId: propSessionId, onSessionEnd }) => {
+export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSessionEnd }) => {
   const { user } = useAuth();
   const [sessionId, setSessionId] = useState(propSessionId);
   const [sessionNumber, setSessionNumber] = useState(null);
