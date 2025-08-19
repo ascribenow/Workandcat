@@ -186,7 +186,8 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
             console.log('Session number set from metadata:', sessionMetadata.phase_info.current_session);
           } else {
             // For resumed sessions or when metadata is not available,
-            // get session count from dashboard API
+            // get session count from dashboard API (async call)
+            console.log('Fetching session number from dashboard...');
             fetchSessionNumberFromDashboard();
           }
         }
