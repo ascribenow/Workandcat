@@ -6651,21 +6651,29 @@ class CATBackendTester:
 
 
 if __name__ == "__main__":
-    print("🎯 CAT BACKEND TESTING - SESSION COMPLETION FIX")
+    print("🎯 CAT BACKEND TESTING - ADMIN PANEL QUALITY MANAGEMENT")
     print("=" * 80)
-    print("CRITICAL FIX IMPLEMENTED:")
-    print("- Added session completion logic in submit_session_answer endpoint")
-    print("- Sessions now get marked with ended_at when all questions are answered")
-    print("- This should fix the session counting in determine_user_phase function")
+    print("REVIEW REQUEST FOCUS:")
+    print("Testing admin panel functionality after moving quality check buttons")
+    print("from PYQ Upload to Question Upload dashboard")
     print("")
-    print("TESTING FOCUS: Validate session completion fix resolves session numbering issue")
-    print("REVIEW REQUEST: Test session completion, counting, sequential numbering, dashboard consistency")
+    print("SPECIFIC TESTS:")
+    print("1. Admin Authentication: Login with sumedhprabhu18@gmail.com / admin2025")
+    print("2. Question Quality Check API: Test /api/admin/check-question-quality endpoint")
+    print("3. Solution Re-enrichment API: Test /api/admin/re-enrich-all-questions endpoint")
+    print("4. API Functionality: Verify endpoints work correctly after frontend changes")
+    print("")
+    print("EXPECTED BEHAVIOR:")
+    print("- Admin authentication should work")
+    print("- Quality check API should return proper quality analysis")
+    print("- Re-enrichment API should be accessible (even if not run fully)")
+    print("- All admin functions should be operational")
     print("=" * 80)
     
     tester = CATBackendTester()
     
-    print("\n🎯 RUNNING SESSION COMPLETION FIX TEST")
-    success = tester.test_session_completion_fix()
+    print("\n🎯 RUNNING ADMIN PANEL QUALITY MANAGEMENT TEST")
+    success = tester.test_admin_panel_quality_management()
     
     print(f"\n" + "=" * 80)
     print("FINAL TEST SUMMARY")
@@ -6675,14 +6683,14 @@ if __name__ == "__main__":
     print(f"Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%" if tester.tests_run > 0 else "No tests run")
     
     if success:
-        print("🎉 SESSION COMPLETION FIX: SUCCESS!")
-        print("✅ Session completion logic working properly")
-        print("✅ Sessions marked as complete with ended_at")
-        print("✅ Sequential session numbering working")
-        print("✅ Dashboard consistency maintained")
+        print("🎉 ADMIN PANEL QUALITY MANAGEMENT: SUCCESS!")
+        print("✅ Admin authentication working with correct credentials")
+        print("✅ Quality check API functional and returning analysis")
+        print("✅ Re-enrichment API accessible and operational")
+        print("✅ All admin functions working after frontend changes")
     else:
-        print("❌ SESSION COMPLETION FIX: ISSUES FOUND")
-        print("❌ Session completion logic has problems")
+        print("❌ ADMIN PANEL QUALITY MANAGEMENT: ISSUES FOUND")
+        print("❌ Some admin functionality has problems")
         print("❌ Review test results for specific root causes")
     
     print("=" * 80)
