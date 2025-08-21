@@ -47,14 +47,8 @@ export const Dashboard = () => {
 
   useEffect(() => {
     const loadDashboard = async () => {
-      // Admin users always go to dashboard
-      if (isAdmin()) {
-        setCurrentView('dashboard');
-        return;
-      }
-      
       if (currentView === 'dashboard') {
-        // Directly show regular dashboard for all users
+        // Show dashboard for admin users or when explicitly navigated to dashboard
         fetchDashboardData();
       } else if (currentView === 'session' && !activeSessionId && !isAdmin()) {
         // Auto-start session for regular users when they first log in
@@ -68,7 +62,7 @@ export const Dashboard = () => {
     };
     
     loadDashboard();
-  }, [currentView, isAdmin]);
+  }, [currentView]);
 
   const getCategoryColor = (category) => {
     const colors = {
