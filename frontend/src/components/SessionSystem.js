@@ -490,10 +490,10 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
                       </div>
                     )}
 
-                    {/* Explanation */}
+                    {/* Principle to remember */}
                     {result.solution_feedback.explanation && (
                       <div>
-                        <h5 className="font-semibold text-blue-800 mb-3 text-lg">💡 Explanation:</h5>
+                        <h5 className="font-semibold text-blue-800 mb-3 text-lg">💡 Principle to remember:</h5>
                         <div className="bg-white p-4 rounded-lg border border-blue-100">
                           <div className="text-gray-800 leading-relaxed">
                             {result.solution_feedback.explanation}
