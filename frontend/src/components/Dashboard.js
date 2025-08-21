@@ -36,7 +36,7 @@ const API = BACKEND_URL ? `${BACKEND_URL}/api` : '/api';
 
 export const Dashboard = () => {
   const { user, logout, isAdmin } = useAuth();
-  const [currentView, setCurrentView] = useState('dashboard');
+  const [currentView, setCurrentView] = useState('session');
   const [dashboardData, setDashboardData] = useState(null);
   const [masteryData, setMasteryData] = useState(null);
   const [progressData, setProgressData] = useState(null);
