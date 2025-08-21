@@ -46,6 +46,12 @@ export const Dashboard = () => {
 
   useEffect(() => {
     const loadDashboard = async () => {
+      // Admin users always go to dashboard
+      if (isAdmin()) {
+        setCurrentView('dashboard');
+        return;
+      }
+      
       if (currentView === 'dashboard') {
         // Directly show regular dashboard for all users
         fetchDashboardData();
@@ -61,7 +67,7 @@ export const Dashboard = () => {
     };
     
     loadDashboard();
-  }, [currentView]);
+  }, [currentView, isAdmin]);
 
   const getCategoryColor = (category) => {
     const colors = {
