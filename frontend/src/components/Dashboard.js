@@ -49,6 +49,14 @@ export const Dashboard = () => {
       if (currentView === 'dashboard') {
         // Directly show regular dashboard for all users
         fetchDashboardData();
+      } else if (currentView === 'session' && !activeSessionId && !isAdmin()) {
+        // Auto-start session for regular users when they first log in
+        const sessionStarted = await startOrResumeSession();
+        if (!sessionStarted) {
+          // If session failed to start, redirect to dashboard
+          setCurrentView('dashboard');
+          fetchDashboardData();
+        }
       }
     };
     
