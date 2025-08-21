@@ -36,7 +36,8 @@ const API = BACKEND_URL ? `${BACKEND_URL}/api` : '/api';
 
 export const Dashboard = () => {
   const { user, logout, isAdmin } = useAuth();
-  const [currentView, setCurrentView] = useState('dashboard');
+  // Default view: admins go to dashboard, regular users go to session (immediately start active session)
+  const [currentView, setCurrentView] = useState(isAdmin() ? 'dashboard' : 'session');
   const [dashboardData, setDashboardData] = useState(null);
   const [masteryData, setMasteryData] = useState(null);
   const [progressData, setProgressData] = useState(null);
