@@ -108,16 +108,17 @@ const Login = () => {
       
       if (verifyResult.success) {
         // Show success message
-        setSuccess("✅ Email verified successfully!");
+        setSuccess("✅ Email verified successfully! You can now register with this email.");
         setError("");
         
-        // Wait 2 seconds then redirect to login
+        // Wait 3 seconds then redirect to registration
         setTimeout(() => {
-          setSuccess("Redirecting to login...");
-          // Reset to login page
+          setSuccess("Redirecting to registration...");
+          // Reset to registration mode with verified email
           resetVerificationFlow();
-          setIsRegister(false); // Switch back to login mode
-        }, 2000);
+          setIsRegister(true); // Stay in register mode but with normal form
+          // Pre-fill email since it's verified
+        }, 3000);
       } else {
         setError(verifyResult.error || "Invalid or expired verification code");
       }
