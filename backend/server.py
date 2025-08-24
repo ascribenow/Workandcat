@@ -123,6 +123,14 @@ class VerificationCodeRequest(BaseModel):
     email: EmailStr
     code: str
 
+class PasswordResetRequest(BaseModel):
+    email: EmailStr
+
+class PasswordResetVerifyRequest(BaseModel):
+    email: EmailStr
+    code: str
+    new_password: str
+
 class SignupWithVerificationRequest(BaseModel):
     email: EmailStr
     password: str
