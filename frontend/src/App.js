@@ -103,29 +103,28 @@ const Login = () => {
     setError("");
 
     try {
-      // Just verify the code
-      const verifyResult = await verifyEmailCode(formData.email, formData.verificationCode);
+      // Create account with verification code
+      const result = await registerWithVerification(
+        formData.name, 
+        formData.email, 
+        formData.password, 
+        formData.verificationCode
+      );
       
-      if (verifyResult.success) {
+      if (result.success) {
         // Show success message
-        setSuccess("✅ Code verified! Your email has been validated.");
+        setSuccess("🎉 Account successfully created!");
         setError("");
         
-        // Wait 2 seconds then redirect to login
+        // Wait 2 seconds then refresh to login page
         setTimeout(() => {
-          setSuccess("Your email is now verified. Please use the regular signup form to create your account.");
-          
-          // Wait another 2 seconds then reset to login
-          setTimeout(() => {
-            resetVerificationFlow();
-            setIsRegister(false); // Go back to login page
-          }, 2500);
+          window.location.reload(); // Refresh page to show login
         }, 2000);
       } else {
-        setError(verifyResult.error || "Invalid or expired verification code");
+        setError(result.error);
       }
     } catch (error) {
-      setError("Verification failed. Please try again.");
+      setError("Account creation failed. Please try again.");
     } finally {
       setLoading(false);
     }
