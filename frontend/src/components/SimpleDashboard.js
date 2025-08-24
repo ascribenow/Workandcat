@@ -1,28 +1,41 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useAuth } from './AuthProvider';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
 export const SimpleDashboard = () => {
+  const { user, token } = useAuth();
   const [loading, setLoading] = useState(true);
   const [dashboardData, setDashboardData] = useState(null);
 
   useEffect(() => {
-    fetchDashboardData();
-  }, []);
+    // Only fetch data if user is authenticated and token exists
+    if (user && token) {
+      fetchDashboardData();
+    }
+  }, [user, token]);
 
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
       console.log('SimpleDashboard: Fetching simple taxonomy data...');
+      console.log('SimpleDashboard: API endpoint:', `${API}/dashboard/simple-taxonomy`);
+      console.log('SimpleDashboard: Token present:', !!token);
       
-      const response = await axios.get(`${API}/dashboard/simple-taxonomy`);
+      const response = await axios.get(`${API}/dashboard/simple-taxonomy`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
       console.log('SimpleDashboard: Data received:', response.data);
       
       setDashboardData(response.data);
       
     } catch (error) {
       console.error('SimpleDashboard: Error fetching data:', error);
+      console.error('SimpleDashboard: Error details:', error.response?.data);
       // Set empty data to stop loading
       setDashboardData({ total_sessions: 0, taxonomy_data: [] });
     } finally {
@@ -30,7 +43,8 @@ export const SimpleDashboard = () => {
     }
   };
 
-  if (loading) {
+  // Show loading while user/token is not available
+  if (!user || !token || loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
