@@ -20,6 +20,15 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
   const [imageLoading, setImageLoading] = useState(false);
   const [imageLoadFailed, setImageLoadFailed] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
+  
+  // Doubt conversation states
+  const [showDoubtModal, setShowDoubtModal] = useState(false);
+  const [doubtMessage, setDoubtMessage] = useState('');
+  const [doubtHistory, setDoubtHistory] = useState([]);
+  const [doubtLoading, setDoubtLoading] = useState(false);
+  const [messageCount, setMessageCount] = useState(0);
+  const [remainingMessages, setRemainingMessages] = useState(10);
+  const [conversationLocked, setConversationLocked] = useState(false);
 
   useEffect(() => {
     if (sessionId) {
