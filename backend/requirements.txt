@@ -35,3 +35,7 @@ pytesseract>=0.3.10
 Pillow>=10.2.0
 # Scheduling and background jobs
 apscheduler>=3.10.4
+# Gmail API OAuth2 integration
+google-api-python-client>=2.108.0
+google-auth-httplib2>=0.2.0
+google-auth-oauthlib>=1.2.0
