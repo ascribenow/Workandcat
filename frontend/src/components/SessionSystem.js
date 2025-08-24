@@ -2,33 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { useAuth } from './AuthProvider';
 
-// Smart API URL detection (same as in AuthProvider)
-const getBackendURL = () => {
-  // If environment variable is set, use it
-  if (process.env.REACT_APP_BACKEND_URL && process.env.REACT_APP_BACKEND_URL.trim()) {
-    return process.env.REACT_APP_BACKEND_URL;
-  }
-  
-  // Auto-detect based on current domain
-  const currentDomain = window.location.hostname;
-  
-  if (currentDomain === 'localhost' || currentDomain === '127.0.0.1') {
-    // Local development - use direct backend URL
-    return 'http://localhost:8001';
-  } else if (currentDomain === 'twelvr.com' || currentDomain.includes('twelvr')) {
-    // Custom domain - use correct emergent.host backend URL
-    return 'https://adaptive-quant.emergent.host';
-  } else if (currentDomain.includes('preview.emergentagent.com')) {
-    // Preview domain - use relative URLs
-    return '';
-  } else {
-    // Default fallback for other domains
-    return '';
-  }
-};
-
-const BACKEND_URL = getBackendURL();
-const API = BACKEND_URL ? `${BACKEND_URL}/api` : '/api';
+const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
 export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSessionEnd }) => {
   const { user } = useAuth();
