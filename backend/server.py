@@ -205,6 +205,144 @@ async def get_current_user_info(current_user: User = Depends(require_auth)):
         "created_at": current_user.created_at.isoformat()
     }
 
+# Email Authentication Routes
+@api_router.get("/auth/gmail/authorize")
+async def get_gmail_authorization_url():
+    """Get Gmail OAuth2 authorization URL"""
+    try:
+        auth_url = gmail_service.get_authorization_url()
+        return EmailVerificationResponse(
+            success=True,
+            message="Gmail authorization URL generated",
+            authorization_url=auth_url
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to generate authorization URL: {str(e)}")
+
+@api_router.post("/auth/gmail/callback")
+async def handle_gmail_callback(auth_request: GmailAuthRequest):
+    """Handle Gmail OAuth2 callback and exchange code for tokens"""
+    try:
+        success = gmail_service.exchange_code_for_tokens(auth_request.authorization_code)
+        if success:
+            return EmailVerificationResponse(
+                success=True,
+                message="Gmail authentication successful"
+            )
+        else:
+            raise HTTPException(status_code=400, detail="Failed to exchange authorization code")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Gmail authentication failed: {str(e)}")
+
+@api_router.post("/auth/send-verification-code")
+async def send_verification_code(request: EmailVerificationRequest):
+    """Send verification code to email"""
+    try:
+        # Clean up expired codes first
+        gmail_service.cleanup_expired_codes()
+        
+        # Authenticate Gmail service if needed
+        if not gmail_service.service:
+            if not gmail_service.authenticate_service():
+                raise HTTPException(
+                    status_code=503, 
+                    detail="Email service not configured. Please contact administrator."
+                )
+        
+        # Generate and send verification code
+        code = gmail_service.generate_verification_code(request.email)
+        email_sent = gmail_service.send_verification_email(request.email, code)
+        
+        if email_sent:
+            return EmailVerificationResponse(
+                success=True,
+                message="Verification code sent successfully. Please check your email."
+            )
+        else:
+            raise HTTPException(status_code=500, detail="Failed to send verification email")
+            
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
+
+@api_router.post("/auth/verify-email-code")
+async def verify_email_code(request: VerificationCodeRequest):
+    """Verify the provided email verification code"""
+    try:
+        # Clean up expired codes
+        gmail_service.cleanup_expired_codes()
+        
+        # Verify the code
+        is_valid = gmail_service.verify_code(request.email, request.code)
+        
+        if is_valid:
+            return EmailVerificationResponse(
+                success=True,
+                message="Email verification successful!"
+            )
+        else:
+            raise HTTPException(
+                status_code=400, 
+                detail="Invalid or expired verification code"
+            )
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"An error occurred during verification: {str(e)}")
+
+@api_router.post("/auth/signup-with-verification", response_model=TokenResponse)
+async def signup_with_verification(
+    request: SignupWithVerificationRequest,
+    db: AsyncSession = Depends(get_async_compatible_db)
+):
+    """Complete signup after email verification"""
+    try:
+        # Verify the code first
+        is_code_valid = gmail_service.verify_code(request.email, request.code)
+        
+        if not is_code_valid:
+            raise HTTPException(
+                status_code=400,
+                detail="Invalid or expired verification code"
+            )
+        
+        # Create user account
+        auth_service = AuthService()
+        user_create = UserCreate(
+            email=request.email,
+            password=request.password,
+            full_name=request.full_name
+        )
+        
+        # Register user
+        token_response = await auth_service.register_user_v2(user_create, db)
+        
+        # Clean up verification data
+        gmail_service.remove_pending_user(request.email)
+        
+        return token_response
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Signup failed: {str(e)}")
+
+@api_router.post("/auth/store-pending-user")
+async def store_pending_user(request: EmailVerificationRequest):
+    """Store pending user data temporarily (for two-step signup)"""
+    try:
+        # For now, just store the email. In a full implementation, 
+        # you'd store additional user data here
+        gmail_service.store_pending_user(request.email, {"email": request.email})
+        
+        return EmailVerificationResponse(
+            success=True,
+            message="User data stored temporarily"
+        )
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to store user data: {str(e)}")
+
 # Import adaptive session engine
 from adaptive_session_engine import AdaptiveSessionEngine
 
