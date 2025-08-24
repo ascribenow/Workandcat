@@ -89,6 +89,7 @@ class QuestionCreateRequest(BaseModel):
     answer: Optional[str] = None  # Now optional since LLM can generate
     solution_approach: Optional[str] = None
     detailed_solution: Optional[str] = None
+    principle_to_remember: Optional[str] = None  # NEW: Locked pedagogy field
     hint_category: Optional[str] = None
     hint_subcategory: Optional[str] = None
     type_of_question: Optional[str] = None
