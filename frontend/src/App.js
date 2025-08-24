@@ -18,6 +18,9 @@ const Login = () => {
   const [showPasswordReset, setShowPasswordReset] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
   const [resetMessage, setResetMessage] = useState("");
+  const [resetCode, setResetCode] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [resetStep, setResetStep] = useState(1); // 1: Send code, 2: Verify code and reset
   
   // Email verification states
   const [showEmailVerification, setShowEmailVerification] = useState(false);
@@ -28,7 +31,8 @@ const Login = () => {
   const { 
     login, 
     register, 
-    requestPasswordReset, 
+    requestPasswordReset,
+    verifyPasswordReset,
     sendVerificationCode, 
     verifyEmailCode, 
     registerWithVerification 
