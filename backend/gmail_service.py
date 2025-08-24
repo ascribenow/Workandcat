@@ -111,6 +111,161 @@ class GmailService:
             return True
         return False
     
+    def send_password_reset_email(self, to_email: str, code: str) -> bool:
+        """Send password reset code email"""
+        if not self.service:
+            print("Gmail service not authenticated")
+            return False
+        
+        try:
+            # Create email content
+            subject = "Password Reset Code - Twelvr"
+            
+            plain_text = f"""
+Password Reset Request - Twelvr
+
+Your password reset code is: {code}
+
+This code will expire in 15 minutes. Please enter this code to reset your password.
+
+If you didn't request a password reset, please ignore this email and your password will remain unchanged.
+
+Best regards,
+The Twelvr Team
+            """.strip()
+            
+            html_content = f"""
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Password Reset - Twelvr</title>
+    <style>
+        body {{
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }}
+        .container {{
+            background-color: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }}
+        .header {{
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }}
+        .header h1 {{
+            margin: 0;
+            font-size: 28px;
+            font-weight: 300;
+        }}
+        .content {{
+            padding: 30px;
+        }}
+        .code {{
+            font-size: 36px;
+            font-weight: bold;
+            color: #ef4444;
+            text-align: center;
+            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+            padding: 25px;
+            border-radius: 8px;
+            margin: 25px 0;
+            letter-spacing: 8px;
+            font-family: 'Courier New', monospace;
+        }}
+        .warning {{
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #f39c12;
+        }}
+        .security {{
+            background-color: #f3f4f6;
+            border: 1px solid #d1d5db;
+            color: #374151;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #6b7280;
+        }}
+        .footer {{
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }}
+        .logo {{
+            color: #ef4444;
+            font-weight: bold;
+            font-size: 24px;
+        }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">Twelvr</div>
+            <h1>🔐 Password Reset</h1>
+        </div>
+        <div class="content">
+            <p>You requested to reset your password for your <strong>Twelvr</strong> account.</p>
+            <p>Your password reset code is:</p>
+            <div class="code">{code}</div>
+            <p>This code will expire in <strong>15 minutes</strong>. Please enter this code to reset your password.</p>
+            <div class="security">
+                <strong>🔒 Security Notice:</strong> If you didn't request a password reset, please ignore this email and your password will remain unchanged.
+            </div>
+        </div>
+        <div class="footer">
+            <p>Best regards,<br><strong>The Twelvr Team</strong></p>
+            <p>🛡️ Keep your account secure!</p>
+        </div>
+    </div>
+</body>
+</html>
+            """
+            
+            # Create message
+            message = MIMEMultipart('alternative')
+            message['to'] = to_email
+            message['from'] = self.sender_email
+            message['subject'] = subject
+            
+            # Add parts
+            text_part = MIMEText(plain_text, 'plain')
+            html_part = MIMEText(html_content, 'html')
+            message.attach(text_part)
+            message.attach(html_part)
+            
+            # Encode message
+            raw_message = base64.urlsafe_b64encode(message.as_bytes()).decode('utf-8')
+            
+            # Send message
+            send_message = self.service.users().messages().send(
+                userId='me',
+                body={'raw': raw_message}
+            ).execute()
+            
+            print(f"Password reset email sent successfully. Message ID: {send_message.get('id')}")
+            return True
+            
+        except Exception as e:
+            print(f"Error sending password reset email: {e}")
+            return False
+
     def send_verification_email(self, to_email: str, code: str) -> bool:
         """Send verification code email"""
         if not self.service:
