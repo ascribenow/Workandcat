@@ -1186,7 +1186,7 @@ class CATBackendTester:
             print("   ✅ Student user authentication successful")
             
             # Test progress dashboard for student
-            success, response = self.run_test("Progress Dashboard - Student User", "GET", "progress/dashboard", 200, None, student_headers)
+            success, response = self.run_test("Progress Dashboard - Student User", "GET", "dashboard/progress", 200, None, student_headers)
             if success:
                 student_total_sessions = response.get('total_sessions', 0)
                 student_total_minutes = response.get('total_minutes', 0)
