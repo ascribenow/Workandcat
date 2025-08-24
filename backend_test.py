@@ -9742,9 +9742,9 @@ if __name__ == "__main__":
     print("🚀 Starting CAT Backend Testing Suite")
     print("=" * 50)
     
-    # Run the email authentication system test as requested
-    print("\n📧 RUNNING EMAIL AUTHENTICATION SYSTEM TESTS")
-    email_success = tester.test_email_authentication_system()
+    # Run the comprehensive email authentication system test as requested
+    print("\n📧 RUNNING COMPREHENSIVE EMAIL AUTHENTICATION SYSTEM TESTS")
+    email_success = tester.test_email_authentication_system_comprehensive()
     
     print(f"\n🏁 Email Authentication Testing Complete - Success: {email_success}")
     print(f"📊 Tests Run: {tester.tests_run}")
