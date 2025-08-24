@@ -487,6 +487,40 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
                   </div>
                 )}
 
+                {/* Ask Any Doubt Section - Twelvr New Version */}
+                {result.solution_feedback && currentQuestion && (
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+                    <h4 className="font-semibold text-green-800 mb-3">💬 Have a doubt about this solution?</h4>
+                    <div className="space-y-3">
+                      <textarea
+                        value={doubtMessage}
+                        onChange={(e) => setDoubtMessage(e.target.value)}
+                        placeholder="Ask your doubt about this question or solution..."
+                        className="w-full px-3 py-2 border border-green-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 resize-none"
+                        rows="3"
+                        maxLength="500"
+                        disabled={conversationLocked}
+                      />
+                      <div className="flex justify-between items-center">
+                        <div className="text-sm text-green-600">
+                          {conversationLocked ? (
+                            <span className="text-red-600 font-medium">❌ Conversation limit reached (10/10)</span>
+                          ) : (
+                            <span>💬 Messages used: {messageCount}/10</span>
+                          )}
+                        </div>
+                        <button
+                          onClick={() => handleAskDoubt()}
+                          disabled={!doubtMessage.trim() || doubtLoading || conversationLocked}
+                          className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {doubtLoading ? "Asking..." : "🤔 Ask Twelvr"}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* Question Metadata */}
                 {result.question_metadata && (
                   <div className="bg-gray-50 p-3 rounded text-sm text-gray-600 mb-4">
