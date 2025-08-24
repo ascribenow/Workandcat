@@ -1801,10 +1801,11 @@ async def get_progress_dashboard(
 ):
     """Get progress dashboard data"""
     try:
-        # Get recent sessions
+        # Get recent completed sessions (only sessions with ended_at)
         sessions_result = await db.execute(
             select(Session)
             .where(Session.user_id == current_user.id)
+            .where(Session.ended_at.is_not(None))
             .order_by(desc(Session.started_at))
             .limit(30)
         )
