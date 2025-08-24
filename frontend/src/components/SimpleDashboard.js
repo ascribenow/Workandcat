@@ -1,29 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-// Smart API URL detection (same as in Dashboard.js)
-const getBackendURL = () => {
-  // If environment variable is set, use it
-  if (process.env.REACT_APP_BACKEND_URL && process.env.REACT_APP_BACKEND_URL.trim()) {
-    return process.env.REACT_APP_BACKEND_URL;
-  }
-  
-  // Auto-detect based on current domain
-  const currentDomain = window.location.hostname;
-  
-  if (currentDomain === 'localhost' || currentDomain === '127.0.0.1') {
-    return 'http://localhost:8001';
-  } else if (currentDomain === 'twelvr.com' || currentDomain.includes('twelvr')) {
-    return 'https://adaptive-quant.emergent.host';
-  } else if (currentDomain.includes('preview.emergentagent.com')) {
-    return '';
-  } else {
-    return '';
-  }
-};
-
-const BACKEND_URL = getBackendURL();
-const API = BACKEND_URL ? `${BACKEND_URL}/api` : '/api';
+const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
 export const SimpleDashboard = () => {
   const [loading, setLoading] = useState(true);
