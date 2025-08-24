@@ -149,10 +149,45 @@ const Login = () => {
     setError("");
     setResetMessage("");
 
+    if (resetStep === 1) {
+      // Step 1: Send reset code
+      const result = await requestPasswordReset(resetEmail);
+      if (result.success) {
+        setResetMessage(result.message);
+        setResetStep(2);
+        setCountdown(60);
+      } else {
+        setError(result.error);
+      }
+    } else {
+      // Step 2: Verify code and reset password
+      const result = await verifyPasswordReset(resetEmail, resetCode, newPassword);
+      if (result.success) {
+        setResetMessage("🎉 " + result.message);
+        setError("");
+        // Wait 2 seconds then go back to login
+        setTimeout(() => {
+          setShowPasswordReset(false);
+          setResetStep(1);
+          setResetEmail("");
+          setResetCode("");
+          setNewPassword("");
+        }, 2000);
+      } else {
+        setError(result.error);
+      }
+    }
+    setLoading(false);
+  };
+
+  const handleResendResetCode = async () => {
+    setLoading(true);
+    setError("");
+    
     const result = await requestPasswordReset(resetEmail);
     if (result.success) {
-      setResetMessage(result.message);
-      setShowPasswordReset(false);
+      setResetMessage("Reset code sent again!");
+      setCountdown(60);
     } else {
       setError(result.error);
     }
