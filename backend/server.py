@@ -146,6 +146,27 @@ class EmailVerificationResponse(BaseModel):
     message: str
     authorization_url: Optional[str] = None
 
+# Doubt Conversation Models
+class DoubtMessage(BaseModel):
+    question_id: str
+    session_id: Optional[str] = None
+    message: str
+
+class DoubtResponse(BaseModel):
+    success: bool
+    response: Optional[str] = None
+    message_count: int
+    remaining_messages: int
+    is_locked: bool
+    error: Optional[str] = None
+
+class DoubtConversationHistory(BaseModel):
+    conversation_id: str
+    messages: List[Dict[str, Any]]
+    message_count: int
+    remaining_messages: int
+    is_locked: bool
+
 # Utility Functions
 
 def clean_solution_text(text: str) -> str:
