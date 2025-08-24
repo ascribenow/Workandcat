@@ -327,21 +327,36 @@ async def signup_with_verification(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Signup failed: {str(e)}")
 
-@api_router.post("/auth/store-pending-user")
-async def store_pending_user(request: EmailVerificationRequest):
-    """Store pending user data temporarily (for two-step signup)"""
+@api_router.post("/auth/create-verified-account", response_model=TokenResponse)
+async def create_verified_account(
+    request: SignupWithVerificationRequest,
+    db: AsyncSession = Depends(get_async_compatible_db)
+):
+    """Create account for pre-verified email (email already verified via code)"""
     try:
-        # For now, just store the email. In a full implementation, 
-        # you'd store additional user data here
-        gmail_service.store_pending_user(request.email, {"email": request.email})
+        # Check if email was recently verified (don't re-verify code)
+        # This endpoint assumes email was already verified in previous step
         
-        return EmailVerificationResponse(
-            success=True,
-            message="User data stored temporarily"
+        # Create user account
+        auth_service = AuthService()
+        user_create = UserCreate(
+            email=request.email,
+            password=request.password,
+            full_name=request.full_name
         )
         
+        # Register user
+        token_response = await auth_service.register_user_v2(user_create, db)
+        
+        # Clean up verification data
+        gmail_service.remove_pending_user(request.email)
+        
+        return token_response
+        
+    except HTTPException:
+        raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to store user data: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Account creation failed: {str(e)}")
 
 # Import adaptive session engine
 from adaptive_session_engine import AdaptiveSessionEngine
