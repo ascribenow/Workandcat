@@ -653,7 +653,11 @@ async def submit_answer(
             "correct": is_correct,
             "message": "Answer submitted successfully",
             "attempt_id": str(attempt.id),
-            "explanation": question.solution_approach if not is_correct else None
+            "solution_feedback": {
+                "solution_approach": clean_solution_text(question.solution_approach) or "Solution approach not available",
+                "detailed_solution": clean_solution_text(question.detailed_solution) or "Detailed solution not available",
+                "principle_to_remember": clean_solution_text(question.principle_to_remember) or "Principle not available"
+            } if not is_correct else None
         }
         
     except Exception as e:
