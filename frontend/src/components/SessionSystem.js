@@ -611,6 +611,124 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
           </div>
         </div>
       )}
+
+      {/* Doubt Conversation Modal - ChatGPT Style */}
+      {showDoubtModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] flex flex-col">
+            {/* Modal Header */}
+            <div className="flex justify-between items-center p-4 border-b border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900">💬 Chat with Twelvr</h3>
+              <div className="flex items-center space-x-4">
+                <span className="text-sm text-gray-500">
+                  {conversationLocked ? (
+                    <span className="text-red-600 font-medium">❌ Limit reached (10/10)</span>
+                  ) : (
+                    <span>💬 {messageCount}/10 messages used</span>
+                  )}
+                </span>
+                <button
+                  onClick={closeDoubtModal}
+                  className="text-gray-400 hover:text-gray-600 focus:outline-none"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            {/* Conversation History */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
+              {doubtHistory.length === 0 ? (
+                <div className="text-center text-gray-500 py-8">
+                  <p>👋 Hi! I'm Twelvr, your friendly tutor.</p>
+                  <p className="mt-2">Ask me anything about this question or solution!</p>
+                </div>
+              ) : (
+                doubtHistory.map((message, index) => (
+                  <div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                    <div className={`max-w-[80%] rounded-lg p-3 ${
+                      message.role === 'user'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-white border border-gray-200 shadow-sm'
+                    }`}>
+                      {message.role === 'assistant' && (
+                        <div className="text-sm font-medium text-green-600 mb-1">🤖 Twelvr says:</div>
+                      )}
+                      <div className={`${message.role === 'user' ? 'text-white' : 'text-gray-800'} whitespace-pre-wrap`}>
+                        {message.message}
+                      </div>
+                      <div className={`text-xs mt-2 ${
+                        message.role === 'user' ? 'text-blue-200' : 'text-gray-400'
+                      }`}>
+                        {new Date(message.timestamp).toLocaleTimeString()}
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+              {doubtLoading && (
+                <div className="flex justify-start">
+                  <div className="bg-white border border-gray-200 shadow-sm rounded-lg p-3 max-w-[80%]">
+                    <div className="text-sm font-medium text-green-600 mb-1">🤖 Twelvr says:</div>
+                    <div className="flex items-center space-x-2">
+                      <div className="animate-pulse flex space-x-1">
+                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                      </div>
+                      <span className="text-gray-500 text-sm">Thinking...</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Message Input */}
+            {!conversationLocked && (
+              <div className="border-t border-gray-200 p-4 bg-white">
+                <div className="flex space-x-3">
+                  <textarea
+                    value={doubtMessage}
+                    onChange={(e) => setDoubtMessage(e.target.value)}
+                    placeholder="Type your doubt or question here..."
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+                    rows="2"
+                    maxLength="500"
+                    disabled={doubtLoading}
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        handleAskDoubt();
+                      }
+                    }}
+                  />
+                  <button
+                    onClick={handleAskDoubt}
+                    disabled={!doubtMessage.trim() || doubtLoading}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed self-end"
+                  >
+                    {doubtLoading ? "..." : "Send"}
+                  </button>
+                </div>
+                <div className="text-xs text-gray-500 mt-2">
+                  Press Enter to send, Shift+Enter for new line
+                </div>
+              </div>
+            )}
+
+            {conversationLocked && (
+              <div className="border-t border-gray-200 p-4 bg-red-50">
+                <div className="text-center text-red-600">
+                  <p className="font-medium">❌ Conversation Limit Reached</p>
+                  <p className="text-sm mt-1">You have used all 10 messages for this question.</p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
