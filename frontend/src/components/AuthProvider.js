@@ -301,6 +301,7 @@ export const AuthProvider = ({ children }) => {
     register,
     logout,
     requestPasswordReset,
+    verifyPasswordReset,
     sendVerificationCode,
     verifyEmailCode,
     registerWithVerification,
