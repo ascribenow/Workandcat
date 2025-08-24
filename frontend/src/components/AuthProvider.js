@@ -282,6 +282,11 @@ export const AuthProvider = ({ children }) => {
     register,
     logout,
     requestPasswordReset,
+    sendVerificationCode,
+    verifyEmailCode,
+    registerWithVerification,
+    getGmailAuthURL,
+    handleGmailCallback,
     isAdmin,
     isAuthenticated,
     // Utility functions
