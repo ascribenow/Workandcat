@@ -1259,7 +1259,7 @@ class CATBackendTester:
                                     
                                     # Check if session completion affects count
                                     # Note: Session might not be marked complete until all questions answered
-                                    success, response = self.run_test("Progress Dashboard - After Answer", "GET", "progress/dashboard", 200, None, student_headers)
+                                    success, response = self.run_test("Progress Dashboard - After Answer", "GET", "dashboard/progress", 200, None, student_headers)
                                     if success:
                                         sessions_after = response.get('total_sessions', 0)
                                         print(f"   📊 Sessions after answer: {sessions_after}")
