@@ -200,23 +200,79 @@ const Login = () => {
         <div className="max-w-md w-full">
           <div className="bg-white rounded-lg shadow-xl p-8">
             <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold text-gray-900">Reset Password</h2>
+              <div className="mx-auto mb-6 flex justify-center">
+                <img 
+                  src="/images/twelvr-logo.png" 
+                  alt="Twelvr Logo" 
+                  className="h-32 w-auto"
+                  style={{backgroundColor: 'transparent'}}
+                />
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900">
+                {resetStep === 1 ? "🔐 Reset Password" : "🔢 Enter Reset Code"}
+              </h2>
               <p className="mt-2 text-sm text-gray-600">
-                Enter your email to receive reset instructions
+                {resetStep === 1 
+                  ? "Enter your email to receive a password reset code"
+                  : "Enter the 6-digit code sent to your email"
+                }
               </p>
             </div>
 
             <form onSubmit={handlePasswordReset} className="space-y-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Email</label>
-                <input
-                  type="email"
-                  value={resetEmail}
-                  onChange={(e) => setResetEmail(e.target.value)}
-                  className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  required
-                />
-              </div>
+              {resetStep === 1 ? (
+                // Step 1: Email input
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Email Address</label>
+                  <input
+                    type="email"
+                    value={resetEmail}
+                    onChange={(e) => setResetEmail(e.target.value)}
+                    className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                    placeholder="Enter your registered email"
+                    required
+                  />
+                </div>
+              ) : (
+                // Step 2: Code and password inputs
+                <>
+                  <div className="text-center p-4 bg-red-50 rounded-lg">
+                    <p className="text-sm text-red-700">
+                      📧 Reset code sent to: <strong>{resetEmail}</strong>
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">6-Digit Reset Code</label>
+                    <input
+                      type="text"
+                      value={resetCode}
+                      onChange={(e) => setResetCode(e.target.value)}
+                      className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 text-center text-2xl font-mono tracking-wider"
+                      placeholder="000000"
+                      maxLength="6"
+                      pattern="[0-9]{6}"
+                      required
+                    />
+                    <p className="mt-1 text-xs text-gray-500">
+                      Code expires in 15 minutes
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">New Password</label>
+                    <input
+                      type="password"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                      placeholder="Enter your new password"
+                      minLength="6"
+                      required
+                    />
+                  </div>
+                </>
+              )}
 
               {error && (
                 <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
@@ -224,20 +280,47 @@ const Login = () => {
                 </div>
               )}
 
+              {resetMessage && (
+                <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded">
+                  {resetMessage}
+                </div>
+              )}
+
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50"
               >
-                {loading ? "Sending..." : "Send Reset Email"}
+                {loading ? (resetStep === 1 ? "Sending..." : "Resetting...") : (resetStep === 1 ? "📧 Send Reset Code" : "🔐 Reset Password")}
               </button>
+
+              {resetStep === 2 && (
+                <div className="text-center space-y-2">
+                  <button
+                    type="button"
+                    onClick={handleResendResetCode}
+                    disabled={loading || countdown > 0}
+                    className={`text-sm ${countdown > 0 ? 'text-gray-400' : 'text-red-600 hover:text-red-500'} disabled:cursor-not-allowed`}
+                  >
+                    {countdown > 0 ? `Resend code in ${countdown}s` : "Resend reset code"}
+                  </button>
+                </div>
+              )}
 
               <button
                 type="button"
-                onClick={() => setShowPasswordReset(false)}
-                className="w-full text-center text-sm text-blue-600 hover:text-blue-500"
+                onClick={() => {
+                  setShowPasswordReset(false);
+                  setResetStep(1);
+                  setResetEmail("");
+                  setResetCode("");
+                  setNewPassword("");
+                  setError("");
+                  setResetMessage("");
+                }}
+                className="w-full text-center text-sm text-gray-500 hover:text-gray-700"
               >
-                Back to Login
+                ← Back to Login
               </button>
             </form>
           </div>
