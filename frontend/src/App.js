@@ -103,19 +103,26 @@ const Login = () => {
     setError("");
 
     try {
-      const result = await registerWithVerification(
-        formData.name, 
-        formData.email, 
-        formData.password, 
-        formData.verificationCode
-      );
+      // First, just verify the code
+      const verifyResult = await verifyEmailCode(formData.email, formData.verificationCode);
       
-      if (!result.success) {
-        setError(result.error);
+      if (verifyResult.success) {
+        // Show success message
+        setSuccess("✅ Email verified successfully!");
+        setError("");
+        
+        // Wait 2 seconds then redirect to login
+        setTimeout(() => {
+          setSuccess("Redirecting to login...");
+          // Reset to login page
+          resetVerificationFlow();
+          setIsRegister(false); // Switch back to login mode
+        }, 2000);
+      } else {
+        setError(verifyResult.error || "Invalid or expired verification code");
       }
-      // If successful, user will be automatically logged in via AuthProvider
     } catch (error) {
-      setError("Registration failed");
+      setError("Verification failed. Please try again.");
     } finally {
       setLoading(false);
     }
