@@ -465,12 +465,12 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
                     )}
 
                     {/* Principle to remember */}
-                    {result.solution_feedback.explanation && (
+                    {result.solution_feedback.principle_to_remember && (
                       <div>
                         <h5 className="font-semibold text-blue-800 mb-3 text-lg">💡 Principle to remember:</h5>
                         <div className="bg-white p-4 rounded-lg border border-blue-100">
                           <div className="text-gray-800 leading-relaxed">
-                            {result.solution_feedback.explanation}
+                            {result.solution_feedback.principle_to_remember}
                           </div>
                         </div>
                       </div>
