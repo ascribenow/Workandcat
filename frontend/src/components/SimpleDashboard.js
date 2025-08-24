@@ -22,23 +22,31 @@ export const SimpleDashboard = () => {
       console.log('SimpleDashboard: Fetching simple taxonomy data...');
       console.log('SimpleDashboard: API endpoint:', `${API}/dashboard/simple-taxonomy`);
       console.log('SimpleDashboard: Token present:', !!token);
+      console.log('SimpleDashboard: User:', user?.email);
       
       const response = await axios.get(`${API}/dashboard/simple-taxonomy`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
-        }
+        },
+        timeout: 10000 // 10 second timeout
       });
-      console.log('SimpleDashboard: Data received:', response.data);
+      console.log('SimpleDashboard: Data received successfully!');
+      console.log('SimpleDashboard: Total sessions:', response.data?.total_sessions);
+      console.log('SimpleDashboard: Taxonomy data length:', response.data?.taxonomy_data?.length);
       
       setDashboardData(response.data);
       
     } catch (error) {
       console.error('SimpleDashboard: Error fetching data:', error);
-      console.error('SimpleDashboard: Error details:', error.response?.data);
+      console.error('SimpleDashboard: Error message:', error.message);
+      console.error('SimpleDashboard: Error response:', error.response?.data);
+      console.error('SimpleDashboard: Error status:', error.response?.status);
+      
       // Set empty data to stop loading
       setDashboardData({ total_sessions: 0, taxonomy_data: [] });
     } finally {
+      console.log('SimpleDashboard: Setting loading to false');
       setLoading(false);
     }
   };
