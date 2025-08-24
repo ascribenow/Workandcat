@@ -319,6 +319,10 @@ test_plan:
   resumed_session_numbering_working: true
   phase_information_accurate: true
   session_completion_fix_status: "completed_successfully"
+  session_counting_fix_status: "completed_successfully"
+  session_counting_logic_working: true
+  completed_sessions_only_counted: true
+  progress_dashboard_endpoints_working: true
   session_ended_at_working: true
   dashboard_count_increases: true
   sequential_numbering_working: true
