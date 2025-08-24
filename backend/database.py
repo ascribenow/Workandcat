@@ -421,6 +421,33 @@ class Session(Base):
     user = relationship("User", back_populates="sessions")
 
 
+class DoubtsConversation(Base):
+    """Store doubt conversations between users and Twelvr AI for each question"""
+    __tablename__ = "doubts_conversations"
+    
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = Column(String(36), ForeignKey('users.id'), nullable=False)
+    question_id = Column(String(36), ForeignKey('questions.id'), nullable=False)
+    session_id = Column(String(36), ForeignKey('sessions.id'), nullable=True)  # Link to session if available
+    message_count = Column(Integer, default=0)  # Track number of messages in conversation
+    conversation_transcript = Column(Text, default='[]')  # JSON array of conversation messages
+    gemini_token_usage = Column(Integer, default=0)  # Total tokens used by Gemini for this conversation
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    is_locked = Column(Boolean, default=False)  # Lock conversation after 10 messages
+    
+    # Relationships
+    user = relationship("User")
+    question = relationship("Question")
+    session = relationship("Session")
+    
+    # Indexes for efficient queries
+    __table_args__ = (
+        Index('idx_doubts_user_question', 'user_id', 'question_id'),
+        Index('idx_doubts_session', 'session_id'),
+    )
+
+
 class MasteryHistory(Base):
     """Store daily mastery history per user per subcategory (v1.3 requirement)"""
     __tablename__ = "mastery_history"
