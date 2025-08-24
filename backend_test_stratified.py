@@ -6,7 +6,7 @@ import time
 import os
 
 class StratifiedDistributionTester:
-    def __init__(self, base_url="https://auth-session-fix.preview.emergentagent.com/api"):
+    def __init__(self, base_url="https://twelvr-updated.preview.emergentagent.com/api"):
         self.base_url = base_url
         self.student_token = None
         self.admin_token = None
