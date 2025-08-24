@@ -1110,7 +1110,7 @@ class CATBackendTester:
         
         existing_user_login = {
             "email": "sumedhprabhu18@gmail.com",
-            "password": "password123"
+            "password": "admin2025"
         }
         
         success, response = self.run_test("Existing User Login", "POST", "auth/login", 200, existing_user_login)
