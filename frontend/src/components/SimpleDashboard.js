@@ -12,8 +12,22 @@ export const SimpleDashboard = () => {
   useEffect(() => {
     // Only fetch data if user is authenticated and token exists
     if (user && token) {
+      console.log('SimpleDashboard: User and token available, fetching data...');
       fetchDashboardData();
+    } else {
+      console.log('SimpleDashboard: Waiting for user/token...', { user: !!user, token: !!token });
     }
+    
+    // Fallback timeout to prevent infinite loading
+    const fallbackTimeout = setTimeout(() => {
+      console.log('SimpleDashboard: Fallback timeout triggered after 15 seconds');
+      if (loading) {
+        setLoading(false);
+        setDashboardData({ total_sessions: 0, taxonomy_data: [] });
+      }
+    }, 15000);
+    
+    return () => clearTimeout(fallbackTimeout);
   }, [user, token]);
 
   const fetchDashboardData = async () => {
