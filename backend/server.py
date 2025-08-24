@@ -115,6 +115,28 @@ class AttemptSubmission(BaseModel):
     time_sec: Optional[int] = None
     hint_used: bool = False
 
+# Email Authentication Models
+class EmailVerificationRequest(BaseModel):
+    email: EmailStr
+
+class VerificationCodeRequest(BaseModel):
+    email: EmailStr
+    code: str
+
+class SignupWithVerificationRequest(BaseModel):
+    email: EmailStr
+    password: str
+    full_name: str
+    code: str
+
+class GmailAuthRequest(BaseModel):
+    authorization_code: str
+
+class EmailVerificationResponse(BaseModel):
+    success: bool
+    message: str
+    authorization_url: Optional[str] = None
+
 # Utility Functions
 
 def clean_solution_text(text: str) -> str:
