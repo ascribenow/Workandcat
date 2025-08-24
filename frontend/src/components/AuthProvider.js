@@ -253,13 +253,32 @@ export const AuthProvider = ({ children }) => {
     delete axios.defaults.headers.common['Authorization'];
   };
 
-  // Request password reset
+  // Request password reset with code
   const requestPasswordReset = async (email) => {
     try {
       await axios.post(`${API}/auth/password-reset`, { email });
-      return { success: true, message: 'Password reset email sent' };
+      return { success: true, message: 'If an account with this email exists, a password reset code has been sent.' };
     } catch (error) {
       const message = error.response?.data?.detail || 'Failed to send reset email';
+      return { success: false, error: message };
+    }
+  };
+
+  // Verify password reset code and set new password
+  const verifyPasswordReset = async (email, code, newPassword) => {
+    try {
+      const response = await axios.post(`${API}/auth/password-reset-verify`, {
+        email,
+        code,
+        new_password: newPassword
+      });
+      
+      return { 
+        success: true, 
+        message: response.data.message || 'Password reset successfully!'
+      };
+    } catch (error) {
+      const message = error.response?.data?.detail || 'Invalid or expired reset code';
       return { success: false, error: message };
     }
   };
