@@ -231,6 +231,62 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
     }
   };
 
+  // Doubt conversation functions - Twelvr New Version
+  const handleAskDoubt = async () => {
+    if (!doubtMessage.trim() || conversationLocked) return;
+
+    // Open modal and load conversation history first
+    setShowDoubtModal(true);
+    await loadDoubtHistory();
+
+    // Then send the doubt
+    setDoubtLoading(true);
+    try {
+      const response = await axios.post(`${API}/doubts/ask`, {
+        question_id: currentQuestion.id,
+        session_id: sessionId,
+        message: doubtMessage.trim()
+      });
+
+      if (response.data.success) {
+        // Update local state
+        setMessageCount(response.data.message_count);
+        setRemainingMessages(response.data.remaining_messages);
+        setConversationLocked(response.data.is_locked);
+        setDoubtMessage('');
+        
+        // Reload conversation history to show new message
+        await loadDoubtHistory();
+      } else {
+        alert(response.data.error || 'Failed to send doubt');
+      }
+    } catch (error) {
+      console.error('Error sending doubt:', error);
+      alert('Failed to send your doubt. Please try again.');
+    } finally {
+      setDoubtLoading(false);
+    }
+  };
+
+  const loadDoubtHistory = async () => {
+    if (!currentQuestion?.id) return;
+    
+    try {
+      const response = await axios.get(`${API}/doubts/${currentQuestion.id}/history`);
+      setDoubtHistory(response.data.messages || []);
+      setMessageCount(response.data.message_count || 0);
+      setRemainingMessages(response.data.remaining_messages || 10);
+      setConversationLocked(response.data.is_locked || false);
+    } catch (error) {
+      console.error('Error loading doubt history:', error);
+      setDoubtHistory([]);
+    }
+  };
+
+  const closeDoubtModal = () => {
+    setShowDoubtModal(false);
+  };
+
   if (loading && !currentQuestion) {
     return (
       <div className="flex items-center justify-center min-h-screen">
