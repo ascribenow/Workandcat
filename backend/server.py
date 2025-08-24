@@ -1525,7 +1525,7 @@ async def submit_session_answer(
             "solution_feedback": {
                 "solution_approach": clean_solution_text(question.solution_approach) or "Solution approach not available",
                 "detailed_solution": clean_solution_text(question.detailed_solution) or "Detailed solution not available",
-                "explanation": f"The correct answer is {clean_solution_text(question.answer)}. " + (clean_solution_text(question.solution_approach) or "")
+                "principle_to_remember": clean_solution_text(question.principle_to_remember) or "Principle not available"
             },
             "question_metadata": {
                 "subcategory": question.subcategory,
