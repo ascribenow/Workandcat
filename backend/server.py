@@ -1900,10 +1900,11 @@ async def get_simple_taxonomy_dashboard(
         
         attempt_data = attempt_query.fetchall()
         
-        # Get total sessions count
+        # Get total completed sessions count (only sessions with ended_at)
         sessions_result = await db.execute(
             select(func.count(Session.id))
             .where(Session.user_id == current_user.id)
+            .where(Session.ended_at.is_not(None))
         )
         total_sessions = sessions_result.scalar() or 0
         
