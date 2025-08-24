@@ -1230,7 +1230,7 @@ class CATBackendTester:
                 results["new_session_creation"] = True
                 
                 # Check progress dashboard before session completion
-                success, response = self.run_test("Progress Dashboard - Before Completion", "GET", "progress/dashboard", 200, None, student_headers)
+                success, response = self.run_test("Progress Dashboard - Before Completion", "GET", "dashboard/progress", 200, None, student_headers)
                 if success:
                     sessions_before = response.get('total_sessions', 0)
                     print(f"   📊 Sessions before completion: {sessions_before}")
