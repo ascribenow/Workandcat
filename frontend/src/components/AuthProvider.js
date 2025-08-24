@@ -143,6 +143,102 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Send email verification code
+  const sendVerificationCode = async (email) => {
+    try {
+      const response = await axios.post(`${API}/auth/send-verification-code`, {
+        email
+      });
+      
+      return { 
+        success: true, 
+        message: response.data.message || 'Verification code sent successfully'
+      };
+    } catch (error) {
+      const message = error.response?.data?.detail || 'Failed to send verification code';
+      return { success: false, error: message };
+    }
+  };
+
+  // Verify email code
+  const verifyEmailCode = async (email, code) => {
+    try {
+      const response = await axios.post(`${API}/auth/verify-email-code`, {
+        email,
+        code
+      });
+      
+      return { 
+        success: true, 
+        message: response.data.message || 'Email verification successful'
+      };
+    } catch (error) {
+      const message = error.response?.data?.detail || 'Invalid or expired verification code';
+      return { success: false, error: message };
+    }
+  };
+
+  // Register with email verification
+  const registerWithVerification = async (name, email, password, code) => {
+    try {
+      const response = await axios.post(`${API}/auth/signup-with-verification`, {
+        full_name: name,
+        email,
+        password,
+        code
+      });
+
+      const { access_token, user: userData } = response.data;
+
+      // Store in localStorage
+      localStorage.setItem('cat_prep_token', access_token);
+      localStorage.setItem('cat_prep_user', JSON.stringify(userData));
+
+      // Set auth state
+      setToken(access_token);
+      setUser(userData);
+
+      // Set default authorization header
+      axios.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
+
+      return { success: true, user: userData };
+    } catch (error) {
+      const message = error.response?.data?.detail || 'Registration with verification failed';
+      return { success: false, error: message };
+    }
+  };
+
+  // Get Gmail authorization URL
+  const getGmailAuthURL = async () => {
+    try {
+      const response = await axios.get(`${API}/auth/gmail/authorize`);
+      return { 
+        success: true, 
+        authUrl: response.data.authorization_url 
+      };
+    } catch (error) {
+      const message = error.response?.data?.detail || 'Failed to get authorization URL';
+      return { success: false, error: message };
+    }
+  };
+
+  // Handle Gmail callback
+  const handleGmailCallback = async (authorizationCode) => {
+    try {
+      const response = await axios.post(`${API}/auth/gmail/callback`, {
+        authorization_code: authorizationCode
+      });
+      
+      return { 
+        success: true, 
+        message: response.data.message || 'Gmail authentication successful'
+      };
+    } catch (error) {
+      const message = error.response?.data?.detail || 'Gmail authentication failed';
+      return { success: false, error: message };
+    }
+  };
+
   // Logout function
   const logout = () => {
     // Clear localStorage
