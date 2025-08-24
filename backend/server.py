@@ -3868,10 +3868,11 @@ async def process_pyq_document(ingestion_id: str, file_content: bytes):
 async def calculate_study_streak(db: AsyncSession, user_id: str) -> int:
     """Calculate current study streak for a user"""
     try:
-        # Get sessions ordered by date
+        # Get completed sessions ordered by date
         sessions_result = await db.execute(
             select(Session)
             .where(Session.user_id == user_id)
+            .where(Session.ended_at.is_not(None))
             .order_by(desc(Session.started_at))
         )
         sessions = sessions_result.scalars().all()
