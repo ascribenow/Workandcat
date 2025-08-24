@@ -10,25 +10,53 @@ const API = `${BACKEND_URL}/api`;
 
 // Professional Login Component
 const Login = () => {
-  const [formData, setFormData] = useState({ email: "", password: "", name: "" });
+  const [formData, setFormData] = useState({ email: "", password: "", name: "", verificationCode: "" });
   const [isRegister, setIsRegister] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [showPasswordReset, setShowPasswordReset] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
   const [resetMessage, setResetMessage] = useState("");
+  
+  // Email verification states
+  const [showEmailVerification, setShowEmailVerification] = useState(false);
+  const [verificationStep, setVerificationStep] = useState(1); // 1: Send code, 2: Verify code and complete signup
+  const [codeSent, setCodeSent] = useState(false);
+  const [countdown, setCountdown] = useState(0);
 
-  const { login, register, requestPasswordReset } = useAuth();
+  const { 
+    login, 
+    register, 
+    requestPasswordReset, 
+    sendVerificationCode, 
+    verifyEmailCode, 
+    registerWithVerification 
+  } = useAuth();
+
+  // Countdown timer for resend code
+  useEffect(() => {
+    let timer;
+    if (countdown > 0) {
+      timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+    }
+    return () => clearTimeout(timer);
+  }, [countdown]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError("");
+    setSuccess("");
 
     try {
       let result;
       if (isRegister) {
-        result = await register(formData.name, formData.email, formData.password);
+        // Start email verification process
+        setShowEmailVerification(true);
+        setVerificationStep(1);
+        setLoading(false);
+        return;
       } else {
         result = await login(formData.email, formData.password);
       }
@@ -41,6 +69,65 @@ const Login = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSendVerificationCode = async () => {
+    if (!formData.email || !formData.name || !formData.password) {
+      setError("Please fill in all required fields first");
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+    
+    try {
+      const result = await sendVerificationCode(formData.email);
+      if (result.success) {
+        setSuccess("Verification code sent! Please check your email.");
+        setCodeSent(true);
+        setVerificationStep(2);
+        setCountdown(60); // 60 second countdown for resend
+      } else {
+        setError(result.error);
+      }
+    } catch (error) {
+      setError("Failed to send verification code");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyAndSignup = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+
+    try {
+      const result = await registerWithVerification(
+        formData.name, 
+        formData.email, 
+        formData.password, 
+        formData.verificationCode
+      );
+      
+      if (!result.success) {
+        setError(result.error);
+      }
+      // If successful, user will be automatically logged in via AuthProvider
+    } catch (error) {
+      setError("Registration failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const resetVerificationFlow = () => {
+    setShowEmailVerification(false);
+    setVerificationStep(1);
+    setCodeSent(false);
+    setFormData(prev => ({ ...prev, verificationCode: "" }));
+    setError("");
+    setSuccess("");
   };
 
   const handlePasswordReset = async (e) => {
