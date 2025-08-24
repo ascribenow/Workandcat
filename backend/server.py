@@ -1565,6 +1565,215 @@ async def submit_session_answer(
         logger.error(f"Error submitting session answer: {e}")
         raise HTTPException(status_code=500, detail="Error submitting answer")
 
+# Doubt Conversation Routes - Twelvr New Version
+
+@api_router.post("/doubts/ask", response_model=DoubtResponse)
+async def ask_doubt(
+    doubt_data: DoubtMessage,
+    current_user: User = Depends(require_auth),
+    db: AsyncSession = Depends(get_async_compatible_db)
+):
+    """Ask a doubt about a specific question using Gemini AI"""
+    try:
+        # Get or create conversation record
+        conversation_result = await db.execute(
+            select(DoubtsConversation).where(
+                DoubtsConversation.user_id == current_user.id,
+                DoubtsConversation.question_id == doubt_data.question_id
+            )
+        )
+        conversation = conversation_result.scalar_one_or_none()
+        
+        if not conversation:
+            # Create new conversation
+            conversation = DoubtsConversation(
+                user_id=current_user.id,
+                question_id=doubt_data.question_id,
+                session_id=doubt_data.session_id,
+                conversation_transcript="[]",
+                message_count=0,
+                gemini_token_usage=0
+            )
+            db.add(conversation)
+            await db.flush()
+        
+        # Check if conversation is locked (10 message limit reached)
+        if conversation.is_locked or conversation.message_count >= 10:
+            return DoubtResponse(
+                success=False,
+                message_count=conversation.message_count,
+                remaining_messages=0,
+                is_locked=True,
+                error="Conversation limit reached. You have used all 10 messages for this question."
+            )
+        
+        # Get question details for context
+        question_result = await db.execute(
+            select(Question).where(Question.id == doubt_data.question_id)
+        )
+        question = question_result.scalar_one_or_none()
+        
+        if not question:
+            raise HTTPException(status_code=404, detail="Question not found")
+        
+        # Parse existing conversation
+        import json
+        try:
+            messages = json.loads(conversation.conversation_transcript) if conversation.conversation_transcript else []
+        except json.JSONDecodeError:
+            messages = []
+        
+        # Generate Gemini response
+        gemini_response = await generate_doubt_response(
+            question=question,
+            user_message=doubt_data.message,
+            conversation_history=messages
+        )
+        
+        # Add user message and Gemini response to conversation
+        messages.append({
+            "role": "user",
+            "message": doubt_data.message,
+            "timestamp": datetime.utcnow().isoformat()
+        })
+        messages.append({
+            "role": "assistant",
+            "message": gemini_response["response"],
+            "timestamp": datetime.utcnow().isoformat()
+        })
+        
+        # Update conversation record
+        conversation.conversation_transcript = json.dumps(messages)
+        conversation.message_count = len([m for m in messages if m["role"] == "user"])
+        conversation.gemini_token_usage += gemini_response.get("tokens_used", 0)
+        conversation.updated_at = datetime.utcnow()
+        
+        # Lock conversation if 10 messages reached
+        if conversation.message_count >= 10:
+            conversation.is_locked = True
+        
+        await db.commit()
+        
+        remaining_messages = max(0, 10 - conversation.message_count)
+        
+        return DoubtResponse(
+            success=True,
+            response=gemini_response["response"],
+            message_count=conversation.message_count,
+            remaining_messages=remaining_messages,
+            is_locked=conversation.is_locked
+        )
+        
+    except Exception as e:
+        logger.error(f"Error processing doubt: {e}")
+        raise HTTPException(status_code=500, detail="Error processing your doubt")
+
+@api_router.get("/doubts/{question_id}/history", response_model=DoubtConversationHistory)
+async def get_doubt_history(
+    question_id: str,
+    current_user: User = Depends(require_auth),
+    db: AsyncSession = Depends(get_async_compatible_db)
+):
+    """Get doubt conversation history for a specific question"""
+    try:
+        conversation_result = await db.execute(
+            select(DoubtsConversation).where(
+                DoubtsConversation.user_id == current_user.id,
+                DoubtsConversation.question_id == question_id
+            )
+        )
+        conversation = conversation_result.scalar_one_or_none()
+        
+        if not conversation:
+            # Return empty conversation
+            return DoubtConversationHistory(
+                conversation_id="",
+                messages=[],
+                message_count=0,
+                remaining_messages=10,
+                is_locked=False
+            )
+        
+        # Parse conversation
+        import json
+        try:
+            messages = json.loads(conversation.conversation_transcript) if conversation.conversation_transcript else []
+        except json.JSONDecodeError:
+            messages = []
+        
+        remaining_messages = max(0, 10 - conversation.message_count)
+        
+        return DoubtConversationHistory(
+            conversation_id=str(conversation.id),
+            messages=messages,
+            message_count=conversation.message_count,
+            remaining_messages=remaining_messages,
+            is_locked=conversation.is_locked
+        )
+        
+    except Exception as e:
+        logger.error(f"Error getting doubt history: {e}")
+        raise HTTPException(status_code=500, detail="Error retrieving conversation history")
+
+async def generate_doubt_response(question: Question, user_message: str, conversation_history: List[Dict]) -> Dict[str, Any]:
+    """Generate Gemini response for user doubt with context"""
+    try:
+        from emergentintegrations.llm.chat import LlmChat, UserMessage
+        
+        # Create context from question pedagogy fields
+        question_context = f"""
+QUESTION: {question.stem}
+CORRECT ANSWER: {question.answer}
+
+OFFICIAL SOLUTION:
+Approach: {question.solution_approach or 'Not provided'}
+Detailed Solution: {question.detailed_solution or 'Not provided'}
+Principle to Remember: {question.principle_to_remember or 'Not provided'}
+"""
+        
+        # Build conversation context
+        conversation_context = ""
+        if conversation_history:
+            for msg in conversation_history[-6:]:  # Last 6 messages for context
+                role = "Student" if msg["role"] == "user" else "Twelvr"
+                conversation_context += f"{role}: {msg['message']}\n"
+        
+        # Gemini system prompt as specified in requirements
+        system_prompt = f"""You are a friendly tutor. Keep answers short, clear, and playful. Use plain math (e.g., x^2, sqrt(3)), Markdown lists, and tiny examples. Never rewrite the official Approach/Detailed Solution/Principle. Use them as ground truth; clarify steps, add intuition, or alternative hints. Avoid LaTeX and code unless explicitly requested. Be encouraging; no jargon dumps.
+
+CONTEXT:
+{question_context}
+
+CONVERSATION HISTORY:
+{conversation_context}
+
+Current student question: {user_message}
+
+Respond as a friendly tutor helping clarify this specific question."""
+
+        # Generate response using Gemini
+        chat = LlmChat(
+            api_key=EMERGENT_LLM_KEY,
+            session_id=f"doubt_resolution_{question.id}"
+        ).with_model("gemini", "gemini-2.0-flash")
+        
+        # Create messages for the chat
+        messages = [UserMessage(content=system_prompt)]
+        
+        response = await chat.send_messages(messages)
+        
+        return {
+            "response": response.content,
+            "tokens_used": getattr(response, 'usage', {}).get('total_tokens', 0)
+        }
+        
+    except Exception as e:
+        logger.error(f"Error generating Gemini doubt response: {e}")
+        return {
+            "response": "I'm having trouble processing your question right now. Please try again or ask in a different way.",
+            "tokens_used": 0
+        }
+
 # Dashboard and Analytics Routes
 
 @api_router.get("/dashboard/mastery")
