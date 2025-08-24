@@ -9361,21 +9361,16 @@ class CATBackendTester:
 
 
 if __name__ == "__main__":
-    print("🎯 CAT BACKEND COMPREHENSIVE TESTING - REVIEW REQUEST VERIFICATION")
-    print("=" * 80)
-    print("Testing all requirements from the review request:")
-    print("1. $ Sign Issue Fixed")
-    print("2. Approach vs Explanation Distinction") 
-    print("3. Complete Gemini (Maker) → Anthropic (Checker) Workflow")
-    print("4. Quality Assurance and Textbook Formatting")
-    print("=" * 80)
-    
     tester = CATBackendTester()
-    success = tester.run_all_tests()
     
-    if success:
-        print("\n🎉 ALL TESTS PASSED - REVIEW REQUEST REQUIREMENTS MET!")
-        sys.exit(0)
-    else:
-        print("\n❌ SOME TESTS FAILED - REVIEW REQUEST REQUIREMENTS NOT FULLY MET")
-        sys.exit(1)
+    print("🚀 Starting CAT Backend Testing Suite")
+    print("=" * 50)
+    
+    # Run the email authentication system test as requested
+    print("\n📧 RUNNING EMAIL AUTHENTICATION SYSTEM TESTS")
+    email_success = tester.test_email_authentication_system()
+    
+    print(f"\n🏁 Email Authentication Testing Complete - Success: {email_success}")
+    print(f"📊 Tests Run: {tester.tests_run}")
+    print(f"✅ Tests Passed: {tester.tests_passed}")
+    print(f"📈 Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%")
