@@ -89,6 +89,7 @@ class Question(Base):
     answer = Column(Text, nullable=False)  # canonical answer
     solution_approach = Column(Text, nullable=True)
     detailed_solution = Column(Text, nullable=True)
+    principle_to_remember = Column(Text, nullable=True)  # NEW: Locked pedagogy field from user uploads
     
     # Image support
     has_image = Column(Boolean, default=False)
