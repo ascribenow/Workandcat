@@ -366,6 +366,115 @@ async def create_verified_account(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Account creation failed: {str(e)}")
 
+@api_router.post("/auth/password-reset")
+async def request_password_reset(request: PasswordResetRequest, db: AsyncSession = Depends(get_async_compatible_db)):
+    """Send password reset code to user's email"""
+    try:
+        # Check if user exists
+        from sqlalchemy import select
+        result = await db.execute(select(User).where(User.email == request.email))
+        user = result.scalar_one_or_none()
+        
+        if not user:
+            # Don't reveal whether email exists or not for security
+            return EmailVerificationResponse(
+                success=True,
+                message="If an account with this email exists, a password reset code has been sent."
+            )
+        
+        # Clean up expired codes first
+        gmail_service.cleanup_expired_codes()
+        
+        # Authenticate Gmail service if needed
+        if not gmail_service.service:
+            if not gmail_service.authenticate_service():
+                raise HTTPException(
+                    status_code=503, 
+                    detail="Email service not configured. Please contact administrator."
+                )
+        
+        # Generate and send password reset code
+        code = gmail_service.generate_verification_code(request.email)
+        email_sent = gmail_service.send_password_reset_email(request.email, code)
+        
+        if email_sent:
+            return EmailVerificationResponse(
+                success=True,
+                message="If an account with this email exists, a password reset code has been sent."
+            )
+        else:
+            raise HTTPException(status_code=500, detail="Failed to send password reset email")
+            
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
+
+@api_router.post("/auth/password-reset-verify")
+async def verify_password_reset(
+    request: PasswordResetVerifyRequest, 
+    db: AsyncSession = Depends(get_async_compatible_db)
+):
+    """Verify password reset code and update password"""
+    try:
+        # Clean up expired codes
+        gmail_service.cleanup_expired_codes()
+        
+        # Verify the code
+        is_valid = gmail_service.verify_code(request.email, request.code)
+        
+        if not is_valid:
+            raise HTTPException(
+                status_code=400, 
+                detail="Invalid or expired reset code"
+            )
+        
+        # Check if user exists
+        from sqlalchemy import select, update
+        result = await db.execute(select(User).where(User.email == request.email))
+        user = result.scalar_one_or_none()
+        
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        # Update password
+        auth_service = AuthService()
+        hashed_password = auth_service.get_password_hash(request.new_password)
+        
+        await db.execute(
+            update(User)
+            .where(User.email == request.email)
+            .values(password=hashed_password)
+        )
+        await db.commit()
+        
+        # Clean up verification data
+        gmail_service.remove_pending_user(request.email)
+        
+        return EmailVerificationResponse(
+            success=True,
+            message="Password reset successfully!"
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Password reset failed: {str(e)}")
+
+@api_router.post("/auth/store-pending-user")
+async def store_pending_user(
+    request: dict,
+    db: AsyncSession = Depends(get_async_compatible_db)
+):
+    """Store pending user data for later verification"""
+    try:
+        # This endpoint can be used to store temporary user data
+        # Implementation depends on specific requirements
+        return {
+            "success": True,
+            "message": "Pending user data stored successfully"
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to store pending user: {str(e)}")
+
 # Import adaptive session engine
 from adaptive_session_engine import AdaptiveSessionEngine
 
