@@ -198,6 +198,158 @@ const Login = () => {
     );
   }
 
+  // Email Verification Flow UI
+  if (showEmailVerification) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center px-4">
+        <div className="max-w-md w-full">
+          <div className="bg-white rounded-lg shadow-xl p-8">
+            <div className="text-center mb-8">
+              <div className="mx-auto mb-6 flex justify-center">
+                <img 
+                  src="/images/twelvr-logo.png" 
+                  alt="Twelvr Logo" 
+                  className="h-32 w-auto"
+                  style={{backgroundColor: 'transparent'}}
+                />
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900">
+                {verificationStep === 1 ? "Verify Your Email" : "Enter Verification Code"}
+              </h2>
+              <p className="mt-2 text-sm text-gray-600">
+                {verificationStep === 1 
+                  ? "We'll send a 6-digit code to verify your email address"
+                  : "Please enter the 6-digit code sent to your email"
+                }
+              </p>
+            </div>
+
+            {verificationStep === 1 ? (
+              // Step 1: Send Verification Code
+              <div className="space-y-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Full Name</label>
+                  <input
+                    type="text"
+                    value={formData.name}
+                    onChange={(e) => setFormData({...formData, name: e.target.value})}
+                    className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Email Address</label>
+                  <input
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => setFormData({...formData, email: e.target.value})}
+                    className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Password</label>
+                  <input
+                    type="password"
+                    value={formData.password}
+                    onChange={(e) => setFormData({...formData, password: e.target.value})}
+                    className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    required
+                    minLength="6"
+                  />
+                </div>
+
+                {error && (
+                  <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+                    {error}
+                  </div>
+                )}
+
+                {success && (
+                  <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded">
+                    {success}
+                  </div>
+                )}
+
+                <button
+                  type="button"
+                  onClick={handleSendVerificationCode}
+                  disabled={loading}
+                  className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+                >
+                  {loading ? "Sending Code..." : "📧 Send Verification Code"}
+                </button>
+              </div>
+            ) : (
+              // Step 2: Verify Code and Complete Signup
+              <form onSubmit={handleVerifyAndSignup} className="space-y-6">
+                <div className="text-center p-4 bg-blue-50 rounded-lg">
+                  <p className="text-sm text-blue-700">
+                    📧 Verification code sent to: <strong>{formData.email}</strong>
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">6-Digit Verification Code</label>
+                  <input
+                    type="text"
+                    value={formData.verificationCode}
+                    onChange={(e) => setFormData({...formData, verificationCode: e.target.value})}
+                    className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-center text-2xl font-mono tracking-wider"
+                    placeholder="000000"
+                    maxLength="6"
+                    pattern="[0-9]{6}"
+                    required
+                  />
+                  <p className="mt-1 text-xs text-gray-500">
+                    Code expires in 15 minutes
+                  </p>
+                </div>
+
+                {error && (
+                  <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+                    {error}
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
+                >
+                  {loading ? "Verifying..." : "🚀 Verify & Create Account"}
+                </button>
+
+                <div className="text-center space-y-2">
+                  <button
+                    type="button"
+                    onClick={handleSendVerificationCode}
+                    disabled={loading || countdown > 0}
+                    className={`text-sm ${countdown > 0 ? 'text-gray-400' : 'text-blue-600 hover:text-blue-500'} disabled:cursor-not-allowed`}
+                  >
+                    {countdown > 0 ? `Resend code in ${countdown}s` : "Resend verification code"}
+                  </button>
+                </div>
+              </form>
+            )}
+
+            <div className="mt-6 text-center">
+              <button
+                type="button"
+                onClick={resetVerificationFlow}
+                className="text-sm text-gray-500 hover:text-gray-700"
+              >
+                ← Back to Login
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center px-4">
       <div className="max-w-md w-full">
