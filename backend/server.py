@@ -1716,10 +1716,8 @@ async def get_doubt_history(
         raise HTTPException(status_code=500, detail="Error retrieving conversation history")
 
 async def generate_doubt_response(question: Question, user_message: str, conversation_history: List[Dict]) -> Dict[str, Any]:
-    """Generate Gemini response for user doubt with context"""
+    """Generate Gemini response for user doubt with Google API (with OpenAI fallback)"""
     try:
-        from emergentintegrations.llm.chat import LlmChat, UserMessage
-        
         # Create context from question pedagogy fields
         question_context = f"""
 QUESTION: {question.stem}
@@ -1751,27 +1749,53 @@ Current student question: {user_message}
 
 Respond as a friendly tutor helping clarify this specific question."""
 
-        # Generate response using Gemini
-        chat = LlmChat(
-            api_key=EMERGENT_LLM_KEY,
-            session_id=f"doubt_resolution_{question.id}"
-        ).with_model("gemini", "gemini-2.0-flash")
-        
-        # Create messages for the chat
-        messages = [UserMessage(content=system_prompt)]
-        
-        response = await chat.send_messages(messages)
-        
-        return {
-            "response": response.content,
-            "tokens_used": getattr(response, 'usage', {}).get('total_tokens', 0)
-        }
+        # Try Google Gemini API first
+        try:
+            import google.generativeai as genai
+            
+            # Configure Gemini
+            genai.configure(api_key=os.getenv('GOOGLE_API_KEY'))
+            model = genai.GenerativeModel('gemini-1.5-flash')
+            
+            # Generate response
+            response = model.generate_content(system_prompt)
+            
+            logger.info(f"✅ Gemini doubt response generated successfully")
+            return {
+                "response": response.text,
+                "tokens_used": len(response.text.split()) * 1.3,  # Approximate token count
+                "llm_used": "Google Gemini"
+            }
+            
+        except Exception as gemini_error:
+            logger.warning(f"Gemini API failed: {gemini_error}, trying OpenAI fallback")
+            
+            # Fallback to OpenAI
+            import openai
+            client = openai.OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+            
+            response = client.chat.completions.create(
+                model="gpt-3.5-turbo",
+                messages=[
+                    {"role": "system", "content": system_prompt}
+                ],
+                max_tokens=500,
+                temperature=0.7
+            )
+            
+            logger.info(f"✅ OpenAI fallback response generated successfully")
+            return {
+                "response": response.choices[0].message.content,
+                "tokens_used": response.usage.total_tokens if response.usage else 0,
+                "llm_used": "OpenAI (fallback)"
+            }
         
     except Exception as e:
-        logger.error(f"Error generating Gemini doubt response: {e}")
+        logger.error(f"Error generating doubt response: {e}")
         return {
             "response": "I'm having trouble processing your question right now. Please try again or ask in a different way.",
-            "tokens_used": 0
+            "tokens_used": 0,
+            "llm_used": "fallback_message"
         }
 
 # Dashboard and Analytics Routes
