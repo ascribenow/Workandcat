@@ -38,6 +38,12 @@ const LandingPage = () => {
     }
   };
 
+  // Function to scroll to sign-up panel
+  const scrollToSignUp = () => {
+    setShowSignIn(false); // Switch to sign-up tab
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
     <div className="min-h-screen bg-white" style={{ fontFamily: 'Manrope, sans-serif' }}>
       {/* Header */}
