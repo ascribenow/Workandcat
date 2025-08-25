@@ -845,7 +845,13 @@ ${data.success > 0 ? '✅ Students will now see proper question-specific solutio
                   <div className="flex space-x-3">
                     <button
                       onClick={() => handleCheckQuestionQuality()}
-                      className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium flex items-center"
+                      className="text-white px-6 py-3 rounded-lg font-medium flex items-center transition-colors"
+                      style={{ 
+                        backgroundColor: '#9ac026',
+                        fontFamily: 'Lato, sans-serif'
+                      }}
+                      onMouseOver={(e) => e.target.style.backgroundColor = '#8bb024'}
+                      onMouseOut={(e) => e.target.style.backgroundColor = '#9ac026'}
                     >
                       🔍 Check Quality
                     </button>
