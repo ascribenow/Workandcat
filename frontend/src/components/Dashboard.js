@@ -171,7 +171,7 @@ export const Dashboard = () => {
                 <img 
                   src="https://customer-assets.emergentagent.com/job_sleepy-saha/artifacts/55q6ml5l_twelvr%20revised%20logo.png" 
                   alt="Twelvr" 
-                  className="h-8 w-auto"
+                  className="h-10 sm:h-12 w-auto"
                 />
               </div>
               <div className="flex items-center space-x-4">
