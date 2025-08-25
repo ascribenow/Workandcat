@@ -529,7 +529,22 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
               <button
                 onClick={submitAnswer}
                 disabled={!userAnswer || loading || answerSubmitted || !currentQuestion.options}
-                className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+                className="w-full py-3 px-6 rounded-lg font-semibold transition-colors disabled:cursor-not-allowed"
+                style={{
+                  backgroundColor: (!userAnswer || loading || answerSubmitted || !currentQuestion.options) ? '#cccccc' : '#9ac026',
+                  color: 'white',
+                  fontFamily: 'Lato, sans-serif'
+                }}
+                onMouseOver={(e) => {
+                  if (!e.target.disabled) {
+                    e.target.style.backgroundColor = '#8bb024';
+                  }
+                }}
+                onMouseOut={(e) => {
+                  if (!e.target.disabled) {
+                    e.target.style.backgroundColor = '#9ac026';
+                  }
+                }}
               >
                 {loading ? 'Submitting...' : 
                  !currentQuestion.options ? 'Loading options...' :
