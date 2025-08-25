@@ -1081,11 +1081,25 @@ ${data.success > 0 ? '✅ Students will now see proper question-specific solutio
                       <button
                         type="submit"
                         disabled={questionPublishBlocked}
-                        className={`px-8 py-3 rounded-lg font-medium text-lg ${
+                        className={`px-8 py-3 rounded-lg font-medium text-lg transition-colors ${
                           questionPublishBlocked 
-                            ? 'bg-gray-400 cursor-not-allowed text-white' 
-                            : 'bg-blue-600 hover:bg-blue-700 text-white'
+                            ? 'cursor-not-allowed text-white' 
+                            : 'text-white'
                         }`}
+                        style={{
+                          backgroundColor: questionPublishBlocked ? '#cccccc' : '#9ac026',
+                          fontFamily: 'Lato, sans-serif'
+                        }}
+                        onMouseOver={(e) => {
+                          if (!questionPublishBlocked) {
+                            e.target.style.backgroundColor = '#8bb024';
+                          }
+                        }}
+                        onMouseOut={(e) => {
+                          if (!questionPublishBlocked) {
+                            e.target.style.backgroundColor = '#9ac026';
+                          }
+                        }}
                       >
                         {questionPublishBlocked 
                           ? '❌ Cannot Publish - Fix Image First' 
