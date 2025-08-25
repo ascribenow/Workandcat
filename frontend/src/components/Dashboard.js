@@ -177,7 +177,11 @@ export const Dashboard = () => {
               <div className="flex items-center space-x-4">
                 <div className="text-sm" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
                   <span className="font-medium">{user.name}</span>
-                  <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                  <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" style={{ 
+                    backgroundColor: '#f7fdf0', 
+                    color: '#9ac026',
+                    fontFamily: 'Lato, sans-serif'
+                  }}>
                     Admin
                   </span>
                 </div>
