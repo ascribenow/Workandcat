@@ -70,28 +70,28 @@ const LandingPage = () => {
       </header>
 
       {/* Hero Section with Sign-in Panel (Duolingo Style) */}
-      <section className="relative bg-gradient-to-br from-gray-50 to-white py-16 lg:py-24">
+      <section className="relative bg-gradient-to-br from-gray-50 to-white py-8 lg:py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             
             {/* Left Content */}
-            <div className="text-center lg:text-left">
-              <h1 className="text-4xl lg:text-6xl font-bold text-[#545454] mb-6">
+            <div className="text-center lg:text-left order-2 lg:order-1">
+              <h1 className="text-3xl sm:text-4xl lg:text-6xl font-bold text-[#545454] mb-4 lg:mb-6">
                 Your best CAT attempt.{' '}
                 <span className="text-[#9ac026]">Just 12 questions a day.</span>
               </h1>
               
-              <p className="text-xl text-[#545454] mb-8" style={{ fontFamily: 'Lato, sans-serif' }}>
+              <p className="text-lg lg:text-xl text-[#545454] mb-6 lg:mb-8" style={{ fontFamily: 'Lato, sans-serif' }}>
                 12 adaptive questions. 90 days to CAT readiness. Serious prep, simple ritual.
               </p>
 
               {/* 12 Dots Visual */}
-              <div className="flex justify-center lg:justify-start mb-8">
-                <div className="grid grid-cols-6 gap-2">
+              <div className="flex justify-center lg:justify-start mb-6 lg:mb-8">
+                <div className="grid grid-cols-6 gap-1 sm:gap-2">
                   {[...Array(12)].map((_, i) => (
                     <div 
                       key={i} 
-                      className="w-3 h-3 rounded-full bg-[#9ac026] opacity-80"
+                      className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-[#9ac026] opacity-80"
                       style={{
                         animationDelay: `${i * 0.1}s`,
                         animation: 'pulse 2s infinite'
@@ -102,16 +102,16 @@ const LandingPage = () => {
               </div>
 
               {/* Mobile CTA */}
-              <div className="lg:hidden mb-8">
-                <button className="bg-[#9ac026] text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-[#8bb024] transition-colors shadow-lg">
+              <div className="lg:hidden mb-6">
+                <button className="bg-[#9ac026] text-white px-6 sm:px-8 py-3 sm:py-4 rounded-full text-base sm:text-lg font-semibold hover:bg-[#8bb024] transition-colors shadow-lg">
                   Start My Daily-12
                 </button>
               </div>
             </div>
 
             {/* Right Sign-in Panel (Duolingo Style) */}
-            <div className="flex justify-center lg:justify-end">
-              <div className="bg-white p-8 rounded-2xl shadow-xl border border-gray-100 w-full max-w-md">
+            <div className="flex justify-center lg:justify-end order-1 lg:order-2">
+              <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-xl border border-gray-100 w-full max-w-md mx-4 sm:mx-0">
                 
                 {/* Toggle Buttons */}
                 <div className="flex mb-6 bg-gray-100 rounded-lg p-1">
