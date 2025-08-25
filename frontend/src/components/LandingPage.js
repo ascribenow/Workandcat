@@ -43,13 +43,17 @@ const LandingPage = () => {
       {/* Header */}
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
-            {/* Logo - Made more prominent like Duolingo */}
+          <div className="flex justify-between items-center py-6 lg:py-8">
+            {/* Logo - Made very prominent like major SaaS brands */}
             <div className="flex items-center">
               <img 
                 src="https://customer-assets.emergentagent.com/job_sleepy-saha/artifacts/55q6ml5l_twelvr%20revised%20logo.png" 
                 alt="Twelvr" 
-                className="h-12 sm:h-16 md:h-20 w-auto"
+                className="h-16 sm:h-20 md:h-24 lg:h-28 w-auto"
+                style={{ 
+                  backgroundColor: 'transparent',
+                  mixBlendMode: 'normal'
+                }}
               />
             </div>
             
