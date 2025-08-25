@@ -429,7 +429,11 @@ const LandingPage = () => {
               <img 
                 src="https://customer-assets.emergentagent.com/job_sleepy-saha/artifacts/ss0tc3jc_Twelver%20edited.png" 
                 alt="Twelvr" 
-                className="h-12 sm:h-16 w-auto filter brightness-0 invert"
+                className="h-12 sm:h-14 w-auto filter brightness-0 invert"
+                style={{ 
+                  backgroundColor: 'transparent',
+                  mixBlendMode: 'normal'
+                }}
               />
             </div>
             
@@ -437,7 +441,33 @@ const LandingPage = () => {
               <em>Consistency, Compounded.</em>
             </p>
 
-            <button className="bg-[#9ac026] text-white px-6 py-3 rounded-full font-semibold hover:bg-[#8bb024] transition-colors mb-8">
+            {/* Footer Navigation */}
+            <nav className="flex flex-wrap justify-center gap-6 mb-8">
+              <a href="#pricing" className="text-gray-300 hover:text-[#9ac026] transition-colors" style={{ fontFamily: 'Lato, sans-serif' }}>
+                Pricing
+              </a>
+              <a href="#contact" className="text-gray-300 hover:text-[#9ac026] transition-colors" style={{ fontFamily: 'Lato, sans-serif' }}>
+                Contact Us
+              </a>
+              <a href="#privacy" className="text-gray-300 hover:text-[#9ac026] transition-colors" style={{ fontFamily: 'Lato, sans-serif' }}>
+                Privacy Policy
+              </a>
+              <a href="#terms" className="text-gray-300 hover:text-[#9ac026] transition-colors" style={{ fontFamily: 'Lato, sans-serif' }}>
+                Terms & Conditions
+              </a>
+              <a href="#refund" className="text-gray-300 hover:text-[#9ac026] transition-colors" style={{ fontFamily: 'Lato, sans-serif' }}>
+                Cancellation & Refund Policy
+              </a>
+            </nav>
+
+            <button className="px-6 py-3 rounded-full font-semibold transition-colors mb-8 text-white"
+              style={{ 
+                backgroundColor: '#9ac026',
+                fontFamily: 'Lato, sans-serif'
+              }}
+              onMouseOver={(e) => e.target.style.backgroundColor = '#8bb024'}
+              onMouseOut={(e) => e.target.style.backgroundColor = '#9ac026'}
+            >
               Start My Daily-12
             </button>
 
