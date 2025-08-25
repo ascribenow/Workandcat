@@ -135,6 +135,13 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
   };
 
   const fetchNextQuestion = async () => {
+    // Check if we have a valid session ID
+    if (!sessionId) {
+      setError('No active session found. Please start a new session from the dashboard.');
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     setError('');
     setUserAnswer('');
