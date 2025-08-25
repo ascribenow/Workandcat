@@ -661,7 +661,15 @@ function App() {
     <div className="App">
       <BrowserRouter>
         <AuthProvider>
-          <AppContent />
+          <Routes>
+            <Route path="/" element={<AppContent />} />
+            <Route path="/pricing" element={<Pricing />} />
+            <Route path="/early-access" element={<EarlyAccess />} />
+            <Route path="/contact" element={<ContactUs />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/terms" element={<TermsConditions />} />
+            <Route path="/refund" element={<CancellationRefund />} />
+          </Routes>
         </AuthProvider>
       </BrowserRouter>
     </div>
