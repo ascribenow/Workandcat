@@ -556,24 +556,27 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
             {showResult && result && (
               <div className="mt-6">
                 {/* Answer Status */}
-                <div className={`p-4 rounded-lg mb-4 ${
-                  result.correct ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'
-                }`}>
+                <div className="p-4 rounded-lg mb-4 border" style={{
+                  backgroundColor: result.correct ? '#f7fdf0' : '#fff5f3',
+                  borderColor: result.correct ? '#9ac026' : '#ff6d4d'
+                }}>
                   <div className="flex items-center">
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-3 ${
-                      result.correct ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
-                    }`}>
+                    <div className="w-8 h-8 rounded-full flex items-center justify-center mr-3 text-white" style={{
+                      backgroundColor: result.correct ? '#9ac026' : '#ff6d4d'
+                    }}>
                       {result.correct ? '✓' : '✗'}
                     </div>
                     <div>
-                      <h3 className={`font-semibold ${
-                        result.correct ? 'text-green-800' : 'text-red-800'
-                      }`}>
+                      <h3 className="font-semibold" style={{
+                        color: result.correct ? '#9ac026' : '#ff6d4d',
+                        fontFamily: 'Manrope, sans-serif'
+                      }}>
                         {result.status === 'correct' ? 'Correct!' : 'Incorrect'}
                       </h3>
-                      <p className={`text-sm ${
-                        result.correct ? 'text-green-600' : 'text-red-600'
-                      }`}>
+                      <p className="text-sm" style={{
+                        color: result.correct ? '#9ac026' : '#ff6d4d',
+                        fontFamily: 'Lato, sans-serif'
+                      }}>
                         {result.message}
                       </p>
                     </div>
