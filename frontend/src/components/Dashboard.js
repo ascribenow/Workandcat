@@ -164,19 +164,18 @@ export const Dashboard = () => {
     // Admin gets no navigation - direct admin panel only
     if (isAdmin()) {
       return (
-        <nav className="bg-white shadow-sm border-b">
+        <nav className="bg-white shadow-sm border-b" style={{ borderColor: '#f5f5f5' }}>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between h-24">
+            <div className="flex justify-between h-20">
               <div className="flex items-center">
                 <img 
-                  src="/images/twelvr-logo.png" 
-                  alt="Twelvr Logo" 
-                  className="h-24 w-auto"
-                  style={{backgroundColor: 'transparent'}}
+                  src="https://customer-assets.emergentagent.com/job_sleepy-saha/artifacts/55q6ml5l_twelvr%20revised%20logo.png" 
+                  alt="Twelvr" 
+                  className="h-8 w-auto"
                 />
               </div>
               <div className="flex items-center space-x-4">
-                <div className="text-sm text-gray-700">
+                <div className="text-sm" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
                   <span className="font-medium">{user.name}</span>
                   <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                     Admin
@@ -184,7 +183,20 @@ export const Dashboard = () => {
                 </div>
                 <button
                   onClick={logout}
-                  className="text-sm bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded transition-colors"
+                  className="text-sm px-3 py-1 rounded transition-colors"
+                  style={{ 
+                    backgroundColor: '#f5f5f5', 
+                    color: '#545454',
+                    fontFamily: 'Lato, sans-serif'
+                  }}
+                  onMouseOver={(e) => {
+                    e.target.style.backgroundColor = '#ff6d4d';
+                    e.target.style.color = 'white';
+                  }}
+                  onMouseOut={(e) => {
+                    e.target.style.backgroundColor = '#f5f5f5';
+                    e.target.style.color = '#545454';
+                  }}
                 >
                   Logout
                 </button>
