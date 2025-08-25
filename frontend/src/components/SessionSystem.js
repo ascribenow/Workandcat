@@ -584,30 +584,30 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
                 </div>
 
                 {/* Answer Comparison */}
-                <div className="bg-gray-50 p-4 rounded-lg mb-4">
+                <div className="p-4 rounded-lg mb-4" style={{ backgroundColor: '#fafafa' }}>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <p className="text-sm font-medium text-gray-600 mb-1">Your Answer:</p>
-                      <p className="text-lg">{result.user_answer}</p>
+                      <p className="text-sm font-medium mb-1" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>Your Answer:</p>
+                      <p className="text-lg" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>{result.user_answer}</p>
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-gray-600 mb-1">Correct Answer:</p>
-                      <p className="text-lg font-semibold text-green-600">{result.correct_answer}</p>
+                      <p className="text-sm font-medium mb-1" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>Correct Answer:</p>
+                      <p className="text-lg font-semibold" style={{ color: '#9ac026', fontFamily: 'Lato, sans-serif' }}>{result.correct_answer}</p>
                     </div>
                   </div>
                 </div>
 
                 {/* Solution Feedback */}
                 {result.solution_feedback && (
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-                    <h4 className="font-semibold text-blue-800 mb-3">Solution</h4>
+                  <div className="border rounded-lg p-4 mb-4" style={{ backgroundColor: '#f7fdf0', borderColor: '#9ac026' }}>
+                    <h4 className="font-semibold mb-3" style={{ color: '#545454', fontFamily: 'Manrope, sans-serif' }}>Solution</h4>
                     
                     {/* Solution Approach */}
                     {result.solution_feedback.solution_approach && (
                       <div className="mb-6">
-                        <h5 className="font-semibold text-blue-800 mb-3 text-lg">📋 Approach:</h5>
-                        <div className="bg-white p-4 rounded-lg border border-blue-100">
-                          <div className="text-gray-800 leading-relaxed text-base">
+                        <h5 className="font-semibold mb-3 text-lg" style={{ color: '#545454', fontFamily: 'Manrope, sans-serif' }}>📋 Approach:</h5>
+                        <div className="bg-white p-4 rounded-lg border" style={{ borderColor: '#e8f5e8' }}>
+                          <div className="leading-relaxed text-base" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
                             {result.solution_feedback.solution_approach}
                           </div>
                         </div>
