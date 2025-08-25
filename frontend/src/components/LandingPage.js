@@ -456,7 +456,7 @@ const LandingPage = () => {
           <div className="flex flex-col items-center text-center">
             <div className="flex items-center mb-6">
               <img 
-                src="https://customer-assets.emergentagent.com/job_sleepy-saha/artifacts/utjadawx_Twelvr%20logo%20revised.pdf" 
+                src="https://customer-assets.emergentagent.com/job_sleepy-saha/artifacts/ivbxgoub_twelvr_revised_logo-removebg-preview.png" 
                 alt="Twelvr" 
                 className="h-10 sm:h-12 w-auto filter brightness-0 invert"
               />
