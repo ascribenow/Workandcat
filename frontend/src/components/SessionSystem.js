@@ -505,10 +505,12 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
                             e.target.style.backgroundColor = '#ffffff';
                           }
                         }}
-                        } ${answerSubmitted ? 'cursor-not-allowed opacity-75' : 'cursor-pointer'}`}
+                        disabled={answerSubmitted}
                       >
-                        <span className="font-medium text-sm text-gray-500 mr-3">{key.toUpperCase()})</span>
-                        <span>{value}</span>
+                        <span className="font-medium text-sm mr-3" style={{ color: '#9ac026', fontFamily: 'Lato, sans-serif' }}>
+                          {key.toUpperCase()})
+                        </span>
+                        <span style={{ fontFamily: 'Lato, sans-serif' }}>{value}</span>
                       </button>
                     );
                   })
