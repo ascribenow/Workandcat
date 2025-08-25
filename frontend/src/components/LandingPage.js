@@ -452,8 +452,13 @@ const LandingPage = () => {
               Start My Daily-12
             </button>
 
-            {/* Footer Navigation */}
-            <nav className="flex flex-wrap justify-center gap-6 mb-8">
+            {/* Disclaimer */}
+            <p className="text-sm text-gray-300 max-w-2xl mb-8" style={{ fontFamily: 'Lato, sans-serif' }}>
+              Twelvr complements your CAT prep — it doesn't replace books or coaching.
+            </p>
+
+            {/* Footer Navigation - At the very bottom */}
+            <nav className="flex flex-wrap justify-center gap-6">
               <a href="#pricing" className="text-gray-300 hover:text-[#9ac026] transition-colors" style={{ fontFamily: 'Lato, sans-serif' }}>
                 Pricing
               </a>
@@ -470,11 +475,6 @@ const LandingPage = () => {
                 Cancellation & Refund Policy
               </a>
             </nav>
-
-            {/* Disclaimer at the very bottom */}
-            <p className="text-sm text-gray-300 max-w-2xl" style={{ fontFamily: 'Lato, sans-serif' }}>
-              Twelvr complements your CAT prep — it doesn't replace books or coaching.
-            </p>
           </div>
         </div>
       </footer>
