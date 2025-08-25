@@ -61,6 +61,9 @@ const LandingPage = () => {
               <a href="#why-12" className="text-[#545454] hover:text-[#ff6d4d] transition-colors" style={{ fontFamily: 'Lato, sans-serif' }}>
                 Why 12 Works
               </a>
+              <a href="#pricing" className="text-[#545454] hover:text-[#ff6d4d] transition-colors" style={{ fontFamily: 'Lato, sans-serif' }}>
+                Pricing
+              </a>
               <a href="#early-access" className="text-[#545454] hover:text-[#ff6d4d] transition-colors" style={{ fontFamily: 'Lato, sans-serif' }}>
                 Early Access
               </a>
