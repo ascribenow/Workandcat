@@ -55,13 +55,15 @@ const LandingPage = () => {
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
-            {/* Logo - Big Twelvr logo for landing page */}
+            {/* Logo - Clickable to scroll to top */}
             <div className="flex items-center">
-              <img 
-                src="https://customer-assets.emergentagent.com/job_sleepy-saha/artifacts/ss0tc3jc_Twelver%20edited.png" 
-                alt="Twelvr" 
-                className="h-16 sm:h-20 md:h-24 lg:h-28 w-auto"
-              />
+              <button onClick={scrollToTop} className="focus:outline-none">
+                <img 
+                  src="https://customer-assets.emergentagent.com/job_sleepy-saha/artifacts/ss0tc3jc_Twelver%20edited.png" 
+                  alt="Twelvr" 
+                  className="h-16 sm:h-20 md:h-24 lg:h-28 w-auto cursor-pointer hover:opacity-80 transition-opacity"
+                />
+              </button>
             </div>
             
             {/* Navigation */}
