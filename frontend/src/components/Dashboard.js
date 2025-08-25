@@ -724,11 +724,16 @@ ${data.success > 0 ? '✅ Students will now see proper question-specific solutio
               </button>
               <button
                 onClick={() => setActiveTab('questions')}
-                className={`py-4 text-lg font-medium ${
+                className={`py-4 text-lg font-medium transition-colors ${
                   activeTab === 'questions' 
-                    ? 'text-blue-600 border-b-2 border-blue-500' 
-                    : 'text-gray-500 hover:text-gray-700'
+                    ? 'border-b-2' 
+                    : 'hover:text-[#ff6d4d]'
                 }`}
+                style={{ 
+                  color: activeTab === 'questions' ? '#9ac026' : '#545454',
+                  borderColor: activeTab === 'questions' ? '#9ac026' : 'transparent',
+                  fontFamily: 'Lato, sans-serif'
+                }}
               >
                 ❓ Question Upload
               </button>
