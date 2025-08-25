@@ -169,9 +169,9 @@ export const Dashboard = () => {
             <div className="flex justify-between h-16">
               <div className="flex items-center">
                 <img 
-                  src="https://customer-assets.emergentagent.com/job_sleepy-saha/artifacts/k7198nuh_twelvr%20revised%20logo.png" 
+                  src="https://customer-assets.emergentagent.com/job_sleepy-saha/artifacts/utjadawx_Twelvr%20logo%20revised.pdf" 
                   alt="Twelvr" 
-                  className="h-6 sm:h-8 w-auto"
+                  className="h-8 sm:h-10 w-auto"
                 />
               </div>
               <div className="flex items-center space-x-4">
