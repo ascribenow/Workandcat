@@ -448,14 +448,16 @@ const LandingPage = () => {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col items-center text-center">
             <div className="flex items-center mb-6">
-              <img 
-                src="https://customer-assets.emergentagent.com/job_sleepy-saha/artifacts/vy7femuy_Twelvr%20logo%20dark%20background.png" 
-                alt="Twelvr" 
-                className="h-12 sm:h-16 w-auto"
-                style={{ 
-                  backgroundColor: 'transparent'
-                }}
-              />
+              <button onClick={scrollToTop} className="focus:outline-none">
+                <img 
+                  src="https://customer-assets.emergentagent.com/job_sleepy-saha/artifacts/vy7femuy_Twelvr%20logo%20dark%20background.png" 
+                  alt="Twelvr" 
+                  className="h-12 sm:h-16 w-auto cursor-pointer hover:opacity-80 transition-opacity"
+                  style={{ 
+                    backgroundColor: 'transparent'
+                  }}
+                />
+              </button>
             </div>
             
             <p className="text-lg mb-8" style={{ fontFamily: 'Lato, sans-serif' }}>
