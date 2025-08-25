@@ -8,7 +8,7 @@ import json
 from datetime import datetime
 
 class FrequencySystemTester:
-    def __init__(self, base_url="https://twelvr-updated.preview.emergentagent.com/api"):
+    def __init__(self, base_url="https://continue-twelvr.preview.emergentagent.com/api"):
         self.base_url = base_url
         self.admin_token = None
         self.tests_run = 0
