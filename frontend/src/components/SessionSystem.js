@@ -432,9 +432,9 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
             {currentQuestion.has_image && currentQuestion.image_url && (
               <div className="mb-6">
                 {imageLoading && (
-                  <div className="flex items-center justify-center h-48 bg-gray-100 rounded">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-                    <span className="ml-2 text-gray-600">Loading image...</span>
+                  <div className="flex items-center justify-center h-48 rounded" style={{ backgroundColor: '#fafafa' }}>
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2" style={{ borderBottomColor: '#9ac026' }}></div>
+                    <span className="ml-2" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>Loading image...</span>
                   </div>
                 )}
                 
