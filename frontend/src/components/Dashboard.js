@@ -919,16 +919,16 @@ ${data.success > 0 ? '✅ Students will now see proper question-specific solutio
                       </div>
                       
                       {/* CSV Format Info */}
-                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                      <div className="border rounded-lg p-4 mb-6" style={{ backgroundColor: '#f7fdf0', borderColor: '#9ac026' }}>
                         <div className="flex items-start">
                           <div className="flex-shrink-0">
-                            <svg className="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                            <svg className="h-5 w-5" style={{ color: '#9ac026' }} viewBox="0 0 20 20" fill="currentColor">
                               <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
                             </svg>
                           </div>
                           <div className="ml-3">
-                            <h4 className="text-sm font-medium text-blue-800">📋 Simplified CSV Format</h4>
-                            <div className="text-sm text-blue-700 mt-1">
+                            <h4 className="text-sm font-medium" style={{ color: '#545454', fontFamily: 'Manrope, sans-serif' }}>📋 Simplified CSV Format</h4>
+                            <div className="text-sm mt-1" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
                               <p className="mb-2">CSV columns needed:</p>
                               <ul className="list-disc list-inside space-y-1 text-xs">
                                 <li><strong>stem</strong> - Question text (Required)</li>
