@@ -639,19 +639,22 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] flex flex-col">
             {/* Modal Header */}
-            <div className="flex justify-between items-center p-4 border-b border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900">💬 Chat with Twelvr</h3>
+            <div className="flex justify-between items-center p-4 border-b" style={{ borderColor: '#f5f5f5' }}>
+              <h3 className="text-lg font-semibold" style={{ color: '#545454', fontFamily: 'Manrope, sans-serif' }}>💬 Chat with Twelvr</h3>
               <div className="flex items-center space-x-4">
-                <span className="text-sm text-gray-500">
+                <span className="text-sm" style={{ color: '#9ac026', fontFamily: 'Lato, sans-serif' }}>
                   {conversationLocked ? (
-                    <span className="text-red-600 font-medium">❌ Limit reached (10/10)</span>
+                    <span style={{ color: '#ff6d4d' }} className="font-medium">❌ Limit reached (10/10)</span>
                   ) : (
                     <span>💬 {messageCount}/10 messages used</span>
                   )}
                 </span>
                 <button
                   onClick={closeDoubtModal}
-                  className="text-gray-400 hover:text-gray-600 focus:outline-none"
+                  className="focus:outline-none transition-colors"
+                  style={{ color: '#545454' }}
+                  onMouseOver={(e) => e.target.style.color = '#ff6d4d'}
+                  onMouseOut={(e) => e.target.style.color = '#545454'}
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -661,9 +664,9 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
             </div>
 
             {/* Conversation History */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
+            <div className="flex-1 overflow-y-auto p-4 space-y-4" style={{ backgroundColor: '#fafafa' }}>
               {doubtHistory.length === 0 ? (
-                <div className="text-center text-gray-500 py-8">
+                <div className="text-center py-8" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
                   <p>👋 Hi! I'm Twelvr, your friendly tutor.</p>
                   <p className="mt-2">Ask me anything about this question or solution!</p>
                 </div>
