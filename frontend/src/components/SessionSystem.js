@@ -30,6 +30,16 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
   const [remainingMessages, setRemainingMessages] = useState(10);
   const [conversationLocked, setConversationLocked] = useState(false);
 
+  // Handle case where no session ID is provided
+  useEffect(() => {
+    if (!propSessionId && !sessionId) {
+      setError('No active session found. Please start a new session.');
+      setLoading(false);
+    } else if (propSessionId && propSessionId !== sessionId) {
+      setSessionId(propSessionId);
+    }
+  }, [propSessionId, sessionId]);
+
   useEffect(() => {
     if (sessionId) {
       fetchNextQuestion();
