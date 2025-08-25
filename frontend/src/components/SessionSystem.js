@@ -617,9 +617,9 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
                     {/* Detailed Solution */}
                     {result.solution_feedback.detailed_solution && (
                       <div className="mb-6">
-                        <h5 className="font-semibold text-blue-800 mb-3 text-lg">📖 Detailed Solution:</h5>
-                        <div className="bg-white p-6 rounded-lg border border-blue-100">
-                          <div className="text-gray-800 leading-relaxed whitespace-pre-line text-base">
+                        <h5 className="font-semibold mb-3 text-lg" style={{ color: '#545454', fontFamily: 'Manrope, sans-serif' }}>📖 Detailed Solution:</h5>
+                        <div className="bg-white p-6 rounded-lg border" style={{ borderColor: '#e8f5e8' }}>
+                          <div className="leading-relaxed whitespace-pre-line text-base" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
                             {result.solution_feedback.detailed_solution}
                           </div>
                         </div>
@@ -629,9 +629,9 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
                     {/* Principle to remember */}
                     {result.solution_feedback.principle_to_remember && (
                       <div>
-                        <h5 className="font-semibold text-blue-800 mb-3 text-lg">💡 Principle to remember:</h5>
-                        <div className="bg-white p-4 rounded-lg border border-blue-100">
-                          <div className="text-gray-800 leading-relaxed">
+                        <h5 className="font-semibold mb-3 text-lg" style={{ color: '#545454', fontFamily: 'Manrope, sans-serif' }}>💡 Principle to remember:</h5>
+                        <div className="bg-white p-4 rounded-lg border" style={{ borderColor: '#e8f5e8' }}>
+                          <div className="leading-relaxed" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
                             {result.solution_feedback.principle_to_remember}
                           </div>
                         </div>
