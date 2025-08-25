@@ -215,6 +215,11 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
       return;
     }
 
+    if (!sessionId) {
+      setError('No active session found. Cannot submit answer.');
+      return;
+    }
+
     setLoading(true);
     setAnswerSubmitted(true);
     
