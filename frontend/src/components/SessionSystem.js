@@ -381,10 +381,13 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
             </div>
           </div>
           <div className="mt-2">
-            <div className="w-full bg-blue-200 rounded-full h-2">
+            <div className="w-full rounded-full h-2" style={{ backgroundColor: '#e8f5e8' }}>
               <div 
-                className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                style={{ width: `${(sessionProgress.current_question / sessionProgress.total_questions) * 100}%` }}
+                className="h-2 rounded-full transition-all duration-300"
+                style={{ 
+                  width: `${(sessionProgress.current_question / sessionProgress.total_questions) * 100}%`,
+                  backgroundColor: '#9ac026'
+                }}
               ></div>
             </div>
           </div>
@@ -394,10 +397,14 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
       {currentQuestion && (
         <div className="bg-white border border-gray-200 rounded-lg shadow-sm">
           {/* Question Header */}
-          <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+          <div className="px-6 py-4 border-b border-gray-200" style={{ backgroundColor: '#fafafa' }}>
             <div className="flex justify-between items-start">
               <div>
-                <span className="inline-block bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-medium">
+                <span className="inline-block px-2 py-1 rounded text-sm font-medium" style={{ 
+                  backgroundColor: '#f7fdf0', 
+                  color: '#9ac026',
+                  fontFamily: 'Lato, sans-serif'
+                }}>
                   {currentQuestion.subcategory}
                 </span>
                 {currentQuestion.difficulty_band && (
