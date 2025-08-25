@@ -966,9 +966,9 @@ ${data.success > 0 ? '✅ Students will now see proper question-specific solutio
 
                 {/* Single Question Form */}
                 {showQuestionForm && questionUploadType === 'single' && (
-                  <div className="bg-gray-50 p-6 rounded-lg mb-8">
+                  <div className="border rounded-lg p-6 mb-8" style={{ backgroundColor: '#fafafa', borderColor: '#e5e7eb' }}>
                     <div className="flex justify-between items-center mb-4">
-                      <h3 className="text-lg font-semibold text-gray-900">Add Single Question</h3>
+                      <h3 className="text-lg font-semibold" style={{ color: '#545454', fontFamily: 'Manrope, sans-serif' }}>Add Single Question</h3>
                       <button
                         onClick={() => setShowQuestionForm(false)}
                         className="text-gray-500 hover:text-gray-700"
