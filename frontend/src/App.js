@@ -643,7 +643,7 @@ const AppContent = () => {
   }
 
   if (!isAuthenticated()) {
-    return <Login />;
+    return <LandingPage />;
   }
 
   return <Dashboard />;
