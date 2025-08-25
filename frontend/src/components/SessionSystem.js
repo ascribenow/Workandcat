@@ -363,20 +363,20 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <div className="max-w-4xl mx-auto p-6" style={{ fontFamily: 'Manrope, sans-serif' }}>
       {/* Session Progress Header */}
       {sessionProgress && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+        <div className="border rounded-lg p-4 mb-6" style={{ backgroundColor: '#f7fdf0', borderColor: '#9ac026' }}>
           <div className="flex justify-between items-center">
             <div>
-              <h2 className="text-xl font-semibold text-blue-800">
+              <h2 className="text-xl font-semibold" style={{ color: '#545454', fontFamily: 'Manrope, sans-serif' }}>
                 Session #{sessionNumber || '---'} • 12-Question Practice
               </h2>
-              <div className="text-sm text-blue-600 mt-1">
+              <div className="text-sm mt-1" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
                 CAT Quantitative Aptitude Practice Session
               </div>
             </div>
-            <div className="text-blue-600 font-medium">
+            <div className="font-medium" style={{ color: '#9ac026', fontFamily: 'Lato, sans-serif' }}>
               Question {sessionProgress.current_question} of {sessionProgress.total_questions}
             </div>
           </div>
