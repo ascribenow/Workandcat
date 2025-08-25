@@ -545,22 +545,30 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
 
                 {/* Ask Any Doubt Section - Twelvr New Version */}
                 {result.solution_feedback && currentQuestion && (
-                  <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
-                    <h4 className="font-semibold text-green-800 mb-3">💬 Have a doubt about this solution?</h4>
+                  <div className="border border-gray-200 rounded-lg p-4 mb-4" style={{ backgroundColor: '#f7fdf0' }}>
+                    <h4 className="font-semibold mb-3" style={{ color: '#545454', fontFamily: 'Manrope, sans-serif' }}>💬 Have a doubt about this solution?</h4>
                     <div className="space-y-3">
                       <textarea
                         value={doubtMessage}
                         onChange={(e) => setDoubtMessage(e.target.value)}
                         placeholder="Ask your doubt about this question or solution..."
-                        className="w-full px-3 py-2 border border-green-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 resize-none"
+                        className="w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 resize-none"
+                        style={{ 
+                          borderColor: '#9ac026',
+                          fontFamily: 'Lato, sans-serif'
+                        }}
+                        onFocus={(e) => {
+                          e.target.style.ringColor = '#9ac026';
+                          e.target.style.borderColor = '#9ac026';
+                        }}
                         rows="3"
                         maxLength="500"
                         disabled={conversationLocked}
                       />
                       <div className="flex justify-between items-center">
-                        <div className="text-sm text-green-600">
+                        <div className="text-sm" style={{ color: '#9ac026', fontFamily: 'Lato, sans-serif' }}>
                           {conversationLocked ? (
-                            <span className="text-red-600 font-medium">❌ Conversation limit reached (10/10)</span>
+                            <span style={{ color: '#ff6d4d' }} className="font-medium">❌ Conversation limit reached (10/10)</span>
                           ) : (
                             <span>💬 Messages used: {messageCount}/10</span>
                           )}
@@ -568,7 +576,21 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
                         <button
                           onClick={() => handleAskDoubt()}
                           disabled={!doubtMessage.trim() || doubtLoading || conversationLocked}
-                          className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="px-4 py-2 text-white rounded-md focus:outline-none focus:ring-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                          style={{ 
+                            backgroundColor: '#9ac026',
+                            fontFamily: 'Lato, sans-serif'
+                          }}
+                          onMouseOver={(e) => {
+                            if (!e.target.disabled) {
+                              e.target.style.backgroundColor = '#8bb024';
+                            }
+                          }}
+                          onMouseOut={(e) => {
+                            if (!e.target.disabled) {
+                              e.target.style.backgroundColor = '#9ac026';
+                            }
+                          }}
                         >
                           {doubtLoading ? "Asking..." : "🤔 Ask Twelvr"}
                         </button>
