@@ -446,7 +446,7 @@ const LandingPage = () => {
                 alt="Twelvr" 
                 className="h-12 sm:h-16 w-auto"
                 style={{ 
-                  filter: 'invert(1) hue-rotate(180deg) saturate(1.5)',
+                  filter: 'invert(1)',
                   backgroundColor: 'transparent'
                 }}
               />
