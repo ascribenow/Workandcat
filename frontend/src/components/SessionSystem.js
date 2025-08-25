@@ -470,7 +470,9 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
 
             {/* Question Stem */}
             <div className="prose max-w-none mb-6">
-              <p className="text-lg leading-relaxed">{currentQuestion.stem}</p>
+              <p className="text-lg leading-relaxed" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
+                {currentQuestion.stem}
+              </p>
             </div>
 
             {/* MCQ Options */}
@@ -484,10 +486,25 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
                         key={key}
                         onClick={() => handleOptionSelect(value)}
                         disabled={answerSubmitted}
-                        className={`w-full text-left p-4 rounded-lg border-2 transition-all ${
-                          userAnswer === value
-                            ? 'border-blue-500 bg-blue-50 text-blue-800'
-                            : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                        className="w-full text-left p-4 rounded-lg border-2 transition-all"
+                        style={{
+                          borderColor: userAnswer === value ? '#9ac026' : '#e5e7eb',
+                          backgroundColor: userAnswer === value ? '#f7fdf0' : '#ffffff',
+                          color: '#545454',
+                          fontFamily: 'Lato, sans-serif'
+                        }}
+                        onMouseOver={(e) => {
+                          if (userAnswer !== value && !answerSubmitted) {
+                            e.target.style.borderColor = '#ff6d4d';
+                            e.target.style.backgroundColor = '#fff5f3';
+                          }
+                        }}
+                        onMouseOut={(e) => {
+                          if (userAnswer !== value) {
+                            e.target.style.borderColor = '#e5e7eb';
+                            e.target.style.backgroundColor = '#ffffff';
+                          }
+                        }}
                         } ${answerSubmitted ? 'cursor-not-allowed opacity-75' : 'cursor-pointer'}`}
                       >
                         <span className="font-medium text-sm text-gray-500 mr-3">{key.toUpperCase()})</span>
