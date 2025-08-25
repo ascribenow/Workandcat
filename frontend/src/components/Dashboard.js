@@ -40,20 +40,20 @@ export const Dashboard = () => {
 
   const getCategoryColor = (category) => {
     const colors = {
-      'A': 'bg-blue-100 text-blue-800',
-      'B': 'bg-green-100 text-green-800', 
-      'C': 'bg-purple-100 text-purple-800',
-      'D': 'bg-orange-100 text-orange-800',
-      'E': 'bg-pink-100 text-pink-800'
+      'A': 'bg-[#f7fdf0] text-[#9ac026]',
+      'B': 'bg-[#f7fdf0] text-[#9ac026]', 
+      'C': 'bg-[#fff5f3] text-[#ff6d4d]',
+      'D': 'bg-[#f5f5f5] text-[#545454]',
+      'E': 'bg-[#fff5f3] text-[#ff6d4d]'
     };
-    return colors[category] || 'bg-gray-100 text-gray-800';
+    return colors[category] || 'bg-[#f5f5f5] text-[#545454]';
   };
 
   const getMasteryColor = (percentage) => {
-    if (percentage >= 85) return 'bg-green-500';
-    if (percentage >= 60) return 'bg-blue-500';
-    if (percentage >= 40) return 'bg-yellow-500';
-    return 'bg-red-500';
+    if (percentage >= 85) return 'bg-[#9ac026]';
+    if (percentage >= 60) return 'bg-[#9ac026]';
+    if (percentage >= 40) return 'bg-[#ff6d4d]';
+    return 'bg-[#ff6d4d]';
   };
 
   const fetchDashboardData = async () => {
