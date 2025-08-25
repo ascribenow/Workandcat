@@ -44,12 +44,12 @@ const LandingPage = () => {
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
-            {/* Logo - Twelvr with green dot */}
+            {/* Logo - Clean Twelvr logo from PDF */}
             <div className="flex items-center">
               <img 
-                src="https://customer-assets.emergentagent.com/job_sleepy-saha/artifacts/k7198nuh_twelvr%20revised%20logo.png" 
+                src="https://customer-assets.emergentagent.com/job_sleepy-saha/artifacts/utjadawx_Twelvr%20logo%20revised.pdf" 
                 alt="Twelvr" 
-                className="h-8 sm:h-10 md:h-12 w-auto"
+                className="h-10 sm:h-12 md:h-16 w-auto"
               />
             </div>
             
