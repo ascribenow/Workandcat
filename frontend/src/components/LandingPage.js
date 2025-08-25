@@ -409,7 +409,7 @@ const LandingPage = () => {
           </div>
 
           <button 
-            onClick={scrollToSignUp}
+            onClick={() => navigate('/early-access')}
             className="bg-white text-[#9ac026] px-8 py-4 rounded-full text-lg font-semibold hover:bg-gray-100 transition-colors shadow-lg"
           >
             Join Early Access
