@@ -214,13 +214,11 @@ export const Dashboard = () => {
           <div className="flex justify-between h-16">
             <div className="flex items-center space-x-8">
               <div className="flex items-center">
-                <h1 className="text-2xl sm:text-3xl font-bold" style={{ 
-                  color: '#545454',
-                  fontFamily: 'Manrope, sans-serif',
-                  letterSpacing: '-0.02em'
-                }}>
-                  Twelvr
-                </h1>
+                <img 
+                  src="https://customer-assets.emergentagent.com/job_sleepy-saha/artifacts/k7198nuh_twelvr%20revised%20logo.png" 
+                  alt="Twelvr" 
+                  className="h-6 sm:h-8 w-auto"
+                />
               </div>
               <div className="flex space-x-8">
                 <button
