@@ -1,20 +1,41 @@
 import React, { useState } from 'react';
+import { useAuth } from './AuthProvider';
 
 const LandingPage = () => {
+  const { login, register } = useAuth();
   const [showSignIn, setShowSignIn] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSignIn = (e) => {
+  const handleSignIn = async (e) => {
     e.preventDefault();
-    // Handle sign in logic
-    console.log('Sign in:', { email, password });
+    setLoading(true);
+    setError('');
+    
+    try {
+      await login(email, password);
+    } catch (err) {
+      setError('Invalid email or password');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleSignUp = (e) => {
+  const handleSignUp = async (e) => {
     e.preventDefault();
-    // Handle sign up logic  
-    console.log('Sign up:', { email, password });
+    setLoading(true);
+    setError('');
+    
+    try {
+      await register(name, email, password);
+    } catch (err) {
+      setError('Registration failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
