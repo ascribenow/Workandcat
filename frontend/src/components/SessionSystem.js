@@ -297,12 +297,34 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
     setShowDoubtModal(false);
   };
 
+  if (!sessionId && !loading) {
+    return (
+      <div className="max-w-4xl mx-auto p-6" style={{ fontFamily: 'Manrope, sans-serif' }}>
+        <div className="border border-gray-200 rounded-lg p-6 text-center" style={{ backgroundColor: '#fff5f3' }}>
+          <h3 className="text-lg font-semibold mb-4" style={{ color: '#545454' }}>No Active Session</h3>
+          <p className="text-base mb-6" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
+            Please start a new session to begin your CAT preparation.
+          </p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="px-6 py-3 text-white rounded-lg font-semibold transition-colors"
+            style={{ backgroundColor: '#9ac026', fontFamily: 'Lato, sans-serif' }}
+            onMouseOver={(e) => e.target.style.backgroundColor = '#8bb024'}
+            onMouseOut={(e) => e.target.style.backgroundColor = '#9ac026'}
+          >
+            Start New Session
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (loading && !currentQuestion) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex items-center justify-center min-h-screen" style={{ fontFamily: 'Manrope, sans-serif' }}>
         <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading your session...</p>
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 mx-auto" style={{ borderColor: '#9ac026' }}></div>
+          <p className="mt-4" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>Loading your session...</p>
         </div>
       </div>
     );
@@ -310,13 +332,16 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
 
   if (error) {
     return (
-      <div className="max-w-4xl mx-auto p-6">
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <h3 className="text-lg font-semibold text-red-800 mb-2">Error</h3>
-          <p className="text-red-600">{error}</p>
+      <div className="max-w-4xl mx-auto p-6" style={{ fontFamily: 'Manrope, sans-serif' }}>
+        <div className="border rounded-lg p-6" style={{ backgroundColor: '#fff5f3', borderColor: '#ff6d4d' }}>
+          <h3 className="text-lg font-semibold mb-2" style={{ color: '#ff6d4d' }}>Session Error</h3>
+          <p className="mb-4" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>{error}</p>
           <button 
             onClick={fetchNextQuestion}
-            className="mt-4 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+            className="px-4 py-2 text-white rounded transition-colors"
+            style={{ backgroundColor: '#ff6d4d', fontFamily: 'Lato, sans-serif' }}
+            onMouseOver={(e) => e.target.style.backgroundColor = '#e55a3c'}
+            onMouseOut={(e) => e.target.style.backgroundColor = '#ff6d4d'}
           >
             Try Again
           </button>
