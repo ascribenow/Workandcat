@@ -190,7 +190,7 @@ const LandingPage = () => {
                     disabled={loading}
                     className="w-full mt-6 bg-[#9ac026] text-white py-3 rounded-lg font-semibold hover:bg-[#8bb024] transition-colors shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {loading ? 'Loading...' : (showSignIn ? 'Sign In' : 'Start My Daily-12')}
+                    {loading ? 'Loading...' : 'Start My Daily-12'}
                   </button>
                 </form>
 
