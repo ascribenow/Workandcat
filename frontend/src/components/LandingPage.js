@@ -450,7 +450,9 @@ const LandingPage = () => {
               <em>Consistency, Compounded.</em>
             </p>
 
-            <button className="px-6 py-3 rounded-full font-semibold transition-colors mb-8 text-white"
+            <button 
+              onClick={scrollToSignUp}
+              className="px-6 py-3 rounded-full font-semibold transition-colors mb-8 text-white"
               style={{ 
                 backgroundColor: '#9ac026',
                 fontFamily: 'Lato, sans-serif'
