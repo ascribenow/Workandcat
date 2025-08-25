@@ -2,77 +2,106 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Twelvr Brand Colors */
+:root {
+  --primary-color: #545454;
+  --secondary-color: #9ac026;
+  --tertiary-color: #ff6d4d;
+  --background-color: #ffffff;
+}
+
 .App {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
       'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
       sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    color: var(--primary-color);
+    background-color: var(--background-color);
 }
 
-/* Custom styles for the CAT prep app */
+/* Custom styles for Twelvr CAT prep app */
 .question-card {
     @apply bg-white p-6 rounded-lg shadow-sm border border-gray-200;
 }
 
 .option-button {
     @apply w-full text-left p-3 rounded-md border border-gray-300 hover:bg-gray-50 transition-colors;
+    color: var(--primary-color);
 }
 
 .option-button:hover {
-    @apply border-blue-300 bg-blue-50;
+    border-color: var(--tertiary-color);
+    background-color: #fff5f3;
 }
 
 .option-button.selected {
-    @apply border-blue-500 bg-blue-50 ring-2 ring-blue-500 ring-opacity-50;
+    border-color: var(--secondary-color);
+    background-color: #f7fdf0;
+    @apply ring-2 ring-opacity-50;
+    --tw-ring-color: var(--secondary-color);
 }
 
 .option-button.correct {
-    @apply border-green-500 bg-green-50 text-green-800;
+    border-color: var(--secondary-color);
+    background-color: #f7fdf0;
+    color: var(--primary-color);
 }
 
 .option-button.incorrect {
-    @apply border-red-500 bg-red-50 text-red-800;
+    border-color: var(--tertiary-color);
+    background-color: #fff5f3;
+    color: var(--primary-color);
 }
 
 .category-badge {
     @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+    font-family: 'Lato', sans-serif;
 }
 
 .category-badge.arithmetic {
-    @apply bg-blue-100 text-blue-800;
+    background-color: #f7fdf0;
+    color: var(--primary-color);
 }
 
 .category-badge.algebra {
-    @apply bg-green-100 text-green-800;
+    background-color: #f7fdf0;
+    color: var(--primary-color);
 }
 
 .category-badge.geometry {
-    @apply bg-yellow-100 text-yellow-800;
+    background-color: #fff5f3;
+    color: var(--primary-color);
 }
 
 .category-badge.number-system {
-    @apply bg-purple-100 text-purple-800;
+    background-color: #f7f7f7;
+    color: var(--primary-color);
 }
 
 .category-badge.modern-math {
-    @apply bg-indigo-100 text-indigo-800;
+    background-color: #f7f7f7;
+    color: var(--primary-color);
 }
 
 .difficulty-badge {
     @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+    font-family: 'Lato', sans-serif;
 }
 
 .difficulty-badge.easy {
-    @apply bg-green-100 text-green-800;
+    background-color: #f7fdf0;
+    color: var(--secondary-color);
 }
 
 .difficulty-badge.medium {
-    @apply bg-yellow-100 text-yellow-800;
+    background-color: #fff5f3;
+    color: var(--tertiary-color);
 }
 
 .difficulty-badge.difficult {
-    @apply bg-red-100 text-red-800;
+    background-color: #f7f7f7;
+    color: var(--primary-color);
 }
 
 .progress-bar {
@@ -80,7 +109,8 @@
 }
 
 .progress-fill {
-    @apply bg-blue-600 h-2.5 rounded-full transition-all duration-300 ease-in-out;
+    background-color: var(--secondary-color);
+    @apply h-2.5 rounded-full transition-all duration-300 ease-in-out;
 }
 
 .stats-card {
@@ -88,15 +118,18 @@
 }
 
 .performance-good {
-    @apply text-green-600 font-semibold;
+    color: var(--secondary-color);
+    @apply font-semibold;
 }
 
 .performance-average {
-    @apply text-yellow-600 font-semibold;
+    color: var(--tertiary-color);
+    @apply font-semibold;
 }
 
 .performance-poor {
-    @apply text-red-600 font-semibold;
+    color: var(--primary-color);
+    @apply font-semibold;
 }
 
 /* Animation for correct/incorrect feedback */
@@ -109,35 +142,52 @@
 }
 
 .feedback-correct {
-    @apply bg-green-50 border-green-200 text-green-800;
+    background-color: #f7fdf0;
+    border-color: var(--secondary-color);
+    color: var(--primary-color);
 }
 
 .feedback-incorrect {
-    @apply bg-red-50 border-red-200 text-red-800;
+    background-color: #fff5f3;
+    border-color: var(--tertiary-color);
+    color: var(--primary-color);
 }
 
 /* Loading states */
 .loading-spinner {
     @apply inline-block h-4 w-4 animate-spin rounded-full border-2 border-solid border-current border-r-transparent;
-}
-
-/* Responsive design utilities */
-@media (max-width: 640px) {
-    .question-card {
-        @apply p-4;
-    }
-    
-    .stats-grid {
-        @apply grid-cols-1;
-    }
+    border-color: var(--secondary-color);
 }
 
 /* Focus styles for accessibility */
 .focus-visible:focus {
-    @apply ring-2 ring-blue-500 ring-opacity-75 ring-offset-2;
+    @apply ring-2 ring-opacity-75 ring-offset-2;
+    --tw-ring-color: var(--secondary-color);
 }
 
-/* Custom scrollbar */
+/* Twelvr button styles */
+.btn-primary {
+    background-color: var(--secondary-color);
+    color: white;
+    @apply px-6 py-3 rounded-lg font-semibold transition-colors;
+}
+
+.btn-primary:hover {
+    background-color: #8bb024;
+}
+
+.btn-secondary {
+    border: 2px solid var(--secondary-color);
+    color: var(--secondary-color);
+    @apply px-6 py-3 rounded-lg font-semibold transition-colors bg-white;
+}
+
+.btn-secondary:hover {
+    background-color: var(--secondary-color);
+    color: white;
+}
+
+/* Custom scrollbar with brand colors */
 .custom-scrollbar::-webkit-scrollbar {
     width: 6px;
 }
@@ -147,28 +197,33 @@
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-    @apply bg-gray-400 rounded-full;
+    background-color: var(--secondary-color);
+    @apply rounded-full;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    @apply bg-gray-600;
+    background-color: #8bb024;
 }
 
-/* Study plan calendar styling */
+/* Study plan calendar styling with brand colors */
 .calendar-day {
     @apply w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium cursor-pointer transition-colors;
 }
 
 .calendar-day.today {
-    @apply bg-blue-600 text-white;
+    background-color: var(--secondary-color);
+    @apply text-white;
 }
 
 .calendar-day.completed {
-    @apply bg-green-100 text-green-800 border-2 border-green-300;
+    background-color: #f7fdf0;
+    color: var(--secondary-color);
+    border: 2px solid var(--secondary-color);
 }
 
 .calendar-day.pending {
-    @apply bg-gray-100 text-gray-600 hover:bg-gray-200;
+    @apply bg-gray-100 hover:bg-gray-200;
+    color: var(--primary-color);
 }
 
 .calendar-day.future {
@@ -181,11 +236,15 @@
 }
 
 .admin-table th {
-    @apply px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider;
+    @apply px-6 py-3 text-left text-xs font-medium uppercase tracking-wider;
+    color: var(--primary-color);
+    font-family: 'Lato', sans-serif;
 }
 
 .admin-table td {
-    @apply px-6 py-4 whitespace-nowrap text-sm text-gray-900;
+    @apply px-6 py-4 whitespace-nowrap text-sm;
+    color: var(--primary-color);
+    font-family: 'Lato', sans-serif;
 }
 
 /* File upload styling */
@@ -194,42 +253,39 @@
 }
 
 .file-upload-area.dragover {
-    @apply border-blue-500 bg-blue-50;
+    border-color: var(--secondary-color);
+    background-color: #f7fdf0;
 }
 
-/* Notification styles */
+/* Notification styles with brand colors */
 .notification {
     @apply fixed top-4 right-4 max-w-sm w-full bg-white shadow-lg rounded-lg pointer-events-auto ring-1 ring-black ring-opacity-5 z-50;
 }
 
 .notification.success {
-    @apply border-l-4 border-green-400;
+    border-left: 4px solid var(--secondary-color);
 }
 
 .notification.error {
-    @apply border-l-4 border-red-400;
+    border-left: 4px solid var(--tertiary-color);
 }
 
 .notification.warning {
-    @apply border-l-4 border-yellow-400;
+    border-left: 4px solid var(--tertiary-color);
 }
 
 .notification.info {
-    @apply border-l-4 border-blue-400;
+    border-left: 4px solid var(--secondary-color);
 }
 
-/* Dark mode support (optional) */
-@media (prefers-color-scheme: dark) {
-    .dark-mode {
-        @apply bg-gray-900 text-white;
+/* Responsive design utilities */
+@media (max-width: 640px) {
+    .question-card {
+        @apply p-4;
     }
     
-    .dark-mode .question-card {
-        @apply bg-gray-800 border-gray-700;
-    }
-    
-    .dark-mode .stats-card {
-        @apply bg-gray-800 border-gray-700;
+    .stats-grid {
+        @apply grid-cols-1;
     }
 }
 
