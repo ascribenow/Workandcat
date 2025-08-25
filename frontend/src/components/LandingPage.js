@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 
 const LandingPage = () => {
   const { login, register } = useAuth();
+  const navigate = useNavigate();
   const [showSignIn, setShowSignIn] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
