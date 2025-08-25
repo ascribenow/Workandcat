@@ -444,10 +444,10 @@ const LandingPage = () => {
               <img 
                 src="https://customer-assets.emergentagent.com/job_sleepy-saha/artifacts/ss0tc3jc_Twelver%20edited.png" 
                 alt="Twelvr" 
-                className="h-12 sm:h-14 w-auto filter brightness-0 invert"
+                className="h-12 sm:h-16 w-auto"
                 style={{ 
-                  backgroundColor: 'transparent',
-                  mixBlendMode: 'normal'
+                  filter: 'brightness(0) invert(1)',
+                  backgroundColor: 'transparent'
                 }}
               />
             </div>
