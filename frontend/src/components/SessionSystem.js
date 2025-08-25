@@ -718,7 +718,13 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
                 {/* Next Question Button */}
                 <button
                   onClick={handleNextQuestion}
-                  className="w-full bg-green-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-green-700 transition-colors"
+                  className="w-full py-3 px-6 rounded-lg font-semibold transition-colors text-white"
+                  style={{ 
+                    backgroundColor: '#9ac026',
+                    fontFamily: 'Lato, sans-serif'
+                  }}
+                  onMouseOver={(e) => e.target.style.backgroundColor = '#8bb024'}
+                  onMouseOut={(e) => e.target.style.backgroundColor = '#9ac026'}
                 >
                   {sessionProgress && sessionProgress.current_question >= sessionProgress.total_questions 
                     ? 'Complete Session' 
