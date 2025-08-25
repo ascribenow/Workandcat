@@ -701,7 +701,7 @@ ${data.success > 0 ? '✅ Students will now see proper question-specific solutio
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white" style={{ fontFamily: 'Manrope, sans-serif' }}>
       <div className="max-w-6xl mx-auto py-8 px-4">
         <div className="bg-white rounded-lg shadow-lg">
           {/* Tabs */}
