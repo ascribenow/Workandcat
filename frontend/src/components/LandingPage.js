@@ -44,6 +44,11 @@ const LandingPage = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  // Function to scroll to top of page
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
     <div className="min-h-screen bg-white" style={{ fontFamily: 'Manrope, sans-serif' }}>
       {/* Header */}
