@@ -446,7 +446,6 @@ const LandingPage = () => {
                 alt="Twelvr" 
                 className="h-12 sm:h-16 w-auto"
                 style={{ 
-                  filter: 'brightness(0) invert(1)',
                   backgroundColor: 'transparent'
                 }}
               />
