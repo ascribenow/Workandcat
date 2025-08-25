@@ -140,6 +140,20 @@ const LandingPage = () => {
                 {/* Form */}
                 <form onSubmit={showSignIn ? handleSignIn : handleSignUp}>
                   <div className="space-y-4">
+                    {!showSignIn && (
+                      <div>
+                        <input
+                          type="text"
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
+                          placeholder="Full name"
+                          className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9ac026] focus:border-transparent transition-colors"
+                          style={{ fontFamily: 'Lato, sans-serif' }}
+                          required
+                        />
+                      </div>
+                    )}
+                    
                     <div>
                       <input
                         type="email"
@@ -165,11 +179,18 @@ const LandingPage = () => {
                     </div>
                   </div>
 
+                  {error && (
+                    <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                      <p className="text-sm text-red-600" style={{ fontFamily: 'Lato, sans-serif' }}>{error}</p>
+                    </div>
+                  )}
+
                   <button
                     type="submit"
-                    className="w-full mt-6 bg-[#9ac026] text-white py-3 rounded-lg font-semibold hover:bg-[#8bb024] transition-colors shadow-md"
+                    disabled={loading}
+                    className="w-full mt-6 bg-[#9ac026] text-white py-3 rounded-lg font-semibold hover:bg-[#8bb024] transition-colors shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {showSignIn ? 'Sign In' : 'Start My Daily-12'}
+                    {loading ? 'Loading...' : (showSignIn ? 'Sign In' : 'Start My Daily-12')}
                   </button>
                 </form>
 
