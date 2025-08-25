@@ -709,11 +709,16 @@ ${data.success > 0 ? '✅ Students will now see proper question-specific solutio
             <nav className="flex space-x-8 px-6">
               <button
                 onClick={() => setActiveTab('pyq-upload')}
-                className={`py-4 text-lg font-medium ${
+                className={`py-4 text-lg font-medium transition-colors ${
                   activeTab === 'pyq-upload' 
-                    ? 'text-blue-600 border-b-2 border-blue-500' 
-                    : 'text-gray-500 hover:text-gray-700'
+                    ? 'border-b-2' 
+                    : 'hover:text-[#ff6d4d]'
                 }`}
+                style={{ 
+                  color: activeTab === 'pyq-upload' ? '#9ac026' : '#545454',
+                  borderColor: activeTab === 'pyq-upload' ? '#9ac026' : 'transparent',
+                  fontFamily: 'Lato, sans-serif'
+                }}
               >
                 📄 PYQ Upload
               </button>
