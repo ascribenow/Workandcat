@@ -82,7 +82,8 @@ const LandingPage = () => {
               </h1>
               
               <p className="text-lg lg:text-xl text-[#545454] mb-6 lg:mb-8" style={{ fontFamily: 'Lato, sans-serif' }}>
-                12 adaptive questions. 90 days to CAT readiness. Serious prep, simple ritual.
+                12 adaptive questions. 90 days to CAT readiness.<br />
+                Serious prep, simple ritual.
               </p>
 
               {/* 12 Dots Visual */}
