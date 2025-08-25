@@ -718,13 +718,18 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
 
             {/* Message Input */}
             {!conversationLocked && (
-              <div className="border-t border-gray-200 p-4 bg-white">
+              <div className="border-t p-4 bg-white" style={{ borderColor: '#f5f5f5' }}>
                 <div className="flex space-x-3">
                   <textarea
                     value={doubtMessage}
                     onChange={(e) => setDoubtMessage(e.target.value)}
                     placeholder="Type your doubt or question here..."
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+                    className="flex-1 px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 resize-none"
+                    style={{ 
+                      borderColor: '#9ac026',
+                      fontFamily: 'Lato, sans-serif',
+                      focusRingColor: '#9ac026'
+                    }}
                     rows="2"
                     maxLength="500"
                     disabled={doubtLoading}
@@ -738,22 +743,36 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
                   <button
                     onClick={handleAskDoubt}
                     disabled={!doubtMessage.trim() || doubtLoading}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed self-end"
+                    className="px-4 py-2 text-white rounded-md focus:outline-none focus:ring-2 disabled:opacity-50 disabled:cursor-not-allowed self-end transition-colors"
+                    style={{ 
+                      backgroundColor: '#9ac026',
+                      fontFamily: 'Lato, sans-serif'
+                    }}
+                    onMouseOver={(e) => {
+                      if (!e.target.disabled) {
+                        e.target.style.backgroundColor = '#8bb024';
+                      }
+                    }}
+                    onMouseOut={(e) => {
+                      if (!e.target.disabled) {
+                        e.target.style.backgroundColor = '#9ac026';
+                      }
+                    }}
                   >
                     {doubtLoading ? "..." : "Send"}
                   </button>
                 </div>
-                <div className="text-xs text-gray-500 mt-2">
+                <div className="text-xs mt-2" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
                   Press Enter to send, Shift+Enter for new line
                 </div>
               </div>
             )}
 
             {conversationLocked && (
-              <div className="border-t border-gray-200 p-4 bg-red-50">
-                <div className="text-center text-red-600">
+              <div className="border-t p-4" style={{ borderColor: '#f5f5f5', backgroundColor: '#fff5f3' }}>
+                <div className="text-center" style={{ color: '#ff6d4d' }}>
                   <p className="font-medium">❌ Conversation Limit Reached</p>
-                  <p className="text-sm mt-1">You have used all 10 messages for this question.</p>
+                  <p className="text-sm mt-1" style={{ fontFamily: 'Lato, sans-serif' }}>You have used all 10 messages for this question.</p>
                 </div>
               </div>
             )}
