@@ -197,26 +197,26 @@ export const Dashboard = () => {
     
     // Regular users get simplified navigation (no manual study plan selection)
     return (
-      <nav className="bg-white shadow-sm border-b">
+      <nav className="bg-white shadow-sm border-b" style={{ borderColor: '#f5f5f5' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-24">
+          <div className="flex justify-between h-20">
             <div className="flex items-center space-x-8">
               <div className="flex items-center">
                 <img 
-                  src="/images/twelvr-logo.png" 
-                  alt="Twelvr Logo" 
-                  className="h-24 w-auto"
-                  style={{backgroundColor: 'transparent'}}
+                  src="https://customer-assets.emergentagent.com/job_sleepy-saha/artifacts/55q6ml5l_twelvr%20revised%20logo.png" 
+                  alt="Twelvr" 
+                  className="h-8 w-auto"
                 />
               </div>
               <div className="flex space-x-8">
                 <button
                   onClick={() => setCurrentView('dashboard')}
-                  className={`inline-flex items-center px-1 pt-1 text-sm font-medium border-b-2 ${
+                  className={`inline-flex items-center px-1 pt-1 text-sm font-medium border-b-2 transition-colors ${
                     currentView === 'dashboard' 
-                      ? 'text-blue-600 border-blue-500' 
-                      : 'text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300'
+                      ? 'border-[#9ac026] text-[#545454]' 
+                      : 'text-[#545454] border-transparent hover:text-[#ff6d4d] hover:border-[#ff6d4d]'
                   }`}
+                  style={{ fontFamily: 'Lato, sans-serif' }}
                 >
                   <span className="mr-2">🏠</span>
                   Dashboard
@@ -229,11 +229,12 @@ export const Dashboard = () => {
                     }
                   }}
                   disabled={loading}
-                  className={`inline-flex items-center px-1 pt-1 text-sm font-medium border-b-2 ${
+                  className={`inline-flex items-center px-1 pt-1 text-sm font-medium border-b-2 transition-colors ${
                     currentView === 'session'
-                      ? 'text-green-600 border-green-500'
-                      : 'text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300'
+                      ? 'border-[#9ac026] text-[#545454]'
+                      : 'text-[#545454] border-transparent hover:text-[#ff6d4d] hover:border-[#ff6d4d]'
                   } ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  style={{ fontFamily: 'Lato, sans-serif' }}
                 >
                   <span className="mr-2">🎯</span>
                   {loading ? 'Loading...' : "Today's Session"}
@@ -242,12 +243,25 @@ export const Dashboard = () => {
             </div>
             
             <div className="flex items-center space-x-4">
-              <div className="text-sm text-gray-700">
+              <div className="text-sm" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
                 <span className="font-medium">{user.name}</span>
               </div>
               <button
                 onClick={logout}
-                className="text-sm bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded transition-colors"
+                className="text-sm px-3 py-1 rounded transition-colors"
+                style={{ 
+                  backgroundColor: '#f5f5f5', 
+                  color: '#545454',
+                  fontFamily: 'Lato, sans-serif'
+                }}
+                onMouseOver={(e) => {
+                  e.target.style.backgroundColor = '#ff6d4d';
+                  e.target.style.color = 'white';
+                }}
+                onMouseOut={(e) => {
+                  e.target.style.backgroundColor = '#f5f5f5';
+                  e.target.style.color = '#545454';
+                }}
               >
                 Logout
               </button>
