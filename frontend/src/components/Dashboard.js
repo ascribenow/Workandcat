@@ -213,18 +213,16 @@ export const Dashboard = () => {
     return (
       <nav className="bg-white shadow-sm border-b" style={{ borderColor: '#f5f5f5' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-24">
+          <div className="flex justify-between h-16">
             <div className="flex items-center space-x-8">
               <div className="flex items-center">
-                <img 
-                  src="https://customer-assets.emergentagent.com/job_sleepy-saha/artifacts/55q6ml5l_twelvr%20revised%20logo.png" 
-                  alt="Twelvr" 
-                  className="h-14 sm:h-16 lg:h-18 w-auto"
-                  style={{ 
-                    backgroundColor: 'transparent',
-                    mixBlendMode: 'normal'
-                  }}
-                />
+                <h1 className="text-2xl sm:text-3xl font-bold" style={{ 
+                  color: '#545454',
+                  fontFamily: 'Manrope, sans-serif',
+                  letterSpacing: '-0.02em'
+                }}>
+                  Twelvr
+                </h1>
               </div>
               <div className="flex space-x-8">
                 <button
