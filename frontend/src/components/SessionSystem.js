@@ -516,9 +516,9 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
                   })
                 ) : (
                   <div className="text-center py-8">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
-                    <p className="text-gray-600">Loading answer options...</p>
-                    <p className="text-xs text-gray-400 mt-1">If this persists, please refresh the page</p>
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 mx-auto mb-2" style={{ borderBottomColor: '#9ac026' }}></div>
+                    <p style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>Loading answer options...</p>
+                    <p className="text-xs mt-1" style={{ color: '#999999', fontFamily: 'Lato, sans-serif' }}>If this persists, please refresh the page</p>
                   </div>
                 )}
               </div>
