@@ -408,11 +408,17 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
                   {currentQuestion.subcategory}
                 </span>
                 {currentQuestion.difficulty_band && (
-                  <span className={`ml-2 inline-block px-2 py-1 rounded text-sm font-medium ${
-                    currentQuestion.difficulty_band === 'Easy' ? 'bg-green-100 text-green-800' :
-                    currentQuestion.difficulty_band === 'Hard' ? 'bg-red-100 text-red-800' :
-                    'bg-yellow-100 text-yellow-800'
-                  }`}>
+                  <span className="ml-2 inline-block px-2 py-1 rounded text-sm font-medium" style={{
+                    backgroundColor: 
+                      currentQuestion.difficulty_band === 'Easy' ? '#f7fdf0' :
+                      currentQuestion.difficulty_band === 'Hard' ? '#fff5f3' :
+                      '#fff5f3',
+                    color:
+                      currentQuestion.difficulty_band === 'Easy' ? '#9ac026' :
+                      currentQuestion.difficulty_band === 'Hard' ? '#ff6d4d' :
+                      '#ff6d4d',
+                    fontFamily: 'Lato, sans-serif'
+                  }}>
                     {currentQuestion.difficulty_band}
                   </span>
                 )}
