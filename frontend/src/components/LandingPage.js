@@ -44,15 +44,13 @@ const LandingPage = () => {
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
-            {/* Logo - Just the Twelvr typeface */}
+            {/* Logo - Twelvr with green dot */}
             <div className="flex items-center">
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold" style={{ 
-                color: '#545454',
-                fontFamily: 'Manrope, sans-serif',
-                letterSpacing: '-0.02em'
-              }}>
-                Twelvr
-              </h1>
+              <img 
+                src="https://customer-assets.emergentagent.com/job_sleepy-saha/artifacts/k7198nuh_twelvr%20revised%20logo.png" 
+                alt="Twelvr" 
+                className="h-8 sm:h-10 md:h-12 w-auto"
+              />
             </div>
             
             {/* Navigation */}
