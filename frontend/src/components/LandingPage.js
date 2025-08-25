@@ -456,16 +456,13 @@ const LandingPage = () => {
       <footer className="bg-[#545454] text-white py-12">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col items-center text-center">
-            <div className="flex items-center mb-8">
-              <img 
-                src="https://customer-assets.emergentagent.com/job_sleepy-saha/artifacts/55q6ml5l_twelvr%20revised%20logo.png" 
-                alt="Twelvr" 
-                className="h-16 sm:h-20 w-auto filter brightness-0 invert"
-                style={{ 
-                  backgroundColor: 'transparent',
-                  mixBlendMode: 'normal'
-                }}
-              />
+            <div className="flex items-center mb-6">
+              <h2 className="text-2xl sm:text-3xl font-bold text-white" style={{ 
+                fontFamily: 'Manrope, sans-serif',
+                letterSpacing: '-0.02em'
+              }}>
+                Twelvr
+              </h2>
             </div>
             
             <p className="text-lg mb-8" style={{ fontFamily: 'Lato, sans-serif' }}>
