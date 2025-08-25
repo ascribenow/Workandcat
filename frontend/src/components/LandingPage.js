@@ -441,6 +441,17 @@ const LandingPage = () => {
               <em>Consistency, Compounded.</em>
             </p>
 
+            <button className="px-6 py-3 rounded-full font-semibold transition-colors mb-8 text-white"
+              style={{ 
+                backgroundColor: '#9ac026',
+                fontFamily: 'Lato, sans-serif'
+              }}
+              onMouseOver={(e) => e.target.style.backgroundColor = '#8bb024'}
+              onMouseOut={(e) => e.target.style.backgroundColor = '#9ac026'}
+            >
+              Start My Daily-12
+            </button>
+
             {/* Footer Navigation */}
             <nav className="flex flex-wrap justify-center gap-6 mb-8">
               <a href="#pricing" className="text-gray-300 hover:text-[#9ac026] transition-colors" style={{ fontFamily: 'Lato, sans-serif' }}>
@@ -460,17 +471,7 @@ const LandingPage = () => {
               </a>
             </nav>
 
-            <button className="px-6 py-3 rounded-full font-semibold transition-colors mb-8 text-white"
-              style={{ 
-                backgroundColor: '#9ac026',
-                fontFamily: 'Lato, sans-serif'
-              }}
-              onMouseOver={(e) => e.target.style.backgroundColor = '#8bb024'}
-              onMouseOut={(e) => e.target.style.backgroundColor = '#9ac026'}
-            >
-              Start My Daily-12
-            </button>
-
+            {/* Disclaimer at the very bottom */}
             <p className="text-sm text-gray-300 max-w-2xl" style={{ fontFamily: 'Lato, sans-serif' }}>
               Twelvr complements your CAT prep — it doesn't replace books or coaching.
             </p>
