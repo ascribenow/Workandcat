@@ -675,18 +675,24 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
                   <div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                     <div className={`max-w-[80%] rounded-lg p-3 ${
                       message.role === 'user'
-                        ? 'bg-blue-600 text-white'
+                        ? 'text-white'
                         : 'bg-white border border-gray-200 shadow-sm'
-                    }`}>
+                    }`}
+                    style={message.role === 'user' ? { backgroundColor: '#9ac026' } : {}}
+                    >
                       {message.role === 'assistant' && (
-                        <div className="text-sm font-medium text-green-600 mb-1">🤖 Twelvr says:</div>
+                        <div className="text-sm font-medium mb-1" style={{ color: '#9ac026', fontFamily: 'Lato, sans-serif' }}>🤖 Twelvr says:</div>
                       )}
-                      <div className={`${message.role === 'user' ? 'text-white' : 'text-gray-800'} whitespace-pre-wrap`}>
+                      <div className={`whitespace-pre-wrap`} style={{ 
+                        color: message.role === 'user' ? 'white' : '#545454',
+                        fontFamily: 'Lato, sans-serif' 
+                      }}>
                         {message.message}
                       </div>
-                      <div className={`text-xs mt-2 ${
-                        message.role === 'user' ? 'text-blue-200' : 'text-gray-400'
-                      }`}>
+                      <div className={`text-xs mt-2`} style={{
+                        color: message.role === 'user' ? 'rgba(255,255,255,0.8)' : '#999999',
+                        fontFamily: 'Lato, sans-serif'
+                      }}>
                         {new Date(message.timestamp).toLocaleTimeString()}
                       </div>
                     </div>
@@ -696,14 +702,14 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
               {doubtLoading && (
                 <div className="flex justify-start">
                   <div className="bg-white border border-gray-200 shadow-sm rounded-lg p-3 max-w-[80%]">
-                    <div className="text-sm font-medium text-green-600 mb-1">🤖 Twelvr says:</div>
+                    <div className="text-sm font-medium mb-1" style={{ color: '#9ac026', fontFamily: 'Lato, sans-serif' }}>🤖 Twelvr says:</div>
                     <div className="flex items-center space-x-2">
                       <div className="animate-pulse flex space-x-1">
-                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                        <div className="w-2 h-2 rounded-full animate-bounce" style={{ backgroundColor: '#9ac026' }}></div>
+                        <div className="w-2 h-2 rounded-full animate-bounce" style={{ backgroundColor: '#9ac026', animationDelay: '0.1s' }}></div>
+                        <div className="w-2 h-2 rounded-full animate-bounce" style={{ backgroundColor: '#9ac026', animationDelay: '0.2s' }}></div>
                       </div>
-                      <span className="text-gray-500 text-sm">Thinking...</span>
+                      <span className="text-sm" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>Thinking...</span>
                     </div>
                   </div>
                 </div>
