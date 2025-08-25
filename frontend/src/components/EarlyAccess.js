@@ -6,23 +6,31 @@ const EarlyAccess = () => {
 
   return (
     <div className="min-h-screen bg-white" style={{ fontFamily: 'Manrope, sans-serif' }}>
-      {/* Header */}
+      {/* Header - Same as Landing Page */}
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
+            {/* Logo - Clickable to scroll to top */}
             <div className="flex items-center">
               <button onClick={() => navigate('/')} className="focus:outline-none">
                 <img 
                   src="https://customer-assets.emergentagent.com/job_sleepy-saha/artifacts/ss0tc3jc_Twelver%20edited.png" 
                   alt="Twelvr" 
-                  className="h-12 sm:h-16 w-auto cursor-pointer hover:opacity-80 transition-opacity"
+                  className="h-16 sm:h-20 md:h-24 lg:h-28 w-auto cursor-pointer hover:opacity-80 transition-opacity"
                 />
               </button>
             </div>
             
+            {/* Navigation */}
             <nav className="hidden md:flex items-center space-x-8">
               <button onClick={() => navigate('/')} className="text-[#545454] hover:text-[#ff6d4d] transition-colors" style={{ fontFamily: 'Lato, sans-serif' }}>
-                Home
+                How It Works
+              </button>
+              <button onClick={() => navigate('/')} className="text-[#545454] hover:text-[#ff6d4d] transition-colors" style={{ fontFamily: 'Lato, sans-serif' }}>
+                Why 12 Works
+              </button>
+              <button onClick={() => navigate('/pricing')} className="text-[#545454] hover:text-[#ff6d4d] transition-colors" style={{ fontFamily: 'Lato, sans-serif' }}>
+                Pricing
               </button>
               <span className="text-[#9ac026] font-semibold" style={{ fontFamily: 'Lato, sans-serif' }}>
                 Early Access
@@ -66,6 +74,67 @@ const EarlyAccess = () => {
           </button>
         </div>
       </main>
+
+      {/* Footer - Same as Landing Page */}
+      <footer className="bg-[#545454] text-white py-12">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col items-center text-center">
+            <div className="flex items-center mb-6">
+              <button onClick={() => navigate('/')} className="focus:outline-none">
+                <img 
+                  src="https://customer-assets.emergentagent.com/job_sleepy-saha/artifacts/vy7femuy_Twelvr%20logo%20dark%20background.png" 
+                  alt="Twelvr" 
+                  className="h-12 sm:h-16 w-auto cursor-pointer hover:opacity-80 transition-opacity"
+                  style={{ 
+                    backgroundColor: 'transparent'
+                  }}
+                />
+              </button>
+            </div>
+            
+            <p className="text-lg mb-8" style={{ fontFamily: 'Lato, sans-serif' }}>
+              <em>Consistency, Compounded.</em>
+            </p>
+
+            <button 
+              onClick={() => navigate('/')}
+              className="px-6 py-3 rounded-full font-semibold transition-colors mb-8 text-white"
+              style={{ 
+                backgroundColor: '#9ac026',
+                fontFamily: 'Lato, sans-serif'
+              }}
+              onMouseOver={(e) => e.target.style.backgroundColor = '#8bb024'}
+              onMouseOut={(e) => e.target.style.backgroundColor = '#9ac026'}
+            >
+              Start My Daily-12
+            </button>
+
+            {/* Disclaimer */}
+            <p className="text-sm text-gray-300 max-w-2xl mb-8" style={{ fontFamily: 'Lato, sans-serif' }}>
+              Twelvr complements your CAT prep — it doesn't replace books or coaching.
+            </p>
+
+            {/* Footer Navigation */}
+            <nav className="flex flex-wrap justify-center gap-6">
+              <button onClick={() => navigate('/pricing')} className="text-gray-300 hover:text-[#9ac026] transition-colors" style={{ fontFamily: 'Lato, sans-serif' }}>
+                Pricing
+              </button>
+              <button onClick={() => navigate('/contact')} className="text-gray-300 hover:text-[#9ac026] transition-colors" style={{ fontFamily: 'Lato, sans-serif' }}>
+                Contact Us
+              </button>
+              <button onClick={() => navigate('/privacy')} className="text-gray-300 hover:text-[#9ac026] transition-colors" style={{ fontFamily: 'Lato, sans-serif' }}>
+                Privacy Policy
+              </button>
+              <button onClick={() => navigate('/terms')} className="text-gray-300 hover:text-[#9ac026] transition-colors" style={{ fontFamily: 'Lato, sans-serif' }}>
+                Terms & Conditions
+              </button>
+              <button onClick={() => navigate('/refund')} className="text-gray-300 hover:text-[#9ac026] transition-colors" style={{ fontFamily: 'Lato, sans-serif' }}>
+                Cancellation & Refund Policy
+              </button>
+            </nav>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };
