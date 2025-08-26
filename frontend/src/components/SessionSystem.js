@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import { useAuth } from './AuthProvider';
-
-const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+import { useAuth, API } from './AuthProvider';
 
 export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSessionEnd }) => {
   const { user } = useAuth();
