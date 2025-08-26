@@ -951,14 +951,25 @@ class LLMEnrichmentService:
     
     async def enrich_question_automatically(self, question: Question, db: Session) -> Dict[str, Any]:
         """
-        Main enrichment method - automatically follows your schema directive
-        This is the ONLY method you need to call for consistent, high-quality enrichment
+        REVISED ENRICHMENT FLOW:
+        - Admin fields (stem, solution_approach, detailed_solution, principle_to_remember, answer, image_url) are PROTECTED
+        - LLMs only enrich metadata fields (difficulty, frequency, etc.)
+        - OpenAI specifically generates the 'right_answer' field
         """
         try:
-            logger.info(f"🔄 Auto-enriching question: {question.stem[:60]}...")
+            logger.info(f"🔄 Auto-enriching question with PROTECTED admin fields: {question.stem[:60]}...")
             
-            # Use standardized enricher with schema compliance
-            enrichment_result = await self.standardized_enricher.enrich_question_solution(
+            # STEP 1: Generate right_answer using OpenAI (NEW)
+            if not question.right_answer and question.stem:
+                logger.info("🧠 Generating right_answer using OpenAI...")
+                right_answer = await self._generate_right_answer_with_openai(question.stem)
+                if right_answer:
+                    question.right_answer = right_answer
+                    logger.info(f"✅ Generated right_answer: {right_answer[:50]}...")
+            
+            # STEP 2: LLM enrichment for metadata fields ONLY (not touching admin content)
+            # Only enrich technical metadata fields like difficulty, frequency, etc.
+            enrichment_result = await self._enrich_metadata_fields_only(
                 question_stem=question.stem,
                 answer=question.answer or "To be determined",
                 subcategory=question.subcategory or "General",
@@ -966,15 +977,23 @@ class LLMEnrichmentService:
             )
             
             if enrichment_result["success"]:
-                # Update question with enriched content
-                question.solution_approach = enrichment_result["approach"]
-                question.detailed_solution = enrichment_result["detailed_solution"]
+                # Only update NON-admin fields (metadata enrichment)
+                if enrichment_result.get("difficulty_score"):
+                    question.difficulty_score = enrichment_result["difficulty_score"]
+                if enrichment_result.get("difficulty_band"):
+                    question.difficulty_band = enrichment_result["difficulty_band"]
+                if enrichment_result.get("frequency_band"):
+                    question.frequency_band = enrichment_result["frequency_band"]
+                if enrichment_result.get("learning_impact"):
+                    question.learning_impact = enrichment_result["learning_impact"]
+                if enrichment_result.get("importance_index"):
+                    question.importance_index = enrichment_result["importance_index"]
                 
-                # Generate MCQ options if needed
+                # Generate MCQ options if needed (this doesn't touch admin content)
                 if not question.mcq_options:
                     mcq_result = await self.standardized_enricher.generate_mcq_options_with_schema(
                         question.stem,
-                        enrichment_result.get("final_answer", question.answer or "Unknown"),
+                        question.answer or "Unknown",  # Use admin-provided answer
                         question.subcategory or "General"
                     )
                     question.mcq_options = json.dumps(mcq_result)
@@ -982,12 +1001,12 @@ class LLMEnrichmentService:
                 # Commit changes
                 db.commit()
                 
-                logger.info(f"✅ Auto-enrichment successful (Quality: {enrichment_result.get('quality_score', 'N/A')})")
+                logger.info(f"✅ Auto-enrichment successful - Admin fields protected, metadata enriched")
                 return {
                     "success": True,
-                    "quality_score": enrichment_result.get("quality_score"),
-                    "llm_used": enrichment_result.get("llm_used"),
-                    "validation_passed": enrichment_result.get("validation", {}).get("is_valid", False)
+                    "right_answer_generated": bool(question.right_answer),
+                    "metadata_enriched": True,
+                    "admin_fields_protected": True
                 }
             else:
                 logger.error(f"❌ Auto-enrichment failed: {enrichment_result.get('error')}")
