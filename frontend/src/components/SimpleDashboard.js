@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useAuth } from './AuthProvider';
-
-const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+import { useAuth, API } from './AuthProvider';
 
 export const SimpleDashboard = () => {
   const { user, token } = useAuth();
