@@ -1077,6 +1077,102 @@ class LLMEnrichmentService:
         
         return results
 
+    async def _generate_right_answer_with_openai(self, question_stem: str) -> str:
+        """
+        Generate the right_answer field using OpenAI based on the question stem
+        """
+        try:
+            logger.info("🧠 Using OpenAI to generate right_answer...")
+            
+            # Check for API key
+            openai_key = os.getenv('OPENAI_API_KEY')
+            if not openai_key:
+                logger.error("OpenAI API key not found")
+                return None
+            
+            import openai
+            client = openai.OpenAI(api_key=openai_key)
+            
+            # Create focused prompt for answer generation
+            prompt = f"""You are an expert CAT (Common Admission Test) tutor. Given this question, provide ONLY the direct answer.
+
+Question: {question_stem}
+
+Instructions:
+1. Solve this question step by step mentally
+2. Provide ONLY the final answer 
+3. For multiple choice questions: give the option letter and value (e.g., "C) 25")
+4. For numerical answers: include units if applicable (e.g., "150 km/h", "₹2000")
+5. For ratio/percentage: use proper format (e.g., "3:4", "25%")
+6. Keep the answer concise and precise
+7. Do not include any explanation or working
+
+Answer:"""
+
+            response = client.chat.completions.create(
+                model="gpt-4o",  # Use latest model for accuracy
+                messages=[{"role": "user", "content": prompt}],
+                max_tokens=100,  # Keep answer concise
+                temperature=0.1,  # Low temperature for consistent answers
+                timeout=30
+            )
+            
+            right_answer = response.choices[0].message.content.strip()
+            logger.info(f"✅ OpenAI generated right_answer: {right_answer}")
+            return right_answer
+            
+        except Exception as e:
+            logger.error(f"❌ OpenAI right_answer generation failed: {e}")
+            return None
+
+    async def _enrich_metadata_fields_only(self, question_stem: str, answer: str, 
+                                         subcategory: str, question_type: str) -> Dict[str, Any]:
+        """
+        Enrich ONLY metadata fields (difficulty, frequency, etc.) without touching admin content fields
+        """
+        try:
+            logger.info("📊 Enriching metadata fields only (protecting admin content)...")
+            
+            # Use formula-based calculations for consistent metadata
+            from formulas import (
+                calculate_difficulty_level,
+                calculate_frequency_band,
+                calculate_importance_level,
+                calculate_learning_impact
+            )
+            
+            # Calculate difficulty based on question characteristics
+            difficulty_score = calculate_difficulty_level(question_stem, subcategory)
+            difficulty_band = "Easy" if difficulty_score <= 2.0 else "Medium" if difficulty_score <= 3.5 else "Hard"
+            
+            # Calculate frequency band
+            frequency_band = calculate_frequency_band(subcategory, question_type)
+            
+            # Calculate learning impact
+            learning_impact = calculate_learning_impact(subcategory, difficulty_score)
+            
+            # Calculate importance index
+            importance_index = calculate_importance_level(subcategory, frequency_band)
+            
+            logger.info(f"📊 Metadata calculated: {difficulty_band} difficulty, {frequency_band} frequency")
+            
+            return {
+                "success": True,
+                "difficulty_score": round(difficulty_score, 2),
+                "difficulty_band": difficulty_band,
+                "frequency_band": frequency_band,
+                "learning_impact": round(learning_impact, 2),
+                "importance_index": round(importance_index, 2),
+                "metadata_source": "formula_based"
+            }
+            
+        except Exception as e:
+            logger.error(f"❌ Metadata enrichment failed: {e}")
+            return {
+                "success": False,
+                "error": str(e)
+            }
+
 
 # Usage example and testing
 async def test_enrichment():
