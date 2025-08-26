@@ -966,6 +966,27 @@ class LLMEnrichmentService:
                 if right_answer:
                     question.right_answer = right_answer
                     logger.info(f"✅ Generated right_answer: {right_answer[:50]}...")
+                    
+                    # STEP 1.1: Cross-validate right_answer with admin's answer field
+                    if question.answer:
+                        validation_result = await self._validate_answer_consistency(
+                            admin_answer=question.answer,
+                            ai_right_answer=right_answer,
+                            question_stem=question.stem
+                        )
+                        
+                        if not validation_result["matches"]:
+                            logger.warning(f"❌ Answer mismatch detected!")
+                            logger.warning(f"   Admin answer: {question.answer}")
+                            logger.warning(f"   AI right_answer: {right_answer}")
+                            logger.warning(f"   Validation reason: {validation_result['reason']}")
+                            
+                            # Deactivate question due to answer mismatch
+                            question.is_active = False
+                            logger.warning("🚫 Question deactivated due to answer mismatch")
+                        else:
+                            logger.info(f"✅ Answer validation passed: {validation_result['reason']}")
+                            question.is_active = True
             
             # STEP 2: LLM enrichment for metadata fields ONLY (not touching admin content)
             # Only enrich technical metadata fields like difficulty, frequency, etc.
