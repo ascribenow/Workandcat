@@ -1146,6 +1146,63 @@ Answer:"""
             logger.error(f"❌ OpenAI right_answer generation failed: {e}")
             return None
 
+    async def _validate_answer_consistency(self, admin_answer: str, ai_right_answer: str, question_stem: str) -> Dict[str, Any]:
+        """
+        Cross-validate AI-generated right_answer with admin-provided answer field
+        """
+        try:
+            logger.info("🔍 Validating answer consistency...")
+            
+            # Clean both answers for comparison
+            admin_clean = admin_answer.strip().lower()
+            ai_clean = ai_right_answer.strip().lower()
+            
+            # Extract numeric values if present
+            import re
+            admin_numbers = re.findall(r'\d+\.?\d*', admin_answer)
+            ai_numbers = re.findall(r'\d+\.?\d*', ai_right_answer)
+            
+            # Check various matching criteria
+            
+            # 1. Exact match (case-insensitive)
+            if admin_clean == ai_clean:
+                return {"matches": True, "reason": "Exact match"}
+            
+            # 2. Numeric value match (for mathematical answers)
+            if admin_numbers and ai_numbers:
+                admin_num = float(admin_numbers[0]) if admin_numbers[0] else 0
+                ai_num = float(ai_numbers[0]) if ai_numbers[0] else 0
+                if abs(admin_num - ai_num) < 0.01:  # Allow small floating point differences
+                    return {"matches": True, "reason": f"Numeric match: {admin_num} ≈ {ai_num}"}
+            
+            # 3. Admin answer contains AI answer or vice versa
+            if ai_clean in admin_clean or admin_clean in ai_clean:
+                return {"matches": True, "reason": "Substring match"}
+            
+            # 4. Key phrase matching (for descriptive answers)
+            admin_words = set(admin_clean.split())
+            ai_words = set(ai_clean.split())
+            common_words = admin_words.intersection(ai_words)
+            
+            # Remove common words like 'the', 'is', 'a', etc.
+            meaningful_words = common_words - {'the', 'is', 'a', 'an', 'and', 'or', 'of', 'to', 'in', 'for', 'on', 'with'}
+            
+            if len(meaningful_words) >= 2:  # At least 2 meaningful words match
+                return {"matches": True, "reason": f"Key phrase match: {meaningful_words}"}
+            
+            # 5. No match found
+            return {
+                "matches": False, 
+                "reason": f"No sufficient similarity found",
+                "admin_answer": admin_answer,
+                "ai_answer": ai_right_answer,
+                "similarity_score": len(common_words) / max(len(admin_words), len(ai_words)) if admin_words or ai_words else 0
+            }
+            
+        except Exception as e:
+            logger.error(f"❌ Answer validation failed: {e}")
+            return {"matches": False, "reason": f"Validation error: {str(e)}"}
+
     async def _enrich_metadata_fields_only(self, question_stem: str, answer: str, 
                                          subcategory: str, question_type: str) -> Dict[str, Any]:
         """
