@@ -27,7 +27,7 @@ const getBackendURL = () => {
 };
 
 const BACKEND_URL = getBackendURL();
-const API = BACKEND_URL ? `${BACKEND_URL}/api` : '/api';
+export const API = BACKEND_URL ? `${BACKEND_URL}/api` : '/api';
 
 console.log(`🔗 API Configuration: Backend URL = "${BACKEND_URL}", API = "${API}"`);
 
