@@ -3826,6 +3826,71 @@ async def enhance_questions_with_pyq_frequency(
         logger.error(f"Error in enhanced question processing: {e}")
         raise HTTPException(status_code=500, detail=f"Enhanced processing failed: {str(e)}")
 
+@api_router.post("/admin/nightly-mcq-validation")
+async def nightly_mcq_validation(
+    limit: int = 100,
+    current_user: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_async_compatible_db)
+):
+    """
+    Nightly process to validate and fix MCQ options
+    Ensures admin answer appears in exactly one MCQ option
+    """
+    try:
+        logger.info(f"🌙 Starting nightly MCQ validation (limit: {limit})")
+        
+        # Run the MCQ validation batch process
+        validation_results = await mcq_validation_service.nightly_mcq_validation_batch(limit=limit)
+        
+        return {
+            "message": "Nightly MCQ validation completed",
+            "results": validation_results,
+            "summary": {
+                "total_processed": validation_results["total_processed"],
+                "valid_questions": validation_results["valid_questions"],
+                "regenerated_questions": validation_results["regenerated_questions"],
+                "failed_questions": validation_results["failed_questions"],
+                "success_rate": f"{validation_results.get('success_rate', 0):.1f}%"
+            }
+        }
+        
+    except Exception as e:
+        logger.error(f"Error in nightly MCQ validation: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/admin/validate-single-mcq/{question_id}")
+async def validate_single_question_mcq(
+    question_id: str,
+    current_user: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_async_compatible_db)
+):
+    """
+    Validate and fix MCQ options for a single question
+    """
+    try:
+        # Get the question
+        result = await db.execute(
+            select(Question).where(Question.id == question_id)
+        )
+        question = result.scalar_one_or_none()
+        
+        if not question:
+            raise HTTPException(status_code=404, detail="Question not found")
+        
+        # Validate and fix MCQ options
+        sync_db = next(get_database())
+        validation_result = await mcq_validation_service.validate_and_fix_question(question, sync_db)
+        sync_db.close()
+        
+        return {
+            "message": f"MCQ validation completed for question {question_id}",
+            "result": validation_result
+        }
+        
+    except Exception as e:
+        logger.error(f"Error validating single question MCQ: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @api_router.post("/admin/test/enhanced-session")
 async def test_enhanced_session_logic(
     current_user: User = Depends(require_admin),
