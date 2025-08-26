@@ -28,7 +28,7 @@ import io
 from google_drive_utils import GoogleDriveImageFetcher
 
 from adaptive_session_logic import AdaptiveSessionLogic
-from enhanced_question_processor import EnhancedQuestionProcessor
+from mcq_validation_service import mcq_validation_service
 from database import (
     get_async_compatible_db, get_database, init_database, User, Question, Topic, Attempt, Mastery, Plan, PlanUnit, Session,
     PYQIngestion, PYQPaper, PYQQuestion, QuestionOption, DoubtsConversation, AsyncSession
