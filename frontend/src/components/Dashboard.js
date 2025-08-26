@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useAuth } from './AuthProvider';
+import { useAuth, API } from './AuthProvider';
 import { StudyPlanSystem } from './StudyPlanSystem';
 import { SessionSystem } from './SessionSystem';
 import { SimpleDashboard } from './SimpleDashboard';
 import PYQFilesTable from './PYQFilesTable';
-
-const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
 export const Dashboard = () => {
   const { user, logout, isAdmin } = useAuth();
