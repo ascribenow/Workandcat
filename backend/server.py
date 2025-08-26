@@ -60,7 +60,7 @@ def get_auto_enrichment_service():
         auto_enrichment_service = LLMEnrichmentService()
     return auto_enrichment_service
 mcq_generator = MCQGenerator(EMERGENT_LLM_KEY)
-enhanced_question_processor = EnhancedQuestionProcessor(llm_pipeline)  # PHASE 1: Enhanced processing
+# enhanced_question_processor = EnhancedQuestionProcessor(llm_pipeline)  # PHASE 1: Enhanced processing - REPLACED with mcq_validation_service
 study_planner = StudyPlanner()
 mastery_tracker = MasteryTracker()
 adaptive_session_logic = AdaptiveSessionLogic()  # Initialize sophisticated session logic
