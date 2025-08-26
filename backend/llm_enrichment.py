@@ -1133,26 +1133,48 @@ Answer:"""
         try:
             logger.info("📊 Enriching metadata fields only (protecting admin content)...")
             
-            # Use formula-based calculations for consistent metadata
-            from formulas import (
-                calculate_difficulty_level,
-                calculate_frequency_band,
-                calculate_importance_level,
-                calculate_learning_impact
-            )
+            # Calculate metadata based on question characteristics and heuristics
+            # Since we don't have actual performance data, use heuristic estimates
             
-            # Calculate difficulty based on question characteristics
-            difficulty_score = calculate_difficulty_level(question_stem, subcategory)
-            difficulty_band = "Easy" if difficulty_score <= 2.0 else "Medium" if difficulty_score <= 3.5 else "Hard"
+            # Estimate difficulty based on question complexity
+            question_length = len(question_stem)
+            has_numbers = any(char.isdigit() for char in question_stem)
             
-            # Calculate frequency band
-            frequency_band = calculate_frequency_band(subcategory, question_type)
+            # Heuristic difficulty calculation
+            if question_length > 200 or "calculate" in question_stem.lower() or "find" in question_stem.lower():
+                difficulty_score = 3.5  # Hard
+                difficulty_band = "Hard"
+            elif question_length > 100 or has_numbers:
+                difficulty_score = 2.5  # Medium
+                difficulty_band = "Medium"
+            else:
+                difficulty_score = 1.5  # Easy
+                difficulty_band = "Easy"
             
-            # Calculate learning impact
-            learning_impact = calculate_learning_impact(subcategory, difficulty_score)
+            # Frequency band based on subcategory
+            high_freq_categories = [
+                'Time–Speed–Distance (TSD)', 'Percentages', 'Profit–Loss–Discount (PLD)',
+                'Linear Equations', 'Triangles', 'Divisibility', 'Permutation–Combination (P&C)'
+            ]
             
-            # Calculate importance index
-            importance_index = calculate_importance_level(subcategory, frequency_band)
+            medium_freq_categories = [
+                'Time & Work', 'Ratio–Proportion–Variation', 'Averages & Alligation',
+                'Simple & Compound Interest (SI–CI)', 'Quadratic Equations', 'Circles',
+                'HCF–LCM', 'Probability'
+            ]
+            
+            if subcategory in high_freq_categories:
+                frequency_band = "High"
+                learning_impact = 80.0
+                importance_index = 90.0
+            elif subcategory in medium_freq_categories:
+                frequency_band = "Medium"
+                learning_impact = 65.0
+                importance_index = 70.0
+            else:
+                frequency_band = "Low"
+                learning_impact = 50.0
+                importance_index = 50.0
             
             logger.info(f"📊 Metadata calculated: {difficulty_band} difficulty, {frequency_band} frequency")
             
@@ -1163,7 +1185,7 @@ Answer:"""
                 "frequency_band": frequency_band,
                 "learning_impact": round(learning_impact, 2),
                 "importance_index": round(importance_index, 2),
-                "metadata_source": "formula_based"
+                "metadata_source": "heuristic_based"
             }
             
         except Exception as e:
