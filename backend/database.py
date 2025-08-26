@@ -87,6 +87,7 @@ class Question(Base):
     # Core question content
     stem = Column(Text, nullable=False)
     answer = Column(Text, nullable=False)  # canonical answer
+    right_answer = Column(Text, nullable=True)  # NEW: right answer column for additional answer tracking
     solution_approach = Column(Text, nullable=True)
     detailed_solution = Column(Text, nullable=True)
     principle_to_remember = Column(Text, nullable=True)  # NEW: Locked pedagogy field from user uploads
