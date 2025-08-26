@@ -87,6 +87,7 @@ api_router = APIRouter(prefix="/api")
 class QuestionCreateRequest(BaseModel):
     stem: str
     answer: Optional[str] = None  # Now optional since LLM can generate
+    right_answer: Optional[str] = None  # NEW: Right answer field for additional answer tracking
     solution_approach: Optional[str] = None
     detailed_solution: Optional[str] = None
     principle_to_remember: Optional[str] = None  # NEW: Locked pedagogy field
