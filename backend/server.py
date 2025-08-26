@@ -620,8 +620,7 @@ async def get_next_adaptive_question(
                 "subcategory": question.subcategory,
                 "difficulty_band": question.difficulty_band,
                 "type_of_question": question.type_of_question,
-                "answer": clean_solution_text(question.answer) if question.answer else None,
-                "right_answer": clean_solution_text(question.right_answer) if question.right_answer else None  # NEW: Right answer field
+                "answer": clean_solution_text(question.answer) if question.answer else None
             },
             "adaptive_info": {
                 "mastery_score": question_data["mastery_score"],
