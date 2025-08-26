@@ -3813,40 +3813,13 @@ async def enhance_questions_with_pyq_frequency(
 ):
     """
     PHASE 1: Enhance questions with PYQ frequency analysis during upload
+    TEMPORARILY DISABLED - enhanced_question_processor replaced with mcq_validation_service
     """
     try:
-        question_ids = request.get('question_ids', [])
-        batch_size = request.get('batch_size', 10)
-        
-        if not question_ids:
-            raise HTTPException(status_code=400, detail="No question IDs provided")
-        
-        logger.info(f"Starting PHASE 1 enhanced processing for {len(question_ids)} questions")
-        
-        # Process questions in batches
-        processing_results = []
-        for i in range(0, len(question_ids), batch_size):
-            batch = question_ids[i:i + batch_size]
-            
-            batch_result = await enhanced_question_processor.batch_process_questions(
-                batch, db
-            )
-            processing_results.append(batch_result)
-            
-            # Small delay between batches to prevent overload
-            await asyncio.sleep(1)
-        
-        # Compile results
-        total_processed = sum(r.get('processed_successfully', 0) for r in processing_results)
-        total_errors = sum(r.get('errors', 0) for r in processing_results)
-        
         return {
-            "message": f"PHASE 1 enhanced processing completed",
-            "total_questions": len(question_ids),
-            "successfully_processed": total_processed,
-            "errors": total_errors,
-            "enhancement_level": "phase_1_pyq_frequency_integration",
-            "batch_results": processing_results
+            "message": "Enhanced question processing temporarily disabled",
+            "status": "disabled",
+            "reason": "enhanced_question_processor service replaced"
         }
         
     except Exception as e:
