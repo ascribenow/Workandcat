@@ -1437,6 +1437,7 @@ async def get_next_question(
                 "options": options,
                 # Include solutions (with cleaned formatting and fallback when enrichment is missing)
                 "answer": clean_solution_text(question.answer) or options.get("A", "Answer not available"),
+                "right_answer": clean_solution_text(question.right_answer) if question.right_answer else None,  # NEW: Right answer field
                 "solution_approach": clean_solution_text(question.solution_approach) or "Solution approach will be provided after enrichment",
                 "detailed_solution": clean_solution_text(question.detailed_solution) or "Detailed solution will be provided after enrichment"
             },
