@@ -282,59 +282,141 @@ const LandingPage = () => {
                 </div>
 
                 {/* Form */}
-                <form onSubmit={showSignIn ? handleSignIn : handleSignUp}>
+                <form onSubmit={showSignIn ? handleSignIn : (showVerification ? handleVerifyAndRegister : handleSignUp)}>
                   <div className="space-y-4">
-                    {!showSignIn && (
-                      <div>
-                        <input
-                          type="text"
-                          value={name}
-                          onChange={(e) => setName(e.target.value)}
-                          placeholder="Full name"
-                          className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9ac026] focus:border-transparent transition-colors"
-                          style={{ fontFamily: 'Lato, sans-serif' }}
-                          required
-                        />
-                      </div>
+                    {/* Show verification code input when in verification step */}
+                    {!showSignIn && showVerification ? (
+                      <>
+                        <div className="text-center mb-4">
+                          <h3 className="text-lg font-semibold text-[#545454] mb-2">Verify Your Email</h3>
+                          <p className="text-sm text-gray-600">
+                            We sent a 6-digit code to <span className="font-semibold">{email}</span>
+                          </p>
+                        </div>
+                        
+                        <div>
+                          <input
+                            type="text"
+                            value={verificationCode}
+                            onChange={(e) => {
+                              const value = e.target.value.replace(/\D/g, '').slice(0, 6);
+                              setVerificationCode(value);
+                            }}
+                            placeholder="000000"
+                            className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9ac026] focus:border-transparent transition-colors text-center text-lg font-mono tracking-widest"
+                            style={{ fontFamily: 'monospace' }}
+                            maxLength="6"
+                            required
+                          />
+                          <p className="text-xs text-gray-500 mt-1 text-center">
+                            Code expires in 15 minutes
+                          </p>
+                        </div>
+
+                        <div className="text-center">
+                          {resendCountdown > 0 ? (
+                            <p className="text-sm text-gray-500">
+                              Resend code in {resendCountdown}s
+                            </p>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={handleResendCode}
+                              disabled={loading}
+                              className="text-sm text-[#9ac026] hover:text-[#8bb024] font-medium disabled:opacity-50"
+                            >
+                              Resend verification code
+                            </button>
+                          )}
+                        </div>
+
+                        <div className="text-center">
+                          <button
+                            type="button"
+                            onClick={resetSignupFlow}
+                            className="text-sm text-gray-500 hover:text-gray-700"
+                          >
+                            ← Back to signup
+                          </button>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        {/* Regular signup/signin form */}
+                        {!showSignIn && (
+                          <div>
+                            <input
+                              type="text"
+                              value={name}
+                              onChange={(e) => setName(e.target.value)}
+                              placeholder="Full name"
+                              className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9ac026] focus:border-transparent transition-colors"
+                              style={{ fontFamily: 'Lato, sans-serif' }}
+                              required
+                            />
+                          </div>
+                        )}
+                        
+                        <div>
+                          <input
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            placeholder="Email"
+                            className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9ac026] focus:border-transparent transition-colors"
+                            style={{ fontFamily: 'Lato, sans-serif' }}
+                            required
+                          />
+                        </div>
+                        
+                        <div>
+                          <input
+                            type="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            placeholder="Password"
+                            className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9ac026] focus:border-transparent transition-colors"
+                            style={{ fontFamily: 'Lato, sans-serif' }}
+                            required
+                            minLength="6"
+                          />
+                          {!showSignIn && (
+                            <p className="text-xs text-gray-500 mt-1">
+                              Password must be at least 6 characters
+                            </p>
+                          )}
+                        </div>
+                      </>
                     )}
-                    
-                    <div>
-                      <input
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="Email address"
-                        className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9ac026] focus:border-transparent transition-colors"
-                        style={{ fontFamily: 'Lato, sans-serif' }}
-                        required
-                      />
-                    </div>
-                    
-                    <div>
-                      <input
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        placeholder="Password"
-                        className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9ac026] focus:border-transparent transition-colors"
-                        style={{ fontFamily: 'Lato, sans-serif' }}
-                        required
-                      />
-                    </div>
                   </div>
 
+                  {/* Error and Success Messages */}
                   {error && (
                     <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-                      <p className="text-sm text-red-600" style={{ fontFamily: 'Lato, sans-serif' }}>{error}</p>
+                      <p className="text-red-600 text-sm">{error}</p>
+                    </div>
+                  )}
+
+                  {success && (
+                    <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                      <p className="text-green-600 text-sm">{success}</p>
                     </div>
                   )}
 
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full mt-6 bg-[#9ac026] text-white py-3 rounded-lg font-semibold hover:bg-[#8bb024] transition-colors shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full bg-[#9ac026] text-white py-3 rounded-lg font-semibold hover:bg-[#8bb024] transition-colors disabled:opacity-50 disabled:cursor-not-allowed mt-6"
+                    style={{ fontFamily: 'Lato, sans-serif' }}
                   >
-                    {loading ? 'Loading...' : 'Start My Daily-12'}
+                    {loading ? (
+                      <div className="flex items-center justify-center">
+                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                        {showSignIn ? 'Signing In...' : (showVerification ? 'Verifying...' : 'Sending Code...')}
+                      </div>
+                    ) : (
+                      showSignIn ? 'Sign In' : (showVerification ? 'Create Account' : 'Send Verification Code')
+                    )}
                   </button>
                 </form>
 
