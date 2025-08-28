@@ -3,7 +3,7 @@ import { useAuth } from './AuthProvider';
 import { useNavigate } from 'react-router-dom';
 
 const LandingPage = () => {
-  const { login, register } = useAuth();
+  const { login, sendVerificationCode, verifyEmailCode, registerWithVerification } = useAuth();
   const navigate = useNavigate();
   const [showSignIn, setShowSignIn] = useState(true);
   const [email, setEmail] = useState('');
@@ -11,6 +11,23 @@ const LandingPage = () => {
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  
+  // Two-step verification state
+  const [showVerification, setShowVerification] = useState(false);
+  const [verificationCode, setVerificationCode] = useState('');
+  const [resendCountdown, setResendCountdown] = useState(0);
+
+  // Start countdown timer for resend
+  React.useEffect(() => {
+    let timer;
+    if (resendCountdown > 0) {
+      timer = setInterval(() => {
+        setResendCountdown(prev => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [resendCountdown]);
 
   const handleSignIn = async (e) => {
     e.preventDefault();
@@ -30,14 +47,119 @@ const LandingPage = () => {
     e.preventDefault();
     setLoading(true);
     setError('');
+    setSuccess('');
+    
+    // Basic validation
+    if (!name.trim()) {
+      setError('Full name is required');
+      setLoading(false);
+      return;
+    }
+    
+    if (!email.trim()) {
+      setError('Email is required');
+      setLoading(false);
+      return;
+    }
+    
+    // Email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setError('Please enter a valid email address');
+      setLoading(false);
+      return;
+    }
+    
+    if (!password.trim()) {
+      setError('Password is required');
+      setLoading(false);
+      return;
+    }
+    
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters long');
+      setLoading(false);
+      return;
+    }
     
     try {
-      await register(name, email, password);
+      // Step 1: Send verification code
+      const result = await sendVerificationCode(email);
+      
+      if (result.success) {
+        setShowVerification(true);
+        setResendCountdown(60); // 60 second countdown
+        setSuccess('Verification code sent! Please check your email.');
+      } else {
+        setError(result.error || 'Failed to send verification code');
+      }
+    } catch (err) {
+      setError('Failed to send verification code. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyAndRegister = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    
+    if (!verificationCode.trim() || verificationCode.length !== 6) {
+      setError('Please enter a valid 6-digit verification code');
+      setLoading(false);
+      return;
+    }
+    
+    try {
+      // Step 2: Register with verification code
+      const result = await registerWithVerification(name, email, password, verificationCode);
+      
+      if (result.success) {
+        setSuccess('Account created successfully! Welcome to Twelvr!');
+        // Clear form and redirect or show success
+        setTimeout(() => {
+          // User will be automatically logged in by registerWithVerification
+          navigate('/dashboard'); // Or wherever you want to redirect
+        }, 2000);
+      } else {
+        setError(result.error || 'Invalid or expired verification code');
+      }
     } catch (err) {
       setError('Registration failed. Please try again.');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleResendCode = async () => {
+    if (resendCountdown > 0) return;
+    
+    setLoading(true);
+    setError('');
+    
+    try {
+      const result = await sendVerificationCode(email);
+      
+      if (result.success) {
+        setResendCountdown(60);
+        setSuccess('New verification code sent!');
+      } else {
+        setError(result.error || 'Failed to resend code');
+      }
+    } catch (err) {
+      setError('Failed to resend code. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const resetSignupFlow = () => {
+    setShowVerification(false);
+    setVerificationCode('');
+    setResendCountdown(0);
+    setError('');
+    setSuccess('');
   };
 
   // Function to scroll to sign-up panel
