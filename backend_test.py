@@ -194,12 +194,18 @@ class CATBackendTester:
                 message = response.get('message', '')
                 detail = response.get('detail', '')
                 
+                # Handle detail as list (Pydantic validation errors)
+                if isinstance(detail, list):
+                    detail_str = str(detail)
+                else:
+                    detail_str = str(detail) if detail else ''
+                
                 if email == "valid.email@gmail.com":
                     if response.get('access_token'):
                         valid_email_count += 1
                         print(f"   ✅ Valid email accepted: {email}")
                 else:
-                    if 'email' in (message + detail).lower() or 'validation' in (message + detail).lower():
+                    if 'email' in (message + detail_str).lower() or 'validation' in (message + detail_str).lower():
                         invalid_email_rejected_count += 1
                         print(f"   ✅ Invalid email rejected: {email}")
                     else:
