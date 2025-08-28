@@ -246,12 +246,18 @@ class CATBackendTester:
                 message = response.get('message', '')
                 detail = response.get('detail', '')
                 
+                # Handle detail as list (Pydantic validation errors)
+                if isinstance(detail, list):
+                    detail_str = str(detail)
+                else:
+                    detail_str = str(detail) if detail else ''
+                
                 if password == "SecurePass123!":
                     if access_token:
                         strong_password_accepted = True
                         print(f"   ✅ Strong password accepted: {password}")
                 elif len(password) < 6:
-                    if not access_token and ('password' in (message + detail).lower() or 'weak' in (message + detail).lower()):
+                    if not access_token and ('password' in (message + detail_str).lower() or 'weak' in (message + detail_str).lower()):
                         weak_password_rejected_count += 1
                         print(f"   ✅ Weak password rejected: {password}")
         
