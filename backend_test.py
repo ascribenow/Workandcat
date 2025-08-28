@@ -298,10 +298,16 @@ class CATBackendTester:
                 detail = response.get('detail', '')
                 access_token = response.get('access_token')
                 
-                if not access_token and ('exists' in (message + detail).lower() or 'duplicate' in (message + detail).lower() or 'already' in (message + detail).lower()):
+                # Handle detail as list (Pydantic validation errors)
+                if isinstance(detail, list):
+                    detail_str = str(detail)
+                else:
+                    detail_str = str(detail) if detail else ''
+                
+                if not access_token and ('exists' in (message + detail_str).lower() or 'duplicate' in (message + detail_str).lower() or 'already' in (message + detail_str).lower()):
                     auth_results["duplicate_email_handling"] = True
                     print("   ✅ Duplicate email properly rejected")
-                    print(f"   📊 Error message: {message or detail}")
+                    print(f"   📊 Error message: {message or detail_str}")
                 else:
                     print("   ❌ Duplicate email not properly handled")
         
