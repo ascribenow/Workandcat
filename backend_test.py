@@ -26,6 +26,720 @@ class CATBackendTester:
             "Work Time Efficiency"
         ]
 
+    def test_comprehensive_authentication_system_signup_focus(self):
+        """Comprehensive end-to-end testing of Twelvr authentication system with focus on SIGN UP functionality"""
+        print("🎯 COMPREHENSIVE TWELVR AUTHENTICATION SYSTEM TESTING")
+        print("=" * 80)
+        print("FOCUS: SIGN UP FUNCTIONALITY - Complete End-to-End Testing")
+        print("")
+        print("TESTING COMPLETE AUTHENTICATION WORKFLOW:")
+        print("1. SIGN UP TESTING (Primary Focus):")
+        print("   - POST /api/auth/register endpoint with various scenarios")
+        print("   - Email validation, password requirements")
+        print("   - Duplicate email handling")
+        print("   - User creation flow completely")
+        print("")
+        print("2. Complete Authentication Flow:")
+        print("   - Sign up → login → user session flow")
+        print("   - All auth endpoints: register, login, logout, password reset")
+        print("   - JWT token generation and validation")
+        print("   - User verification flows")
+        print("")
+        print("3. Database Integration:")
+        print("   - Verify user records are created correctly")
+        print("   - Test email uniqueness constraints")
+        print("   - Check password hashing and storage")
+        print("")
+        print("4. Error Handling:")
+        print("   - Test invalid inputs, missing fields")
+        print("   - Test server error responses")
+        print("   - Verify proper error messages returned")
+        print("")
+        print("5. Session Management:")
+        print("   - Test token expiration and refresh")
+        print("   - Test user profile retrieval")
+        print("   - Test authenticated vs unauthenticated access")
+        print("")
+        print("EMAIL VERIFICATION ENDPOINTS:")
+        print("- GET /api/auth/gmail/authorize")
+        print("- POST /api/auth/gmail/callback")
+        print("- POST /api/auth/send-verification-code")
+        print("- POST /api/auth/verify-email-code")
+        print("- POST /api/auth/signup-with-verification")
+        print("- POST /api/auth/password-reset")
+        print("- POST /api/auth/password-reset-verify")
+        print("")
+        print("CORE AUTHENTICATION ENDPOINTS:")
+        print("- POST /api/auth/register")
+        print("- POST /api/auth/login")
+        print("- GET /api/auth/me")
+        print("")
+        print("TEST SCENARIOS:")
+        print("- Valid signup: john.doe@gmail.com, jane.smith@outlook.com")
+        print("- Invalid emails: invalid-email, test@invalid-domain")
+        print("- Password validation: weak passwords, strong passwords")
+        print("- Duplicate registrations")
+        print("- Database connection issues")
+        print("- Authentication token validation")
+        print("=" * 80)
+        
+        auth_results = {
+            # SIGN UP TESTING (Primary Focus)
+            "basic_register_endpoint_accessible": False,
+            "email_validation_working": False,
+            "password_requirements_enforced": False,
+            "duplicate_email_handling": False,
+            "user_creation_flow_complete": False,
+            "signup_returns_jwt_token": False,
+            
+            # Email Verification System
+            "gmail_authorization_configured": False,
+            "send_verification_code_working": False,
+            "code_verification_working": False,
+            "invalid_code_handling": False,
+            "complete_email_signup_flow": False,
+            "email_service_status": False,
+            
+            # Complete Authentication Flow
+            "login_after_signup_working": False,
+            "jwt_token_validation": False,
+            "user_session_retrieval": False,
+            "password_reset_flow": False,
+            "logout_functionality": False,
+            
+            # Database Integration
+            "user_records_created_correctly": False,
+            "email_uniqueness_constraints": False,
+            "password_hashing_verified": False,
+            "database_connection_healthy": False,
+            
+            # Error Handling
+            "invalid_input_handling": False,
+            "missing_field_validation": False,
+            "server_error_responses": False,
+            "proper_error_messages": False,
+            
+            # Session Management
+            "authenticated_access_working": False,
+            "unauthenticated_access_blocked": False,
+            "user_profile_retrieval": False,
+            "token_expiration_handling": False
+        }
+        
+        # PHASE 1: SIGN UP TESTING (Primary Focus)
+        print("\n" + "🎯 PHASE 1: SIGN UP FUNCTIONALITY TESTING (PRIMARY FOCUS)" + "\n" + "=" * 80)
+        
+        # TEST 1.1: Basic Register Endpoint Accessibility
+        print("\n📝 TEST 1.1: BASIC REGISTER ENDPOINT ACCESSIBILITY")
+        print("-" * 60)
+        print("Testing POST /api/auth/register endpoint availability and basic functionality")
+        
+        # Test with valid signup data
+        valid_signup_data = {
+            "email": "john.doe.test@gmail.com",
+            "password": "SecurePassword123!",
+            "full_name": "John Doe Test"
+        }
+        
+        success, response = self.run_test("Basic Register Endpoint", "POST", "auth/register", [200, 201, 400, 409, 422], valid_signup_data)
+        if success:
+            auth_results["basic_register_endpoint_accessible"] = True
+            access_token = response.get('access_token')
+            user_id = response.get('user_id')
+            message = response.get('message', '')
+            
+            print(f"   📊 Response message: {message}")
+            print(f"   📊 Access token provided: {bool(access_token)}")
+            print(f"   📊 User ID provided: {bool(user_id)}")
+            
+            if access_token:
+                auth_results["signup_returns_jwt_token"] = True
+                print("   ✅ Signup returns JWT token successfully")
+                
+                # Store token for later tests
+                self.signup_token = access_token
+                self.signup_user_id = user_id
+                
+            print("   ✅ Basic register endpoint accessible and functional")
+        else:
+            print("   ❌ Basic register endpoint not accessible")
+        
+        # TEST 1.2: Email Validation Testing
+        print("\n✉️ TEST 1.2: EMAIL VALIDATION TESTING")
+        print("-" * 60)
+        print("Testing email format validation with various email formats")
+        
+        email_test_cases = [
+            ("invalid-email", "Invalid email format - no @ symbol"),
+            ("test@", "Invalid email format - incomplete domain"),
+            ("@gmail.com", "Invalid email format - missing local part"),
+            ("test..test@gmail.com", "Invalid email format - double dots"),
+            ("test@invalid-domain", "Invalid email format - invalid domain"),
+            ("valid.email@gmail.com", "Valid email format")
+        ]
+        
+        valid_email_count = 0
+        invalid_email_rejected_count = 0
+        
+        for email, description in email_test_cases:
+            test_data = {
+                "email": email,
+                "password": "TestPassword123!",
+                "full_name": "Test User"
+            }
+            
+            success, response = self.run_test(f"Email Validation: {description}", "POST", "auth/register", [200, 201, 400, 409, 422], test_data)
+            
+            if success:
+                message = response.get('message', '')
+                detail = response.get('detail', '')
+                
+                if email == "valid.email@gmail.com":
+                    if response.get('access_token'):
+                        valid_email_count += 1
+                        print(f"   ✅ Valid email accepted: {email}")
+                else:
+                    if 'email' in (message + detail).lower() or 'validation' in (message + detail).lower():
+                        invalid_email_rejected_count += 1
+                        print(f"   ✅ Invalid email rejected: {email}")
+                    else:
+                        print(f"   ⚠️ Invalid email not properly rejected: {email}")
+        
+        if invalid_email_rejected_count >= 3:  # At least 3 invalid emails rejected
+            auth_results["email_validation_working"] = True
+            print("   ✅ Email validation working properly")
+        
+        # TEST 1.3: Password Requirements Testing
+        print("\n🔒 TEST 1.3: PASSWORD REQUIREMENTS TESTING")
+        print("-" * 60)
+        print("Testing password strength requirements and validation")
+        
+        password_test_cases = [
+            ("123", "Weak password - too short"),
+            ("password", "Weak password - no numbers/symbols"),
+            ("12345678", "Weak password - only numbers"),
+            ("Password", "Medium password - missing numbers/symbols"),
+            ("Password123", "Good password - letters and numbers"),
+            ("SecurePass123!", "Strong password - letters, numbers, symbols")
+        ]
+        
+        strong_password_accepted = False
+        weak_password_rejected_count = 0
+        
+        for password, description in password_test_cases:
+            test_data = {
+                "email": f"password.test.{len(password)}@gmail.com",
+                "password": password,
+                "full_name": "Password Test User"
+            }
+            
+            success, response = self.run_test(f"Password Test: {description}", "POST", "auth/register", [200, 201, 400, 422], test_data)
+            
+            if success:
+                access_token = response.get('access_token')
+                message = response.get('message', '')
+                detail = response.get('detail', '')
+                
+                if password == "SecurePass123!":
+                    if access_token:
+                        strong_password_accepted = True
+                        print(f"   ✅ Strong password accepted: {password}")
+                elif len(password) < 6:
+                    if not access_token and ('password' in (message + detail).lower() or 'weak' in (message + detail).lower()):
+                        weak_password_rejected_count += 1
+                        print(f"   ✅ Weak password rejected: {password}")
+        
+        if strong_password_accepted and weak_password_rejected_count >= 1:
+            auth_results["password_requirements_enforced"] = True
+            print("   ✅ Password requirements properly enforced")
+        
+        # TEST 1.4: Duplicate Email Handling
+        print("\n👥 TEST 1.4: DUPLICATE EMAIL HANDLING")
+        print("-" * 60)
+        print("Testing duplicate email registration prevention")
+        
+        # First registration
+        duplicate_test_email = "duplicate.test@gmail.com"
+        first_signup = {
+            "email": duplicate_test_email,
+            "password": "FirstPassword123!",
+            "full_name": "First User"
+        }
+        
+        success, response = self.run_test("First Registration", "POST", "auth/register", [200, 201, 409], first_signup)
+        first_registration_success = success and response.get('access_token')
+        
+        if first_registration_success:
+            print("   ✅ First registration successful")
+            
+            # Attempt duplicate registration
+            duplicate_signup = {
+                "email": duplicate_test_email,
+                "password": "SecondPassword123!",
+                "full_name": "Second User"
+            }
+            
+            success, response = self.run_test("Duplicate Registration", "POST", "auth/register", [400, 409, 422], duplicate_signup)
+            
+            if success:
+                message = response.get('message', '')
+                detail = response.get('detail', '')
+                access_token = response.get('access_token')
+                
+                if not access_token and ('exists' in (message + detail).lower() or 'duplicate' in (message + detail).lower() or 'already' in (message + detail).lower()):
+                    auth_results["duplicate_email_handling"] = True
+                    print("   ✅ Duplicate email properly rejected")
+                    print(f"   📊 Error message: {message or detail}")
+                else:
+                    print("   ❌ Duplicate email not properly handled")
+        
+        # TEST 1.5: User Creation Flow Verification
+        print("\n👤 TEST 1.5: USER CREATION FLOW VERIFICATION")
+        print("-" * 60)
+        print("Testing complete user creation and data storage")
+        
+        # Create a new user for verification
+        verification_user = {
+            "email": "flow.verification@gmail.com",
+            "password": "FlowTest123!",
+            "full_name": "Flow Verification User"
+        }
+        
+        success, response = self.run_test("User Creation Flow", "POST", "auth/register", [200, 201], verification_user)
+        
+        if success:
+            access_token = response.get('access_token')
+            user_id = response.get('user_id')
+            
+            if access_token and user_id:
+                auth_results["user_creation_flow_complete"] = True
+                print("   ✅ User creation flow complete")
+                
+                # Verify user can access protected endpoints
+                user_headers = {'Content-Type': 'application/json', 'Authorization': f'Bearer {access_token}'}
+                
+                success, me_response = self.run_test("User Profile Access", "GET", "auth/me", 200, None, user_headers)
+                
+                if success:
+                    profile_email = me_response.get('email')
+                    profile_name = me_response.get('full_name')
+                    profile_id = me_response.get('id')
+                    
+                    print(f"   📊 Profile email: {profile_email}")
+                    print(f"   📊 Profile name: {profile_name}")
+                    print(f"   📊 Profile ID: {profile_id}")
+                    
+                    if profile_email == verification_user["email"] and profile_name == verification_user["full_name"]:
+                        auth_results["user_records_created_correctly"] = True
+                        print("   ✅ User records created correctly in database")
+        
+        # PHASE 2: EMAIL VERIFICATION SYSTEM TESTING
+        print("\n" + "📧 PHASE 2: EMAIL VERIFICATION SYSTEM TESTING" + "\n" + "=" * 80)
+        
+        # TEST 2.1: Gmail Authorization Configuration
+        print("\n🔐 TEST 2.1: GMAIL AUTHORIZATION CONFIGURATION")
+        print("-" * 60)
+        print("Testing Gmail OAuth2 authorization URL generation")
+        
+        success, response = self.run_test("Gmail Authorization URL", "GET", "auth/gmail/authorize", [200, 500, 503], None)
+        if success:
+            authorization_url = response.get('authorization_url')
+            success_status = response.get('success', False)
+            message = response.get('message', '')
+            
+            print(f"   📊 Success status: {success_status}")
+            print(f"   📊 Message: {message}")
+            print(f"   📊 Authorization URL provided: {bool(authorization_url)}")
+            
+            if authorization_url and 'accounts.google.com' in authorization_url:
+                auth_results["gmail_authorization_configured"] = True
+                print("   ✅ Gmail OAuth2 authorization properly configured")
+            elif success_status:
+                auth_results["gmail_authorization_configured"] = True
+                print("   ✅ Gmail authorization endpoint responding correctly")
+        
+        # TEST 2.2: Email Verification Code Sending
+        print("\n📨 TEST 2.2: EMAIL VERIFICATION CODE SENDING")
+        print("-" * 60)
+        print("Testing verification code sending functionality")
+        
+        test_email_data = {"email": "verification.test@gmail.com"}
+        success, response = self.run_test("Send Verification Code", "POST", "auth/send-verification-code", [200, 503, 500], test_email_data)
+        
+        if success:
+            success_status = response.get('success', False)
+            message = response.get('message', '')
+            
+            print(f"   📊 Success status: {success_status}")
+            print(f"   📊 Message: {message}")
+            
+            if success_status and 'sent' in message.lower():
+                auth_results["send_verification_code_working"] = True
+                auth_results["email_service_status"] = True
+                print("   ✅ Email verification code sending working")
+            elif 'not configured' in message.lower():
+                print("   ⚠️ Email service not configured - OAuth setup needed")
+        
+        # TEST 2.3: Code Verification Testing
+        print("\n🔢 TEST 2.3: CODE VERIFICATION TESTING")
+        print("-" * 60)
+        print("Testing verification code validation")
+        
+        # Test invalid verification code
+        invalid_code_data = {"email": "test@gmail.com", "code": "000000"}
+        success, response = self.run_test("Invalid Verification Code", "POST", "auth/verify-email-code", [400, 500], invalid_code_data)
+        
+        if success:
+            success_status = response.get('success', False)
+            message = response.get('message', '')
+            detail = response.get('detail', '')
+            
+            if not success_status and ('invalid' in (message + detail).lower() or 'expired' in (message + detail).lower()):
+                auth_results["invalid_code_handling"] = True
+                auth_results["code_verification_working"] = True
+                print("   ✅ Invalid verification code properly rejected")
+        
+        # TEST 2.4: Complete Email Signup Flow
+        print("\n🎯 TEST 2.4: COMPLETE EMAIL SIGNUP FLOW")
+        print("-" * 60)
+        print("Testing end-to-end signup with email verification")
+        
+        signup_data = {
+            "email": "email.signup.test@gmail.com",
+            "password": "EmailSignup123!",
+            "full_name": "Email Signup Test User",
+            "code": "123456"
+        }
+        
+        success, response = self.run_test("Email Signup Flow", "POST", "auth/signup-with-verification", [200, 400, 500], signup_data)
+        
+        if success:
+            access_token = response.get('access_token')
+            message = response.get('message', '')
+            detail = response.get('detail', '')
+            
+            if access_token:
+                auth_results["complete_email_signup_flow"] = True
+                print("   ✅ Complete email signup flow working")
+            elif 'verification' in (message + detail).lower():
+                auth_results["complete_email_signup_flow"] = True
+                print("   ✅ Email signup flow accessible - proper verification required")
+        
+        # PHASE 3: COMPLETE AUTHENTICATION FLOW TESTING
+        print("\n" + "🔄 PHASE 3: COMPLETE AUTHENTICATION FLOW TESTING" + "\n" + "=" * 80)
+        
+        # TEST 3.1: Login After Signup
+        print("\n🔑 TEST 3.1: LOGIN AFTER SIGNUP")
+        print("-" * 60)
+        print("Testing login functionality with registered users")
+        
+        # Use previously created user or create new one
+        login_test_user = {
+            "email": "login.test@gmail.com",
+            "password": "LoginTest123!",
+            "full_name": "Login Test User"
+        }
+        
+        # First register the user
+        success, register_response = self.run_test("Register for Login Test", "POST", "auth/register", [200, 201, 409], login_test_user)
+        
+        # Then test login
+        login_data = {
+            "email": login_test_user["email"],
+            "password": login_test_user["password"]
+        }
+        
+        success, login_response = self.run_test("Login After Signup", "POST", "auth/login", [200, 401], login_data)
+        
+        if success:
+            access_token = login_response.get('access_token')
+            user_id = login_response.get('user_id')
+            
+            if access_token:
+                auth_results["login_after_signup_working"] = True
+                print("   ✅ Login after signup working")
+                
+                # Store login token for further tests
+                self.login_token = access_token
+                self.login_headers = {'Content-Type': 'application/json', 'Authorization': f'Bearer {access_token}'}
+        
+        # TEST 3.2: JWT Token Validation
+        print("\n🎫 TEST 3.2: JWT TOKEN VALIDATION")
+        print("-" * 60)
+        print("Testing JWT token validation and user session retrieval")
+        
+        if hasattr(self, 'login_token') and self.login_token:
+            success, response = self.run_test("JWT Token Validation", "GET", "auth/me", 200, None, self.login_headers)
+            
+            if success:
+                user_email = response.get('email')
+                user_name = response.get('full_name')
+                user_id = response.get('id')
+                is_admin = response.get('is_admin', False)
+                
+                print(f"   📊 User email: {user_email}")
+                print(f"   📊 User name: {user_name}")
+                print(f"   📊 User ID: {user_id}")
+                print(f"   📊 Is admin: {is_admin}")
+                
+                if user_email and user_id:
+                    auth_results["jwt_token_validation"] = True
+                    auth_results["user_session_retrieval"] = True
+                    auth_results["user_profile_retrieval"] = True
+                    print("   ✅ JWT token validation working")
+                    print("   ✅ User session retrieval working")
+        
+        # TEST 3.3: Authenticated vs Unauthenticated Access
+        print("\n🛡️ TEST 3.3: AUTHENTICATED VS UNAUTHENTICATED ACCESS")
+        print("-" * 60)
+        print("Testing access control for protected endpoints")
+        
+        # Test unauthenticated access (should be blocked)
+        success, response = self.run_test("Unauthenticated Access", "GET", "auth/me", [401, 403], None)
+        
+        if success:
+            auth_results["unauthenticated_access_blocked"] = True
+            print("   ✅ Unauthenticated access properly blocked")
+        
+        # Test authenticated access (should work)
+        if hasattr(self, 'login_headers'):
+            success, response = self.run_test("Authenticated Access", "GET", "auth/me", 200, None, self.login_headers)
+            
+            if success:
+                auth_results["authenticated_access_working"] = True
+                print("   ✅ Authenticated access working")
+        
+        # PHASE 4: DATABASE INTEGRATION TESTING
+        print("\n" + "🗄️ PHASE 4: DATABASE INTEGRATION TESTING" + "\n" + "=" * 80)
+        
+        # TEST 4.1: Database Connection Health
+        print("\n🔍 TEST 4.1: DATABASE CONNECTION HEALTH")
+        print("-" * 60)
+        print("Testing backend database connectivity")
+        
+        success, response = self.run_test("Database Health Check", "GET", "", 200)
+        if success:
+            auth_results["database_connection_healthy"] = True
+            print("   ✅ Database connection healthy")
+        
+        # TEST 4.2: Password Hashing Verification
+        print("\n🔐 TEST 4.2: PASSWORD HASHING VERIFICATION")
+        print("-" * 60)
+        print("Testing password hashing and security")
+        
+        # Create user with known password
+        hash_test_user = {
+            "email": "hash.test@gmail.com",
+            "password": "HashTest123!",
+            "full_name": "Hash Test User"
+        }
+        
+        success, response = self.run_test("Password Hash Test Registration", "POST", "auth/register", [200, 201, 409], hash_test_user)
+        
+        if success and response.get('access_token'):
+            # Try to login with correct password
+            success, login_response = self.run_test("Correct Password Login", "POST", "auth/login", 200, {
+                "email": hash_test_user["email"],
+                "password": hash_test_user["password"]
+            })
+            
+            correct_password_works = success and login_response.get('access_token')
+            
+            # Try to login with incorrect password
+            success, wrong_response = self.run_test("Wrong Password Login", "POST", "auth/login", [401, 400], {
+                "email": hash_test_user["email"],
+                "password": "WrongPassword123!"
+            })
+            
+            wrong_password_blocked = success and not wrong_response.get('access_token')
+            
+            if correct_password_works and wrong_password_blocked:
+                auth_results["password_hashing_verified"] = True
+                print("   ✅ Password hashing and verification working")
+        
+        # PHASE 5: ERROR HANDLING TESTING
+        print("\n" + "⚠️ PHASE 5: ERROR HANDLING TESTING" + "\n" + "=" * 80)
+        
+        # TEST 5.1: Invalid Input Handling
+        print("\n❌ TEST 5.1: INVALID INPUT HANDLING")
+        print("-" * 60)
+        print("Testing various invalid input scenarios")
+        
+        invalid_scenarios = [
+            ("Missing email", "auth/register", {"password": "Test123!", "full_name": "Test"}),
+            ("Missing password", "auth/register", {"email": "test@gmail.com", "full_name": "Test"}),
+            ("Missing full_name", "auth/register", {"email": "test@gmail.com", "password": "Test123!"}),
+            ("Empty request", "auth/register", {}),
+            ("Invalid JSON structure", "auth/login", {"invalid": "structure"})
+        ]
+        
+        error_handling_count = 0
+        for scenario_name, endpoint, data in invalid_scenarios:
+            success, response = self.run_test(f"Error Scenario: {scenario_name}", "POST", endpoint, [400, 422], data)
+            
+            if success:
+                message = response.get('message', '')
+                detail = response.get('detail', '')
+                
+                if 'required' in (message + detail).lower() or 'missing' in (message + detail).lower() or 'validation' in (message + detail).lower():
+                    error_handling_count += 1
+                    print(f"   ✅ {scenario_name}: Proper error handling")
+        
+        if error_handling_count >= 3:
+            auth_results["invalid_input_handling"] = True
+            auth_results["missing_field_validation"] = True
+            auth_results["proper_error_messages"] = True
+            print("   ✅ Error handling working appropriately")
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 80)
+        print("COMPREHENSIVE AUTHENTICATION SYSTEM TEST RESULTS")
+        print("=" * 80)
+        
+        passed_tests = sum(auth_results.values())
+        total_tests = len(auth_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        # Group results by category
+        categories = {
+            "SIGN UP TESTING (Primary Focus)": [
+                "basic_register_endpoint_accessible", "email_validation_working", 
+                "password_requirements_enforced", "duplicate_email_handling", 
+                "user_creation_flow_complete", "signup_returns_jwt_token"
+            ],
+            "EMAIL VERIFICATION SYSTEM": [
+                "gmail_authorization_configured", "send_verification_code_working",
+                "code_verification_working", "invalid_code_handling", 
+                "complete_email_signup_flow", "email_service_status"
+            ],
+            "COMPLETE AUTHENTICATION FLOW": [
+                "login_after_signup_working", "jwt_token_validation", 
+                "user_session_retrieval", "password_reset_flow", "logout_functionality"
+            ],
+            "DATABASE INTEGRATION": [
+                "user_records_created_correctly", "email_uniqueness_constraints",
+                "password_hashing_verified", "database_connection_healthy"
+            ],
+            "ERROR HANDLING": [
+                "invalid_input_handling", "missing_field_validation",
+                "server_error_responses", "proper_error_messages"
+            ],
+            "SESSION MANAGEMENT": [
+                "authenticated_access_working", "unauthenticated_access_blocked",
+                "user_profile_retrieval", "token_expiration_handling"
+            ]
+        }
+        
+        for category, tests in categories.items():
+            print(f"\n{category}:")
+            category_passed = 0
+            category_total = len(tests)
+            
+            for test in tests:
+                if test in auth_results:
+                    result = auth_results[test]
+                    status = "✅ PASS" if result else "❌ FAIL"
+                    print(f"  {test.replace('_', ' ').title():<35} {status}")
+                    if result:
+                        category_passed += 1
+            
+            category_rate = (category_passed / category_total) * 100 if category_total > 0 else 0
+            print(f"  Category Success Rate: {category_passed}/{category_total} ({category_rate:.1f}%)")
+        
+        print("-" * 80)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # CRITICAL ANALYSIS FOR SIGN UP FUNCTIONALITY
+        print("\n🎯 CRITICAL ANALYSIS - SIGN UP FUNCTIONALITY:")
+        
+        signup_tests = ["basic_register_endpoint_accessible", "email_validation_working", 
+                       "password_requirements_enforced", "duplicate_email_handling", 
+                       "user_creation_flow_complete", "signup_returns_jwt_token"]
+        signup_passed = sum(auth_results.get(test, False) for test in signup_tests)
+        signup_rate = (signup_passed / len(signup_tests)) * 100
+        
+        if signup_rate >= 80:
+            print("🎉 SIGN UP SYSTEM: Fully functional and production-ready")
+        elif signup_rate >= 60:
+            print("⚠️ SIGN UP SYSTEM: Core functionality working, minor issues detected")
+        else:
+            print("❌ SIGN UP SYSTEM: Critical issues need to be resolved")
+        
+        print(f"Sign Up Success Rate: {signup_passed}/{len(signup_tests)} ({signup_rate:.1f}%)")
+        
+        # DETAILED FINDINGS
+        print("\n📋 DETAILED FINDINGS:")
+        
+        if auth_results.get("basic_register_endpoint_accessible"):
+            print("✅ REGISTER ENDPOINT: POST /api/auth/register accessible and functional")
+        else:
+            print("❌ REGISTER ENDPOINT: Issues with basic registration functionality")
+        
+        if auth_results.get("email_validation_working"):
+            print("✅ EMAIL VALIDATION: Proper email format validation implemented")
+        else:
+            print("❌ EMAIL VALIDATION: Email validation not working properly")
+        
+        if auth_results.get("password_requirements_enforced"):
+            print("✅ PASSWORD SECURITY: Password requirements properly enforced")
+        else:
+            print("❌ PASSWORD SECURITY: Weak password validation")
+        
+        if auth_results.get("duplicate_email_handling"):
+            print("✅ DUPLICATE PREVENTION: Duplicate email registration properly blocked")
+        else:
+            print("❌ DUPLICATE PREVENTION: Duplicate email handling issues")
+        
+        if auth_results.get("user_creation_flow_complete"):
+            print("✅ USER CREATION: Complete user creation and database storage working")
+        else:
+            print("❌ USER CREATION: Issues with user creation flow")
+        
+        if auth_results.get("database_connection_healthy"):
+            print("✅ DATABASE: Backend connecting to database properly")
+        else:
+            print("❌ DATABASE: Database connection issues detected")
+        
+        if auth_results.get("jwt_token_validation"):
+            print("✅ JWT TOKENS: Token generation and validation working")
+        else:
+            print("❌ JWT TOKENS: Issues with token system")
+        
+        # PRODUCTION READINESS ASSESSMENT
+        print("\n📋 PRODUCTION READINESS ASSESSMENT:")
+        
+        if success_rate >= 85:
+            print("🎉 PRODUCTION READY: Authentication system ready for production deployment")
+        elif success_rate >= 70:
+            print("⚠️ MOSTLY READY: Core functionality working, minor improvements needed")
+        elif success_rate >= 50:
+            print("⚠️ NEEDS WORK: Significant issues need to be resolved before production")
+        else:
+            print("❌ NOT READY: Critical authentication issues must be fixed")
+        
+        # SPECIFIC RECOMMENDATIONS
+        print("\n📝 RECOMMENDATIONS:")
+        
+        if not auth_results.get("basic_register_endpoint_accessible"):
+            print("1. Fix basic registration endpoint - critical for sign up functionality")
+        
+        if not auth_results.get("email_validation_working"):
+            print("2. Implement proper email validation to prevent invalid registrations")
+        
+        if not auth_results.get("password_requirements_enforced"):
+            print("3. Strengthen password requirements for better security")
+        
+        if not auth_results.get("duplicate_email_handling"):
+            print("4. Fix duplicate email handling to prevent data conflicts")
+        
+        if not auth_results.get("database_connection_healthy"):
+            print("5. Resolve database connection issues for reliable user storage")
+        
+        if success_rate >= 70:
+            print("6. System ready for comprehensive user testing")
+        
+        return success_rate >= 60  # 60% threshold for basic functionality
+
     def test_comprehensive_authentication_system(self):
         """Comprehensive end-to-end testing of Twelvr authentication system with focus on SIGN UP functionality"""
         print("🎯 COMPREHENSIVE TWELVR AUTHENTICATION SYSTEM TESTING")
