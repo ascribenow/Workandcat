@@ -205,6 +205,35 @@ def clean_solution_text(text: str) -> str:
     
     return cleaned
 
+async def process_question_at_upload_time(question: Question, db: AsyncSession) -> Dict[str, Any]:
+    """
+    Process question at upload time - generate right_answer and validate MCQ options
+    """
+    try:
+        # Convert AsyncSession to sync session for mcq_validation_service
+        from database import SessionLocal
+        sync_db = SessionLocal()
+        
+        try:
+            # Use MCQ validation service to validate and fix question
+            validation_result = await mcq_validation_service.validate_and_fix_question(question, sync_db)
+            
+            return {
+                "success": True,
+                "validation_result": validation_result,
+                "message": "Upload-time processing completed"
+            }
+        finally:
+            sync_db.close()
+            
+    except Exception as e:
+        logger.error(f"Upload-time processing failed for question {question.id}: {e}")
+        return {
+            "success": False,
+            "error": str(e),
+            "message": "Upload-time processing failed"
+        }
+
 # Core API Routes
 
 @api_router.get("/")
