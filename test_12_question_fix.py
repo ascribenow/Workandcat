@@ -11,7 +11,7 @@ from datetime import datetime
 
 class Simple12QuestionTester:
     def __init__(self):
-        self.base_url = "https://continue-twelvr.preview.emergentagent.com/api"
+        self.base_url = "https://adaptive-cat.preview.emergentagent.com/api"
         self.admin_token = None
         self.session_id = None
         

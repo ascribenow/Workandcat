@@ -6,7 +6,7 @@ import time
 import os
 
 class PYQBackendTester:
-    def __init__(self, base_url="https://continue-twelvr.preview.emergentagent.com/api"):
+    def __init__(self, base_url="https://adaptive-cat.preview.emergentagent.com/api"):
         self.base_url = base_url
         self.admin_user = None
         self.admin_token = None
