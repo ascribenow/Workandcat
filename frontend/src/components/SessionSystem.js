@@ -315,15 +315,6 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
           <p className="text-base mb-6" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
             Twelvr is compiling your perfect session.
           </p>
-          <button 
-            onClick={() => window.location.reload()}
-            className="px-6 py-3 text-white rounded-lg font-semibold transition-colors"
-            style={{ backgroundColor: '#9ac026', fontFamily: 'Lato, sans-serif' }}
-            onMouseOver={(e) => e.target.style.backgroundColor = '#8bb024'}
-            onMouseOut={(e) => e.target.style.backgroundColor = '#9ac026'}
-          >
-            Start New Session
-          </button>
         </div>
       </div>
     );
