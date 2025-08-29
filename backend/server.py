@@ -889,7 +889,11 @@ async def create_question(
         db.add(question)
         await db.commit()
         
-        # Queue enrichment as background task
+        # UPLOAD-TIME PROCESSING: Generate right_answer and validate MCQ options
+        await db.refresh(question)
+        upload_processing_result = await process_question_at_upload_time(question, db)
+        
+        # Queue enrichment as background task (metadata only)
         background_tasks.add_task(
             enrich_question_background,
             str(question.id),
@@ -898,9 +902,10 @@ async def create_question(
         )
         
         return {
-            "message": "Question created and queued for enrichment",
+            "message": "Question created and processed",
             "question_id": str(question.id),
-            "status": "enrichment_queued"
+            "status": "processed" if upload_processing_result["success"] else "processing_partial",
+            "upload_processing": upload_processing_result
         }
         
     except Exception as e:
