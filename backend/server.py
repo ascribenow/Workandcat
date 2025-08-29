@@ -210,19 +210,66 @@ async def process_question_at_upload_time(question: Question, db: AsyncSession) 
     Process question at upload time - generate right_answer and validate MCQ options
     """
     try:
-        # Convert AsyncSession to sync session for mcq_validation_service
+        # Convert AsyncSession to sync session for processing
         from database import SessionLocal
+        from llm_enrichment import LLMEnrichmentService
         sync_db = SessionLocal()
         
         try:
-            # Use MCQ validation service to validate and fix question
-            validation_result = await mcq_validation_service.validate_and_fix_question(question, sync_db)
+            results = {
+                "right_answer_generated": False,
+                "mcq_validated": False,
+                "question_active": True
+            }
+            
+            # STEP 1: Generate right_answer using OpenAI (UPLOAD TIME ONLY)
+            if not question.right_answer and question.stem:
+                logger.info(f"🧠 Upload-time: Generating right_answer for question {question.id}")
+                
+                enrichment_service = LLMEnrichmentService()
+                right_answer = await enrichment_service._generate_right_answer_with_openai(question.stem)
+                
+                if right_answer:
+                    question.right_answer = right_answer
+                    results["right_answer_generated"] = True
+                    logger.info(f"✅ Generated right_answer: {right_answer[:50]}...")
+                    
+                    # STEP 1.1: Cross-validate right_answer with admin's answer field
+                    if question.answer:
+                        validation_result = await enrichment_service._validate_answer_consistency(
+                            admin_answer=question.answer,
+                            ai_right_answer=right_answer,
+                            question_stem=question.stem
+                        )
+                        
+                        if not validation_result["matches"]:
+                            logger.warning(f"❌ Upload-time answer mismatch for question {question.id}")
+                            logger.warning(f"   Admin answer: {question.answer}")
+                            logger.warning(f"   AI right_answer: {right_answer}")
+                            
+                            # Deactivate question due to answer mismatch
+                            question.is_active = False
+                            results["question_active"] = False
+                            logger.warning("🚫 Question deactivated due to answer mismatch")
+                        else:
+                            logger.info(f"✅ Upload-time answer validation passed")
+                            question.is_active = True
+            
+            # STEP 2: MCQ Validation and fixing (UPLOAD TIME ONLY)
+            mcq_result = await mcq_validation_service.validate_and_fix_question(question, sync_db)
+            results["mcq_validated"] = mcq_result.get("action") != "error"
+            
+            # Save changes
+            await db.commit()
+            await db.refresh(question)
             
             return {
                 "success": True,
-                "validation_result": validation_result,
+                "results": results,
+                "mcq_processing": mcq_result,
                 "message": "Upload-time processing completed"
             }
+            
         finally:
             sync_db.close()
             
