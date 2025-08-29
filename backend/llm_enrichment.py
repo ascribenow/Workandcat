@@ -951,44 +951,16 @@ class LLMEnrichmentService:
     
     async def enrich_question_automatically(self, question: Question, db: Session) -> Dict[str, Any]:
         """
-        REVISED ENRICHMENT FLOW:
+        REVISED ENRICHMENT FLOW - UPLOAD TIME ONLY:
         - Admin fields (stem, solution_approach, detailed_solution, principle_to_remember, answer, image_url) are PROTECTED
         - LLMs only enrich metadata fields (difficulty, frequency, etc.)
-        - OpenAI specifically generates the 'right_answer' field
+        - NO real-time right_answer generation (moved to upload time only)
+        - NO real-time MCQ validation (moved to upload time only)
         """
         try:
-            logger.info(f"🔄 Auto-enriching question with PROTECTED admin fields: {question.stem[:60]}...")
+            logger.info(f"🔄 Auto-enriching question metadata only: {question.stem[:60]}...")
             
-            # STEP 1: Generate right_answer using OpenAI (NEW)
-            if not question.right_answer and question.stem:
-                logger.info("🧠 Generating right_answer using OpenAI...")
-                right_answer = await self._generate_right_answer_with_openai(question.stem)
-                if right_answer:
-                    question.right_answer = right_answer
-                    logger.info(f"✅ Generated right_answer: {right_answer[:50]}...")
-                    
-                    # STEP 1.1: Cross-validate right_answer with admin's answer field
-                    if question.answer:
-                        validation_result = await self._validate_answer_consistency(
-                            admin_answer=question.answer,
-                            ai_right_answer=right_answer,
-                            question_stem=question.stem
-                        )
-                        
-                        if not validation_result["matches"]:
-                            logger.warning(f"❌ Answer mismatch detected!")
-                            logger.warning(f"   Admin answer: {question.answer}")
-                            logger.warning(f"   AI right_answer: {right_answer}")
-                            logger.warning(f"   Validation reason: {validation_result['reason']}")
-                            
-                            # Deactivate question due to answer mismatch
-                            question.is_active = False
-                            logger.warning("🚫 Question deactivated due to answer mismatch")
-                        else:
-                            logger.info(f"✅ Answer validation passed: {validation_result['reason']}")
-                            question.is_active = True
-            
-            # STEP 2: LLM enrichment for metadata fields ONLY (not touching admin content)
+            # STEP 1: LLM enrichment for metadata fields ONLY (not touching admin content)
             # Only enrich technical metadata fields like difficulty, frequency, etc.
             enrichment_result = await self._enrich_metadata_fields_only(
                 question_stem=question.stem,
@@ -1010,31 +982,21 @@ class LLMEnrichmentService:
                 if enrichment_result.get("importance_index"):
                     question.importance_index = enrichment_result["importance_index"]
                 
-                # Generate MCQ options if needed (this doesn't touch admin content)
-                if not question.mcq_options:
-                    mcq_result = await self.standardized_enricher.generate_mcq_options_with_schema(
-                        question.stem,
-                        question.answer or "Unknown",  # Use admin-provided answer
-                        question.subcategory or "General"
-                    )
-                    question.mcq_options = json.dumps(mcq_result)
-                
                 # Commit changes
                 db.commit()
                 
-                logger.info(f"✅ Auto-enrichment successful - Admin fields protected, metadata enriched")
+                logger.info(f"✅ Metadata enrichment successful - Admin fields protected")
                 return {
                     "success": True,
-                    "right_answer_generated": bool(question.right_answer),
                     "metadata_enriched": True,
                     "admin_fields_protected": True
                 }
             else:
-                logger.error(f"❌ Auto-enrichment failed: {enrichment_result.get('error')}")
+                logger.error(f"❌ Metadata enrichment failed: {enrichment_result.get('error')}")
                 return {"success": False, "error": enrichment_result.get("error")}
                 
         except Exception as e:
-            logger.error(f"❌ Exception in auto-enrichment: {e}")
+            logger.error(f"❌ Exception in metadata enrichment: {e}")
             return {"success": False, "error": str(e)}
     
     async def batch_enrich_questions(self, questions: List[Question], db: Session) -> Dict[str, Any]:
