@@ -17,6 +17,7 @@ const LandingPage = () => {
   const [showVerification, setShowVerification] = useState(false);
   const [verificationCode, setVerificationCode] = useState('');
   const [resendCountdown, setResendCountdown] = useState(0);
+  const [showPassword, setShowPassword] = useState(false);
 
   // Start countdown timer for resend
   React.useEffect(() => {
