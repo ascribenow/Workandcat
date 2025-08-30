@@ -652,7 +652,7 @@ const LandingPage = () => {
 
           <div className="max-w-4xl mx-auto text-center space-y-8">
             <p className="text-xl lg:text-2xl text-[#545454] font-medium" style={{ fontFamily: 'Lato, sans-serif' }}>
-              Prep shouldn't feel overwhelming.
+              Prep shouldn't feel overwhelming
             </p>
             <p className="text-xl lg:text-2xl text-[#545454] font-medium" style={{ fontFamily: 'Lato, sans-serif' }}>
               Progress is built in small, daily victories.
