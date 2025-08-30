@@ -546,7 +546,7 @@ const LandingPage = () => {
               How Twelvr Thinks
             </h2>
             <p className="text-lg text-[#545454] mb-12" style={{ fontFamily: 'Lato, sans-serif' }}>
-              Twelvr is grounded in learning science:
+              Powered by intelligent adaptive algorithms, every 12 moves with you
             </p>
           </div>
 
