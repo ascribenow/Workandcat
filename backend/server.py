@@ -36,6 +36,12 @@ from database import (
 from auth_service import AuthService, UserCreate, UserLogin, TokenResponse, require_auth, require_admin, ADMIN_EMAIL
 from llm_enrichment import LLMEnrichmentPipeline
 from gmail_service import gmail_service
+from payment_service import (
+    razorpay_service,
+    CreateOrderRequest,
+    PaymentVerificationRequest,
+    SubscriptionRequest
+)
 from mcq_generator import MCQGenerator
 from study_planner import StudyPlanner
 from mastery_tracker import MasteryTracker
