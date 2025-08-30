@@ -610,7 +610,7 @@ const LandingPage = () => {
               You don't need another 3-hour lecture, you need a system that keeps you moving forward, even on packed workdays
             </p>
             <p className="text-lg lg:text-xl text-gray-200" style={{ fontFamily: 'Lato, sans-serif' }}>
-              Twelvr makes sure you're covered daily — so no matter how hectic life gets, your CAT prep never stops.
+              Twelvr makes sure you're covered daily, so no matter how hectic life gets, your CAT prep never stops
             </p>
           </div>
         </div>
