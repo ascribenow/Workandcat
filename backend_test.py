@@ -11206,13 +11206,39 @@ if __name__ == "__main__":
     tester = CATBackendTester()
     
     print("🚀 Starting CAT Backend Testing Suite")
-    print("=" * 50)
+    print("=" * 80)
+    print("FOCUS: Razorpay Payment Integration Testing (PRIMARY)")
+    print("Additional: Session counting fix validation")
+    print("=" * 80)
+    
+    # Run Razorpay payment integration testing (PRIMARY FOCUS)
+    print("\n💳 RUNNING RAZORPAY PAYMENT INTEGRATION TESTS (PRIMARY FOCUS)")
+    payment_success = tester.test_razorpay_payment_integration()
     
     # Run the session counting fix test as requested in review
     print("\n🎯 RUNNING SESSION COUNTING FIX TESTS")
     session_counting_success = tester.test_session_counting_fix()
     
-    print(f"\n🏁 Session Counting Fix Testing Complete - Success: {session_counting_success}")
+    print("\n" + "=" * 80)
+    print("FINAL TEST SUMMARY")
+    print("=" * 80)
+    print(f"💳 Razorpay Payment Integration (PRIMARY): {'✅ PASS' if payment_success else '❌ FAIL'}")
+    print(f"🎯 Session Counting Fix: {'✅ PASS' if session_counting_success else '❌ FAIL'}")
+    
+    overall_success = payment_success and session_counting_success
+    print(f"\n🏁 Overall Testing Complete - Success: {overall_success}")
     print(f"📊 Tests Run: {tester.tests_run}")
     print(f"✅ Tests Passed: {tester.tests_passed}")
     print(f"📈 Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%")
+    
+    if payment_success:
+        print("✅ Razorpay payment integration is working correctly")
+    else:
+        print("❌ Razorpay payment integration needs attention")
+    
+    if overall_success:
+        print("✅ Backend is ready for production deployment")
+    else:
+        print("❌ Backend needs attention before production deployment")
+    
+    sys.exit(0 if overall_success else 1)
