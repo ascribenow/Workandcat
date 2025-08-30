@@ -674,7 +674,7 @@ const LandingPage = () => {
             <div className="flex items-center mb-6">
               <button onClick={scrollToTop} className="focus:outline-none">
                 <img 
-                  src="https://customer-assets.emergentagent.com/job_adaptive-cat/artifacts/vv2teh18_Twelver%20edited.png" 
+                  src="https://customer-assets.emergentagent.com/job_adaptive-cat/artifacts/5x4yfapf_Twelvr%20logo%20dark%20background.png" 
                   alt="Twelvr" 
                   className="h-12 sm:h-16 w-auto cursor-pointer hover:opacity-80 transition-opacity"
                   style={{ 
