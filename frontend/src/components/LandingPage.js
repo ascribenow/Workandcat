@@ -590,7 +590,7 @@ const LandingPage = () => {
 
           <div className="text-center mt-12">
             <p className="text-lg text-[#545454] font-semibold" style={{ fontFamily: 'Lato, sans-serif' }}>
-              12 daily questions = sustainable consistency → better CAT performance.
+              12 adaptive questions a session, weighted to the CAT, tuned to your strengths
             </p>
           </div>
         </div>
