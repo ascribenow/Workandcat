@@ -616,31 +616,6 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Early Access Section */}
-      <section id="early-access" className="py-16 lg:py-24 bg-gradient-to-br from-[#9ac026] to-[#8bb024]">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl lg:text-5xl font-bold text-white mb-8">
-            Be part of the Founders' Circle
-          </h2>
-          
-          <div className="max-w-4xl mx-auto mb-12">
-            <p className="text-lg lg:text-xl text-white mb-6" style={{ fontFamily: 'Lato, sans-serif' }}>
-              We're launching Twelvr with ambitious CAT aspirants like you
-            </p>
-            <p className="text-lg lg:text-xl text-white" style={{ fontFamily: 'Lato, sans-serif' }}>
-              Join our Early Circle, get early access, and help shape the system built for serious professionals
-            </p>
-          </div>
-
-          <button 
-            onClick={() => navigate('/early-access')}
-            className="bg-white text-[#9ac026] px-8 py-4 rounded-full text-lg font-semibold hover:bg-gray-100 transition-colors shadow-lg"
-          >
-            Join Early Access
-          </button>
-        </div>
-      </section>
-
       {/* Manifesto Section */}
       <section className="py-16 lg:py-24 bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
