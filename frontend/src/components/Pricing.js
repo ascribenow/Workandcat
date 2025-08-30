@@ -114,15 +114,9 @@ const Pricing = () => {
             </button>
           </div>
 
-          {/* Pro Lite - Most Popular */}
-          <div className="bg-white border-2 border-[#9ac026] rounded-2xl p-8 text-center relative shadow-lg transform scale-105">
-            <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-              <span className="bg-[#9ac026] text-white px-4 py-1 rounded-full text-sm font-semibold" style={{ fontFamily: 'Lato, sans-serif' }}>
-                Most Popular
-              </span>
-            </div>
-            
-            <div className="mb-6 mt-4">
+          {/* Pro Lite */}
+          <div className="bg-white border-2 border-gray-200 rounded-2xl p-8 text-center hover:border-[#9ac026] transition-colors">
+            <div className="mb-6">
               <h3 className="text-2xl font-bold mb-2" style={{ color: '#545454' }}>Pro Lite</h3>
               <p className="text-gray-600" style={{ fontFamily: 'Lato, sans-serif' }}>
                 For focused, consistent prep
