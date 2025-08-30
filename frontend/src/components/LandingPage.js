@@ -205,7 +205,7 @@ const LandingPage = () => {
               <a href="#why-12" className="text-[#545454] hover:text-[#ff6d4d] transition-colors" style={{ fontFamily: 'Lato, sans-serif' }}>
                 Why 12 Works
               </a>
-              <button onClick={() => navigate('/pricing')} className="text-[#545454] hover:text-[#ff6d4d] transition-colors" style={{ fontFamily: 'Lato, sans-serif' }}>
+              <button onClick={() => navigateToPage('/pricing')} className="text-[#545454] hover:text-[#ff6d4d] transition-colors" style={{ fontFamily: 'Lato, sans-serif' }}>
                 Pricing
               </button>
             </nav>
