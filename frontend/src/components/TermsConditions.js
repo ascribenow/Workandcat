@@ -75,10 +75,15 @@ const TermsConditions = () => {
             <section>
               <h2 className="text-2xl font-bold mb-4" style={{ color: '#545454' }}>2. Services Provided</h2>
               <ul className="space-y-2 text-gray-700" style={{ fontFamily: 'Lato, sans-serif' }}>
-                <li>Daily adaptive question sessions ("The 12").</li>
-                <li>Performance tracking, analysis, and recommendations.</li>
+                <li>Daily adaptive question sessions ("The 12") for Quantitative Ability section only.</li>
+                <li>Performance tracking, analysis, and recommendations for QA section.</li>
                 <li>Access may vary depending on subscription plan.</li>
               </ul>
+              <div className="mt-4 p-4 bg-orange-50 border border-orange-200 rounded-lg">
+                <p className="text-orange-800 font-medium" style={{ fontFamily: 'Lato, sans-serif' }}>
+                  <strong>Important Notice:</strong> Twelvr currently provides preparation tools exclusively for the Quantitative Ability (QA) section of CAT. We do not cover Verbal Ability and Reading Comprehension (VARC) or Data Interpretation and Logical Reasoning (DILR) sections. Users are advised to seek additional resources for comprehensive CAT preparation covering all sections.
+                </p>
+              </div>
             </section>
 
             <section>
