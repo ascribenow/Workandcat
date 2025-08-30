@@ -898,7 +898,7 @@ async def init_basic_topics(
 async def create_payment_order(order_request: CreateOrderRequest, current_user: User = Depends(require_auth)):
     """Create Razorpay order for one-time payments (Pro Regular)"""
     try:
-        user_id = current_user["id"]
+        user_id = str(current_user.id)
         
         if order_request.plan_type not in ["pro_lite", "pro_regular"]:
             raise HTTPException(status_code=400, detail="Invalid plan type")
@@ -934,10 +934,10 @@ async def create_payment_order(order_request: CreateOrderRequest, current_user: 
         raise HTTPException(status_code=500, detail=str(e))
 
 @api_router.post("/payments/create-subscription")
-async def create_subscription(sub_request: SubscriptionRequest, current_user: dict = Depends(require_auth)):
+async def create_subscription(sub_request: SubscriptionRequest, current_user: User = Depends(require_auth)):
     """Create Razorpay subscription for Pro Lite with auto-renewal"""
     try:
-        user_id = current_user["id"]
+        user_id = str(current_user.id)
         
         if sub_request.plan_type != "pro_lite":
             raise HTTPException(status_code=400, detail="Subscriptions are only available for Pro Lite")
@@ -957,10 +957,10 @@ async def create_subscription(sub_request: SubscriptionRequest, current_user: di
         raise HTTPException(status_code=500, detail=str(e))
 
 @api_router.post("/payments/verify-payment")
-async def verify_payment(verification_request: PaymentVerificationRequest, current_user: dict = Depends(require_auth)):
+async def verify_payment(verification_request: PaymentVerificationRequest, current_user: User = Depends(require_auth)):
     """Verify Razorpay payment and activate subscription"""
     try:
-        user_id = current_user["id"]
+        user_id = str(current_user.id)
         
         if verification_request.user_id != user_id:
             raise HTTPException(status_code=403, detail="User ID mismatch")
@@ -979,10 +979,10 @@ async def verify_payment(verification_request: PaymentVerificationRequest, curre
         raise HTTPException(status_code=400, detail=str(e))
 
 @api_router.get("/payments/subscription-status")
-async def get_subscription_status(current_user: dict = Depends(require_auth)):
+async def get_subscription_status(current_user: User = Depends(require_auth)):
     """Get user's current subscription status"""
     try:
-        user_id = current_user["id"]
+        user_id = str(current_user.id)
         subscriptions = await razorpay_service.get_user_subscriptions(user_id)
         
         return {"success": True, "subscriptions": subscriptions}
@@ -992,10 +992,10 @@ async def get_subscription_status(current_user: dict = Depends(require_auth)):
         raise HTTPException(status_code=500, detail=str(e))
 
 @api_router.post("/payments/cancel-subscription/{subscription_id}")
-async def cancel_subscription(subscription_id: str, current_user: dict = Depends(require_auth)):
+async def cancel_subscription(subscription_id: str, current_user: User = Depends(require_auth)):
     """Cancel user's subscription"""
     try:
-        user_id = current_user["id"]
+        user_id = str(current_user.id)
         result = await razorpay_service.cancel_subscription(user_id, subscription_id)
         
         return {"success": True, "data": result}
