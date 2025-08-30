@@ -482,7 +482,7 @@ const LandingPage = () => {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl lg:text-5xl font-bold text-[#545454] mb-8">
-              Your daily CAT prep ritual.
+              Your daily CAT prep ritual
             </h2>
           </div>
 
