@@ -128,27 +128,21 @@ const Pricing = () => {
 
             <div className="space-y-2 mb-6">
               <div className="flex items-center">
-                <svg className="w-4 h-4 text-[#9ac026] mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
+                <span className="text-lg mr-2">🔄</span>
                 <span className="text-left text-sm" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
-                  Unlimited Daily-12 sessions
+                  Unlimited Daily-12 sessions (30 days)
                 </span>
               </div>
               <div className="flex items-center">
-                <svg className="w-4 h-4 text-[#9ac026] mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
+                <span className="text-lg mr-2">🧠</span>
                 <span className="text-left text-sm" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
-                  Full AI suite + analytics
+                  Full AI suite (Mindprint + Trend Matrix + Learning Impact)
                 </span>
               </div>
               <div className="flex items-center">
-                <svg className="w-4 h-4 text-[#9ac026] mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
+                <span className="text-lg mr-2">📊</span>
                 <span className="text-left text-sm" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
-                  CAT Trend Matrix insights
+                  Progress dashboard & analytics
                 </span>
               </div>
             </div>
