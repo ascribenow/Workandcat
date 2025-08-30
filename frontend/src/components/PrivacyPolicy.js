@@ -32,9 +32,6 @@ const PrivacyPolicy = () => {
               <button onClick={() => navigate('/pricing')} className="text-[#545454] hover:text-[#ff6d4d] transition-colors" style={{ fontFamily: 'Lato, sans-serif' }}>
                 Pricing
               </button>
-              <button onClick={() => navigate('/early-access')} className="text-[#545454] hover:text-[#ff6d4d] transition-colors" style={{ fontFamily: 'Lato, sans-serif' }}>
-                Early Access
-              </button>
             </nav>
           </div>
         </div>
