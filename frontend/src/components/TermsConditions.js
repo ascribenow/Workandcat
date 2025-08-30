@@ -43,27 +43,92 @@ const TermsConditions = () => {
           </p>
         </div>
 
-        <div className="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-12 text-center">
-          <div className="w-16 h-16 mx-auto mb-6 rounded-full flex items-center justify-center" style={{ backgroundColor: '#f7fdf0' }}>
-            <svg className="w-8 h-8" style={{ color: '#9ac026' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
+        <div className="prose prose-lg max-w-none">
+          <div className="mb-8">
+            <p className="text-gray-600 mb-4" style={{ fontFamily: 'Lato, sans-serif' }}>
+              <strong>Effective Date:</strong> 01 Aug 2025
+            </p>
+            <p className="text-gray-600 mb-6" style={{ fontFamily: 'Lato, sans-serif' }}>
+              <strong>Company:</strong> M/s Costo Digital
+            </p>
+            <p className="text-lg" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
+              Welcome to Twelvr, an adaptive exam preparation platform. By accessing or using our platform, you agree to these Terms.
+            </p>
           </div>
-          <h2 className="text-2xl font-semibold mb-4" style={{ color: '#545454' }}>
-            Content Coming Soon
-          </h2>
-          <p className="text-lg mb-6" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
-            We're preparing clear and fair terms and conditions for using Twelvr.
-          </p>
-          <button 
-            onClick={() => navigate('/')}
-            className="px-6 py-3 rounded-lg font-semibold transition-colors text-white"
-            style={{ backgroundColor: '#9ac026', fontFamily: 'Lato, sans-serif' }}
-            onMouseOver={(e) => e.target.style.backgroundColor = '#8bb024'}
-            onMouseOut={(e) => e.target.style.backgroundColor = '#9ac026'}
-          >
-            Back to Home
-          </button>
+
+          <div className="space-y-8">
+            <section>
+              <h2 className="text-2xl font-bold mb-4" style={{ color: '#545454' }}>1. Account Responsibilities</h2>
+              <ul className="space-y-2 text-gray-700" style={{ fontFamily: 'Lato, sans-serif' }}>
+                <li>Keep your login credentials confidential.</li>
+                <li>You are responsible for all activity under your account.</li>
+                <li>Notify us immediately of any unauthorized use.</li>
+              </ul>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-bold mb-4" style={{ color: '#545454' }}>2. Services Provided</h2>
+              <ul className="space-y-2 text-gray-700" style={{ fontFamily: 'Lato, sans-serif' }}>
+                <li>Daily adaptive question sessions ("The 12").</li>
+                <li>Performance tracking, analysis, and recommendations.</li>
+                <li>Access may vary depending on subscription plan.</li>
+              </ul>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-bold mb-4" style={{ color: '#545454' }}>3. Subscriptions and Payments</h2>
+              <ul className="space-y-2 text-gray-700" style={{ fontFamily: 'Lato, sans-serif' }}>
+                <li>Subscription fees are displayed on our website/app.</li>
+                <li>Fees are payable in advance and are non-refundable (see Refund Policy).</li>
+                <li>We may update pricing with prior notice.</li>
+              </ul>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-bold mb-4" style={{ color: '#545454' }}>4. Acceptable Use</h2>
+              <p className="mb-3 text-gray-700" style={{ fontFamily: 'Lato, sans-serif' }}>You agree not to:</p>
+              <ul className="space-y-2 text-gray-700" style={{ fontFamily: 'Lato, sans-serif' }}>
+                <li>Share your account with others.</li>
+                <li>Reverse-engineer or misuse our algorithms.</li>
+                <li>Use the platform for unlawful purposes.</li>
+              </ul>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-bold mb-4" style={{ color: '#545454' }}>5. Intellectual Property</h2>
+              <p className="text-gray-700" style={{ fontFamily: 'Lato, sans-serif' }}>
+                All platform content, algorithms, and trademarks are owned by M/s Costo Digital. Users may not copy, distribute, or repurpose platform materials.
+              </p>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-bold mb-4" style={{ color: '#545454' }}>6. Limitation of Liability</h2>
+              <p className="text-gray-700" style={{ fontFamily: 'Lato, sans-serif' }}>
+                Twelvr is an aid for exam preparation, not a guarantee of performance. We are not liable for indirect, incidental, or consequential damages.
+              </p>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-bold mb-4" style={{ color: '#545454' }}>7. Termination</h2>
+              <p className="text-gray-700" style={{ fontFamily: 'Lato, sans-serif' }}>
+                We may suspend or terminate accounts for violation of these terms.
+              </p>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-bold mb-4" style={{ color: '#545454' }}>8. Governing Law</h2>
+              <p className="text-gray-700" style={{ fontFamily: 'Lato, sans-serif' }}>
+                These Terms shall be governed by the laws of India.
+              </p>
+            </section>
+
+            <section className="border-t pt-6">
+              <h2 className="text-2xl font-bold mb-4" style={{ color: '#545454' }}>Contact</h2>
+              <p className="text-gray-700" style={{ fontFamily: 'Lato, sans-serif' }}>
+                For queries, reach us at <a href="mailto:support@twelvr.com" className="text-[#9ac026] hover:underline">support@twelvr.com</a>
+              </p>
+            </section>
+          </div>
         </div>
       </main>
 
