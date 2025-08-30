@@ -522,9 +522,9 @@ const LandingPage = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold text-[#545454] mb-4">Step 3 — You're covered.</h3>
+              <h3 className="text-xl font-bold text-[#545454] mb-4">Step 3, You're covered</h3>
               <p className="text-[#545454]" style={{ fontFamily: 'Lato, sans-serif' }}>
-                One win every day.
+                One win every day
               </p>
             </div>
           </div>
