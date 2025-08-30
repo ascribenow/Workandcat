@@ -471,7 +471,7 @@ const LandingPage = () => {
               Every day you get exactly <strong className="text-[#9ac026]">12 adaptive questions</strong>, starting easy, building to hard, so you stay consistent, confident, and covered
             </p>
             <p className="text-lg lg:text-xl text-[#545454]" style={{ fontFamily: 'Lato, sans-serif' }}>
-              Prep that fits your busy life, without sacrificing seriousness.
+              Prep that fits your busy life, without sacrificing seriousness
             </p>
           </div>
         </div>
