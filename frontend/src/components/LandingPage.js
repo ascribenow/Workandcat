@@ -628,7 +628,7 @@ const LandingPage = () => {
               We're launching Twelvr with ambitious CAT aspirants like you
             </p>
             <p className="text-lg lg:text-xl text-white" style={{ fontFamily: 'Lato, sans-serif' }}>
-              Join our Early Circle, get early access, and help shape the system built for serious professionals.
+              Join our Early Circle, get early access, and help shape the system built for serious professionals
             </p>
           </div>
 
