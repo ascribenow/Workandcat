@@ -494,9 +494,9 @@ const LandingPage = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold text-[#545454] mb-4">Step 1 — Sign in.</h3>
+              <h3 className="text-xl font-bold text-[#545454] mb-4">Step 1, Sign in</h3>
               <p className="text-[#545454]" style={{ fontFamily: 'Lato, sans-serif' }}>
-                Pick your reminder time.
+                Pick your reminder time
               </p>
             </div>
 
