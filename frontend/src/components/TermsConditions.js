@@ -13,7 +13,7 @@ const TermsConditions = () => {
             <div className="flex items-center">
               <button onClick={() => navigate('/')} className="focus:outline-none">
                 <img 
-                  src="https://customer-assets.emergentagent.com/job_sleepy-saha/artifacts/ss0tc3jc_Twelver%20edited.png" 
+                  src="https://customer-assets.emergentagent.com/job_adaptive-cat/artifacts/vv2teh18_Twelver%20edited.png" 
                   alt="Twelvr" 
                   className="h-12 sm:h-16 w-auto cursor-pointer hover:opacity-80 transition-opacity"
                 />
