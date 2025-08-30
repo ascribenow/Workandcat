@@ -658,7 +658,7 @@ const LandingPage = () => {
               Progress is built in small, daily victories
             </p>
             <p className="text-xl lg:text-2xl text-[#545454] font-medium" style={{ fontFamily: 'Lato, sans-serif' }}>
-              Learning should fit your life, not the other way around.
+              Learning should fit your life, not the other way around
             </p>
             <div className="pt-8">
               <p className="text-lg text-[#545454]" style={{ fontFamily: 'Lato, sans-serif' }}>
