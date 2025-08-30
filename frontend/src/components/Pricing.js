@@ -119,7 +119,7 @@ const Pricing = () => {
             <div className="mb-4">
               <h3 className="text-xl font-bold mb-1" style={{ color: '#545454' }}>Pro Lite</h3>
               <p className="text-sm text-gray-600" style={{ fontFamily: 'Lato, sans-serif' }}>
-                For focused, consistent prep
+                For long-term prep spaced across months
               </p>
             </div>
             
