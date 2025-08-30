@@ -48,27 +48,77 @@ const PrivacyPolicy = () => {
           </p>
         </div>
 
-        <div className="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-12 text-center">
-          <div className="w-16 h-16 mx-auto mb-6 rounded-full flex items-center justify-center" style={{ backgroundColor: '#f7fdf0' }}>
-            <svg className="w-8 h-8" style={{ color: '#9ac026' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-            </svg>
+        <div className="prose prose-lg max-w-none">
+          <div className="mb-8">
+            <p className="text-gray-600 mb-4" style={{ fontFamily: 'Lato, sans-serif' }}>
+              <strong>Effective Date:</strong> 01 Aug 2025
+            </p>
+            <p className="text-gray-600 mb-6" style={{ fontFamily: 'Lato, sans-serif' }}>
+              <strong>Company:</strong> M/s Costo Digital ("we," "our," or "us")
+            </p>
+            <p className="text-lg" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
+              At M/s Costo Digital, we value your trust. This Privacy Policy explains how we collect, use, and protect your information when you use our platform, Twelvr.
+            </p>
           </div>
-          <h2 className="text-2xl font-semibold mb-4" style={{ color: '#545454' }}>
-            Content Coming Soon
-          </h2>
-          <p className="text-lg mb-6" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
-            We're drafting comprehensive privacy policies to ensure your data is fully protected.
-          </p>
-          <button 
-            onClick={() => navigate('/')}
-            className="px-6 py-3 rounded-lg font-semibold transition-colors text-white"
-            style={{ backgroundColor: '#9ac026', fontFamily: 'Lato, sans-serif' }}
-            onMouseOver={(e) => e.target.style.backgroundColor = '#8bb024'}
-            onMouseOut={(e) => e.target.style.backgroundColor = '#9ac026'}
-          >
-            Back to Home
-          </button>
+
+          <div className="space-y-8">
+            <section>
+              <h2 className="text-2xl font-bold mb-4" style={{ color: '#545454' }}>1. Information We Collect</h2>
+              <ul className="space-y-2 text-gray-700" style={{ fontFamily: 'Lato, sans-serif' }}>
+                <li><strong>Account Information:</strong> Name, email, and password when you register.</li>
+                <li><strong>Usage Data:</strong> Questions attempted, accuracy, time spent, performance trends.</li>
+                <li><strong>Device Data:</strong> IP address, browser type, operating system.</li>
+                <li><strong>Payment Information:</strong> Processed securely via third-party payment gateways.</li>
+              </ul>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-bold mb-4" style={{ color: '#545454' }}>2. How We Use Your Information</h2>
+              <ul className="space-y-2 text-gray-700" style={{ fontFamily: 'Lato, sans-serif' }}>
+                <li>To personalize your daily 12-question sessions.</li>
+                <li>To track progress, mastery, and learning outcomes.</li>
+                <li>To improve our algorithms and platform experience.</li>
+                <li>To communicate updates, features, or offers.</li>
+              </ul>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-bold mb-4" style={{ color: '#545454' }}>3. Data Sharing</h2>
+              <ul className="space-y-2 text-gray-700" style={{ fontFamily: 'Lato, sans-serif' }}>
+                <li>We do not sell your personal data.</li>
+                <li>Payment data is handled only by trusted, PCI-compliant payment processors.</li>
+              </ul>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-bold mb-4" style={{ color: '#545454' }}>4. Data Security</h2>
+              <p className="text-gray-700" style={{ fontFamily: 'Lato, sans-serif' }}>
+                We use industry-standard encryption and secure servers. While we strive for best practices, no system is 100% secure.
+              </p>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-bold mb-4" style={{ color: '#545454' }}>5. User Rights</h2>
+              <ul className="space-y-2 text-gray-700" style={{ fontFamily: 'Lato, sans-serif' }}>
+                <li>You may request to access, update, or delete your personal information.</li>
+                <li>You may opt out of promotional communication at any time.</li>
+              </ul>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-bold mb-4" style={{ color: '#545454' }}>6. Changes</h2>
+              <p className="text-gray-700" style={{ fontFamily: 'Lato, sans-serif' }}>
+                We may update this policy from time to time. Users will be notified via email or platform updates.
+              </p>
+            </section>
+
+            <section className="border-t pt-6">
+              <h2 className="text-2xl font-bold mb-4" style={{ color: '#545454' }}>Contact</h2>
+              <p className="text-gray-700" style={{ fontFamily: 'Lato, sans-serif' }}>
+                For privacy concerns, reach us at <a href="mailto:support@twelvr.com" className="text-[#9ac026] hover:underline">support@twelvr.com</a>
+              </p>
+            </section>
+          </div>
         </div>
       </main>
 
