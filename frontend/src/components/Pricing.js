@@ -8,6 +8,12 @@ const Pricing = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  // Navigation with scroll to top
+  const navigateToPage = (path) => {
+    navigate(path);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
     <div className="min-h-screen bg-white" style={{ fontFamily: 'Manrope, sans-serif' }}>
       {/* Header - Same as Landing Page */}
