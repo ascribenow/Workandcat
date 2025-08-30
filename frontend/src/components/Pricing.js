@@ -134,25 +134,33 @@ const Pricing = () => {
 
             <div className="space-y-4 mb-8">
               <div className="flex items-center">
-                <span className="text-xl mr-3">🔄</span>
+                <svg className="w-5 h-5 text-[#9ac026] mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
                 <span className="text-left" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
                   Unlimited Daily-12 sessions (30 days)
                 </span>
               </div>
               <div className="flex items-center">
-                <span className="text-xl mr-3">🧠</span>
+                <svg className="w-5 h-5 text-[#9ac026] mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
                 <span className="text-left" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
                   Full AI suite (Mindprint + Trend Matrix + Learning Impact)
                 </span>
               </div>
               <div className="flex items-center">
-                <span className="text-xl mr-3">📊</span>
+                <svg className="w-5 h-5 text-[#9ac026] mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
                 <span className="text-left" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
                   Progress dashboard & analytics
                 </span>
               </div>
               <div className="flex items-center">
-                <span className="text-xl mr-3">📈</span>
+                <svg className="w-5 h-5 text-[#9ac026] mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
                 <span className="text-left" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
                   Comprehensive performance reports
                 </span>
