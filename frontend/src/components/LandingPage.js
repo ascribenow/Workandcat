@@ -705,7 +705,7 @@ const LandingPage = () => {
 
             {/* Disclaimer */}
             <p className="text-sm text-gray-300 max-w-2xl mb-8" style={{ fontFamily: 'Lato, sans-serif' }}>
-              Twelvr complements your CAT prep — it doesn't replace books or coaching.
+              Twelvr complements your CAT prep, it doesn't replace books or coaching
             </p>
 
             {/* Footer Navigation - At the very bottom */}
