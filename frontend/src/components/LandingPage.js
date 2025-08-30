@@ -462,7 +462,7 @@ const LandingPage = () => {
           
           <div className="max-w-4xl mx-auto">
             <p className="text-lg lg:text-xl text-[#545454] mb-6" style={{ fontFamily: 'Lato, sans-serif' }}>
-              CAT prep usually means 1000+ questions, hours of classes, and constant pressure.
+              CAT prep usually means 1000+ questions, hours of classes, and constant pressure
             </p>
             <p className="text-lg lg:text-xl text-[#545454] mb-6" style={{ fontFamily: 'Lato, sans-serif' }}>
               <strong>Twelvr flips the script.</strong>
