@@ -46,10 +46,10 @@ load_dotenv(ROOT_DIR / '.env')
 
 # Configuration
 DATABASE_URL = os.getenv("DATABASE_URL")
-EMERGENT_LLM_KEY = os.getenv("EMERGENT_LLM_KEY")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 # Initialize enrichment services
-llm_pipeline = LLMEnrichmentPipeline(EMERGENT_LLM_KEY)
+llm_pipeline = LLMEnrichmentPipeline(OPENAI_API_KEY)
 auto_enrichment_service = None  # Will be initialized when needed
 
 def get_auto_enrichment_service():
@@ -59,7 +59,7 @@ def get_auto_enrichment_service():
         from llm_enrichment import LLMEnrichmentService
         auto_enrichment_service = LLMEnrichmentService()
     return auto_enrichment_service
-mcq_generator = MCQGenerator(EMERGENT_LLM_KEY)
+mcq_generator = MCQGenerator(OPENAI_API_KEY)
 # enhanced_question_processor = EnhancedQuestionProcessor(llm_pipeline)  # PHASE 1: Enhanced processing - REPLACED with mcq_validation_service
 study_planner = StudyPlanner()
 mastery_tracker = MasteryTracker()
@@ -3522,9 +3522,9 @@ async def enrich_pyq_question_background(pyq_question_id: str):
         
         try:
             # Initialize LLM enrichment pipeline with API key
-            llm_api_key = os.getenv('EMERGENT_LLM_KEY')
+            llm_api_key = os.getenv('OPENAI_API_KEY')
             if not llm_api_key:
-                raise Exception("EMERGENT_LLM_KEY not found in environment")
+                raise Exception("OPENAI_API_KEY not found in environment")
                 
             enrichment_pipeline = LLMEnrichmentPipeline(llm_api_key=llm_api_key)
             
@@ -3671,7 +3671,7 @@ async def test_immediate_enrichment(
         
         # Step 1: Generate answer
         chat = LlmChat(
-            api_key=EMERGENT_LLM_KEY,
+            api_key=OPENAI_API_KEY,
             session_id=f"test_{test_question.id}",
             system_message="You are a math expert. Given a question, provide only the numerical answer."
         ).with_model("claude", "claude-3-5-sonnet-20241022")
@@ -3682,7 +3682,7 @@ async def test_immediate_enrichment(
         
         # Step 2: Generate solution
         solution_chat = LlmChat(
-            api_key=EMERGENT_LLM_KEY,
+            api_key=OPENAI_API_KEY,
             session_id=f"solution_{test_question.id}",
             system_message="You are a math tutor. Explain how to solve the given problem step by step."
         ).with_model("claude", "claude-3-5-sonnet-20241022")
@@ -4311,11 +4311,11 @@ async def startup_event():
     # logger.info("🎯 Diagnostic system initialized")
     
     # Start background job processing
-    if EMERGENT_LLM_KEY:
-        start_background_processing(EMERGENT_LLM_KEY)
+    if OPENAI_API_KEY:
+        start_background_processing(OPENAI_API_KEY)
         logger.info("⏰ Background job processing started")
     else:
-        logger.warning("⚠️ Background jobs not started - missing EMERGENT_LLM_KEY")
+        logger.warning("⚠️ Background jobs not started - missing OPENAI_API_KEY")
     
     logger.info(f"📧 Admin Email: {ADMIN_EMAIL}")
     logger.info("✅ CAT Preparation Platform v2.0 Ready!")
