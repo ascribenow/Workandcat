@@ -81,27 +81,21 @@ const Pricing = () => {
 
             <div className="space-y-2 mb-6">
               <div className="flex items-center">
-                <svg className="w-4 h-4 text-[#9ac026] mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
+                <span className="text-lg mr-2">🔄</span>
                 <span className="text-left text-sm" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
                   30 adaptive Daily-12 sessions
                 </span>
               </div>
               <div className="flex items-center">
-                <svg className="w-4 h-4 text-[#9ac026] mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
+                <span className="text-lg mr-2">🧠</span>
                 <span className="text-left text-sm" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
-                  Mindprint Engine included
+                  Full AI suite (Mindprint + Trend Matrix + Learning Impact)
                 </span>
               </div>
               <div className="flex items-center">
-                <svg className="w-4 h-4 text-[#9ac026] mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
+                <span className="text-lg mr-2">📊</span>
                 <span className="text-left text-sm" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
-                  Basic progress tracking
+                  Progress dashboard & analytics
                 </span>
               </div>
             </div>
