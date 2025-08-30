@@ -662,7 +662,7 @@ const LandingPage = () => {
             </p>
             <div className="pt-8">
               <p className="text-lg text-[#545454]" style={{ fontFamily: 'Lato, sans-serif' }}>
-                That's why Twelvr exists: your daily sparring partner, keeping you covered, consistent, and always moving forward.
+                That's why Twelvr exists: your daily sparring partner, keeping you covered, consistent, and always moving forward
               </p>
             </div>
           </div>
