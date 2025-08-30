@@ -245,15 +245,15 @@ const Pricing = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
                 <span className="text-left" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
-                  Extended CAT readiness tracking
+                  Trained to cover full syllabus breadth in 90 sessions exclusively for CAT 2025
                 </span>
               </div>
-              <div className="flex items-center">
-                <svg className="w-5 h-5 text-[#9ac026] mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="flex items-center bg-gradient-to-r from-[#9ac026] to-[#8bb024] rounded-lg px-3 py-2 border-2 border-[#9ac026]">
+                <svg className="w-5 h-5 text-white mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
-                <span className="text-left" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
-                  Ask Twelvr: Real-time doubts per question
+                <span className="text-left font-semibold text-white" style={{ fontFamily: 'Lato, sans-serif' }}>
+                  Ask Twelvr: Real-time doubt resolution per question
                 </span>
               </div>
             </div>
