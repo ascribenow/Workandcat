@@ -274,6 +274,15 @@ const Pricing = () => {
           </h2>
           
           <div className="space-y-8">
+            <div className="bg-gradient-to-r from-orange-50 to-red-50 border border-orange-200 rounded-xl p-6">
+              <h3 className="text-xl font-semibold mb-3 text-orange-800">
+                What sections of CAT does Twelvr cover?
+              </h3>
+              <p className="text-orange-700" style={{ fontFamily: 'Lato, sans-serif' }}>
+                <strong>Important:</strong> Twelvr currently focuses exclusively on the <strong>Quantitative Ability (QA)</strong> section of CAT. We do not cover Verbal Ability and Reading Comprehension (VARC) or Data Interpretation and Logical Reasoning (DILR) sections. Our AI-powered system is specifically designed to master QA concepts and problem-solving techniques.
+              </p>
+            </div>
+
             <div className="bg-gray-50 rounded-xl p-6">
               <h3 className="text-xl font-semibold mb-3" style={{ color: '#545454' }}>
                 How does the Free Trial work?
