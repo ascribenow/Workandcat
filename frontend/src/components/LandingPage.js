@@ -218,8 +218,8 @@ const LandingPage = () => {
             {/* Left Content */}
             <div className="text-center lg:text-left order-2 lg:order-1">
               <h1 className="text-3xl sm:text-4xl lg:text-6xl font-bold text-[#545454] mb-4 lg:mb-6">
-                Your best CAT attempt.{' '}
-                <span className="text-[#9ac026]">Just 12 questions a day.</span>
+                Your best CAT attempt{' '}
+                <span className="text-[#9ac026]">Just 12 questions a day</span>
               </h1>
               
               <p className="text-lg lg:text-xl text-[#545454] mb-6 lg:mb-8" style={{ fontFamily: 'Lato, sans-serif' }}>
