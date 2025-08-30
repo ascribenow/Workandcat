@@ -168,7 +168,7 @@ const Pricing = () => {
             </div>
 
             <button 
-              className="w-full py-3 px-6 bg-[#9ac026] text-white rounded-lg font-semibold hover:bg-[#8bb024] transition-colors"
+              className="w-full py-3 px-6 border-2 border-[#9ac026] text-[#9ac026] rounded-lg font-semibold hover:bg-[#9ac026] hover:text-white transition-colors"
               style={{ fontFamily: 'Lato, sans-serif' }}
             >
               Choose Pro Lite
