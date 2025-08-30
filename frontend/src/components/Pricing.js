@@ -4,6 +4,7 @@ import PaymentComponent from './PaymentComponent';
 
 const Pricing = () => {
   const navigate = useNavigate();
+  const [paymentStatus, setPaymentStatus] = useState({ message: '', type: '' });
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -13,6 +14,30 @@ const Pricing = () => {
   const navigateToPage = (path) => {
     navigate(path);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handlePaymentSuccess = (paymentData) => {
+    setPaymentStatus({
+      message: 'Payment successful! Your subscription is now active.',
+      type: 'success'
+    });
+    
+    // Redirect to dashboard after 3 seconds
+    setTimeout(() => {
+      navigate('/dashboard');
+    }, 3000);
+  };
+
+  const handlePaymentError = (errorMessage) => {
+    setPaymentStatus({
+      message: errorMessage || 'Payment failed. Please try again.',
+      type: 'error'
+    });
+    
+    // Clear error message after 5 seconds
+    setTimeout(() => {
+      setPaymentStatus({ message: '', type: '' });
+    }, 5000);
   };
 
   return (
