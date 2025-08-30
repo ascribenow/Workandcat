@@ -581,9 +581,9 @@ const LandingPage = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold text-[#545454] mb-4">Microlearning</h3>
+              <h3 className="text-xl font-bold text-[#545454] mb-4">Trend Matrix</h3>
               <p className="text-[#545454]" style={{ fontFamily: 'Lato, sans-serif' }}>
-                Short bursts fit into busy days.
+                Weighted on CAT trends, more where it matters
               </p>
             </div>
           </div>
