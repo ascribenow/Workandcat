@@ -12,7 +12,7 @@ from pydantic import BaseModel
 from sqlalchemy import Column, String, Integer, Float, DateTime, Boolean, Text, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
-from database import Base, get_db_session
+from database import Base, SessionLocal
 import logging
 
 logger = logging.getLogger(__name__)
@@ -131,8 +131,9 @@ class RazorpayService:
             
             razorpay_order = self.client.order.create(order_data)
             
-            # Store order in database
-            async with get_db_session() as db:
+            # Store order in database (synchronous)
+            db = SessionLocal()
+            try:
                 db_order = PaymentOrder(
                     user_id=user_id,
                     razorpay_order_id=razorpay_order["id"],
@@ -141,10 +142,12 @@ class RazorpayService:
                     status="created"
                 )
                 db.add(db_order)
-                await db.commit()
+                db.commit()
+            finally:
+                db.close()
             
             return {
-                "order_id": razorpay_order["id"],
+                "id": razorpay_order["id"],
                 "amount": razorpay_order["amount"],
                 "currency": razorpay_order["currency"],
                 "plan_name": plan_config["name"],
@@ -184,8 +187,9 @@ class RazorpayService:
             
             razorpay_subscription = self.client.subscription.create(subscription_data)
             
-            # Store subscription in database
-            async with get_db_session() as db:
+            # Store subscription in database (synchronous)
+            db = SessionLocal()
+            try:
                 db_subscription = Subscription(
                     user_id=user_id,
                     razorpay_subscription_id=razorpay_subscription["id"],
@@ -197,10 +201,12 @@ class RazorpayService:
                     auto_renew=True
                 )
                 db.add(db_subscription)
-                await db.commit()
+                db.commit()
+            finally:
+                db.close()
             
             return {
-                "subscription_id": razorpay_subscription["id"],
+                "id": razorpay_subscription["id"],
                 "amount": plan_config["amount"],
                 "plan_name": plan_config["name"],
                 "description": plan_config["description"],
@@ -264,13 +270,14 @@ class RazorpayService:
             # Fetch payment details
             payment_details = self.client.payment.fetch(payment_id)
             
-            # Update database
-            async with get_db_session() as db:
+            # Update database (synchronous)
+            db = SessionLocal()
+            try:
                 # Update order status
-                order = await db.execute(
-                    "UPDATE payment_orders SET status = 'paid', updated_at = %s WHERE razorpay_order_id = %s",
-                    (datetime.utcnow(), order_id)
-                )
+                order = db.query(PaymentOrder).filter(PaymentOrder.razorpay_order_id == order_id).first()
+                if order:
+                    order.status = "paid"
+                    order.updated_at = datetime.utcnow()
                 
                 # Create transaction record
                 transaction = PaymentTransaction(
@@ -284,22 +291,15 @@ class RazorpayService:
                 )
                 db.add(transaction)
                 
-                # Get order details for subscription creation
-                order_result = await db.execute(
-                    "SELECT plan_type, amount FROM payment_orders WHERE razorpay_order_id = %s",
-                    (order_id,)
-                )
-                order_data = order_result.fetchone()
-                
-                if order_data:
-                    # Create subscription record
-                    plan_type = order_data[0]
+                # Create subscription record if order exists
+                if order:
+                    plan_type = order.plan_type
                     period_days = 30 if plan_type == "pro_lite" else 60
                     
                     subscription = Subscription(
                         user_id=user_id,
                         plan_type=plan_type,
-                        amount=order_data[1],
+                        amount=order.amount,
                         status="active",
                         current_period_start=datetime.utcnow(),
                         current_period_end=datetime.utcnow() + timedelta(days=period_days),
@@ -307,7 +307,9 @@ class RazorpayService:
                     )
                     db.add(subscription)
                 
-                await db.commit()
+                db.commit()
+            finally:
+                db.close()
             
             return {
                 "status": "success",
@@ -320,12 +322,15 @@ class RazorpayService:
         except Exception as e:
             logger.error(f"Payment verification failed: {str(e)}")
             # Update order status to failed
-            async with get_db_session() as db:
-                await db.execute(
-                    "UPDATE payment_orders SET status = 'failed', updated_at = %s WHERE razorpay_order_id = %s",
-                    (datetime.utcnow(), order_id)
-                )
-                await db.commit()
+            db = SessionLocal()
+            try:
+                order = db.query(PaymentOrder).filter(PaymentOrder.razorpay_order_id == order_id).first()
+                if order:
+                    order.status = "failed"
+                    order.updated_at = datetime.utcnow()
+                    db.commit()
+            finally:
+                db.close()
             
             raise
 
@@ -358,27 +363,27 @@ class RazorpayService:
     async def get_user_subscriptions(self, user_id: str) -> List[Dict[str, Any]]:
         """Get user's active subscriptions"""
         try:
-            async with get_db_session() as db:
-                result = await db.execute(
-                    """SELECT * FROM subscriptions 
-                       WHERE user_id = %s AND status = 'active' 
-                       ORDER BY created_at DESC""",
-                    (user_id,)
-                )
-                subscriptions = result.fetchall()
+            db = SessionLocal()
+            try:
+                subscriptions = db.query(Subscription).filter(
+                    Subscription.user_id == user_id,
+                    Subscription.status == "active"
+                ).order_by(Subscription.created_at.desc()).all()
                 
                 return [
                     {
-                        "id": sub[0],
-                        "plan_type": sub[3],
-                        "amount": sub[4],
-                        "status": sub[5],
-                        "current_period_start": sub[6].isoformat() if sub[6] else None,
-                        "current_period_end": sub[7].isoformat() if sub[7] else None,
-                        "auto_renew": sub[8]
+                        "id": sub.id,
+                        "plan_type": sub.plan_type,
+                        "amount": sub.amount,
+                        "status": sub.status,
+                        "current_period_start": sub.current_period_start.isoformat() if sub.current_period_start else None,
+                        "current_period_end": sub.current_period_end.isoformat() if sub.current_period_end else None,
+                        "auto_renew": sub.auto_renew
                     }
                     for sub in subscriptions
                 ]
+            finally:
+                db.close()
                 
         except Exception as e:
             logger.error(f"Error fetching subscriptions: {str(e)}")
@@ -387,15 +392,23 @@ class RazorpayService:
     async def cancel_subscription(self, user_id: str, subscription_id: str) -> Dict[str, Any]:
         """Cancel user subscription"""
         try:
-            async with get_db_session() as db:
-                # Update subscription status
-                await db.execute(
-                    "UPDATE subscriptions SET status = 'cancelled', updated_at = %s WHERE id = %s AND user_id = %s",
-                    (datetime.utcnow(), subscription_id, user_id)
-                )
-                await db.commit()
+            db = SessionLocal()
+            try:
+                subscription = db.query(Subscription).filter(
+                    Subscription.id == subscription_id,
+                    Subscription.user_id == user_id
+                ).first()
                 
-                return {"status": "cancelled", "subscription_id": subscription_id}
+                if subscription:
+                    subscription.status = "cancelled"
+                    subscription.updated_at = datetime.utcnow()
+                    db.commit()
+                    
+                    return {"status": "cancelled", "subscription_id": subscription_id}
+                else:
+                    raise ValueError("Subscription not found")
+            finally:
+                db.close()
                 
         except Exception as e:
             logger.error(f"Error cancelling subscription: {str(e)}")
