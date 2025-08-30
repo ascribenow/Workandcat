@@ -602,7 +602,7 @@ const LandingPage = () => {
       <section className="py-16 lg:py-24 bg-[#545454]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl lg:text-5xl font-bold text-white mb-8">
-            Built for working professionals who want CAT success.
+            Built for working professionals who want CAT success
           </h2>
           
           <div className="max-w-4xl mx-auto">
