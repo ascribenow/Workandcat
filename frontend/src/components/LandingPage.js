@@ -444,7 +444,7 @@ const LandingPage = () => {
                 </div>
 
                 {showSignIn && (
-                  <div className="mt-4 text-center">
+                  <div className="mt-2 text-center">
                     <a href="#" className="text-sm text-[#9ac026] hover:text-[#ff6d4d] transition-colors" style={{ fontFamily: 'Lato, sans-serif' }}>
                       Forgot your password?
                     </a>
