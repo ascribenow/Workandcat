@@ -543,7 +543,7 @@ const LandingPage = () => {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl lg:text-5xl font-bold text-[#545454] mb-8">
-              The science behind 12.
+              How Twelvr Thinks
             </h2>
             <p className="text-lg text-[#545454] mb-12" style={{ fontFamily: 'Lato, sans-serif' }}>
               Twelvr is grounded in learning science:
