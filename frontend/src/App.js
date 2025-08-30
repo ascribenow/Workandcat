@@ -345,7 +345,7 @@ const Login = () => {
             <div className="text-center mb-8">
               <div className="mx-auto mb-6 flex justify-center">
                 <img 
-                  src="/images/twelvr-logo.png" 
+                  src="https://customer-assets.emergentagent.com/job_adaptive-cat/artifacts/1cvdpxfb_Twelvr%20Logo%20%28White%20Bg%29.png" 
                   alt="Twelvr Logo" 
                   className="h-32 w-auto"
                   style={{backgroundColor: 'transparent'}}
