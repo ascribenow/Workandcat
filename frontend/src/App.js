@@ -6,7 +6,6 @@ import { AuthProvider, useAuth } from "./components/AuthProvider";
 import { Dashboard } from "./components/Dashboard";
 import LandingPage from "./components/LandingPage";
 import Pricing from "./components/Pricing";
-import EarlyAccess from "./components/EarlyAccess";
 import ContactUs from "./components/ContactUs";
 import PrivacyPolicy from "./components/PrivacyPolicy";
 import TermsConditions from "./components/TermsConditions";
