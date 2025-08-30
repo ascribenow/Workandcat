@@ -42,37 +42,243 @@ const Pricing = () => {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="text-center mb-12">
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="text-center mb-16">
           <h1 className="text-4xl lg:text-5xl font-bold mb-6" style={{ color: '#545454' }}>
-            Pricing
+            Choose Your Daily-12 Plan
           </h1>
           <p className="text-xl" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
-            Choose the perfect plan for your CAT preparation journey
+            Consistent prep, smart pricing, serious results
           </p>
         </div>
 
-        <div className="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-12 text-center">
-          <div className="w-16 h-16 mx-auto mb-6 rounded-full flex items-center justify-center" style={{ backgroundColor: '#f7fdf0' }}>
-            <svg className="w-8 h-8" style={{ color: '#9ac026' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-            </svg>
+        {/* Pricing Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+          
+          {/* Free Trial */}
+          <div className="bg-white border-2 border-gray-200 rounded-2xl p-8 text-center hover:border-[#9ac026] transition-colors">
+            <div className="mb-6">
+              <h3 className="text-2xl font-bold mb-2" style={{ color: '#545454' }}>Free Trial</h3>
+              <p className="text-gray-600" style={{ fontFamily: 'Lato, sans-serif' }}>
+                Perfect for testing the waters
+              </p>
+            </div>
+            
+            <div className="mb-8">
+              <div className="flex items-baseline justify-center mb-2">
+                <span className="text-5xl font-bold" style={{ color: '#545454' }}>₹0</span>
+              </div>
+              <p className="text-gray-600" style={{ fontFamily: 'Lato, sans-serif' }}>
+                30 sessions total
+              </p>
+            </div>
+
+            <div className="space-y-4 mb-8">
+              <div className="flex items-center">
+                <svg className="w-5 h-5 text-[#9ac026] mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                <span className="text-left" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
+                  30 adaptive Daily-12 sessions
+                </span>
+              </div>
+              <div className="flex items-center">
+                <svg className="w-5 h-5 text-[#9ac026] mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                <span className="text-left" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
+                  Mindprint Engine included
+                </span>
+              </div>
+              <div className="flex items-center">
+                <svg className="w-5 h-5 text-[#9ac026] mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                <span className="text-left" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
+                  Basic progress tracking
+                </span>
+              </div>
+            </div>
+
+            <button 
+              className="w-full py-3 px-6 border-2 border-[#9ac026] text-[#9ac026] rounded-lg font-semibold hover:bg-[#9ac026] hover:text-white transition-colors"
+              style={{ fontFamily: 'Lato, sans-serif' }}
+            >
+              Start Free Trial
+            </button>
           </div>
-          <h2 className="text-2xl font-semibold mb-4" style={{ color: '#545454' }}>
-            Content Coming Soon
+
+          {/* Pro Lite - Most Popular */}
+          <div className="bg-white border-2 border-[#9ac026] rounded-2xl p-8 text-center relative shadow-lg transform scale-105">
+            <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+              <span className="bg-[#9ac026] text-white px-4 py-1 rounded-full text-sm font-semibold" style={{ fontFamily: 'Lato, sans-serif' }}>
+                Most Popular
+              </span>
+            </div>
+            
+            <div className="mb-6 mt-4">
+              <h3 className="text-2xl font-bold mb-2" style={{ color: '#545454' }}>Pro Lite</h3>
+              <p className="text-gray-600" style={{ fontFamily: 'Lato, sans-serif' }}>
+                For focused, consistent prep
+              </p>
+            </div>
+            
+            <div className="mb-8">
+              <div className="flex items-baseline justify-center mb-2">
+                <span className="text-5xl font-bold" style={{ color: '#545454' }}>₹999</span>
+              </div>
+              <p className="text-gray-600" style={{ fontFamily: 'Lato, sans-serif' }}>
+                30 days, unlimited sessions
+              </p>
+            </div>
+
+            <div className="space-y-4 mb-8">
+              <div className="flex items-center">
+                <svg className="w-5 h-5 text-[#9ac026] mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                <span className="text-left" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
+                  Unlimited Daily-12 sessions
+                </span>
+              </div>
+              <div className="flex items-center">
+                <svg className="w-5 h-5 text-[#9ac026] mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                <span className="text-left" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
+                  Full Mindprint Engine + Reflex Loop
+                </span>
+              </div>
+              <div className="flex items-center">
+                <svg className="w-5 h-5 text-[#9ac026] mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                <span className="text-left" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
+                  Advanced progress analytics
+                </span>
+              </div>
+              <div className="flex items-center">
+                <svg className="w-5 h-5 text-[#9ac026] mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                <span className="text-left" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
+                  CAT Trend Matrix insights
+                </span>
+              </div>
+            </div>
+
+            <button 
+              className="w-full py-3 px-6 bg-[#9ac026] text-white rounded-lg font-semibold hover:bg-[#8bb024] transition-colors"
+              style={{ fontFamily: 'Lato, sans-serif' }}
+            >
+              Choose Pro Lite
+            </button>
+          </div>
+
+          {/* Pro Regular */}
+          <div className="bg-white border-2 border-gray-200 rounded-2xl p-8 text-center hover:border-[#9ac026] transition-colors">
+            <div className="mb-6">
+              <h3 className="text-2xl font-bold mb-2" style={{ color: '#545454' }}>Pro Regular</h3>
+              <p className="text-gray-600" style={{ fontFamily: 'Lato, sans-serif' }}>
+                For intensive CAT preparation
+              </p>
+            </div>
+            
+            <div className="mb-8">
+              <div className="flex items-baseline justify-center mb-2">
+                <span className="text-5xl font-bold" style={{ color: '#545454' }}>₹1,699</span>
+              </div>
+              <p className="text-gray-600" style={{ fontFamily: 'Lato, sans-serif' }}>
+                60 days, unlimited sessions
+              </p>
+            </div>
+
+            <div className="space-y-4 mb-8">
+              <div className="flex items-center">
+                <svg className="w-5 h-5 text-[#9ac026] mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                <span className="text-left" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
+                  Unlimited Daily-12 sessions
+                </span>
+              </div>
+              <div className="flex items-center">
+                <svg className="w-5 h-5 text-[#9ac026] mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                <span className="text-left" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
+                  Complete AI suite (all engines)
+                </span>
+              </div>
+              <div className="flex items-center">
+                <svg className="w-5 h-5 text-[#9ac026] mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                <span className="text-left" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
+                  Comprehensive performance reports
+                </span>
+              </div>
+              <div className="flex items-center">
+                <svg className="w-5 h-5 text-[#9ac026] mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                <span className="text-left" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
+                  Extended CAT readiness tracking
+                </span>
+              </div>
+              <div className="flex items-center">
+                <svg className="w-5 h-5 text-[#9ac026] mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                <span className="text-left" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
+                  Priority support
+                </span>
+              </div>
+            </div>
+
+            <button 
+              className="w-full py-3 px-6 border-2 border-[#9ac026] text-[#9ac026] rounded-lg font-semibold hover:bg-[#9ac026] hover:text-white transition-colors"
+              style={{ fontFamily: 'Lato, sans-serif' }}
+            >
+              Choose Pro Regular
+            </button>
+          </div>
+        </div>
+
+        {/* FAQ Section */}
+        <div className="max-w-3xl mx-auto">
+          <h2 className="text-3xl font-bold text-center mb-12" style={{ color: '#545454' }}>
+            Frequently Asked Questions
           </h2>
-          <p className="text-lg mb-6" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
-            We're crafting the perfect pricing plans for your Daily-12 CAT preparation.
-          </p>
-          <button 
-            onClick={() => navigate('/')}
-            className="px-6 py-3 rounded-lg font-semibold transition-colors text-white"
-            style={{ backgroundColor: '#9ac026', fontFamily: 'Lato, sans-serif' }}
-            onMouseOver={(e) => e.target.style.backgroundColor = '#8bb024'}
-            onMouseOut={(e) => e.target.style.backgroundColor = '#9ac026'}
-          >
-            Back to Home
-          </button>
+          
+          <div className="space-y-8">
+            <div className="bg-gray-50 rounded-xl p-6">
+              <h3 className="text-xl font-semibold mb-3" style={{ color: '#545454' }}>
+                How does the Free Trial work?
+              </h3>
+              <p style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
+                Get 30 complete Daily-12 sessions to experience our adaptive system. No credit card required, no time limits, just 30 high-quality prep sessions to see how Twelvr works for you.
+              </p>
+            </div>
+
+            <div className="bg-gray-50 rounded-xl p-6">
+              <h3 className="text-xl font-semibold mb-3" style={{ color: '#545454' }}>
+                What's the difference between Pro Lite and Pro Regular?
+              </h3>
+              <p style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
+                Pro Lite gives you 30 days of unlimited sessions, perfect for focused monthly prep cycles. Pro Regular extends to 60 days with enhanced analytics and priority support, ideal for comprehensive CAT preparation.
+              </p>
+            </div>
+
+            <div className="bg-gray-50 rounded-xl p-6">
+              <h3 className="text-xl font-semibold mb-3" style={{ color: '#545454' }}>
+                Can I do more than one session per day?
+              </h3>
+              <p style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
+                Absolutely! While our system is designed around the Daily-12 concept, Pro plans give you unlimited sessions. You can do multiple sessions per day to accelerate your preparation.
+              </p>
+            </div>
+          </div>
         </div>
       </main>
 
