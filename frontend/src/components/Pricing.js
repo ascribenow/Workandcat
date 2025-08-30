@@ -59,49 +59,49 @@ const Pricing = () => {
         </div>
 
         {/* Pricing Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
           
           {/* Free Trial */}
-          <div className="bg-white border-2 border-gray-200 rounded-2xl p-6 text-center hover:border-[#9ac026] transition-colors">
-            <div className="mb-4">
-              <h3 className="text-xl font-bold mb-1" style={{ color: '#545454' }}>Free Trial</h3>
-              <p className="text-sm text-gray-600" style={{ fontFamily: 'Lato, sans-serif' }}>
+          <div className="bg-white border-2 border-gray-200 rounded-2xl p-8 text-center hover:border-[#9ac026] transition-colors">
+            <div className="mb-6">
+              <h3 className="text-2xl font-bold mb-2" style={{ color: '#545454' }}>Free Trial</h3>
+              <p className="text-gray-600" style={{ fontFamily: 'Lato, sans-serif' }}>
                 Perfect for testing the waters
               </p>
             </div>
             
-            <div className="mb-6">
-              <div className="flex items-baseline justify-center mb-1">
-                <span className="text-4xl font-bold" style={{ color: '#545454' }}>₹0</span>
+            <div className="mb-8">
+              <div className="flex items-baseline justify-center mb-2">
+                <span className="text-5xl font-bold" style={{ color: '#545454' }}>₹0</span>
               </div>
-              <p className="text-sm text-gray-600" style={{ fontFamily: 'Lato, sans-serif' }}>
+              <p className="text-gray-600" style={{ fontFamily: 'Lato, sans-serif' }}>
                 30 sessions total
               </p>
             </div>
 
-            <div className="space-y-2 mb-6">
+            <div className="space-y-4 mb-8">
               <div className="flex items-center">
-                <span className="text-lg mr-2">🔄</span>
-                <span className="text-left text-sm" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
+                <span className="text-xl mr-3">🔄</span>
+                <span className="text-left" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
                   30 adaptive Daily-12 sessions
                 </span>
               </div>
               <div className="flex items-center">
-                <span className="text-lg mr-2">🧠</span>
-                <span className="text-left text-sm" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
+                <span className="text-xl mr-3">🧠</span>
+                <span className="text-left" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
                   Full AI suite (Mindprint + Trend Matrix + Learning Impact)
                 </span>
               </div>
               <div className="flex items-center">
-                <span className="text-lg mr-2">📊</span>
-                <span className="text-left text-sm" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
+                <span className="text-xl mr-3">📊</span>
+                <span className="text-left" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
                   Progress dashboard & analytics
                 </span>
               </div>
             </div>
 
             <button 
-              className="w-full py-2.5 px-4 border-2 border-[#9ac026] text-[#9ac026] rounded-lg font-semibold hover:bg-[#9ac026] hover:text-white transition-colors text-sm"
+              className="w-full py-3 px-6 border-2 border-[#9ac026] text-[#9ac026] rounded-lg font-semibold hover:bg-[#9ac026] hover:text-white transition-colors"
               style={{ fontFamily: 'Lato, sans-serif' }}
             >
               Start Free Trial
@@ -109,46 +109,52 @@ const Pricing = () => {
           </div>
 
           {/* Pro Lite */}
-          <div className="bg-white border-2 border-gray-200 rounded-2xl p-6 text-center hover:border-[#9ac026] transition-colors">
-            <div className="mb-4">
-              <h3 className="text-xl font-bold mb-1" style={{ color: '#545454' }}>Pro Lite</h3>
-              <p className="text-sm text-gray-600" style={{ fontFamily: 'Lato, sans-serif' }}>
+          <div className="bg-white border-2 border-gray-200 rounded-2xl p-8 text-center hover:border-[#9ac026] transition-colors">
+            <div className="mb-6">
+              <h3 className="text-2xl font-bold mb-2" style={{ color: '#545454' }}>Pro Lite</h3>
+              <p className="text-gray-600" style={{ fontFamily: 'Lato, sans-serif' }}>
                 For long-term prep spaced across months
               </p>
             </div>
             
-            <div className="mb-6">
-              <div className="flex items-baseline justify-center mb-1">
-                <span className="text-4xl font-bold" style={{ color: '#545454' }}>₹1,495</span>
+            <div className="mb-8">
+              <div className="flex items-baseline justify-center mb-2">
+                <span className="text-5xl font-bold" style={{ color: '#545454' }}>₹1,495</span>
               </div>
-              <p className="text-sm text-gray-600" style={{ fontFamily: 'Lato, sans-serif' }}>
+              <p className="text-gray-600" style={{ fontFamily: 'Lato, sans-serif' }}>
                 30 days, unlimited sessions
               </p>
             </div>
 
-            <div className="space-y-2 mb-6">
+            <div className="space-y-4 mb-8">
               <div className="flex items-center">
-                <span className="text-lg mr-2">🔄</span>
-                <span className="text-left text-sm" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
+                <span className="text-xl mr-3">🔄</span>
+                <span className="text-left" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
                   Unlimited Daily-12 sessions (30 days)
                 </span>
               </div>
               <div className="flex items-center">
-                <span className="text-lg mr-2">🧠</span>
-                <span className="text-left text-sm" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
+                <span className="text-xl mr-3">🧠</span>
+                <span className="text-left" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
                   Full AI suite (Mindprint + Trend Matrix + Learning Impact)
                 </span>
               </div>
               <div className="flex items-center">
-                <span className="text-lg mr-2">📊</span>
-                <span className="text-left text-sm" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
+                <span className="text-xl mr-3">📊</span>
+                <span className="text-left" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
                   Progress dashboard & analytics
+                </span>
+              </div>
+              <div className="flex items-center">
+                <span className="text-xl mr-3">📈</span>
+                <span className="text-left" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
+                  Comprehensive performance reports
                 </span>
               </div>
             </div>
 
             <button 
-              className="w-full py-2.5 px-4 border-2 border-[#9ac026] text-[#9ac026] rounded-lg font-semibold hover:bg-[#9ac026] hover:text-white transition-colors text-sm"
+              className="w-full py-3 px-6 border-2 border-[#9ac026] text-[#9ac026] rounded-lg font-semibold hover:bg-[#9ac026] hover:text-white transition-colors"
               style={{ fontFamily: 'Lato, sans-serif' }}
             >
               Choose Pro Lite
@@ -156,58 +162,70 @@ const Pricing = () => {
           </div>
 
           {/* Pro Regular - Ideal for CAT 2025 */}
-          <div className="bg-white border-2 border-[#9ac026] rounded-2xl p-6 text-center relative shadow-lg transform scale-105">
-            <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-              <span className="bg-[#9ac026] text-white px-3 py-1 rounded-full text-xs font-semibold" style={{ fontFamily: 'Lato, sans-serif' }}>
+          <div className="bg-white border-2 border-[#9ac026] rounded-2xl p-8 text-center relative shadow-lg transform scale-105">
+            <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+              <span className="bg-[#9ac026] text-white px-4 py-1 rounded-full text-sm font-semibold" style={{ fontFamily: 'Lato, sans-serif' }}>
                 Ideal for CAT 2025
               </span>
             </div>
             
-            <div className="mb-4 mt-2">
-              <h3 className="text-xl font-bold mb-1" style={{ color: '#545454' }}>Pro Regular</h3>
-              <p className="text-sm text-gray-600" style={{ fontFamily: 'Lato, sans-serif' }}>
+            <div className="mb-6 mt-4">
+              <h3 className="text-2xl font-bold mb-2" style={{ color: '#545454' }}>Pro Regular</h3>
+              <p className="text-gray-600" style={{ fontFamily: 'Lato, sans-serif' }}>
                 Best for the small time window to CAT 2025
               </p>
             </div>
             
-            <div className="mb-6">
-              <div className="flex items-baseline justify-center mb-1">
-                <span className="text-4xl font-bold" style={{ color: '#545454' }}>₹2,565</span>
+            <div className="mb-8">
+              <div className="flex items-baseline justify-center mb-2">
+                <span className="text-5xl font-bold" style={{ color: '#545454' }}>₹2,565</span>
               </div>
-              <p className="text-sm text-gray-600" style={{ fontFamily: 'Lato, sans-serif' }}>
+              <p className="text-gray-600" style={{ fontFamily: 'Lato, sans-serif' }}>
                 60 days, unlimited sessions
               </p>
             </div>
 
-            <div className="space-y-2 mb-6">
+            <div className="space-y-4 mb-8">
               <div className="flex items-center">
-                <span className="text-lg mr-2">🔄</span>
-                <span className="text-left text-sm" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
+                <span className="text-xl mr-3">🔄</span>
+                <span className="text-left" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
                   Unlimited Daily-12 sessions (60 days)
                 </span>
               </div>
               <div className="flex items-center">
-                <span className="text-lg mr-2">🧠</span>
-                <span className="text-left text-sm" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
+                <span className="text-xl mr-3">🧠</span>
+                <span className="text-left" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
                   Full AI suite (Mindprint + Trend Matrix + Learning Impact)
                 </span>
               </div>
               <div className="flex items-center">
-                <span className="text-lg mr-2">📊</span>
-                <span className="text-left text-sm" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
+                <span className="text-xl mr-3">📊</span>
+                <span className="text-left" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
                   Progress dashboard & analytics
                 </span>
               </div>
               <div className="flex items-center">
-                <span className="text-lg mr-2">💬</span>
-                <span className="text-left text-sm" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
+                <span className="text-xl mr-3">📈</span>
+                <span className="text-left" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
+                  Comprehensive performance reports
+                </span>
+              </div>
+              <div className="flex items-center">
+                <span className="text-xl mr-3">🎯</span>
+                <span className="text-left" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
+                  Extended CAT readiness tracking
+                </span>
+              </div>
+              <div className="flex items-center">
+                <span className="text-xl mr-3">💬</span>
+                <span className="text-left" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
                   Ask Twelvr: Real-time doubts per question
                 </span>
               </div>
             </div>
 
             <button 
-              className="w-full py-2.5 px-4 bg-[#9ac026] text-white rounded-lg font-semibold hover:bg-[#8bb024] transition-colors text-sm"
+              className="w-full py-3 px-6 bg-[#9ac026] text-white rounded-lg font-semibold hover:bg-[#8bb024] transition-colors"
               style={{ fontFamily: 'Lato, sans-serif' }}
             >
               Choose Pro Regular
