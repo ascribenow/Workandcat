@@ -253,7 +253,7 @@ const LandingPage = () => {
 
             {/* Right Sign-in Panel (Duolingo Style) */}
             <div className="flex justify-center lg:justify-end order-1 lg:order-2">
-              <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-xl border border-gray-100 w-full max-w-md mx-4 sm:mx-0 min-h-[600px] flex flex-col">
+              <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-xl border border-gray-100 w-full max-w-md mx-4 sm:mx-0 min-h-[480px] flex flex-col">
                 
                 {/* Toggle Buttons */}
                 <div className="flex mb-6 bg-gray-100 rounded-lg p-1">
