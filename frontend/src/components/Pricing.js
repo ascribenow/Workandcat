@@ -223,12 +223,14 @@ const Pricing = () => {
               </div>
             </div>
 
-            <button 
-              className="w-full py-3 px-6 border-2 border-[#9ac026] text-[#9ac026] rounded-lg font-semibold hover:bg-[#9ac026] hover:text-white transition-colors"
-              style={{ fontFamily: 'Lato, sans-serif' }}
-            >
-              Choose Pro Lite
-            </button>
+            <PaymentComponent
+              planType="pro_lite"
+              amount={149500}
+              planName="Pro Lite"
+              description="Pro Lite - Unlimited Daily-12 sessions for 30 days"
+              onSuccess={handlePaymentSuccess}
+              onError={handlePaymentError}
+            />
           </div>
 
           {/* Pro Regular - Ideal for CAT 2025 */}
