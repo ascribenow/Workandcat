@@ -625,7 +625,7 @@ const LandingPage = () => {
           
           <div className="max-w-4xl mx-auto mb-12">
             <p className="text-lg lg:text-xl text-white mb-6" style={{ fontFamily: 'Lato, sans-serif' }}>
-              We're launching Twelvr with ambitious CAT aspirants like you.
+              We're launching Twelvr with ambitious CAT aspirants like you
             </p>
             <p className="text-lg lg:text-xl text-white" style={{ fontFamily: 'Lato, sans-serif' }}>
               Join our Early Circle, get early access, and help shape the system built for serious professionals.
