@@ -163,14 +163,20 @@ const LandingPage = () => {
     setSuccess('');
   };
 
+  // Function to scroll to top of page
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   // Function to scroll to sign-up panel
   const scrollToSignUp = () => {
     setShowSignIn(false); // Switch to sign-up tab
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Function to scroll to top of page
-  const scrollToTop = () => {
+  // Navigation with scroll to top
+  const navigateToPage = (path) => {
+    navigate(path);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
