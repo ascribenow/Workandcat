@@ -607,7 +607,7 @@ const LandingPage = () => {
           
           <div className="max-w-4xl mx-auto">
             <p className="text-lg lg:text-xl text-gray-200 mb-6" style={{ fontFamily: 'Lato, sans-serif' }}>
-              You don't need another 3-hour lecture. You need a system that keeps you moving forward, even on packed workdays.
+              You don't need another 3-hour lecture, you need a system that keeps you moving forward, even on packed workdays
             </p>
             <p className="text-lg lg:text-xl text-gray-200" style={{ fontFamily: 'Lato, sans-serif' }}>
               Twelvr makes sure you're covered daily — so no matter how hectic life gets, your CAT prep never stops.
