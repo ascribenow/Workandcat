@@ -308,12 +308,14 @@ const Pricing = () => {
               </div>
             </div>
 
-            <button 
-              className="w-full py-3 px-6 bg-[#9ac026] text-white rounded-lg font-semibold hover:bg-[#8bb024] transition-colors"
-              style={{ fontFamily: 'Lato, sans-serif' }}
-            >
-              Choose Pro Regular
-            </button>
+            <PaymentComponent
+              planType="pro_regular"
+              amount={256500}
+              planName="Pro Regular"
+              description="Pro Regular - Unlimited Daily-12 sessions for 60 days with Ask Twelvr"
+              onSuccess={handlePaymentSuccess}
+              onError={handlePaymentError}
+            />
           </div>
         </div>
 
