@@ -36,9 +36,6 @@ const Pricing = () => {
               <span className="text-[#9ac026] font-semibold" style={{ fontFamily: 'Lato, sans-serif' }}>
                 Pricing
               </span>
-              <button onClick={() => navigate('/early-access')} className="text-[#545454] hover:text-[#ff6d4d] transition-colors" style={{ fontFamily: 'Lato, sans-serif' }}>
-                Early Access
-              </button>
             </nav>
           </div>
         </div>
