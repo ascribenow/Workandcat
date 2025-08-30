@@ -509,9 +509,9 @@ const LandingPage = () => {
                   ))}
                 </div>
               </div>
-              <h3 className="text-xl font-bold text-[#545454] mb-4">Step 2 — Do your 12.</h3>
+              <h3 className="text-xl font-bold text-[#545454] mb-4">Step 2, Do your 12</h3>
               <p className="text-[#545454]" style={{ fontFamily: 'Lato, sans-serif' }}>
-                20-30 minutes, adaptive, focused.
+                20-30 minutes, adaptive, focused
               </p>
             </div>
 
