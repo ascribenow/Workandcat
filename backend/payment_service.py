@@ -1,0 +1,405 @@
+"""
+Razorpay Payment Service for Twelvr
+Handles subscription payments and one-time payments with comprehensive payment options
+"""
+
+import os
+import razorpay
+import uuid
+from datetime import datetime, timedelta
+from typing import Dict, Any, Optional, List
+from pydantic import BaseModel
+from sqlalchemy import Column, String, Integer, Float, DateTime, Boolean, Text, ForeignKey
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import relationship
+from database import Base, get_db_session
+import logging
+
+logger = logging.getLogger(__name__)
+
+# Pydantic models for API requests
+class CreateOrderRequest(BaseModel):
+    plan_type: str  # "pro_lite" or "pro_regular"
+    user_email: str
+    user_name: str
+    user_phone: Optional[str] = None
+
+class PaymentVerificationRequest(BaseModel):
+    razorpay_order_id: str
+    razorpay_payment_id: str
+    razorpay_signature: str
+    user_id: str
+
+class SubscriptionRequest(BaseModel):
+    plan_type: str
+    user_email: str
+    user_name: str
+    user_phone: Optional[str] = None
+
+# Database Models
+class PaymentOrder(Base):
+    __tablename__ = "payment_orders"
+    
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = Column(String, ForeignKey("users.id"), nullable=False)
+    razorpay_order_id = Column(String, unique=True, nullable=False)
+    plan_type = Column(String, nullable=False)  # "pro_lite" or "pro_regular"
+    amount = Column(Integer, nullable=False)  # Amount in paise
+    currency = Column(String, default="INR")
+    status = Column(String, default="created")  # created, paid, failed
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+class Subscription(Base):
+    __tablename__ = "subscriptions"
+    
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = Column(String, ForeignKey("users.id"), nullable=False)
+    razorpay_subscription_id = Column(String, unique=True, nullable=True)
+    plan_type = Column(String, nullable=False)
+    amount = Column(Integer, nullable=False)  # Amount in paise
+    status = Column(String, default="active")  # active, paused, cancelled, expired
+    current_period_start = Column(DateTime, nullable=False)
+    current_period_end = Column(DateTime, nullable=False)
+    auto_renew = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+class PaymentTransaction(Base):
+    __tablename__ = "payment_transactions"
+    
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = Column(String, ForeignKey("users.id"), nullable=False)
+    razorpay_payment_id = Column(String, unique=True, nullable=False)
+    razorpay_order_id = Column(String, nullable=False)
+    amount = Column(Integer, nullable=False)
+    currency = Column(String, default="INR")
+    method = Column(String, nullable=True)  # card, netbanking, wallet, upi, etc.
+    status = Column(String, nullable=False)  # captured, failed, refunded
+    gateway_response = Column(Text, nullable=True)  # Store full response as JSON
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+class RazorpayService:
+    def __init__(self):
+        self.client = razorpay.Client(
+            auth=(
+                os.getenv("RAZORPAY_KEY_ID"),
+                os.getenv("RAZORPAY_KEY_SECRET")
+            )
+        )
+        
+        # Plan configurations
+        self.plans = {
+            "pro_lite": {
+                "name": "Pro Lite",
+                "amount": 149500,  # ₹1,495 in paise
+                "interval": "monthly",
+                "period": 1,
+                "description": "Pro Lite - Unlimited Daily-12 sessions for 30 days",
+                "auto_renew": True
+            },
+            "pro_regular": {
+                "name": "Pro Regular", 
+                "amount": 256500,  # ₹2,565 in paise
+                "interval": None,  # One-time payment
+                "period": 60,  # 60 days validity
+                "description": "Pro Regular - Unlimited Daily-12 sessions for 60 days",
+                "auto_renew": False
+            }
+        }
+
+    async def create_order(self, plan_type: str, user_email: str, user_name: str, user_id: str, user_phone: Optional[str] = None) -> Dict[str, Any]:
+        """Create a Razorpay order for one-time payments"""
+        try:
+            if plan_type not in self.plans:
+                raise ValueError(f"Invalid plan type: {plan_type}")
+            
+            plan_config = self.plans[plan_type]
+            
+            # Create Razorpay order with all payment methods enabled
+            order_data = {
+                "amount": plan_config["amount"],
+                "currency": "INR",
+                "payment_capture": 1,
+                "notes": {
+                    "plan_type": plan_type,
+                    "user_email": user_email,
+                    "user_name": user_name,
+                    "user_id": user_id
+                }
+            }
+            
+            razorpay_order = self.client.order.create(order_data)
+            
+            # Store order in database
+            async with get_db_session() as db:
+                db_order = PaymentOrder(
+                    user_id=user_id,
+                    razorpay_order_id=razorpay_order["id"],
+                    plan_type=plan_type,
+                    amount=plan_config["amount"],
+                    status="created"
+                )
+                db.add(db_order)
+                await db.commit()
+            
+            return {
+                "order_id": razorpay_order["id"],
+                "amount": razorpay_order["amount"],
+                "currency": razorpay_order["currency"],
+                "plan_name": plan_config["name"],
+                "description": plan_config["description"],
+                "prefill": {
+                    "name": user_name,
+                    "email": user_email,
+                    "contact": user_phone or ""
+                }
+            }
+            
+        except Exception as e:
+            logger.error(f"Error creating order: {str(e)}")
+            raise
+
+    async def create_subscription(self, plan_type: str, user_email: str, user_name: str, user_id: str, user_phone: Optional[str] = None) -> Dict[str, Any]:
+        """Create a Razorpay subscription for recurring payments (Pro Lite)"""
+        try:
+            if plan_type != "pro_lite":
+                raise ValueError("Subscriptions are only available for Pro Lite plan")
+            
+            plan_config = self.plans[plan_type]
+            
+            # Create Razorpay subscription
+            subscription_data = {
+                "plan_id": await self._get_or_create_plan(plan_type),
+                "customer_notify": 1,
+                "quantity": 1,
+                "total_count": 12,  # Allow for 1 year of monthly payments
+                "notes": {
+                    "plan_type": plan_type,
+                    "user_email": user_email,
+                    "user_name": user_name,
+                    "user_id": user_id
+                }
+            }
+            
+            razorpay_subscription = self.client.subscription.create(subscription_data)
+            
+            # Store subscription in database
+            async with get_db_session() as db:
+                db_subscription = Subscription(
+                    user_id=user_id,
+                    razorpay_subscription_id=razorpay_subscription["id"],
+                    plan_type=plan_type,
+                    amount=plan_config["amount"],
+                    status="created",
+                    current_period_start=datetime.utcnow(),
+                    current_period_end=datetime.utcnow() + timedelta(days=30),
+                    auto_renew=True
+                )
+                db.add(db_subscription)
+                await db.commit()
+            
+            return {
+                "subscription_id": razorpay_subscription["id"],
+                "amount": plan_config["amount"],
+                "plan_name": plan_config["name"],
+                "description": plan_config["description"],
+                "short_url": razorpay_subscription.get("short_url")
+            }
+            
+        except Exception as e:
+            logger.error(f"Error creating subscription: {str(e)}")
+            raise
+
+    async def _get_or_create_plan(self, plan_type: str) -> str:
+        """Get or create a Razorpay plan for subscriptions"""
+        try:
+            # Try to fetch existing plans
+            plans = self.client.plan.all()
+            
+            plan_config = self.plans[plan_type]
+            plan_id = f"twelvr_{plan_type}_{plan_config['amount']}"
+            
+            # Check if plan exists
+            for plan in plans.get("items", []):
+                if plan["id"] == plan_id:
+                    return plan_id
+            
+            # Create new plan if not exists
+            plan_data = {
+                "id": plan_id,
+                "item": {
+                    "name": plan_config["name"],
+                    "description": plan_config["description"],
+                    "amount": plan_config["amount"],
+                    "currency": "INR"
+                },
+                "period": "monthly",
+                "interval": 1,
+                "notes": {
+                    "plan_type": plan_type
+                }
+            }
+            
+            created_plan = self.client.plan.create(plan_data)
+            return created_plan["id"]
+            
+        except Exception as e:
+            logger.error(f"Error creating plan: {str(e)}")
+            raise
+
+    async def verify_payment(self, order_id: str, payment_id: str, signature: str, user_id: str) -> Dict[str, Any]:
+        """Verify Razorpay payment signature and update order status"""
+        try:
+            # Verify signature
+            params_dict = {
+                'razorpay_order_id': order_id,
+                'razorpay_payment_id': payment_id,
+                'razorpay_signature': signature
+            }
+            
+            # This will raise an exception if signature is invalid
+            self.client.utility.verify_payment_signature(params_dict)
+            
+            # Fetch payment details
+            payment_details = self.client.payment.fetch(payment_id)
+            
+            # Update database
+            async with get_db_session() as db:
+                # Update order status
+                order = await db.execute(
+                    "UPDATE payment_orders SET status = 'paid', updated_at = %s WHERE razorpay_order_id = %s",
+                    (datetime.utcnow(), order_id)
+                )
+                
+                # Create transaction record
+                transaction = PaymentTransaction(
+                    user_id=user_id,
+                    razorpay_payment_id=payment_id,
+                    razorpay_order_id=order_id,
+                    amount=payment_details["amount"],
+                    method=payment_details.get("method"),
+                    status=payment_details["status"],
+                    gateway_response=str(payment_details)
+                )
+                db.add(transaction)
+                
+                # Get order details for subscription creation
+                order_result = await db.execute(
+                    "SELECT plan_type, amount FROM payment_orders WHERE razorpay_order_id = %s",
+                    (order_id,)
+                )
+                order_data = order_result.fetchone()
+                
+                if order_data:
+                    # Create subscription record
+                    plan_type = order_data[0]
+                    period_days = 30 if plan_type == "pro_lite" else 60
+                    
+                    subscription = Subscription(
+                        user_id=user_id,
+                        plan_type=plan_type,
+                        amount=order_data[1],
+                        status="active",
+                        current_period_start=datetime.utcnow(),
+                        current_period_end=datetime.utcnow() + timedelta(days=period_days),
+                        auto_renew=(plan_type == "pro_lite")
+                    )
+                    db.add(subscription)
+                
+                await db.commit()
+            
+            return {
+                "status": "success",
+                "payment_id": payment_id,
+                "order_id": order_id,
+                "method": payment_details.get("method"),
+                "amount": payment_details["amount"]
+            }
+            
+        except Exception as e:
+            logger.error(f"Payment verification failed: {str(e)}")
+            # Update order status to failed
+            async with get_db_session() as db:
+                await db.execute(
+                    "UPDATE payment_orders SET status = 'failed', updated_at = %s WHERE razorpay_order_id = %s",
+                    (datetime.utcnow(), order_id)
+                )
+                await db.commit()
+            
+            raise
+
+    def get_payment_methods_config(self) -> Dict[str, Any]:
+        """Return comprehensive payment methods configuration for frontend"""
+        return {
+            "methods": {
+                "card": True,
+                "netbanking": True,
+                "wallet": ["freecharge", "mobikwik", "olamoney", "payzapp", "airtelmoney", "amazonpay", "phonepe", "paytm", "jiomoney"],
+                "upi": True,
+                "emi": True,
+                "paylater": ["simpl", "getsimpl", "icici", "hdfc"]
+            },
+            "theme": {
+                "color": "#9ac026"  # Twelvr brand color
+            },
+            "modal": {
+                "backdropclose": False,
+                "escape": True,
+                "handleback": True
+            },
+            "config": {
+                "display": {
+                    "language": "en"
+                }
+            }
+        }
+
+    async def get_user_subscriptions(self, user_id: str) -> List[Dict[str, Any]]:
+        """Get user's active subscriptions"""
+        try:
+            async with get_db_session() as db:
+                result = await db.execute(
+                    """SELECT * FROM subscriptions 
+                       WHERE user_id = %s AND status = 'active' 
+                       ORDER BY created_at DESC""",
+                    (user_id,)
+                )
+                subscriptions = result.fetchall()
+                
+                return [
+                    {
+                        "id": sub[0],
+                        "plan_type": sub[3],
+                        "amount": sub[4],
+                        "status": sub[5],
+                        "current_period_start": sub[6].isoformat() if sub[6] else None,
+                        "current_period_end": sub[7].isoformat() if sub[7] else None,
+                        "auto_renew": sub[8]
+                    }
+                    for sub in subscriptions
+                ]
+                
+        except Exception as e:
+            logger.error(f"Error fetching subscriptions: {str(e)}")
+            return []
+
+    async def cancel_subscription(self, user_id: str, subscription_id: str) -> Dict[str, Any]:
+        """Cancel user subscription"""
+        try:
+            async with get_db_session() as db:
+                # Update subscription status
+                await db.execute(
+                    "UPDATE subscriptions SET status = 'cancelled', updated_at = %s WHERE id = %s AND user_id = %s",
+                    (datetime.utcnow(), subscription_id, user_id)
+                )
+                await db.commit()
+                
+                return {"status": "cancelled", "subscription_id": subscription_id}
+                
+        except Exception as e:
+            logger.error(f"Error cancelling subscription: {str(e)}")
+            raise
+
+# Global instance
+razorpay_service = RazorpayService()
