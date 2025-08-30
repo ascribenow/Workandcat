@@ -620,7 +620,7 @@ const LandingPage = () => {
       <section id="early-access" className="py-16 lg:py-24 bg-gradient-to-br from-[#9ac026] to-[#8bb024]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl lg:text-5xl font-bold text-white mb-8">
-            Be part of the Founders' Circle.
+            Be part of the Founders' Circle
           </h2>
           
           <div className="max-w-4xl mx-auto mb-12">
