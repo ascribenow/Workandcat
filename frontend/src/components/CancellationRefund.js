@@ -43,27 +43,57 @@ const CancellationRefund = () => {
           </p>
         </div>
 
-        <div className="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-12 text-center">
-          <div className="w-16 h-16 mx-auto mb-6 rounded-full flex items-center justify-center" style={{ backgroundColor: '#f7fdf0' }}>
-            <svg className="w-8 h-8" style={{ color: '#9ac026' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-            </svg>
+        <div className="prose prose-lg max-w-none">
+          <div className="mb-8">
+            <p className="text-gray-600 mb-4" style={{ fontFamily: 'Lato, sans-serif' }}>
+              <strong>Effective Date:</strong> 01 Aug 2025
+            </p>
+            <p className="text-gray-600 mb-6" style={{ fontFamily: 'Lato, sans-serif' }}>
+              <strong>Company:</strong> M/s Costo Digital
+            </p>
+            <p className="text-lg" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
+              At Twelvr, our services are subscription-based, delivering personalized daily sessions.
+            </p>
           </div>
-          <h2 className="text-2xl font-semibold mb-4" style={{ color: '#545454' }}>
-            Content Coming Soon
-          </h2>
-          <p className="text-lg mb-6" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
-            We're developing fair and transparent cancellation and refund policies for our users.
-          </p>
-          <button 
-            onClick={() => navigate('/')}
-            className="px-6 py-3 rounded-lg font-semibold transition-colors text-white"
-            style={{ backgroundColor: '#9ac026', fontFamily: 'Lato, sans-serif' }}
-            onMouseOver={(e) => e.target.style.backgroundColor = '#8bb024'}
-            onMouseOut={(e) => e.target.style.backgroundColor = '#9ac026'}
-          >
-            Back to Home
-          </button>
+
+          <div className="space-y-8">
+            <section>
+              <h2 className="text-2xl font-bold mb-4" style={{ color: '#545454' }}>1. Cancellations</h2>
+              <ul className="space-y-2 text-gray-700" style={{ fontFamily: 'Lato, sans-serif' }}>
+                <li>You may cancel your subscription at any time through your account settings.</li>
+                <li>Cancellation stops auto-renewal but does not entitle you to a refund for prior payments.</li>
+              </ul>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-bold mb-4" style={{ color: '#545454' }}>2. Refunds</h2>
+              <ul className="space-y-2 text-gray-700" style={{ fontFamily: 'Lato, sans-serif' }}>
+                <li><strong>Strict No-Refund Policy:</strong> Once a payment is processed, it is non-refundable.</li>
+                <li>Partial usage of subscription or dissatisfaction with performance outcomes does not qualify for a refund.</li>
+              </ul>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-bold mb-4" style={{ color: '#545454' }}>3. Exceptional Cases</h2>
+              <p className="text-gray-700" style={{ fontFamily: 'Lato, sans-serif' }}>
+                If a technical error (such as double billing) occurs, please contact support. Verified cases will be rectified.
+              </p>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-bold mb-4" style={{ color: '#545454' }}>4. Changes to Policy</h2>
+              <p className="text-gray-700" style={{ fontFamily: 'Lato, sans-serif' }}>
+                We may update this policy periodically. Continued use of the platform constitutes agreement to the updated policy.
+              </p>
+            </section>
+
+            <section className="border-t pt-6">
+              <h2 className="text-2xl font-bold mb-4" style={{ color: '#545454' }}>Contact</h2>
+              <p className="text-gray-700" style={{ fontFamily: 'Lato, sans-serif' }}>
+                For billing concerns, reach us at <a href="mailto:support@twelvr.com" className="text-[#9ac026] hover:underline">support@twelvr.com</a>
+              </p>
+            </section>
+          </div>
         </div>
       </main>
     </div>
