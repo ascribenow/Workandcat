@@ -438,6 +438,7 @@ const LandingPage = () => {
                     )}
                   </button>
                 </form>
+                </div>
 
                 {showSignIn && (
                   <div className="mt-4 text-center">
