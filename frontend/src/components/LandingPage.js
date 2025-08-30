@@ -283,7 +283,8 @@ const LandingPage = () => {
                 </div>
 
                 {/* Form */}
-                <form onSubmit={showSignIn ? handleSignIn : (showVerification ? handleVerifyAndRegister : handleSignUp)}>
+                <div className="flex-grow flex flex-col justify-center">
+                <form onSubmit={showSignIn ? handleSignIn : (showVerification ? handleVerifyAndRegister : handleSignUp)} className="flex flex-col h-full justify-center">
                   <div className="space-y-4">
                     {/* Show verification code input when in verification step */}
                     {!showSignIn && showVerification ? (
