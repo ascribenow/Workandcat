@@ -890,6 +890,162 @@ async def init_basic_topics(
         logger.error(f"Error initializing topics: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+# ===========================================
+# PAYMENT ENDPOINTS
+# ===========================================
+
+@api_router.post("/payments/create-order")
+async def create_payment_order(order_request: CreateOrderRequest, current_user: dict = Depends(require_auth)):
+    """Create Razorpay order for one-time payments (Pro Regular)"""
+    try:
+        user_id = current_user["id"]
+        
+        if order_request.plan_type not in ["pro_lite", "pro_regular"]:
+            raise HTTPException(status_code=400, detail="Invalid plan type")
+        
+        # For Pro Lite, redirect to subscription
+        if order_request.plan_type == "pro_lite":
+            raise HTTPException(
+                status_code=400, 
+                detail="Pro Lite requires subscription. Use /api/payments/create-subscription endpoint"
+            )
+        
+        order = await razorpay_service.create_order(
+            plan_type=order_request.plan_type,
+            user_email=order_request.user_email,
+            user_name=order_request.user_name,
+            user_id=user_id,
+            user_phone=order_request.user_phone
+        )
+        
+        # Add payment methods configuration
+        payment_config = razorpay_service.get_payment_methods_config()
+        order.update({
+            "key": os.getenv("RAZORPAY_KEY_ID"),
+            "payment_methods": payment_config["methods"],
+            "theme": payment_config["theme"],
+            "modal": payment_config["modal"]
+        })
+        
+        return {"success": True, "data": order}
+        
+    except Exception as e:
+        logger.error(f"Error creating payment order: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/payments/create-subscription")
+async def create_subscription(sub_request: SubscriptionRequest, current_user: dict = Depends(require_auth)):
+    """Create Razorpay subscription for Pro Lite with auto-renewal"""
+    try:
+        user_id = current_user["id"]
+        
+        if sub_request.plan_type != "pro_lite":
+            raise HTTPException(status_code=400, detail="Subscriptions are only available for Pro Lite")
+        
+        subscription = await razorpay_service.create_subscription(
+            plan_type=sub_request.plan_type,
+            user_email=sub_request.user_email,
+            user_name=sub_request.user_name,
+            user_id=user_id,
+            user_phone=sub_request.user_phone
+        )
+        
+        return {"success": True, "data": subscription}
+        
+    except Exception as e:
+        logger.error(f"Error creating subscription: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/payments/verify-payment")
+async def verify_payment(verification_request: PaymentVerificationRequest, current_user: dict = Depends(require_auth)):
+    """Verify Razorpay payment and activate subscription"""
+    try:
+        user_id = current_user["id"]
+        
+        if verification_request.user_id != user_id:
+            raise HTTPException(status_code=403, detail="User ID mismatch")
+        
+        result = await razorpay_service.verify_payment(
+            order_id=verification_request.razorpay_order_id,
+            payment_id=verification_request.razorpay_payment_id,
+            signature=verification_request.razorpay_signature,
+            user_id=user_id
+        )
+        
+        return {"success": True, "data": result}
+        
+    except Exception as e:
+        logger.error(f"Payment verification failed: {str(e)}")
+        raise HTTPException(status_code=400, detail=str(e))
+
+@api_router.get("/payments/subscription-status")
+async def get_subscription_status(current_user: dict = Depends(require_auth)):
+    """Get user's current subscription status"""
+    try:
+        user_id = current_user["id"]
+        subscriptions = await razorpay_service.get_user_subscriptions(user_id)
+        
+        return {"success": True, "subscriptions": subscriptions}
+        
+    except Exception as e:
+        logger.error(f"Error fetching subscription status: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/payments/cancel-subscription/{subscription_id}")
+async def cancel_subscription(subscription_id: str, current_user: dict = Depends(require_auth)):
+    """Cancel user's subscription"""
+    try:
+        user_id = current_user["id"]
+        result = await razorpay_service.cancel_subscription(user_id, subscription_id)
+        
+        return {"success": True, "data": result}
+        
+    except Exception as e:
+        logger.error(f"Error cancelling subscription: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/payments/config")
+async def get_payment_config():
+    """Get Razorpay configuration for frontend"""
+    try:
+        config = razorpay_service.get_payment_methods_config()
+        return {
+            "success": True,
+            "key_id": os.getenv("RAZORPAY_KEY_ID"),
+            "config": config
+        }
+        
+    except Exception as e:
+        logger.error(f"Error fetching payment config: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/payments/webhook")
+async def razorpay_webhook(request: Request):
+    """Handle Razorpay webhook notifications"""
+    try:
+        payload = await request.body()
+        signature = request.headers.get('X-Razorpay-Signature', '')
+        
+        # Verify webhook signature (implement as needed)
+        # razorpay_service.client.utility.verify_webhook_signature(
+        #     payload.decode(),
+        #     signature,
+        #     os.getenv('RAZORPAY_WEBHOOK_SECRET')
+        # )
+        
+        # Process webhook event (subscription updates, payment failures, etc.)
+        logger.info(f"Received webhook: {payload}")
+        
+        return {"status": "processed"}
+        
+    except Exception as e:
+        logger.error(f"Webhook processing failed: {str(e)}")
+        raise HTTPException(status_code=400, detail=str(e))
+
+# ===========================================
+# END PAYMENT ENDPOINTS
+# ===========================================
+
 @api_router.post("/questions")
 async def create_question(
     question_data: QuestionCreateRequest,
