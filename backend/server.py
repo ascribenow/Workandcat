@@ -895,7 +895,7 @@ async def init_basic_topics(
 # ===========================================
 
 @api_router.post("/payments/create-order")
-async def create_payment_order(order_request: CreateOrderRequest, current_user: dict = Depends(require_auth)):
+async def create_payment_order(order_request: CreateOrderRequest, current_user: User = Depends(require_auth)):
     """Create Razorpay order for one-time payments (Pro Regular)"""
     try:
         user_id = current_user["id"]
