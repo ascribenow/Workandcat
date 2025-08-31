@@ -175,101 +175,67 @@ class RazorpayService:
             
             plan_config = self.plans[plan_type]
             
-            # Try to create a Razorpay subscription first
+            # Since Razorpay subscriptions require account activation, 
+            # we'll implement Pro Lite as one-time payments with subscription-like UX
+            logger.info(f"Creating Pro Lite payment (subscription-style) for user {user_id}")
+            
+            # Create as one-time payment but handle as subscription
+            order_data = {
+                "amount": plan_config["amount"],
+                "currency": "INR",
+                "payment_capture": 1,
+                "notes": {
+                    "plan_type": plan_type,
+                    "user_email": user_email,
+                    "user_name": user_name,
+                    "user_id": user_id,
+                    "billing_cycle": "monthly",
+                    "subscription_type": "pro_lite_monthly"
+                }
+            }
+            
+            razorpay_order = self.client.order.create(order_data)
+            logger.info(f"Successfully created Pro Lite order: {razorpay_order['id']}")
+            
+            # Store order in database with subscription flag
+            db = SessionLocal()
             try:
-                subscription_data = {
-                    "plan_id": await self._get_or_create_plan(plan_type),
-                    "customer_notify": 1,
-                    "quantity": 1,
-                    "total_count": 12,  # Allow for 1 year of monthly payments
-                    "notes": {
-                        "plan_type": plan_type,
-                        "user_email": user_email,
-                        "user_name": user_name,
-                        "user_id": user_id
-                    }
-                }
-                
-                razorpay_subscription = self.client.subscription.create(subscription_data)
-                
-                # Store subscription in database (synchronous)
-                db = SessionLocal()
-                try:
-                    db_subscription = Subscription(
-                        user_id=user_id,
-                        razorpay_subscription_id=razorpay_subscription["id"],
-                        plan_type=plan_type,
-                        amount=plan_config["amount"],
-                        status="created",
-                        current_period_start=datetime.utcnow(),
-                        current_period_end=datetime.utcnow() + timedelta(days=30),
-                        auto_renew=True
-                    )
-                    db.add(db_subscription)
-                    db.commit()
-                finally:
-                    db.close()
-                
-                return {
-                    "id": razorpay_subscription["id"],
-                    "amount": plan_config["amount"],
-                    "plan_name": plan_config["name"],
-                    "description": plan_config["description"],
-                    "short_url": razorpay_subscription.get("short_url")
-                }
-                
-            except Exception as subscription_error:
-                logger.warning(f"Subscription creation failed, falling back to one-time payment: {str(subscription_error)}")
-                
-                # Fallback: Create as one-time payment but handle as subscription
-                order_data = {
-                    "amount": plan_config["amount"],
-                    "currency": "INR",
-                    "payment_capture": 1,
-                    "notes": {
-                        "plan_type": plan_type,
-                        "user_email": user_email,
-                        "user_name": user_name,
-                        "user_id": user_id,
-                        "is_subscription_fallback": "true",
-                        "billing_cycle": "monthly"
-                    }
-                }
-                
-                razorpay_order = self.client.order.create(order_data)
-                
-                # Store order in database with subscription flag
-                db = SessionLocal()
-                try:
-                    db_order = PaymentOrder(
-                        user_id=user_id,
-                        razorpay_order_id=razorpay_order["id"],
-                        plan_type=plan_type,
-                        amount=plan_config["amount"],
-                        status="created"
-                    )
-                    db.add(db_order)
-                    db.commit()
-                finally:
-                    db.close()
-                
-                return {
-                    "id": razorpay_order["id"],
-                    "amount": razorpay_order["amount"],
-                    "currency": razorpay_order["currency"],
-                    "plan_name": plan_config["name"],
-                    "description": f"{plan_config['description']} (Monthly Payment)",
-                    "prefill": {
-                        "name": user_name,
-                        "email": user_email,
-                        "contact": user_phone or ""
-                    },
-                    "fallback_mode": True,
-                    "message": "Subscriptions not available - processing as monthly payment"
-                }
+                db_order = PaymentOrder(
+                    user_id=user_id,
+                    razorpay_order_id=razorpay_order["id"],
+                    plan_type=plan_type,
+                    amount=plan_config["amount"],
+                    status="created"
+                )
+                db.add(db_order)
+                db.commit()
+                logger.info(f"Stored Pro Lite order in database")
+            finally:
+                db.close()
+            
+            return {
+                "id": razorpay_order["id"],
+                "amount": razorpay_order["amount"],
+                "currency": razorpay_order["currency"],
+                "plan_name": plan_config["name"],
+                "description": f"{plan_config['description']} - Monthly Access",
+                "prefill": {
+                    "name": user_name,
+                    "email": user_email,
+                    "contact": user_phone or ""
+                },
+                "theme": {
+                    "color": "#9ac026"  # Twelvr brand color
+                },
+                "modal": {
+                    "ondismiss": "console.log('Payment modal closed')"
+                },
+                "subscription_style": True,
+                "message": "Processing as monthly payment - 30 day access"
+            }
             
         except Exception as e:
-            logger.error(f"Error creating subscription: {str(e)}")
+            logger.error(f"Error creating Pro Lite subscription: {str(e)}")
             raise
 
     async def _get_or_create_plan(self, plan_type: str) -> str:
