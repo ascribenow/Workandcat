@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from './AuthProvider';
 import { useNavigate } from 'react-router-dom';
+import { storePlanContext, PLAN_TYPES } from '../utils/planContext';
 
 const LandingPage = () => {
   const { login, sendVerificationCode, verifyEmailCode, registerWithVerification } = useAuth();
