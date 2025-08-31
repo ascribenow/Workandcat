@@ -19,7 +19,7 @@ const Header = ({ onScrollToSection, className = "" }) => {
 
   // Handle section scrolling on landing page
   const handleSectionNavigation = (section) => {
-    if (location.pathname === '/') && onScrollToSection) {
+    if (location.pathname === '/' && onScrollToSection) {
       onScrollToSection(section);
     } else {
       // If not on landing page, navigate to landing page with hash
