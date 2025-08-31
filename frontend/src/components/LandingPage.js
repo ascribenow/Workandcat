@@ -180,18 +180,6 @@ const LandingPage = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Handle plan selection from CTAs
-  const handlePlanSelection = (planType) => {
-    // Store plan context for 15 minutes
-    storePlanContext(planType, 'landing_page');
-    
-    // Switch to sign-up mode and scroll to form
-    setShowSignIn(false); // Switch to sign-up tab
-    
-    // Scroll to top where the form is
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
   return (
     <div className="min-h-screen bg-white" style={{ fontFamily: 'Manrope, sans-serif' }}>
       {/* Header */}
