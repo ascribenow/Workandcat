@@ -612,6 +612,150 @@ const LandingPage = () => {
         </div>
       </section>
 
+      {/* Plan Selection Section */}
+      <section className="py-16 lg:py-24 bg-gray-50">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl lg:text-5xl font-bold text-[#545454] mb-8">
+              Choose your path to CAT success
+            </h2>
+            <p className="text-lg text-[#545454]" style={{ fontFamily: 'Lato, sans-serif' }}>
+              Start your journey with the perfect plan for your timeline
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+            {/* Pro Lite Plan */}
+            <div className="bg-white border-2 border-gray-200 rounded-2xl p-8 text-center hover:border-[#9ac026] transition-all duration-300 hover:shadow-lg">
+              <div className="mb-6">
+                <h3 className="text-2xl font-bold mb-2" style={{ color: '#545454' }}>Pro Lite</h3>
+                <p className="text-gray-600" style={{ fontFamily: 'Lato, sans-serif' }}>
+                  Perfect for steady, month-by-month prep
+                </p>
+              </div>
+              
+              <div className="mb-8">
+                <div className="flex items-baseline justify-center mb-2">
+                  <span className="text-4xl font-bold" style={{ color: '#545454' }}>₹1,495</span>
+                  <span className="text-gray-500 ml-2">/month</span>
+                </div>
+                <p className="text-gray-600" style={{ fontFamily: 'Lato, sans-serif' }}>
+                  Unlimited sessions for 30 days
+                </p>
+              </div>
+
+              <div className="space-y-3 mb-8 text-left">
+                <div className="flex items-center">
+                  <svg className="w-5 h-5 text-[#9ac026] mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span className="text-sm" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
+                    Unlimited Daily-12 sessions
+                  </span>
+                </div>
+                <div className="flex items-center">
+                  <svg className="w-5 h-5 text-[#9ac026] mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span className="text-sm" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
+                    Full adaptive system
+                  </span>
+                </div>
+                <div className="flex items-center">
+                  <svg className="w-5 h-5 text-[#9ac026] mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span className="text-sm" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
+                    Renews monthly, pause anytime
+                  </span>
+                </div>
+              </div>
+
+              <button 
+                onClick={() => handlePlanSelection(PLAN_TYPES.PRO_LITE)}
+                className="w-full py-3 px-6 border-2 border-[#9ac026] text-[#9ac026] rounded-lg font-semibold hover:bg-[#9ac026] hover:text-white transition-colors"
+                style={{ fontFamily: 'Lato, sans-serif' }}
+              >
+                Get Pro Lite
+              </button>
+            </div>
+
+            {/* Pro Regular Plan */}
+            <div className="bg-white border-2 border-[#9ac026] rounded-2xl p-8 text-center relative shadow-lg transform hover:scale-105 transition-all duration-300">
+              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                <span className="bg-[#9ac026] text-white px-4 py-1 rounded-full text-sm font-semibold" style={{ fontFamily: 'Lato, sans-serif' }}>
+                  Most Popular
+                </span>
+              </div>
+              
+              <div className="mb-6 mt-4">
+                <h3 className="text-2xl font-bold mb-2" style={{ color: '#545454' }}>Pro Regular</h3>
+                <p className="text-gray-600" style={{ fontFamily: 'Lato, sans-serif' }}>
+                  Intensive prep for CAT 2025
+                </p>
+              </div>
+              
+              <div className="mb-8">
+                <div className="flex items-baseline justify-center mb-2">
+                  <span className="text-4xl font-bold" style={{ color: '#545454' }}>₹2,565</span>
+                </div>
+                <p className="text-gray-600" style={{ fontFamily: 'Lato, sans-serif' }}>
+                  60 days unlimited access
+                </p>
+              </div>
+
+              <div className="space-y-3 mb-8 text-left">
+                <div className="flex items-center">
+                  <svg className="w-5 h-5 text-[#9ac026] mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span className="text-sm" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
+                    Everything in Pro Lite
+                  </span>
+                </div>
+                <div className="flex items-center">
+                  <svg className="w-5 h-5 text-[#9ac026] mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span className="text-sm" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
+                    60 days validity
+                  </span>
+                </div>
+                <div className="flex items-center border-l-4 border-[#9ac026] pl-2 bg-green-50 rounded-r-md py-2">
+                  <svg className="w-5 h-5 text-[#9ac026] mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span className="text-sm font-medium" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
+                    Ask Twelvr: Real-time doubt resolution
+                  </span>
+                </div>
+              </div>
+
+              <button 
+                onClick={() => handlePlanSelection(PLAN_TYPES.PRO_REGULAR)}
+                className="w-full py-3 px-6 bg-[#9ac026] text-white rounded-lg font-semibold hover:bg-[#8bb024] transition-colors"
+                style={{ fontFamily: 'Lato, sans-serif' }}
+              >
+                Get Pro Regular
+              </button>
+            </div>
+          </div>
+
+          <div className="text-center mt-12">
+            <p className="text-[#545454] mb-4" style={{ fontFamily: 'Lato, sans-serif' }}>
+              Want to try first? 
+            </p>
+            <button 
+              onClick={scrollToSignUp}
+              className="bg-gray-200 text-[#545454] px-8 py-3 rounded-full text-lg font-semibold hover:bg-gray-300 transition-colors"
+              style={{ fontFamily: 'Lato, sans-serif' }}
+            >
+              Start Free Trial (30 sessions)
+            </button>
+          </div>
+        </div>
+      </section>
+
       {/* For Busy Professionals Section */}
       <section className="py-16 lg:py-24 bg-[#545454]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
