@@ -36,9 +36,13 @@ const LandingPage = () => {
     setError('');
     
     try {
-      await login(email, password);
+      const result = await login(email, password);
+      if (!result.success) {
+        setError(result.error || 'Invalid email or password');
+      }
+      // If successful, the AuthProvider will handle navigation/state updates
     } catch (err) {
-      setError('Invalid email or password');
+      setError('Login failed. Please try again.');
     } finally {
       setLoading(false);
     }
