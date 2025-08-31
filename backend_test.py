@@ -1172,21 +1172,24 @@ class CATBackendTester:
             "authentication_working": False,
             "create_order_endpoint": False,
             "create_subscription_endpoint": False,
+            "pro_lite_plan_creation_fixed": False,  # NEW: Focus on plan creation fix
+            "pro_lite_subscription_working": False,  # NEW: Pro Lite specific test
+            "pro_regular_order_working": False,     # NEW: Pro Regular specific test
             "verify_payment_endpoint": False,
             "subscription_status_endpoint": False,
             "cancel_subscription_endpoint": False,
             "webhook_endpoint": False,
             "payment_service_imports": False,
             "server_startup_success": False,
-            "pro_lite_plan_config": False,
-            "pro_regular_plan_config": False,
-            "error_handling_proper": False
+            "no_url_not_found_errors": False,       # NEW: Verify no URL errors
+            "error_handling_proper": False,
+            "razorpay_client_configured": False     # NEW: Verify client config
         }
         
         # First authenticate to get token for protected endpoints
-        print("\n🔐 AUTHENTICATION SETUP")
+        print("\n🔐 AUTHENTICATION SETUP FOR PAYMENT TESTING")
         print("-" * 50)
-        print("Setting up authentication for payment endpoint testing")
+        print("Setting up authentication with student@catprep.com/student123")
         
         # Try student authentication first
         student_login = {"email": "student@catprep.com", "password": "student123"}
@@ -1197,9 +1200,12 @@ class CATBackendTester:
             auth_token = response['access_token']
             auth_headers = {'Content-Type': 'application/json', 'Authorization': f'Bearer {auth_token}'}
             payment_results["authentication_working"] = True
-            print("   ✅ Authentication successful - ready for payment endpoint testing")
+            user_id = response.get('user_id', 'test_user_id')
+            print(f"   ✅ Authentication successful - User ID: {user_id}")
+            print(f"   📊 JWT Token length: {len(auth_token)} characters")
         else:
             print("   ❌ Authentication failed - will test public endpoints only")
+            return False  # Cannot test payment endpoints without authentication
         
         # TEST 1: Payment Configuration Endpoint
         print("\n⚙️ TEST 1: PAYMENT CONFIGURATION ENDPOINT")
