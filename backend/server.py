@@ -3150,7 +3150,11 @@ async def upload_questions_csv(
     current_user: User = Depends(require_admin),
     db: AsyncSession = Depends(get_async_compatible_db)
 ):
-    """Upload questions from simplified CSV file with Google Drive image support"""
+    """
+    NEW: Enhanced CSV Upload with Question Upload & Enrichment Workflow
+    Supports new CSV columns: stem, image_url, answer, solution_approach, principle_to_remember
+    Implements immediate LLM enrichment with quality control validation
+    """
     try:
         if not file.filename.endswith('.csv'):
             raise HTTPException(status_code=400, detail="File must be a CSV")
@@ -3180,113 +3184,199 @@ async def upload_questions_csv(
         if 'stem' not in first_row:
             raise HTTPException(status_code=400, detail="CSV must contain 'stem' column with question text")
         
-        logger.info(f"Processing {len(csv_rows)} rows from simplified CSV with LLM auto-generation")
+        logger.info(f"🚀 Processing {len(csv_rows)} rows with NEW Question Upload & Enrichment Workflow")
         
-        # Process images from Google Drive URLs
-        processed_rows = GoogleDriveImageFetcher.process_csv_image_urls(csv_rows, UPLOAD_DIR)
+        # Process images from Google Drive URLs if image_url column exists
+        processed_rows = csv_rows
+        if any('image_url' in row for row in csv_rows):
+            from google_drive_utils import GoogleDriveImageFetcher
+            processed_rows = GoogleDriveImageFetcher.process_csv_image_urls(csv_rows, UPLOAD_DIR)
         
         questions_created = 0
+        questions_activated = 0 
+        questions_deactivated = 0
         images_processed = 0
+        enrichment_results = []
+        
+        # Initialize the new SimplifiedEnrichmentService
+        from llm_enrichment import SimplifiedEnrichmentService
+        simplified_enricher = SimplifiedEnrichmentService()
         
         for i, row in enumerate(processed_rows):
-            # Extract data from simplified CSV row
-            stem = row.get('stem', '').strip()
-            
-            # Image fields (processed by Google Drive utils)
-            has_image = row.get('has_image', False)
-            image_url = row.get('image_url', '').strip() if row.get('image_url') else None
-            image_alt_text = row.get('image_alt_text', '').strip() if row.get('image_alt_text') else None
-            
-            # Auto-set has_image based on successful image download
-            if image_url and image_url.startswith('/uploads/images/'):
-                has_image = True  # Image was successfully downloaded and stored locally
-            else:
-                has_image = False  # No image or download failed
-            
-            if not stem:
-                logger.warning(f"Row {i+1}: Skipping - missing question stem")
-                continue  # Skip rows without stem
-            
-            # Find a default topic (LLM will classify properly during enrichment)
-            topic_result = await db.execute(
-                select(Topic).where(Topic.name == "General")
-            )
-            topic = topic_result.scalar_one_or_none()
-            
-            if not topic:
-                # Create a default topic
-                topic = Topic(
-                    name="General",
-                    description="Default topic for CSV uploads - will be reclassified by LLM"
+            try:
+                # Extract data from NEW CSV format with admin-provided fields
+                stem = row.get('stem', '').strip()
+                admin_answer = row.get('answer', '').strip() if row.get('answer') else None
+                solution_approach = row.get('solution_approach', '').strip() if row.get('solution_approach') else None
+                principle_to_remember = row.get('principle_to_remember', '').strip() if row.get('principle_to_remember') else None
+                
+                # Image fields (processed by Google Drive utils if applicable)
+                has_image = row.get('has_image', False)
+                image_url = row.get('image_url', '').strip() if row.get('image_url') else None
+                image_alt_text = row.get('image_alt_text', '').strip() if row.get('image_alt_text') else None
+                
+                # Auto-set has_image based on successful image download
+                if image_url and image_url.startswith('/uploads/images/'):
+                    has_image = True
+                    images_processed += 1
+                else:
+                    has_image = False
+                
+                if not stem:
+                    logger.warning(f"Row {i+1}: Skipping - missing question stem")
+                    continue
+                
+                # Find a default topic (will be reclassified by LLM)
+                topic_result = await db.execute(
+                    select(Topic).where(Topic.name == "General")
                 )
-                db.add(topic)
-                await db.flush()
-            
-            # Create question with minimal data - LLM will enrich everything
-            question = Question(
-                topic_id=topic.id,
-                stem=stem,
-                # LLM will generate these fields
-                answer="To be generated by LLM",
-                solution_approach="To be generated by LLM", 
-                detailed_solution="To be generated by LLM",
-                subcategory="To be classified by LLM",
-                type_of_question="To be classified by LLM",
-                tags=["csv_upload", "llm_pending"],
-                source="CSV Upload - Simplified Format",
-                # Image support fields
-                has_image=has_image,
-                image_url=image_url,
-                image_alt_text=image_alt_text,
-                # Set defaults for LLM to populate
-                difficulty_band="Unrated",
-                difficulty_score=0.5,  # Default medium difficulty
-                learning_impact=0.5,   # Default medium impact
-                importance_index=0.5,  # Default medium importance
-                is_active=False  # Will be activated after LLM enrichment
-            )
-            
-            db.add(question)
-            questions_created += 1
-            
-            if has_image and image_url:
-                images_processed += 1
-                logger.info(f"Question {questions_created}: Created with image from Google Drive")
-            
-            # Queue for LLM enrichment (will happen in background)
-            logger.info(f"Question {questions_created} queued for LLM auto-generation and classification")
-            
-        await db.commit()
+                topic = topic_result.scalar_one_or_none()
+                
+                if not topic:
+                    # Create a default topic
+                    topic = Topic(
+                        name="General",
+                        slug="general",
+                        category="A",
+                        centrality=0.5
+                    )
+                    db.add(topic)
+                    await db.flush()
+                
+                # Create question with admin-provided fields (PROTECTED)
+                question = Question(
+                    topic_id=topic.id,
+                    stem=stem,
+                    answer=admin_answer or "Not provided", # ADMIN FIELD - PROTECTED
+                    solution_approach=solution_approach or "Not provided", # ADMIN FIELD - PROTECTED  
+                    principle_to_remember=principle_to_remember or "Not provided", # ADMIN FIELD - PROTECTED
+                    # LLM will populate these fields during immediate enrichment
+                    right_answer=None,  # To be generated by LLM
+                    subcategory="To be classified",  # To be generated by LLM
+                    type_of_question="To be classified", # To be generated by LLM
+                    difficulty_band="Unrated", # To be generated by LLM
+                    # Image support fields
+                    has_image=has_image,
+                    image_url=image_url,
+                    image_alt_text=image_alt_text,
+                    # Metadata 
+                    tags=json.dumps(["csv_upload", "new_workflow"]),
+                    source="Admin CSV Upload - New Workflow",
+                    # Initially inactive until enrichment and validation
+                    is_active=False
+                )
+                
+                db.add(question)
+                await db.flush()  # Get the question ID
+                questions_created += 1
+                
+                # IMMEDIATE LLM ENRICHMENT (not background) - Generate 5 fields only
+                logger.info(f"🎯 Question {questions_created}: Starting immediate LLM enrichment")
+                
+                enrichment_result = await simplified_enricher.enrich_with_five_fields_only(
+                    stem=stem,
+                    admin_answer=admin_answer
+                )
+                
+                if enrichment_result["success"]:
+                    enrichment_data = enrichment_result["enrichment_data"]
+                    
+                    # Update question with LLM-generated fields
+                    question.right_answer = enrichment_data["right_answer"]
+                    question.subcategory = enrichment_data["subcategory"] 
+                    question.type_of_question = enrichment_data["type_of_question"]
+                    question.difficulty_band = enrichment_data["difficulty_level"]
+                    
+                    # Update topic based on LLM classification
+                    category = enrichment_data["category"]
+                    topic_result = await db.execute(
+                        select(Topic).where(Topic.name == category)
+                    )
+                    classified_topic = topic_result.scalar_one_or_none()
+                    
+                    if classified_topic:
+                        question.topic_id = classified_topic.id
+                    
+                    # QUALITY CONTROL: Validate admin.answer vs LLM.right_answer
+                    question_activated = True
+                    validation_message = "No admin answer to validate"
+                    
+                    if admin_answer and question.right_answer:
+                        validation_result = await simplified_enricher._validate_answer_consistency(
+                            admin_answer=admin_answer,
+                            ai_right_answer=question.right_answer,
+                            question_stem=stem
+                        )
+                        
+                        if validation_result["matches"]:
+                            question.is_active = True
+                            questions_activated += 1
+                            validation_message = f"✅ Validation passed: {validation_result['explanation']}"
+                            logger.info(f"✅ Question {questions_created} activated - answers match")
+                        else:
+                            question.is_active = False
+                            questions_deactivated += 1
+                            validation_message = f"❌ Validation failed: {validation_result['explanation']}"
+                            logger.warning(f"❌ Question {questions_created} deactivated - answer mismatch")
+                            question_activated = False
+                    else:
+                        # No admin answer provided, activate by default
+                        question.is_active = True
+                        questions_activated += 1
+                    
+                    enrichment_results.append({
+                        "question_number": questions_created,
+                        "enrichment_success": True,
+                        "question_activated": question_activated,
+                        "validation_message": validation_message,
+                        "llm_fields": enrichment_data
+                    })
+                    
+                    logger.info(f"✅ Question {questions_created}: Immediate enrichment completed")
+                    
+                else:
+                    # Enrichment failed, keep question inactive
+                    enrichment_results.append({
+                        "question_number": questions_created,
+                        "enrichment_success": False,
+                        "question_activated": False,
+                        "error": enrichment_result.get("error", "Unknown error")
+                    })
+                    logger.error(f"❌ Question {questions_created}: Enrichment failed")
+                
+                # Commit each question individually to avoid rollback issues
+                await db.commit()
+                
+            except Exception as question_error:
+                logger.error(f"❌ Error processing question {i+1}: {question_error}")
+                await db.rollback()
+                continue
         
-        # Start background enrichment for all created questions
-        logger.info("Starting background LLM enrichment for all uploaded questions...")
-        
-        # Get all questions created in this batch for enrichment
-        recent_questions = await db.execute(
-            select(Question).where(
-                Question.source == "CSV Upload - Simplified Format",
-                Question.is_active == False  # Only unprocessed questions
-            ).order_by(desc(Question.created_at)).limit(len(processed_rows))
-        )
-        
-        # Queue background enrichment tasks
-        for question in recent_questions.scalars():
-            # Use asyncio to run background enrichment (in production, use Celery or similar)
-            asyncio.create_task(enrich_question_background(str(question.id)))
-        
-        logger.info(f"Simplified CSV upload completed: {questions_created} questions created, {images_processed} with images")
+        # Final response with comprehensive statistics
+        logger.info(f"🎉 NEW Workflow CSV upload completed: {questions_created} questions, {questions_activated} activated")
         
         return {
-            "message": f"Successfully uploaded {questions_created} questions from simplified CSV",
-            "questions_created": questions_created,
-            "images_processed": images_processed,
-            "csv_rows_processed": len(processed_rows),
-            "llm_enrichment_status": "Questions queued for automatic LLM processing (answer generation, classification, difficulty analysis)",
-            "note": "Questions will be automatically enriched with answers, categories, solutions, and difficulty ratings by the LLM system"
+            "message": f"Successfully processed {questions_created} questions with NEW Question Upload & Enrichment Workflow",
+            "workflow": "Question Upload & Enrichment Workflow - Immediate Processing",
+            "statistics": {
+                "questions_created": questions_created,
+                "questions_activated": questions_activated,
+                "questions_deactivated": questions_deactivated,
+                "images_processed": images_processed,
+                "csv_rows_processed": len(processed_rows)
+            },
+            "enrichment_summary": {
+                "immediate_enrichment": True,
+                "llm_fields_generated": ["right_answer", "category", "subcategory", "type_of_question", "difficulty_level"],
+                "quality_control_applied": True,
+                "admin_fields_protected": ["stem", "answer", "solution_approach", "principle_to_remember", "image_url"]
+            },
+            "enrichment_results": enrichment_results[:5] if len(enrichment_results) > 5 else enrichment_results,  # Show first 5 for brevity
+            "activation_notes": f"{questions_activated}/{questions_created} questions activated after quality control validation"
         }
         
     except Exception as e:
-        logger.error(f"Simplified CSV upload error: {e}")
+        logger.error(f"❌ NEW Workflow CSV upload error: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to upload CSV: {str(e)}")
 
 # Image Upload Endpoints
