@@ -747,24 +747,6 @@ ${response.data.errors > 0 ? '⚠️ Check the logs for error details.' : ''}`);
                   <h2 className="text-2xl font-semibold text-gray-900">Question Management</h2>
                   <div className="flex space-x-3">
                     <button
-                      onClick={() => handleCheckQuestionQuality()}
-                      className="text-white px-6 py-3 rounded-lg font-medium flex items-center transition-colors"
-                      style={{ 
-                        backgroundColor: '#9ac026',
-                        fontFamily: 'Lato, sans-serif'
-                      }}
-                      onMouseOver={(e) => e.target.style.backgroundColor = '#8bb024'}
-                      onMouseOut={(e) => e.target.style.backgroundColor = '#9ac026'}
-                    >
-                      🔍 Check Quality
-                    </button>
-                    <button
-                      onClick={() => handleReEnrichQuestions()}
-                      className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-medium flex items-center"
-                    >
-                      🔧 Fix Solutions
-                    </button>
-                    <button
                       onClick={() => handleExportQuestions()}
                       className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-medium flex items-center"
                     >
