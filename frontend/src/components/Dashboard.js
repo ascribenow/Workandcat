@@ -610,14 +610,10 @@ ${response.data.errors > 0 ? '⚠️ Check the logs for error details.' : ''}`);
                 onClick={() => setActiveTab('questions')}
                 className={`py-4 text-lg font-medium transition-colors ${
                   activeTab === 'questions' 
-                    ? 'border-b-2' 
-                    : 'hover:text-[#ff6d4d]'
+                    ? 'text-[#9ac026] border-b-2 border-[#9ac026]' 
+                    : 'text-[#545454] hover:text-[#9ac026]'
                 }`}
-                style={{ 
-                  color: activeTab === 'questions' ? '#9ac026' : '#545454',
-                  borderColor: activeTab === 'questions' ? '#9ac026' : 'transparent',
-                  fontFamily: 'Lato, sans-serif'
-                }}
+                style={{ fontFamily: 'Lato, sans-serif' }}
               >
                 ❓ Questions
               </button>
