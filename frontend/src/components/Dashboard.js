@@ -803,9 +803,11 @@ ${response.data.errors > 0 ? '⚠️ Check the logs for error details.' : ''}`);
                       </div>
 
                       <div className="text-sm text-gray-500 space-y-2" style={{ fontFamily: 'Lato, sans-serif' }}>
-                        <p>📋 <strong>CSV Format Required:</strong> stem, detailed_solution, hint_category, hint_subcategory</p>
+                        <p>📋 <strong>CSV Format Required:</strong> stem, image_url, answer, solution_approach, principle_to_remember</p>
                         <p>📊 <strong>File Size Limit:</strong> 10MB maximum</p>
-                        <p>🔄 <strong>Processing:</strong> Questions will be automatically enriched with AI solutions</p>
+                        <p>🎯 <strong>Processing:</strong> Questions are immediately enriched with LLM-generated fields (category, subcategory, type, difficulty, right_answer)</p>
+                        <p>🔒 <strong>Admin Fields Protected:</strong> Your uploaded content (stem, answer, solution_approach, principle_to_remember) is stored directly and not modified</p>
+                        <p>✅ <strong>Quality Control:</strong> Questions are activated only if admin answer matches LLM-generated answer</p>
                       </div>
                     </div>
                   </div>
