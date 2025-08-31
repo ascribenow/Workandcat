@@ -2341,6 +2341,132 @@ async def get_progress_dashboard(
         logger.error(f"Error getting progress dashboard: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@api_router.get("/admin/privileges")
+async def get_privileged_emails(
+    current_user: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_async_compatible_db)
+):
+    """Get all privileged email addresses (Admin only)"""
+    try:
+        # Get all privileged emails
+        result = await db.execute(
+            select(PrivilegedEmail).order_by(PrivilegedEmail.created_at.desc())
+        )
+        privileged_emails = result.scalars().all()
+        
+        # Convert to dict format
+        emails_data = []
+        for email_record in privileged_emails:
+            # Get admin name who added this email
+            admin_result = await db.execute(
+                select(User.name).where(User.id == email_record.added_by_admin)
+            )
+            admin_name = admin_result.scalar() or "Unknown Admin"
+            
+            emails_data.append({
+                "id": email_record.id,
+                "email": email_record.email,
+                "added_by_admin": admin_name,
+                "created_at": email_record.created_at.isoformat(),
+                "notes": email_record.notes
+            })
+        
+        return {"privileged_emails": emails_data}
+        
+    except Exception as e:
+        logger.error(f"Error fetching privileged emails: {e}")
+        raise HTTPException(status_code=500, detail="Error fetching privileged emails")
+
+
+@api_router.post("/admin/privileges")
+async def add_privileged_email(
+    email_data: dict,
+    current_user: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_async_compatible_db)
+):
+    """Add an email to privileged list (Admin only)"""
+    try:
+        email = email_data.get("email", "").strip().lower()
+        notes = email_data.get("notes", "").strip()
+        
+        if not email:
+            raise HTTPException(status_code=400, detail="Email address is required")
+        
+        # Validate email format
+        import re
+        email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        if not re.match(email_pattern, email):
+            raise HTTPException(status_code=400, detail="Invalid email format")
+        
+        # Check if email already exists in privileges
+        existing_result = await db.execute(
+            select(PrivilegedEmail).where(PrivilegedEmail.email == email)
+        )
+        if existing_result.scalar():
+            raise HTTPException(status_code=400, detail="Email already exists in privileged list")
+        
+        # Add new privileged email
+        new_privileged_email = PrivilegedEmail(
+            email=email,
+            added_by_admin=current_user.id,
+            notes=notes if notes else None
+        )
+        
+        db.add(new_privileged_email)
+        await db.commit()
+        
+        logger.info(f"Admin {current_user.email} added privileged email: {email}")
+        
+        return {
+            "message": "Email successfully added to privileged list",
+            "email": email,
+            "id": new_privileged_email.id
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error adding privileged email: {e}")
+        raise HTTPException(status_code=500, detail="Error adding email to privileged list")
+
+
+@api_router.delete("/admin/privileges/{email_id}")
+async def remove_privileged_email(
+    email_id: str,
+    current_user: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_async_compatible_db)
+):
+    """Remove an email from privileged list (Admin only)"""
+    try:
+        # Find the privileged email record
+        result = await db.execute(
+            select(PrivilegedEmail).where(PrivilegedEmail.id == email_id)
+        )
+        privileged_email = result.scalar()
+        
+        if not privileged_email:
+            raise HTTPException(status_code=404, detail="Privileged email not found")
+        
+        email_address = privileged_email.email
+        
+        # Delete the record
+        await db.delete(privileged_email)
+        await db.commit()
+        
+        logger.info(f"Admin {current_user.email} removed privileged email: {email_address}")
+        
+        return {
+            "message": "Email successfully removed from privileged list",
+            "email": email_address
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error removing privileged email: {e}")
+        raise HTTPException(status_code=500, detail="Error removing email from privileged list")
+
+
 @api_router.get("/user/session-limit-status")
 async def get_user_session_limit_status(
     current_user: User = Depends(require_auth),
