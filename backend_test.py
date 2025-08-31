@@ -11433,9 +11433,8 @@ if __name__ == "__main__":
     print("Additional: Session counting fix validation")
     print("=" * 80)
     
-    # Run Razorpay payment integration testing (PRIMARY FOCUS)
-    print("\n💳 RUNNING RAZORPAY PAYMENT INTEGRATION TESTS (PRIMARY FOCUS)")
-    payment_success = tester.test_razorpay_payment_integration()
+    # Run the updated Razorpay payment integration test
+    payment_success = tester.test_razorpay_payment_integration_updated()
     
     # Run the session counting fix test as requested in review
     print("\n🎯 RUNNING SESSION COUNTING FIX TESTS")
