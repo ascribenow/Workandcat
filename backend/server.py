@@ -2421,13 +2421,6 @@ async def get_simple_taxonomy_dashboard(
         )
         total_sessions = sessions_result.scalar() or 0
         
-        # Get total sessions started count (including incomplete ones) for session numbering
-        all_sessions_result = await db.execute(
-            select(func.count(Session.id))
-            .where(Session.user_id == current_user.id)
-        )
-        total_sessions_started = all_sessions_result.scalar() or 0
-        
         # Build the response data
         taxonomy_data = []
         
@@ -2461,7 +2454,6 @@ async def get_simple_taxonomy_dashboard(
         
         return {
             "total_sessions": total_sessions,
-            "total_sessions_started": total_sessions_started,  # NEW: For correct session numbering
             "taxonomy_data": taxonomy_data
         }
         
