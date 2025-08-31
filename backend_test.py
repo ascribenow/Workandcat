@@ -12567,22 +12567,22 @@ class CATBackendTester:
 if __name__ == "__main__":
     tester = CATBackendTester()
     
-    print("🚀 STARTING COMPREHENSIVE CAT BACKEND TESTING")
+    print("🚀 STARTING ADMIN AUTHENTICATION DEBUG TESTING")
     print("=" * 80)
-    print("Testing NEW Question Upload & Enrichment Workflow Implementation")
+    print("Debugging admin authentication issue with sumedhprabhu18@gmail.com/admin2025")
     print("")
     
-    # Run Question Upload & Enrichment Workflow testing
-    workflow_success = tester.test_question_upload_enrichment_workflow()
+    # Run Admin Authentication Debug testing
+    admin_debug_success = tester.test_admin_authentication_debug()
     
     print("\n" + "=" * 80)
-    print("FINAL TESTING SUMMARY")
+    print("ADMIN AUTHENTICATION DEBUG SUMMARY")
     print("=" * 80)
     
-    if workflow_success:
-        print("🎉 QUESTION UPLOAD & ENRICHMENT WORKFLOW: Core functionality working")
+    if admin_debug_success:
+        print("🎉 ADMIN AUTHENTICATION: Core functionality working")
     else:
-        print("❌ QUESTION UPLOAD & ENRICHMENT WORKFLOW: Critical issues detected")
+        print("❌ ADMIN AUTHENTICATION: Critical issues detected")
     
     print(f"\nTotal Tests Run: {tester.tests_run}")
     print(f"Total Tests Passed: {tester.tests_passed}")
@@ -12592,11 +12592,11 @@ if __name__ == "__main__":
         print(f"Overall Success Rate: {overall_success_rate:.1f}%")
         
         if overall_success_rate >= 80:
-            print("🎉 SYSTEM STATUS: Production Ready")
+            print("🎉 SYSTEM STATUS: Admin Authentication Working")
         elif overall_success_rate >= 60:
-            print("⚠️ SYSTEM STATUS: Mostly Functional - Minor Issues")
+            print("⚠️ SYSTEM STATUS: Admin Authentication Partially Working")
         else:
-            print("❌ SYSTEM STATUS: Needs Significant Work")
+            print("❌ SYSTEM STATUS: Admin Authentication Broken")
     
     print("\n🎯 TESTING COMPLETED")
     print("=" * 80)
