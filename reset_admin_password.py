@@ -18,8 +18,9 @@ async def reset_admin_password():
         auth_service = AuthService()
         
         # Get database session
-        from database import AsyncSessionLocal
-        db = AsyncSessionLocal()
+        from database import SessionLocal, AsyncSession
+        sync_db = SessionLocal()
+        db = AsyncSession(sync_db)
         
         try:
             # Find admin user
