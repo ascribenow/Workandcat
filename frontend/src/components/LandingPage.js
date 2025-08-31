@@ -186,8 +186,10 @@ const LandingPage = () => {
     // Store plan context for 15 minutes
     storePlanContext(planType, 'landing_page');
     
-    // Switch to sign-in mode and scroll to form
+    // Switch to sign-up mode and scroll to form
     setShowSignIn(false); // Switch to sign-up tab
+    
+    // Scroll to top where the form is
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
