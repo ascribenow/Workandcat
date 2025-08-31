@@ -13005,22 +13005,22 @@ class CATBackendTester:
 if __name__ == "__main__":
     tester = CATBackendTester()
     
-    print("🚀 STARTING ADMIN AUTHENTICATION DEBUG TESTING")
+    print("🚀 STARTING DATABASE SCHEMA & LLM IMPROVEMENTS TESTING")
     print("=" * 80)
-    print("Debugging admin authentication issue with sumedhprabhu18@gmail.com/admin2025")
+    print("Testing database schema updates and LLM prompt improvements as per review request")
     print("")
     
-    # Run Admin Authentication Debug testing
-    admin_debug_success = tester.test_admin_authentication_debug()
+    # Run Database Schema & LLM Improvements testing (NEW - Review Request Focus)
+    schema_llm_success = tester.test_database_schema_and_llm_improvements()
     
     print("\n" + "=" * 80)
-    print("ADMIN AUTHENTICATION DEBUG SUMMARY")
+    print("DATABASE SCHEMA & LLM IMPROVEMENTS SUMMARY")
     print("=" * 80)
     
-    if admin_debug_success:
-        print("🎉 ADMIN AUTHENTICATION: Core functionality working")
+    if schema_llm_success:
+        print("🎉 DATABASE SCHEMA & LLM: Core functionality working")
     else:
-        print("❌ ADMIN AUTHENTICATION: Critical issues detected")
+        print("❌ DATABASE SCHEMA & LLM: Critical issues detected")
     
     print(f"\nTotal Tests Run: {tester.tests_run}")
     print(f"Total Tests Passed: {tester.tests_passed}")
@@ -13030,11 +13030,11 @@ if __name__ == "__main__":
         print(f"Overall Success Rate: {overall_success_rate:.1f}%")
         
         if overall_success_rate >= 80:
-            print("🎉 SYSTEM STATUS: Admin Authentication Working")
+            print("🎉 SYSTEM STATUS: Database Schema & LLM Improvements Working")
         elif overall_success_rate >= 60:
-            print("⚠️ SYSTEM STATUS: Admin Authentication Partially Working")
+            print("⚠️ SYSTEM STATUS: Database Schema & LLM Improvements Partially Working")
         else:
-            print("❌ SYSTEM STATUS: Admin Authentication Broken")
+            print("❌ SYSTEM STATUS: Database Schema & LLM Improvements Need Attention")
     
     print("\n🎯 TESTING COMPLETED")
     print("=" * 80)
