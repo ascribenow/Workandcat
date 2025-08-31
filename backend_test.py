@@ -11464,3 +11464,31 @@ if __name__ == "__main__":
         print("❌ Backend needs attention before production deployment")
     
     sys.exit(0 if overall_success else 1)
+if __name__ == "__main__":
+    print("🚀 STARTING RAZORPAY PAYMENT INTEGRATION TESTING")
+    print("=" * 80)
+    print("Testing updated Razorpay payment integration focusing on plan creation fix")
+    print("=" * 80)
+    
+    tester = CATBackendTester()
+    
+    try:
+        # Run the updated Razorpay payment integration test
+        success = tester.test_razorpay_payment_integration_updated()
+        
+        print("\n" + "=" * 80)
+        print("TESTING COMPLETED")
+        print("=" * 80)
+        
+        if success:
+            print("✅ RAZORPAY PAYMENT INTEGRATION: Testing completed successfully")
+            print("🎉 Payment system appears to be working correctly")
+        else:
+            print("❌ RAZORPAY PAYMENT INTEGRATION: Critical issues detected")
+            print("⚠️ Payment system needs attention before production use")
+            
+    except Exception as e:
+        print(f"\n❌ TESTING FAILED: {str(e)}")
+        print("🔧 Please check backend service status and try again")
+    
+    print("\n📋 Test completed. Check results above for detailed analysis.")
