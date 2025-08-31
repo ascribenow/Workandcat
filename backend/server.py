@@ -3749,7 +3749,7 @@ async def enrich_pyq_question_background(pyq_question_id: str):
         logger.info(f"Enriching PYQ question: {pyq_question.stem[:50]}...")
         
         # Use proper LLM enrichment for canonical taxonomy mapping
-        from llm_enrichment import LLMEnrichmentPipeline
+        from llm_enrichment import LLMEnrichmentPipeline, SimplifiedEnrichmentService
         import os
         
         try:
