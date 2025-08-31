@@ -1169,6 +1169,254 @@ class CATBackendTester:
         
         return success_rate >= 60  # 60% threshold for basic functionality
 
+    def test_admin_authentication_debug(self):
+        """Debug admin authentication issue - comprehensive testing"""
+        print("🔐 ADMIN AUTHENTICATION DEBUG TESTING")
+        print("=" * 80)
+        print("FOCUS: Debugging admin authentication issue with sumedhprabhu18@gmail.com")
+        print("")
+        print("TESTING REQUIREMENTS:")
+        print("1. Check if admin user exists in database")
+        print("2. Test admin registration if needed")
+        print("3. Test admin login with sumedhprabhu18@gmail.com/admin2025")
+        print("4. Verify JWT token generation with is_admin flag")
+        print("5. Check password hash validation")
+        print("=" * 80)
+        
+        debug_results = {
+            "admin_user_exists_in_db": False,
+            "admin_registration_working": False,
+            "admin_login_successful": False,
+            "jwt_token_generated": False,
+            "is_admin_flag_correct": False,
+            "password_hash_valid": False,
+            "database_query_working": False,
+            "admin_email_hardcoded_correct": False
+        }
+        
+        # PHASE 1: Check if admin user exists in database
+        print("\n🔍 PHASE 1: DATABASE ADMIN USER CHECK")
+        print("-" * 50)
+        print("Checking if admin user sumedhprabhu18@gmail.com exists in database")
+        
+        # Try to login first to see if user exists
+        admin_login_data = {
+            "email": "sumedhprabhu18@gmail.com",
+            "password": "admin2025"
+        }
+        
+        success, response = self.run_test("Admin Login Check", "POST", "auth/login", [200, 401], admin_login_data)
+        
+        if success:
+            if response.get('access_token'):
+                debug_results["admin_user_exists_in_db"] = True
+                debug_results["admin_login_successful"] = True
+                debug_results["jwt_token_generated"] = True
+                
+                # Check is_admin flag in response
+                user_data = response.get('user', {})
+                is_admin = user_data.get('is_admin', False)
+                
+                if is_admin:
+                    debug_results["is_admin_flag_correct"] = True
+                    print("   ✅ Admin user exists and login successful")
+                    print(f"   📊 JWT Token: {response['access_token'][:50]}...")
+                    print(f"   📊 Is Admin: {is_admin}")
+                    print(f"   📊 User ID: {user_data.get('id')}")
+                    print(f"   📊 Email: {user_data.get('email')}")
+                else:
+                    print("   ⚠️ Admin user exists but is_admin flag is False")
+            else:
+                # User exists but wrong password
+                detail = response.get('detail', '')
+                if 'credentials' in detail.lower():
+                    debug_results["admin_user_exists_in_db"] = True
+                    print("   ⚠️ Admin user exists but password incorrect")
+                    print(f"   📊 Error: {detail}")
+                else:
+                    print("   ❌ Admin user may not exist")
+        
+        # PHASE 2: Try admin registration if login failed
+        if not debug_results["admin_login_successful"]:
+            print("\n📝 PHASE 2: ADMIN REGISTRATION TEST")
+            print("-" * 50)
+            print("Attempting to register admin user")
+            
+            admin_register_data = {
+                "email": "sumedhprabhu18@gmail.com",
+                "password": "admin2025",
+                "full_name": "Admin User"
+            }
+            
+            success, response = self.run_test("Admin Registration", "POST", "auth/register", [200, 201, 400, 409], admin_register_data)
+            
+            if success:
+                if response.get('access_token'):
+                    debug_results["admin_registration_working"] = True
+                    debug_results["jwt_token_generated"] = True
+                    
+                    # Check is_admin flag
+                    user_data = response.get('user', {})
+                    is_admin = user_data.get('is_admin', False)
+                    
+                    if is_admin:
+                        debug_results["is_admin_flag_correct"] = True
+                        debug_results["admin_email_hardcoded_correct"] = True
+                        print("   ✅ Admin registration successful")
+                        print(f"   📊 JWT Token: {response['access_token'][:50]}...")
+                        print(f"   📊 Is Admin: {is_admin}")
+                        print(f"   📊 User ID: {user_data.get('id')}")
+                    else:
+                        print("   ❌ Admin registered but is_admin flag is False")
+                        print("   🔧 Check ADMIN_EMAIL constant in auth_service.py")
+                elif 'already' in response.get('detail', '').lower():
+                    debug_results["admin_user_exists_in_db"] = True
+                    print("   ⚠️ Admin user already exists - password issue")
+        
+        # PHASE 3: Test login again after registration
+        if debug_results["admin_registration_working"] and not debug_results["admin_login_successful"]:
+            print("\n🔑 PHASE 3: POST-REGISTRATION LOGIN TEST")
+            print("-" * 50)
+            print("Testing admin login after registration")
+            
+            success, response = self.run_test("Admin Login After Registration", "POST", "auth/login", [200, 401], admin_login_data)
+            
+            if success and response.get('access_token'):
+                debug_results["admin_login_successful"] = True
+                debug_results["password_hash_valid"] = True
+                
+                user_data = response.get('user', {})
+                is_admin = user_data.get('is_admin', False)
+                
+                if is_admin:
+                    debug_results["is_admin_flag_correct"] = True
+                    print("   ✅ Admin login successful after registration")
+                    print(f"   📊 JWT Token: {response['access_token'][:50]}...")
+                    print(f"   📊 Is Admin: {is_admin}")
+        
+        # PHASE 4: JWT Token Validation Test
+        if debug_results["jwt_token_generated"]:
+            print("\n🎫 PHASE 4: JWT TOKEN VALIDATION TEST")
+            print("-" * 50)
+            print("Testing JWT token validation and admin access")
+            
+            # Get the token from previous successful operation
+            token = None
+            if debug_results["admin_login_successful"]:
+                # Re-login to get fresh token
+                success, response = self.run_test("Get Fresh Admin Token", "POST", "auth/login", 200, admin_login_data)
+                if success:
+                    token = response.get('access_token')
+            elif debug_results["admin_registration_working"]:
+                # Use registration token
+                success, response = self.run_test("Get Registration Token", "POST", "auth/register", [200, 409], admin_register_data)
+                if success and response.get('access_token'):
+                    token = response.get('access_token')
+            
+            if token:
+                admin_headers = {'Authorization': f'Bearer {token}'}
+                
+                # Test /auth/me endpoint
+                success, response = self.run_test("Admin Token Validation", "GET", "auth/me", 200, None, admin_headers)
+                
+                if success:
+                    email = response.get('email')
+                    is_admin = response.get('is_admin', False)
+                    user_id = response.get('id')
+                    
+                    print(f"   📊 Token validation successful")
+                    print(f"   📊 Email: {email}")
+                    print(f"   📊 Is Admin: {is_admin}")
+                    print(f"   📊 User ID: {user_id}")
+                    
+                    if email == "sumedhprabhu18@gmail.com" and is_admin:
+                        debug_results["is_admin_flag_correct"] = True
+                        debug_results["admin_email_hardcoded_correct"] = True
+                        print("   ✅ JWT token contains correct admin information")
+                    else:
+                        print("   ❌ JWT token missing admin information")
+        
+        # PHASE 5: Database Health Check
+        print("\n🗄️ PHASE 5: DATABASE HEALTH CHECK")
+        print("-" * 50)
+        print("Testing database connectivity and user queries")
+        
+        success, response = self.run_test("Database Health", "GET", "", 200)
+        if success:
+            debug_results["database_query_working"] = True
+            print("   ✅ Database connectivity working")
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 80)
+        print("ADMIN AUTHENTICATION DEBUG RESULTS")
+        print("=" * 80)
+        
+        passed_tests = sum(debug_results.values())
+        total_tests = len(debug_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        print(f"\nOverall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # Detailed results
+        print("\nDETAILED FINDINGS:")
+        for test, result in debug_results.items():
+            status = "✅ PASS" if result else "❌ FAIL"
+            print(f"  {test.replace('_', ' ').title():<35} {status}")
+        
+        # CRITICAL ANALYSIS
+        print("\n🎯 CRITICAL ANALYSIS:")
+        
+        if debug_results["admin_user_exists_in_db"]:
+            print("✅ ADMIN USER: Exists in database")
+        else:
+            print("❌ ADMIN USER: Does not exist in database")
+        
+        if debug_results["admin_login_successful"]:
+            print("✅ ADMIN LOGIN: Working with sumedhprabhu18@gmail.com/admin2025")
+        else:
+            print("❌ ADMIN LOGIN: Failed - check password or user existence")
+        
+        if debug_results["is_admin_flag_correct"]:
+            print("✅ IS_ADMIN FLAG: Correctly set to True")
+        else:
+            print("❌ IS_ADMIN FLAG: Not set or False - check ADMIN_EMAIL constant")
+        
+        if debug_results["jwt_token_generated"]:
+            print("✅ JWT TOKEN: Generated successfully")
+        else:
+            print("❌ JWT TOKEN: Not generated")
+        
+        if debug_results["password_hash_valid"]:
+            print("✅ PASSWORD HASH: Valid and working")
+        else:
+            print("❌ PASSWORD HASH: Invalid or not working")
+        
+        # RECOMMENDATIONS
+        print("\n📝 RECOMMENDATIONS:")
+        
+        if not debug_results["admin_user_exists_in_db"]:
+            print("1. Register admin user with sumedhprabhu18@gmail.com")
+        
+        if not debug_results["is_admin_flag_correct"]:
+            print("2. Verify ADMIN_EMAIL constant in auth_service.py matches 'sumedhprabhu18@gmail.com'")
+        
+        if not debug_results["admin_login_successful"]:
+            print("3. Check password hashing/verification logic")
+            print("4. Verify database user record has correct password hash")
+        
+        if not debug_results["jwt_token_generated"]:
+            print("5. Check JWT_SECRET environment variable")
+            print("6. Verify token generation logic in auth_service.py")
+        
+        if success_rate >= 75:
+            print("7. Admin authentication mostly working - minor fixes needed")
+        elif success_rate >= 50:
+            print("7. Admin authentication partially working - significant fixes needed")
+        else:
+            print("7. Admin authentication broken - major fixes required")
+        
+        return success_rate >= 60
+
     def test_comprehensive_authentication_system(self):
         """Comprehensive end-to-end testing of Twelvr authentication system with focus on SIGN UP functionality"""
         print("🎯 COMPREHENSIVE TWELVR AUTHENTICATION SYSTEM TESTING")
