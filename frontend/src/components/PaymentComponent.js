@@ -229,7 +229,7 @@ const PaymentComponent = ({ planType, amount, planName, description, onSuccess, 
           <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-current mr-2"></div>
           {planType === 'pro_lite' ? 'Starting Subscription...' : 'Processing Payment...'}
         </div>
-      ) : !localStorage.getItem('token') ? (
+      ) : !localStorage.getItem('cat_prep_token') || !isAuthenticated() ? (
         <>
           {planType === 'pro_lite' ? 'Login to Subscribe' : 'Login to Purchase'}
         </>
