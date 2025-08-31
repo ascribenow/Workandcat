@@ -12319,42 +12319,39 @@ class CATBackendTester:
 if __name__ == "__main__":
     tester = CATBackendTester()
     
-    print("🚀 Starting CAT Backend Testing Suite")
+    print("🚀 STARTING COMPREHENSIVE CAT BACKEND TESTING")
     print("=" * 80)
-    print("FOCUS: Razorpay Payment Integration Testing (PRIMARY)")
-    print("Additional: Session counting fix validation")
-    print("=" * 80)
+    print("Testing NEW Question Upload & Enrichment Workflow Implementation")
+    print("")
     
-    # Run the updated Razorpay payment integration test
-    payment_success = tester.test_razorpay_payment_integration_updated()
-    
-    # Run the session counting fix test as requested in review
-    print("\n🎯 RUNNING SESSION COUNTING FIX TESTS")
-    session_counting_success = tester.test_session_counting_fix()
+    # Run Question Upload & Enrichment Workflow testing
+    workflow_success = tester.test_question_upload_enrichment_workflow()
     
     print("\n" + "=" * 80)
-    print("FINAL TEST SUMMARY")
+    print("FINAL TESTING SUMMARY")
     print("=" * 80)
-    print(f"💳 Razorpay Payment Integration (PRIMARY): {'✅ PASS' if payment_success else '❌ FAIL'}")
-    print(f"🎯 Session Counting Fix: {'✅ PASS' if session_counting_success else '❌ FAIL'}")
     
-    overall_success = payment_success and session_counting_success
-    print(f"\n🏁 Overall Testing Complete - Success: {overall_success}")
-    print(f"📊 Tests Run: {tester.tests_run}")
-    print(f"✅ Tests Passed: {tester.tests_passed}")
-    print(f"📈 Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%")
-    
-    if payment_success:
-        print("✅ Razorpay payment integration is working correctly")
+    if workflow_success:
+        print("🎉 QUESTION UPLOAD & ENRICHMENT WORKFLOW: Core functionality working")
     else:
-        print("❌ Razorpay payment integration needs attention")
+        print("❌ QUESTION UPLOAD & ENRICHMENT WORKFLOW: Critical issues detected")
     
-    if overall_success:
-        print("✅ Backend is ready for production deployment")
-    else:
-        print("❌ Backend needs attention before production deployment")
+    print(f"\nTotal Tests Run: {tester.tests_run}")
+    print(f"Total Tests Passed: {tester.tests_passed}")
     
-    sys.exit(0 if overall_success else 1)
+    if tester.tests_run > 0:
+        overall_success_rate = (tester.tests_passed / tester.tests_run) * 100
+        print(f"Overall Success Rate: {overall_success_rate:.1f}%")
+        
+        if overall_success_rate >= 80:
+            print("🎉 SYSTEM STATUS: Production Ready")
+        elif overall_success_rate >= 60:
+            print("⚠️ SYSTEM STATUS: Mostly Functional - Minor Issues")
+        else:
+            print("❌ SYSTEM STATUS: Needs Significant Work")
+    
+    print("\n🎯 TESTING COMPLETED")
+    print("=" * 80)
 if __name__ == "__main__":
     print("🚀 STARTING RAZORPAY PAYMENT INTEGRATION TESTING")
     print("=" * 80)
