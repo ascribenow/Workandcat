@@ -28,8 +28,8 @@ const PaymentComponent = ({ planType, amount, planName, description, onSuccess, 
     
     try {
       // Check authentication first
-      const token = localStorage.getItem('token');
-      if (!token) {
+      const token = localStorage.getItem('cat_prep_token');
+      if (!token || !isAuthenticated()) {
         alert('Please login to purchase a plan');
         setLoading(false);
         return;
