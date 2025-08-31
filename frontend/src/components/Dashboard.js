@@ -9,6 +9,7 @@ import PYQFilesTable from './PYQFilesTable';
 
 export const Dashboard = () => {
   const { user, logout, isAdmin } = useAuth();
+  const navigate = useNavigate();
   // Default view: admins go to dashboard, regular users go to session (immediately start active session)
   const [currentView, setCurrentView] = useState(isAdmin() ? 'dashboard' : 'session');
   const [dashboardData, setDashboardData] = useState(null);
