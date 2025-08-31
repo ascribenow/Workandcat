@@ -2461,6 +2461,7 @@ async def get_simple_taxonomy_dashboard(
         
         return {
             "total_sessions": total_sessions,
+            "total_sessions_started": total_sessions_started,  # NEW: For correct session numbering
             "taxonomy_data": taxonomy_data
         }
         
