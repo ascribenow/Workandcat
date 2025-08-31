@@ -603,11 +603,6 @@ ${response.data.errors > 0 ? '⚠️ Check the logs for error details.' : ''}`);
                     : 'text-[#545454] hover:text-[#9ac026]'
                 }`}
                 style={{ fontFamily: 'Lato, sans-serif' }}
-                style={{ 
-                  color: activeTab === 'pyq-upload' ? '#9ac026' : '#545454',
-                  borderColor: activeTab === 'pyq-upload' ? '#9ac026' : 'transparent',
-                  fontFamily: 'Lato, sans-serif'
-                }}
               >
                 📄 PYQ Upload
               </button>
