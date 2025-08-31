@@ -105,10 +105,10 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
     try {
       // Get total sessions from the dashboard API to calculate current session number
       const response = await axios.get(`${API}/dashboard/simple-taxonomy`);
-      const totalSessionsStarted = response.data.total_sessions_started || 0;
-      const currentSessionNumber = totalSessionsStarted; // Current session is the count of all sessions started
+      const totalSessions = response.data.total_sessions || 0;
+      const currentSessionNumber = totalSessions + 1; // Current session is total completed + 1
       setSessionNumber(currentSessionNumber);
-      console.log('Session number calculated from total sessions started:', currentSessionNumber);
+      console.log('Session number calculated from completed sessions:', currentSessionNumber);
     } catch (error) {
       console.error('Failed to get session number from dashboard:', error);
       // Ultimate fallback
