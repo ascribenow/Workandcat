@@ -938,6 +938,255 @@ RULES:
             }
 
 
+class SimplifiedEnrichmentService:
+    """
+    NEW: Simplified LLM Enrichment Service for Question Upload & Enrichment Workflow
+    Generates ONLY the 5 required fields: right_answer, category, subcategory, type_of_question, difficulty_level
+    """
+    
+    def __init__(self):
+        self.openai_api_key = os.getenv('OPENAI_API_KEY')
+        if not self.openai_api_key:
+            logger.error("OpenAI API key not found for SimplifiedEnrichmentService")
+            
+    async def enrich_with_five_fields_only(self, stem: str, admin_answer: str = None) -> Dict[str, Any]:
+        """
+        Generate ONLY the 5 required LLM fields for the new workflow:
+        1. right_answer
+        2. category  
+        3. subcategory
+        4. type_of_question
+        5. difficulty_level
+        """
+        try:
+            logger.info(f"🎯 Simplified enrichment starting for: {stem[:50]}...")
+            
+            # STEP 1: Generate right_answer
+            right_answer = await self._generate_right_answer_with_openai(stem)
+            
+            # STEP 2: Classify the question (category, subcategory, type_of_question)
+            classification = await self._classify_question_with_openai(stem)
+            
+            # STEP 3: Determine difficulty level
+            difficulty_level = await self._determine_difficulty_level(stem, right_answer)
+            
+            # Prepare the enrichment result with exactly 5 fields
+            enrichment_result = {
+                "right_answer": right_answer,
+                "category": classification.get("category", "Arithmetic"),
+                "subcategory": classification.get("subcategory", "General"),
+                "type_of_question": classification.get("type_of_question", "Problem Solving"),
+                "difficulty_level": difficulty_level
+            }
+            
+            logger.info(f"✅ Simplified enrichment completed with 5 fields")
+            logger.info(f"   Category: {enrichment_result['category']} -> {enrichment_result['subcategory']}")
+            logger.info(f"   Type: {enrichment_result['type_of_question']}")
+            logger.info(f"   Difficulty: {enrichment_result['difficulty_level']}")
+            
+            return {
+                "success": True,
+                "enrichment_data": enrichment_result
+            }
+            
+        except Exception as e:
+            logger.error(f"❌ Simplified enrichment failed: {e}")
+            return {
+                "success": False,
+                "error": str(e),
+                "enrichment_data": {
+                    "right_answer": "Unable to generate answer",
+                    "category": "Arithmetic",
+                    "subcategory": "General",
+                    "type_of_question": "Problem Solving",
+                    "difficulty_level": "Medium"
+                }
+            }
+    
+    async def _generate_right_answer_with_openai(self, stem: str) -> str:
+        """Generate the correct answer using OpenAI GPT-4o"""
+        try:
+            import openai
+            
+            client = openai.OpenAI(api_key=self.openai_api_key)
+            
+            system_message = """You are an expert CAT exam solver focused on quantitative ability questions. 
+Generate the correct, concise answer for the given question.
+
+Rules:
+1. Provide ONLY the final numerical answer or the correct option
+2. Be precise and accurate
+3. For multiple choice questions, provide just the value (not the option letter)
+4. For numerical answers, include units if applicable
+5. Keep the answer concise and direct"""
+
+            response = client.chat.completions.create(
+                model="gpt-4o",
+                messages=[
+                    {"role": "system", "content": system_message},
+                    {"role": "user", "content": f"Question: {stem}"}
+                ],
+                max_tokens=150
+            )
+            
+            answer = response.choices[0].message.content.strip()
+            logger.info(f"✅ Right answer generated: {answer}")
+            return answer
+            
+        except Exception as e:
+            logger.error(f"❌ Right answer generation failed: {e}")
+            return "Unable to generate answer"
+    
+    async def _classify_question_with_openai(self, stem: str) -> Dict[str, str]:
+        """Classify question into category, subcategory, and type using OpenAI"""
+        try:
+            import openai
+            
+            client = openai.OpenAI(api_key=self.openai_api_key)
+            
+            system_message = f"""You are an expert in CAT quantitative ability question classification.
+Classify the given question into the EXACT canonical taxonomy below.
+
+CANONICAL TAXONOMY:
+{json.dumps(CANONICAL_TAXONOMY, indent=2)}
+
+Instructions:
+1. Choose the MOST SPECIFIC category, subcategory, and type that matches the question
+2. Use ONLY the exact labels from the taxonomy above
+3. Be precise and specific - avoid "Basics" unless truly fundamental
+4. Return in JSON format: {{"category": "...", "subcategory": "...", "type_of_question": "..."}}
+5. The category should be one of: Arithmetic, Algebra, Geometry and Mensuration, Number System, Modern Math"""
+
+            response = client.chat.completions.create(
+                model="gpt-4o",
+                messages=[
+                    {"role": "system", "content": system_message},
+                    {"role": "user", "content": f"Classify this question: {stem}"}
+                ],
+                max_tokens=200
+            )
+            
+            classification_text = response.choices[0].message.content.strip()
+            
+            # Try to parse JSON response
+            try:
+                classification = json.loads(classification_text)
+                logger.info(f"✅ Classification: {classification}")
+                return classification
+            except json.JSONDecodeError:
+                logger.warning(f"⚠️ Could not parse classification JSON: {classification_text}")
+                # Return default classification
+                return {
+                    "category": "Arithmetic",
+                    "subcategory": "Time-Speed-Distance", 
+                    "type_of_question": "Basics"
+                }
+                
+        except Exception as e:
+            logger.error(f"❌ Classification failed: {e}")
+            return {
+                "category": "Arithmetic",
+                "subcategory": "Time-Speed-Distance",
+                "type_of_question": "Basics"
+            }
+    
+    async def _determine_difficulty_level(self, stem: str, right_answer: str) -> str:
+        """Determine difficulty level: Easy, Medium, or Hard"""
+        try:
+            import openai
+            
+            client = openai.OpenAI(api_key=self.openai_api_key)
+            
+            system_message = """You are an expert in CAT quantitative ability difficulty assessment.
+Analyze the given question and determine its difficulty level.
+
+Difficulty Levels:
+- Easy: Basic concepts, straightforward calculations, single-step problems
+- Medium: Multiple concepts, moderate calculations, 2-3 step problems
+- Hard: Advanced concepts, complex calculations, multi-step reasoning
+
+Return ONLY one word: Easy, Medium, or Hard"""
+
+            response = client.chat.completions.create(
+                model="gpt-4o",
+                messages=[
+                    {"role": "system", "content": system_message},
+                    {"role": "user", "content": f"Question: {stem}\nAnswer: {right_answer}"}
+                ],
+                max_tokens=50
+            )
+            
+            difficulty = response.choices[0].message.content.strip()
+            
+            # Validate and normalize response
+            if difficulty.lower() in ['easy', 'medium', 'hard']:
+                difficulty = difficulty.capitalize()
+            else:
+                difficulty = "Medium"  # Default fallback
+            
+            logger.info(f"✅ Difficulty assessed: {difficulty}")
+            return difficulty
+            
+        except Exception as e:
+            logger.error(f"❌ Difficulty assessment failed: {e}")
+            return "Medium"  # Default fallback
+    
+    async def _validate_answer_consistency(self, admin_answer: str, ai_right_answer: str, question_stem: str) -> Dict[str, Any]:
+        """
+        Validate consistency between admin-provided answer and AI-generated right_answer
+        Used for quality control to activate questions
+        """
+        try:
+            import openai
+            
+            client = openai.OpenAI(api_key=self.openai_api_key)
+            
+            system_message = """You are an expert answer validator for CAT quantitative ability questions.
+Compare the admin-provided answer with the AI-generated answer for consistency.
+
+Rules:
+1. Consider different formats of the same answer as MATCHING (e.g., "15" vs "15 minutes" vs "15 min")
+2. Consider mathematical equivalents as MATCHING (e.g., "0.5" vs "1/2")
+3. For multiple choice, consider the value matching even if format differs
+4. Be strict about actual numerical/logical correctness
+
+Return JSON: {"matches": true/false, "explanation": "brief explanation"}"""
+
+            response = client.chat.completions.create(
+                model="gpt-4o",
+                messages=[
+                    {"role": "system", "content": system_message},
+                    {"role": "user", "content": f"""Question: {question_stem}
+Admin Answer: {admin_answer}
+AI Answer: {ai_right_answer}
+
+Do these answers match?"""}
+                ],
+                max_tokens=200
+            )
+            
+            validation_text = response.choices[0].message.content.strip()
+            
+            try:
+                validation_result = json.loads(validation_text)
+                logger.info(f"✅ Answer validation: {validation_result}")
+                return validation_result
+            except json.JSONDecodeError:
+                logger.warning(f"⚠️ Could not parse validation JSON: {validation_text}")
+                # Conservative approach - assume no match if we can't parse
+                return {
+                    "matches": False,
+                    "explanation": "Could not validate due to parsing error"
+                }
+                
+        except Exception as e:
+            logger.error(f"❌ Answer validation failed: {e}")
+            return {
+                "matches": False,
+                "explanation": f"Validation error: {str(e)}"
+            }
+
+
 class LLMEnrichmentService:
     """
     Main LLM enrichment service that automatically follows the standardized schema directive
