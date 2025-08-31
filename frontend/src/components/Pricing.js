@@ -63,36 +63,8 @@ const Pricing = () => {
 
   return (
     <div className="min-h-screen bg-white" style={{ fontFamily: 'Manrope, sans-serif' }}>
-      {/* Header - Same as Landing Page */}
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            {/* Logo - Clickable to scroll to top */}
-            <div className="flex items-center">
-              <button onClick={() => navigate('/')} className="focus:outline-none">
-                <img 
-                  src="https://customer-assets.emergentagent.com/job_adaptive-cat/artifacts/vv2teh18_Twelver%20edited.png" 
-                  alt="Twelvr" 
-                  className="h-16 sm:h-20 md:h-24 lg:h-28 w-auto cursor-pointer hover:opacity-80 transition-opacity"
-                />
-              </button>
-            </div>
-            
-            {/* Navigation */}
-            <nav className="hidden md:flex items-center space-x-8">
-              <button onClick={() => navigateToPage('/')} className="text-[#545454] hover:text-[#ff6d4d] transition-colors" style={{ fontFamily: 'Lato, sans-serif' }}>
-                How It Works
-              </button>
-              <button onClick={() => navigateToPage('/')} className="text-[#545454] hover:text-[#ff6d4d] transition-colors" style={{ fontFamily: 'Lato, sans-serif' }}>
-                Why 12 Works
-              </button>
-              <span className="text-[#9ac026] font-semibold" style={{ fontFamily: 'Lato, sans-serif' }}>
-                Pricing
-              </span>
-            </nav>
-          </div>
-        </div>
-      </header>
+      {/* Header using shared component */}
+      <Header />
 
       {/* Main Content */}
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
