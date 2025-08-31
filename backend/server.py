@@ -2341,6 +2341,41 @@ async def get_progress_dashboard(
         logger.error(f"Error getting progress dashboard: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@api_router.get("/user/session-limit-status")
+async def get_user_session_limit_status(
+    current_user: User = Depends(require_auth),
+    db: AsyncSession = Depends(get_async_compatible_db)
+):
+    """Check if user has reached the 15-session limit for free trial"""
+    try:
+        # Get completed sessions count for the user
+        sessions_result = await db.execute(
+            select(func.count(Session.id))
+            .where(Session.user_id == current_user.id)
+            .where(Session.ended_at.is_not(None))
+        )
+        completed_sessions = sessions_result.scalar() or 0
+        
+        # TODO: Check user's subscription status - for now assume all users are on free trial
+        # When payment system is fully integrated, check user's plan type here
+        is_free_trial = True  # This will be dynamic based on user's subscription
+        session_limit = 15 if is_free_trial else None  # None means unlimited
+        
+        limit_reached = is_free_trial and completed_sessions >= session_limit
+        
+        return {
+            "completed_sessions": completed_sessions,
+            "session_limit": session_limit,
+            "limit_reached": limit_reached,
+            "is_free_trial": is_free_trial,
+            "sessions_remaining": max(0, session_limit - completed_sessions) if session_limit else None
+        }
+        
+    except Exception as e:
+        logger.error(f"Error checking session limit status: {e}")
+        raise HTTPException(status_code=500, detail="Error checking session limit")
+
+
 @api_router.get("/dashboard/simple-taxonomy")
 async def get_simple_taxonomy_dashboard(
     current_user: User = Depends(require_auth),
