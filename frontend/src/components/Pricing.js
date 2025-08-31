@@ -7,6 +7,25 @@ import { getPlanContext, clearPlanContext, PLAN_TYPES } from '../utils/planConte
 const Pricing = () => {
   const navigate = useNavigate();
   const [paymentStatus, setPaymentStatus] = useState({ message: '', type: '' });
+  const [highlightedPlan, setHighlightedPlan] = useState(null);
+
+  // Check for plan context on component mount
+  useEffect(() => {
+    const planContext = getPlanContext();
+    if (planContext) {
+      setHighlightedPlan(planContext.planType);
+      setPaymentStatus({
+        message: `Complete your ${planContext.planType === PLAN_TYPES.PRO_LITE ? 'Pro Lite' : 'Pro Regular'} purchase within ${Math.floor((planContext.expiresAt - Date.now()) / (60 * 1000))} minutes.`,
+        type: 'info'
+      });
+      
+      // Clear the context after showing the message
+      setTimeout(() => {
+        clearPlanContext();
+        setPaymentStatus({ message: '', type: '' });
+      }, 5000);
+    }
+  }, []);
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
