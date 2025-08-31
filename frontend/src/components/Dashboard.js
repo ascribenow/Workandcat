@@ -736,7 +736,8 @@ ${response.data.errors > 0 ? '⚠️ Check the logs for error details.' : ''}`);
                   <div className="flex space-x-3">
                     <button
                       onClick={() => handleExportQuestions()}
-                      className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-medium flex items-center"
+                      className="bg-[#9ac026] hover:bg-[#8bb024] text-white px-6 py-3 rounded-lg font-medium flex items-center"
+                      style={{ fontFamily: 'Lato, sans-serif' }}
                     >
                       📊 Export All Questions (CSV)
                     </button>
