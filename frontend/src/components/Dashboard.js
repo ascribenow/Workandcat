@@ -7,6 +7,7 @@ import { SessionSystem } from './SessionSystem';
 import { SimpleDashboard } from './SimpleDashboard';
 import PYQFilesTable from './PYQFilesTable';
 import UpgradeModal from './UpgradeModal';
+import Privileges from './Privileges';
 
 export const Dashboard = () => {
   const { user, logout, isAdmin } = useAuth();
