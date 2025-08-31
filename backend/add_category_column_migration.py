@@ -105,7 +105,7 @@ async def add_category_column_migration():
                 AND category IS NULL
                 """)
                 
-                result = await db.execute(update_sql, {
+                result = db.execute(update_sql, {
                     "category": category,
                     "subcategory": subcategory,
                     "subcategory_like": f"%{subcategory}%"
