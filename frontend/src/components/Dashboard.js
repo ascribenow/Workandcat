@@ -510,6 +510,21 @@ ${response.data.errors > 0 ? '⚠️ Check the logs for error details.' : ''}`);
                 📄 PYQ Upload
               </button>
               <button
+                onClick={() => setActiveTab('questions')}
+                className={`py-4 text-lg font-medium transition-colors ${
+                  activeTab === 'questions' 
+                    ? 'border-b-2' 
+                    : 'hover:text-[#ff6d4d]'
+                }`}
+                style={{ 
+                  color: activeTab === 'questions' ? '#9ac026' : '#545454',
+                  borderColor: activeTab === 'questions' ? '#9ac026' : 'transparent',
+                  fontFamily: 'Lato, sans-serif'
+                }}
+              >
+                ❓ Questions
+              </button>
+              <button
                 onClick={() => setActiveTab('privileges')}
                 className={`py-4 text-lg font-medium transition-colors ${
                   activeTab === 'privileges' 
