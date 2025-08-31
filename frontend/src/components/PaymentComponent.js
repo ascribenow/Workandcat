@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { useAuth } from './AuthProvider';
-import { API } from './AuthProvider';
 
 const PaymentComponent = ({ planType, amount, planName, description, onSuccess, onError }) => {
-  const { user, isAuthenticated } = useAuth();
+  const { API, user, isAuthenticated } = useAuth();
   const [loading, setLoading] = useState(false);
 
   const loadRazorpayScript = () => {
