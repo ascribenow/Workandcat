@@ -3282,6 +3282,7 @@ async def upload_questions_csv(
                     enrichment_data = enrichment_result["enrichment_data"]
                     
                     # Update question with LLM-generated fields
+                    question.category = enrichment_data["category"]  # NEW: Store main category
                     question.right_answer = enrichment_data["right_answer"]
                     question.subcategory = enrichment_data["subcategory"] 
                     question.type_of_question = enrichment_data["type_of_question"]
