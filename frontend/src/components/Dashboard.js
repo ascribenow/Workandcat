@@ -19,6 +19,10 @@ export const Dashboard = () => {
   const [activeSessionId, setActiveSessionId] = useState(null);
   const [sessionMetadata, setSessionMetadata] = useState(null);
   const [loading, setLoading] = useState(true);
+  
+  // Session limit state
+  const [sessionLimitStatus, setSessionLimitStatus] = useState(null);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   useEffect(() => {
     const loadDashboard = async () => {
