@@ -1122,16 +1122,33 @@ class CATBackendTester:
         
         return success_rate >= 60  # Lower threshold since OAuth setup may be pending
 
-    def test_razorpay_payment_integration(self):
-        """Test Razorpay payment endpoints and verify they are working correctly"""
-        print("💳 RAZORPAY PAYMENT INTEGRATION TESTING")
+    def test_razorpay_payment_integration_updated(self):
+        """Test updated Razorpay payment integration focusing on plan creation fix and payment flows"""
+        print("💳 RAZORPAY PAYMENT INTEGRATION - UPDATED TESTING")
         print("=" * 80)
-        print("TESTING RAZORPAY PAYMENT ENDPOINTS:")
-        print("1. GET /api/payments/config - Razorpay configuration")
-        print("2. Authentication for payment endpoints")
-        print("3. Payment service imports and initialization")
-        print("4. All payment endpoints accessibility")
-        print("5. Server startup with payment dependencies")
+        print("FOCUS: Testing updated Razorpay payment integration to confirm plan creation fix")
+        print("")
+        print("SPECIFIC TESTING REQUIREMENTS:")
+        print("1. Razorpay Plan Creation Testing:")
+        print("   - Test Pro Lite subscription creation (should work without 500 errors)")
+        print("   - Verify new plan data structure is working correctly")
+        print("   - Test plan retrieval and creation process")
+        print("")
+        print("2. Payment Flow Testing:")
+        print("   - Test Pro Regular order creation (₹2,565 one-time payment)")
+        print("   - Test Pro Lite subscription creation (₹1,495 monthly recurring)")
+        print("   - Verify payment configuration endpoint")
+        print("   - Test authentication for all payment endpoints")
+        print("")
+        print("3. Error Validation:")
+        print("   - Confirm no more 'The requested URL was not found on the server' errors")
+        print("   - Verify proper error handling for invalid requests")
+        print("   - Test plan creation with new API structure")
+        print("")
+        print("4. Integration Points:")
+        print("   - Test with authenticated user (student@catprep.com/student123)")
+        print("   - Verify Razorpay client configuration is working")
+        print("   - Check payment order/subscription creation flow")
         print("")
         print("PAYMENT PLANS:")
         print("- Pro Lite: ₹1,495/month with auto-renewal (subscription)")
