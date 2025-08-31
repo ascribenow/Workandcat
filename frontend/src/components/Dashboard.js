@@ -772,8 +772,9 @@ ${response.data.errors > 0 ? '⚠️ Check the logs for error details.' : ''}`);
                           className={`cursor-pointer inline-flex items-center px-8 py-4 border border-transparent text-lg font-medium rounded-lg text-white transition-colors ${
                             uploading 
                               ? 'bg-gray-400 cursor-not-allowed' 
-                              : 'bg-blue-600 hover:bg-blue-700'
+                              : 'bg-[#9ac026] hover:bg-[#8bb024]'
                           }`}
+                          style={{ fontFamily: 'Lato, sans-serif' }}
                         >
                           {uploading ? (
                             <>
