@@ -221,19 +221,10 @@ class RazorpayService:
         """Get or create a Razorpay plan for subscriptions"""
         try:
             plan_config = self.plans[plan_type]
-            plan_id = f"twelvr_{plan_type}_{plan_config['amount']}"
+            # Use a simpler plan ID without trying to fetch existing plans first
+            plan_id = f"twelvr_{plan_type}"
             
-            # Try to fetch existing plans
-            try:
-                plans = self.client.plan.all()
-                # Check if plan exists
-                for plan in plans.get("items", []):
-                    if plan["id"] == plan_id:
-                        return plan_id
-            except Exception as e:
-                logger.warning(f"Could not fetch existing plans: {str(e)}")
-            
-            # Create new plan with correct structure
+            # Create new plan with correct structure (don't try to fetch existing ones)
             plan_data = {
                 "period": "monthly",
                 "interval": 1,
@@ -244,15 +235,21 @@ class RazorpayService:
                     "description": plan_config["description"]
                 },
                 "notes": {
-                    "plan_type": plan_type
+                    "plan_type": plan_type,
+                    "created_by": "twelvr_backend"
                 }
             }
             
-            created_plan = self.client.plan.create(data=plan_data)
+            logger.info(f"Creating Razorpay plan with data: {plan_data}")
+            created_plan = self.client.plan.create(plan_data)
+            logger.info(f"Successfully created plan: {created_plan}")
             return created_plan["id"]
             
         except Exception as e:
             logger.error(f"Error creating plan: {str(e)}")
+            # Log more details about the error
+            logger.error(f"Plan type: {plan_type}")
+            logger.error(f"Plan config: {self.plans.get(plan_type, {})}")
             raise
 
     async def verify_payment(self, order_id: str, payment_id: str, signature: str, user_id: str) -> Dict[str, Any]:
