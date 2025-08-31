@@ -218,8 +218,8 @@ const PaymentComponent = ({ planType, amount, planName, description, onSuccess, 
       disabled={loading}
       className={`w-full py-3 px-6 rounded-lg font-semibold transition-colors ${
         planType === 'pro_regular' 
-          ? 'bg-[#9ac026] text-white hover:bg-[#8bb024]' 
-          : 'border-2 border-[#9ac026] text-[#9ac026] hover:bg-[#9ac026] hover:text-white'
+          ? 'bg-[#9ac026] text-white hover:bg-[#8bb024] disabled:bg-gray-400' 
+          : 'border-2 border-[#9ac026] text-[#9ac026] hover:bg-[#9ac026] hover:text-white disabled:border-gray-400 disabled:text-gray-400'
       }`}
       style={{ fontFamily: 'Lato, sans-serif' }}
     >
@@ -228,6 +228,10 @@ const PaymentComponent = ({ planType, amount, planName, description, onSuccess, 
           <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-current mr-2"></div>
           {planType === 'pro_lite' ? 'Starting Subscription...' : 'Processing Payment...'}
         </div>
+      ) : !localStorage.getItem('token') ? (
+        <>
+          {planType === 'pro_lite' ? 'Login to Subscribe' : 'Login to Purchase'}
+        </>
       ) : (
         <>
           {planType === 'pro_lite' ? 'Subscribe to Pro Lite' : 'Choose Pro Regular'}
