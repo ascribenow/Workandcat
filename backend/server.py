@@ -2474,6 +2474,12 @@ async def get_user_session_limit_status(
 ):
     """Check if user has reached the 15-session limit for free trial"""
     try:
+        # First check if user email is in privileged list (bypass limits)
+        privileged_result = await db.execute(
+            select(PrivilegedEmail).where(PrivilegedEmail.email == current_user.email.lower())
+        )
+        is_privileged = privileged_result.scalar() is not None
+        
         # Get completed sessions count for the user
         sessions_result = await db.execute(
             select(func.count(Session.id))
@@ -2482,19 +2488,20 @@ async def get_user_session_limit_status(
         )
         completed_sessions = sessions_result.scalar() or 0
         
-        # TODO: Check user's subscription status - for now assume all users are on free trial
+        # Check user's subscription status - for now assume all users are on free trial unless privileged
         # When payment system is fully integrated, check user's plan type here
-        is_free_trial = True  # This will be dynamic based on user's subscription
-        session_limit = 15 if is_free_trial else None  # None means unlimited
+        is_free_trial = not is_privileged  # Privileged users bypass free trial limits
+        session_limit = None if is_privileged else 15  # None means unlimited for privileged users
         
-        limit_reached = is_free_trial and completed_sessions >= session_limit
+        limit_reached = is_free_trial and completed_sessions >= 15
         
         return {
             "completed_sessions": completed_sessions,
             "session_limit": session_limit,
             "limit_reached": limit_reached,
             "is_free_trial": is_free_trial,
-            "sessions_remaining": max(0, session_limit - completed_sessions) if session_limit else None
+            "is_privileged": is_privileged,
+            "sessions_remaining": max(0, 15 - completed_sessions) if is_free_trial else None
         }
         
     except Exception as e:
