@@ -112,6 +112,18 @@
 user_problem_statement: "Verify that the database schema updates and LLM prompt improvements are working correctly: 1) Database Schema Verification - Check that the new 'category' column exists in the questions table and is properly populated, 2) Test New Question Upload Workflow - Upload a test CSV with a simple question to verify that the enhanced LLM classification is working and storing the category field, 3) Session System Compatibility - Test /api/sessions/start to ensure the adaptive session logic can properly filter questions by category, 4) LLM Classification Quality - Verify that the updated LLM prompts are generating more specific and accurate classifications for type_of_question field."
 
 backend:
+  - task: "Database Schema Updates and LLM Prompt Improvements"
+    implemented: true
+    working: false
+    file: "/app/backend/server.py, /app/backend/llm_enrichment.py"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: false
+    status_history:
+        -working: false
+        -agent: "testing"
+        -comment: "🔍 DATABASE SCHEMA & LLM IMPROVEMENTS TESTING COMPLETED - CRITICAL ISSUES IDENTIFIED! Comprehensive testing of database schema updates and LLM prompt improvements reveals 50% success rate with significant issues requiring attention. KEY FINDINGS: ❌ CRITICAL ISSUE: Category column missing from questions table - database schema not updated properly, ❌ LLM CLASSIFICATION: Enhanced LLM classification not working - category field not being populated during question upload, ✅ UPLOAD WORKFLOW: CSV upload working correctly with proper question creation and activation, ✅ SESSION COMPATIBILITY: Adaptive session logic supports category-based filtering perfectly, ❌ CLASSIFICATION ACCURACY: Test question 'A train travels 120 km in 2 hours. What is its speed in km/h?' not classified as expected (category='Arithmetic' not achieved), ✅ TYPE SPECIFICITY: Type classification working with 'Basics' classification achieved. ROOT CAUSE: Database schema missing 'category' column and LLM enrichment not populating category field during question processing. URGENT ACTION REQUIRED: 1) Add 'category' column to questions table schema, 2) Update LLM enrichment pipeline to populate category field, 3) Verify enhanced LLM prompts are being used for classification. SUCCESS RATE: 50% - Core infrastructure working but critical schema and classification issues need resolution."
+
   - task: "Email Authentication System Backend Implementation"
     implemented: true
     working: true
