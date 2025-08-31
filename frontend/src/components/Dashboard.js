@@ -81,6 +81,12 @@ export const Dashboard = () => {
       const progressResponse = await axios.get(`${API}/dashboard/progress`);
       console.log('Dashboard: Progress data received:', progressResponse.data);
       setProgressData(progressResponse.data);
+
+      // Fetch session limit status
+      console.log('Dashboard: Fetching session limit status...');
+      const limitResponse = await axios.get(`${API}/user/session-limit-status`);
+      console.log('Dashboard: Session limit status received:', limitResponse.data);
+      setSessionLimitStatus(limitResponse.data);
       
       console.log('Dashboard: Data loading completed successfully');
       
