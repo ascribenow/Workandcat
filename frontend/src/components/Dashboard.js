@@ -806,15 +806,15 @@ ${response.data.errors > 0 ? '⚠️ Check the logs for error details.' : ''}`);
                 {/* Upload Progress and Results */}
                 {uploading && (
                   <div className="mb-8">
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-6">
                       <div className="flex items-center mb-4">
-                        <svg className="animate-spin h-6 w-6 text-blue-600 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <svg className="animate-spin h-6 w-6 text-[#9ac026] mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
-                        <h3 className="text-lg font-semibold text-blue-900">Processing CSV Upload...</h3>
+                        <h3 className="text-lg font-semibold text-green-900" style={{ fontFamily: 'Lato, sans-serif' }}>Processing CSV Upload...</h3>
                       </div>
-                      <p className="text-blue-800" style={{ fontFamily: 'Lato, sans-serif' }}>
+                      <p className="text-green-800" style={{ fontFamily: 'Lato, sans-serif' }}>
                         Please wait while we process your questions. This may take several minutes for large files.
                       </p>
                     </div>
