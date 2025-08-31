@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Header from './Header';
 import PaymentComponent from './PaymentComponent';
+import { getPlanContext, clearPlanContext, PLAN_TYPES } from '../utils/planContext';
 
 const Pricing = () => {
   const navigate = useNavigate();
