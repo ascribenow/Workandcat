@@ -2359,7 +2359,7 @@ async def get_privileged_emails(
         for email_record in privileged_emails:
             # Get admin name who added this email
             admin_result = await db.execute(
-                select(User.name).where(User.id == email_record.added_by_admin)
+                select(User.full_name).where(User.id == email_record.added_by_admin)
             )
             admin_name = admin_result.scalar() or "Unknown Admin"
             
