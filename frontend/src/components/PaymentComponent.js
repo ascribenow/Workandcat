@@ -136,7 +136,7 @@ const PaymentComponent = ({ planType, amount, planName, description, onSuccess, 
           console.log('Payment successful:', response);
           try {
             // Verify payment
-            const verifyResponse = await fetch(`${API}/api/payments/verify-payment`, {
+            const verifyResponse = await fetch(`${API}/payments/verify-payment`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
