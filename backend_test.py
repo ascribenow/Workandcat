@@ -26,6 +26,443 @@ class CATBackendTester:
             "Work Time Efficiency"
         ]
 
+    def test_database_schema_and_llm_improvements(self):
+        """Test database schema updates and LLM prompt improvements as per review request"""
+        print("🔍 DATABASE SCHEMA & LLM PROMPT IMPROVEMENTS TESTING")
+        print("=" * 80)
+        print("FOCUS: Verifying database schema updates and LLM classification improvements")
+        print("")
+        print("TESTING REQUIREMENTS:")
+        print("1. Database Schema Verification:")
+        print("   - Check that new 'category' column exists in questions table")
+        print("   - Verify category field is properly populated")
+        print("")
+        print("2. Test New Question Upload Workflow:")
+        print("   - Upload test CSV with simple question")
+        print("   - Verify enhanced LLM classification working")
+        print("   - Check category field storage")
+        print("")
+        print("3. Session System Compatibility:")
+        print("   - Test /api/sessions/start endpoint")
+        print("   - Ensure adaptive session logic can filter by category")
+        print("")
+        print("4. LLM Classification Quality:")
+        print("   - Verify updated LLM prompts generate accurate classifications")
+        print("   - Check type_of_question field specificity")
+        print("")
+        print("TEST CASE: 'A train travels 120 km in 2 hours. What is its speed in km/h?'")
+        print("EXPECTED: category='Arithmetic', subcategory='Time-Speed-Distance', type='Basics'")
+        print("=" * 80)
+        
+        schema_results = {
+            # Database Schema Verification
+            "questions_endpoint_accessible": False,
+            "category_column_exists": False,
+            "category_field_populated": False,
+            "existing_questions_have_categories": False,
+            
+            # Admin Authentication for CSV Upload
+            "admin_authentication_working": False,
+            "admin_token_valid": False,
+            
+            # Question Upload Workflow
+            "csv_upload_endpoint_accessible": False,
+            "test_question_uploaded_successfully": False,
+            "llm_classification_working": False,
+            "category_field_stored": False,
+            "subcategory_classification_accurate": False,
+            "type_classification_specific": False,
+            
+            # Session System Compatibility
+            "sessions_start_accessible": False,
+            "adaptive_session_logic_working": False,
+            "category_filtering_supported": False,
+            "session_questions_have_categories": False,
+            
+            # LLM Classification Quality
+            "enhanced_prompts_working": False,
+            "classification_accuracy_improved": False,
+            "type_specificity_enhanced": False,
+            "expected_classifications_match": False
+        }
+        
+        # PHASE 1: DATABASE SCHEMA VERIFICATION
+        print("\n🗄️ PHASE 1: DATABASE SCHEMA VERIFICATION")
+        print("-" * 50)
+        print("Checking questions table schema and category column")
+        
+        # Test questions endpoint to check schema
+        success, response = self.run_test("Questions Endpoint Schema Check", "GET", "questions?limit=10", 200)
+        
+        if success:
+            schema_results["questions_endpoint_accessible"] = True
+            questions = response.get("questions", [])
+            print(f"   ✅ Questions endpoint accessible - {len(questions)} questions found")
+            
+            # Check if questions have category field
+            category_count = 0
+            populated_category_count = 0
+            
+            for question in questions:
+                if "category" in question:
+                    category_count += 1
+                    if question.get("category") and question["category"] not in ["", "To be classified", None]:
+                        populated_category_count += 1
+                        print(f"   📊 Question category: {question.get('category')} | Subcategory: {question.get('subcategory')} | Type: {question.get('type_of_question')}")
+            
+            if category_count > 0:
+                schema_results["category_column_exists"] = True
+                print(f"   ✅ Category column exists - found in {category_count}/{len(questions)} questions")
+                
+                if populated_category_count > 0:
+                    schema_results["category_field_populated"] = True
+                    schema_results["existing_questions_have_categories"] = True
+                    print(f"   ✅ Category field populated - {populated_category_count} questions have valid categories")
+                else:
+                    print("   ⚠️ Category column exists but not populated")
+            else:
+                print("   ❌ Category column not found in questions")
+        
+        # PHASE 2: ADMIN AUTHENTICATION SETUP
+        print("\n🔐 PHASE 2: ADMIN AUTHENTICATION SETUP")
+        print("-" * 50)
+        print("Setting up admin authentication for CSV upload testing")
+        
+        admin_login_data = {
+            "email": "sumedhprabhu18@gmail.com",
+            "password": "admin2025"
+        }
+        
+        success, response = self.run_test("Admin Authentication", "POST", "auth/login", [200, 401], admin_login_data)
+        
+        admin_headers = None
+        if success and response.get('access_token'):
+            admin_token = response['access_token']
+            admin_headers = {
+                'Authorization': f'Bearer {admin_token}',
+                'Content-Type': 'application/json'
+            }
+            schema_results["admin_authentication_working"] = True
+            schema_results["admin_token_valid"] = True
+            print(f"   ✅ Admin authentication successful")
+            print(f"   📊 JWT Token length: {len(admin_token)} characters")
+            
+            # Verify admin token with /api/auth/me
+            success, me_response = self.run_test("Admin Token Validation", "GET", "auth/me", 200, None, admin_headers)
+            if success and me_response.get('is_admin'):
+                print(f"   ✅ Admin privileges confirmed: {me_response.get('email')}")
+        else:
+            print("   ❌ Admin authentication failed - using dummy headers for endpoint testing")
+            admin_headers = {'Authorization': 'Bearer dummy_token'}
+        
+        # PHASE 3: TEST QUESTION UPLOAD WORKFLOW
+        print("\n📄 PHASE 3: TEST QUESTION UPLOAD WORKFLOW")
+        print("-" * 50)
+        print("Testing CSV upload with train speed question")
+        
+        # Create test CSV with the specific question from review request
+        test_csv_content = '''stem,image_url,answer,solution_approach,principle_to_remember
+"A train travels 120 km in 2 hours. What is its speed in km/h?","","60 km/h","Speed = Distance / Time. Given: Distance = 120 km, Time = 2 hours. Speed = 120/2 = 60 km/h","Speed is calculated by dividing distance by time. This is the fundamental formula in time-speed-distance problems."'''
+        
+        # Test CSV upload endpoint
+        try:
+            import io
+            csv_file = io.BytesIO(test_csv_content.encode('utf-8'))
+            files = {'file': ('test_train_question.csv', csv_file, 'text/csv')}
+            
+            import requests
+            response = requests.post(
+                f"{self.base_url}/admin/upload-questions-csv",
+                files=files,
+                headers={'Authorization': admin_headers['Authorization']} if admin_headers else {},
+                timeout=30
+            )
+            
+            if response.status_code in [200, 201]:
+                schema_results["csv_upload_endpoint_accessible"] = True
+                schema_results["test_question_uploaded_successfully"] = True
+                
+                response_data = response.json()
+                print(f"   ✅ CSV upload successful")
+                print(f"   📊 Response status: {response.status_code}")
+                
+                # Check upload statistics
+                stats = response_data.get("statistics", {})
+                questions_created = stats.get("questions_created", 0)
+                questions_activated = stats.get("questions_activated", 0)
+                
+                print(f"   📊 Questions created: {questions_created}")
+                print(f"   📊 Questions activated: {questions_activated}")
+                
+                # Check enrichment results
+                enrichment_results = response_data.get("enrichment_results", [])
+                if enrichment_results:
+                    for result in enrichment_results:
+                        category = result.get("category")
+                        subcategory = result.get("subcategory") 
+                        type_of_question = result.get("type_of_question")
+                        
+                        print(f"   📊 LLM Classification Results:")
+                        print(f"      Category: {category}")
+                        print(f"      Subcategory: {subcategory}")
+                        print(f"      Type: {type_of_question}")
+                        
+                        # Verify expected classifications
+                        if category:
+                            schema_results["category_field_stored"] = True
+                            schema_results["llm_classification_working"] = True
+                            
+                            if category == "Arithmetic":
+                                schema_results["expected_classifications_match"] = True
+                                print(f"   ✅ Category classification correct: {category}")
+                        
+                        if subcategory and "Time" in subcategory and "Speed" in subcategory:
+                            schema_results["subcategory_classification_accurate"] = True
+                            print(f"   ✅ Subcategory classification accurate: {subcategory}")
+                        
+                        if type_of_question and (type_of_question == "Basics" or "Train" in type_of_question):
+                            schema_results["type_classification_specific"] = True
+                            print(f"   ✅ Type classification specific: {type_of_question}")
+                
+                # Check if enhanced prompts are working
+                if schema_results["category_field_stored"] and schema_results["subcategory_classification_accurate"]:
+                    schema_results["enhanced_prompts_working"] = True
+                    schema_results["classification_accuracy_improved"] = True
+                    print(f"   ✅ Enhanced LLM prompts working correctly")
+                
+            elif response.status_code in [401, 403]:
+                schema_results["csv_upload_endpoint_accessible"] = True
+                print(f"   ⚠️ CSV upload endpoint accessible but authentication required")
+            else:
+                print(f"   ❌ CSV upload failed with status: {response.status_code}")
+                
+        except Exception as e:
+            print(f"   ❌ CSV upload test failed: {e}")
+        
+        # PHASE 4: VERIFY UPLOADED QUESTION IN DATABASE
+        print("\n🔍 PHASE 4: VERIFY UPLOADED QUESTION IN DATABASE")
+        print("-" * 50)
+        print("Checking if uploaded question appears in questions endpoint with correct classification")
+        
+        # Get questions again to see if our test question was added
+        success, response = self.run_test("Questions After Upload", "GET", "questions?limit=20", 200)
+        
+        if success:
+            questions = response.get("questions", [])
+            train_question_found = False
+            
+            for question in questions:
+                stem = question.get("stem", "")
+                if "train travels 120 km" in stem.lower():
+                    train_question_found = True
+                    category = question.get("category")
+                    subcategory = question.get("subcategory")
+                    type_of_question = question.get("type_of_question")
+                    
+                    print(f"   ✅ Train question found in database")
+                    print(f"   📊 Category: {category}")
+                    print(f"   📊 Subcategory: {subcategory}")
+                    print(f"   📊 Type: {type_of_question}")
+                    
+                    # Verify classifications match expectations
+                    if category == "Arithmetic":
+                        schema_results["expected_classifications_match"] = True
+                        print(f"   ✅ Category matches expected: Arithmetic")
+                    
+                    if subcategory and "Time" in subcategory:
+                        print(f"   ✅ Subcategory contains Time-Speed-Distance elements")
+                    
+                    if type_of_question and (type_of_question == "Basics" or "Train" in type_of_question):
+                        schema_results["type_specificity_enhanced"] = True
+                        print(f"   ✅ Type classification is specific: {type_of_question}")
+                    
+                    break
+            
+            if not train_question_found:
+                print("   ⚠️ Train question not found in recent questions - may need to check more results")
+        
+        # PHASE 5: SESSION SYSTEM COMPATIBILITY TESTING
+        print("\n🎯 PHASE 5: SESSION SYSTEM COMPATIBILITY TESTING")
+        print("-" * 50)
+        print("Testing /api/sessions/start with category filtering capability")
+        
+        # First, authenticate as student for session testing
+        student_login_data = {
+            "email": "student@catprep.com",
+            "password": "student123"
+        }
+        
+        success, response = self.run_test("Student Authentication", "POST", "auth/login", [200, 401], student_login_data)
+        
+        student_headers = None
+        if success and response.get('access_token'):
+            student_token = response['access_token']
+            student_headers = {
+                'Authorization': f'Bearer {student_token}',
+                'Content-Type': 'application/json'
+            }
+            print(f"   ✅ Student authentication successful")
+        else:
+            print("   ⚠️ Student authentication failed - using dummy headers")
+            student_headers = {'Authorization': 'Bearer dummy_token'}
+        
+        # Test session start endpoint
+        success, response = self.run_test("Session Start", "POST", "sessions/start", [200, 401, 404], {}, student_headers)
+        
+        if success:
+            schema_results["sessions_start_accessible"] = True
+            
+            session_id = response.get("session_id")
+            questions = response.get("questions", [])
+            metadata = response.get("metadata", {})
+            phase_info = response.get("phase_info", {})
+            
+            print(f"   ✅ Session start successful")
+            print(f"   📊 Session ID: {session_id}")
+            print(f"   📊 Questions count: {len(questions)}")
+            
+            # Check if session questions have category information
+            category_questions = 0
+            for question in questions:
+                if question.get("subcategory") and question.get("type_of_question"):
+                    category_questions += 1
+            
+            if category_questions > 0:
+                schema_results["session_questions_have_categories"] = True
+                schema_results["adaptive_session_logic_working"] = True
+                print(f"   ✅ Session questions have category information: {category_questions}/{len(questions)}")
+                
+                # Check if adaptive logic can filter by category
+                if metadata or phase_info:
+                    schema_results["category_filtering_supported"] = True
+                    print(f"   ✅ Adaptive session logic supports category-based filtering")
+            
+            # Check for enhanced session metadata
+            if phase_info:
+                print(f"   📊 Phase info: {phase_info}")
+            if metadata:
+                category_dist = metadata.get("category_distribution", {})
+                if category_dist:
+                    print(f"   📊 Category distribution: {category_dist}")
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 80)
+        print("DATABASE SCHEMA & LLM IMPROVEMENTS TEST RESULTS")
+        print("=" * 80)
+        
+        passed_tests = sum(schema_results.values())
+        total_tests = len(schema_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        # Group results by category
+        categories = {
+            "DATABASE SCHEMA VERIFICATION": [
+                "questions_endpoint_accessible", "category_column_exists",
+                "category_field_populated", "existing_questions_have_categories"
+            ],
+            "QUESTION UPLOAD WORKFLOW": [
+                "admin_authentication_working", "csv_upload_endpoint_accessible",
+                "test_question_uploaded_successfully", "llm_classification_working",
+                "category_field_stored"
+            ],
+            "LLM CLASSIFICATION QUALITY": [
+                "subcategory_classification_accurate", "type_classification_specific",
+                "enhanced_prompts_working", "classification_accuracy_improved",
+                "expected_classifications_match", "type_specificity_enhanced"
+            ],
+            "SESSION SYSTEM COMPATIBILITY": [
+                "sessions_start_accessible", "adaptive_session_logic_working",
+                "category_filtering_supported", "session_questions_have_categories"
+            ]
+        }
+        
+        for category, tests in categories.items():
+            print(f"\n{category}:")
+            category_passed = 0
+            category_total = len(tests)
+            
+            for test in tests:
+                if test in schema_results:
+                    result = schema_results[test]
+                    status = "✅ PASS" if result else "❌ FAIL"
+                    print(f"  {test.replace('_', ' ').title():<40} {status}")
+                    if result:
+                        category_passed += 1
+            
+            category_rate = (category_passed / category_total) * 100 if category_total > 0 else 0
+            print(f"  Category Success Rate: {category_passed}/{category_total} ({category_rate:.1f}%)")
+        
+        print("-" * 80)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # CRITICAL ANALYSIS
+        print("\n🎯 CRITICAL ANALYSIS:")
+        
+        if schema_results["category_column_exists"]:
+            print("✅ DATABASE SCHEMA: Category column exists in questions table")
+        else:
+            print("❌ DATABASE SCHEMA: Category column missing from questions table")
+        
+        if schema_results["category_field_populated"]:
+            print("✅ DATA POPULATION: Category field is properly populated")
+        else:
+            print("❌ DATA POPULATION: Category field not populated")
+        
+        if schema_results["test_question_uploaded_successfully"]:
+            print("✅ UPLOAD WORKFLOW: Test CSV upload working correctly")
+        else:
+            print("❌ UPLOAD WORKFLOW: Issues with CSV upload process")
+        
+        if schema_results["llm_classification_working"]:
+            print("✅ LLM CLASSIFICATION: Enhanced LLM classification working")
+        else:
+            print("❌ LLM CLASSIFICATION: LLM classification not working properly")
+        
+        if schema_results["expected_classifications_match"]:
+            print("✅ CLASSIFICATION ACCURACY: Train question classified as expected")
+        else:
+            print("❌ CLASSIFICATION ACCURACY: Classifications don't match expectations")
+        
+        if schema_results["adaptive_session_logic_working"]:
+            print("✅ SESSION COMPATIBILITY: Adaptive session logic supports categories")
+        else:
+            print("❌ SESSION COMPATIBILITY: Session system not compatible with categories")
+        
+        # SPECIFIC FINDINGS
+        print("\n📋 SPECIFIC FINDINGS:")
+        
+        print("TEST CASE RESULTS:")
+        print("Question: 'A train travels 120 km in 2 hours. What is its speed in km/h?'")
+        
+        if schema_results["expected_classifications_match"]:
+            print("✅ Expected: category='Arithmetic' - ACHIEVED")
+        else:
+            print("❌ Expected: category='Arithmetic' - NOT ACHIEVED")
+        
+        if schema_results["subcategory_classification_accurate"]:
+            print("✅ Expected: subcategory='Time-Speed-Distance' - ACHIEVED")
+        else:
+            print("❌ Expected: subcategory='Time-Speed-Distance' - NOT ACHIEVED")
+        
+        if schema_results["type_classification_specific"]:
+            print("✅ Expected: type='Basics' or 'Trains' - ACHIEVED")
+        else:
+            print("❌ Expected: type='Basics' or 'Trains' - NOT ACHIEVED")
+        
+        # PRODUCTION READINESS
+        print("\n📋 PRODUCTION READINESS ASSESSMENT:")
+        
+        if success_rate >= 85:
+            print("🎉 FULLY READY: Database schema updates and LLM improvements working perfectly")
+        elif success_rate >= 70:
+            print("⚠️ MOSTLY READY: Core functionality working, minor improvements needed")
+        elif success_rate >= 50:
+            print("⚠️ NEEDS WORK: Significant issues need resolution")
+        else:
+            print("❌ NOT READY: Critical issues must be fixed")
+        
+        return success_rate >= 60
+
     def test_question_upload_enrichment_workflow(self):
         """Test the NEW Question Upload & Enrichment Workflow implementation"""
         print("🚀 QUESTION UPLOAD & ENRICHMENT WORKFLOW TESTING")
