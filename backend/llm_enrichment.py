@@ -1050,12 +1050,21 @@ Classify the given question into the EXACT canonical taxonomy below.
 CANONICAL TAXONOMY:
 {json.dumps(CANONICAL_TAXONOMY, indent=2)}
 
-Instructions:
+CLASSIFICATION RULES:
 1. Choose the MOST SPECIFIC category, subcategory, and type that matches the question
 2. Use ONLY the exact labels from the taxonomy above
-3. Be precise and specific - avoid "Basics" unless truly fundamental
-4. Return in JSON format: {{"category": "...", "subcategory": "...", "type_of_question": "..."}}
-5. The category should be one of: Arithmetic, Algebra, Geometry and Mensuration, Number System, Modern Math"""
+3. Be precise and specific - avoid generic terms
+4. The category MUST be one of: Arithmetic, Algebra, Geometry and Mensuration, Number System, Modern Math
+5. The subcategory must be from the chosen category's subcategories
+6. The type_of_question must be from the chosen subcategory's types (the array values)
+
+EXAMPLES:
+- Speed question → {{"category": "Arithmetic", "subcategory": "Time-Speed-Distance", "type_of_question": "Basics"}}
+- Train problem → {{"category": "Arithmetic", "subcategory": "Time-Speed-Distance", "type_of_question": "Trains"}}  
+- Quadratic roots → {{"category": "Algebra", "subcategory": "Quadratic Equations", "type_of_question": "Roots & Nature of Roots"}}
+- Triangle area → {{"category": "Geometry and Mensuration", "subcategory": "Mensuration 2D", "type_of_question": "Area Triangle"}}
+
+Return ONLY JSON format: {{"category": "...", "subcategory": "...", "type_of_question": "..."}}"""
 
             response = client.chat.completions.create(
                 model="gpt-4o",
