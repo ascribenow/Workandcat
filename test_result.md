@@ -109,7 +109,7 @@
 # END - Testing Protocol - DO NOT EDIT OR REMOVE THIS SECTION
 #====================================================================================================
 
-user_problem_statement: "Implement email authentication system with Gmail API OAuth2 for user signup. Two-step inline signup process where users receive a 6-digit verification code via email (15-minute expiry), and account creation is completed only after successful code entry. Use Gmail account costodigital@gmail.com for sending verification emails."
+user_problem_statement: "Verify that the database schema updates and LLM prompt improvements are working correctly: 1) Database Schema Verification - Check that the new 'category' column exists in the questions table and is properly populated, 2) Test New Question Upload Workflow - Upload a test CSV with a simple question to verify that the enhanced LLM classification is working and storing the category field, 3) Session System Compatibility - Test /api/sessions/start to ensure the adaptive session logic can properly filter questions by category, 4) LLM Classification Quality - Verify that the updated LLM prompts are generating more specific and accurate classifications for type_of_question field."
 
 backend:
   - task: "Email Authentication System Backend Implementation"
