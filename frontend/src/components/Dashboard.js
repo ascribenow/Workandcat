@@ -131,7 +131,7 @@ export const Dashboard = () => {
       }
       
       // Check for existing active session
-      const sessionStatusResponse = await axios.get(`${API}/sessions/status`);
+      const sessionStatusResponse = await axios.get(`${API}/sessions/current-status`);
       console.log('Dashboard: Session status response:', sessionStatusResponse.data);
       
       if (sessionStatusResponse.data.active_session) {
