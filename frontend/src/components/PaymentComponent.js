@@ -85,7 +85,7 @@ const PaymentComponent = ({ planType, amount, planName, description, onSuccess, 
       const result = await response.json();
       console.log('Payment data received:', result);
       
-      // Handle subscription fallback mode or redirect
+      // Handle subscription-style payment or one-time payment
       if (planType === 'pro_lite') {
         if (result.data.short_url) {
           // For true subscriptions, redirect to Razorpay hosted page
@@ -93,10 +93,9 @@ const PaymentComponent = ({ planType, amount, planName, description, onSuccess, 
           window.open(result.data.short_url, '_blank');
           setLoading(false);
           return;
-        } else if (result.data.fallback_mode) {
-          // For subscription fallback (one-time payment treated as monthly)
-          console.log('Using subscription fallback mode:', result.data.message);
-          // Continue with checkout modal for one-time payment
+        } else if (result.data.subscription_style) {
+          // For subscription-style one-time payment, show message
+          console.log('Pro Lite subscription-style payment:', result.data.message);
         }
       }
 
