@@ -107,13 +107,34 @@ export const Dashboard = () => {
 
   const startOrResumeSession = async () => {
     try {
-      setLoading(true); // Show loading state during session check
+      console.log('Dashboard: Checking for active sessions or starting new session...');
       
-      // First check if there's an active session for today
-      const sessionStatusResponse = await axios.get(`${API}/sessions/current-status`);
+      // First check session limit status
+      if (!sessionLimitStatus) {
+        console.log('Dashboard: Session limit status not loaded, fetching...');
+        const limitResponse = await axios.get(`${API}/user/session-limit-status`);
+        setSessionLimitStatus(limitResponse.data);
+        
+        // If limit reached, show upgrade modal and prevent session start
+        if (limitResponse.data.limit_reached) {
+          console.log('Dashboard: Session limit reached, showing upgrade modal');
+          setShowUpgradeModal(true);
+          setCurrentView('dashboard');
+          return false;
+        }
+      } else if (sessionLimitStatus.limit_reached) {
+        console.log('Dashboard: Session limit already reached, showing upgrade modal');
+        setShowUpgradeModal(true);
+        setCurrentView('dashboard');
+        return false;
+      }
+      
+      // Check for existing active session
+      const sessionStatusResponse = await axios.get(`${API}/sessions/status`);
+      console.log('Dashboard: Session status response:', sessionStatusResponse.data);
       
       if (sessionStatusResponse.data.active_session) {
-        // Resume existing session
+        console.log('Dashboard: Active session found, resuming...');
         const existingSessionId = sessionStatusResponse.data.session_id;
         const progress = sessionStatusResponse.data.progress;
         
@@ -138,21 +159,30 @@ export const Dashboard = () => {
         
         return true;
       } else {
-        // No active session, create new one
-        const response = await axios.post(`${API}/sessions/start`, {});
-        setActiveSessionId(response.data.session_id);
-        setSessionMetadata(response.data); // Capture session metadata including phase_info
+        console.log('Dashboard: No active session found, starting new session...');
+        const startResponse = await axios.post(`${API}/sessions/start`, {});
+        console.log('Dashboard: New session started:', startResponse.data);
         
-        console.log('Started new session:', response.data.session_id);
-        console.log('Session metadata:', response.data.phase_info);
+        setActiveSessionId(startResponse.data.session_id);
+        
+        // For new sessions, use provided metadata
+        if (startResponse.data.metadata) {
+          setSessionMetadata(startResponse.data.metadata);
+        }
+        
         return true;
       }
-    } catch (err) {
-      console.error('Error starting/resuming session:', err);
-      alert('Failed to start/resume session');
+      
+    } catch (error) {
+      console.error('Dashboard: Error starting/resuming session:', error);
+      if (error.response?.status === 401) {
+        // Handle authentication error
+        logout();
+        return false;
+      }
+      // For other errors, redirect to dashboard
+      setCurrentView('dashboard');
       return false;
-    } finally {
-      setLoading(false);
     }
   };
 
