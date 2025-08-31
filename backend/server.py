@@ -34,7 +34,7 @@ from database import (
     PYQIngestion, PYQPaper, PYQQuestion, QuestionOption, DoubtsConversation, PrivilegedEmail, AsyncSession
 )
 from auth_service import AuthService, UserCreate, UserLogin, TokenResponse, require_auth, require_admin, ADMIN_EMAIL
-from llm_enrichment import LLMEnrichmentPipeline
+from llm_enrichment import LLMEnrichmentPipeline, SimplifiedEnrichmentService
 from gmail_service import gmail_service
 from payment_service import (
     razorpay_service,
