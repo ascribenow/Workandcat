@@ -1486,6 +1486,16 @@ Answer:"""
 
 
 # Usage example and testing
+async def test_simplified_enrichment():
+    """Test the new simplified enrichment service"""
+    service = SimplifiedEnrichmentService()
+    
+    test_question = "A train travels at 60 km/h and covers a distance of 240 km. How much time does it take?"
+    
+    result = await service.enrich_with_five_fields_only(test_question)
+    print("Simplified Enrichment Result:")
+    print(json.dumps(result, indent=2))
+
 async def test_enrichment():
     """Test the enrichment pipeline"""
     pipeline = LLMEnrichmentPipeline("sk-emergent-c6504797427BfB25c0")
