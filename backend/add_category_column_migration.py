@@ -32,8 +32,8 @@ async def add_category_column_migration():
                 ADD COLUMN IF NOT EXISTS category VARCHAR(100)
             """)
             
-            await db.execute(add_column_sql)
-            await db.commit()
+            db.execute(add_column_sql)
+            db.commit()
             
             logger.info("✅ Category column added successfully")
             
