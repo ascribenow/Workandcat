@@ -391,357 +391,99 @@ const AdminPanel = () => {
   // PYQ Upload states
   const [uploading, setUploading] = useState(false);
 
-  const validateAndPreviewImage = async (url) => {
-    if (!url.trim()) {
-      setImagePreview(null);
-      setImagePreviewError(false);
-      setQuestionPublishBlocked(false);
-      setQuestionForm(prev => ({
-        ...prev,
-        has_image: false,
-        image_url: "",
-        image_alt_text: ""
-      }));
-      return;
-    }
-
-    setImagePreviewLoading(true);
-    setImagePreviewError(false);
-    
-    try {
-      // Create a promise to test image loading
-      const imageLoadPromise = new Promise((resolve, reject) => {
-        const img = new Image();
-        img.onload = () => resolve(img);
-        img.onerror = () => reject(new Error('Image failed to load'));
-        img.src = url;
-      });
-
-      // Wait for image to load with timeout
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Image load timeout')), 10000)
-      );
-
-      await Promise.race([imageLoadPromise, timeoutPromise]);
-      
-      // Image loaded successfully
-      setImagePreview(url);
-      setImagePreviewError(false);
-      setQuestionPublishBlocked(false);
-      setQuestionForm(prev => ({
-        ...prev,
-        has_image: true,
-        image_url: url,
-        image_alt_text: prev.image_alt_text || 'Question diagram'
-      }));
-      
-    } catch (error) {
-      console.error('Image preview error:', error);
-      setImagePreview(null);
-      setImagePreviewError(true);
-      setQuestionPublishBlocked(true);
-      setQuestionForm(prev => ({
-        ...prev,
-        has_image: false,
-        image_url: "",
-        image_alt_text: ""
-      }));
-    } finally {
-      setImagePreviewLoading(false);
-    }
-  };
-
-  const handleImageUrlChange = (e) => {
-    const url = e.target.value;
-    setImageUrlInput(url);
-    
-    // Debounce the validation to avoid too many requests
-    if (window.imageValidationTimeout) {
-      clearTimeout(window.imageValidationTimeout);
-    }
-    
-    window.imageValidationTimeout = setTimeout(() => {
-      validateAndPreviewImage(url);
-    }, 1000);
-  };
-
-  const handleImageUpload = async (event) => {
+  const handlePYQUpload = async (event) => {
     const file = event.target.files[0];
     if (!file) return;
 
     // Validate file type
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/bmp', 'image/webp'];
-    if (!allowedTypes.includes(file.type)) {
-      alert('Please select a valid image file (JPEG, PNG, GIF, BMP, WebP)');
+    if (!file.name.endsWith('.csv')) {
+      alert('Please select a CSV file');
       return;
     }
 
     // Validate file size (10MB limit)
     if (file.size > 10 * 1024 * 1024) {
-      alert('Image file must be less than 10MB');
+      alert('File size must be less than 10MB');
       return;
     }
 
-    setUploadingImage(true);
-    setSelectedImage(file);
-
-    // Create preview
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      setImagePreview(e.target.result);
-    };
-    reader.readAsDataURL(file);
+    setUploading(true);
 
     try {
       const formData = new FormData();
       formData.append('file', file);
-      formData.append('alt_text', questionForm.image_alt_text || '');
 
-      const response = await axios.post(`${API}/admin/image/upload`, formData, {
-        headers: { 
-          'Content-Type': 'multipart/form-data',
-          'Authorization': `Bearer ${localStorage.getItem('cat_prep_token')}`
-        }
-      });
-
-      // Update form with image data
-      setQuestionForm(prev => ({
-        ...prev,
-        has_image: true,
-        image_url: response.data.image_url
-      }));
-
-      alert('Image uploaded successfully!');
-    } catch (error) {
-      console.error('Error uploading image:', error);
-      alert('Error uploading image: ' + (error.response?.data?.detail || 'Unknown error'));
-      setSelectedImage(null);
-      setImagePreview(null);
-      setQuestionForm(prev => ({
-        ...prev,
-        has_image: false,
-        image_url: "",
-        image_alt_text: ""
-      }));
-    } finally {
-      setUploadingImage(false);
-    }
-  };
-
-  const handleRemoveImage = () => {
-    setSelectedImage(null);
-    setImagePreview(null);
-    setQuestionForm(prev => ({
-      ...prev,
-      has_image: false,
-      image_url: "",
-      image_alt_text: ""
-    }));
-  };
-
-  const handlePYQUpload = async (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    // Only accept CSV files now
-    if (!file.name.endsWith('.csv')) {
-      alert('Only CSV files are supported for PYQ upload. Please use the CSV format with columns: stem, year, image_url');
-      return;
-    }
-
-    setUploading(true);
-    const formData = new FormData();
-    formData.append('file', file);
-
-    try {
       const response = await axios.post(`${API}/admin/pyq/upload`, formData, {
-        headers: { 
+        headers: {
           'Content-Type': 'multipart/form-data',
-          'Authorization': `Bearer ${localStorage.getItem('cat_prep_token')}`
-        }
+        },
+        timeout: 5 * 60 * 1000, // 5 minute timeout for large files
       });
+
+      alert(`✅ Upload successful! 
       
-      // Show success message with details
-      const questionsCreated = response.data?.questions_created || 0;
-      const yearsProcessed = response.data?.years_processed || [];
-      const imagesProcessed = response.data?.images_processed || 0;
-      
-      alert(`PYQ CSV uploaded successfully!\n\n` +
-            `✅ ${questionsCreated} questions processed\n` +
-            `📅 Years: ${yearsProcessed.join(', ')}\n` +
-            `🖼️ ${imagesProcessed} images processed\n` +
-            `🤖 Automatic LLM enrichment in progress...`);
-      
-      event.target.value = ''; // Reset file input
+📊 Summary:
+• ${response.data.processed} questions processed
+• ${response.data.success} questions created successfully
+• ${response.data.errors} errors encountered
+
+${response.data.success > 0 ? '🎉 Questions are now available for student sessions!' : ''}
+${response.data.errors > 0 ? '⚠️ Check the logs for error details.' : ''}`);
+
     } catch (error) {
-      alert('Error uploading PYQ CSV: ' + (error.response?.data?.detail || 'Unknown error'));
+      console.error('Upload error:', error);
+      if (error.code === 'ECONNABORTED') {
+        alert('❌ Upload timeout. Please try with a smaller file or check your connection.');
+      } else if (error.response?.status === 413) {
+        alert('❌ File too large. Please try with a smaller CSV file.');
+      } else {
+        const errorMessage = error.response?.data?.detail || error.message || 'Unknown error occurred';
+        alert(`❌ Upload failed: ${errorMessage}`);
+      }
     } finally {
       setUploading(false);
-    }
-  };
-
-  const handleCSVUpload = async (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    setUploading(true);
-    const formData = new FormData();
-    formData.append('file', file);
-
-    try {
-      const response = await axios.post(`${API}/admin/upload-questions-csv`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
-      alert('Questions CSV uploaded successfully!');
-      event.target.value = ''; // Reset file input
-    } catch (error) {
-      alert('Error uploading CSV: ' + (error.response?.data?.detail || 'Unknown error'));
-    } finally {
-      setUploading(false);
-    }
-  };
-
-  const handleExportQuestions = async () => {
-    try {
-      const response = await axios.get(`${API}/admin/export-questions-csv`, {
-        responseType: 'blob'
-      });
-      
-      // Create blob and download
-      const blob = new Blob([response.data], { type: 'text/csv' });
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `cat_questions_export_${new Date().toISOString().split('T')[0]}.csv`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-      
-      alert('Questions exported successfully!');
-    } catch (error) {
-      alert('Error exporting questions: ' + (error.response?.data?.detail || 'Unknown error'));
+      // Reset file input
+      event.target.value = '';
     }
   };
 
   const handleExportPYQ = async () => {
     try {
-      const response = await axios.get(`${API}/admin/export-pyq-csv`, {
-        responseType: 'blob'
+      const response = await axios.get(`${API}/admin/pyq/export`, {
+        responseType: 'blob', // Important for file download
+        timeout: 2 * 60 * 1000, // 2 minute timeout
       });
-      
-      // Create blob and download
-      const blob = new Blob([response.data], { type: 'text/csv' });
-      const url = window.URL.createObjectURL(blob);
+
+      // Create blob link to download
+      const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
-      link.download = `pyq_database_export_${new Date().toISOString().split('T')[0]}.csv`;
+      
+      // Generate filename with current date
+      const now = new Date();
+      const dateStr = now.toISOString().split('T')[0]; // YYYY-MM-DD format
+      link.setAttribute('download', `twelvr_pyq_database_${dateStr}.csv`);
+      
+      // Append to html link element page
       document.body.appendChild(link);
+      
+      // Start download
       link.click();
-      document.body.removeChild(link);
+      
+      // Clean up and remove the link
+      link.parentNode.removeChild(link);
       window.URL.revokeObjectURL(url);
       
-      alert('PYQ database exported successfully!');
+      alert('✅ PYQ database exported successfully!');
+      
     } catch (error) {
-      alert('Error exporting PYQ database: ' + (error.response?.data?.detail || 'Unknown error'));
-    }
-  };
-
-  const handleCheckQuestionQuality = async () => {
-    try {
-      setLoading(true);
-      const response = await axios.post(`${API}/admin/check-question-quality`);
-      const data = response.data;
-      
-      const qualityReport = `
-🔍 QUESTION QUALITY REPORT
-========================
-
-📊 Overall Quality Score: ${data.quality_score}%
-📝 Total Questions: ${data.total_questions}
-⚠️ Total Issues Found: ${data.total_issues}
-
-📋 Issue Breakdown:
-• Generic Solutions: ${data.issues.generic_solutions.length}
-• Missing Answers: ${data.issues.missing_answers.length} 
-• Solution Mismatches: ${data.issues.solution_mismatch.length}
-• Short Solutions: ${data.issues.short_solutions.length}
-• Generic Detailed Solutions: ${data.issues.generic_detailed_solutions.length}
-
-💡 Recommendations:
-${data.recommendations.immediate_action_needed ? '🚨 IMMEDIATE ACTION NEEDED - High number of quality issues detected!' : '✅ Quality levels are acceptable'}
-${data.recommendations.needs_re_enrichment > 0 ? `\n🔧 ${data.recommendations.needs_re_enrichment} questions need re-enrichment` : ''}
-${data.recommendations.critical_mismatches > 0 ? `\n⚠️ ${data.recommendations.critical_mismatches} critical solution mismatches found` : ''}
-
-Use the "Fix Solutions" button to automatically resolve these issues.
-      `;
-      
-      alert(qualityReport);
-      setLoading(false);
-    } catch (error) {
-      setLoading(false);
-      alert('Error checking question quality: ' + (error.response?.data?.detail || 'Unknown error'));
-    }
-  };
-
-  const handleReEnrichQuestions = async () => {
-    if (!confirm('⚠️ CRITICAL OPERATION\n\nThis will re-enrich ALL questions with generic/wrong solutions using LLM.\nThis process may take several minutes and cannot be undone.\n\nAre you sure you want to continue?')) {
-      return;
-    }
-    
-    try {
-      setLoading(true);
-      alert('🔧 Starting re-enrichment process...\nThis may take several minutes. Please wait for completion message.');
-      
-      const response = await axios.post(`${API}/admin/re-enrich-all-questions`);
-      const data = response.data;
-      
-      const successReport = `
-🎉 RE-ENRICHMENT COMPLETE!
-========================
-
-📊 Processing Results:
-• Questions Processed: ${data.processed}
-• Successfully Fixed: ${data.success}
-• Failed to Fix: ${data.failed}
-• Success Rate: ${((data.success / data.processed) * 100).toFixed(1)}%
-
-${data.details}
-
-${data.success > 0 ? '✅ Students will now see proper question-specific solutions!' : '❌ No questions were successfully re-enriched.'}
-      `;
-      
-      alert(successReport);
-      setLoading(false);
-    } catch (error) {
-      setLoading(false);
-      alert('❌ Re-enrichment failed: ' + (error.response?.data?.detail || 'Unknown error'));
-    }
-  };
-
-  const handleQuestionSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      await axios.post(`${API}/questions`, questionForm);
-      alert('Question created successfully!');
-      setShowQuestionForm(false);
-      setQuestionForm({
-        stem: "",
-        detailed_solution: "",
-        hint_category: "",
-        hint_subcategory: "",
-        tags: [],
-        has_image: false,
-        image_url: "",
-        image_alt_text: ""
-      });
-      setSelectedImage(null);
-      setImagePreview(null);
-      setImageUrlInput('');
-      setImagePreviewError(false);
-      setQuestionPublishBlocked(false);
-    } catch (error) {
-      alert('Error creating question: ' + (error.response?.data?.detail || 'Unknown error'));
+      console.error('Export error:', error);
+      if (error.code === 'ECONNABORTED') {
+        alert('❌ Export timeout. The database might be too large. Please try again or contact support.');
+      } else {
+        const errorMessage = error.response?.data?.detail || error.message || 'Unknown error occurred';
+        alert(`❌ Export failed: ${errorMessage}`);
+      }
     }
   };
 
