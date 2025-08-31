@@ -391,6 +391,190 @@ const AdminPanel = () => {
   // PYQ Upload states
   const [uploading, setUploading] = useState(false);
 
+  const handleCSVUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.name.endsWith('.csv')) {
+      alert('Please select a CSV file');
+      return;
+    }
+
+    // Validate file size (10MB limit)
+    if (file.size > 10 * 1024 * 1024) {
+      alert('File size must be less than 10MB');
+      return;
+    }
+
+    setUploading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await axios.post(`${API}/admin/questions/csv-upload`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        timeout: 5 * 60 * 1000, // 5 minute timeout for large files
+      });
+
+      alert(`✅ CSV Upload Successful!
+      
+📊 Processing Summary:
+• ${response.data.total_processed} questions processed
+• ${response.data.successful_uploads} questions created successfully  
+• ${response.data.failed_uploads} failed uploads
+• ${response.data.duplicate_questions} duplicate questions skipped
+
+${response.data.successful_uploads > 0 ? '🎉 New questions are now available for student practice!' : ''}
+${response.data.failed_uploads > 0 ? '⚠️ Some questions failed to upload. Check question format and try again.' : ''}
+${response.data.duplicate_questions > 0 ? 'ℹ️ Duplicate questions were automatically skipped.' : ''}`);
+
+    } catch (error) {
+      console.error('CSV upload error:', error);
+      if (error.code === 'ECONNABORTED') {
+        alert('❌ Upload timeout. Please try with a smaller file or check your connection.');
+      } else if (error.response?.status === 413) {
+        alert('❌ File too large. Please try with a smaller CSV file.');
+      } else {
+        const errorMessage = error.response?.data?.detail || error.message || 'Unknown error occurred';
+        alert(`❌ CSV Upload failed: ${errorMessage}`);
+      }
+    } finally {
+      setUploading(false);
+      // Reset file input
+      event.target.value = '';
+    }
+  };
+
+  const handleCheckQuestionQuality = async () => {
+    try {
+      const response = await axios.post(`${API}/admin/questions/check-quality`);
+      
+      const data = response.data;
+      const totalQuestions = data.total_questions || 0;
+      const issuesFound = data.issues_found || 0;
+      const issues = data.issues || [];
+      
+      if (issuesFound === 0) {
+        alert(`✅ Quality Check Complete!
+
+📊 Summary:
+• Total questions analyzed: ${totalQuestions}
+• Issues found: ${issuesFound}
+• Database quality: Excellent!
+
+🎉 All questions meet quality standards!`);
+      } else {
+        const issuesSummary = issues.slice(0, 5).map(issue => 
+          `• ${issue.type}: ${issue.count} questions`
+        ).join('\n');
+        
+        alert(`⚠️ Quality Check Complete!
+
+📊 Summary:
+• Total questions analyzed: ${totalQuestions}
+• Issues found: ${issuesFound}
+
+🔍 Top Issues Found:
+${issuesSummary}
+${issues.length > 5 ? `\n... and ${issues.length - 5} more issue types` : ''}
+
+💡 Use "Fix Solutions" to automatically resolve these issues.`);
+      }
+      
+    } catch (error) {
+      console.error('Quality check error:', error);
+      alert('❌ Quality check failed: ' + (error.response?.data?.detail || 'Unknown error'));
+    }
+  };
+
+  const handleReEnrichQuestions = async () => {
+    const confirmed = window.confirm(`🔧 Re-Enrich Questions
+
+This will:
+• Regenerate solutions for all questions with missing/poor solutions
+• Fix taxonomy classifications  
+• Update difficulty assessments
+• Process questions with LLM errors
+
+⚠️ This process may take several minutes for large databases.
+
+Continue?`);
+    
+    if (!confirmed) return;
+
+    try {
+      setUploading(true);
+      const response = await axios.post(`${API}/admin/questions/re-enrich`, {}, {
+        timeout: 10 * 60 * 1000, // 10 minute timeout
+      });
+      
+      const data = response.data;
+      alert(`✅ Re-Enrichment Complete!
+
+📊 Processing Summary:
+• Questions processed: ${data.processed || 0}
+• Successfully updated: ${data.success || 0}
+• Failed updates: ${data.failed || 0}
+
+${data.success > 0 ? '🎉 Students will now see improved question solutions and classifications!' : ''}
+${data.failed > 0 ? '⚠️ Some questions could not be updated. Check logs for details.' : ''}`);
+      
+    } catch (error) {
+      console.error('Re-enrichment error:', error);
+      if (error.code === 'ECONNABORTED') {
+        alert('❌ Re-enrichment timeout. The process is still running in the background. Please check back later.');
+      } else {
+        alert('❌ Re-enrichment failed: ' + (error.response?.data?.detail || 'Unknown error'));
+      }
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleExportQuestions = async () => {
+    try {
+      const response = await axios.get(`${API}/admin/questions/export`, {
+        responseType: 'blob', // Important for file download
+        timeout: 2 * 60 * 1000, // 2 minute timeout
+      });
+
+      // Create blob link to download
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      
+      // Generate filename with current date
+      const now = new Date();
+      const dateStr = now.toISOString().split('T')[0]; // YYYY-MM-DD format
+      link.setAttribute('download', `twelvr_questions_database_${dateStr}.csv`);
+      
+      // Append to html link element page
+      document.body.appendChild(link);
+      
+      // Start download
+      link.click();
+      
+      // Clean up and remove the link
+      link.parentNode.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      
+      alert('✅ Questions database exported successfully!');
+      
+    } catch (error) {
+      console.error('Export error:', error);
+      if (error.code === 'ECONNABORTED') {
+        alert('❌ Export timeout. The database might be too large. Please try again or contact support.');
+      } else {
+        const errorMessage = error.response?.data?.detail || error.message || 'Unknown error occurred';
+        alert(`❌ Export failed: ${errorMessage}`);
+      }
+    }
+  };
+
   const handlePYQUpload = async (event) => {
     const file = event.target.files[0];
     if (!file) return;
