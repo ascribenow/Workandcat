@@ -721,7 +721,7 @@ ${response.data.errors > 0 ? '⚠️ Check the logs for error details.' : ''}`);
                         className="hidden"
                       />
                     </label>
-                    <p className="text-sm text-green-600 mt-3">
+                    <p className="text-sm text-[#545454] mt-3" style={{ fontFamily: 'Lato, sans-serif' }}>
                       Drag and drop CSV file or click to browse • Maximum file size: 10MB
                     </p>
                   </div>
