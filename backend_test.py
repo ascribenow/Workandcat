@@ -124,11 +124,12 @@ class CATBackendTester:
         print("-" * 50)
         print("Testing /api/admin/upload-questions-csv with new CSV format")
         
-        # Create test CSV content with new format
+        # Create comprehensive test CSV content with new format (3-4 questions as requested)
         test_csv_content = """stem,image_url,answer,solution_approach,principle_to_remember
-"A train travels 120 km in 2 hours. What is its speed?","","60 km/h","Speed = Distance / Time","Speed is calculated by dividing distance by time"
-"Find the LCM of 12 and 18","","36","Find prime factors and multiply highest powers","LCM is the smallest number divisible by both numbers"
-"If 20% of a number is 40, find the number","","200","Let x be the number, then 0.2x = 40","Percentage problems can be solved using proportions"
+"A train travels 120 km in 2 hours. What is its speed?","","60 km/h","Speed = Distance / Time. Given: Distance = 120 km, Time = 2 hours. Speed = 120/2 = 60 km/h","Speed is calculated by dividing distance by time. This is a fundamental formula in time-speed-distance problems."
+"Find the LCM of 12 and 18","","36","Prime factorization method: 12 = 2² × 3, 18 = 2 × 3². LCM = 2² × 3² = 4 × 9 = 36","LCM is the smallest positive integer that is divisible by both numbers. Use prime factorization and take highest powers."
+"If 20% of a number is 40, find the number","","200","Let the number be x. Then 20% of x = 40. So (20/100) × x = 40. Therefore x = 40 × (100/20) = 40 × 5 = 200","In percentage problems, convert percentage to fraction and set up an equation to solve for the unknown."
+"Two trains start from stations A and B towards each other at speeds 60 km/h and 40 km/h. If distance between stations is 300 km, when will they meet?","","3 hours","Relative speed when moving towards each other = 60 + 40 = 100 km/h. Time to meet = Total distance / Relative speed = 300/100 = 3 hours","When two objects move towards each other, their relative speed is the sum of their individual speeds."
 """
         
         # Test CSV upload endpoint accessibility
