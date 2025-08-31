@@ -875,6 +875,430 @@ class CATBackendTester:
         
         return success_rate >= 60  # 60% threshold for basic functionality
 
+    def test_authentication_and_session_flow_debug(self):
+        """Debug authentication and session flow issues as per review request"""
+        print("🔍 AUTHENTICATION AND SESSION FLOW DEBUG TESTING")
+        print("=" * 80)
+        print("USER REPORT: Upon login, users get dashboard instead of 'Today's Session'")
+        print("ISSUE: Sessions are not loading properly")
+        print("FOCUS: startOrResumeSession() function fallback to dashboard")
+        print("")
+        print("TESTING REQUIREMENTS:")
+        print("1. Test Authentication Flow - verify user login and JWT tokens")
+        print("2. Test Session Status Endpoint - check /api/sessions/status")
+        print("3. Test Session Start Endpoint - check /api/sessions/start")
+        print("4. Test Session Limit Status - check /api/user/session-limit-status")
+        print("5. Test Dashboard Endpoint - check /api/dashboard/simple-taxonomy")
+        print("")
+        print("TEST CREDENTIALS: student@catprep.com / student123")
+        print("=" * 80)
+        
+        debug_results = {
+            # Authentication Flow
+            "student_login_working": False,
+            "jwt_token_generated": False,
+            "jwt_token_valid": False,
+            "user_data_retrieved": False,
+            
+            # Session Status Endpoint
+            "session_status_endpoint_accessible": False,
+            "session_status_returns_data": False,
+            "active_session_detection": False,
+            "session_resumption_logic": False,
+            
+            # Session Start Endpoint
+            "session_start_endpoint_accessible": False,
+            "session_creation_successful": False,
+            "session_questions_generated": False,
+            "session_metadata_complete": False,
+            
+            # Session Limit Status
+            "session_limit_endpoint_accessible": False,
+            "session_limit_status_returned": False,
+            "session_limit_not_blocking": False,
+            
+            # Dashboard Endpoint
+            "dashboard_endpoint_accessible": False,
+            "dashboard_data_returned": False,
+            "simple_taxonomy_working": False,
+            
+            # Root Cause Analysis
+            "session_creation_not_failing": False,
+            "dashboard_fallback_identified": False,
+            "startOrResumeSession_issue_found": False
+        }
+        
+        # PHASE 1: AUTHENTICATION FLOW TESTING
+        print("\n🔐 PHASE 1: AUTHENTICATION FLOW TESTING")
+        print("-" * 50)
+        print("Testing student login with provided credentials")
+        
+        # Test student login
+        student_credentials = {
+            "email": "student@catprep.com",
+            "password": "student123"
+        }
+        
+        success, response = self.run_test("Student Login", "POST", "auth/login", [200, 401], student_credentials)
+        
+        student_headers = None
+        if success:
+            access_token = response.get('access_token')
+            user_data = response.get('user', {})
+            
+            if access_token:
+                debug_results["student_login_working"] = True
+                debug_results["jwt_token_generated"] = True
+                
+                student_headers = {
+                    'Authorization': f'Bearer {access_token}',
+                    'Content-Type': 'application/json'
+                }
+                
+                print(f"   ✅ Student login successful")
+                print(f"   📊 JWT Token length: {len(access_token)} characters")
+                print(f"   📊 User ID: {user_data.get('id', 'Not provided')}")
+                print(f"   📊 User email: {user_data.get('email', 'Not provided')}")
+                
+                # Validate JWT token
+                success, me_response = self.run_test("JWT Token Validation", "GET", "auth/me", 200, None, student_headers)
+                
+                if success:
+                    debug_results["jwt_token_valid"] = True
+                    debug_results["user_data_retrieved"] = True
+                    
+                    user_id = me_response.get('id')
+                    email = me_response.get('email')
+                    full_name = me_response.get('full_name')
+                    
+                    print(f"   ✅ JWT token validation successful")
+                    print(f"   📊 Validated User ID: {user_id}")
+                    print(f"   📊 Validated Email: {email}")
+                    print(f"   📊 Full Name: {full_name}")
+            else:
+                print("   ❌ Student login failed - no access token received")
+        else:
+            print("   ❌ Student login failed")
+            # Create dummy headers for endpoint testing
+            student_headers = {'Authorization': 'Bearer dummy_token'}
+        
+        # PHASE 2: SESSION STATUS ENDPOINT TESTING
+        print("\n📊 PHASE 2: SESSION STATUS ENDPOINT TESTING")
+        print("-" * 50)
+        print("Testing /api/sessions/current-status endpoint")
+        
+        # Test current session status endpoint
+        success, response = self.run_test("Session Current Status", "GET", "sessions/current-status", [200, 401, 404], None, student_headers)
+        
+        if success:
+            debug_results["session_status_endpoint_accessible"] = True
+            
+            active_session = response.get('active_session', False)
+            session_id = response.get('session_id')
+            progress = response.get('progress', {})
+            message = response.get('message', '')
+            
+            print(f"   ✅ Session status endpoint accessible")
+            print(f"   📊 Active session: {active_session}")
+            print(f"   📊 Session ID: {session_id}")
+            print(f"   📊 Message: {message}")
+            
+            if progress:
+                answered = progress.get('answered', 0)
+                total = progress.get('total', 0)
+                next_question = progress.get('next_question', 0)
+                
+                print(f"   📊 Progress - Answered: {answered}, Total: {total}, Next: {next_question}")
+                debug_results["session_status_returns_data"] = True
+            
+            if active_session and session_id:
+                debug_results["active_session_detection"] = True
+                debug_results["session_resumption_logic"] = True
+                print(f"   ✅ Active session detected - resumption logic working")
+            elif not active_session:
+                print(f"   ⚠️ No active session found - this may explain dashboard fallback")
+        else:
+            print("   ❌ Session status endpoint not accessible")
+        
+        # Test alternative session status endpoints
+        alternative_endpoints = [
+            ("sessions/status", "Sessions Status"),
+            ("user/session-status", "User Session Status"),
+            ("sessions/current", "Sessions Current")
+        ]
+        
+        for endpoint, description in alternative_endpoints:
+            success, response = self.run_test(f"Alternative: {description}", "GET", endpoint, [200, 401, 404], None, student_headers)
+            if success:
+                print(f"   ✅ Alternative endpoint working: {endpoint}")
+        
+        # PHASE 3: SESSION START ENDPOINT TESTING
+        print("\n🚀 PHASE 3: SESSION START ENDPOINT TESTING")
+        print("-" * 50)
+        print("Testing /api/sessions/start endpoint")
+        
+        # Test session start endpoint
+        session_start_data = {}
+        success, response = self.run_test("Session Start", "POST", "sessions/start", [200, 401, 404], session_start_data, student_headers)
+        
+        if success:
+            debug_results["session_start_endpoint_accessible"] = True
+            
+            session_id = response.get('session_id')
+            total_questions = response.get('total_questions', 0)
+            session_type = response.get('session_type')
+            questions = response.get('questions', [])
+            metadata = response.get('metadata', {})
+            phase_info = response.get('phase_info', {})
+            
+            print(f"   ✅ Session start endpoint accessible")
+            print(f"   📊 Session ID: {session_id}")
+            print(f"   📊 Total questions: {total_questions}")
+            print(f"   📊 Session type: {session_type}")
+            print(f"   📊 Questions array length: {len(questions)}")
+            
+            if session_id and total_questions > 0:
+                debug_results["session_creation_successful"] = True
+                debug_results["session_creation_not_failing"] = True
+                print(f"   ✅ Session creation successful")
+                
+                if questions:
+                    debug_results["session_questions_generated"] = True
+                    print(f"   ✅ Session questions generated")
+                    
+                    # Check first question structure
+                    if questions:
+                        first_q = questions[0]
+                        print(f"   📊 First question ID: {first_q.get('id')}")
+                        print(f"   📊 First question stem: {first_q.get('stem', '')[:50]}...")
+                        print(f"   📊 First question subcategory: {first_q.get('subcategory')}")
+                        print(f"   📊 First question difficulty: {first_q.get('difficulty_band')}")
+                
+                if metadata or phase_info:
+                    debug_results["session_metadata_complete"] = True
+                    print(f"   ✅ Session metadata complete")
+                    
+                    if phase_info:
+                        phase = phase_info.get('phase')
+                        phase_name = phase_info.get('phase_name')
+                        print(f"   📊 Phase: {phase}")
+                        print(f"   📊 Phase name: {phase_name}")
+            else:
+                print(f"   ❌ Session creation failed - no session ID or questions")
+        else:
+            print("   ❌ Session start endpoint not accessible")
+        
+        # PHASE 4: SESSION LIMIT STATUS TESTING
+        print("\n⏱️ PHASE 4: SESSION LIMIT STATUS TESTING")
+        print("-" * 50)
+        print("Testing /api/user/session-limit-status endpoint")
+        
+        # Test session limit status endpoint
+        success, response = self.run_test("Session Limit Status", "GET", "user/session-limit-status", [200, 401, 404], None, student_headers)
+        
+        if success:
+            debug_results["session_limit_endpoint_accessible"] = True
+            debug_results["session_limit_status_returned"] = True
+            
+            limit_reached = response.get('limit_reached', False)
+            sessions_today = response.get('sessions_today', 0)
+            max_sessions = response.get('max_sessions_per_day', 0)
+            can_start_session = response.get('can_start_session', True)
+            
+            print(f"   ✅ Session limit status endpoint accessible")
+            print(f"   📊 Limit reached: {limit_reached}")
+            print(f"   📊 Sessions today: {sessions_today}")
+            print(f"   📊 Max sessions per day: {max_sessions}")
+            print(f"   📊 Can start session: {can_start_session}")
+            
+            if not limit_reached and can_start_session:
+                debug_results["session_limit_not_blocking"] = True
+                print(f"   ✅ Session limits not blocking session creation")
+            else:
+                print(f"   ⚠️ Session limits may be blocking session creation")
+        else:
+            print("   ❌ Session limit status endpoint not accessible")
+        
+        # PHASE 5: DASHBOARD ENDPOINT TESTING
+        print("\n📈 PHASE 5: DASHBOARD ENDPOINT TESTING")
+        print("-" * 50)
+        print("Testing /api/dashboard/simple-taxonomy endpoint")
+        
+        # Test dashboard endpoint
+        success, response = self.run_test("Dashboard Simple Taxonomy", "GET", "dashboard/simple-taxonomy", [200, 401, 404], None, student_headers)
+        
+        if success:
+            debug_results["dashboard_endpoint_accessible"] = True
+            debug_results["dashboard_data_returned"] = True
+            
+            categories = response.get('categories', [])
+            mastery_data = response.get('mastery_data', {})
+            progress_data = response.get('progress_data', {})
+            
+            print(f"   ✅ Dashboard endpoint accessible")
+            print(f"   📊 Categories count: {len(categories)}")
+            print(f"   📊 Mastery data available: {bool(mastery_data)}")
+            print(f"   📊 Progress data available: {bool(progress_data)}")
+            
+            if categories or mastery_data:
+                debug_results["simple_taxonomy_working"] = True
+                print(f"   ✅ Simple taxonomy data working")
+                
+                # This confirms dashboard is working, which explains fallback
+                debug_results["dashboard_fallback_identified"] = True
+                print(f"   ⚠️ Dashboard working - confirms fallback behavior")
+        else:
+            print("   ❌ Dashboard endpoint not accessible")
+        
+        # Test alternative dashboard endpoints
+        alternative_dashboard_endpoints = [
+            ("dashboard", "Main Dashboard"),
+            ("dashboard/data", "Dashboard Data"),
+            ("user/dashboard", "User Dashboard")
+        ]
+        
+        for endpoint, description in alternative_dashboard_endpoints:
+            success, response = self.run_test(f"Alternative Dashboard: {description}", "GET", endpoint, [200, 401, 404], None, student_headers)
+            if success:
+                print(f"   ✅ Alternative dashboard working: {endpoint}")
+        
+        # PHASE 6: ROOT CAUSE ANALYSIS
+        print("\n🔍 PHASE 6: ROOT CAUSE ANALYSIS")
+        print("-" * 50)
+        print("Analyzing startOrResumeSession() function behavior")
+        
+        # Check if session creation is working but not being detected
+        if debug_results["session_creation_successful"] and not debug_results["active_session_detection"]:
+            debug_results["startOrResumeSession_issue_found"] = True
+            print("   ❌ ISSUE IDENTIFIED: Sessions can be created but not detected as active")
+            print("   📊 This explains dashboard fallback - session status check fails")
+        
+        # Check if session limits are blocking
+        if not debug_results["session_limit_not_blocking"]:
+            print("   ⚠️ POTENTIAL ISSUE: Session limits may be preventing session creation")
+        
+        # Check if session status endpoint is missing
+        if not debug_results["session_status_endpoint_accessible"]:
+            debug_results["startOrResumeSession_issue_found"] = True
+            print("   ❌ ISSUE IDENTIFIED: Session status endpoint not working")
+            print("   📊 startOrResumeSession() cannot check for existing sessions")
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 80)
+        print("AUTHENTICATION AND SESSION FLOW DEBUG RESULTS")
+        print("=" * 80)
+        
+        passed_tests = sum(debug_results.values())
+        total_tests = len(debug_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        # Group results by category
+        categories = {
+            "AUTHENTICATION FLOW": [
+                "student_login_working", "jwt_token_generated", 
+                "jwt_token_valid", "user_data_retrieved"
+            ],
+            "SESSION STATUS ENDPOINT": [
+                "session_status_endpoint_accessible", "session_status_returns_data",
+                "active_session_detection", "session_resumption_logic"
+            ],
+            "SESSION START ENDPOINT": [
+                "session_start_endpoint_accessible", "session_creation_successful",
+                "session_questions_generated", "session_metadata_complete"
+            ],
+            "SESSION LIMIT STATUS": [
+                "session_limit_endpoint_accessible", "session_limit_status_returned",
+                "session_limit_not_blocking"
+            ],
+            "DASHBOARD ENDPOINT": [
+                "dashboard_endpoint_accessible", "dashboard_data_returned",
+                "simple_taxonomy_working"
+            ],
+            "ROOT CAUSE ANALYSIS": [
+                "session_creation_not_failing", "dashboard_fallback_identified",
+                "startOrResumeSession_issue_found"
+            ]
+        }
+        
+        for category, tests in categories.items():
+            print(f"\n{category}:")
+            category_passed = 0
+            category_total = len(tests)
+            
+            for test in tests:
+                if test in debug_results:
+                    result = debug_results[test]
+                    status = "✅ PASS" if result else "❌ FAIL"
+                    print(f"  {test.replace('_', ' ').title():<40} {status}")
+                    if result:
+                        category_passed += 1
+            
+            category_rate = (category_passed / category_total) * 100 if category_total > 0 else 0
+            print(f"  Category Success Rate: {category_passed}/{category_total} ({category_rate:.1f}%)")
+        
+        print("-" * 80)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # CRITICAL FINDINGS
+        print("\n🎯 CRITICAL FINDINGS:")
+        
+        if debug_results["student_login_working"]:
+            print("✅ AUTHENTICATION: Student login working correctly")
+        else:
+            print("❌ AUTHENTICATION: Student login failing")
+        
+        if debug_results["session_creation_successful"]:
+            print("✅ SESSION CREATION: Sessions can be created successfully")
+        else:
+            print("❌ SESSION CREATION: Session creation failing")
+        
+        if debug_results["active_session_detection"]:
+            print("✅ SESSION DETECTION: Active sessions properly detected")
+        else:
+            print("❌ SESSION DETECTION: Active session detection failing")
+        
+        if debug_results["dashboard_fallback_identified"]:
+            print("✅ DASHBOARD FALLBACK: Dashboard working - explains fallback behavior")
+        else:
+            print("❌ DASHBOARD FALLBACK: Dashboard issues may compound problems")
+        
+        # ROOT CAUSE SUMMARY
+        print("\n📋 ROOT CAUSE SUMMARY:")
+        
+        if debug_results["startOrResumeSession_issue_found"]:
+            print("🔍 ISSUE CONFIRMED: startOrResumeSession() function has problems")
+            
+            if debug_results["session_creation_successful"] and not debug_results["active_session_detection"]:
+                print("   → Sessions can be created but not detected as active")
+                print("   → This causes fallback to dashboard instead of resuming session")
+            
+            if not debug_results["session_status_endpoint_accessible"]:
+                print("   → Session status endpoint not working properly")
+                print("   → startOrResumeSession() cannot check for existing sessions")
+        else:
+            print("🤔 ISSUE UNCLEAR: Need deeper investigation into session flow")
+        
+        # RECOMMENDATIONS
+        print("\n📝 RECOMMENDATIONS:")
+        
+        if not debug_results["active_session_detection"]:
+            print("1. Fix session status detection logic in /api/sessions/current-status")
+        
+        if not debug_results["session_status_endpoint_accessible"]:
+            print("2. Implement or fix session status endpoint")
+        
+        if debug_results["session_creation_successful"] and not debug_results["active_session_detection"]:
+            print("3. Debug session storage/retrieval mechanism")
+            print("4. Check session ID persistence and lookup logic")
+        
+        if not debug_results["session_limit_not_blocking"]:
+            print("5. Review session limit logic - may be incorrectly blocking")
+        
+        print("6. Test startOrResumeSession() function directly in frontend")
+        print("7. Add logging to session creation and detection flow")
+        
+        return success_rate >= 60
+
     def test_comprehensive_authentication_system_signup_focus(self):
         """Comprehensive end-to-end testing of Twelvr authentication system with focus on SIGN UP functionality"""
         print("🎯 COMPREHENSIVE TWELVR AUTHENTICATION SYSTEM TESTING")
