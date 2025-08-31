@@ -640,6 +640,114 @@ ${response.data.errors > 0 ? '⚠️ Check the logs for error details.' : ''}`);
               </div>
             )}
 
+            {activeTab === 'questions' && (
+              <div>
+                <div className="flex justify-between items-center mb-8">
+                  <h2 className="text-2xl font-semibold text-gray-900">Question Management</h2>
+                  <div className="flex space-x-3">
+                    <button
+                      onClick={() => handleCheckQuestionQuality()}
+                      className="text-white px-6 py-3 rounded-lg font-medium flex items-center transition-colors"
+                      style={{ 
+                        backgroundColor: '#9ac026',
+                        fontFamily: 'Lato, sans-serif'
+                      }}
+                      onMouseOver={(e) => e.target.style.backgroundColor = '#8bb024'}
+                      onMouseOut={(e) => e.target.style.backgroundColor = '#9ac026'}
+                    >
+                      🔍 Check Quality
+                    </button>
+                    <button
+                      onClick={() => handleReEnrichQuestions()}
+                      className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-medium flex items-center"
+                    >
+                      🔧 Fix Solutions
+                    </button>
+                    <button
+                      onClick={() => handleExportQuestions()}
+                      className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-medium flex items-center"
+                    >
+                      📊 Export All Questions (CSV)
+                    </button>
+                  </div>
+                </div>
+
+                {/* CSV Upload Only - Single Question Upload Removed */}
+                <div className="mb-8">
+                  <div className="max-w-2xl mx-auto">
+                    <div className="border-2 border-gray-200 rounded-lg p-8 text-center">
+                      <div className="mb-6">
+                        <svg className="w-16 h-16 mx-auto text-blue-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                        </svg>
+                        <h3 className="text-2xl font-semibold text-gray-900 mb-2">CSV Questions Upload</h3>
+                        <p className="text-gray-600 mb-4" style={{ fontFamily: 'Lato, sans-serif' }}>
+                          Upload multiple questions from CSV file. Single question upload has been removed for streamlined workflow.
+                        </p>
+                      </div>
+                      
+                      <div className="mb-6">
+                        <input
+                          type="file"
+                          accept=".csv"
+                          onChange={handleCSVUpload}
+                          className="hidden"
+                          id="csv-upload"
+                          disabled={uploading}
+                        />
+                        <label
+                          htmlFor="csv-upload"
+                          className={`cursor-pointer inline-flex items-center px-8 py-4 border border-transparent text-lg font-medium rounded-lg text-white transition-colors ${
+                            uploading 
+                              ? 'bg-gray-400 cursor-not-allowed' 
+                              : 'bg-blue-600 hover:bg-blue-700'
+                          }`}
+                        >
+                          {uploading ? (
+                            <>
+                              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                              </svg>
+                              Processing...
+                            </>
+                          ) : (
+                            <>
+                              📄 Choose CSV File
+                            </>
+                          )}
+                        </label>
+                      </div>
+
+                      <div className="text-sm text-gray-500 space-y-2" style={{ fontFamily: 'Lato, sans-serif' }}>
+                        <p>📋 <strong>CSV Format Required:</strong> stem, detailed_solution, hint_category, hint_subcategory</p>
+                        <p>📊 <strong>File Size Limit:</strong> 10MB maximum</p>
+                        <p>🔄 <strong>Processing:</strong> Questions will be automatically enriched with AI solutions</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Upload Progress and Results */}
+                {uploading && (
+                  <div className="mb-8">
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+                      <div className="flex items-center mb-4">
+                        <svg className="animate-spin h-6 w-6 text-blue-600 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <h3 className="text-lg font-semibold text-blue-900">Processing CSV Upload...</h3>
+                      </div>
+                      <p className="text-blue-800" style={{ fontFamily: 'Lato, sans-serif' }}>
+                        Please wait while we process your questions. This may take several minutes for large files.
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
             {activeTab === 'privileges' && (
               <Privileges />
             )}
