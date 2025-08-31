@@ -154,6 +154,11 @@ const Pricing = () => {
             </div>
 
             <button 
+              onClick={() => {
+                // Check if user is authenticated
+                // For now, redirect to home page for signup - this can be enhanced later
+                navigate('/');
+              }}
               className="w-full py-3 px-6 border-2 border-[#9ac026] text-[#9ac026] rounded-lg font-semibold hover:bg-[#9ac026] hover:text-white transition-colors"
               style={{ fontFamily: 'Lato, sans-serif' }}
             >
