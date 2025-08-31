@@ -932,7 +932,6 @@ ${response.data.errors > 0 ? '⚠️ Check the logs for error details.' : ''}`);
               </div>
             )}
 
-
             {activeTab === 'privileges' && (
               <Privileges />
             )}
