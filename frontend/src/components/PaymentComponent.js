@@ -7,6 +7,12 @@ const PaymentComponent = ({ planType, amount, planName, description, onSuccess, 
 
   const loadRazorpayScript = () => {
     return new Promise((resolve) => {
+      // Check if Razorpay is already loaded
+      if (window.Razorpay) {
+        resolve(true);
+        return;
+      }
+
       const script = document.createElement('script');
       script.src = 'https://checkout.razorpay.com/v1/checkout.js';
       script.onload = () => resolve(true);
@@ -16,19 +22,33 @@ const PaymentComponent = ({ planType, amount, planName, description, onSuccess, 
   };
 
   const handlePayment = async () => {
+    console.log('Payment button clicked for plan:', planType);
     setLoading(true);
     
     try {
-      // Load Razorpay script
-      const scriptLoaded = await loadRazorpayScript();
-      if (!scriptLoaded) {
-        throw new Error('Failed to load Razorpay SDK');
-      }
-
+      // Check authentication first
       const token = localStorage.getItem('token');
       if (!token) {
-        throw new Error('Please login to continue');
+        alert('Please login to purchase a plan');
+        setLoading(false);
+        return;
       }
+
+      if (!user) {
+        alert('User data not loaded. Please refresh and try again.');
+        setLoading(false);
+        return;
+      }
+
+      console.log('User authenticated:', user);
+
+      // Load Razorpay script
+      console.log('Loading Razorpay script...');
+      const scriptLoaded = await loadRazorpayScript();
+      if (!scriptLoaded) {
+        throw new Error('Failed to load Razorpay SDK. Please check your internet connection.');
+      }
+      console.log('Razorpay script loaded successfully');
 
       // For Pro Lite, create subscription; for Pro Regular, create order
       const endpoint = planType === 'pro_lite' ? 
@@ -38,9 +58,12 @@ const PaymentComponent = ({ planType, amount, planName, description, onSuccess, 
       const requestData = {
         plan_type: planType,
         user_email: user?.email || '',
-        user_name: user?.name || '',
+        user_name: user?.name || user?.full_name || '',
         user_phone: user?.phone || ''
       };
+
+      console.log('Making API call to:', endpoint);
+      console.log('Request data:', requestData);
 
       const response = await fetch(endpoint, {
         method: 'POST',
@@ -51,15 +74,20 @@ const PaymentComponent = ({ planType, amount, planName, description, onSuccess, 
         body: JSON.stringify(requestData)
       });
 
+      console.log('API response status:', response.status);
+
       if (!response.ok) {
         const errorData = await response.json();
+        console.error('API error:', errorData);
         throw new Error(errorData.detail || 'Payment initiation failed');
       }
 
       const result = await response.json();
+      console.log('Payment data received:', result);
       
       if (planType === 'pro_lite' && result.data.short_url) {
         // For subscriptions, redirect to Razorpay hosted page
+        console.log('Redirecting to subscription URL:', result.data.short_url);
         window.open(result.data.short_url, '_blank');
         setLoading(false);
         return;
@@ -73,7 +101,7 @@ const PaymentComponent = ({ planType, amount, planName, description, onSuccess, 
         name: 'Twelvr',
         description: result.data.description,
         image: '/favicon.png', // Your logo
-        order_id: result.data.order_id,
+        order_id: result.data.order_id || result.data.id,
         
         // Payment methods configuration
         method: {
@@ -98,13 +126,14 @@ const PaymentComponent = ({ planType, amount, planName, description, onSuccess, 
         
         // Prefill user data
         prefill: {
-          name: result.data.prefill.name,
-          email: result.data.prefill.email,
-          contact: result.data.prefill.contact
+          name: result.data.prefill?.name || user?.name || user?.full_name || '',
+          email: result.data.prefill?.email || user?.email || '',
+          contact: result.data.prefill?.contact || user?.phone || ''
         },
         
         // Success handler
         handler: async (response) => {
+          console.log('Payment successful:', response);
           try {
             // Verify payment
             const verifyResponse = await fetch(`${API}/api/payments/verify-payment`, {
@@ -117,7 +146,7 @@ const PaymentComponent = ({ planType, amount, planName, description, onSuccess, 
                 razorpay_order_id: response.razorpay_order_id,
                 razorpay_payment_id: response.razorpay_payment_id,
                 razorpay_signature: response.razorpay_signature,
-                user_id: user?.id || ''
+                user_id: user?.id || user?.user_id || ''
               })
             });
 
@@ -126,15 +155,21 @@ const PaymentComponent = ({ planType, amount, planName, description, onSuccess, 
             }
 
             const verifyResult = await verifyResponse.json();
+            console.log('Payment verified:', verifyResult);
             
             if (onSuccess) {
               onSuccess(verifyResult.data);
+            } else {
+              alert('Payment successful! Redirecting to dashboard...');
+              window.location.href = '/dashboard';
             }
             
           } catch (error) {
             console.error('Payment verification error:', error);
             if (onError) {
               onError(error.message);
+            } else {
+              alert('Payment completed but verification failed. Please contact support.');
             }
           }
         },
@@ -142,6 +177,7 @@ const PaymentComponent = ({ planType, amount, planName, description, onSuccess, 
         // Error handler
         modal: {
           ondismiss: () => {
+            console.log('Payment modal dismissed');
             setLoading(false);
             if (onError) {
               onError('Payment cancelled by user');
@@ -150,12 +186,16 @@ const PaymentComponent = ({ planType, amount, planName, description, onSuccess, 
         }
       };
 
+      console.log('Opening Razorpay checkout with options:', options);
       const razorpay = new window.Razorpay(options);
       
       razorpay.on('payment.failed', (response) => {
+        console.error('Payment failed:', response);
         setLoading(false);
         if (onError) {
           onError(response.error.description || 'Payment failed');
+        } else {
+          alert('Payment failed: ' + (response.error.description || 'Unknown error'));
         }
       });
 
@@ -166,6 +206,8 @@ const PaymentComponent = ({ planType, amount, planName, description, onSuccess, 
       setLoading(false);
       if (onError) {
         onError(error.message);
+      } else {
+        alert('Payment initiation failed: ' + error.message);
       }
     }
   };
