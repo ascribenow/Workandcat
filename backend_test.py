@@ -103,8 +103,8 @@ class CATBackendTester:
         print("-" * 50)
         print("Setting up admin authentication for CSV upload testing")
         
-        # Try to login as admin (assuming admin@catprep.com exists)
-        admin_login = {"email": "admin@catprep.com", "password": "admin123"}
+        # Try to login as admin (using correct admin credentials)
+        admin_login = {"email": "sumedhprabhu18@gmail.com", "password": "admin2025"}
         success, response = self.run_test("Admin Authentication", "POST", "auth/login", [200, 401], admin_login)
         
         admin_headers = None
