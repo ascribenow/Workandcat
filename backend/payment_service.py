@@ -220,34 +220,35 @@ class RazorpayService:
     async def _get_or_create_plan(self, plan_type: str) -> str:
         """Get or create a Razorpay plan for subscriptions"""
         try:
-            # Try to fetch existing plans
-            plans = self.client.plan.all()
-            
             plan_config = self.plans[plan_type]
             plan_id = f"twelvr_{plan_type}_{plan_config['amount']}"
             
-            # Check if plan exists
-            for plan in plans.get("items", []):
-                if plan["id"] == plan_id:
-                    return plan_id
+            # Try to fetch existing plans
+            try:
+                plans = self.client.plan.all()
+                # Check if plan exists
+                for plan in plans.get("items", []):
+                    if plan["id"] == plan_id:
+                        return plan_id
+            except Exception as e:
+                logger.warning(f"Could not fetch existing plans: {str(e)}")
             
-            # Create new plan if not exists
+            # Create new plan with correct structure
             plan_data = {
-                "id": plan_id,
-                "item": {
-                    "name": plan_config["name"],
-                    "description": plan_config["description"],
-                    "amount": plan_config["amount"],
-                    "currency": "INR"
-                },
                 "period": "monthly",
                 "interval": 1,
+                "item": {
+                    "name": plan_config["name"],
+                    "amount": plan_config["amount"],
+                    "currency": "INR",
+                    "description": plan_config["description"]
+                },
                 "notes": {
                     "plan_type": plan_type
                 }
             }
             
-            created_plan = self.client.plan.create(plan_data)
+            created_plan = self.client.plan.create(data=plan_data)
             return created_plan["id"]
             
         except Exception as e:
