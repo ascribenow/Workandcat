@@ -371,6 +371,13 @@ export const Dashboard = () => {
     <div className="min-h-screen bg-white" style={{ fontFamily: 'Manrope, sans-serif' }}>
       {renderNavigation()}
       {renderContent()}
+      
+      {/* Upgrade Modal */}
+      <UpgradeModal 
+        isOpen={showUpgradeModal} 
+        onClose={() => setShowUpgradeModal(false)} 
+        completedSessions={sessionLimitStatus?.completed_sessions || 15}
+      />
     </div>
   );
 };
