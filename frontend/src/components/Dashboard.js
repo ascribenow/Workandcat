@@ -733,7 +733,7 @@ ${response.data.errors > 0 ? '⚠️ Check the logs for error details.' : ''}`);
             {activeTab === 'questions' && (
               <div>
                 <div className="flex justify-between items-center mb-8">
-                  <h2 className="text-2xl font-semibold text-gray-900">Question Management</h2>
+                  <h2 className="text-2xl font-semibold text-gray-900" style={{ fontFamily: 'Lato, sans-serif' }}>Question Management</h2>
                   <div className="flex space-x-3">
                     <button
                       onClick={() => handleExportQuestions()}
