@@ -708,7 +708,7 @@ ${response.data.errors > 0 ? '⚠️ Check the logs for error details.' : ''}`);
                   
                   <div className="text-center">
                     <label htmlFor="pyq-csv-upload" className="cursor-pointer">
-                      <span className="bg-green-600 hover:bg-green-700 text-white px-8 py-4 rounded-lg text-lg font-medium inline-block shadow-lg hover:shadow-xl transition-all">
+                      <span className="bg-[#9ac026] hover:bg-[#8bb024] text-white px-8 py-4 rounded-lg text-lg font-medium inline-block shadow-lg hover:shadow-xl transition-all" style={{ fontFamily: 'Lato, sans-serif' }}>
                         {uploading ? 'Uploading & Processing...' : '📤 Upload PYQ CSV'}
                       </span>
                       <input
