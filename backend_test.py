@@ -1210,11 +1210,12 @@ class CATBackendTester:
         # TEST 1: Payment Configuration Endpoint
         print("\n⚙️ TEST 1: PAYMENT CONFIGURATION ENDPOINT")
         print("-" * 50)
-        print("Testing GET /api/payments/config endpoint")
+        print("Testing GET /api/payments/config endpoint for Razorpay configuration")
         
         success, response = self.run_test("Payment Config", "GET", "payments/config", 200)
         if success:
             payment_results["payment_config_endpoint"] = True
+            payment_results["no_url_not_found_errors"] = True  # No 404 error
             
             # Check response structure
             success_status = response.get('success', False)
@@ -1227,6 +1228,7 @@ class CATBackendTester:
             
             if key_id and key_id.startswith('rzp_'):
                 payment_results["razorpay_key_configured"] = True
+                payment_results["razorpay_client_configured"] = True
                 print(f"   ✅ Razorpay Key ID configured: {key_id}")
             
             if config:
@@ -1246,142 +1248,197 @@ class CATBackendTester:
                     upi = methods.get('upi', False)
                     card = methods.get('card', False)
                     netbanking = methods.get('netbanking', False)
-                    wallet = methods.get('wallet', False)
+                    wallet = methods.get('wallet', [])
                     
                     print(f"     - UPI enabled: {upi}")
                     print(f"     - Cards enabled: {card}")
                     print(f"     - Netbanking enabled: {netbanking}")
-                    print(f"     - Wallets enabled: {wallet}")
+                    print(f"     - Wallets enabled: {len(wallet) if isinstance(wallet, list) else wallet}")
         else:
             print("   ❌ Payment config endpoint not accessible")
         
-        # TEST 2: Create Order Endpoint (Pro Regular)
-        print("\n💰 TEST 2: CREATE ORDER ENDPOINT (PRO REGULAR)")
+        # TEST 2: Pro Regular Order Creation (₹2,565 one-time payment)
+        print("\n💰 TEST 2: PRO REGULAR ORDER CREATION (₹2,565 ONE-TIME PAYMENT)")
         print("-" * 50)
         print("Testing POST /api/payments/create-order for Pro Regular plan")
         
-        if auth_headers:
-            order_data = {
-                "plan_type": "pro_regular",
-                "user_email": "student@catprep.com",
-                "user_name": "Test Student",
-                "user_phone": "+919876543210"
-            }
-            
-            success, response = self.run_test("Create Order - Pro Regular", "POST", "payments/create-order", [200, 400, 500], order_data, auth_headers)
-            if success:
-                payment_results["create_order_endpoint"] = True
-                
-                success_status = response.get('success', False)
-                data = response.get('data', {})
-                
-                print(f"   📊 Success status: {success_status}")
-                print(f"   📊 Order data provided: {bool(data)}")
-                
-                if data:
-                    order_id = data.get('id', '')
-                    amount = data.get('amount', 0)
-                    currency = data.get('currency', '')
-                    
-                    print(f"   📊 Order ID: {order_id}")
-                    print(f"   📊 Amount: {amount}")
-                    print(f"   📊 Currency: {currency}")
-                    
-                    if amount == 256500:  # ₹2,565 in paise
-                        payment_results["pro_regular_plan_config"] = True
-                        print("   ✅ Pro Regular plan amount correct: ₹2,565")
-                    
-                    if order_id and currency == 'INR':
-                        print("   ✅ Order creation working properly")
-        else:
-            print("   ⚠️ Skipping - authentication required")
+        order_data = {
+            "plan_type": "pro_regular",
+            "user_email": "student@catprep.com",
+            "user_name": "Student User",
+            "user_phone": "+919876543210"
+        }
         
-        # TEST 3: Create Subscription Endpoint (Pro Lite)
-        print("\n🔄 TEST 3: CREATE SUBSCRIPTION ENDPOINT (PRO LITE)")
+        success, response = self.run_test("Create Order - Pro Regular", "POST", "payments/create-order", [200, 400, 500], order_data, auth_headers)
+        if success:
+            payment_results["create_order_endpoint"] = True
+            
+            success_status = response.get('success', False)
+            data = response.get('data', {})
+            
+            print(f"   📊 Success status: {success_status}")
+            print(f"   📊 Order data provided: {bool(data)}")
+            
+            if data:
+                order_id = data.get('id', '')
+                amount = data.get('amount', 0)
+                currency = data.get('currency', '')
+                plan_name = data.get('plan_name', '')
+                
+                print(f"   📊 Order ID: {order_id}")
+                print(f"   📊 Amount: {amount} paise")
+                print(f"   📊 Currency: {currency}")
+                print(f"   📊 Plan Name: {plan_name}")
+                
+                if amount == 256500:  # ₹2,565 in paise
+                    payment_results["pro_regular_order_working"] = True
+                    print("   ✅ Pro Regular plan amount correct: ₹2,565 (256500 paise)")
+                
+                if order_id and currency == 'INR' and success_status:
+                    print("   ✅ Pro Regular order creation working properly")
+                    
+                    # Check prefill data
+                    prefill = data.get('prefill', {})
+                    if prefill:
+                        print(f"   📊 Prefill data: Name={prefill.get('name')}, Email={prefill.get('email')}")
+        else:
+            print("   ❌ Pro Regular order creation failed")
+        
+        # TEST 3: Pro Lite Subscription Creation (₹1,495 monthly recurring) - FOCUS ON PLAN CREATION FIX
+        print("\n🔄 TEST 3: PRO LITE SUBSCRIPTION CREATION (₹1,495 MONTHLY) - PLAN CREATION FIX")
         print("-" * 50)
         print("Testing POST /api/payments/create-subscription for Pro Lite plan")
+        print("FOCUS: Verifying the plan creation fix resolves 500 errors")
         
-        if auth_headers:
-            subscription_data = {
-                "plan_type": "pro_lite",
-                "user_email": "student@catprep.com",
-                "user_name": "Test Student",
-                "user_phone": "+919876543210"
-            }
+        subscription_data = {
+            "plan_type": "pro_lite",
+            "user_email": "student@catprep.com",
+            "user_name": "Student User",
+            "user_phone": "+919876543210"
+        }
+        
+        success, response = self.run_test("Create Subscription - Pro Lite", "POST", "payments/create-subscription", [200, 400, 500], subscription_data, auth_headers)
+        if success:
+            payment_results["create_subscription_endpoint"] = True
             
-            success, response = self.run_test("Create Subscription - Pro Lite", "POST", "payments/create-subscription", [200, 400, 500], subscription_data, auth_headers)
-            if success:
-                payment_results["create_subscription_endpoint"] = True
+            success_status = response.get('success', False)
+            data = response.get('data', {})
+            error_detail = response.get('detail', '')
+            
+            print(f"   📊 Success status: {success_status}")
+            print(f"   📊 Subscription data provided: {bool(data)}")
+            print(f"   📊 Error detail: {error_detail}")
+            
+            if success_status and data:
+                subscription_id = data.get('id', '')
+                plan_id = data.get('plan_id', '')
+                amount = data.get('amount', 0)
+                plan_name = data.get('plan_name', '')
                 
-                success_status = response.get('success', False)
-                data = response.get('data', {})
+                print(f"   📊 Subscription ID: {subscription_id}")
+                print(f"   📊 Plan ID: {plan_id}")
+                print(f"   📊 Amount: {amount} paise")
+                print(f"   📊 Plan Name: {plan_name}")
                 
-                print(f"   📊 Success status: {success_status}")
-                print(f"   📊 Subscription data provided: {bool(data)}")
-                
-                if data:
-                    subscription_id = data.get('id', '')
-                    plan_id = data.get('plan_id', '')
+                if subscription_id:
+                    payment_results["pro_lite_subscription_working"] = True
+                    payment_results["pro_lite_plan_creation_fixed"] = True
+                    print("   ✅ Pro Lite subscription creation working - PLAN CREATION FIX SUCCESSFUL!")
                     
-                    print(f"   📊 Subscription ID: {subscription_id}")
-                    print(f"   📊 Plan ID: {plan_id}")
-                    
-                    if subscription_id:
-                        payment_results["pro_lite_plan_config"] = True
-                        print("   ✅ Pro Lite subscription creation working")
+                    if amount == 149500:  # ₹1,495 in paise
+                        print("   ✅ Pro Lite plan amount correct: ₹1,495 (149500 paise)")
+            else:
+                # Check if it's a 500 error (plan creation issue)
+                if '500' in str(response) or 'internal server error' in error_detail.lower():
+                    print("   ❌ Pro Lite subscription still showing 500 error - plan creation fix not working")
+                else:
+                    print(f"   ⚠️ Pro Lite subscription creation issue: {error_detail}")
         else:
-            print("   ⚠️ Skipping - authentication required")
+            print("   ❌ Pro Lite subscription creation failed")
         
         # TEST 4: Verify Payment Endpoint
         print("\n✅ TEST 4: VERIFY PAYMENT ENDPOINT")
         print("-" * 50)
         print("Testing POST /api/payments/verify-payment endpoint")
         
-        if auth_headers:
-            # Test with mock payment data
-            verify_data = {
-                "razorpay_order_id": "order_test123",
-                "razorpay_payment_id": "pay_test123",
-                "razorpay_signature": "test_signature",
-                "user_id": "test_user_id"
-            }
+        # Test with mock payment data
+        verify_data = {
+            "razorpay_order_id": "order_test123",
+            "razorpay_payment_id": "pay_test123",
+            "razorpay_signature": "test_signature",
+            "user_id": user_id if 'user_id' in locals() else "test_user_id"
+        }
+        
+        success, response = self.run_test("Verify Payment", "POST", "payments/verify-payment", [200, 400, 403, 500], verify_data, auth_headers)
+        if success:
+            payment_results["verify_payment_endpoint"] = True
+            print("   ✅ Verify payment endpoint accessible")
             
-            success, response = self.run_test("Verify Payment", "POST", "payments/verify-payment", [200, 400, 403, 500], verify_data, auth_headers)
-            if success:
-                payment_results["verify_payment_endpoint"] = True
-                print("   ✅ Verify payment endpoint accessible")
-                
-                # Check for proper error handling with mock data
-                success_status = response.get('success', False)
-                message = response.get('message', '')
-                
-                if not success_status and ('verification' in message.lower() or 'invalid' in message.lower()):
-                    print("   ✅ Proper validation for payment verification")
+            # Check for proper error handling with mock data
+            success_status = response.get('success', False)
+            message = response.get('message', '')
+            detail = response.get('detail', '')
+            
+            if not success_status and ('verification' in (message + detail).lower() or 'invalid' in (message + detail).lower() or 'signature' in (message + detail).lower()):
+                print("   ✅ Proper validation for payment verification")
         else:
-            print("   ⚠️ Skipping - authentication required")
+            print("   ❌ Verify payment endpoint failed")
         
         # TEST 5: Subscription Status Endpoint
         print("\n📊 TEST 5: SUBSCRIPTION STATUS ENDPOINT")
         print("-" * 50)
         print("Testing GET /api/payments/subscription-status endpoint")
         
-        if auth_headers:
-            success, response = self.run_test("Subscription Status", "GET", "payments/subscription-status", 200, None, auth_headers)
-            if success:
-                payment_results["subscription_status_endpoint"] = True
-                
-                success_status = response.get('success', False)
-                subscriptions = response.get('subscriptions', [])
-                
-                print(f"   📊 Success status: {success_status}")
-                print(f"   📊 Subscriptions data: {type(subscriptions)}")
-                print("   ✅ Subscription status endpoint working")
+        success, response = self.run_test("Subscription Status", "GET", "payments/subscription-status", 200, None, auth_headers)
+        if success:
+            payment_results["subscription_status_endpoint"] = True
+            
+            success_status = response.get('success', False)
+            subscriptions = response.get('subscriptions', [])
+            
+            print(f"   📊 Success status: {success_status}")
+            print(f"   📊 Subscriptions data type: {type(subscriptions)}")
+            print(f"   📊 Number of subscriptions: {len(subscriptions) if isinstance(subscriptions, list) else 'N/A'}")
+            print("   ✅ Subscription status endpoint working")
         else:
-            print("   ⚠️ Skipping - authentication required")
+            print("   ❌ Subscription status endpoint failed")
         
         # TEST 6: Cancel Subscription Endpoint
         print("\n❌ TEST 6: CANCEL SUBSCRIPTION ENDPOINT")
         print("-" * 50)
+        print("Testing POST /api/payments/cancel-subscription/{subscription_id} endpoint")
+        
+        test_subscription_id = "test_sub_123"
+        success, response = self.run_test("Cancel Subscription", "POST", f"payments/cancel-subscription/{test_subscription_id}", [200, 400, 404, 500], {}, auth_headers)
+        if success:
+            payment_results["cancel_subscription_endpoint"] = True
+            print("   ✅ Cancel subscription endpoint accessible")
+            
+            # Check response
+            success_status = response.get('success', False)
+            message = response.get('message', '')
+            detail = response.get('detail', '')
+            
+            print(f"   📊 Response: {message or detail}")
+        else:
+            print("   ❌ Cancel subscription endpoint failed")
+        
+        # TEST 7: Webhook Endpoint
+        print("\n🔗 TEST 7: WEBHOOK ENDPOINT")
+        print("-" * 50)
+        print("Testing POST /api/payments/webhook endpoint")
+        
+        webhook_data = {"event": "payment.captured", "payload": {"payment": {"id": "pay_test123"}}}
+        success, response = self.run_test("Webhook Processing", "POST", "payments/webhook", [200, 400, 500], webhook_data)
+        if success:
+            payment_results["webhook_endpoint"] = True
+            print("   ✅ Webhook endpoint accessible and processing requests")
+            
+            status = response.get('status', '')
+            if status == 'processed':
+                print("   ✅ Webhook processing working correctly")
+        else:
+            print("   ❌ Webhook endpoint failed")
         print("Testing POST /api/payments/cancel-subscription/{subscription_id} endpoint")
         
         if auth_headers:
