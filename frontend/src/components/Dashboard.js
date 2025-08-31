@@ -589,19 +589,20 @@ ${response.data.errors > 0 ? '⚠️ Check the logs for error details.' : ''}`);
   };
 
   return (
-    <div className="min-h-screen bg-white" style={{ fontFamily: 'Manrope, sans-serif' }}>
+    <div className="min-h-screen bg-gray-50" style={{ fontFamily: 'Lato, sans-serif' }}>
       <div className="max-w-6xl mx-auto py-8 px-4">
-        <div className="bg-white rounded-lg shadow-lg">
+        <div className="bg-white rounded-2xl shadow-lg">
           {/* Tabs */}
-          <div className="border-b">
+          <div className="border-b border-gray-200">
             <nav className="flex space-x-8 px-6">
               <button
                 onClick={() => setActiveTab('pyq-upload')}
                 className={`py-4 text-lg font-medium transition-colors ${
                   activeTab === 'pyq-upload' 
-                    ? 'border-b-2' 
-                    : 'hover:text-[#ff6d4d]'
+                    ? 'text-[#9ac026] border-b-2 border-[#9ac026]' 
+                    : 'text-[#545454] hover:text-[#9ac026]'
                 }`}
+                style={{ fontFamily: 'Lato, sans-serif' }}
                 style={{ 
                   color: activeTab === 'pyq-upload' ? '#9ac026' : '#545454',
                   borderColor: activeTab === 'pyq-upload' ? '#9ac026' : 'transparent',
