@@ -255,6 +255,15 @@ export const Dashboard = () => {
                   <span className="mr-2">🎯</span>
                   {loading ? 'Loading...' : "Today's Session"}
                 </button>
+
+                {/* Upgrade - Always visible */}
+                <button 
+                  onClick={() => navigate('/pricing')} 
+                  className="px-4 py-2 text-sm font-medium text-[#9ac026] hover:text-[#8bb024] border border-[#9ac026] rounded-lg hover:bg-[#9ac026] hover:text-white transition-all"
+                  style={{ fontFamily: 'Lato, sans-serif' }}
+                >
+                  ⭐ Upgrade
+                </button>
               </div>
             </div>
             
