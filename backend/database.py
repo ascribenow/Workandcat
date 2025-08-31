@@ -81,6 +81,7 @@ class Question(Base):
     
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     topic_id = Column(String(36), ForeignKey('topics.id'), nullable=False)
+    category = Column(String(100), nullable=True)  # NEW: Main category (Arithmetic, Algebra, etc.)
     subcategory = Column(Text, nullable=False)
     type_of_question = Column(String(150))  # Specific question type within subcategory
     
