@@ -390,27 +390,6 @@ const AdminPanel = () => {
   
   // PYQ Upload states
   const [uploading, setUploading] = useState(false);
-  const [questionUploadType, setQuestionUploadType] = useState('single'); // 'single' or 'csv'
-  const [uploading, setUploading] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [questionForm, setQuestionForm] = useState({
-    stem: "",
-    detailed_solution: "",
-    hint_category: "",
-    hint_subcategory: "",
-    tags: [],
-    // Image support fields
-    has_image: false,
-    image_url: "",
-    image_alt_text: ""
-  });
-  const [selectedImage, setSelectedImage] = useState(null);
-  const [imagePreview, setImagePreview] = useState(null);
-  const [uploadingImage, setUploadingImage] = useState(false);
-  const [imageUrlInput, setImageUrlInput] = useState('');
-  const [imagePreviewLoading, setImagePreviewLoading] = useState(false);
-  const [imagePreviewError, setImagePreviewError] = useState(false);
-  const [questionPublishBlocked, setQuestionPublishBlocked] = useState(false);
 
   const validateAndPreviewImage = async (url) => {
     if (!url.trim()) {
