@@ -280,9 +280,14 @@ export const Dashboard = () => {
                 </button>
                 <button
                   onClick={async () => {
-                    const sessionStarted = await startOrResumeSession();
-                    if (sessionStarted) {
-                      setCurrentView('session');
+                    // Check session limit before starting session
+                    if (sessionLimitStatus?.limit_reached) {
+                      setShowUpgradeModal(true);
+                    } else {
+                      const sessionStarted = await startOrResumeSession();
+                      if (sessionStarted) {
+                        setCurrentView('session');
+                      }
                     }
                   }}
                   disabled={loading}
@@ -290,8 +295,9 @@ export const Dashboard = () => {
                     currentView === 'session'
                       ? 'border-[#9ac026] text-[#545454]'
                       : 'text-[#545454] border-transparent hover:text-[#ff6d4d] hover:border-[#ff6d4d]'
-                  } ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  } ${loading ? 'opacity-50 cursor-not-allowed' : ''} ${sessionLimitStatus?.limit_reached ? 'opacity-50' : ''}`}
                   style={{ fontFamily: 'Lato, sans-serif' }}
+                  title={sessionLimitStatus?.limit_reached ? 'Session limit reached - upgrade to continue' : ''}
                 >
                   <span className="mr-2">🎯</span>
                   {loading ? 'Loading...' : "Today's Session"}
