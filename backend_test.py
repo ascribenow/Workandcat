@@ -1439,6 +1439,148 @@ class CATBackendTester:
                 print("   ✅ Webhook processing working correctly")
         else:
             print("   ❌ Webhook endpoint failed")
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 80)
+        print("RAZORPAY PAYMENT INTEGRATION - UPDATED TEST RESULTS")
+        print("=" * 80)
+        
+        passed_tests = sum(payment_results.values())
+        total_tests = len(payment_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        # Group results by category for better analysis
+        categories = {
+            "PAYMENT CONFIGURATION": [
+                "payment_config_endpoint", "razorpay_key_configured", 
+                "payment_methods_config", "razorpay_client_configured"
+            ],
+            "AUTHENTICATION & SECURITY": [
+                "authentication_working"
+            ],
+            "PRO REGULAR PAYMENT FLOW (₹2,565)": [
+                "create_order_endpoint", "pro_regular_order_working"
+            ],
+            "PRO LITE SUBSCRIPTION FLOW (₹1,495) - PLAN CREATION FIX": [
+                "create_subscription_endpoint", "pro_lite_subscription_working", 
+                "pro_lite_plan_creation_fixed"
+            ],
+            "PAYMENT VERIFICATION & STATUS": [
+                "verify_payment_endpoint", "subscription_status_endpoint", 
+                "cancel_subscription_endpoint"
+            ],
+            "ERROR HANDLING & INTEGRATION": [
+                "webhook_endpoint", "no_url_not_found_errors", "error_handling_proper"
+            ]
+        }
+        
+        for category, tests in categories.items():
+            print(f"\n{category}:")
+            category_passed = 0
+            category_total = len(tests)
+            
+            for test in tests:
+                if test in payment_results:
+                    result = payment_results[test]
+                    status = "✅ PASS" if result else "❌ FAIL"
+                    print(f"  {test.replace('_', ' ').title():<40} {status}")
+                    if result:
+                        category_passed += 1
+            
+            category_rate = (category_passed / category_total) * 100 if category_total > 0 else 0
+            print(f"  Category Success Rate: {category_passed}/{category_total} ({category_rate:.1f}%)")
+        
+        print("-" * 80)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # CRITICAL ANALYSIS FOR PLAN CREATION FIX
+        print("\n🎯 CRITICAL ANALYSIS - PLAN CREATION FIX:")
+        
+        if payment_results.get("pro_lite_plan_creation_fixed"):
+            print("🎉 PLAN CREATION FIX: Pro Lite subscription creation working without 500 errors")
+        else:
+            print("❌ PLAN CREATION FIX: Pro Lite subscription still showing issues")
+        
+        if payment_results.get("pro_lite_subscription_working"):
+            print("✅ PRO LITE FLOW: ₹1,495 monthly subscription creation successful")
+        else:
+            print("❌ PRO LITE FLOW: Issues with Pro Lite subscription creation")
+        
+        if payment_results.get("pro_regular_order_working"):
+            print("✅ PRO REGULAR FLOW: ₹2,565 one-time payment order creation successful")
+        else:
+            print("❌ PRO REGULAR FLOW: Issues with Pro Regular order creation")
+        
+        if payment_results.get("no_url_not_found_errors"):
+            print("✅ URL ERRORS: No 'The requested URL was not found on the server' errors")
+        else:
+            print("❌ URL ERRORS: Still encountering URL not found errors")
+        
+        # DETAILED FINDINGS
+        print("\n📋 DETAILED FINDINGS:")
+        
+        if payment_results.get("razorpay_client_configured"):
+            print("✅ RAZORPAY CLIENT: Properly configured and accessible")
+        else:
+            print("❌ RAZORPAY CLIENT: Configuration issues detected")
+        
+        if payment_results.get("authentication_working"):
+            print("✅ AUTHENTICATION: student@catprep.com/student123 credentials working")
+        else:
+            print("❌ AUTHENTICATION: Issues with test user authentication")
+        
+        if payment_results.get("payment_config_endpoint"):
+            print("✅ PAYMENT CONFIG: GET /api/payments/config endpoint functional")
+        else:
+            print("❌ PAYMENT CONFIG: Payment configuration endpoint issues")
+        
+        # PRODUCTION READINESS ASSESSMENT
+        print("\n📋 PRODUCTION READINESS ASSESSMENT:")
+        
+        if success_rate >= 85:
+            print("🎉 PRODUCTION READY: Razorpay payment integration ready for production deployment")
+        elif success_rate >= 70:
+            print("⚠️ MOSTLY READY: Core payment functionality working, minor improvements needed")
+        elif success_rate >= 50:
+            print("⚠️ NEEDS WORK: Significant payment issues need to be resolved")
+        else:
+            print("❌ NOT READY: Critical payment integration issues must be fixed")
+        
+        # SPECIFIC RECOMMENDATIONS
+        print("\n📝 RECOMMENDATIONS:")
+        
+        if not payment_results.get("pro_lite_plan_creation_fixed"):
+            print("1. URGENT: Fix Pro Lite plan creation to resolve 500 errors")
+        
+        if not payment_results.get("pro_regular_order_working"):
+            print("2. Fix Pro Regular order creation for ₹2,565 payments")
+        
+        if not payment_results.get("authentication_working"):
+            print("3. Resolve authentication issues for payment endpoints")
+        
+        if not payment_results.get("razorpay_client_configured"):
+            print("4. Verify Razorpay client configuration and credentials")
+        
+        if success_rate >= 70:
+            print("5. Payment system ready for user testing with real transactions")
+        
+        # PLAN CREATION FIX VALIDATION
+        print("\n🔍 PLAN CREATION FIX VALIDATION:")
+        
+        plan_creation_tests = ["pro_lite_plan_creation_fixed", "pro_lite_subscription_working", "create_subscription_endpoint"]
+        plan_creation_passed = sum(payment_results.get(test, False) for test in plan_creation_tests)
+        plan_creation_rate = (plan_creation_passed / len(plan_creation_tests)) * 100
+        
+        if plan_creation_rate >= 80:
+            print("✅ PLAN CREATION FIX SUCCESSFUL: Pro Lite subscription creation working properly")
+        elif plan_creation_rate >= 50:
+            print("⚠️ PLAN CREATION PARTIAL: Some improvements in plan creation, but issues remain")
+        else:
+            print("❌ PLAN CREATION FAILED: Plan creation fix not working, 500 errors likely persist")
+        
+        print(f"Plan Creation Fix Success Rate: {plan_creation_passed}/{len(plan_creation_tests)} ({plan_creation_rate:.1f}%)")
+        
+        return success_rate >= 60  # 60% threshold for basic payment functionality
         print("Testing POST /api/payments/cancel-subscription/{subscription_id} endpoint")
         
         if auth_headers:
