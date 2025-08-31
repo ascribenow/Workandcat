@@ -487,6 +487,16 @@ class PYQFiles(Base):
     )
 
 
+class PrivilegedEmail(Base):
+    __tablename__ = "privileged_emails"
+    
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    email = Column(String, unique=True, nullable=False, index=True)
+    added_by_admin = Column(String, nullable=False)  # Admin user ID who added this email
+    created_at = Column(DateTime, default=datetime.utcnow)
+    notes = Column(String, nullable=True)  # Optional notes about why this email is privileged
+
+
 # Database utility functions
 
 def get_db():
