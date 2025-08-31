@@ -19,10 +19,11 @@ async def add_category_column_migration():
     try:
         logger.info("🔧 Starting category column migration...")
         
-        # Get database connection
-        from database import AsyncSession, async_engine
+        # Get database connection using the existing pattern
+        from database import SessionLocal
         
-        async with AsyncSession(async_engine) as db:
+        db = SessionLocal()
+        try:
             # Step 1: Add category column
             logger.info("📝 Adding category column to questions table...")
             
@@ -149,6 +150,8 @@ async def add_category_column_migration():
                 "total_updated": update_count,
                 "message": "Category column migration completed successfully"
             }
+        finally:
+            db.close()
             
     except Exception as e:
         logger.error(f"❌ Migration failed: {e}")
