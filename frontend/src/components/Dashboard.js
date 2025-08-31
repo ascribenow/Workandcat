@@ -793,7 +793,7 @@ ${response.data.errors > 0 ? '⚠️ Check the logs for error details.' : ''}`);
                         </label>
                       </div>
 
-                      <div className="text-sm text-gray-500 space-y-2" style={{ fontFamily: 'Lato, sans-serif' }}>
+                      <div className="text-sm text-[#545454] space-y-2" style={{ fontFamily: 'Lato, sans-serif' }}>
                         <p>📋 <strong>CSV Format Required:</strong> stem, image_url, answer, solution_approach, principle_to_remember</p>
                         <p>📊 <strong>File Size Limit:</strong> 10MB maximum</p>
                         <p>🎯 <strong>Processing:</strong> Questions are immediately enriched with LLM-generated fields (category, subcategory, type, difficulty, right_answer)</p>
