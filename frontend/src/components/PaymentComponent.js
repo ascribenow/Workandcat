@@ -52,8 +52,8 @@ const PaymentComponent = ({ planType, amount, planName, description, onSuccess, 
 
       // For Pro Lite, create subscription; for Pro Regular, create order
       const endpoint = planType === 'pro_lite' ? 
-        `${API}/api/payments/create-subscription` : 
-        `${API}/api/payments/create-order`;
+        `${API}/payments/create-subscription` : 
+        `${API}/payments/create-order`;
 
       const requestData = {
         plan_type: planType,
