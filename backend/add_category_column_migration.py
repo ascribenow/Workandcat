@@ -124,18 +124,18 @@ async def add_category_column_migration():
             WHERE category IS NULL
             """)
             
-            fallback_result = await db.execute(fallback_sql)
+            fallback_result = db.execute(fallback_sql)
             fallback_count = fallback_result.rowcount
             
             if fallback_count > 0:
                 logger.info(f"   📝 Set {fallback_count} unmapped questions to 'Arithmetic' (fallback)")
                 update_count += fallback_count
             
-            await db.commit()
+            db.commit()
             
             # Step 3: Verify results
             verification_sql = text("SELECT category, COUNT(*) as count FROM questions GROUP BY category ORDER BY count DESC")
-            verification_result = await db.execute(verification_sql)
+            verification_result = db.execute(verification_sql)
             category_rows = verification_result.fetchall()
             
             logger.info("📊 Category distribution after migration:")
