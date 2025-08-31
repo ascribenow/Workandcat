@@ -109,8 +109,8 @@ export const Dashboard = () => {
         // For resumed sessions, create a minimal metadata object with session number calculation
         try {
           const dashboardResponse = await axios.get(`${API}/dashboard/simple-taxonomy`);
-          const totalSessionsStarted = dashboardResponse.data.total_sessions_started || 0;
-          const currentSession = totalSessionsStarted; // Current session number is the count of all sessions started
+          const totalSessions = dashboardResponse.data.total_sessions || 0;
+          const currentSession = totalSessions + 1; // Current session number is completed sessions + 1
           
           setSessionMetadata({
             phase_info: {
