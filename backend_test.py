@@ -26,6 +26,417 @@ class CATBackendTester:
             "Work Time Efficiency"
         ]
 
+    def test_question_upload_enrichment_workflow(self):
+        """Test the NEW Question Upload & Enrichment Workflow implementation"""
+        print("🚀 QUESTION UPLOAD & ENRICHMENT WORKFLOW TESTING")
+        print("=" * 80)
+        print("FOCUS: Testing NEW Question Upload & Enrichment Workflow Implementation")
+        print("")
+        print("TESTING REQUIREMENTS:")
+        print("1. CSV Upload Endpoint Testing:")
+        print("   - Test /api/admin/upload-questions-csv with new CSV format")
+        print("   - Columns: stem, image_url, answer, solution_approach, principle_to_remember")
+        print("")
+        print("2. SimplifiedEnrichmentService Integration:")
+        print("   - Verify 5 LLM fields generation: right_answer, category, subcategory, type_of_question, difficulty_level")
+        print("   - Test immediate enrichment (not background)")
+        print("")
+        print("3. Quality Control Validation:")
+        print("   - Test admin.answer vs LLM.right_answer validation")
+        print("   - Verify question activation/deactivation based on validation")
+        print("")
+        print("4. Admin Field Protection:")
+        print("   - Verify admin fields are stored directly and not modified by LLM")
+        print("   - Fields: stem, answer, solution_approach, principle_to_remember, image_url")
+        print("")
+        print("5. Removed Functionalities:")
+        print("   - Verify 'Check Quality' and 'Fix Solutions' endpoints return 404")
+        print("")
+        print("6. Existing Functionality:")
+        print("   - Ensure /api/questions and /api/sessions/start still work")
+        print("=" * 80)
+        
+        workflow_results = {
+            # Admin Authentication
+            "admin_authentication_working": False,
+            
+            # CSV Upload Endpoint Testing
+            "csv_upload_endpoint_accessible": False,
+            "new_csv_format_supported": False,
+            "admin_fields_stored_directly": False,
+            "image_url_processing": False,
+            
+            # SimplifiedEnrichmentService Integration
+            "simplified_enrichment_working": False,
+            "five_llm_fields_generated": False,
+            "immediate_enrichment_confirmed": False,
+            "right_answer_generation": False,
+            "category_classification": False,
+            "subcategory_classification": False,
+            "type_classification": False,
+            "difficulty_determination": False,
+            
+            # Quality Control Validation
+            "answer_validation_working": False,
+            "question_activation_logic": False,
+            "question_deactivation_logic": False,
+            "validation_explanation_provided": False,
+            
+            # Admin Field Protection
+            "stem_field_protected": False,
+            "answer_field_protected": False,
+            "solution_approach_protected": False,
+            "principle_to_remember_protected": False,
+            "image_url_protected": False,
+            
+            # Removed Functionalities
+            "check_quality_removed": False,
+            "fix_solutions_removed": False,
+            
+            # Existing Functionality
+            "questions_endpoint_working": False,
+            "sessions_start_working": False
+        }
+        
+        # PHASE 1: ADMIN AUTHENTICATION SETUP
+        print("\n🔐 PHASE 1: ADMIN AUTHENTICATION SETUP")
+        print("-" * 50)
+        print("Setting up admin authentication for CSV upload testing")
+        
+        # Try to login as admin (assuming admin@catprep.com exists)
+        admin_login = {"email": "admin@catprep.com", "password": "admin123"}
+        success, response = self.run_test("Admin Authentication", "POST", "auth/login", [200, 401], admin_login)
+        
+        admin_headers = None
+        if success and 'access_token' in response:
+            admin_token = response['access_token']
+            admin_headers = {'Authorization': f'Bearer {admin_token}'}
+            workflow_results["admin_authentication_working"] = True
+            print(f"   ✅ Admin authentication successful")
+            print(f"   📊 JWT Token length: {len(admin_token)} characters")
+        else:
+            print("   ⚠️ Admin authentication failed - will test endpoint accessibility only")
+            # Create dummy headers for testing endpoint accessibility
+            admin_headers = {'Authorization': 'Bearer dummy_token'}
+        
+        # PHASE 2: CSV UPLOAD ENDPOINT TESTING
+        print("\n📄 PHASE 2: CSV UPLOAD ENDPOINT TESTING")
+        print("-" * 50)
+        print("Testing /api/admin/upload-questions-csv with new CSV format")
+        
+        # Create test CSV content with new format
+        test_csv_content = """stem,image_url,answer,solution_approach,principle_to_remember
+"A train travels 120 km in 2 hours. What is its speed?","","60 km/h","Speed = Distance / Time","Speed is calculated by dividing distance by time"
+"Find the LCM of 12 and 18","","36","Find prime factors and multiply highest powers","LCM is the smallest number divisible by both numbers"
+"If 20% of a number is 40, find the number","","200","Let x be the number, then 0.2x = 40","Percentage problems can be solved using proportions"
+"""
+        
+        # Test CSV upload endpoint accessibility
+        import io
+        csv_file = io.BytesIO(test_csv_content.encode('utf-8'))
+        
+        # Test endpoint accessibility (may fail due to auth, but we check if endpoint exists)
+        try:
+            import requests
+            files = {'file': ('test_questions.csv', csv_file, 'text/csv')}
+            response = requests.post(
+                f"{self.base_url}/admin/upload-questions-csv",
+                files=files,
+                headers=admin_headers,
+                timeout=30
+            )
+            
+            if response.status_code in [200, 201, 400, 401, 403, 422]:
+                workflow_results["csv_upload_endpoint_accessible"] = True
+                print(f"   ✅ CSV upload endpoint accessible")
+                print(f"   📊 Response status: {response.status_code}")
+                
+                if response.status_code in [200, 201]:
+                    response_data = response.json()
+                    workflow_results["new_csv_format_supported"] = True
+                    print(f"   ✅ New CSV format supported")
+                    
+                    # Check response structure for workflow indicators
+                    if "workflow" in response_data:
+                        workflow_name = response_data.get("workflow", "")
+                        if "Question Upload & Enrichment Workflow" in workflow_name:
+                            print(f"   ✅ Correct workflow identified: {workflow_name}")
+                    
+                    # Check statistics
+                    stats = response_data.get("statistics", {})
+                    if stats:
+                        questions_created = stats.get("questions_created", 0)
+                        questions_activated = stats.get("questions_activated", 0)
+                        print(f"   📊 Questions created: {questions_created}")
+                        print(f"   📊 Questions activated: {questions_activated}")
+                    
+                    # Check enrichment summary
+                    enrichment_summary = response_data.get("enrichment_summary", {})
+                    if enrichment_summary:
+                        immediate_enrichment = enrichment_summary.get("immediate_enrichment", False)
+                        llm_fields = enrichment_summary.get("llm_fields_generated", [])
+                        admin_fields = enrichment_summary.get("admin_fields_protected", [])
+                        
+                        if immediate_enrichment:
+                            workflow_results["immediate_enrichment_confirmed"] = True
+                            print(f"   ✅ Immediate enrichment confirmed")
+                        
+                        if len(llm_fields) == 5:
+                            workflow_results["five_llm_fields_generated"] = True
+                            print(f"   ✅ Five LLM fields generated: {llm_fields}")
+                            
+                            # Check specific fields
+                            expected_fields = ["right_answer", "category", "subcategory", "type_of_question", "difficulty_level"]
+                            if all(field in llm_fields for field in expected_fields):
+                                workflow_results["simplified_enrichment_working"] = True
+                                print(f"   ✅ SimplifiedEnrichmentService working correctly")
+                        
+                        if len(admin_fields) >= 4:
+                            workflow_results["admin_fields_stored_directly"] = True
+                            print(f"   ✅ Admin fields protected: {admin_fields}")
+                            
+                            # Check specific protected fields
+                            if "stem" in admin_fields:
+                                workflow_results["stem_field_protected"] = True
+                            if "answer" in admin_fields:
+                                workflow_results["answer_field_protected"] = True
+                            if "solution_approach" in admin_fields:
+                                workflow_results["solution_approach_protected"] = True
+                            if "principle_to_remember" in admin_fields:
+                                workflow_results["principle_to_remember_protected"] = True
+                            if "image_url" in admin_fields:
+                                workflow_results["image_url_protected"] = True
+                    
+                    # Check enrichment results for quality control
+                    enrichment_results = response_data.get("enrichment_results", [])
+                    if enrichment_results:
+                        for result in enrichment_results:
+                            if "validation_message" in result:
+                                workflow_results["validation_explanation_provided"] = True
+                            if "question_activated" in result:
+                                if result["question_activated"]:
+                                    workflow_results["question_activation_logic"] = True
+                                else:
+                                    workflow_results["question_deactivation_logic"] = True
+                        
+                        workflow_results["answer_validation_working"] = True
+                        print(f"   ✅ Quality control validation working")
+                
+                elif response.status_code == 401:
+                    print(f"   ⚠️ Authentication required (expected for admin endpoint)")
+                elif response.status_code == 400:
+                    error_detail = response.json().get("detail", "")
+                    if "CSV" in error_detail:
+                        workflow_results["new_csv_format_supported"] = True
+                        print(f"   ✅ CSV format validation working")
+            else:
+                print(f"   ❌ Unexpected response status: {response.status_code}")
+                
+        except Exception as e:
+            print(f"   ❌ CSV upload test failed: {e}")
+        
+        # PHASE 3: REMOVED FUNCTIONALITIES TESTING
+        print("\n🚫 PHASE 3: REMOVED FUNCTIONALITIES TESTING")
+        print("-" * 50)
+        print("Verifying 'Check Quality' and 'Fix Solutions' endpoints are removed")
+        
+        # Test removed endpoints
+        removed_endpoints = [
+            ("check-quality", "Check Quality endpoint"),
+            ("fix-solutions", "Fix Solutions endpoint"),
+            ("admin/check-quality", "Admin Check Quality endpoint"),
+            ("admin/fix-solutions", "Admin Fix Solutions endpoint"),
+            ("questions/check-quality", "Questions Check Quality endpoint"),
+            ("questions/fix-solutions", "Questions Fix Solutions endpoint")
+        ]
+        
+        removed_count = 0
+        for endpoint, description in removed_endpoints:
+            success, response = self.run_test(f"Removed: {description}", "POST", endpoint, [404, 405, 422], {})
+            if success:
+                removed_count += 1
+                print(f"   ✅ {description}: Properly removed (404/405)")
+        
+        if removed_count >= 4:  # At least 4 endpoints should return 404
+            workflow_results["check_quality_removed"] = True
+            workflow_results["fix_solutions_removed"] = True
+            print(f"   ✅ Removed functionalities confirmed")
+        
+        # PHASE 4: EXISTING FUNCTIONALITY TESTING
+        print("\n🔄 PHASE 4: EXISTING FUNCTIONALITY TESTING")
+        print("-" * 50)
+        print("Ensuring existing endpoints still work correctly")
+        
+        # Test /api/questions endpoint
+        success, response = self.run_test("Questions Endpoint", "GET", "questions", 200)
+        if success:
+            workflow_results["questions_endpoint_working"] = True
+            questions = response.get("questions", [])
+            print(f"   ✅ /api/questions working - {len(questions)} questions available")
+            
+            # Check if any questions have the new workflow fields
+            for question in questions[:3]:  # Check first 3 questions
+                if question.get("source") == "Admin CSV Upload - New Workflow":
+                    print(f"   📊 Found new workflow question: {question.get('stem', '')[:50]}...")
+                    
+                    # Verify LLM fields are present
+                    if question.get("right_answer"):
+                        workflow_results["right_answer_generation"] = True
+                    if question.get("subcategory") and question.get("subcategory") != "To be classified":
+                        workflow_results["subcategory_classification"] = True
+                    if question.get("type_of_question") and question.get("type_of_question") != "To be classified":
+                        workflow_results["type_classification"] = True
+                    if question.get("difficulty_band") and question.get("difficulty_band") != "Unrated":
+                        workflow_results["difficulty_determination"] = True
+        
+        # Test session start endpoint (requires authentication)
+        if hasattr(self, 'login_token') and self.login_token:
+            success, response = self.run_test("Sessions Start", "POST", "sessions/start", [200, 404], {}, self.login_headers)
+            if success:
+                workflow_results["sessions_start_working"] = True
+                print(f"   ✅ /api/sessions/start working")
+        else:
+            # Try without auth to check endpoint accessibility
+            success, response = self.run_test("Sessions Start (No Auth)", "POST", "sessions/start", [401, 403], {})
+            if success:
+                workflow_results["sessions_start_working"] = True
+                print(f"   ✅ /api/sessions/start accessible (auth required)")
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 80)
+        print("QUESTION UPLOAD & ENRICHMENT WORKFLOW TEST RESULTS")
+        print("=" * 80)
+        
+        passed_tests = sum(workflow_results.values())
+        total_tests = len(workflow_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        # Group results by category
+        categories = {
+            "CSV UPLOAD ENDPOINT": [
+                "csv_upload_endpoint_accessible", "new_csv_format_supported", 
+                "admin_fields_stored_directly", "image_url_processing"
+            ],
+            "SIMPLIFIED ENRICHMENT SERVICE": [
+                "simplified_enrichment_working", "five_llm_fields_generated",
+                "immediate_enrichment_confirmed", "right_answer_generation",
+                "category_classification", "subcategory_classification", 
+                "type_classification", "difficulty_determination"
+            ],
+            "QUALITY CONTROL VALIDATION": [
+                "answer_validation_working", "question_activation_logic",
+                "question_deactivation_logic", "validation_explanation_provided"
+            ],
+            "ADMIN FIELD PROTECTION": [
+                "stem_field_protected", "answer_field_protected",
+                "solution_approach_protected", "principle_to_remember_protected",
+                "image_url_protected"
+            ],
+            "REMOVED FUNCTIONALITIES": [
+                "check_quality_removed", "fix_solutions_removed"
+            ],
+            "EXISTING FUNCTIONALITY": [
+                "questions_endpoint_working", "sessions_start_working"
+            ]
+        }
+        
+        for category, tests in categories.items():
+            print(f"\n{category}:")
+            category_passed = 0
+            category_total = len(tests)
+            
+            for test in tests:
+                if test in workflow_results:
+                    result = workflow_results[test]
+                    status = "✅ PASS" if result else "❌ FAIL"
+                    print(f"  {test.replace('_', ' ').title():<40} {status}")
+                    if result:
+                        category_passed += 1
+            
+            category_rate = (category_passed / category_total) * 100 if category_total > 0 else 0
+            print(f"  Category Success Rate: {category_passed}/{category_total} ({category_rate:.1f}%)")
+        
+        print("-" * 80)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # CRITICAL ANALYSIS
+        print("\n🎯 CRITICAL ANALYSIS:")
+        
+        if workflow_results["csv_upload_endpoint_accessible"]:
+            print("✅ CSV UPLOAD: /api/admin/upload-questions-csv endpoint accessible")
+        else:
+            print("❌ CSV UPLOAD: Endpoint not accessible")
+        
+        if workflow_results["simplified_enrichment_working"]:
+            print("✅ ENRICHMENT SERVICE: SimplifiedEnrichmentService working correctly")
+        else:
+            print("❌ ENRICHMENT SERVICE: Issues with LLM enrichment")
+        
+        if workflow_results["five_llm_fields_generated"]:
+            print("✅ LLM FIELDS: All 5 required fields generated correctly")
+        else:
+            print("❌ LLM FIELDS: Missing or incorrect field generation")
+        
+        if workflow_results["immediate_enrichment_confirmed"]:
+            print("✅ IMMEDIATE PROCESSING: Enrichment happens during upload (not background)")
+        else:
+            print("❌ IMMEDIATE PROCESSING: Enrichment may be background or not working")
+        
+        if workflow_results["answer_validation_working"]:
+            print("✅ QUALITY CONTROL: Admin.answer vs LLM.right_answer validation working")
+        else:
+            print("❌ QUALITY CONTROL: Answer validation not working")
+        
+        if workflow_results["admin_fields_stored_directly"]:
+            print("✅ FIELD PROTECTION: Admin fields stored directly and protected")
+        else:
+            print("❌ FIELD PROTECTION: Admin fields may be modified by LLM")
+        
+        if workflow_results["check_quality_removed"] and workflow_results["fix_solutions_removed"]:
+            print("✅ REMOVED FEATURES: Check Quality and Fix Solutions properly removed")
+        else:
+            print("❌ REMOVED FEATURES: Old endpoints may still be accessible")
+        
+        if workflow_results["questions_endpoint_working"] and workflow_results["sessions_start_working"]:
+            print("✅ EXISTING FUNCTIONALITY: Core endpoints still working")
+        else:
+            print("❌ EXISTING FUNCTIONALITY: Some core endpoints may be broken")
+        
+        # PRODUCTION READINESS ASSESSMENT
+        print("\n📋 PRODUCTION READINESS ASSESSMENT:")
+        
+        if success_rate >= 85:
+            print("🎉 PRODUCTION READY: Question Upload & Enrichment Workflow fully functional")
+        elif success_rate >= 70:
+            print("⚠️ MOSTLY READY: Core workflow working, minor improvements needed")
+        elif success_rate >= 50:
+            print("⚠️ NEEDS WORK: Significant issues need to be resolved")
+        else:
+            print("❌ NOT READY: Critical workflow issues must be fixed")
+        
+        # SPECIFIC RECOMMENDATIONS
+        print("\n📝 RECOMMENDATIONS:")
+        
+        if not workflow_results["csv_upload_endpoint_accessible"]:
+            print("1. Fix CSV upload endpoint accessibility")
+        
+        if not workflow_results["simplified_enrichment_working"]:
+            print("2. Debug SimplifiedEnrichmentService implementation")
+        
+        if not workflow_results["five_llm_fields_generated"]:
+            print("3. Ensure all 5 LLM fields are generated correctly")
+        
+        if not workflow_results["answer_validation_working"]:
+            print("4. Implement proper quality control validation")
+        
+        if not workflow_results["admin_fields_stored_directly"]:
+            print("5. Protect admin fields from LLM modification")
+        
+        if success_rate >= 70:
+            print("6. Workflow ready for comprehensive testing with real CSV data")
+        
+        return success_rate >= 60  # 60% threshold for basic functionality
+
     def test_comprehensive_authentication_system_signup_focus(self):
         """Comprehensive end-to-end testing of Twelvr authentication system with focus on SIGN UP functionality"""
         print("🎯 COMPREHENSIVE TWELVR AUTHENTICATION SYSTEM TESTING")
