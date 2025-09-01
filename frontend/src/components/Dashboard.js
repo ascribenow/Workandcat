@@ -502,7 +502,7 @@ ${response.data.duplicate_questions > 0 ? 'ℹ️ Duplicate questions were autom
   };
 
   const handleEnrichRegularQuestions = async () => {
-    if (!window.confirm('🔍 Start Enrich Checker for Regular Questions?\n\nThis will:\n• Check enrichment quality of all regular questions\n• Re-enrich questions with poor quality using Advanced LLM\n• May take several minutes for large databases\n\nProceed?')) {
+    if (!window.confirm('🔍 Start Enrich Checker for Regular Questions?\n\nThis will:\n• Check enrichment quality of 10 regular questions per batch\n• Re-enrich questions with poor quality using Advanced LLM\n• Process completes in 2-5 minutes per batch\n• Uses intelligent GPT-4o/GPT-4o-mini switching\n\nProceed?')) {
       return;
     }
 
