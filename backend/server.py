@@ -4306,7 +4306,104 @@ async def enrich_pyq_question_background(pyq_question_id: str):
 
 # Admin Test Endpoints for Conceptual Frequency Analysis
 
-@api_router.post("/admin/test-advanced-enrichment", dependencies=[Depends(require_admin)])
+@api_router.post("/admin/enrich-checker/regular-questions", dependencies=[Depends(require_admin)])
+async def enrich_checker_regular(
+    request: Dict[str, Any] = None,
+    db = Depends(get_database)
+) -> Dict[str, Any]:
+    """
+    Enrich Checker for Regular Questions
+    LLM-based quality assessment and re-enrichment system
+    """
+    try:
+        limit = None
+        if request:
+            limit = request.get("limit")
+        
+        logger.info(f"🔍 Starting Enrich Checker for Regular Questions (limit: {limit})")
+        
+        # Initialize Enrich Checker Service
+        enrich_checker = EnrichCheckerService()
+        
+        # Run quality check and re-enrichment
+        result = await enrich_checker.check_and_enrich_regular_questions(db, limit)
+        
+        if result["success"]:
+            check_results = result["check_results"]
+            
+            logger.info("✅ Regular Questions Enrich Checker completed successfully")
+            
+            return {
+                "success": True,
+                "message": "Regular Questions Enrichment Quality Check completed",
+                "summary": {
+                    "total_questions_checked": check_results["total_questions_checked"],
+                    "poor_enrichment_identified": check_results["poor_enrichment_identified"],
+                    "re_enrichment_successful": check_results["re_enrichment_successful"],
+                    "re_enrichment_failed": check_results["re_enrichment_failed"],
+                    "average_quality_score": check_results["average_quality_score"],
+                    "improvement_rate_percentage": check_results["improvement_rate_percentage"]
+                },
+                "detailed_results": check_results["detailed_results"][:10],  # Show first 10 detailed results
+                "processing_completed_at": check_results["processing_completed_at"]
+            }
+        else:
+            logger.error(f"❌ Regular Questions Enrich Checker failed: {result['error']}")
+            raise HTTPException(status_code=500, detail=f"Enrich Checker failed: {result['error']}")
+    
+    except Exception as e:
+        logger.error(f"❌ Enrich Checker Regular Questions error: {e}")
+        raise HTTPException(status_code=500, detail=f"Enrich Checker failed: {str(e)}")
+
+@api_router.post("/admin/enrich-checker/pyq-questions", dependencies=[Depends(require_admin)])
+async def enrich_checker_pyq(
+    request: Dict[str, Any] = None,
+    db = Depends(get_database)
+) -> Dict[str, Any]:
+    """
+    Enrich Checker for PYQ Questions
+    LLM-based quality assessment and re-enrichment system
+    """
+    try:
+        limit = None
+        if request:
+            limit = request.get("limit")
+        
+        logger.info(f"🔍 Starting Enrich Checker for PYQ Questions (limit: {limit})")
+        
+        # Initialize Enrich Checker Service
+        enrich_checker = EnrichCheckerService()
+        
+        # Run quality check and re-enrichment
+        result = await enrich_checker.check_and_enrich_pyq_questions(db, limit)
+        
+        if result["success"]:
+            check_results = result["check_results"]
+            
+            logger.info("✅ PYQ Questions Enrich Checker completed successfully")
+            
+            return {
+                "success": True,
+                "message": "PYQ Questions Enrichment Quality Check completed",
+                "summary": {
+                    "total_questions_checked": check_results["total_questions_checked"],
+                    "poor_enrichment_identified": check_results["poor_enrichment_identified"],
+                    "re_enrichment_successful": check_results["re_enrichment_successful"],
+                    "re_enrichment_failed": check_results["re_enrichment_failed"],
+                    "average_quality_score": check_results["average_quality_score"],
+                    "improvement_rate_percentage": check_results["improvement_rate_percentage"]
+                },
+                "detailed_results": check_results["detailed_results"][:10],  # Show first 10 detailed results
+                "processing_completed_at": check_results["processing_completed_at"]
+            }
+        else:
+            logger.error(f"❌ PYQ Questions Enrich Checker failed: {result['error']}")
+            raise HTTPException(status_code=500, detail=f"PYQ Enrich Checker failed: {result['error']}")
+    
+    except Exception as e:
+        logger.error(f"❌ Enrich Checker PYQ Questions error: {e}")
+        raise HTTPException(status_code=500, detail=f"PYQ Enrich Checker failed: {str(e)}")
+
 async def test_advanced_enrichment(
     request: Dict[str, Any],
     db = Depends(get_database)
