@@ -98,10 +98,10 @@ def main():
         'users': [
             'tz'
         ],
-        'planunit': [
+        'plan_units': [
             'actual_stats', 'generated_payload'
         ],
-        'pyqingestion': [
+        'pyq_ingestions': [
             'ocr_required', 'ocr_status'
         ]
     }
