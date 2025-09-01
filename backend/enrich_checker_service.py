@@ -179,11 +179,12 @@ class EnrichCheckerService:
                 # Assess current enrichment quality
                 quality_assessment = await self._assess_pyq_question_quality(question)
                 
-                check_results["quality_scores"].append(quality_assessment["quality_score"])
+                # Update PYQ results tracking
+                check_results["quality_scores"].append(1 if quality_assessment["is_acceptable"] else 0)
                 
-                # If quality is poor, re-enrich
+                # If quality is unacceptable, re-enrich
                 if not quality_assessment["is_acceptable"]:
-                    logger.warning(f"⚠️ Poor PYQ enrichment detected (score: {quality_assessment['quality_score']}/100)")
+                    logger.warning(f"⚠️ Unacceptable PYQ enrichment detected - failed criteria: {quality_assessment['failed_criteria']}")
                     check_results["poor_enrichment_identified"] += 1
                     
                     # Trigger re-enrichment
@@ -200,20 +201,22 @@ class EnrichCheckerService:
                     check_results["detailed_results"].append({
                         "question_id": question.id,
                         "stem": question.stem[:100],
-                        "original_quality_score": quality_assessment["quality_score"],
-                        "issues_identified": quality_assessment["issues"],
+                        "failed_criteria": quality_assessment["failed_criteria"],
+                        "quality_issues": quality_assessment["quality_issues"],
                         "re_enrichment_success": re_enrichment_result["success"],
                         "re_enrichment_error": re_enrichment_result.get("error")
                     })
                 else:
-                    logger.info(f"✅ Good PYQ enrichment quality (score: {quality_assessment['quality_score']}/100)")
+                    logger.info(f"✅ Perfect PYQ enrichment quality - all criteria met")
             
-            # Calculate summary statistics
-            avg_quality_score = sum(check_results["quality_scores"]) / len(check_results["quality_scores"]) if check_results["quality_scores"] else 0
+            # Calculate PYQ summary statistics
+            perfect_quality_count = sum(check_results["quality_scores"])
+            perfect_quality_percentage = (perfect_quality_count / len(check_results["quality_scores"])) * 100 if check_results["quality_scores"] else 0
             improvement_rate = (check_results["re_enrichment_successful"] / check_results["re_enrichment_attempted"]) * 100 if check_results["re_enrichment_attempted"] > 0 else 0
             
             check_results.update({
-                "average_quality_score": round(avg_quality_score, 2),
+                "perfect_quality_count": perfect_quality_count,
+                "perfect_quality_percentage": round(perfect_quality_percentage, 2),
                 "improvement_rate_percentage": round(improvement_rate, 2),
                 "processing_completed_at": datetime.utcnow().isoformat()
             })
