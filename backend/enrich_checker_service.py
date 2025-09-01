@@ -329,13 +329,12 @@ Return ONLY this JSON:
                     await asyncio.sleep(self.retry_delays[attempt])
                     continue
                 else:
-                    # If all attempts fail, assume poor quality for re-processing
+                    # If all attempts fail, assume unacceptable quality for re-processing
                     return {
-                        "quality_score": 30,
                         "is_acceptable": False,
-                        "issues": ["Quality assessment failed - assume poor enrichment"],
-                        "strengths": [],
-                        "assessment_reasoning": "Technical issue during assessment - flagged for re-enrichment"
+                        "failed_criteria": ["Quality assessment failed - technical issue"],
+                        "quality_issues": ["Unable to assess enrichment quality due to technical problems"],
+                        "assessment_reasoning": "Technical issue during assessment - flagged for re-enrichment to ensure quality"
                     }
     
     async def _assess_pyq_question_quality(self, question: PYQQuestion) -> Dict[str, Any]:
