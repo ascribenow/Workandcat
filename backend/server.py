@@ -3767,25 +3767,17 @@ async def upload_pyq_csv(file: UploadFile, db: AsyncSession, current_user: User)
 
 @api_router.get("/admin/pyq/questions")
 async def get_pyq_questions(
-    year: Optional[int] = None,
     limit: int = 100,
     offset: int = 0,
     current_user: User = Depends(require_admin),
     db: AsyncSession = Depends(get_async_compatible_db)
 ):
     """
-    Retrieve PYQ questions with optional filtering by year
+    Retrieve PYQ questions with pagination (year filtering removed as per user requirement)
     """
     try:
-        # Build query with optional year filter
-        query = select(PYQQuestion)
-        
-        if year:
-            # Join with PYQPaper to filter by year
-            query = query.join(PYQPaper).where(PYQPaper.year == year)
-        
-        # Add pagination
-        query = query.offset(offset).limit(limit).order_by(desc(PYQQuestion.created_at))
+        # Build query without year filtering
+        query = select(PYQQuestion).offset(offset).limit(limit).order_by(desc(PYQQuestion.created_at))
         
         result = await db.execute(query)
         pyq_questions = result.scalars().all()
@@ -3812,9 +3804,6 @@ async def get_pyq_questions(
         
         # Get total count for pagination
         count_query = select(func.count(PYQQuestion.id))
-        if year:
-            count_query = count_query.select_from(PYQQuestion.join(PYQPaper)).where(PYQPaper.year == year)
-        
         count_result = await db.execute(count_query)
         total_count = count_result.scalar()
         
@@ -3823,8 +3812,7 @@ async def get_pyq_questions(
             "total": total_count,
             "limit": limit,
             "offset": offset,
-            "year_filter": year,
-            "message": f"Retrieved {len(questions_data)} PYQ questions" + (f" for year {year}" if year else "")
+            "message": f"Retrieved {len(questions_data)} PYQ questions (total: {total_count})"
         }
         
     except Exception as e:
