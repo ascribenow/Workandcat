@@ -3288,6 +3288,12 @@ async def upload_questions_csv(
                     question.type_of_question = enrichment_data["type_of_question"]
                     question.difficulty_band = enrichment_data["difficulty_level"]
                     
+                    # NEW: Mark as LLM verified with constraints
+                    question.llm_difficulty_assessment_method = 'llm_verified'
+                    question.llm_assessment_attempts = 1
+                    question.last_llm_assessment_date = datetime.utcnow()
+                    question.llm_assessment_error = None
+                    
                     # Update topic based on LLM classification
                     category = enrichment_data["category"]
                     topic_result = await db.execute(
@@ -3310,11 +3316,13 @@ async def upload_questions_csv(
                         )
                         
                         if validation_result["matches"]:
+                            # Question can be activated due to LLM verification + validation
                             question.is_active = True
                             questions_activated += 1
                             validation_message = f"✅ Validation passed: {validation_result['explanation']}"
-                            logger.info(f"✅ Question {questions_created} activated - answers match")
+                            logger.info(f"✅ Question {questions_created} activated - LLM verified + answers match")
                         else:
+                            # LLM verified but validation failed - keep inactive
                             question.is_active = False
                             questions_deactivated += 1
                             validation_message = f"❌ Validation failed: {validation_result['explanation']}"
