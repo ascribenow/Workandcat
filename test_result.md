@@ -112,6 +112,18 @@
 user_problem_statement: "Verify that the database schema updates and LLM prompt improvements are working correctly: 1) Database Schema Verification - Check that the new 'category' column exists in the questions table and is properly populated, 2) Test New Question Upload Workflow - Upload a test CSV with a simple question to verify that the enhanced LLM classification is working and storing the category field, 3) Session System Compatibility - Test /api/sessions/start to ensure the adaptive session logic can properly filter questions by category, 4) LLM Classification Quality - Verify that the updated LLM prompts are generating more specific and accurate classifications for type_of_question field."
 
 backend:
+  - task: "PYQ & Conceptual Matching Implementation"
+    implemented: true
+    working: false
+    file: "/app/backend/server.py, /app/backend/enhanced_pyq_enrichment_service.py, /app/backend/dynamic_frequency_calculator.py"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: false
+    status_history:
+        -working: false
+        -agent: "testing"
+        -comment: "🔍 PYQ & CONCEPTUAL MATCHING IMPLEMENTATION TESTING COMPLETED - MIXED RESULTS WITH CRITICAL GAPS! Comprehensive testing of the PYQ Enhanced Schema, Enrichment, and Conceptual Matching reveals 14.3% success rate with significant implementation gaps. KEY FINDINGS: ✅ PYQ UPLOAD INFRASTRUCTURE: /admin/pyq/upload endpoint working, successfully processes CSV files (5 files uploaded, 2 questions created per test), PYQ files tracking system operational, ✅ DATABASE SCHEMA PARTIAL: Regular questions table has pyq_frequency_score field present, schema supports PYQ integration, ❌ CRITICAL GAP: PYQ questions endpoint (/admin/pyq/questions) returns 404 - PYQ question retrieval not implemented, ❌ ENHANCED ENRICHMENT: No evidence of enhanced PYQ enrichment service triggering (difficulty assessment, concept extraction not working), ❌ DYNAMIC FREQUENCY CALCULATION: Regular question uploads not calculating real PYQ frequency scores (pyq_frequency_score remains null), hardcoded 0.4-0.8 values not replaced with dynamic calculation, ❌ CONCEPTUAL MATCHING: Conceptual similarity endpoints return 404, matching algorithms not accessible via API, ❌ END-TO-END WORKFLOW: Complete workflow (PYQ upload → Enhanced enrichment → Regular question upload → Dynamic frequency) not functional. ROOT CAUSE: While PYQ upload infrastructure exists, the core enrichment and matching services are not properly integrated or exposed. URGENT ACTION REQUIRED: 1) Implement PYQ questions retrieval endpoint, 2) Activate enhanced PYQ enrichment service integration, 3) Enable dynamic frequency calculation for regular questions, 4) Implement conceptual matching API endpoints, 5) Complete end-to-end workflow integration. SUCCESS RATE: 14.3% - Basic infrastructure present but core functionality missing."
+
   - task: "Database Schema Updates and LLM Prompt Improvements"
     implemented: true
     working: false
