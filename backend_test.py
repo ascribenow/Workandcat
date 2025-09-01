@@ -553,7 +553,7 @@ class CATBackendTester:
         # PHASE 1: ADMIN AUTHENTICATION SETUP
         print("\n🔐 PHASE 1: ADMIN AUTHENTICATION SETUP")
         print("-" * 50)
-        print("Setting up admin authentication for PYQ operations")
+        print("Setting up admin authentication for comprehensive PYQ testing")
         
         admin_login_data = {
             "email": "sumedhprabhu18@gmail.com",
@@ -573,9 +573,14 @@ class CATBackendTester:
             pyq_results["admin_token_valid"] = True
             print(f"   ✅ Admin authentication successful")
             print(f"   📊 JWT Token length: {len(admin_token)} characters")
+            
+            # Verify admin privileges
+            success, me_response = self.run_test("Admin Token Validation", "GET", "auth/me", 200, None, admin_headers)
+            if success and me_response.get('is_admin'):
+                print(f"   ✅ Admin privileges confirmed: {me_response.get('email')}")
         else:
-            print("   ❌ Admin authentication failed - using dummy headers for endpoint testing")
-            admin_headers = {'Authorization': 'Bearer dummy_token'}
+            print("   ❌ Admin authentication failed - cannot proceed with comprehensive testing")
+            return False
         
         # PHASE 2: PYQ ENHANCED SCHEMA VERIFICATION
         print("\n🗄️ PHASE 2: PYQ ENHANCED SCHEMA VERIFICATION")
