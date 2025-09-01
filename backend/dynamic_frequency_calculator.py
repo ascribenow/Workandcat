@@ -94,31 +94,25 @@ class DynamicFrequencyCalculator:
             logger.error(f"❌ Error calculating true PYQ frequency: {e}")
             return self._create_default_frequency_result(error=str(e))
     
-    async def _get_active_pyq_questions(self, db: AsyncSession, years_window: int) -> List[PYQQuestion]:
+    async def _get_active_pyq_questions(self, db: AsyncSession, years_window: int = None) -> List[PYQQuestion]:
         """
-        Get all active PYQ questions from the specified time window
+        Get all active PYQ questions from the database (no year filtering as per user requirement)
+        Frequency calculated based on overall populated entries of PYQ database
         """
         try:
-            current_year = datetime.now().year
-            start_year = current_year - years_window
-            
             result = await db.execute(
                 select(PYQQuestion)
-                .join(PYQPaper)
                 .where(
                     and_(
                         PYQQuestion.is_active == True,
-                        PYQQuestion.concept_extraction_status == 'completed',
-                        PYQQuestion.quality_verified == True,
-                        PYQPaper.year >= start_year,
                         PYQQuestion.core_concepts.isnot(None)
                     )
                 )
-                .order_by(desc(PYQPaper.year))
+                .order_by(desc(PYQQuestion.created_at))
             )
             
             pyq_questions = result.scalars().all()
-            logger.info(f"📊 Retrieved {len(pyq_questions)} active PYQ questions from {start_year}-{current_year}")
+            logger.info(f"📊 Retrieved {len(pyq_questions)} active PYQ questions from entire database (no year filtering)")
             
             return pyq_questions
             
