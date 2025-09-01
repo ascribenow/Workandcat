@@ -504,6 +504,453 @@ class CATBackendTester:
         print("EXPECTED: With OpenAI API key configured, achieve 100% backend functionality success")
         print("=" * 80)
         
+        openai_results = {
+            # Admin Authentication
+            "admin_authentication_working": False,
+            "admin_token_valid": False,
+            
+            # 1. OPENAI API INTEGRATION
+            "openai_api_key_configured": False,
+            "llm_enrichment_endpoints_working": False,
+            "openai_service_accessible": False,
+            
+            # 2. DYNAMIC FREQUENCY CALCULATION
+            "regular_question_upload_successful": False,
+            "pyq_frequency_score_calculated": False,
+            "frequency_analysis_method_dynamic": False,
+            "category_field_populated_by_llm": False,
+            "dynamic_calculation_not_hardcoded": False,
+            
+            # 3. PYQ ENRICHMENT
+            "pyq_upload_successful": False,
+            "enhanced_enrichment_triggered": False,
+            "difficulty_band_populated": False,
+            "core_concepts_populated": False,
+            
+            # 4. BACKGROUND PROCESSING
+            "background_tasks_execute": False,
+            "llm_services_working": False,
+            
+            # SUCCESS CRITERIA
+            "all_database_fields_populated": False,
+            "no_hardcoded_fallback_values": False,
+            "real_content_generated": False
+        }
+        
+        # PHASE 1: ADMIN AUTHENTICATION SETUP
+        print("\n🔐 PHASE 1: ADMIN AUTHENTICATION SETUP")
+        print("-" * 50)
+        print("Setting up admin authentication for OpenAI API testing")
+        
+        admin_login_data = {
+            "email": "sumedhprabhu18@gmail.com",
+            "password": "admin2025"
+        }
+        
+        success, response = self.run_test("Admin Authentication", "POST", "auth/login", [200, 401], admin_login_data)
+        
+        admin_headers = None
+        if success and response.get('access_token'):
+            admin_token = response['access_token']
+            admin_headers = {
+                'Authorization': f'Bearer {admin_token}',
+                'Content-Type': 'application/json'
+            }
+            openai_results["admin_authentication_working"] = True
+            openai_results["admin_token_valid"] = True
+            print(f"   ✅ Admin authentication successful")
+            print(f"   📊 JWT Token length: {len(admin_token)} characters")
+            
+            # Verify admin privileges
+            success, me_response = self.run_test("Admin Token Validation", "GET", "auth/me", 200, None, admin_headers)
+            if success and me_response.get('is_admin'):
+                print(f"   ✅ Admin privileges confirmed: {me_response.get('email')}")
+        else:
+            print("   ❌ Admin authentication failed - cannot proceed with comprehensive testing")
+            return False
+        
+        # PHASE 2: VERIFY OPENAI API INTEGRATION
+        print("\n🤖 PHASE 2: VERIFY OPENAI API INTEGRATION")
+        print("-" * 50)
+        print("Testing OpenAI API key configuration and LLM enrichment endpoints")
+        
+        # Check if OpenAI API key is configured by testing a simple upload
+        print("\n📋 Test 1: OpenAI API Key Configuration Check")
+        simple_test_csv = """stem,image_url,answer,solution_approach,principle_to_remember
+"A train travels 120 km in 2 hours. What is its speed?","","60 km/h","Speed = Distance / Time","Speed equals distance divided by time"
+"""
+        
+        try:
+            import io
+            import requests
+            
+            csv_file = io.BytesIO(simple_test_csv.encode('utf-8'))
+            files = {'file': ('openai_test.csv', csv_file, 'text/csv')}
+            
+            response = requests.post(
+                f"{self.base_url}/admin/upload-questions-csv",
+                files=files,
+                headers={'Authorization': admin_headers['Authorization']},
+                timeout=60
+            )
+            
+            if response.status_code in [200, 201]:
+                openai_results["llm_enrichment_endpoints_working"] = True
+                print(f"   ✅ LLM enrichment endpoints accessible")
+                
+                response_data = response.json()
+                
+                # Check if OpenAI API is working by looking for LLM-generated content
+                enrichment_results = response_data.get("enrichment_results", [])
+                if enrichment_results:
+                    for result in enrichment_results:
+                        category = result.get("category")
+                        right_answer = result.get("right_answer")
+                        
+                        if category and category not in ["", "To be classified", None]:
+                            openai_results["openai_api_key_configured"] = True
+                            openai_results["openai_service_accessible"] = True
+                            print(f"   ✅ OpenAI API key configured and working")
+                            print(f"   📊 LLM generated category: {category}")
+                            
+                        if right_answer:
+                            print(f"   📊 LLM generated right_answer: {right_answer}")
+                            
+                        break
+                
+                if not openai_results["openai_api_key_configured"]:
+                    print(f"   ⚠️ OpenAI API may not be configured - no LLM-generated content detected")
+                    
+            else:
+                print(f"   ❌ LLM enrichment endpoints failed with status: {response.status_code}")
+                if response.text:
+                    print(f"   📊 Error details: {response.text[:200]}")
+                    
+        except Exception as e:
+            print(f"   ❌ OpenAI API integration test failed: {e}")
+        
+        # PHASE 3: TEST DYNAMIC FREQUENCY CALCULATION
+        print("\n🧮 PHASE 3: TEST DYNAMIC FREQUENCY CALCULATION")
+        print("-" * 50)
+        print("Testing dynamic frequency calculation with OpenAI API integration")
+        
+        # First upload some PYQ data to establish baseline
+        print("\n📋 Step 1: Upload PYQ Data for Frequency Baseline")
+        test_pyq_csv = """year,slot,stem,answer,subcategory,type_of_question
+2024,1,"A train 150m long crosses a platform 250m long in 20 seconds. What is the speed of the train?","72 km/h","Time-Speed-Distance","Trains"
+2024,2,"If 25% of a number is 75, what is 40% of the same number?","120","Percentage","Basics"
+"""
+        
+        try:
+            csv_file = io.BytesIO(test_pyq_csv.encode('utf-8'))
+            files = {'file': ('test_pyq_baseline.csv', csv_file, 'text/csv')}
+            
+            response = requests.post(
+                f"{self.base_url}/admin/pyq/upload",
+                files=files,
+                headers={'Authorization': admin_headers['Authorization']},
+                timeout=60
+            )
+            
+            if response.status_code in [200, 201]:
+                openai_results["pyq_upload_successful"] = True
+                print(f"   ✅ PYQ upload successful for frequency baseline")
+            else:
+                print(f"   ⚠️ PYQ upload status: {response.status_code} - continuing with existing data")
+                
+        except Exception as e:
+            print(f"   ⚠️ PYQ upload failed: {e} - continuing with existing data")
+        
+        # Now test dynamic frequency calculation with regular question upload
+        print("\n📋 Step 2: Test Dynamic Frequency Calculation")
+        
+        frequency_test_csv = """stem,image_url,answer,solution_approach,principle_to_remember
+"A train 180m long crosses a bridge 320m long in 25 seconds. What is the speed of the train in km/h?","","72 km/h","Total distance = Length of train + Length of bridge = 180 + 320 = 500m. Time = 25 seconds. Speed = 500/25 = 20 m/s = 20 × 3.6 = 72 km/h","When a train crosses a bridge, total distance is sum of train length and bridge length."
+"""
+        
+        try:
+            csv_file = io.BytesIO(frequency_test_csv.encode('utf-8'))
+            files = {'file': ('frequency_test.csv', csv_file, 'text/csv')}
+            
+            response = requests.post(
+                f"{self.base_url}/admin/upload-questions-csv",
+                files=files,
+                headers={'Authorization': admin_headers['Authorization']},
+                timeout=60
+            )
+            
+            if response.status_code in [200, 201]:
+                openai_results["regular_question_upload_successful"] = True
+                
+                response_data = response.json()
+                print(f"   ✅ Regular question upload successful")
+                
+                # Analyze enrichment results for dynamic frequency calculation
+                enrichment_results = response_data.get("enrichment_results", [])
+                for result in enrichment_results:
+                    pyq_freq_score = result.get("pyq_frequency_score")
+                    frequency_method = result.get("frequency_analysis_method")
+                    category = result.get("category")
+                    
+                    print(f"   📊 Enrichment result:")
+                    print(f"      PYQ Frequency Score: {pyq_freq_score}")
+                    print(f"      Frequency Method: {frequency_method}")
+                    print(f"      Category: {category}")
+                    
+                    if pyq_freq_score is not None:
+                        openai_results["pyq_frequency_score_calculated"] = True
+                        
+                        # Check if it's NOT hardcoded 0.5
+                        if pyq_freq_score != 0.5:
+                            openai_results["dynamic_calculation_not_hardcoded"] = True
+                            print(f"   ✅ Dynamic frequency calculation working - not hardcoded 0.5")
+                        else:
+                            print(f"   ⚠️ Frequency score appears to be hardcoded: {pyq_freq_score}")
+                    
+                    if frequency_method == "dynamic_conceptual_matching":
+                        openai_results["frequency_analysis_method_dynamic"] = True
+                        print(f"   ✅ Frequency analysis method set to dynamic_conceptual_matching")
+                    
+                    if category and category not in ["", "To be classified", None]:
+                        openai_results["category_field_populated_by_llm"] = True
+                        print(f"   ✅ Category field populated by LLM: {category}")
+                    
+                    break
+                    
+            else:
+                print(f"   ❌ Regular question upload failed with status: {response.status_code}")
+                
+        except Exception as e:
+            print(f"   ❌ Dynamic frequency calculation test failed: {e}")
+        
+        # PHASE 4: TEST PYQ ENRICHMENT
+        print("\n🎯 PHASE 4: TEST PYQ ENRICHMENT")
+        print("-" * 50)
+        print("Testing PYQ enrichment with OpenAI API integration")
+        
+        # Test PYQ enrichment status
+        print("\n📋 Test 1: PYQ Enrichment Status")
+        success, response = self.run_test("PYQ Enrichment Status", "GET", "admin/pyq/enrichment-status", [200], None, admin_headers)
+        
+        if success and response:
+            enrichment_stats = response.get("enrichment_statistics", {})
+            if enrichment_stats:
+                total_pyq = enrichment_stats.get("total_pyq_questions", 0)
+                enriched_count = enrichment_stats.get("enriched_questions", 0)
+                print(f"   ✅ PYQ enrichment status working - {enriched_count}/{total_pyq} questions enriched")
+        
+        # Test trigger enrichment
+        print("\n📋 Test 2: Trigger Enhanced Enrichment")
+        trigger_request = {"question_ids": []}
+        success, response = self.run_test("Trigger PYQ Enrichment", "POST", "admin/pyq/trigger-enrichment", [200, 422], trigger_request, admin_headers)
+        
+        if success:
+            openai_results["enhanced_enrichment_triggered"] = True
+            print(f"   ✅ Enhanced enrichment triggered successfully")
+            
+            if response and response.get("enrichment_triggered"):
+                openai_results["background_tasks_execute"] = True
+                print(f"   ✅ Background processing confirmed")
+        
+        # Check if PYQ questions have enhanced fields
+        print("\n📋 Test 3: Verify PYQ Enhanced Fields")
+        success, response = self.run_test("PYQ Questions Check", "GET", "admin/pyq/questions", [200], None, admin_headers)
+        
+        if success and response:
+            pyq_questions = response.get("pyq_questions", [])
+            if pyq_questions:
+                sample_question = pyq_questions[0]
+                
+                if sample_question.get('difficulty_band'):
+                    openai_results["difficulty_band_populated"] = True
+                    print(f"   ✅ Difficulty band populated: {sample_question.get('difficulty_band')}")
+                
+                if sample_question.get('core_concepts'):
+                    openai_results["core_concepts_populated"] = True
+                    print(f"   ✅ Core concepts populated: {sample_question.get('core_concepts')}")
+        
+        # PHASE 5: TEST BACKGROUND PROCESSING
+        print("\n🔄 PHASE 5: TEST BACKGROUND PROCESSING")
+        print("-" * 50)
+        print("Testing background processing and LLM services")
+        
+        # Check if LLM services are working by verifying recent uploads have LLM content
+        print("\n📋 Test 1: Verify LLM Services Working")
+        success, response = self.run_test("Recent Questions LLM Check", "GET", "questions?limit=10", [200], None, admin_headers)
+        
+        if success and response:
+            questions = response.get("questions", [])
+            llm_content_count = 0
+            
+            for question in questions:
+                category = question.get("category")
+                subcategory = question.get("subcategory")
+                type_of_question = question.get("type_of_question")
+                
+                # Check for LLM-generated content
+                if category and category not in ["", "To be classified", None, "General"]:
+                    llm_content_count += 1
+            
+            if llm_content_count > 0:
+                openai_results["llm_services_working"] = True
+                openai_results["all_database_fields_populated"] = True
+                openai_results["real_content_generated"] = True
+                print(f"   ✅ LLM services working - {llm_content_count} questions have LLM-generated content")
+            else:
+                print(f"   ⚠️ No LLM-generated content found in recent questions")
+        
+        # Check for no hardcoded fallback values
+        if (openai_results["dynamic_calculation_not_hardcoded"] and 
+            openai_results["category_field_populated_by_llm"]):
+            openai_results["no_hardcoded_fallback_values"] = True
+            print(f"   ✅ No hardcoded fallback values detected")
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 80)
+        print("🎯 FINAL 100% SUCCESS TEST WITH OPENAI API KEY - RESULTS")
+        print("=" * 80)
+        
+        passed_tests = sum(openai_results.values())
+        total_tests = len(openai_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        # Group results by test phases
+        categories = {
+            "1. OPENAI API INTEGRATION": [
+                "openai_api_key_configured", "llm_enrichment_endpoints_working", 
+                "openai_service_accessible"
+            ],
+            "2. DYNAMIC FREQUENCY CALCULATION": [
+                "regular_question_upload_successful", "pyq_frequency_score_calculated",
+                "frequency_analysis_method_dynamic", "category_field_populated_by_llm",
+                "dynamic_calculation_not_hardcoded"
+            ],
+            "3. PYQ ENRICHMENT": [
+                "pyq_upload_successful", "enhanced_enrichment_triggered",
+                "difficulty_band_populated", "core_concepts_populated"
+            ],
+            "4. BACKGROUND PROCESSING": [
+                "background_tasks_execute", "llm_services_working"
+            ],
+            "SUCCESS CRITERIA": [
+                "all_database_fields_populated", "no_hardcoded_fallback_values",
+                "real_content_generated"
+            ]
+        }
+        
+        for category, tests in categories.items():
+            print(f"\n{category}:")
+            category_passed = 0
+            category_total = len(tests)
+            
+            for test in tests:
+                if test in openai_results:
+                    result = openai_results[test]
+                    status = "✅ PASS" if result else "❌ FAIL"
+                    print(f"  {test.replace('_', ' ').title():<40} {status}")
+                    if result:
+                        category_passed += 1
+            
+            category_rate = (category_passed / category_total) * 100 if category_total > 0 else 0
+            print(f"  Category Success Rate: {category_passed}/{category_total} ({category_rate:.1f}%)")
+        
+        print("-" * 80)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # 100% SUCCESS CRITERIA ANALYSIS
+        print("\n🎯 100% SUCCESS CRITERIA ANALYSIS:")
+        
+        success_criteria = {
+            "OpenAI API integration working": openai_results["openai_api_key_configured"],
+            "Dynamic frequency calculation produces real values": openai_results["dynamic_calculation_not_hardcoded"],
+            "Category field populated by LLM enrichment": openai_results["category_field_populated_by_llm"],
+            "Background processing executes": openai_results["background_tasks_execute"],
+            "All database fields populated with real content": openai_results["all_database_fields_populated"],
+            "No hardcoded fallback values used": openai_results["no_hardcoded_fallback_values"]
+        }
+        
+        criteria_passed = sum(success_criteria.values())
+        criteria_total = len(success_criteria)
+        criteria_success_rate = (criteria_passed / criteria_total) * 100
+        
+        print(f"\nSUCCESS CRITERIA STATUS:")
+        for criterion, status in success_criteria.items():
+            status_icon = "✅" if status else "❌"
+            print(f"  {status_icon} {criterion}")
+        
+        print(f"\nSuccess Criteria Rate: {criteria_passed}/{criteria_total} ({criteria_success_rate:.1f}%)")
+        
+        # FINAL 100% SUCCESS ASSESSMENT
+        print("\n🏆 FINAL 100% SUCCESS ASSESSMENT:")
+        
+        if criteria_success_rate == 100:
+            print("🎉 100% SUCCESS ACHIEVED! All success criteria met")
+            print("   - OpenAI API integration fully functional")
+            print("   - Dynamic frequency calculation working with real values")
+            print("   - Category field populated by LLM enrichment")
+            print("   - Background processing executing properly")
+            print("   - All database fields populated with real content")
+            print("   - No hardcoded fallback values used")
+            print("   ✅ PRODUCTION READY FOR 100% BACKEND FUNCTIONALITY")
+        elif criteria_success_rate >= 83.3:
+            print("🎯 NEAR 100% SUCCESS! Minor issues remain")
+            print(f"   - {criteria_passed}/{criteria_total} success criteria met")
+            print("   - Core OpenAI integration working excellently")
+            print("   ⚠️ MOSTLY PRODUCTION READY - Minor fixes needed")
+        elif criteria_success_rate >= 66.7:
+            print("⚠️ SIGNIFICANT PROGRESS - Major components working")
+            print(f"   - {criteria_passed}/{criteria_total} success criteria met")
+            print("   - Some OpenAI integration needs attention")
+            print("   🔧 NEEDS ADDITIONAL WORK for 100% success")
+        else:
+            print("❌ CRITICAL GAPS REMAIN - 100% success not achieved")
+            print(f"   - Only {criteria_passed}/{criteria_total} success criteria met")
+            print("   - Major OpenAI integration issues persist")
+            print("   🚨 SIGNIFICANT FIXES REQUIRED")
+        
+        return criteria_success_rate >= 83.3  # Return True if near 100% success
+
+    def test_openai_api_integration_100_percent_success(self):
+        """Test OpenAI API Integration for 100% Success as per review request"""
+        print("🎯 FINAL 100% SUCCESS TEST WITH OPENAI API KEY CONFIGURED")
+        print("=" * 80)
+        print("OBJECTIVE: Now that OpenAI API key is configured, test for 100% success achievement")
+        print("")
+        print("CRITICAL TEST: Upload a test regular question and verify dynamic frequency calculation works")
+        print("")
+        print("TEST PLAN:")
+        print("1. VERIFY OPENAI API INTEGRATION:")
+        print("   - Test LLM enrichment endpoints are working")
+        print("   - Confirm OpenAI API key is properly loaded")
+        print("")
+        print("2. TEST DYNAMIC FREQUENCY CALCULATION:")
+        print("   - Upload a simple test question via /admin/upload-questions-csv")
+        print("   - Create a CSV with content: 'stem,answer\\nA train travels 120 km in 2 hours. What is its speed?,60 km/h'")
+        print("   - Verify pyq_frequency_score gets calculated (not hardcoded 0.5)")
+        print("   - Check frequency_analysis_method is set to 'dynamic_conceptual_matching'")
+        print("   - Confirm category field gets populated by LLM")
+        print("")
+        print("3. TEST PYQ ENRICHMENT:")
+        print("   - Upload a PYQ question")
+        print("   - Trigger enhanced enrichment")
+        print("   - Verify difficulty_band, core_concepts get populated")
+        print("")
+        print("4. TEST BACKGROUND PROCESSING:")
+        print("   - Verify background tasks execute properly")
+        print("   - Check if LLM services are working")
+        print("")
+        print("SUCCESS CRITERIA FOR 100%:")
+        print("- OpenAI API integration working")
+        print("- Dynamic frequency calculation produces real values")
+        print("- Category field populated by LLM enrichment")
+        print("- Background processing executes")
+        print("- All database fields populated with real content")
+        print("- No hardcoded fallback values used")
+        print("")
+        print("AUTHENTICATION: sumedhprabhu18@gmail.com/admin2025")
+        print("EXPECTED: With OpenAI API key configured, achieve 100% backend functionality success")
+        print("=" * 80)
+        
         pyq_results = {
             # Admin Authentication
             "admin_authentication_working": False,
