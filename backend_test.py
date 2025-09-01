@@ -1610,11 +1610,14 @@ def main():
     tester = CATBackendTester()
     
     try:
-        # Run database cleanup validation first (as per review request)
-        print("🗄️ PHASE 1: DATABASE CLEANUP VALIDATION")
+        # Run Advanced LLM Enrichment Service testing (as per review request)
+        print("🧠 PHASE 1: ADVANCED LLM ENRICHMENT SERVICE TESTING")
+        advanced_enrichment_success = tester.test_advanced_llm_enrichment_service()
+        
+        print("\n🗄️ PHASE 2: DATABASE CLEANUP VALIDATION")
         cleanup_success = tester.test_database_cleanup_validation()
         
-        print("\n🎯 PHASE 2: 100% SUCCESS VALIDATION")
+        print("\n🎯 PHASE 3: 100% SUCCESS VALIDATION")
         # Run the comprehensive 100% success validation
         full_success = tester.test_final_100_percent_success_validation()
         
@@ -1623,23 +1626,25 @@ def main():
         print("=" * 80)
         
         print(f"\n📊 TESTING RESULTS:")
+        print(f"  Advanced LLM Enrichment Service: {'✅ PASS' if advanced_enrichment_success else '❌ FAIL'}")
         print(f"  Database Cleanup Validation: {'✅ PASS' if cleanup_success else '❌ FAIL'}")
         print(f"  100% Success Validation: {'✅ PASS' if full_success else '❌ FAIL'}")
         
-        overall_success = cleanup_success and full_success
+        overall_success = advanced_enrichment_success and cleanup_success and full_success
         
         if overall_success:
             print("\n🎉 OVERALL RESULT: ALL TESTS SUCCESSFUL!")
+            print("✅ Advanced LLM Enrichment Service validated successfully")
             print("✅ Database cleanup validated successfully")
             print("✅ Backend functionality at 100% or near 100%")
             print("🏆 PRODUCTION READY")
-        elif cleanup_success:
-            print("\n⚠️ OVERALL RESULT: DATABASE CLEANUP SUCCESSFUL, OPTIMIZATION NEEDED")
-            print("✅ Database cleanup validated successfully")
-            print("🔧 Backend functionality needs optimization")
+        elif advanced_enrichment_success:
+            print("\n⚠️ OVERALL RESULT: ADVANCED ENRICHMENT SUCCESSFUL, OTHER OPTIMIZATIONS NEEDED")
+            print("✅ Advanced LLM Enrichment Service working perfectly")
+            print("🔧 Other backend functionality needs optimization")
         else:
             print("\n❌ OVERALL RESULT: CRITICAL ISSUES DETECTED")
-            print("🚨 Database cleanup or backend functionality has major issues")
+            print("🚨 Advanced LLM Enrichment Service or other functionality has major issues")
         
         print(f"\nTests Run: {tester.tests_run}")
         print(f"Tests Passed: {tester.tests_passed}")
