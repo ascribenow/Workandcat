@@ -179,13 +179,8 @@ Be precise, insightful, and demonstrate superior mathematical intelligence."""
                     await asyncio.sleep(delay)
                     continue
                 else:
-                    logger.error("❌ All deep analysis attempts failed")
-                    return {
-                        "right_answer": admin_answer or "Analysis failed",
-                        "mathematical_foundation": "Unable to analyze due to technical issues",
-                        "solution_elegance": "Standard approach",
-                        "verification_logic": "Manual verification required"
-                    }
+                    logger.error("❌ All deep analysis attempts failed - NO FALLBACK")
+                    raise Exception("Deep mathematical analysis failed after all retries - refusing to proceed with fallback data")
     
     async def _perform_sophisticated_classification(self, stem: str, deep_analysis: Dict[str, Any]) -> Dict[str, Any]:
         """Perform sophisticated classification with nuanced understanding"""
