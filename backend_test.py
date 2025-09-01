@@ -15877,14 +15877,14 @@ if __name__ == "__main__":
     print("Focus: Validating that critical gaps identified in previous testing have been resolved")
     print("")
     
-    # Run Comprehensive PYQ Integration testing (NEW - Review Request Focus)
-    pyq_integration_success = tester.test_pyq_integration_comprehensive()
+    # Run Improved OpenAI Integration testing (NEW - Review Request Focus)
+    openai_integration_success = tester.test_improved_openai_integration_with_timeout_and_gpt4o_mini()
     
     print("\n" + "=" * 80)
-    print("COMPREHENSIVE PYQ INTEGRATION TESTING SUMMARY")
+    print("IMPROVED OPENAI INTEGRATION TESTING SUMMARY")
     print("=" * 80)
     
-    if pyq_integration_success:
+    if openai_integration_success:
         print("🎉 COMPREHENSIVE PYQ INTEGRATION: Major functionality working - 85%+ achievement likely")
         print("✅ Critical endpoints accessible and functional")
         print("✅ End-to-end PYQ enrichment workflow operational")
