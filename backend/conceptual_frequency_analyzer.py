@@ -164,46 +164,83 @@ class ConceptualFrequencyAnalyzer:
         self, 
         db: AsyncSession, 
         question_pattern: Dict[str, Any], 
-        years_window: int
+        years_window: int = 10
     ) -> List[PYQQuestion]:
         """
-        Find PYQ questions with similar mathematical concepts
+        Find PYQ questions that match the conceptual pattern
+        FIXED: Handle missing is_active field and use new enhanced PYQ fields
         """
         try:
-            cutoff_date = datetime.now() - timedelta(days=years_window * 365)
+            # Get current year for time window
+            from datetime import datetime
+            current_year = datetime.now().year
+            start_year = current_year - years_window
             
-            # Get PYQ questions from the relevance window
+            logger.info(f"🔍 Finding conceptual matches for years {start_year}-{current_year}")
+            
+            # FIXED: Query active PYQ questions with proper field checks
             result = await db.execute(
                 select(PYQQuestion)
-                .join(PYQPaper, PYQQuestion.paper_id == PYQPaper.id)
+                .join(PYQPaper)
                 .where(
                     and_(
-                        PYQPaper.exam_date >= cutoff_date,
-                        PYQQuestion.is_active == True
+                        # Use the new enhanced fields
+                        PYQQuestion.concept_extraction_status == 'completed',  # NEW field
+                        PYQQuestion.is_active == True,  # NOW exists after schema update
+                        PYQQuestion.quality_verified == True,  # NEW field for reliability
+                        PYQPaper.year >= start_year,
+                        PYQQuestion.core_concepts.isnot(None)  # Must have concept data
                     )
                 )
-                .limit(500)  # Reasonable limit for analysis
             )
             
-            pyq_questions = result.scalars().all()
+            all_pyq_questions = result.scalars().all()
+            logger.info(f"📊 Found {len(all_pyq_questions)} active PYQ questions for analysis")
             
-            # Find conceptually similar questions
+            if not all_pyq_questions:
+                logger.warning("⚠️ No active PYQ questions found - PYQ enrichment may be incomplete")
+                return []
+            
             similar_questions = []
-            pattern_keywords = set(question_pattern.get('keywords', []))
             
-            for pyq_q in pyq_questions:
-                similarity_score = await self.calculate_similarity_score(
-                    question_pattern, pyq_q
-                )
-                
-                if similarity_score > 0.3:  # Similarity threshold
-                    similar_questions.append(pyq_q)
+            # Use the new advanced similarity calculator
+            from advanced_similarity_calculator import AdvancedSimilarityCalculator
+            similarity_calculator = AdvancedSimilarityCalculator()
             
-            logger.info(f"Found {len(similar_questions)} conceptually similar PYQ questions")
+            for pyq_q in all_pyq_questions:
+                try:
+                    # Parse PYQ concepts from the new enhanced fields
+                    if pyq_q.core_concepts:
+                        pyq_concepts = {
+                            'core_concepts': json.loads(pyq_q.core_concepts),
+                            'solution_method': pyq_q.solution_method or 'general_approach',
+                            'operations': json.loads(pyq_q.operations_required) if pyq_q.operations_required else [],
+                            'structure_type': pyq_q.problem_structure or 'standard_problem',
+                            'complexity_indicators': json.loads(pyq_q.concept_difficulty) if pyq_q.concept_difficulty else [],
+                            'concept_keywords': json.loads(pyq_q.concept_keywords) if pyq_q.concept_keywords else []
+                        }
+                        
+                        # Calculate advanced similarity
+                        similarity_score = similarity_calculator.calculate_advanced_conceptual_similarity(
+                            question_pattern, pyq_concepts
+                        )
+                        
+                        # Use configurable threshold for meaningful matches
+                        similarity_threshold = 0.4  # Meaningful conceptual overlap
+                        
+                        if similarity_score >= similarity_threshold:
+                            similar_questions.append(pyq_q)
+                            logger.debug(f"✅ Match found: PYQ {pyq_q.id} (similarity: {similarity_score:.3f})")
+                        
+                except Exception as parse_error:
+                    logger.warning(f"⚠️ Error parsing PYQ concepts for {pyq_q.id}: {parse_error}")
+                    continue
+            
+            logger.info(f"🎯 Found {len(similar_questions)} conceptually similar PYQ questions")
             return similar_questions
             
         except Exception as e:
-            logger.error(f"Error finding conceptual matches: {e}")
+            logger.error(f"❌ Error finding conceptual matches: {e}")
             return []
     
     async def calculate_similarity_score(
