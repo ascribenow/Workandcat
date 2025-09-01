@@ -151,7 +151,6 @@ class DynamicFrequencyCalculator:
                     if similarity_score >= self.similarity_threshold:
                         conceptual_matches.append({
                             'pyq_id': str(pyq_q.id),
-                            'year': pyq_q.paper.year if hasattr(pyq_q, 'paper') and pyq_q.paper else 2024,
                             'similarity': similarity_score,
                             'concepts': pyq_concepts['core_concepts'],
                             'difficulty_band': pyq_q.difficulty_band,
