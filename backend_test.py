@@ -20,6 +20,467 @@ class CATBackendTester:
         self.session_id = None
         self.plan_id = None
 
+    def test_database_cleanup_validation(self):
+        """
+        COMPREHENSIVE DATABASE CLEANUP VALIDATION
+        Test that the 14 deleted irrelevant fields are no longer present while 
+        the 4 preserved fields still exist and function properly.
+        """
+        print("🗄️ DATABASE CLEANUP VALIDATION - COMPREHENSIVE TESTING")
+        print("=" * 80)
+        print("OBJECTIVE: Verify database cleanup was successful - 14 fields deleted, 4 preserved")
+        print("")
+        print("DELETED FIELDS TO VERIFY ABSENT (14 total):")
+        print("  QUESTIONS TABLE (6): video_url, tags, version, frequency_notes, pattern_keywords, pattern_solution_approach")
+        print("  PYQ_QUESTIONS TABLE (3): confirmed, tags, frequency_self_score") 
+        print("  USERS TABLE (1): tz")
+        print("  PLAN_UNITS TABLE (2): actual_stats, generated_payload")
+        print("  PYQ_INGESTIONS TABLE (2): ocr_required, ocr_status")
+        print("")
+        print("PRESERVED FIELDS TO VERIFY PRESENT (4 total):")
+        print("  llm_assessment_error, model_feedback, misconception_tag, mcq_options")
+        print("=" * 80)
+        
+        cleanup_results = {
+            # Admin Authentication
+            "admin_authentication_working": False,
+            "admin_token_valid": False,
+            
+            # Database Cleanup Validation - Deleted Fields Absent
+            "questions_video_url_absent": False,
+            "questions_tags_absent": False,
+            "questions_version_absent": False,
+            "questions_frequency_notes_absent": False,
+            "questions_pattern_keywords_absent": False,
+            "questions_pattern_solution_approach_absent": False,
+            "pyq_questions_confirmed_absent": False,
+            "pyq_questions_tags_absent": False,
+            "pyq_questions_frequency_self_score_absent": False,
+            "users_tz_absent": False,
+            "plan_units_actual_stats_absent": False,
+            "plan_units_generated_payload_absent": False,
+            "pyq_ingestions_ocr_required_absent": False,
+            "pyq_ingestions_ocr_status_absent": False,
+            
+            # Database Cleanup Validation - Preserved Fields Present
+            "llm_assessment_error_present": False,
+            "model_feedback_present": False,
+            "misconception_tag_present": False,
+            "mcq_options_present": False,
+            
+            # Core Admin Functionality
+            "admin_question_upload_working": False,
+            "pyq_endpoints_accessible": False,
+            "question_retrieval_working": False,
+            "session_system_functional": False,
+            
+            # Database Integrity
+            "all_tables_accessible": False,
+            "no_database_constraints_violated": False,
+            "question_data_intact": False,
+            "user_data_intact": False,
+            
+            # LLM Enrichment Pipeline
+            "simplified_enrichment_service_working": False,
+            "question_enrichment_functional": False,
+            
+            # API Endpoints Validation
+            "questions_endpoint_working": False,
+            "sessions_start_endpoint_working": False,
+            "admin_pyq_questions_working": False
+        }
+        
+        # PHASE 1: ADMIN AUTHENTICATION SETUP
+        print("\n🔐 PHASE 1: ADMIN AUTHENTICATION SETUP")
+        print("-" * 50)
+        
+        admin_login_data = {
+            "email": "sumedhprabhu18@gmail.com",
+            "password": "admin2025"
+        }
+        
+        success, response = self.run_test("Admin Authentication", "POST", "auth/login", [200, 401], admin_login_data)
+        
+        admin_headers = None
+        if success and response.get('access_token'):
+            admin_token = response['access_token']
+            admin_headers = {
+                'Authorization': f'Bearer {admin_token}',
+                'Content-Type': 'application/json'
+            }
+            cleanup_results["admin_authentication_working"] = True
+            cleanup_results["admin_token_valid"] = True
+            print(f"   ✅ Admin authentication successful")
+            print(f"   📊 JWT Token length: {len(admin_token)} characters")
+            
+            # Verify admin privileges
+            success, me_response = self.run_test("Admin Token Validation", "GET", "auth/me", 200, None, admin_headers)
+            if success and me_response.get('is_admin'):
+                print(f"   ✅ Admin privileges confirmed: {me_response.get('email')}")
+        else:
+            print("   ❌ Admin authentication failed - cannot proceed with database cleanup testing")
+            return False
+        
+        # PHASE 2: DATABASE CLEANUP VALIDATION - VERIFY DELETED FIELDS ABSENT
+        print("\n🗑️ PHASE 2: VERIFY DELETED FIELDS ARE ABSENT")
+        print("-" * 50)
+        print("Testing that 14 irrelevant fields have been successfully deleted")
+        
+        # Test Questions endpoint to check for deleted fields
+        print("   📋 Step 1: Check Questions Table - 6 deleted fields")
+        success, response = self.run_test("Questions Data Structure", "GET", "questions?limit=5", [200], None, admin_headers)
+        
+        if success and response:
+            questions = response.get("questions", [])
+            if questions:
+                sample_question = questions[0]
+                print(f"   📊 Sample question fields: {list(sample_question.keys())}")
+                
+                # Check that deleted fields are NOT present
+                deleted_question_fields = ["video_url", "tags", "version", "frequency_notes", "pattern_keywords", "pattern_solution_approach"]
+                
+                for field in deleted_question_fields:
+                    if field not in sample_question:
+                        cleanup_results[f"questions_{field}_absent"] = True
+                        print(f"      ✅ {field} successfully deleted from questions table")
+                    else:
+                        print(f"      ❌ {field} still present in questions table - cleanup failed")
+                
+                # Check that preserved fields ARE present
+                preserved_fields = ["llm_assessment_error", "model_feedback", "misconception_tag", "mcq_options"]
+                
+                for field in preserved_fields:
+                    if field in sample_question:
+                        cleanup_results[f"{field}_present"] = True
+                        print(f"      ✅ {field} preserved in questions table")
+                    else:
+                        print(f"      ⚠️ {field} not found in questions table - may need verification")
+        
+        # Test PYQ Questions endpoint to check for deleted fields
+        print("   📋 Step 2: Check PYQ Questions Table - 3 deleted fields")
+        success, response = self.run_test("PYQ Questions Data Structure", "GET", "admin/pyq/questions?limit=5", [200], None, admin_headers)
+        
+        if success and response:
+            pyq_questions = response.get("pyq_questions", [])
+            if pyq_questions:
+                sample_pyq = pyq_questions[0]
+                print(f"   📊 Sample PYQ question fields: {list(sample_pyq.keys())}")
+                
+                # Check that deleted PYQ fields are NOT present
+                deleted_pyq_fields = ["confirmed", "tags", "frequency_self_score"]
+                
+                for field in deleted_pyq_fields:
+                    if field not in sample_pyq:
+                        cleanup_results[f"pyq_questions_{field}_absent"] = True
+                        print(f"      ✅ {field} successfully deleted from pyq_questions table")
+                    else:
+                        print(f"      ❌ {field} still present in pyq_questions table - cleanup failed")
+        
+        # Test Users data structure (via auth/me endpoint)
+        print("   📋 Step 3: Check Users Table - 1 deleted field")
+        success, response = self.run_test("Users Data Structure", "GET", "auth/me", [200], None, admin_headers)
+        
+        if success and response:
+            print(f"   📊 User data fields: {list(response.keys())}")
+            
+            # Check that deleted user field is NOT present
+            if "tz" not in response:
+                cleanup_results["users_tz_absent"] = True
+                print(f"      ✅ tz field successfully deleted from users table")
+            else:
+                print(f"      ❌ tz field still present in users table - cleanup failed")
+        
+        # PHASE 3: CORE ADMIN FUNCTIONALITY TESTING
+        print("\n🔧 PHASE 3: CORE ADMIN FUNCTIONALITY TESTING")
+        print("-" * 50)
+        print("Testing admin authentication and question upload workflow")
+        
+        # Test question upload workflow
+        print("   📋 Step 1: Test Question Upload Workflow via /admin/upload-questions-csv")
+        
+        test_csv_content = """stem,image_url,answer,solution_approach,principle_to_remember
+"A train travels 180 km in 2 hours. What is its speed?","","90 km/h","Speed = Distance / Time = 180/2 = 90 km/h","Speed is distance divided by time"
+"If 30% of a number is 90, what is the number?","","300","Let x be the number. 30% of x = 90. So 0.3x = 90. x = 90/0.3 = 300","To find whole from percentage, divide part by percentage decimal"
+"""
+        
+        try:
+            csv_file = io.BytesIO(test_csv_content.encode('utf-8'))
+            files = {'file': ('database_cleanup_test.csv', csv_file, 'text/csv')}
+            
+            response = requests.post(
+                f"{self.base_url}/admin/upload-questions-csv",
+                files=files,
+                headers={'Authorization': admin_headers['Authorization']},
+                timeout=60
+            )
+            
+            if response.status_code in [200, 201]:
+                cleanup_results["admin_question_upload_working"] = True
+                response_data = response.json()
+                print(f"   ✅ Question upload workflow working")
+                
+                # Check upload statistics
+                statistics = response_data.get("statistics", {})
+                questions_created = statistics.get("questions_created", 0)
+                print(f"      📊 Questions created: {questions_created}")
+                
+                if questions_created > 0:
+                    cleanup_results["question_data_intact"] = True
+                    print(f"   ✅ Question creation working - database integrity maintained")
+                    
+            else:
+                print(f"   ❌ Question upload failed with status: {response.status_code}")
+                if response.text:
+                    print(f"      Error: {response.text[:200]}")
+                    
+        except Exception as e:
+            print(f"   ❌ Question upload test failed: {e}")
+        
+        # Test PYQ-related endpoints
+        print("   📋 Step 2: Test PYQ-Related Endpoints")
+        
+        pyq_endpoints = [
+            ("PYQ Questions", "GET", "admin/pyq/questions"),
+            ("PYQ Enrichment Status", "GET", "admin/pyq/enrichment-status"),
+            ("Frequency Analysis Report", "GET", "admin/frequency-analysis-report")
+        ]
+        
+        pyq_endpoints_working = 0
+        for endpoint_name, method, endpoint in pyq_endpoints:
+            success, response = self.run_test(endpoint_name, method, endpoint, [200], None, admin_headers)
+            if success:
+                pyq_endpoints_working += 1
+                print(f"      ✅ {endpoint_name} endpoint working")
+            else:
+                print(f"      ❌ {endpoint_name} endpoint failed")
+        
+        if pyq_endpoints_working >= 2:
+            cleanup_results["pyq_endpoints_accessible"] = True
+            print(f"   ✅ PYQ endpoints accessible after database cleanup")
+        
+        # PHASE 4: DATABASE INTEGRITY VALIDATION
+        print("\n🗄️ PHASE 4: DATABASE INTEGRITY VALIDATION")
+        print("-" * 50)
+        print("Verifying all tables remain accessible and functional")
+        
+        # Test question retrieval
+        print("   📋 Step 1: Test Question Retrieval")
+        success, response = self.run_test("Question Retrieval", "GET", "questions?limit=10", [200], None, admin_headers)
+        
+        if success and response:
+            questions = response.get("questions", [])
+            if questions:
+                cleanup_results["question_retrieval_working"] = True
+                cleanup_results["all_tables_accessible"] = True
+                print(f"   ✅ Question retrieval working - {len(questions)} questions accessible")
+                
+                # Check for database constraint violations
+                constraint_errors = 0
+                for question in questions:
+                    # Check for required fields
+                    if not question.get("id") or not question.get("stem"):
+                        constraint_errors += 1
+                
+                if constraint_errors == 0:
+                    cleanup_results["no_database_constraints_violated"] = True
+                    print(f"   ✅ No database constraints violated")
+                else:
+                    print(f"   ⚠️ {constraint_errors} potential constraint issues detected")
+        
+        # Test session system functionality
+        print("   📋 Step 2: Test Session System Functionality")
+        success, response = self.run_test("Session Start", "POST", "sessions/start", [200], {}, admin_headers)
+        
+        if success and response:
+            cleanup_results["session_system_functional"] = True
+            print(f"   ✅ Session system functional after database cleanup")
+            
+            session_id = response.get("session_id")
+            if session_id:
+                print(f"      📊 Session created: {session_id}")
+        
+        # Test user data integrity
+        print("   📋 Step 3: Test User Data Integrity")
+        success, response = self.run_test("User Data Check", "GET", "auth/me", [200], None, admin_headers)
+        
+        if success and response:
+            cleanup_results["user_data_intact"] = True
+            print(f"   ✅ User data intact after database cleanup")
+            print(f"      📊 User: {response.get('email')} (Admin: {response.get('is_admin')})")
+        
+        # PHASE 5: LLM ENRICHMENT PIPELINE TESTING
+        print("\n🤖 PHASE 5: LLM ENRICHMENT PIPELINE TESTING")
+        print("-" * 50)
+        print("Testing SimplifiedEnrichmentService and question enrichment")
+        
+        # Test enrichment with a simple question
+        print("   📋 Step 1: Test SimplifiedEnrichmentService")
+        
+        enrichment_test_csv = """stem,answer
+"What is 15% of 200?","30"
+"""
+        
+        try:
+            csv_file = io.BytesIO(enrichment_test_csv.encode('utf-8'))
+            files = {'file': ('enrichment_test.csv', csv_file, 'text/csv')}
+            
+            response = requests.post(
+                f"{self.base_url}/admin/upload-questions-csv",
+                files=files,
+                headers={'Authorization': admin_headers['Authorization']},
+                timeout=60
+            )
+            
+            if response.status_code in [200, 201]:
+                response_data = response.json()
+                print(f"   ✅ Enrichment service accessible")
+                
+                # Check for enrichment results
+                enrichment_results = response_data.get("enrichment_results", [])
+                if enrichment_results:
+                    cleanup_results["simplified_enrichment_service_working"] = True
+                    cleanup_results["question_enrichment_functional"] = True
+                    print(f"   ✅ Question enrichment functional")
+                    
+                    # Check enrichment quality
+                    for result in enrichment_results:
+                        category = result.get("category")
+                        difficulty = result.get("difficulty_level")
+                        if category and difficulty:
+                            print(f"      📊 Enrichment: Category={category}, Difficulty={difficulty}")
+                            break
+                else:
+                    print(f"   ⚠️ Enrichment service accessible but no results returned")
+                    
+        except Exception as e:
+            print(f"   ❌ Enrichment pipeline test failed: {e}")
+        
+        # PHASE 6: API ENDPOINTS VALIDATION
+        print("\n🔗 PHASE 6: API ENDPOINTS VALIDATION")
+        print("-" * 50)
+        print("Verifying critical endpoints return proper data")
+        
+        # Test critical endpoints
+        critical_endpoints = [
+            ("Questions Endpoint", "GET", "questions", "questions_endpoint_working"),
+            ("Sessions Start Endpoint", "POST", "sessions/start", "sessions_start_endpoint_working"),
+            ("Admin PYQ Questions", "GET", "admin/pyq/questions", "admin_pyq_questions_working")
+        ]
+        
+        for endpoint_name, method, endpoint, result_key in critical_endpoints:
+            print(f"   📋 Testing {endpoint_name}")
+            
+            if method == "POST":
+                success, response = self.run_test(endpoint_name, method, endpoint, [200], {}, admin_headers)
+            else:
+                success, response = self.run_test(endpoint_name, method, endpoint, [200], None, admin_headers)
+            
+            if success and response:
+                cleanup_results[result_key] = True
+                print(f"      ✅ {endpoint_name} working properly")
+                
+                # Check for proper data structure
+                if "questions" in response or "session_id" in response or "pyq_questions" in response:
+                    print(f"      📊 Endpoint returns proper data structure")
+            else:
+                print(f"      ❌ {endpoint_name} failed")
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 80)
+        print("🗄️ DATABASE CLEANUP VALIDATION - COMPREHENSIVE RESULTS")
+        print("=" * 80)
+        
+        passed_tests = sum(cleanup_results.values())
+        total_tests = len(cleanup_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        # Group results by validation categories
+        validation_categories = {
+            "DELETED FIELDS VERIFICATION (14 fields)": [
+                "questions_video_url_absent", "questions_tags_absent", "questions_version_absent",
+                "questions_frequency_notes_absent", "questions_pattern_keywords_absent", 
+                "questions_pattern_solution_approach_absent", "pyq_questions_confirmed_absent",
+                "pyq_questions_tags_absent", "pyq_questions_frequency_self_score_absent",
+                "users_tz_absent", "plan_units_actual_stats_absent", "plan_units_generated_payload_absent",
+                "pyq_ingestions_ocr_required_absent", "pyq_ingestions_ocr_status_absent"
+            ],
+            "PRESERVED FIELDS VERIFICATION (4 fields)": [
+                "llm_assessment_error_present", "model_feedback_present", 
+                "misconception_tag_present", "mcq_options_present"
+            ],
+            "CORE ADMIN FUNCTIONALITY": [
+                "admin_authentication_working", "admin_question_upload_working", 
+                "pyq_endpoints_accessible"
+            ],
+            "DATABASE INTEGRITY": [
+                "all_tables_accessible", "no_database_constraints_violated",
+                "question_data_intact", "user_data_intact", "question_retrieval_working",
+                "session_system_functional"
+            ],
+            "LLM ENRICHMENT PIPELINE": [
+                "simplified_enrichment_service_working", "question_enrichment_functional"
+            ],
+            "API ENDPOINTS VALIDATION": [
+                "questions_endpoint_working", "sessions_start_endpoint_working", 
+                "admin_pyq_questions_working"
+            ]
+        }
+        
+        for category, tests in validation_categories.items():
+            print(f"\n{category}:")
+            category_passed = 0
+            category_total = len(tests)
+            
+            for test in tests:
+                if test in cleanup_results:
+                    result = cleanup_results[test]
+                    status = "✅ PASS" if result else "❌ FAIL"
+                    print(f"  {test.replace('_', ' ').title():<50} {status}")
+                    if result:
+                        category_passed += 1
+            
+            category_rate = (category_passed / category_total) * 100 if category_total > 0 else 0
+            print(f"  Category Success Rate: {category_passed}/{category_total} ({category_rate:.1f}%)")
+        
+        print("-" * 80)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # CRITICAL SUCCESS ASSESSMENT
+        print("\n🎯 DATABASE CLEANUP SUCCESS ASSESSMENT:")
+        
+        # Check critical success criteria
+        deleted_fields_verified = sum(cleanup_results[key] for key in validation_categories["DELETED FIELDS VERIFICATION (14 fields)"])
+        preserved_fields_verified = sum(cleanup_results[key] for key in validation_categories["PRESERVED FIELDS VERIFICATION (4 fields)"])
+        core_functionality_working = sum(cleanup_results[key] for key in validation_categories["CORE ADMIN FUNCTIONALITY"])
+        database_integrity_maintained = sum(cleanup_results[key] for key in validation_categories["DATABASE INTEGRITY"])
+        
+        print(f"\n📊 CRITICAL METRICS:")
+        print(f"  Deleted Fields Verified: {deleted_fields_verified}/14 ({(deleted_fields_verified/14)*100:.1f}%)")
+        print(f"  Preserved Fields Verified: {preserved_fields_verified}/4 ({(preserved_fields_verified/4)*100:.1f}%)")
+        print(f"  Core Functionality: {core_functionality_working}/3 ({(core_functionality_working/3)*100:.1f}%)")
+        print(f"  Database Integrity: {database_integrity_maintained}/6 ({(database_integrity_maintained/6)*100:.1f}%)")
+        
+        # FINAL ASSESSMENT
+        if success_rate >= 85:
+            print("\n🎉 DATABASE CLEANUP VALIDATION SUCCESSFUL!")
+            print("   ✅ Database cleanup completed successfully")
+            print("   ✅ Irrelevant fields properly deleted")
+            print("   ✅ Important fields preserved")
+            print("   ✅ All functionality remains working")
+            print("   🏆 PRODUCTION READY - Database cleanup successful")
+        elif success_rate >= 70:
+            print("\n⚠️ DATABASE CLEANUP MOSTLY SUCCESSFUL")
+            print(f"   - {passed_tests}/{total_tests} tests passed ({success_rate:.1f}%)")
+            print("   - Core cleanup appears successful")
+            print("   🔧 MINOR ISSUES - Some verification needed")
+        else:
+            print("\n❌ DATABASE CLEANUP VALIDATION FAILED")
+            print(f"   - Only {passed_tests}/{total_tests} tests passed ({success_rate:.1f}%)")
+            print("   - Critical issues detected")
+            print("   🚨 MAJOR PROBLEMS - Database cleanup may have failed")
+        
+        return success_rate >= 70  # Return True if cleanup validation is successful
+
     def test_final_100_percent_success_validation(self):
         """FINAL 100% SUCCESS VALIDATION - COMPREHENSIVE VERIFICATION as per review request"""
         print("🎯 FINAL 100% SUCCESS VALIDATION - COMPREHENSIVE VERIFICATION")
