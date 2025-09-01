@@ -3765,6 +3765,72 @@ async def upload_pyq_csv(file: UploadFile, db: AsyncSession, current_user: User)
         logger.error(f"PYQ CSV upload error: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to upload PYQ CSV: {str(e)}")
 
+@api_router.get("/admin/pyq/questions")
+async def get_pyq_questions(
+    year: Optional[int] = None,
+    limit: int = 100,
+    offset: int = 0,
+    current_user: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_async_compatible_db)
+):
+    """
+    Retrieve PYQ questions with optional filtering by year
+    """
+    try:
+        # Build query with optional year filter
+        query = select(PYQQuestion)
+        
+        if year:
+            # Join with PYQPaper to filter by year
+            query = query.join(PYQPaper).where(PYQPaper.year == year)
+        
+        # Add pagination
+        query = query.offset(offset).limit(limit).order_by(desc(PYQQuestion.created_at))
+        
+        result = await db.execute(query)
+        pyq_questions = result.scalars().all()
+        
+        # Format response
+        questions_data = []
+        for question in pyq_questions:
+            question_data = {
+                "id": str(question.id),
+                "stem": question.stem,
+                "subcategory": question.subcategory,
+                "type_of_question": question.type_of_question,
+                "difficulty_band": getattr(question, 'difficulty_band', None),
+                "difficulty_score": float(getattr(question, 'difficulty_score', 0.0)) if getattr(question, 'difficulty_score', None) else None,
+                "is_active": getattr(question, 'is_active', False),
+                "quality_verified": getattr(question, 'quality_verified', False),
+                "concept_extraction_status": getattr(question, 'concept_extraction_status', 'pending'),
+                "core_concepts": json.loads(getattr(question, 'core_concepts', '[]')) if getattr(question, 'core_concepts', None) else [],
+                "solution_method": getattr(question, 'solution_method', None),
+                "created_at": question.created_at.isoformat() if question.created_at else None,
+                "last_updated": getattr(question, 'last_updated', question.created_at).isoformat() if getattr(question, 'last_updated', question.created_at) else None
+            }
+            questions_data.append(question_data)
+        
+        # Get total count for pagination
+        count_query = select(func.count(PYQQuestion.id))
+        if year:
+            count_query = count_query.select_from(PYQQuestion.join(PYQPaper)).where(PYQPaper.year == year)
+        
+        count_result = await db.execute(count_query)
+        total_count = count_result.scalar()
+        
+        return {
+            "questions": questions_data,
+            "total": total_count,
+            "limit": limit,
+            "offset": offset,
+            "year_filter": year,
+            "message": f"Retrieved {len(questions_data)} PYQ questions" + (f" for year {year}" if year else "")
+        }
+        
+    except Exception as e:
+        logger.error(f"Error retrieving PYQ questions: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to retrieve PYQ questions: {str(e)}")
+
 async def enhanced_pyq_enrichment_background(pyq_question_id: str):
     """
     ENHANCED Background task for PYQ question enrichment using full LLM pipeline
