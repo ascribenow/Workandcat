@@ -4422,7 +4422,7 @@ async def test_advanced_enrichment(
         
         logger.info(f"🧠 Testing Advanced LLM Enrichment on: {question_stem[:50]}...")
         
-        # Initialize Advanced LLM Enrichment Service
+        # Initialize the Advanced LLM Enrichment Service (NO FALLBACKS)
         advanced_enricher = AdvancedLLMEnrichmentService()
         
         # Perform deep, sophisticated enrichment
