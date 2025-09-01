@@ -106,12 +106,71 @@ class AdvancedLLMEnrichmentService:
                 "enrichment_data": {}
             }
     
+    def _should_use_fallback_model(self) -> tuple[str, str]:
+        """
+        Intelligent model selection with temporary fallback for rate limits
+        
+        Returns:
+            tuple: (model_to_use, reason)
+        """
+        import time
+        current_time = time.time()
+        
+        # If we haven't hit rate limits recently, use primary model
+        if self.last_rate_limit_time is None:
+            return self.primary_model, "primary_model"
+        
+        # If enough time has passed since last rate limit, test primary model again
+        if current_time - self.last_rate_limit_time > self.rate_limit_recovery_interval:
+            logger.info(f"🔄 Testing {self.primary_model} availability after rate limit recovery period")
+            return self.primary_model, "testing_primary_recovery"
+        
+        # Still within rate limit recovery period, use fallback
+        remaining_time = self.rate_limit_recovery_interval - (current_time - self.last_rate_limit_time)
+        logger.info(f"⚠️ Using {self.fallback_model} temporarily. {self.primary_model} retry in {remaining_time:.0f}s")
+        return self.fallback_model, "temporary_fallback"
+    
+    def _handle_rate_limit_error(self, error: Exception) -> bool:
+        """
+        Detect and handle rate limit errors
+        
+        Returns:
+            bool: True if this was a rate limit error
+        """
+        import time
+        error_str = str(error).lower()
+        
+        # Check for rate limit indicators
+        rate_limit_indicators = [
+            'rate limit', 'quota', 'usage limit', 'too many requests',
+            'rate_limit_exceeded', 'insufficient_quota', '429'
+        ]
+        
+        is_rate_limit = any(indicator in error_str for indicator in rate_limit_indicators)
+        
+        if is_rate_limit:
+            self.last_rate_limit_time = time.time()
+            logger.warning(f"🚨 Rate limit detected for {self.primary_model}. Switching to {self.fallback_model} temporarily")
+            return True
+        
+        return False
+    
+    def _mark_primary_model_recovered(self):
+        """Mark that primary model is working again"""
+        if self.last_rate_limit_time is not None:
+            logger.info(f"✅ {self.primary_model} recovered! Switching back from temporary fallback")
+            self.last_rate_limit_time = None
+
     async def _perform_deep_mathematical_analysis(self, stem: str, admin_answer: str = None) -> Dict[str, Any]:
         """Perform deep mathematical analysis with sophisticated understanding"""
         
         for attempt in range(self.max_retries):
             try:
                 client = openai.OpenAI(api_key=self.openai_api_key, timeout=self.timeout)
+                
+                # Intelligent model selection
+                model_to_use, selection_reason = self._should_use_fallback_model()
+                logger.info(f"🤖 Using model: {model_to_use} (reason: {selection_reason})")
                 
                 system_message = """You are a world-class mathematics professor and CAT expert with deep expertise in quantitative reasoning. 
 
@@ -158,7 +217,7 @@ Be precise, insightful, and demonstrate superior mathematical intelligence."""
                 logger.info(f"🧠 Calling OpenAI for deep mathematical analysis (attempt {attempt + 1})...")
                 
                 response = client.chat.completions.create(
-                    model="gpt-4o",
+                    model=model_to_use,
                     messages=[
                         {"role": "system", "content": system_message},
                         {"role": "user", "content": f"Question: {stem}\nAdmin provided answer (if any): {admin_answer or 'Not provided'}"}
@@ -171,7 +230,11 @@ Be precise, insightful, and demonstrate superior mathematical intelligence."""
                 analysis_text = response.choices[0].message.content.strip()
                 analysis_data = json.loads(analysis_text)
                 
-                logger.info(f"✅ Deep mathematical analysis completed")
+                # If we successfully used primary model after recovery, mark it as recovered
+                if selection_reason == "testing_primary_recovery":
+                    self._mark_primary_model_recovered()
+                
+                logger.info(f"✅ Deep mathematical analysis completed with {model_to_use}")
                 return analysis_data
                 
             except Exception as e:
@@ -179,6 +242,12 @@ Be precise, insightful, and demonstrate superior mathematical intelligence."""
                 logger.error(f"🔍 Exception type: {type(e).__name__}")
                 import traceback
                 logger.error(f"📚 Traceback: {traceback.format_exc()}")
+                
+                # Handle rate limit errors intelligently
+                if self._handle_rate_limit_error(e):
+                    # If this was a rate limit error, try again immediately with fallback model
+                    logger.info("🔄 Retrying immediately with fallback model due to rate limit")
+                    continue
                 
                 if attempt < self.max_retries - 1:
                     delay = self.retry_delays[attempt]
