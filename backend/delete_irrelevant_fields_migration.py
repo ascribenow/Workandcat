@@ -40,13 +40,12 @@ load_dotenv()
 def get_database_connection():
     """Get database connection using environment variables."""
     try:
-        mongo_url = os.environ.get('MONGO_URL')
-        if not mongo_url:
-            raise ValueError("MONGO_URL environment variable not found")
+        database_url = os.environ.get('DATABASE_URL')
+        if not database_url:
+            raise ValueError("DATABASE_URL environment variable not found")
         
-        # Parse PostgreSQL connection from MONGO_URL (assuming it's actually PostgreSQL)
-        # Based on the codebase, it appears MONGO_URL contains PostgreSQL connection string
-        conn = psycopg2.connect(mongo_url)
+        # Connect to PostgreSQL database
+        conn = psycopg2.connect(database_url)
         conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
         return conn
     except Exception as e:
