@@ -49,8 +49,8 @@
 ##
 ## test_plan:
 ##   current_focus:
-##     - "Razorpay Payment Button Clickability Fix"
-##     - "Razorpay Payment Integration"
+##     - "Database Cleanup - Delete Irrelevant Fields"
+##     - "PYQ & Conceptual Matching Implementation"
 ##   stuck_tasks: []
 ##   test_all: false
 ##   test_priority: "high_first"
