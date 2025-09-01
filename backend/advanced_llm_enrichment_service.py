@@ -22,9 +22,16 @@ class AdvancedLLMEnrichmentService:
     """
     
     def __init__(self):
+        # Load environment variables
+        from dotenv import load_dotenv
+        load_dotenv()
+        
         self.openai_api_key = os.getenv('OPENAI_API_KEY')
         if not self.openai_api_key:
             logger.error("OpenAI API key not found for AdvancedLLMEnrichmentService")
+            logger.error(f"Environment variables: {list(os.environ.keys())[:10]}")
+        else:
+            logger.info(f"✅ OpenAI API key loaded successfully ({len(self.openai_api_key)} chars)")
         
         self.max_retries = 4
         self.retry_delays = [3, 7, 15, 30]
