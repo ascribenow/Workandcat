@@ -657,17 +657,15 @@ class CATBackendTester:
                 coverage = system_overview.get("pyq_coverage_percentage", 0)
                 print(f"   ✅ Frequency analysis report working - PYQ coverage: {coverage}%")
         
-        # PHASE 3: ENHANCED PYQ ENRICHMENT TESTING
-        print("\n🚀 PHASE 3: ENHANCED PYQ ENRICHMENT TESTING")
+        # PHASE 3: DYNAMIC FREQUENCY CALCULATION END-TO-END TESTING
+        print("\n🧮 PHASE 3: DYNAMIC FREQUENCY CALCULATION END-TO-END TESTING")
         print("-" * 50)
-        print("Testing PYQ upload with enhanced enrichment service")
+        print("Testing dynamic frequency calculation with real PYQ data integration")
         
-        # Create test PYQ CSV content
+        # First, upload a test PYQ to ensure we have PYQ data for frequency calculation
         test_pyq_csv = """year,slot,stem,answer,subcategory,type_of_question
-2023,1,"A train 200m long crosses a platform 300m long in 25 seconds. What is the speed of the train?","72 km/h","Time-Speed-Distance","Trains"
-2022,2,"If 20% of a number is 60, what is 35% of the same number?","105","Percentage","Basics"
-2021,1,"The LCM of two numbers is 60 and their HCF is 5. If one number is 15, find the other.","20","Number System","LCM-HCF"
-2023,2,"Two pipes can fill a tank in 12 and 18 hours respectively. How long will they take to fill the tank together?","7.2 hours","Work and Time","Pipes and Cisterns"
+2024,1,"A train 150m long crosses a platform 250m long in 20 seconds. What is the speed of the train?","72 km/h","Time-Speed-Distance","Trains"
+2024,2,"If 25% of a number is 75, what is 40% of the same number?","120","Percentage","Basics"
 """
         
         # Test PYQ upload endpoint
