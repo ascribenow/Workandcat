@@ -1120,7 +1120,10 @@ Return ONLY JSON format: {{"category": "...", "subcategory": "...", "type_of_que
                 import openai
                 import asyncio
                 
-                client = openai.OpenAI(api_key=self.openai_api_key)
+                client = openai.OpenAI(
+                    api_key=self.openai_api_key,
+                    timeout=30.0  # 30 second timeout
+                )
                 
                 system_message = """You are an expert in CAT quantitative ability difficulty assessment.
 Analyze the given question and determine its difficulty level.
