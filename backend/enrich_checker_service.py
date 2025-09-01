@@ -83,11 +83,12 @@ class EnrichCheckerService:
                 # Assess current enrichment quality
                 quality_assessment = await self._assess_regular_question_quality(question)
                 
-                check_results["quality_scores"].append(quality_assessment["quality_score"])
+                # Update results tracking
+                check_results["quality_scores"].append(1 if quality_assessment["is_acceptable"] else 0)
                 
-                # If quality is poor, re-enrich
+                # If quality is unacceptable, re-enrich
                 if not quality_assessment["is_acceptable"]:
-                    logger.warning(f"⚠️ Poor enrichment detected (score: {quality_assessment['quality_score']}/100)")
+                    logger.warning(f"⚠️ Unacceptable enrichment detected - failed criteria: {quality_assessment['failed_criteria']}")
                     check_results["poor_enrichment_identified"] += 1
                     
                     # Trigger re-enrichment
