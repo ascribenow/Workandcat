@@ -3695,10 +3695,12 @@ async def upload_pyq_csv(file: UploadFile, db: AsyncSession, current_user: User)
             ).order_by(desc(PYQQuestion.created_at)).limit(total_questions_created)
         )
         
-        # Queue background enrichment tasks for PYQ questions
+        # Queue ENHANCED background enrichment tasks for PYQ questions
+        logger.info("Starting ENHANCED background PYQ enrichment with full LLM pipeline...")
+        
         for pyq_question in recent_pyq_questions.scalars():
-            # Use the same enrichment pipeline but for PYQ questions
-            asyncio.create_task(enrich_pyq_question_background(str(pyq_question.id)))
+            # Use the NEW enhanced enrichment pipeline instead of basic classification
+            asyncio.create_task(enhanced_pyq_enrichment_background(str(pyq_question.id)))
         
         # Store file metadata for tracking
         from database import PYQFiles
