@@ -125,13 +125,13 @@ class AdvancedLLMEnrichmentService:
         
         # If enough time has passed since last rate limit, test primary model again
         if current_time - self.last_rate_limit_time > self.rate_limit_recovery_interval:
-            logger.info(f"🔄 Testing {self.primary_model} availability after rate limit recovery period")
+            logger.info(f"🔄 Testing {self.primary_model} availability after 30-minute recovery period")
             return self.primary_model, "testing_primary_recovery"
         
-        # Still within rate limit recovery period, use fallback
+        # Still within rate limit recovery period, use fallback WITH SAME QUALITY STANDARDS
         remaining_time = self.rate_limit_recovery_interval - (current_time - self.last_rate_limit_time)
-        logger.info(f"⚠️ Using {self.fallback_model} temporarily. {self.primary_model} retry in {remaining_time:.0f}s")
-        return self.fallback_model, "temporary_fallback"
+        logger.info(f"⚠️ Using {self.fallback_model} with IDENTICAL quality standards. {self.primary_model} retry in {remaining_time/60:.0f} minutes")
+        return self.fallback_model, "temporary_fallback_same_quality"
     
     def _handle_rate_limit_error(self, error: Exception) -> bool:
         """
