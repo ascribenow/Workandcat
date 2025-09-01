@@ -357,44 +357,43 @@ Return ONLY this JSON:
 
 Your task is to evaluate the quality of PYQ question enrichment data for sophisticated educational analysis.
 
-PYQ QUALITY CRITERIA FOR ASSESSMENT:
+PYQ QUALITY CRITERIA FOR ASSESSMENT - 100% STRICT STANDARDS:
 
-1. SUBCATEGORY SPECIFICITY (25 points):
-   - ❌ Poor: Generic terms ("Time Speed Distance", "Algebra", "Basic")
-   - ✅ Good: Precise PYQ areas ("Relative Motion Analysis in Competitive Context", "Multi-stage Algebraic Optimization")
+1. RIGHT ANSWER QUALITY:
+   - ❌ UNACCEPTABLE: Just the answer (e.g., "3 hours")
+   - ✅ REQUIRED: Detailed with reasoning (e.g., "3 hours (calculated using relative speed concept: combined approach speed is sum of individual speeds)")
 
-2. TYPE CLASSIFICATION DEPTH (20 points):
-   - ❌ Poor: Basic types ("Word Problem", "Calculation", "Basic")
-   - ✅ Good: Specific PYQ archetypes ("Two-Train Meeting Problem with Variable Speeds", "Sequential Percentage with Compound Effects")
+2. SUBCATEGORY SPECIFICITY:
+   - ❌ UNACCEPTABLE: Generic terms ("Time Speed Distance", "Algebra", "Basic", "Percentages")
+   - ✅ REQUIRED: Precise PYQ areas ("Relative Motion Analysis in Competitive Context", "Sequential Percentage Operations with Profit Margins")
 
-3. CORE CONCEPTS SOPHISTICATION (25 points):
-   - ❌ Poor: Generic/repetitive (["calculation"], ["mathematics"], ["standard_problem"])
-   - ✅ Good: PYQ-specific concepts (["competitive_exam_optimization_strategies", "time_pressure_calculation_methods"])
+3. TYPE CLASSIFICATION DEPTH:
+   - ❌ UNACCEPTABLE: Basic types ("Word Problem", "Calculation", "Basic")
+   - ✅ REQUIRED: Specific PYQ archetypes ("Two-Train Meeting Problem with Variable Speeds", "Multi-stage Percentage Calculation with Compound Effects")
 
-4. SOLUTION METHOD SPECIFICITY (15 points):
-   - ❌ Poor: Generic ("general_approach", "standard_method")
-   - ✅ Good: PYQ-optimized methods ("Speed-Accuracy Balance Method for Competitive Scenarios")
+4. CORE CONCEPTS SOPHISTICATION:
+   - ❌ UNACCEPTABLE: Generic/repetitive (["calculation"], ["mathematics"], ["standard_problem"])
+   - ✅ REQUIRED: PYQ-specific concepts (["competitive_exam_optimization_strategies", "relative_velocity_vector_addition"])
 
-5. OPERATIONS PRECISION (10 points):
-   - ❌ Poor: Generic (["calculation"], ["basic_operations"])
-   - ✅ Good: PYQ-relevant operations (["competitive_shortcut_application", "pattern_recognition_based_solving"])
+5. SOLUTION METHOD SPECIFICITY:
+   - ❌ UNACCEPTABLE: Generic ("general_approach", "standard_method")
+   - ✅ REQUIRED: PYQ-optimized methods ("Speed-Accuracy Balance Method for Competitive Scenarios")
 
-6. QUALITY VERIFICATION (5 points):
-   - ✅ Should be True for properly enriched PYQ questions
+6. OPERATIONS PRECISION:
+   - ❌ UNACCEPTABLE: Generic (["calculation"], ["basic_operations"])
+   - ✅ REQUIRED: PYQ-relevant operations (["competitive_shortcut_application", "pattern_recognition_based_solving"])
 
-ASSESSMENT GUIDELINES:
-- PYQ questions require higher sophistication due to competitive exam context
-- Score 0-100 based on PYQ-specific enrichment quality
-- Score < 75: UNACCEPTABLE (needs PYQ-focused re-enrichment)
-- Score ≥ 75: ACCEPTABLE (good PYQ quality)
+ASSESSMENT STANDARDS - 100% STRICT:
+- ALL CRITERIA MUST BE MET PERFECTLY - NO EXCEPTIONS
+- ANY generic, repetitive, or basic content = IMMEDIATE REJECTION
+- Only sophisticated, detailed, PYQ-specific content = ACCEPTABLE
 
 Return ONLY this JSON:
 {
-  "quality_score": 85,
-  "is_acceptable": true,
-  "issues": ["list of specific issues identified"],
-  "strengths": ["list of good aspects"],
-  "assessment_reasoning": "detailed explanation of score"
+  "is_acceptable": false,
+  "failed_criteria": ["list of specific criteria that failed"],
+  "quality_issues": ["detailed list of quality issues"],
+  "assessment_reasoning": "detailed explanation of why unacceptable"
 }"""
 
                 response = client.chat.completions.create(
