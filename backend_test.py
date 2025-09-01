@@ -770,38 +770,76 @@ class CATBackendTester:
         except Exception as e:
             print(f"   ❌ Regular question upload test failed: {e}")
         
-        # PHASE 5: CONCEPTUAL MATCHING SYSTEM TESTING
-        print("\n🧠 PHASE 5: CONCEPTUAL MATCHING SYSTEM TESTING")
+        # PHASE 4: DATABASE INTEGRATION DEPTH TESTING
+        print("\n🗄️ PHASE 4: DATABASE INTEGRATION DEPTH TESTING")
         print("-" * 50)
-        print("Testing conceptual similarity and matching algorithms")
+        print("Verifying database fields are populated with real LLM-generated content")
         
-        # Test conceptual similarity endpoint (if available)
-        test_endpoints = [
-            ("admin/pyq/conceptual-similarity", "Conceptual Similarity"),
-            ("admin/pyq/matching-analysis", "PYQ Matching Analysis"),
-            ("admin/frequency-analysis", "Frequency Analysis"),
-            ("admin/pyq/concept-extraction", "Concept Extraction")
-        ]
+        # Check if uploaded questions have category field populated by LLM
+        print("\n📋 Test 1: Verify Category Field Population by LLM")
+        success, response = self.run_test("Questions with Category Check", "GET", "questions?limit=10", [200], None, admin_headers)
         
-        similarity_working = False
-        for endpoint, description in test_endpoints:
-            success, response = self.run_test(f"Test: {description}", "GET", endpoint, [200, 401, 404], None, admin_headers)
-            if success:
-                similarity_working = True
-                print(f"   ✅ {description} endpoint accessible")
+        if success and response:
+            questions = response.get("questions", [])
+            category_populated_count = 0
+            llm_content_found = False
+            
+            for question in questions:
+                category = question.get("category")
+                subcategory = question.get("subcategory")
+                type_of_question = question.get("type_of_question")
                 
-                # Check response structure for conceptual matching indicators
-                if "similarity_scores" in response or "conceptual_matches" in response:
-                    pyq_results["conceptual_similarity_working"] = True
-                if "concept_extraction" in response or "core_concepts" in response:
-                    pyq_results["pyq_concept_extraction_working"] = True
-                if "similarity_threshold" in response:
-                    pyq_results["similarity_threshold_appropriate"] = True
-                if "matching_algorithm" in response or "algorithm_version" in response:
-                    pyq_results["matching_algorithm_functional"] = True
+                # Check if category is populated with real LLM content (not default values)
+                if category and category not in ["", "To be classified", None, "General"]:
+                    category_populated_count += 1
+                    if category in ["Arithmetic", "Algebra", "Geometry", "Number System"]:
+                        pyq_results["category_field_populated_by_llm"] = True
+                        llm_content_found = True
+                        print(f"   ✅ LLM-generated category found: {category}")
+                        break
+            
+            if category_populated_count > 0:
+                pyq_results["database_fields_real_llm_content"] = True
+                print(f"   ✅ {category_populated_count} questions have populated category fields")
+            
+            if llm_content_found:
+                print(f"   ✅ Real LLM-generated content confirmed in database")
         
-        if not similarity_working:
-            print(f"   ⚠️ No conceptual matching endpoints found - may be integrated into other services")
+        # Check recent questions from our upload to verify LLM processing
+        print("\n📋 Test 2: Verify Recent Upload LLM Processing")
+        success, response = self.run_test("Recent Questions Check", "GET", "questions?limit=20", [200], None, admin_headers)
+        
+        if success and response:
+            questions = response.get("questions", [])
+            recent_train_question = None
+            
+            # Look for our uploaded train question
+            for question in questions:
+                stem = question.get("stem", "")
+                if "train" in stem.lower() and "180m" in stem:
+                    recent_train_question = question
+                    break
+            
+            if recent_train_question:
+                category = recent_train_question.get("category")
+                subcategory = recent_train_question.get("subcategory")
+                type_of_question = recent_train_question.get("type_of_question")
+                
+                print(f"   ✅ Found uploaded train question in database")
+                print(f"   📊 Category: {category}")
+                print(f"   📊 Subcategory: {subcategory}")
+                print(f"   📊 Type: {type_of_question}")
+                
+                # Verify LLM has populated these fields with meaningful content
+                if category and category != "To be classified":
+                    pyq_results["category_field_populated_by_llm"] = True
+                    print(f"   ✅ Category field populated by LLM: {category}")
+                
+                if subcategory and "Time" in subcategory and "Speed" in subcategory:
+                    print(f"   ✅ Subcategory correctly classified by LLM")
+                
+                if type_of_question and type_of_question != "To be classified":
+                    print(f"   ✅ Type classification working: {type_of_question}")
         
         # PHASE 6: PRODUCTION WORKFLOW TESTING
         print("\n🔄 PHASE 6: PRODUCTION WORKFLOW TESTING")
