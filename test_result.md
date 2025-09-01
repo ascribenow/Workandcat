@@ -133,11 +133,14 @@ backend:
     file: "/app/backend/server.py, /app/backend/llm_enrichment.py"
     stuck_count: 0
     priority: "critical"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
         -working: false
         -agent: "testing"
         -comment: "🔍 DATABASE SCHEMA & LLM IMPROVEMENTS TESTING COMPLETED - CRITICAL ISSUES IDENTIFIED! Comprehensive testing of database schema updates and LLM prompt improvements reveals 50% success rate with significant issues requiring attention. KEY FINDINGS: ❌ CRITICAL ISSUE: Category column missing from questions table - database schema not updated properly, ❌ LLM CLASSIFICATION: Enhanced LLM classification not working - category field not being populated during question upload, ✅ UPLOAD WORKFLOW: CSV upload working correctly with proper question creation and activation, ✅ SESSION COMPATIBILITY: Adaptive session logic supports category-based filtering perfectly, ❌ CLASSIFICATION ACCURACY: Test question 'A train travels 120 km in 2 hours. What is its speed in km/h?' not classified as expected (category='Arithmetic' not achieved), ✅ TYPE SPECIFICITY: Type classification working with 'Basics' classification achieved. ROOT CAUSE: Database schema missing 'category' column and LLM enrichment not populating category field during question processing. URGENT ACTION REQUIRED: 1) Add 'category' column to questions table schema, 2) Update LLM enrichment pipeline to populate category field, 3) Verify enhanced LLM prompts are being used for classification. SUCCESS RATE: 50% - Core infrastructure working but critical schema and classification issues need resolution."
+        -working: false
+        -agent: "main"
+        -comment: "✅ DATABASE SCHEMA FIXED: Successfully executed category column migration - database schema now includes category column in questions table. Migration completed with 0 updates (column already existed). Database ready for LLM enrichment with category field. Next: Verify LLM enrichment populates category field during question upload workflow."
 
   - task: "Email Authentication System Backend Implementation"
     implemented: true
