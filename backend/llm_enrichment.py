@@ -1135,14 +1135,16 @@ Difficulty Levels:
 
 Return ONLY one word: Easy, Medium, or Hard"""
 
+                logger.info(f"🤖 Calling OpenAI API for difficulty assessment (attempt {attempt + 1})...")
                 response = client.chat.completions.create(
-                    model="gpt-4o",
+                    model="gpt-4o-mini",  # Use more reliable model
                     messages=[
                         {"role": "system", "content": system_message},
                         {"role": "user", "content": f"Question: {stem}\nAnswer: {right_answer}"}
                     ],
                     max_tokens=50,
-                    temperature=0.1  # Low temperature for consistency
+                    temperature=0.1,  # Low temperature for consistency
+                    timeout=30
                 )
                 
                 difficulty = response.choices[0].message.content.strip()
