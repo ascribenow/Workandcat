@@ -36,6 +36,7 @@ from database import (
 from datetime import datetime
 from auth_service import AuthService, UserCreate, UserLogin, TokenResponse, require_auth, require_admin, ADMIN_EMAIL
 from llm_enrichment import LLMEnrichmentPipeline, SimplifiedEnrichmentService
+from advanced_llm_enrichment_service import AdvancedLLMEnrichmentService
 from gmail_service import gmail_service
 from payment_service import (
     razorpay_service,
