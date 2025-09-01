@@ -303,15 +303,6 @@ export const Dashboard = () => {
                   <span className="mr-2">🎯</span>
                   {loading ? 'Loading...' : "Today's Session"}
                 </button>
-
-                {/* Upgrade - Always visible */}
-                <button 
-                  onClick={() => navigate('/pricing')} 
-                  className="px-4 py-2 text-sm font-medium text-[#9ac026] hover:text-[#8bb024] border border-[#9ac026] rounded-lg hover:bg-[#9ac026] hover:text-white transition-all"
-                  style={{ fontFamily: 'Lato, sans-serif' }}
-                >
-                  ⭐ Upgrade
-                </button>
               </div>
             </div>
             
@@ -319,6 +310,16 @@ export const Dashboard = () => {
               <div className="text-sm" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
                 <span className="font-medium">{user.name}</span>
               </div>
+              
+              {/* Upgrade - Moved next to and left of Logout */}
+              <button 
+                onClick={() => navigate('/pricing')} 
+                className="px-4 py-2 text-sm font-medium text-[#9ac026] hover:text-[#8bb024] border border-[#9ac026] rounded-lg hover:bg-[#9ac026] hover:text-white transition-all"
+                style={{ fontFamily: 'Lato, sans-serif' }}
+              >
+                ⭐ Upgrade
+              </button>
+              
               <button
                 onClick={logout}
                 className="text-sm px-3 py-1 rounded transition-colors"
