@@ -444,16 +444,19 @@ const LandingPage = () => {
                       showSignIn ? 'Sign In' : (showVerification ? 'Create Account' : 'Send Verification Code')
                     )}
                   </button>
+
+                  {/* Forgot password moved closer to Sign In button */}
+                  {showSignIn && (
+                    <div className="mt-3 text-center">
+                      <a href="#" className="text-sm text-[#9ac026] hover:text-[#ff6d4d] transition-colors" style={{ fontFamily: 'Lato, sans-serif' }}>
+                        Forgot your password?
+                      </a>
+                    </div>
+                  )}
                 </form>
                 </div>
 
-                {showSignIn && (
-                  <div className="mt-2 text-center">
-                    <a href="#" className="text-sm text-[#9ac026] hover:text-[#ff6d4d] transition-colors" style={{ fontFamily: 'Lato, sans-serif' }}>
-                      Forgot your password?
-                    </a>
-                  </div>
-                )}
+                {/* Removed the duplicate forgot password section */}
               </div>
             </div>
           </div>
