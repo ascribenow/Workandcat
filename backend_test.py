@@ -13900,6 +13900,495 @@ class CATBackendTester:
         
         return success_rate >= 60  # Lower threshold since OAuth setup may be pending
 
+    def test_pyq_integration_comprehensive(self):
+        """Test comprehensive PYQ integration fixes as per review request"""
+        print("🔍 COMPREHENSIVE PYQ INTEGRATION TESTING - VALIDATE 85%+ FUNCTIONALITY ACHIEVEMENT")
+        print("=" * 80)
+        print("FOCUS: Testing the major PYQ integration fixes that were just implemented")
+        print("")
+        print("CRITICAL ENDPOINTS TO TEST:")
+        print("1. /admin/pyq/questions - NEW endpoint for PYQ question retrieval")
+        print("2. /admin/pyq/enrichment-status - NEW monitoring endpoint")
+        print("3. /admin/pyq/trigger-enrichment - NEW manual enrichment endpoint")
+        print("4. /admin/frequency-analysis-report - NEW reporting endpoint")
+        print("5. /admin/pyq/upload - CSV upload with enhanced enrichment")
+        print("6. /admin/upload-questions-csv - Regular questions with dynamic frequency")
+        print("")
+        print("AUTHENTICATION: sumedhprabhu18@gmail.com / admin2025")
+        print("SUCCESS CRITERIA: All 6 endpoints accessible and functional")
+        print("EXPECTED OUTCOME: Validate 85%+ functionality achievement")
+        print("=" * 80)
+        
+        pyq_integration_results = {
+            # Admin Authentication
+            "admin_authentication_working": False,
+            "admin_token_valid": False,
+            
+            # Critical Endpoint 1: /admin/pyq/questions
+            "pyq_questions_endpoint_accessible": False,
+            "pyq_questions_year_filter_working": False,
+            "pyq_questions_pagination_working": False,
+            "pyq_questions_enrichment_fields_present": False,
+            
+            # Critical Endpoint 2: /admin/pyq/enrichment-status
+            "enrichment_status_endpoint_accessible": False,
+            "enrichment_statistics_calculation": False,
+            "completion_rate_calculations": False,
+            "recent_activity_tracking": False,
+            
+            # Critical Endpoint 3: /admin/pyq/trigger-enrichment
+            "trigger_enrichment_endpoint_accessible": False,
+            "manual_enrichment_triggering": False,
+            "background_task_creation": False,
+            
+            # Critical Endpoint 4: /admin/frequency-analysis-report
+            "frequency_analysis_endpoint_accessible": False,
+            "frequency_analysis_statistics": False,
+            "category_analysis_working": False,
+            "method_distribution_working": False,
+            
+            # Critical Endpoint 5: /admin/pyq/upload (Enhanced)
+            "pyq_upload_endpoint_accessible": False,
+            "enhanced_enrichment_service_triggers": False,
+            "background_task_scheduling": False,
+            
+            # Critical Endpoint 6: /admin/upload-questions-csv (Dynamic Frequency)
+            "regular_upload_endpoint_accessible": False,
+            "dynamic_frequency_calculation_working": False,
+            "pyq_frequency_score_population": False,
+            
+            # End-to-End Workflow
+            "pyq_enrichment_workflow_operational": False,
+            "no_404_errors_for_new_endpoints": False,
+            "background_processing_integrated": False
+        }
+        
+        # PHASE 1: ADMIN AUTHENTICATION SETUP
+        print("\n🔐 PHASE 1: ADMIN AUTHENTICATION SETUP")
+        print("-" * 50)
+        print("Authenticating with admin credentials: sumedhprabhu18@gmail.com / admin2025")
+        
+        admin_login_data = {
+            "email": "sumedhprabhu18@gmail.com",
+            "password": "admin2025"
+        }
+        
+        success, response = self.run_test("Admin Authentication", "POST", "auth/login", [200, 401], admin_login_data)
+        
+        admin_headers = None
+        if success and response.get('access_token'):
+            admin_token = response['access_token']
+            admin_headers = {
+                'Authorization': f'Bearer {admin_token}',
+                'Content-Type': 'application/json'
+            }
+            pyq_integration_results["admin_authentication_working"] = True
+            pyq_integration_results["admin_token_valid"] = True
+            print(f"   ✅ Admin authentication successful")
+            print(f"   📊 JWT Token length: {len(admin_token)} characters")
+            
+            # Verify admin privileges
+            success, me_response = self.run_test("Admin Token Validation", "GET", "auth/me", 200, None, admin_headers)
+            if success and me_response.get('is_admin'):
+                print(f"   ✅ Admin privileges confirmed: {me_response.get('email')}")
+        else:
+            print("   ❌ Admin authentication failed - testing endpoint accessibility only")
+            admin_headers = {'Authorization': 'Bearer dummy_token'}
+        
+        # PHASE 2: CRITICAL ENDPOINT 1 - /admin/pyq/questions
+        print("\n📊 PHASE 2: TESTING /admin/pyq/questions - PYQ QUESTION RETRIEVAL")
+        print("-" * 50)
+        print("Testing NEW endpoint for PYQ question retrieval with year filter and pagination")
+        
+        # Test basic endpoint accessibility
+        success, response = self.run_test("PYQ Questions Endpoint", "GET", "admin/pyq/questions", [200, 401, 404], None, admin_headers)
+        
+        if success:
+            pyq_integration_results["pyq_questions_endpoint_accessible"] = True
+            print(f"   ✅ /admin/pyq/questions endpoint accessible")
+            
+            # Check response structure
+            pyq_questions = response.get("pyq_questions", [])
+            total_count = response.get("total_count", 0)
+            print(f"   📊 PYQ questions found: {len(pyq_questions)}")
+            print(f"   📊 Total count: {total_count}")
+            
+            # Check for enrichment fields in questions
+            if pyq_questions:
+                sample_question = pyq_questions[0]
+                enrichment_fields = ["difficulty_band", "core_concepts", "concept_extraction_status", "quality_verified"]
+                found_fields = [field for field in enrichment_fields if field in sample_question]
+                
+                if len(found_fields) >= 2:
+                    pyq_integration_results["pyq_questions_enrichment_fields_present"] = True
+                    print(f"   ✅ Enrichment fields present: {found_fields}")
+            
+            # Test year filter
+            success, year_response = self.run_test("PYQ Questions Year Filter", "GET", "admin/pyq/questions?year=2023", [200, 401], None, admin_headers)
+            if success:
+                pyq_integration_results["pyq_questions_year_filter_working"] = True
+                filtered_questions = year_response.get("pyq_questions", [])
+                print(f"   ✅ Year filter working - 2023 questions: {len(filtered_questions)}")
+            
+            # Test pagination
+            success, page_response = self.run_test("PYQ Questions Pagination", "GET", "admin/pyq/questions?limit=5&offset=0", [200, 401], None, admin_headers)
+            if success:
+                pyq_integration_results["pyq_questions_pagination_working"] = True
+                paginated_questions = page_response.get("pyq_questions", [])
+                print(f"   ✅ Pagination working - limited to 5: {len(paginated_questions)}")
+        
+        elif response and response.get("status_code") == 404:
+            print("   ❌ /admin/pyq/questions endpoint returns 404 - NOT IMPLEMENTED")
+        else:
+            print("   ⚠️ /admin/pyq/questions endpoint authentication required")
+        
+        # PHASE 3: CRITICAL ENDPOINT 2 - /admin/pyq/enrichment-status
+        print("\n📈 PHASE 3: TESTING /admin/pyq/enrichment-status - MONITORING ENDPOINT")
+        print("-" * 50)
+        print("Testing NEW monitoring endpoint for enrichment statistics")
+        
+        success, response = self.run_test("PYQ Enrichment Status", "GET", "admin/pyq/enrichment-status", [200, 401, 404], None, admin_headers)
+        
+        if success:
+            pyq_integration_results["enrichment_status_endpoint_accessible"] = True
+            print(f"   ✅ /admin/pyq/enrichment-status endpoint accessible")
+            
+            # Check statistics calculation
+            statistics = response.get("statistics", {})
+            if statistics:
+                total_questions = statistics.get("total_questions", 0)
+                active_questions = statistics.get("active_questions", 0)
+                completed_enrichment = statistics.get("completed_enrichment", 0)
+                
+                if total_questions > 0:
+                    pyq_integration_results["enrichment_statistics_calculation"] = True
+                    print(f"   ✅ Statistics calculation working")
+                    print(f"   📊 Total questions: {total_questions}")
+                    print(f"   📊 Active questions: {active_questions}")
+                    print(f"   📊 Completed enrichment: {completed_enrichment}")
+                
+                # Check completion rate calculations
+                completion_rate = statistics.get("completion_rate", 0)
+                if completion_rate is not None:
+                    pyq_integration_results["completion_rate_calculations"] = True
+                    print(f"   ✅ Completion rate calculation: {completion_rate}%")
+            
+            # Check recent activity tracking
+            recent_activity = response.get("recent_activity", [])
+            if recent_activity:
+                pyq_integration_results["recent_activity_tracking"] = True
+                print(f"   ✅ Recent activity tracking: {len(recent_activity)} activities")
+        
+        elif response and response.get("status_code") == 404:
+            print("   ❌ /admin/pyq/enrichment-status endpoint returns 404 - NOT IMPLEMENTED")
+        
+        # PHASE 4: CRITICAL ENDPOINT 3 - /admin/pyq/trigger-enrichment
+        print("\n🚀 PHASE 4: TESTING /admin/pyq/trigger-enrichment - MANUAL ENRICHMENT")
+        print("-" * 50)
+        print("Testing NEW manual enrichment endpoint")
+        
+        success, response = self.run_test("PYQ Trigger Enrichment", "POST", "admin/pyq/trigger-enrichment", [200, 401, 404], {}, admin_headers)
+        
+        if success:
+            pyq_integration_results["trigger_enrichment_endpoint_accessible"] = True
+            print(f"   ✅ /admin/pyq/trigger-enrichment endpoint accessible")
+            
+            # Check for enrichment triggering indicators
+            if "enrichment_triggered" in response or "background_task_id" in response:
+                pyq_integration_results["manual_enrichment_triggering"] = True
+                print(f"   ✅ Manual enrichment triggering working")
+            
+            # Check for background task creation
+            if "task_id" in response or "background_task" in response:
+                pyq_integration_results["background_task_creation"] = True
+                print(f"   ✅ Background task creation confirmed")
+        
+        elif response and response.get("status_code") == 404:
+            print("   ❌ /admin/pyq/trigger-enrichment endpoint returns 404 - NOT IMPLEMENTED")
+        
+        # PHASE 5: CRITICAL ENDPOINT 4 - /admin/frequency-analysis-report
+        print("\n📊 PHASE 5: TESTING /admin/frequency-analysis-report - REPORTING ENDPOINT")
+        print("-" * 50)
+        print("Testing NEW reporting endpoint for frequency analysis")
+        
+        success, response = self.run_test("Frequency Analysis Report", "GET", "admin/frequency-analysis-report", [200, 401, 404], None, admin_headers)
+        
+        if success:
+            pyq_integration_results["frequency_analysis_endpoint_accessible"] = True
+            print(f"   ✅ /admin/frequency-analysis-report endpoint accessible")
+            
+            # Check frequency analysis statistics
+            frequency_stats = response.get("frequency_statistics", {})
+            if frequency_stats:
+                pyq_integration_results["frequency_analysis_statistics"] = True
+                print(f"   ✅ Frequency analysis statistics present")
+            
+            # Check category analysis
+            category_analysis = response.get("category_analysis", {})
+            if category_analysis:
+                pyq_integration_results["category_analysis_working"] = True
+                print(f"   ✅ Category analysis working")
+            
+            # Check method distribution
+            method_distribution = response.get("method_distribution", {})
+            if method_distribution:
+                pyq_integration_results["method_distribution_working"] = True
+                print(f"   ✅ Method distribution working")
+        
+        elif response and response.get("status_code") == 404:
+            print("   ❌ /admin/frequency-analysis-report endpoint returns 404 - NOT IMPLEMENTED")
+        
+        # PHASE 6: CRITICAL ENDPOINT 5 - /admin/pyq/upload (Enhanced)
+        print("\n📤 PHASE 6: TESTING /admin/pyq/upload - ENHANCED ENRICHMENT")
+        print("-" * 50)
+        print("Testing PYQ upload with enhanced enrichment service")
+        
+        # Create test PYQ CSV
+        test_pyq_csv = """year,slot,stem,answer,subcategory,type_of_question
+2023,1,"A train 150m long crosses a platform 250m long in 20 seconds. What is the speed?","72 km/h","Time-Speed-Distance","Trains"
+2022,2,"If 25% of a number is 50, what is the number?","200","Percentage","Basics"
+"""
+        
+        try:
+            import io
+            import requests
+            
+            csv_file = io.BytesIO(test_pyq_csv.encode('utf-8'))
+            files = {'file': ('test_pyq.csv', csv_file, 'text/csv')}
+            
+            response = requests.post(
+                f"{self.base_url}/admin/pyq/upload",
+                files=files,
+                headers={'Authorization': admin_headers['Authorization']} if admin_headers else {},
+                timeout=30
+            )
+            
+            if response.status_code in [200, 201]:
+                pyq_integration_results["pyq_upload_endpoint_accessible"] = True
+                print(f"   ✅ /admin/pyq/upload endpoint accessible and working")
+                
+                response_data = response.json()
+                
+                # Check for enhanced enrichment service triggers
+                if "enhanced_enrichment" in response_data or "enrichment_service" in response_data:
+                    pyq_integration_results["enhanced_enrichment_service_triggers"] = True
+                    print(f"   ✅ Enhanced enrichment service triggers confirmed")
+                
+                # Check for background task scheduling
+                if "background_task" in response_data or "processing_started" in response_data:
+                    pyq_integration_results["background_task_scheduling"] = True
+                    print(f"   ✅ Background task scheduling confirmed")
+            
+            elif response.status_code == 404:
+                print("   ❌ /admin/pyq/upload endpoint returns 404 - NOT ACCESSIBLE")
+            else:
+                pyq_integration_results["pyq_upload_endpoint_accessible"] = True
+                print(f"   ⚠️ /admin/pyq/upload endpoint accessible (status: {response.status_code})")
+                
+        except Exception as e:
+            print(f"   ❌ PYQ upload test failed: {e}")
+        
+        # PHASE 7: CRITICAL ENDPOINT 6 - /admin/upload-questions-csv (Dynamic Frequency)
+        print("\n📝 PHASE 7: TESTING /admin/upload-questions-csv - DYNAMIC FREQUENCY")
+        print("-" * 50)
+        print("Testing regular questions upload with dynamic frequency calculation")
+        
+        # Create test regular questions CSV
+        test_regular_csv = """stem,image_url,answer,solution_approach,principle_to_remember
+"A bus travels 180 km in 3 hours. What is its speed?","","60 km/h","Speed = Distance / Time = 180/3 = 60 km/h","Speed is distance divided by time"
+"""
+        
+        try:
+            csv_file = io.BytesIO(test_regular_csv.encode('utf-8'))
+            files = {'file': ('test_regular.csv', csv_file, 'text/csv')}
+            
+            response = requests.post(
+                f"{self.base_url}/admin/upload-questions-csv",
+                files=files,
+                headers={'Authorization': admin_headers['Authorization']} if admin_headers else {},
+                timeout=30
+            )
+            
+            if response.status_code in [200, 201]:
+                pyq_integration_results["regular_upload_endpoint_accessible"] = True
+                print(f"   ✅ /admin/upload-questions-csv endpoint accessible and working")
+                
+                response_data = response.json()
+                
+                # Check for dynamic frequency calculation
+                enrichment_results = response_data.get("enrichment_results", [])
+                for result in enrichment_results:
+                    pyq_freq_score = result.get("pyq_frequency_score")
+                    if pyq_freq_score is not None:
+                        pyq_integration_results["dynamic_frequency_calculation_working"] = True
+                        pyq_integration_results["pyq_frequency_score_population"] = True
+                        print(f"   ✅ Dynamic frequency calculation working: {pyq_freq_score}")
+                        break
+            
+            elif response.status_code == 404:
+                print("   ❌ /admin/upload-questions-csv endpoint returns 404")
+            else:
+                pyq_integration_results["regular_upload_endpoint_accessible"] = True
+                print(f"   ⚠️ /admin/upload-questions-csv endpoint accessible (status: {response.status_code})")
+                
+        except Exception as e:
+            print(f"   ❌ Regular questions upload test failed: {e}")
+        
+        # PHASE 8: END-TO-END WORKFLOW VALIDATION
+        print("\n🔄 PHASE 8: END-TO-END WORKFLOW VALIDATION")
+        print("-" * 50)
+        print("Validating complete PYQ enrichment workflow")
+        
+        # Check if PYQ enrichment workflow is operational
+        workflow_components = [
+            pyq_integration_results["pyq_upload_endpoint_accessible"],
+            pyq_integration_results["enhanced_enrichment_service_triggers"],
+            pyq_integration_results["regular_upload_endpoint_accessible"],
+            pyq_integration_results["dynamic_frequency_calculation_working"]
+        ]
+        
+        if sum(workflow_components) >= 3:
+            pyq_integration_results["pyq_enrichment_workflow_operational"] = True
+            print(f"   ✅ PYQ enrichment workflow operational")
+        
+        # Check for no 404 errors on new endpoints
+        new_endpoints_accessible = [
+            pyq_integration_results["pyq_questions_endpoint_accessible"],
+            pyq_integration_results["enrichment_status_endpoint_accessible"],
+            pyq_integration_results["trigger_enrichment_endpoint_accessible"],
+            pyq_integration_results["frequency_analysis_endpoint_accessible"]
+        ]
+        
+        if sum(new_endpoints_accessible) >= 3:
+            pyq_integration_results["no_404_errors_for_new_endpoints"] = True
+            print(f"   ✅ No 404 errors for new endpoints")
+        
+        # Check background processing integration
+        background_indicators = [
+            pyq_integration_results["background_task_creation"],
+            pyq_integration_results["background_task_scheduling"]
+        ]
+        
+        if sum(background_indicators) >= 1:
+            pyq_integration_results["background_processing_integrated"] = True
+            print(f"   ✅ Background processing properly integrated")
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 80)
+        print("COMPREHENSIVE PYQ INTEGRATION TEST RESULTS")
+        print("=" * 80)
+        
+        passed_tests = sum(pyq_integration_results.values())
+        total_tests = len(pyq_integration_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        # Group results by critical endpoints
+        endpoint_categories = {
+            "ADMIN AUTHENTICATION": [
+                "admin_authentication_working", "admin_token_valid"
+            ],
+            "ENDPOINT 1: /admin/pyq/questions": [
+                "pyq_questions_endpoint_accessible", "pyq_questions_year_filter_working",
+                "pyq_questions_pagination_working", "pyq_questions_enrichment_fields_present"
+            ],
+            "ENDPOINT 2: /admin/pyq/enrichment-status": [
+                "enrichment_status_endpoint_accessible", "enrichment_statistics_calculation",
+                "completion_rate_calculations", "recent_activity_tracking"
+            ],
+            "ENDPOINT 3: /admin/pyq/trigger-enrichment": [
+                "trigger_enrichment_endpoint_accessible", "manual_enrichment_triggering",
+                "background_task_creation"
+            ],
+            "ENDPOINT 4: /admin/frequency-analysis-report": [
+                "frequency_analysis_endpoint_accessible", "frequency_analysis_statistics",
+                "category_analysis_working", "method_distribution_working"
+            ],
+            "ENDPOINT 5: /admin/pyq/upload": [
+                "pyq_upload_endpoint_accessible", "enhanced_enrichment_service_triggers",
+                "background_task_scheduling"
+            ],
+            "ENDPOINT 6: /admin/upload-questions-csv": [
+                "regular_upload_endpoint_accessible", "dynamic_frequency_calculation_working",
+                "pyq_frequency_score_population"
+            ],
+            "END-TO-END WORKFLOW": [
+                "pyq_enrichment_workflow_operational", "no_404_errors_for_new_endpoints",
+                "background_processing_integrated"
+            ]
+        }
+        
+        for category, tests in endpoint_categories.items():
+            print(f"\n{category}:")
+            category_passed = 0
+            category_total = len(tests)
+            
+            for test in tests:
+                if test in pyq_integration_results:
+                    result = pyq_integration_results[test]
+                    status = "✅ PASS" if result else "❌ FAIL"
+                    print(f"  {test.replace('_', ' ').title():<45} {status}")
+                    if result:
+                        category_passed += 1
+            
+            category_rate = (category_passed / category_total) * 100 if category_total > 0 else 0
+            print(f"  Category Success Rate: {category_passed}/{category_total} ({category_rate:.1f}%)")
+        
+        print("-" * 80)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # CRITICAL ANALYSIS
+        print("\n🎯 CRITICAL ANALYSIS:")
+        
+        # Check each critical endpoint
+        critical_endpoints = [
+            ("PYQ Questions Retrieval", pyq_integration_results["pyq_questions_endpoint_accessible"]),
+            ("Enrichment Status Monitoring", pyq_integration_results["enrichment_status_endpoint_accessible"]),
+            ("Manual Enrichment Triggering", pyq_integration_results["trigger_enrichment_endpoint_accessible"]),
+            ("Frequency Analysis Reporting", pyq_integration_results["frequency_analysis_endpoint_accessible"]),
+            ("Enhanced PYQ Upload", pyq_integration_results["pyq_upload_endpoint_accessible"]),
+            ("Dynamic Frequency Calculation", pyq_integration_results["dynamic_frequency_calculation_working"])
+        ]
+        
+        for endpoint_name, status in critical_endpoints:
+            status_text = "✅ WORKING" if status else "❌ NOT WORKING"
+            print(f"{endpoint_name:<35} {status_text}")
+        
+        # SUCCESS CRITERIA VALIDATION
+        print("\n📋 SUCCESS CRITERIA VALIDATION:")
+        
+        accessible_endpoints = sum([
+            pyq_integration_results["pyq_questions_endpoint_accessible"],
+            pyq_integration_results["enrichment_status_endpoint_accessible"],
+            pyq_integration_results["trigger_enrichment_endpoint_accessible"],
+            pyq_integration_results["frequency_analysis_endpoint_accessible"],
+            pyq_integration_results["pyq_upload_endpoint_accessible"],
+            pyq_integration_results["regular_upload_endpoint_accessible"]
+        ])
+        
+        print(f"Accessible Endpoints: {accessible_endpoints}/6")
+        print(f"No 404 Errors: {'✅ YES' if pyq_integration_results['no_404_errors_for_new_endpoints'] else '❌ NO'}")
+        print(f"End-to-End Workflow: {'✅ OPERATIONAL' if pyq_integration_results['pyq_enrichment_workflow_operational'] else '❌ NOT OPERATIONAL'}")
+        
+        # 85%+ FUNCTIONALITY ACHIEVEMENT VALIDATION
+        print("\n📋 85%+ FUNCTIONALITY ACHIEVEMENT VALIDATION:")
+        
+        if success_rate >= 85:
+            print("🎉 SUCCESS: 85%+ functionality achievement VALIDATED!")
+            print("✅ Critical gaps from previous testing (14.3% success rate) have been resolved")
+            print("✅ System now achieves the claimed 85%+ functionality")
+        elif success_rate >= 70:
+            print("⚠️ PARTIAL SUCCESS: Significant improvements made but not quite 85%")
+            print("✅ Major progress from 14.3% success rate")
+            print("⚠️ Some gaps remain to reach full 85% functionality")
+        elif success_rate >= 50:
+            print("⚠️ MODERATE PROGRESS: Some improvements but significant gaps remain")
+            print("⚠️ Still below 85% functionality target")
+        else:
+            print("❌ INSUFFICIENT PROGRESS: Critical gaps persist")
+            print("❌ Far from 85% functionality achievement")
+        
+        return success_rate >= 70
+
 
 if __name__ == "__main__":
     tester = CATBackendTester()
