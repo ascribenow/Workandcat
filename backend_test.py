@@ -13904,22 +13904,22 @@ class CATBackendTester:
 if __name__ == "__main__":
     tester = CATBackendTester()
     
-    print("🚀 STARTING DATABASE SCHEMA & LLM IMPROVEMENTS TESTING")
+    print("🚀 STARTING PYQ & CONCEPTUAL MATCHING IMPLEMENTATION TESTING")
     print("=" * 80)
-    print("Testing database schema updates and LLM prompt improvements as per review request")
+    print("Testing PYQ Enhanced Schema, Enrichment, and Conceptual Matching as per review request")
     print("")
     
-    # Run Database Schema & LLM Improvements testing (NEW - Review Request Focus)
-    schema_llm_success = tester.test_database_schema_and_llm_improvements()
+    # Run PYQ & Conceptual Matching Implementation testing (NEW - Review Request Focus)
+    pyq_success = tester.test_pyq_conceptual_matching_implementation()
     
     print("\n" + "=" * 80)
-    print("DATABASE SCHEMA & LLM IMPROVEMENTS SUMMARY")
+    print("PYQ & CONCEPTUAL MATCHING IMPLEMENTATION SUMMARY")
     print("=" * 80)
     
-    if schema_llm_success:
-        print("🎉 DATABASE SCHEMA & LLM: Core functionality working")
+    if pyq_success:
+        print("🎉 PYQ & CONCEPTUAL MATCHING: Core functionality working")
     else:
-        print("❌ DATABASE SCHEMA & LLM: Critical issues detected")
+        print("❌ PYQ & CONCEPTUAL MATCHING: Critical issues detected")
     
     print(f"\nTotal Tests Run: {tester.tests_run}")
     print(f"Total Tests Passed: {tester.tests_passed}")
@@ -13929,11 +13929,11 @@ if __name__ == "__main__":
         print(f"Overall Success Rate: {overall_success_rate:.1f}%")
         
         if overall_success_rate >= 80:
-            print("🎉 SYSTEM STATUS: Database Schema & LLM Improvements Working")
+            print("🎉 SYSTEM STATUS: PYQ & Conceptual Matching Implementation Working")
         elif overall_success_rate >= 60:
-            print("⚠️ SYSTEM STATUS: Database Schema & LLM Improvements Partially Working")
+            print("⚠️ SYSTEM STATUS: PYQ & Conceptual Matching Implementation Partially Working")
         else:
-            print("❌ SYSTEM STATUS: Database Schema & LLM Improvements Need Attention")
+            print("❌ SYSTEM STATUS: PYQ & Conceptual Matching Implementation Need Attention")
     
     print("\n🎯 TESTING COMPLETED")
     print("=" * 80)
