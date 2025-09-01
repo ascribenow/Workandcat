@@ -42,7 +42,10 @@ class AdvancedLLMEnrichmentService:
         self.fallback_model = "gpt-4o-mini" 
         self.current_model = self.primary_model
         self.last_rate_limit_time = None
-        self.rate_limit_recovery_interval = 300  # 5 minutes before testing GPT-4o again
+        self.rate_limit_recovery_interval = 1800  # 30 minutes before testing GPT-4o again
+        
+        # CRITICAL: Both models MUST maintain 100% quality standards
+        # GPT-4o-mini uses IDENTICAL prompts and quality requirements as GPT-4o
         
     async def enrich_question_deeply(self, stem: str, admin_answer: str = None, question_type: str = "regular") -> Dict[str, Any]:
         """
