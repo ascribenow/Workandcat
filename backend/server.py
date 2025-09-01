@@ -3959,6 +3959,117 @@ async def trigger_pyq_enrichment(
         logger.error(f"Error triggering PYQ enrichment: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to trigger enrichment: {str(e)}")
 
+@api_router.get("/admin/frequency-analysis-report")
+async def get_frequency_analysis_report(
+    current_user: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_async_compatible_db)
+):
+    """
+    Generate comprehensive frequency analysis report
+    """
+    try:
+        # Get frequency analysis statistics
+        frequency_stats_query = await db.execute(
+            select(
+                func.count(Question.id).label('total_questions'),
+                func.sum(case((Question.pyq_frequency_score > 0, 1), else_=0)).label('questions_with_frequency'),
+                func.avg(Question.pyq_frequency_score).label('avg_frequency_score'),
+                func.max(Question.pyq_frequency_score).label('max_frequency_score'),
+                func.min(case((Question.pyq_frequency_score > 0, Question.pyq_frequency_score), else_=None)).label('min_frequency_score'),
+                func.sum(Question.pyq_conceptual_matches).label('total_conceptual_matches')
+            ).where(Question.is_active == True)
+        )
+        
+        frequency_stats = frequency_stats_query.first()
+        
+        # Get frequency distribution by method
+        method_distribution_query = await db.execute(
+            select(
+                Question.frequency_analysis_method,
+                func.count(Question.id).label('count'),
+                func.avg(Question.pyq_frequency_score).label('avg_score')
+            ).where(
+                and_(
+                    Question.is_active == True,
+                    Question.frequency_analysis_method.isnot(None)
+                )
+            ).group_by(Question.frequency_analysis_method)
+        )
+        
+        method_distribution = {}
+        for row in method_distribution_query:
+            method_distribution[row.frequency_analysis_method] = {
+                "count": row.count,
+                "avg_score": round(float(row.avg_score), 4) if row.avg_score else 0
+            }
+        
+        # Get top categories by frequency
+        category_frequency_query = await db.execute(
+            select(
+                Question.category,
+                func.count(Question.id).label('question_count'),
+                func.avg(Question.pyq_frequency_score).label('avg_frequency'),
+                func.sum(Question.pyq_conceptual_matches).label('total_matches')
+            ).where(
+                and_(
+                    Question.is_active == True,
+                    Question.category.isnot(None)
+                )
+            ).group_by(Question.category).order_by(desc(func.avg(Question.pyq_frequency_score)))
+        )
+        
+        category_analysis = []
+        for row in category_frequency_query:
+            category_analysis.append({
+                "category": row.category,
+                "question_count": row.question_count,
+                "avg_frequency": round(float(row.avg_frequency), 4) if row.avg_frequency else 0,
+                "total_conceptual_matches": row.total_matches or 0,
+                "frequency_rating": "High" if (row.avg_frequency or 0) > 0.7 else "Medium" if (row.avg_frequency or 0) > 0.4 else "Low"
+            })
+        
+        # Calculate system health metrics
+        total_questions = frequency_stats.total_questions or 0
+        analyzed_questions = frequency_stats.questions_with_frequency or 0
+        analysis_coverage = (analyzed_questions / total_questions * 100) if total_questions > 0 else 0
+        
+        # Determine system status
+        if analysis_coverage > 90:
+            system_status = "excellent"
+        elif analysis_coverage > 70:
+            system_status = "good"
+        elif analysis_coverage > 50:
+            system_status = "needs_improvement"
+        else:
+            system_status = "critical"
+        
+        return {
+            "report_generated": datetime.utcnow().isoformat(),
+            "system_overview": {
+                "total_active_questions": total_questions,
+                "questions_with_frequency_analysis": analyzed_questions,
+                "analysis_coverage_percentage": round(analysis_coverage, 2),
+                "system_status": system_status,
+                "avg_frequency_score": round(float(frequency_stats.avg_frequency_score), 4) if frequency_stats.avg_frequency_score else 0,
+                "frequency_score_range": {
+                    "min": round(float(frequency_stats.min_frequency_score), 4) if frequency_stats.min_frequency_score else 0,
+                    "max": round(float(frequency_stats.max_frequency_score), 4) if frequency_stats.max_frequency_score else 0
+                },
+                "total_conceptual_matches": frequency_stats.total_conceptual_matches or 0
+            },
+            "analysis_methods": method_distribution,
+            "category_analysis": category_analysis[:10],  # Top 10 categories
+            "recommendations": [
+                "Run nightly frequency updates to maintain accuracy" if analysis_coverage < 90 else "Frequency analysis coverage is excellent",
+                "Consider manual enrichment for low-frequency categories" if len([c for c in category_analysis if c["avg_frequency"] < 0.3]) > 3 else "Category frequency distribution is balanced",
+                "Monitor PYQ conceptual matching effectiveness" if (frequency_stats.total_conceptual_matches or 0) < (analyzed_questions * 2) else "Conceptual matching is performing well"
+            ]
+        }
+        
+    except Exception as e:
+        logger.error(f"Error generating frequency analysis report: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to generate report: {str(e)}")
+
 async def enhanced_pyq_enrichment_background(pyq_question_id: str):
     """
     ENHANCED Background task for PYQ question enrichment using full LLM pipeline
