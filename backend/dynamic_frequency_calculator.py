@@ -223,48 +223,45 @@ class DynamicFrequencyCalculator:
     
     def _calculate_time_weighted_metrics(self, conceptual_matches: List[Dict[str, Any]], total_pyqs: int) -> Dict[str, Any]:
         """
-        Calculate time-weighted frequency metrics emphasizing recent years
+        Calculate weighted frequency metrics based on overall PYQ database entries (no year dependency)
         """
         try:
             if not conceptual_matches:
                 return {
                     'recent_frequency': 0.0,
-                    'top_years': [],
+                    'top_categories': [],
                     'trend_analysis': 'insufficient_data'
                 }
             
-            current_year = datetime.now().year
-            recent_cutoff = current_year - self.recent_years_window
+            # Calculate frequency based on total conceptual matches
+            overall_frequency = len(conceptual_matches) / total_pyqs if total_pyqs > 0 else 0.0
             
-            # Recent matches (last 5 years)
-            recent_matches = [match for match in conceptual_matches if match['year'] >= recent_cutoff]
-            recent_frequency = len(recent_matches) / total_pyqs if total_pyqs > 0 else 0.0
-            
-            # Year distribution
-            year_counts = {}
+            # Category distribution instead of year distribution
+            category_counts = {}
             for match in conceptual_matches:
-                year = match['year']
-                year_counts[year] = year_counts.get(year, 0) + 1
+                category = match.get('subcategory', 'Unknown')
+                category_counts[category] = category_counts.get(category, 0) + 1
             
-            top_years = sorted(year_counts.items(), key=lambda x: x[1], reverse=True)[:5]
+            top_categories = sorted(category_counts.items(), key=lambda x: x[1], reverse=True)[:5]
             
-            # Trend analysis
-            if len(top_years) >= 3:
-                recent_years_count = sum(count for year, count in top_years if year >= recent_cutoff)
-                older_years_count = sum(count for year, count in top_years if year < recent_cutoff)
+            # Trend analysis based on category distribution
+            if len(top_categories) >= 3:
+                # Simple trend analysis based on category diversity
+                total_matches = sum(count for category, count in top_categories)
+                top_category_dominance = top_categories[0][1] / total_matches if total_matches > 0 else 0
                 
-                if recent_years_count > older_years_count:
-                    trend_analysis = 'increasing'
-                elif recent_years_count < older_years_count:
-                    trend_analysis = 'decreasing'
+                if top_category_dominance > 0.6:
+                    trend_analysis = 'concentrated'  # One category dominates
+                elif top_category_dominance < 0.3:
+                    trend_analysis = 'diverse'  # Well distributed across categories
                 else:
-                    trend_analysis = 'stable'
+                    trend_analysis = 'balanced'  # Moderate distribution
             else:
                 trend_analysis = 'limited_data'
             
             return {
-                'recent_frequency': min(1.0, recent_frequency),
-                'top_years': [year for year, count in top_years],
+                'recent_frequency': min(1.0, overall_frequency),
+                'top_categories': [category for category, count in top_categories],
                 'trend_analysis': trend_analysis
             }
             
@@ -272,7 +269,7 @@ class DynamicFrequencyCalculator:
             logger.error(f"❌ Error calculating time-weighted metrics: {e}")
             return {
                 'recent_frequency': 0.0,
-                'top_years': [],
+                'top_categories': [],
                 'trend_analysis': 'calculation_error'
             }
     
