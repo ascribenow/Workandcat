@@ -536,7 +536,7 @@ For a trains meeting problem:
 Return ONLY this JSON format with sophisticated, specific content."""
 
                 response = client.chat.completions.create(
-                    model="gpt-4o",
+                    model=model_to_use,
                     messages=[
                         {"role": "system", "content": system_message},
                         {"role": "user", "content": f"Question: {stem}\nMathematical Foundation: {deep_analysis.get('mathematical_foundation', '')}\nCategory: {classification.get('category', '')}\nSubcategory: {classification.get('subcategory', '')}\nType: {classification.get('type_of_question', '')}"}
@@ -559,11 +559,20 @@ Return ONLY this JSON format with sophisticated, specific content."""
                     'concept_keywords': json.dumps(concept_data.get('concept_keywords', []))
                 }
                 
-                logger.info(f"✅ Advanced conceptual extraction completed")
+                # If we successfully used primary model after recovery, mark it as recovered
+                if selection_reason == "testing_primary_recovery":
+                    self._mark_primary_model_recovered()
+                
+                logger.info(f"✅ Advanced conceptual extraction completed with {model_to_use}")
                 return result
                 
             except Exception as e:
                 logger.warning(f"⚠️ Conceptual extraction attempt {attempt + 1} failed: {e}")
+                
+                # Handle rate limit errors intelligently
+                if self._handle_rate_limit_error(e):
+                    logger.info("🔄 Retrying conceptual extraction immediately with fallback model due to rate limit")
+                    continue
                 
                 if attempt < self.max_retries - 1:
                     delay = self.retry_delays[attempt]
