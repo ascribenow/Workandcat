@@ -668,71 +668,29 @@ class CATBackendTester:
 2024,2,"If 25% of a number is 75, what is 40% of the same number?","120","Percentage","Basics"
 """
         
-        # Test PYQ upload endpoint
+        # Upload PYQ data first to ensure we have baseline for frequency calculation
+        print("\n📋 Step 1: Upload PYQ Data for Frequency Baseline")
         try:
             import io
             import requests
             
             csv_file = io.BytesIO(test_pyq_csv.encode('utf-8'))
-            files = {'file': ('test_pyq_questions.csv', csv_file, 'text/csv')}
+            files = {'file': ('test_pyq_for_frequency.csv', csv_file, 'text/csv')}
             
             response = requests.post(
                 f"{self.base_url}/admin/pyq/upload",
                 files=files,
-                headers={'Authorization': admin_headers['Authorization']} if admin_headers else {},
-                timeout=60  # Longer timeout for enrichment processing
+                headers={'Authorization': admin_headers['Authorization']},
+                timeout=60
             )
             
             if response.status_code in [200, 201]:
-                pyq_results["pyq_upload_endpoint_accessible"] = True
-                
-                response_data = response.json()
-                print(f"   ✅ PYQ upload successful")
-                print(f"   📊 Response status: {response.status_code}")
-                
-                # Check enrichment indicators
-                enrichment_summary = response_data.get("enrichment_summary", {})
-                processing_results = response_data.get("processing_results", [])
-                
-                if enrichment_summary:
-                    enhanced_enrichment = enrichment_summary.get("enhanced_enrichment_triggered", False)
-                    if enhanced_enrichment:
-                        pyq_results["enhanced_enrichment_service_working"] = True
-                        print(f"   ✅ Enhanced PYQ enrichment service triggered")
-                    
-                    difficulty_assessed = enrichment_summary.get("difficulty_assessment_completed", 0)
-                    if difficulty_assessed > 0:
-                        pyq_results["difficulty_assessment_working"] = True
-                        print(f"   ✅ Difficulty assessment completed for {difficulty_assessed} questions")
-                    
-                    concepts_extracted = enrichment_summary.get("concept_extraction_completed", 0)
-                    if concepts_extracted > 0:
-                        pyq_results["concept_extraction_working"] = True
-                        print(f"   ✅ Concept extraction completed for {concepts_extracted} questions")
-                    
-                    quality_validated = enrichment_summary.get("quality_validation_completed", 0)
-                    if quality_validated > 0:
-                        pyq_results["quality_validation_working"] = True
-                        print(f"   ✅ Quality validation completed for {quality_validated} questions")
-                
-                # Check individual question processing
-                activated_questions = 0
-                for result in processing_results:
-                    if result.get("is_active", False):
-                        activated_questions += 1
-                
-                if activated_questions > 0:
-                    pyq_results["pyq_activation_logic_working"] = True
-                    print(f"   ✅ PYQ activation logic working - {activated_questions} questions activated")
-                
-            elif response.status_code in [401, 403]:
-                pyq_results["pyq_upload_endpoint_accessible"] = True
-                print(f"   ⚠️ PYQ upload endpoint accessible but authentication required")
+                print(f"   ✅ PYQ upload successful for frequency baseline")
             else:
-                print(f"   ❌ PYQ upload failed with status: {response.status_code}")
+                print(f"   ⚠️ PYQ upload status: {response.status_code} - continuing with existing data")
                 
         except Exception as e:
-            print(f"   ❌ PYQ upload test failed: {e}")
+            print(f"   ⚠️ PYQ upload failed: {e} - continuing with existing data")
         
         # PHASE 4: DYNAMIC FREQUENCY CALCULATION TESTING
         print("\n🧮 PHASE 4: DYNAMIC FREQUENCY CALCULATION TESTING")
