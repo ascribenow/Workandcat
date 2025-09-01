@@ -38,7 +38,11 @@ class EnrichCheckerService:
         self.advanced_enricher = AdvancedLLMEnrichmentService()
         self.max_retries = 3
         self.retry_delays = [2, 5, 10]
-        self.timeout = 60
+        self.timeout = 120  # Increased timeout for GPT-4o latency
+        
+        # Inherit intelligent model switching from Advanced LLM Service
+        self.primary_model = "gpt-4o"
+        self.fallback_model = "gpt-4o-mini"
         
         logger.info("✅ EnrichCheckerService initialized successfully")
     
