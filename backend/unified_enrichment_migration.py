@@ -25,6 +25,10 @@ async def add_unified_enrichment_fields():
         if not DATABASE_URL:
             raise ValueError("DATABASE_URL not found in environment")
         
+        # Convert to async driver
+        if DATABASE_URL.startswith("postgresql://"):
+            DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://", 1)
+        
         engine = create_async_engine(DATABASE_URL)
         
         logger.info("🔧 Starting Unified Enrichment Fields Migration")
