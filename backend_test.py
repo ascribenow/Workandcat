@@ -4,6 +4,7 @@ import json
 from datetime import datetime
 import time
 import os
+import io
 
 class CATBackendTester:
     def __init__(self, base_url="https://question-engine-1.preview.emergentagent.com/api"):
