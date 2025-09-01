@@ -3901,7 +3901,7 @@ async def get_pyq_enrichment_status(
 
 @api_router.post("/admin/pyq/trigger-enrichment")
 async def trigger_pyq_enrichment(
-    question_ids: Optional[List[str]] = None,
+    request: TriggerEnrichmentRequest = TriggerEnrichmentRequest(),
     current_user: User = Depends(require_admin),
     db: AsyncSession = Depends(get_async_compatible_db)
 ):
@@ -3910,7 +3910,7 @@ async def trigger_pyq_enrichment(
     """
     try:
         # If no specific questions provided, get all pending questions
-        if not question_ids:
+        if not request.question_ids:
             pending_query = await db.execute(
                 select(PYQQuestion.id).where(
                     or_(
@@ -3921,6 +3921,8 @@ async def trigger_pyq_enrichment(
                 ).limit(50)  # Limit to prevent overload
             )
             question_ids = [str(row.id) for row in pending_query]
+        else:
+            question_ids = request.question_ids
         
         if not question_ids:
             return {
