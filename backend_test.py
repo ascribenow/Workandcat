@@ -509,45 +509,45 @@ class CATBackendTester:
         print("=" * 80)
         
         pyq_results = {
-            # PYQ Enhanced Schema Verification
-            "pyq_questions_endpoint_accessible": False,
-            "pyq_enhanced_fields_exist": False,
-            "is_active_field_present": False,
-            "difficulty_band_field_present": False,
-            "core_concepts_field_present": False,
-            "concept_extraction_status_field": False,
-            "quality_verified_field_present": False,
-            
-            # Admin Authentication for PYQ Operations
+            # Admin Authentication
             "admin_authentication_working": False,
             "admin_token_valid": False,
             
-            # Enhanced PYQ Enrichment Testing
-            "pyq_upload_endpoint_accessible": False,
-            "enhanced_enrichment_service_working": False,
-            "difficulty_assessment_working": False,
-            "concept_extraction_working": False,
-            "quality_validation_working": False,
-            "pyq_activation_logic_working": False,
+            # 1. PYQ ENDPOINTS FUNCTIONALITY
+            "pyq_questions_endpoint_no_year_filter": False,
+            "pyq_questions_returns_functional_data": False,
+            "pyq_trigger_enrichment_proper_body": False,
+            "pyq_enrichment_status_working": False,
+            "pyq_frequency_analysis_report_working": False,
+            "no_500_errors_on_pyq_endpoints": False,
             
-            # Dynamic Frequency Calculation Testing
-            "dynamic_frequency_calculator_working": False,
-            "regular_question_upload_working": False,
-            "pyq_frequency_score_calculated": False,
-            "hardcoded_values_replaced": False,
-            "conceptual_matching_integrated": False,
+            # 2. DYNAMIC FREQUENCY CALCULATION END-TO-END
+            "regular_question_upload_successful": False,
+            "pyq_frequency_score_dynamic_not_hardcoded": False,
+            "frequency_analysis_method_dynamic": False,
+            "conceptual_matches_count_populated": False,
+            "dynamic_calculation_replaces_hardcoded": False,
             
-            # Conceptual Matching System Testing
-            "conceptual_similarity_working": False,
-            "pyq_concept_extraction_working": False,
-            "similarity_threshold_appropriate": False,
-            "matching_algorithm_functional": False,
+            # 3. DATABASE INTEGRATION DEPTH
+            "category_field_populated_by_llm": False,
+            "pyq_enrichment_populates_difficulty_band": False,
+            "pyq_enrichment_populates_core_concepts": False,
+            "background_processing_integration_works": False,
+            "database_fields_real_llm_content": False,
             
-            # Production Workflow Testing
-            "end_to_end_workflow_working": False,
-            "pyq_to_regular_integration": False,
-            "frequency_scores_dynamic": False,
-            "workflow_performance_acceptable": False
+            # 4. END-TO-END WORKFLOW VALIDATION
+            "complete_workflow_pyq_to_regular": False,
+            "all_steps_work_without_errors": False,
+            "database_fields_populated_correctly": False,
+            "no_hardcoded_fallback_values": False,
+            "real_data_processing_confirmed": False,
+            
+            # SUCCESS CRITERIA VALIDATION
+            "endpoints_return_functional_data": False,
+            "dynamic_frequency_real_values": False,
+            "background_processing_executes": False,
+            "llm_generated_content_confirmed": False,
+            "end_to_end_workflows_successful": False
         }
         
         # PHASE 1: ADMIN AUTHENTICATION SETUP
