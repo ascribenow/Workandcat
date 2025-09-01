@@ -246,6 +246,10 @@ class EnrichCheckerService:
             try:
                 client = openai.OpenAI(api_key=self.openai_api_key, timeout=self.timeout)
                 
+                # Use intelligent model selection from Advanced LLM Service
+                model_to_use, selection_reason = self.advanced_enricher._should_use_fallback_model()
+                logger.info(f"🤖 Quality assessment using model: {model_to_use} (reason: {selection_reason})")
+                
                 # Prepare enrichment data for assessment
                 enrichment_data = {
                     "right_answer": question.right_answer,
