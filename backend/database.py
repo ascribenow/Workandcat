@@ -124,8 +124,6 @@ class Question(Base):
     top_matching_concepts = Column(Text, default='[]')  # JSON string for SQLite
     frequency_analysis_method = Column(String(50), default='subcategory')
     frequency_last_updated = Column(DateTime, nullable=True)
-    pattern_keywords = Column(Text, default='[]')  # JSON string for SQLite
-    pattern_solution_approach = Column(Text, nullable=True)
     pyq_occurrences_last_10_years = Column(Integer, default=0)
     total_pyq_count = Column(Integer, default=0)
     
