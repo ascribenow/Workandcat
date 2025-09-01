@@ -65,7 +65,7 @@ const ContactUs = () => {
               </svg>
             </div>
             <h3 className="text-2xl font-bold mb-4 text-center" style={{ color: '#545454' }}>
-              Real-Time Technical Support
+              Real Time Support
             </h3>
             <p className="text-gray-600 mb-6 text-center" style={{ fontFamily: 'Lato, sans-serif' }}>
               Stuck with a login issue? Payment not going through? Daily-12 session not loading? Our tech team is standing by to help you get back on track, fast.
