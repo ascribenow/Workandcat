@@ -110,7 +110,6 @@ class Question(Base):
     last_llm_assessment_date = Column(DateTime, nullable=True)  # Track when last attempted
     llm_assessment_error = Column(Text, nullable=True)  # Store last error if failed
     frequency_band = Column(String(20), nullable=True)  # High|Medium|Low
-    frequency_notes = Column(Text, nullable=True)
     learning_impact = Column(Numeric(5, 2), nullable=True)  # 0-100
     learning_impact_band = Column(String(20), nullable=True)
     importance_index = Column(Numeric(5, 2), nullable=True)  # 0-100
