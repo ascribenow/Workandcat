@@ -153,7 +153,7 @@ class AdvancedLLMEnrichmentService:
         
         if is_rate_limit:
             self.last_rate_limit_time = time.time()
-            logger.warning(f"🚨 Rate limit detected for {self.primary_model}. Switching to {self.fallback_model} temporarily")
+            logger.warning(f"🚨 Rate limit detected for {self.primary_model}. Switching to {self.fallback_model} with IDENTICAL quality standards")
             return True
         
         return False
