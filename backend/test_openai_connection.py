@@ -43,6 +43,8 @@ async def test_openai_connection():
             
         except Exception as openai_error:
             logger.error(f"❌ OpenAI API test failed: {openai_error}")
+            import traceback
+            logger.error(f"Full traceback: {traceback.format_exc()}")
             return False
         
     except Exception as e:
