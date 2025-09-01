@@ -14567,8 +14567,7 @@ if __name__ == "__main__":
         print("MAIN TEST: PYQ INTEGRATION FOR 100% SUCCESS")
         main_test_result = self.test_pyq_integration_100_percent_success()
         
-        print("
-" + "=" * 80)
+        print("\n" + "=" * 80)
         
         # FINAL COMPREHENSIVE SUMMARY
         print("🏆 FINAL COMPREHENSIVE BACKEND TESTING SUMMARY")
