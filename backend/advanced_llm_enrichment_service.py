@@ -464,18 +464,8 @@ Return ONLY this JSON format with sophisticated, specific content."""
                     await asyncio.sleep(delay)
                     continue
                 else:
-                    # Even fallback should be sophisticated
-                    category = classification.get('category', 'Unknown')
-                    subcategory = classification.get('subcategory', 'Unknown') 
-                    
-                    return {
-                        'core_concepts': json.dumps([f"{subcategory.lower()}_analysis", "mathematical_problem_solving", "quantitative_reasoning"]),
-                        'solution_method': f"Systematic {category} Analysis Approach",
-                        'concept_difficulty': json.dumps({"complexity": "requires_analysis", "prerequisites": ["foundational_mathematics"]}),
-                        'operations_required': json.dumps(["mathematical_analysis", "logical_reasoning", "computational_execution"]),
-                        'problem_structure': "structured_mathematical_analysis_required",
-                        'concept_keywords': json.dumps([subcategory.lower(), "mathematical_analysis", "quantitative_problem"])
-                    }
+                    logger.error("❌ All conceptual extraction attempts failed - NO FALLBACK")
+                    raise Exception("Advanced conceptual extraction failed after all retries - refusing to proceed with fallback data")
     
     async def _perform_comprehensive_quality_verification(self, stem: str, enrichment_data: Dict[str, Any]) -> Dict[str, Any]:
         """Perform comprehensive quality verification with sophisticated criteria"""
