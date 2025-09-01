@@ -518,13 +518,14 @@ ${response.data.duplicate_questions > 0 ? 'ℹ️ Duplicate questions were autom
 
 📊 RESULTS SUMMARY:
 • ${summary.total_questions_checked} questions checked
-• ${summary.poor_enrichment_identified} questions with poor enrichment identified
+• ${summary.poor_enrichment_identified} questions with unacceptable enrichment identified
 • ${summary.re_enrichment_successful} questions successfully re-enriched
 • ${summary.re_enrichment_failed} questions failed re-enrichment
-• Average Quality Score: ${summary.average_quality_score}/100
+• Perfect Quality Count: ${summary.perfect_quality_count}/${summary.total_questions_checked}
+• Perfect Quality Rate: ${summary.perfect_quality_percentage}%
 • Improvement Rate: ${summary.improvement_rate_percentage}%
 
-🎉 Enrichment quality check completed successfully!`);
+🎉 100% Quality Standard enforced - only sophisticated enrichment accepted!`);
       }
     } catch (error) {
       console.error('Enrich Regular Questions error:', error);
