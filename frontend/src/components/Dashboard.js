@@ -543,7 +543,7 @@ ${response.data.duplicate_questions > 0 ? 'ℹ️ Duplicate questions were autom
   };
 
   const handleEnrichPYQQuestions = async () => {
-    if (!window.confirm('🔍 Start Enrich Checker for PYQ Questions?\n\nThis will:\n• Check enrichment quality of all PYQ questions\n• Re-enrich questions with poor quality using Advanced LLM\n• May take several minutes for large databases\n\nProceed?')) {
+    if (!window.confirm('🔍 Start Enrich Checker for PYQ Questions?\n\nThis will:\n• Check enrichment quality of 10 PYQ questions per batch\n• Re-enrich questions with poor quality using Advanced LLM\n• Process completes in 2-5 minutes per batch\n• Uses intelligent GPT-4o/GPT-4o-mini switching\n\nProceed?')) {
       return;
     }
 
