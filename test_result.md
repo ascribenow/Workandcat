@@ -118,11 +118,14 @@ backend:
     file: "/app/backend/server.py, /app/backend/enhanced_pyq_enrichment_service.py, /app/backend/dynamic_frequency_calculator.py"
     stuck_count: 0
     priority: "critical"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
         -working: false
         -agent: "testing"
         -comment: "🔍 PYQ & CONCEPTUAL MATCHING IMPLEMENTATION TESTING COMPLETED - MIXED RESULTS WITH CRITICAL GAPS! Comprehensive testing of the PYQ Enhanced Schema, Enrichment, and Conceptual Matching reveals 14.3% success rate with significant implementation gaps. KEY FINDINGS: ✅ PYQ UPLOAD INFRASTRUCTURE: /admin/pyq/upload endpoint working, successfully processes CSV files (5 files uploaded, 2 questions created per test), PYQ files tracking system operational, ✅ DATABASE SCHEMA PARTIAL: Regular questions table has pyq_frequency_score field present, schema supports PYQ integration, ❌ CRITICAL GAP: PYQ questions endpoint (/admin/pyq/questions) returns 404 - PYQ question retrieval not implemented, ❌ ENHANCED ENRICHMENT: No evidence of enhanced PYQ enrichment service triggering (difficulty assessment, concept extraction not working), ❌ DYNAMIC FREQUENCY CALCULATION: Regular question uploads not calculating real PYQ frequency scores (pyq_frequency_score remains null), hardcoded 0.4-0.8 values not replaced with dynamic calculation, ❌ CONCEPTUAL MATCHING: Conceptual similarity endpoints return 404, matching algorithms not accessible via API, ❌ END-TO-END WORKFLOW: Complete workflow (PYQ upload → Enhanced enrichment → Regular question upload → Dynamic frequency) not functional. ROOT CAUSE: While PYQ upload infrastructure exists, the core enrichment and matching services are not properly integrated or exposed. URGENT ACTION REQUIRED: 1) Implement PYQ questions retrieval endpoint, 2) Activate enhanced PYQ enrichment service integration, 3) Enable dynamic frequency calculation for regular questions, 4) Implement conceptual matching API endpoints, 5) Complete end-to-end workflow integration. SUCCESS RATE: 14.3% - Basic infrastructure present but core functionality missing."
+        -working: false
+        -agent: "main"
+        -comment: "🔧 STARTING COMPREHENSIVE PYQ INTEGRATION COMPLETION: Beginning Phase 1: Complete PYQ Upload Workflow Integration. Database schema migration executed successfully (category column verified). Now implementing: 1) Full integration of enhanced_pyq_enrichment_service into PYQ upload workflow, 2) Fix background processing to properly trigger enhanced enrichment, 3) Add missing PYQ questions retrieval endpoint, 4) Activate ConceptualFrequencyAnalyzer for background processing, 5) Create admin monitoring endpoints. Expected to resolve critical gaps and achieve 85%+ functionality."
 
   - task: "Database Schema Updates and LLM Prompt Improvements"
     implemented: true
