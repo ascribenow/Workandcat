@@ -3742,6 +3742,28 @@ async def upload_pyq_csv(file: UploadFile, db: AsyncSession, current_user: User)
         logger.error(f"PYQ CSV upload error: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to upload PYQ CSV: {str(e)}")
 
+async def enhanced_pyq_enrichment_background(pyq_question_id: str):
+    """
+    ENHANCED Background task for PYQ question enrichment using full LLM pipeline
+    Uses the new EnhancedPYQEnrichmentService for comprehensive enrichment
+    """
+    try:
+        logger.info(f"🚀 Starting ENHANCED PYQ enrichment for question {pyq_question_id}")
+        
+        # Import the enhanced service
+        from enhanced_pyq_enrichment_service import enhance_single_pyq
+        
+        # Use the enhanced enrichment service
+        success = await enhance_single_pyq(pyq_question_id)
+        
+        if success:
+            logger.info(f"✅ ENHANCED PYQ enrichment completed successfully for question {pyq_question_id}")
+        else:
+            logger.error(f"❌ ENHANCED PYQ enrichment failed for question {pyq_question_id}")
+            
+    except Exception as e:
+        logger.error(f"❌ ENHANCED PYQ enrichment exception for question {pyq_question_id}: {e}")
+
 async def enrich_pyq_question_background(pyq_question_id: str):
     """
     Background task for PYQ question enrichment using LLM
