@@ -14,6 +14,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+# Configure logger
+logger = logging.getLogger(__name__)
+
 # Production-ready PostgreSQL Database Configuration
 DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://user:password@localhost/cat_preparation")
 
