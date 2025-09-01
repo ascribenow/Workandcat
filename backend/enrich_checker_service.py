@@ -315,7 +315,7 @@ Return ONLY this JSON:
 }"""
 
                 response = client.chat.completions.create(
-                    model="gpt-4o",
+                    model=model_to_use,
                     messages=[
                         {"role": "system", "content": system_message},
                         {"role": "user", "content": f"Question: {question.stem}\n\nEnrichment Data to Assess:\n{json.dumps(enrichment_data, indent=2)}"}
@@ -328,10 +328,19 @@ Return ONLY this JSON:
                 assessment_text = response.choices[0].message.content.strip()
                 assessment_data = json.loads(assessment_text)
                 
+                # If we successfully used primary model after recovery, mark it as recovered
+                if selection_reason == "testing_primary_recovery":
+                    self.advanced_enricher._mark_primary_model_recovered()
+                
                 return assessment_data
                 
             except Exception as e:
                 logger.warning(f"⚠️ Quality assessment attempt {attempt + 1} failed: {e}")
+                
+                # Handle rate limit errors intelligently
+                if self.advanced_enricher._handle_rate_limit_error(e):
+                    logger.info("🔄 Retrying quality assessment immediately with fallback model due to rate limit")
+                    continue
                 
                 if attempt < self.max_retries - 1:
                     await asyncio.sleep(self.retry_delays[attempt])
