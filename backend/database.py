@@ -9,6 +9,7 @@ from sqlalchemy.orm import sessionmaker, relationship, validates
 from datetime import datetime
 import uuid
 import os
+import logging
 from dotenv import load_dotenv
 
 load_dotenv()
