@@ -1100,13 +1100,20 @@ Return ONLY JSON format: {{"category": "...", "subcategory": "...", "type_of_que
             }
     
     async def _determine_difficulty_level(self, stem: str, right_answer: str) -> str:
-        """Determine difficulty level: Easy, Medium, or Hard"""
-        try:
-            import openai
-            
-            client = openai.OpenAI(api_key=self.openai_api_key)
-            
-            system_message = """You are an expert in CAT quantitative ability difficulty assessment.
+        """
+        ENHANCED: Determine difficulty level with retry logic - NO FALLBACKS
+        """
+        max_retries = 3
+        retry_delays = [2, 5, 10]  # Progressive delays in seconds
+        
+        for attempt in range(max_retries):
+            try:
+                import openai
+                import asyncio
+                
+                client = openai.OpenAI(api_key=self.openai_api_key)
+                
+                system_message = """You are an expert in CAT quantitative ability difficulty assessment.
 Analyze the given question and determine its difficulty level.
 
 Difficulty Levels:
@@ -1116,30 +1123,40 @@ Difficulty Levels:
 
 Return ONLY one word: Easy, Medium, or Hard"""
 
-            response = client.chat.completions.create(
-                model="gpt-4o",
-                messages=[
-                    {"role": "system", "content": system_message},
-                    {"role": "user", "content": f"Question: {stem}\nAnswer: {right_answer}"}
-                ],
-                max_tokens=50
-            )
-            
-            difficulty = response.choices[0].message.content.strip()
-            
-            # Validate response - NO FALLBACK
-            if difficulty.lower() in ['easy', 'medium', 'hard']:
-                difficulty = difficulty.capitalize()
-                logger.info(f"✅ Difficulty assessed: {difficulty}")
-                return difficulty
-            else:
-                # REMOVED FALLBACK - Raise exception instead
-                raise ValueError(f"Invalid LLM difficulty response: {difficulty}")
-            
-        except Exception as e:
-            logger.error(f"❌ Difficulty assessment failed: {e}")
-            # REMOVED FALLBACK - Re-raise exception
-            raise e
+                response = client.chat.completions.create(
+                    model="gpt-4o",
+                    messages=[
+                        {"role": "system", "content": system_message},
+                        {"role": "user", "content": f"Question: {stem}\nAnswer: {right_answer}"}
+                    ],
+                    max_tokens=50,
+                    temperature=0.1  # Low temperature for consistency
+                )
+                
+                difficulty = response.choices[0].message.content.strip()
+                
+                # Validate response - NO FALLBACK
+                if difficulty.lower() in ['easy', 'medium', 'hard']:
+                    difficulty = difficulty.capitalize()
+                    logger.info(f"✅ Difficulty assessed: {difficulty} (attempt {attempt + 1})")
+                    return difficulty
+                else:
+                    # Invalid response - treat as retry-able error
+                    raise ValueError(f"Invalid LLM difficulty response: {difficulty}")
+                    
+            except Exception as e:
+                logger.warning(f"⚠️ Difficulty assessment attempt {attempt + 1} failed: {e}")
+                
+                if attempt < max_retries - 1:
+                    # Wait before retry
+                    delay = retry_delays[attempt]
+                    logger.info(f"⏳ Retrying in {delay} seconds...")
+                    await asyncio.sleep(delay)
+                    continue
+                else:
+                    # Final attempt failed - NO FALLBACK
+                    logger.error(f"❌ All {max_retries} difficulty assessment attempts failed")
+                    raise Exception(f"LLM difficulty assessment failed after {max_retries} attempts: {e}")
     
     async def _validate_answer_consistency(self, admin_answer: str, ai_right_answer: str, question_stem: str) -> Dict[str, Any]:
         """
