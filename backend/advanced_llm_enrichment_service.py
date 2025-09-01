@@ -280,11 +280,15 @@ Be precise, insightful, and demonstrate superior mathematical intelligence."""
                 analysis_text = response.choices[0].message.content.strip()
                 analysis_data = json.loads(analysis_text)
                 
+                # CRITICAL: Verify quality standards regardless of model used
+                if not self._verify_response_quality(analysis_data, model_to_use):
+                    raise Exception(f"Quality standards not met by {model_to_use} - sophisticated content required")
+                
                 # If we successfully used primary model after recovery, mark it as recovered
                 if selection_reason == "testing_primary_recovery":
                     self._mark_primary_model_recovered()
                 
-                logger.info(f"✅ Deep mathematical analysis completed with {model_to_use}")
+                logger.info(f"✅ Deep mathematical analysis completed with {model_to_use} - quality verified")
                 return analysis_data
                 
             except Exception as e:
