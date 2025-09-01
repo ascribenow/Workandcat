@@ -3308,12 +3308,27 @@ async def upload_questions_csv(
                     logger.info(f"🔢 Setting type_of_question: '{type_of_question}'")
                     logger.info(f"⚖️ Setting difficulty_band: '{difficulty_level}'")
                     
-                    # Update question with LLM-generated fields
+                    # Update question with all unified enrichment fields
+                    # Basic fields
                     question.category = category  # NEW: Store main category
                     question.right_answer = right_answer
                     question.subcategory = subcategory
                     question.type_of_question = type_of_question
-                    question.difficulty_band = difficulty_level
+                    question.difficulty_band = enrichment_data["difficulty_band"]  # Fixed field name
+                    
+                    # Enhanced unified fields
+                    question.core_concepts = enrichment_data.get("core_concepts")
+                    question.solution_method = enrichment_data.get("solution_method")
+                    question.concept_difficulty = enrichment_data.get("concept_difficulty")
+                    question.operations_required = enrichment_data.get("operations_required")
+                    question.problem_structure = enrichment_data.get("problem_structure")
+                    question.concept_keywords = enrichment_data.get("concept_keywords")
+                    question.quality_verified = enrichment_data.get("quality_verified", False)
+                    question.concept_extraction_status = enrichment_data.get("concept_extraction_status", "completed")
+                    
+                    # Set difficulty score if available
+                    if enrichment_data.get("difficulty_score"):
+                        question.difficulty_score = enrichment_data["difficulty_score"]
                     
                     # NEW: Mark as LLM verified with constraints
                     question.llm_difficulty_assessment_method = 'llm_verified'
