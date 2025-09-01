@@ -98,9 +98,13 @@ class Question(Base):
     image_url = Column(Text, nullable=True)
     image_alt_text = Column(Text, nullable=True)
     
-    # LLM-computed scores
+    # LLM-computed scores with CONSTRAINTS
     difficulty_score = Column(Numeric(3, 2), nullable=True)  # 1-5
-    difficulty_band = Column(String(20), nullable=True)  # Easy|Medium|Difficult
+    difficulty_band = Column(String(20), nullable=True)  # Easy|Medium|Hard - REQUIRED for activation
+    llm_difficulty_assessment_method = Column(String(50), default='pending')  # pending|llm_verified|failed
+    llm_assessment_attempts = Column(Integer, default=0)  # Track retry attempts
+    last_llm_assessment_date = Column(DateTime, nullable=True)  # Track when last attempted
+    llm_assessment_error = Column(Text, nullable=True)  # Store last error if failed
     frequency_band = Column(String(20), nullable=True)  # High|Medium|Low
     frequency_notes = Column(Text, nullable=True)
     learning_impact = Column(Numeric(5, 2), nullable=True)  # 0-100
