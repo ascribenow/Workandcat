@@ -105,13 +105,13 @@ class EnrichCheckerService:
                     check_results["detailed_results"].append({
                         "question_id": question.id,
                         "stem": question.stem[:100],
-                        "original_quality_score": quality_assessment["quality_score"],
-                        "issues_identified": quality_assessment["issues"],
+                        "failed_criteria": quality_assessment["failed_criteria"],
+                        "quality_issues": quality_assessment["quality_issues"],
                         "re_enrichment_success": re_enrichment_result["success"],
                         "re_enrichment_error": re_enrichment_result.get("error")
                     })
                 else:
-                    logger.info(f"✅ Good enrichment quality (score: {quality_assessment['quality_score']}/100)")
+                    logger.info(f"✅ Perfect enrichment quality - all criteria met")
             
             # Calculate summary statistics
             avg_quality_score = sum(check_results["quality_scores"]) / len(check_results["quality_scores"]) if check_results["quality_scores"] else 0
