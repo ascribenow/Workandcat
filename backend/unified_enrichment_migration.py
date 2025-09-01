@@ -5,10 +5,8 @@ Adds missing PYQ-style enrichment fields to regular questions table
 """
 
 import os
-import asyncio
 import logging
-from sqlalchemy import text, inspect
-from sqlalchemy.ext.asyncio import create_async_engine
+from sqlalchemy import create_engine, text, inspect
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -16,7 +14,7 @@ load_dotenv()
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-async def add_unified_enrichment_fields():
+def add_unified_enrichment_fields():
     """
     Add missing enrichment fields to questions table for unified approach
     """
@@ -25,18 +23,18 @@ async def add_unified_enrichment_fields():
         if not DATABASE_URL:
             raise ValueError("DATABASE_URL not found in environment")
         
-        # Convert to async driver
-        if DATABASE_URL.startswith("postgresql://"):
-            DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://", 1)
+        # Use synchronous driver
+        if DATABASE_URL.startswith("postgresql+asyncpg://"):
+            DATABASE_URL = DATABASE_URL.replace("postgresql+asyncpg://", "postgresql://", 1)
         
-        engine = create_async_engine(DATABASE_URL)
+        engine = create_engine(DATABASE_URL)
         
         logger.info("🔧 Starting Unified Enrichment Fields Migration")
         logger.info("=" * 60)
         
-        async with engine.begin() as conn:
+        with engine.begin() as conn:
             # Check existing schema first
-            result = await conn.execute(text("""
+            result = conn.execute(text("""
                 SELECT column_name, data_type, is_nullable
                 FROM information_schema.columns 
                 WHERE table_name = 'questions'
@@ -63,7 +61,7 @@ async def add_unified_enrichment_fields():
             for field_name, field_type in new_fields.items():
                 if field_name not in existing_columns:
                     try:
-                        await conn.execute(text(f"""
+                        conn.execute(text(f"""
                             ALTER TABLE questions 
                             ADD COLUMN {field_name} {field_type};
                         """))
@@ -83,18 +81,16 @@ async def add_unified_enrichment_fields():
             
             for index_sql in indexes_to_create:
                 try:
-                    await conn.execute(text(index_sql))
+                    conn.execute(text(index_sql))
                     logger.info(f"   📚 Created index: {index_sql.split('idx_')[1].split(' ')[0]}")
                 except Exception as index_error:
                     logger.warning(f"   ⚠️ Index creation warning: {index_error}")
-            
-            await conn.commit()
             
         logger.info(f"✅ Migration completed successfully!")
         logger.info(f"📈 Fields added: {fields_added}")
         logger.info("🎯 Questions table now has unified enrichment fields")
         
-        await engine.dispose()
+        engine.dispose()
         
     except Exception as e:
         logger.error(f"❌ Migration failed: {e}")
@@ -102,4 +98,4 @@ async def add_unified_enrichment_fields():
         logger.error(traceback.format_exc())
 
 if __name__ == "__main__":
-    asyncio.run(add_unified_enrichment_fields())
+    add_unified_enrichment_fields()
