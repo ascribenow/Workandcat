@@ -3304,6 +3304,27 @@ async def upload_questions_csv(
                     if classified_topic:
                         question.topic_id = classified_topic.id
                     
+                    # NEW: Calculate Dynamic PYQ Frequency (replaces hardcoded values)
+                    logger.info(f"🧮 Calculating dynamic PYQ frequency for question {questions_created}")
+                    try:
+                        from dynamic_frequency_calculator import DynamicFrequencyCalculator
+                        frequency_calculator = DynamicFrequencyCalculator()
+                        
+                        frequency_result = await frequency_calculator.calculate_true_pyq_frequency(question, db)
+                        
+                        # Update question with real frequency data
+                        question.pyq_frequency_score = frequency_result['frequency_score']
+                        question.pyq_conceptual_matches = frequency_result['conceptual_matches_count']
+                        question.frequency_analysis_method = 'dynamic_conceptual_matching'
+                        
+                        logger.info(f"✅ Dynamic frequency calculated: {frequency_result['frequency_score']:.3f} (was hardcoded)")
+                        
+                    except Exception as freq_error:
+                        logger.warning(f"⚠️ Dynamic frequency calculation failed, using fallback: {freq_error}")
+                        # Fallback to neutral score instead of hardcoded categories
+                        question.pyq_frequency_score = 0.5
+                        question.frequency_analysis_method = 'fallback_neutral'
+                    
                     # QUALITY CONTROL: Validate admin.answer vs LLM.right_answer
                     question_activated = True
                     validation_message = "No admin answer to validate"
