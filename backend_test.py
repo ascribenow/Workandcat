@@ -14602,8 +14602,7 @@ if __name__ == "__main__":
     # Run comprehensive tests
     all_passed = tester.run_comprehensive_backend_tests()
     
-    print("
-" + "=" * 80)
+    print("\n" + "=" * 80)
     print("🏆 FINAL TESTING SUMMARY")
     print("=" * 80)
     
