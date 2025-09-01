@@ -3281,15 +3281,32 @@ async def upload_questions_csv(
                     admin_answer=admin_answer
                 )
                 
+                logger.info(f"🤖 Enrichment result for question {questions_created}: {enrichment_result}")
+                
                 if enrichment_result["success"]:
                     enrichment_data = enrichment_result["enrichment_data"]
                     
+                    logger.info(f"📊 Enrichment data: {enrichment_data}")
+                    
+                    # Log each field being set
+                    category = enrichment_data["category"]
+                    right_answer = enrichment_data["right_answer"]
+                    subcategory = enrichment_data["subcategory"]
+                    type_of_question = enrichment_data["type_of_question"]
+                    difficulty_level = enrichment_data["difficulty_level"]
+                    
+                    logger.info(f"🏷️ Setting category: '{category}'")
+                    logger.info(f"✅ Setting right_answer: '{right_answer}'")
+                    logger.info(f"📂 Setting subcategory: '{subcategory}'")
+                    logger.info(f"🔢 Setting type_of_question: '{type_of_question}'")
+                    logger.info(f"⚖️ Setting difficulty_band: '{difficulty_level}'")
+                    
                     # Update question with LLM-generated fields
-                    question.category = enrichment_data["category"]  # NEW: Store main category
-                    question.right_answer = enrichment_data["right_answer"]
-                    question.subcategory = enrichment_data["subcategory"] 
-                    question.type_of_question = enrichment_data["type_of_question"]
-                    question.difficulty_band = enrichment_data["difficulty_level"]
+                    question.category = category  # NEW: Store main category
+                    question.right_answer = right_answer
+                    question.subcategory = subcategory
+                    question.type_of_question = type_of_question
+                    question.difficulty_band = difficulty_level
                     
                     # NEW: Mark as LLM verified with constraints
                     question.llm_difficulty_assessment_method = 'llm_verified'
