@@ -1149,36 +1149,53 @@ Find the compound interest on Rs. 1000 for 2 years at 10% per annum.,210"""
             return False, None
 
 def main():
-    """Main function to run the comprehensive 100% success validation"""
-    print("🚀 STARTING FINAL 100% SUCCESS VALIDATION")
+    """Main function to run comprehensive backend testing"""
+    print("🚀 STARTING COMPREHENSIVE BACKEND TESTING")
     print("=" * 80)
     
     tester = CATBackendTester()
     
     try:
+        # Run database cleanup validation first (as per review request)
+        print("🗄️ PHASE 1: DATABASE CLEANUP VALIDATION")
+        cleanup_success = tester.test_database_cleanup_validation()
+        
+        print("\n🎯 PHASE 2: 100% SUCCESS VALIDATION")
         # Run the comprehensive 100% success validation
-        success = tester.test_final_100_percent_success_validation()
+        full_success = tester.test_final_100_percent_success_validation()
         
         print("\n" + "=" * 80)
-        print("🏁 FINAL 100% SUCCESS VALIDATION COMPLETED")
+        print("🏁 COMPREHENSIVE BACKEND TESTING COMPLETED")
         print("=" * 80)
         
-        if success:
-            print("🎉 VALIDATION RESULT: 100% SUCCESS ACHIEVED OR VERY CLOSE!")
-            print("✅ Backend functionality validated as production-ready")
+        print(f"\n📊 TESTING RESULTS:")
+        print(f"  Database Cleanup Validation: {'✅ PASS' if cleanup_success else '❌ FAIL'}")
+        print(f"  100% Success Validation: {'✅ PASS' if full_success else '❌ FAIL'}")
+        
+        overall_success = cleanup_success and full_success
+        
+        if overall_success:
+            print("\n🎉 OVERALL RESULT: ALL TESTS SUCCESSFUL!")
+            print("✅ Database cleanup validated successfully")
+            print("✅ Backend functionality at 100% or near 100%")
+            print("🏆 PRODUCTION READY")
+        elif cleanup_success:
+            print("\n⚠️ OVERALL RESULT: DATABASE CLEANUP SUCCESSFUL, OPTIMIZATION NEEDED")
+            print("✅ Database cleanup validated successfully")
+            print("🔧 Backend functionality needs optimization")
         else:
-            print("⚠️ VALIDATION RESULT: Additional work needed for 100% success")
-            print("🔧 Some components require optimization")
+            print("\n❌ OVERALL RESULT: CRITICAL ISSUES DETECTED")
+            print("🚨 Database cleanup or backend functionality has major issues")
         
         print(f"\nTests Run: {tester.tests_run}")
         print(f"Tests Passed: {tester.tests_passed}")
         print(f"Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%")
         
+        return overall_success
+        
     except Exception as e:
-        print(f"\n❌ VALIDATION FAILED: {e}")
+        print(f"\n❌ TESTING FAILED: {e}")
         return False
-    
-    return success
 
 if __name__ == "__main__":
     success = main()
