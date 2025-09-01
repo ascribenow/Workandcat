@@ -1008,7 +1008,10 @@ class SimplifiedEnrichmentService:
         try:
             import openai
             
-            client = openai.OpenAI(api_key=self.openai_api_key)
+            client = openai.OpenAI(
+                api_key=self.openai_api_key,
+                timeout=30.0  # 30 second timeout
+            )
             
             system_message = """You are an expert CAT exam solver focused on quantitative ability questions. 
 Generate the correct, concise answer for the given question.
@@ -1020,13 +1023,15 @@ Rules:
 4. For numerical answers, include units if applicable
 5. Keep the answer concise and direct"""
 
+            logger.info(f"🤖 Calling OpenAI API for right answer generation...")
             response = client.chat.completions.create(
-                model="gpt-4o",
+                model="gpt-4o-mini",  # Use more reliable model
                 messages=[
                     {"role": "system", "content": system_message},
                     {"role": "user", "content": f"Question: {stem}"}
                 ],
-                max_tokens=150
+                max_tokens=150,
+                timeout=30
             )
             
             answer = response.choices[0].message.content.strip()
