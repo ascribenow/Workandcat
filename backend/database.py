@@ -242,8 +242,6 @@ class PYQIngestion(Base):
     slot = Column(String(10), nullable=True)  # A|B|C
     source_url = Column(Text, nullable=True)
     pages_count = Column(Integer, nullable=True)
-    ocr_required = Column(Boolean, default=False)
-    ocr_status = Column(String(20), default='pending')  # queued|running|done|failed
     parse_status = Column(String(20), default='pending')  # queued|running|done|failed
     parse_log = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
