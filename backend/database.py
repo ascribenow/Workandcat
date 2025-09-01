@@ -546,9 +546,7 @@ class PlanUnit(Base):
     topic_id = Column(String(36), ForeignKey('topics.id'), nullable=False)
     unit_kind = Column(String(20), nullable=False)  # read|examples|practice|review|mock
     target_count = Column(Integer, default=1)
-    generated_payload = Column(JSON, default=dict)  # question_ids
     status = Column(String(20), default='pending')  # pending|in_progress|done|skipped
-    actual_stats = Column(JSON, default=dict)
     created_at = Column(DateTime, default=datetime.utcnow)
     
     # Relationships
