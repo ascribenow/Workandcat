@@ -261,11 +261,8 @@ Be precise, specific, and demonstrate deep mathematical understanding."""
                     await asyncio.sleep(delay)
                     continue
                 else:
-                    return {
-                        "category": "Mathematical Analysis Required",
-                        "subcategory": "Complex Problem Type",
-                        "type_of_question": "Multi-step Analytical Problem"
-                    }
+                    logger.error("❌ All classification attempts failed - NO FALLBACK")
+                    raise Exception("Sophisticated classification failed after all retries - refusing to proceed with fallback data")
     
     async def _perform_nuanced_difficulty_assessment(self, stem: str, deep_analysis: Dict[str, Any], classification: Dict[str, Any]) -> Dict[str, Any]:
         """Perform nuanced difficulty assessment with sophisticated reasoning"""
