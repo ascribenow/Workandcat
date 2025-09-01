@@ -550,7 +550,9 @@ ${response.data.duplicate_questions > 0 ? 'ℹ️ Duplicate questions were autom
       setEnrichResults(null);
 
       const response = await axios.post(`${API}/admin/enrich-checker/pyq-questions`, {
-        limit: null // Check all questions
+        limit: 10 // Process smaller batches to avoid timeout
+      }, {
+        timeout: 300000 // 5 minutes timeout for PYQ enrichment
       });
 
       if (response.data.success) {
