@@ -1127,18 +1127,19 @@ Return ONLY one word: Easy, Medium, or Hard"""
             
             difficulty = response.choices[0].message.content.strip()
             
-            # Validate and normalize response
+            # Validate response - NO FALLBACK
             if difficulty.lower() in ['easy', 'medium', 'hard']:
                 difficulty = difficulty.capitalize()
+                logger.info(f"✅ Difficulty assessed: {difficulty}")
+                return difficulty
             else:
-                difficulty = "Medium"  # Default fallback
-            
-            logger.info(f"✅ Difficulty assessed: {difficulty}")
-            return difficulty
+                # REMOVED FALLBACK - Raise exception instead
+                raise ValueError(f"Invalid LLM difficulty response: {difficulty}")
             
         except Exception as e:
             logger.error(f"❌ Difficulty assessment failed: {e}")
-            return "Medium"  # Default fallback
+            # REMOVED FALLBACK - Re-raise exception
+            raise e
     
     async def _validate_answer_consistency(self, admin_answer: str, ai_right_answer: str, question_stem: str) -> Dict[str, Any]:
         """
