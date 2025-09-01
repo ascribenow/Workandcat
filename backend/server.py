@@ -3300,13 +3300,13 @@ async def upload_questions_csv(
                     right_answer = enrichment_data["right_answer"]
                     subcategory = enrichment_data["subcategory"]
                     type_of_question = enrichment_data["type_of_question"]
-                    difficulty_level = enrichment_data["difficulty_level"]
+                    difficulty_band = enrichment_data["difficulty_band"]  # Fixed field name
                     
                     logger.info(f"🏷️ Setting category: '{category}'")
                     logger.info(f"✅ Setting right_answer: '{right_answer}'")
                     logger.info(f"📂 Setting subcategory: '{subcategory}'")
                     logger.info(f"🔢 Setting type_of_question: '{type_of_question}'")
-                    logger.info(f"⚖️ Setting difficulty_band: '{difficulty_level}'")
+                    logger.info(f"⚖️ Setting difficulty_band: '{difficulty_band}'")
                     
                     # Update question with all unified enrichment fields
                     # Basic fields
