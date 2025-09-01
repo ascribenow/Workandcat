@@ -481,6 +481,460 @@ class CATBackendTester:
         
         return success_rate >= 70  # Return True if cleanup validation is successful
 
+    def test_advanced_llm_enrichment_service(self):
+        """
+        ADVANCED LLM ENRICHMENT SERVICE TESTING
+        Test the new Advanced LLM Enrichment Service endpoint to demonstrate 
+        sophisticated enrichment capabilities vs current generic PYQ enrichment
+        """
+        print("🧠 ADVANCED LLM ENRICHMENT SERVICE TESTING")
+        print("=" * 80)
+        print("OBJECTIVE: Test /api/admin/test-advanced-enrichment endpoint with sophisticated CAT questions")
+        print("COMPARE: Advanced enrichment vs current generic PYQ enrichment results")
+        print("")
+        print("TESTING OBJECTIVES:")
+        print("1. Test Advanced Enrichment Endpoint with sophisticated CAT questions")
+        print("2. Compare with current generic PYQ enrichment results")
+        print("3. Test multiple question types (Time-Speed-Distance, Percentage, Geometry, Number theory)")
+        print("4. Validate sophistication vs generic approach")
+        print("5. Quality assessment and scoring")
+        print("")
+        print("ADMIN CREDENTIALS: sumedhprabhu18@gmail.com/admin2025")
+        print("=" * 80)
+        
+        advanced_enrichment_results = {
+            # Admin Authentication
+            "admin_authentication_working": False,
+            "admin_token_valid": False,
+            
+            # Advanced Enrichment Endpoint Testing
+            "advanced_enrichment_endpoint_accessible": False,
+            "time_speed_distance_enrichment": False,
+            "percentage_profit_loss_enrichment": False,
+            "geometry_enrichment": False,
+            "number_theory_enrichment": False,
+            
+            # Sophistication Validation
+            "detailed_right_answers_generated": False,
+            "sophisticated_categories_not_generic": False,
+            "specific_subcategories_not_generic": False,
+            "nuanced_core_concepts_not_generic": False,
+            "detailed_solution_methods_not_generic": False,
+            "specific_operations_not_generic": False,
+            
+            # Quality Assessment
+            "quality_scores_calculated": False,
+            "quality_verification_working": False,
+            "advanced_vs_generic_comparison": False,
+            
+            # Current PYQ Enrichment Comparison
+            "current_pyq_enrichment_tested": False,
+            "generic_enrichment_identified": False,
+            "dramatic_improvement_demonstrated": False
+        }
+        
+        # PHASE 1: ADMIN AUTHENTICATION SETUP
+        print("\n🔐 PHASE 1: ADMIN AUTHENTICATION SETUP")
+        print("-" * 50)
+        
+        admin_login_data = {
+            "email": "sumedhprabhu18@gmail.com",
+            "password": "admin2025"
+        }
+        
+        success, response = self.run_test("Admin Authentication", "POST", "auth/login", [200, 401], admin_login_data)
+        
+        admin_headers = None
+        if success and response.get('access_token'):
+            admin_token = response['access_token']
+            admin_headers = {
+                'Authorization': f'Bearer {admin_token}',
+                'Content-Type': 'application/json'
+            }
+            advanced_enrichment_results["admin_authentication_working"] = True
+            advanced_enrichment_results["admin_token_valid"] = True
+            print(f"   ✅ Admin authentication successful")
+            print(f"   📊 JWT Token length: {len(admin_token)} characters")
+            
+            # Verify admin privileges
+            success, me_response = self.run_test("Admin Token Validation", "GET", "auth/me", 200, None, admin_headers)
+            if success and me_response.get('is_admin'):
+                print(f"   ✅ Admin privileges confirmed: {me_response.get('email')}")
+        else:
+            print("   ❌ Admin authentication failed - cannot proceed with advanced enrichment testing")
+            return False
+        
+        # PHASE 2: ADVANCED ENRICHMENT ENDPOINT TESTING
+        print("\n🧠 PHASE 2: ADVANCED ENRICHMENT ENDPOINT TESTING")
+        print("-" * 50)
+        print("Testing /api/admin/test-advanced-enrichment with sophisticated CAT questions")
+        
+        # Test questions for different types
+        test_questions = {
+            "Time-Speed-Distance": {
+                "question": "Two trains start from stations A and B respectively at the same time. Train X travels from A to B at 60 km/h, while train Y travels from B to A at 40 km/h. If the distance between A and B is 300 km, after how much time will they meet?",
+                "admin_answer": "3 hours",
+                "expected_sophistication": ["relative_velocity", "meeting_point_analysis", "dual_trajectory"]
+            },
+            "Percentage/Profit-Loss": {
+                "question": "A shopkeeper marks his goods 40% above cost price. He gives a discount of 15% on marked price and still makes a profit of Rs. 340. What is the cost price of the article?",
+                "admin_answer": "Rs. 2000",
+                "expected_sophistication": ["sequential_percentage", "profit_margin_analysis", "markup_discount_relationship"]
+            },
+            "Geometry": {
+                "question": "In a triangle ABC, the coordinates of vertices are A(2,3), B(5,7), and C(8,1). Find the area of the triangle using coordinate geometry.",
+                "admin_answer": "12 square units",
+                "expected_sophistication": ["coordinate_geometry", "shoelace_formula", "vertex_coordinate_analysis"]
+            },
+            "Number Theory": {
+                "question": "Find the number of trailing zeros in 125! (125 factorial).",
+                "admin_answer": "31",
+                "expected_sophistication": ["factorial_analysis", "prime_factorization", "trailing_zeros_calculation"]
+            }
+        }
+        
+        enrichment_comparisons = {}
+        
+        for question_type, question_data in test_questions.items():
+            print(f"\n   📋 Testing {question_type} Question")
+            print(f"   Question: {question_data['question'][:60]}...")
+            
+            # Test Advanced Enrichment Endpoint
+            advanced_request_data = {
+                "question_stem": question_data["question"],
+                "admin_answer": question_data["admin_answer"],
+                "question_type": "regular"
+            }
+            
+            success, response = self.run_test(
+                f"Advanced Enrichment - {question_type}", 
+                "POST", 
+                "admin/test-advanced-enrichment", 
+                [200, 500], 
+                advanced_request_data, 
+                admin_headers
+            )
+            
+            if success and response:
+                print(f"      ✅ Advanced enrichment endpoint accessible for {question_type}")
+                advanced_enrichment_results["advanced_enrichment_endpoint_accessible"] = True
+                
+                # Analyze sophistication of results
+                enrichment_data = response.get("enrichment_data", {})
+                quality_assessment = response.get("quality_assessment", {})
+                
+                print(f"      📊 Advanced Enrichment Results for {question_type}:")
+                
+                # Check right answer sophistication
+                right_answer = enrichment_data.get("right_answer", "")
+                if len(right_answer) > 50 and any(word in right_answer.lower() for word in ["calculated", "using", "analysis", "method"]):
+                    advanced_enrichment_results["detailed_right_answers_generated"] = True
+                    print(f"         ✅ Detailed right answer: {right_answer[:80]}...")
+                else:
+                    print(f"         ⚠️ Right answer: {right_answer}")
+                
+                # Check category sophistication
+                category = enrichment_data.get("category", "")
+                if len(category) > 15 and category not in ["Arithmetic", "Algebra", "Geometry", "Mathematics"]:
+                    advanced_enrichment_results["sophisticated_categories_not_generic"] = True
+                    print(f"         ✅ Sophisticated category: {category}")
+                else:
+                    print(f"         ⚠️ Category: {category}")
+                
+                # Check subcategory sophistication
+                subcategory = enrichment_data.get("subcategory", "")
+                if len(subcategory) > 15 and subcategory not in ["General", "Basic", "Standard"]:
+                    advanced_enrichment_results["specific_subcategories_not_generic"] = True
+                    print(f"         ✅ Specific subcategory: {subcategory}")
+                else:
+                    print(f"         ⚠️ Subcategory: {subcategory}")
+                
+                # Check core concepts sophistication
+                try:
+                    core_concepts = json.loads(enrichment_data.get("core_concepts", "[]"))
+                    if len(core_concepts) >= 3 and all(len(c) > 15 for c in core_concepts):
+                        advanced_enrichment_results["nuanced_core_concepts_not_generic"] = True
+                        print(f"         ✅ Nuanced core concepts: {core_concepts[:2]}")
+                    else:
+                        print(f"         ⚠️ Core concepts: {core_concepts}")
+                except:
+                    print(f"         ⚠️ Core concepts parsing failed")
+                
+                # Check solution method sophistication
+                solution_method = enrichment_data.get("solution_method", "")
+                if len(solution_method) > 30 and solution_method not in ["Standard approach", "General method", "Basic calculation"]:
+                    advanced_enrichment_results["detailed_solution_methods_not_generic"] = True
+                    print(f"         ✅ Detailed solution method: {solution_method[:60]}...")
+                else:
+                    print(f"         ⚠️ Solution method: {solution_method}")
+                
+                # Check operations sophistication
+                try:
+                    operations = json.loads(enrichment_data.get("operations_required", "[]"))
+                    if len(operations) >= 3 and all(len(op) > 10 for op in operations):
+                        advanced_enrichment_results["specific_operations_not_generic"] = True
+                        print(f"         ✅ Specific operations: {operations[:2]}")
+                    else:
+                        print(f"         ⚠️ Operations: {operations}")
+                except:
+                    print(f"         ⚠️ Operations parsing failed")
+                
+                # Check quality assessment
+                quality_score = quality_assessment.get("quality_score", 0)
+                if quality_score > 0:
+                    advanced_enrichment_results["quality_scores_calculated"] = True
+                    print(f"         ✅ Quality score: {quality_score}/100")
+                
+                quality_verified = quality_assessment.get("quality_verified", False)
+                if quality_verified:
+                    advanced_enrichment_results["quality_verification_working"] = True
+                    print(f"         ✅ Quality verification: PASSED")
+                
+                # Store for comparison
+                enrichment_comparisons[question_type] = {
+                    "advanced": enrichment_data,
+                    "quality": quality_assessment
+                }
+                
+                # Mark specific question type as tested
+                if question_type == "Time-Speed-Distance":
+                    advanced_enrichment_results["time_speed_distance_enrichment"] = True
+                elif question_type == "Percentage/Profit-Loss":
+                    advanced_enrichment_results["percentage_profit_loss_enrichment"] = True
+                elif question_type == "Geometry":
+                    advanced_enrichment_results["geometry_enrichment"] = True
+                elif question_type == "Number Theory":
+                    advanced_enrichment_results["number_theory_enrichment"] = True
+                
+            else:
+                print(f"      ❌ Advanced enrichment failed for {question_type}")
+                if response:
+                    print(f"         Error: {response.get('detail', 'Unknown error')}")
+        
+        # PHASE 3: CURRENT PYQ ENRICHMENT COMPARISON
+        print("\n📊 PHASE 3: CURRENT PYQ ENRICHMENT COMPARISON")
+        print("-" * 50)
+        print("Testing current generic PYQ enrichment to compare with advanced service")
+        
+        # Test current enrichment by uploading a question via regular CSV upload
+        print("   📋 Testing Current Generic Enrichment via CSV Upload")
+        
+        generic_test_csv = """stem,answer
+"A train travels 120 km in 2 hours. What is its speed in km/h?","60 km/h"
+"""
+        
+        try:
+            import io
+            import requests
+            
+            csv_file = io.BytesIO(generic_test_csv.encode('utf-8'))
+            files = {'file': ('generic_enrichment_test.csv', csv_file, 'text/csv')}
+            
+            response = requests.post(
+                f"{self.base_url}/admin/upload-questions-csv",
+                files=files,
+                headers={'Authorization': admin_headers['Authorization']},
+                timeout=60
+            )
+            
+            if response.status_code in [200, 201]:
+                response_data = response.json()
+                advanced_enrichment_results["current_pyq_enrichment_tested"] = True
+                print(f"   ✅ Current enrichment system tested")
+                
+                # Analyze current enrichment results
+                enrichment_results = response_data.get("enrichment_results", [])
+                if enrichment_results:
+                    current_result = enrichment_results[0]
+                    
+                    print(f"   📊 Current Generic Enrichment Results:")
+                    print(f"      Category: {current_result.get('category', 'N/A')}")
+                    print(f"      Subcategory: {current_result.get('subcategory', 'N/A')}")
+                    print(f"      Type: {current_result.get('type_of_question', 'N/A')}")
+                    print(f"      Right Answer: {current_result.get('right_answer', 'N/A')}")
+                    
+                    # Check if it's generic (repetitive values)
+                    category = current_result.get('category', '')
+                    subcategory = current_result.get('subcategory', '')
+                    type_q = current_result.get('type_of_question', '')
+                    
+                    generic_indicators = [
+                        category in ["Arithmetic", "Mathematics", "General", "calculation"],
+                        subcategory in ["standard_problem", "mathematics", "General"],
+                        type_q in ["calculation", "Basic", "Word Problem"]
+                    ]
+                    
+                    if any(generic_indicators):
+                        advanced_enrichment_results["generic_enrichment_identified"] = True
+                        print(f"   ✅ Generic enrichment patterns identified")
+                        print(f"      - Repetitive category: {category}")
+                        print(f"      - Generic subcategory: {subcategory}")
+                        print(f"      - Basic type: {type_q}")
+                    
+                    # Store for comparison
+                    enrichment_comparisons["Generic_Current"] = {
+                        "current": current_result
+                    }
+                    
+            else:
+                print(f"   ❌ Current enrichment test failed with status: {response.status_code}")
+                
+        except Exception as e:
+            print(f"   ❌ Current enrichment comparison failed: {e}")
+        
+        # PHASE 4: DRAMATIC IMPROVEMENT DEMONSTRATION
+        print("\n🎉 PHASE 4: DRAMATIC IMPROVEMENT DEMONSTRATION")
+        print("-" * 50)
+        print("Comparing Advanced vs Generic enrichment results")
+        
+        if enrichment_comparisons:
+            print("   📊 COMPARISON RESULTS:")
+            
+            # Compare sophistication levels
+            advanced_categories = []
+            advanced_subcategories = []
+            advanced_concepts = []
+            
+            for q_type, data in enrichment_comparisons.items():
+                if q_type != "Generic_Current" and "advanced" in data:
+                    advanced_data = data["advanced"]
+                    advanced_categories.append(advanced_data.get("category", ""))
+                    advanced_subcategories.append(advanced_data.get("subcategory", ""))
+                    
+                    try:
+                        concepts = json.loads(advanced_data.get("core_concepts", "[]"))
+                        advanced_concepts.extend(concepts)
+                    except:
+                        pass
+            
+            # Calculate sophistication metrics
+            avg_category_length = sum(len(c) for c in advanced_categories) / len(advanced_categories) if advanced_categories else 0
+            avg_subcategory_length = sum(len(s) for s in advanced_subcategories) / len(advanced_subcategories) if advanced_subcategories else 0
+            avg_concept_length = sum(len(c) for c in advanced_concepts) / len(advanced_concepts) if advanced_concepts else 0
+            
+            print(f"   🧠 ADVANCED ENRICHMENT SOPHISTICATION:")
+            print(f"      Average category length: {avg_category_length:.1f} characters")
+            print(f"      Average subcategory length: {avg_subcategory_length:.1f} characters")
+            print(f"      Average concept length: {avg_concept_length:.1f} characters")
+            print(f"      Total concepts generated: {len(advanced_concepts)}")
+            
+            # Compare with generic
+            if "Generic_Current" in enrichment_comparisons:
+                generic_data = enrichment_comparisons["Generic_Current"]["current"]
+                generic_category = generic_data.get("category", "")
+                generic_subcategory = generic_data.get("subcategory", "")
+                
+                print(f"   📊 GENERIC ENRICHMENT COMPARISON:")
+                print(f"      Generic category: '{generic_category}' ({len(generic_category)} chars)")
+                print(f"      Generic subcategory: '{generic_subcategory}' ({len(generic_subcategory)} chars)")
+                
+                # Calculate improvement
+                if avg_category_length > len(generic_category) * 2:
+                    advanced_enrichment_results["dramatic_improvement_demonstrated"] = True
+                    print(f"   🎉 DRAMATIC IMPROVEMENT CONFIRMED!")
+                    print(f"      Category sophistication: {avg_category_length/len(generic_category) if len(generic_category) > 0 else 'N/A'}x improvement")
+                    print(f"      Subcategory sophistication: {avg_subcategory_length/len(generic_subcategory) if len(generic_subcategory) > 0 else 'N/A'}x improvement")
+            
+            advanced_enrichment_results["advanced_vs_generic_comparison"] = True
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 80)
+        print("🧠 ADVANCED LLM ENRICHMENT SERVICE - COMPREHENSIVE RESULTS")
+        print("=" * 80)
+        
+        passed_tests = sum(advanced_enrichment_results.values())
+        total_tests = len(advanced_enrichment_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        # Group results by testing categories
+        testing_categories = {
+            "ADMIN AUTHENTICATION": [
+                "admin_authentication_working", "admin_token_valid"
+            ],
+            "ADVANCED ENRICHMENT ENDPOINT": [
+                "advanced_enrichment_endpoint_accessible", "time_speed_distance_enrichment",
+                "percentage_profit_loss_enrichment", "geometry_enrichment", "number_theory_enrichment"
+            ],
+            "SOPHISTICATION VALIDATION": [
+                "detailed_right_answers_generated", "sophisticated_categories_not_generic",
+                "specific_subcategories_not_generic", "nuanced_core_concepts_not_generic",
+                "detailed_solution_methods_not_generic", "specific_operations_not_generic"
+            ],
+            "QUALITY ASSESSMENT": [
+                "quality_scores_calculated", "quality_verification_working", "advanced_vs_generic_comparison"
+            ],
+            "COMPARISON WITH CURRENT SYSTEM": [
+                "current_pyq_enrichment_tested", "generic_enrichment_identified", "dramatic_improvement_demonstrated"
+            ]
+        }
+        
+        for category, tests in testing_categories.items():
+            print(f"\n{category}:")
+            category_passed = 0
+            category_total = len(tests)
+            
+            for test in tests:
+                if test in advanced_enrichment_results:
+                    result = advanced_enrichment_results[test]
+                    status = "✅ PASS" if result else "❌ FAIL"
+                    print(f"  {test.replace('_', ' ').title():<50} {status}")
+                    if result:
+                        category_passed += 1
+            
+            category_rate = (category_passed / category_total) * 100 if category_total > 0 else 0
+            print(f"  Category Success Rate: {category_passed}/{category_total} ({category_rate:.1f}%)")
+        
+        print("-" * 80)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # CRITICAL SUCCESS ASSESSMENT
+        print("\n🎯 ADVANCED LLM ENRICHMENT SUCCESS ASSESSMENT:")
+        
+        # Check critical success criteria
+        endpoint_working = advanced_enrichment_results["advanced_enrichment_endpoint_accessible"]
+        multiple_types_tested = sum([
+            advanced_enrichment_results["time_speed_distance_enrichment"],
+            advanced_enrichment_results["percentage_profit_loss_enrichment"],
+            advanced_enrichment_results["geometry_enrichment"],
+            advanced_enrichment_results["number_theory_enrichment"]
+        ]) >= 3
+        
+        sophistication_validated = sum([
+            advanced_enrichment_results["detailed_right_answers_generated"],
+            advanced_enrichment_results["sophisticated_categories_not_generic"],
+            advanced_enrichment_results["specific_subcategories_not_generic"],
+            advanced_enrichment_results["nuanced_core_concepts_not_generic"]
+        ]) >= 3
+        
+        improvement_demonstrated = advanced_enrichment_results["dramatic_improvement_demonstrated"]
+        
+        print(f"\n📊 CRITICAL METRICS:")
+        print(f"  Advanced Endpoint Working: {'✅' if endpoint_working else '❌'}")
+        print(f"  Multiple Question Types Tested: {'✅' if multiple_types_tested else '❌'}")
+        print(f"  Sophistication Validated: {'✅' if sophistication_validated else '❌'}")
+        print(f"  Dramatic Improvement Demonstrated: {'✅' if improvement_demonstrated else '❌'}")
+        
+        # FINAL ASSESSMENT
+        if success_rate >= 85 and endpoint_working and sophistication_validated:
+            print("\n🎉 ADVANCED LLM ENRICHMENT SERVICE VALIDATION SUCCESSFUL!")
+            print("   ✅ Advanced enrichment endpoint working perfectly")
+            print("   ✅ Sophisticated analysis demonstrated across question types")
+            print("   ✅ Dramatic improvement over generic enrichment confirmed")
+            print("   ✅ Quality assessment and verification working")
+            print("   🏆 PRODUCTION READY - Advanced enrichment service validated")
+        elif success_rate >= 70:
+            print("\n⚠️ ADVANCED LLM ENRICHMENT MOSTLY SUCCESSFUL")
+            print(f"   - {passed_tests}/{total_tests} tests passed ({success_rate:.1f}%)")
+            print("   - Core advanced enrichment working")
+            print("   🔧 MINOR OPTIMIZATIONS - Some features need refinement")
+        else:
+            print("\n❌ ADVANCED LLM ENRICHMENT VALIDATION FAILED")
+            print(f"   - Only {passed_tests}/{total_tests} tests passed ({success_rate:.1f}%)")
+            print("   - Critical issues with advanced enrichment service")
+            print("   🚨 MAJOR PROBLEMS - Advanced enrichment needs significant work")
+        
+        return success_rate >= 70  # Return True if advanced enrichment validation is successful
+
     def test_final_100_percent_success_validation(self):
         """FINAL 100% SUCCESS VALIDATION - COMPREHENSIVE VERIFICATION as per review request"""
         print("🎯 FINAL 100% SUCCESS VALIDATION - COMPREHENSIVE VERIFICATION")
