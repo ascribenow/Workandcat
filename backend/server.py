@@ -1164,6 +1164,11 @@ async def get_questions(
                 "learning_impact": float(q.learning_impact) if q.learning_impact else None,
                 "pyq_frequency_score": float(q.pyq_frequency_score) if q.pyq_frequency_score else None,
                 "is_active": q.is_active,
+                # NEW: Include LLM-generated fields for 100% success validation
+                "category": q.category,  # Main category field
+                "right_answer": q.right_answer,  # LLM-generated right answer
+                "frequency_analysis_method": q.frequency_analysis_method,  # Dynamic frequency method
+                "pyq_conceptual_matches": q.pyq_conceptual_matches,  # Conceptual matching count
                 # Image support fields
                 "has_image": q.has_image,
                 "image_url": q.image_url,
