@@ -427,7 +427,7 @@ Return ONLY this JSON:
 }"""
 
                 response = client.chat.completions.create(
-                    model="gpt-4o",
+                    model=model_to_use,
                     messages=[
                         {"role": "system", "content": system_message},
                         {"role": "user", "content": f"Question: {stem}\nMathematical Foundation: {deep_analysis.get('mathematical_foundation', '')}\nCategory: {classification.get('category', '')}\nType: {classification.get('type_of_question', '')}"}
@@ -458,11 +458,20 @@ Return ONLY this JSON:
                     'error_trap_potential': difficulty_data.get('error_trap_potential', 'medium')
                 }
                 
-                logger.info(f"✅ Nuanced difficulty assessment: {band} ({score})")
+                # If we successfully used primary model after recovery, mark it as recovered
+                if selection_reason == "testing_primary_recovery":
+                    self._mark_primary_model_recovered()
+                
+                logger.info(f"✅ Nuanced difficulty assessment: {band} ({score}) with {model_to_use}")
                 return result
                 
             except Exception as e:
                 logger.warning(f"⚠️ Difficulty assessment attempt {attempt + 1} failed: {e}")
+                
+                # Handle rate limit errors intelligently
+                if self._handle_rate_limit_error(e):
+                    logger.info("🔄 Retrying difficulty assessment immediately with fallback model due to rate limit")
+                    continue
                 
                 if attempt < self.max_retries - 1:
                     delay = self.retry_delays[attempt]
