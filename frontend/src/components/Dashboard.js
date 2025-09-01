@@ -24,6 +24,10 @@ export const Dashboard = () => {
   // Session limit state
   const [sessionLimitStatus, setSessionLimitStatus] = useState(null);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  
+  // Enrich Checker states
+  const [enriching, setEnriching] = useState(false);
+  const [enrichResults, setEnrichResults] = useState(null);
 
   useEffect(() => {
     const loadDashboard = async () => {
