@@ -143,7 +143,7 @@ backend:
     file: "/app/backend/server.py, /app/backend/llm_enrichment.py"
     stuck_count: 0
     priority: "critical"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         -working: false
         -agent: "testing"
@@ -151,6 +151,9 @@ backend:
         -working: false
         -agent: "main"
         -comment: "✅ DATABASE SCHEMA FIXED: Successfully executed category column migration - database schema now includes category column in questions table. Migration completed with 0 updates (column already existed). Database ready for LLM enrichment with category field. Next: Verify LLM enrichment populates category field during question upload workflow."
+        -working: false
+        -agent: "testing"
+        -comment: "🔍 COMPREHENSIVE DATABASE SCHEMA & LLM IMPROVEMENTS RE-TESTING COMPLETED - PERSISTENT CRITICAL ISSUES! Final comprehensive testing of database schema updates and LLM prompt improvements reveals 50% success rate with critical issues persisting despite main agent fixes. DETAILED FINDINGS: 1) ❌ CRITICAL ISSUE PERSISTS: Category column still missing from questions table - database schema migration not effective, questions endpoint returns no 'category' field in question objects, 2) ❌ LLM CLASSIFICATION STILL BROKEN: Enhanced LLM classification not working - category field not being populated during question upload, test train question uploaded successfully but category remains None, 3) ✅ UPLOAD WORKFLOW EXCELLENT: CSV upload working correctly with proper question creation (questions created but not activated due to validation issues), admin authentication working perfectly with sumedhprabhu18@gmail.com/admin2025 credentials, 4) ✅ SESSION COMPATIBILITY PERFECT: Adaptive session logic supports category-based filtering excellently, session start working with 12-question generation, phase information properly populated (phase_a: Coverage & Calibration), category distribution working in session metadata, 5) ❌ CLASSIFICATION ACCURACY FAILED: Test question 'A train travels 120 km in 2 hours. What is its speed in km/h?' found in database but category=None (not 'Arithmetic' as expected), subcategory='Time-Speed-Distance' working correctly, type='Basics' classification working correctly. ROOT CAUSE ANALYSIS: The database schema migration claimed success but category column is not actually present in the questions table structure. The LLM enrichment pipeline is not populating the category field during question processing. URGENT ACTION REQUIRED: 1) Verify and re-execute proper database migration to add category column, 2) Debug LLM enrichment pipeline to ensure category field population, 3) Test end-to-end workflow from CSV upload to category classification. SUCCESS RATE: 50% - Session system excellent but core database schema and LLM classification issues remain unresolved."
 
   - task: "Email Authentication System Backend Implementation"
     implemented: true
