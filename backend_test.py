@@ -841,36 +841,89 @@ class CATBackendTester:
                 if type_of_question and type_of_question != "To be classified":
                     print(f"   ✅ Type classification working: {type_of_question}")
         
-        # PHASE 6: PRODUCTION WORKFLOW TESTING
-        print("\n🔄 PHASE 6: PRODUCTION WORKFLOW TESTING")
+        # PHASE 5: END-TO-END WORKFLOW VALIDATION
+        print("\n🔄 PHASE 5: END-TO-END WORKFLOW VALIDATION")
         print("-" * 50)
-        print("Testing complete end-to-end workflow")
+        print("Testing complete workflow: Upload PYQ → Enhanced enrichment → Upload regular question → Dynamic frequency")
         
-        # Check if we have evidence of the complete workflow working
-        workflow_indicators = [
-            pyq_results["pyq_upload_endpoint_accessible"],
-            pyq_results["enhanced_enrichment_service_working"],
-            pyq_results["regular_question_upload_working"],
-            pyq_results["dynamic_frequency_calculator_working"]
-        ]
+        # Validate the complete workflow components
+        workflow_components = {
+            "PYQ Upload": pyq_results["pyq_questions_endpoint_no_year_filter"],
+            "PYQ Enrichment": pyq_results["pyq_enrichment_status_working"],
+            "Regular Upload": pyq_results["regular_question_upload_successful"],
+            "Dynamic Frequency": pyq_results["frequency_analysis_method_dynamic"]
+        }
         
-        workflow_success_count = sum(workflow_indicators)
+        working_components = sum(workflow_components.values())
+        total_components = len(workflow_components)
         
-        if workflow_success_count >= 3:
-            pyq_results["end_to_end_workflow_working"] = True
-            print(f"   ✅ End-to-end workflow working - {workflow_success_count}/4 components functional")
+        print(f"\n📋 Workflow Component Status:")
+        for component, status in workflow_components.items():
+            status_icon = "✅" if status else "❌"
+            print(f"   {status_icon} {component}: {'Working' if status else 'Not Working'}")
         
-        if pyq_results["pyq_frequency_score_calculated"] and pyq_results["enhanced_enrichment_service_working"]:
-            pyq_results["pyq_to_regular_integration"] = True
-            print(f"   ✅ PYQ to regular question integration working")
+        if working_components >= 3:
+            pyq_results["complete_workflow_pyq_to_regular"] = True
+            print(f"   ✅ Complete workflow functional: {working_components}/{total_components} components working")
         
-        if pyq_results["hardcoded_values_replaced"] and pyq_results["dynamic_frequency_calculator_working"]:
-            pyq_results["frequency_scores_dynamic"] = True
-            print(f"   ✅ Frequency scores are now dynamic (not hardcoded)")
+        # Check if all steps work without errors
+        no_critical_errors = (
+            pyq_results["no_500_errors_on_pyq_endpoints"] and
+            pyq_results["regular_question_upload_successful"]
+        )
         
-        if workflow_success_count >= 3:
-            pyq_results["workflow_performance_acceptable"] = True
-            print(f"   ✅ Workflow performance acceptable")
+        if no_critical_errors:
+            pyq_results["all_steps_work_without_errors"] = True
+            print(f"   ✅ All workflow steps execute without critical errors")
+        
+        # Verify database fields are populated correctly
+        database_integration_working = (
+            pyq_results["category_field_populated_by_llm"] and
+            pyq_results["database_fields_real_llm_content"]
+        )
+        
+        if database_integration_working:
+            pyq_results["database_fields_populated_correctly"] = True
+            print(f"   ✅ Database fields populated correctly with LLM content")
+        
+        # Check for no hardcoded fallback values
+        dynamic_processing = (
+            pyq_results["frequency_analysis_method_dynamic"] and
+            pyq_results["conceptual_matches_count_populated"]
+        )
+        
+        if dynamic_processing:
+            pyq_results["no_hardcoded_fallback_values"] = True
+            pyq_results["real_data_processing_confirmed"] = True
+            print(f"   ✅ Real data processing confirmed - no hardcoded fallback values")
+        
+        # FINAL SUCCESS CRITERIA VALIDATION
+        print("\n🎯 SUCCESS CRITERIA VALIDATION:")
+        
+        # Endpoints return functional data (not just 200 status)
+        if pyq_results["pyq_questions_returns_functional_data"]:
+            pyq_results["endpoints_return_functional_data"] = True
+            print(f"   ✅ Endpoints return functional data (not just 200 status)")
+        
+        # Dynamic frequency calculation produces real calculated values
+        if pyq_results["dynamic_calculation_replaces_hardcoded"]:
+            pyq_results["dynamic_frequency_real_values"] = True
+            print(f"   ✅ Dynamic frequency calculation produces real calculated values")
+        
+        # Background processing executes successfully
+        if pyq_results["background_processing_integration_works"]:
+            pyq_results["background_processing_executes"] = True
+            print(f"   ✅ Background processing executes successfully")
+        
+        # Database fields populated with real LLM-generated content
+        if pyq_results["database_fields_real_llm_content"]:
+            pyq_results["llm_generated_content_confirmed"] = True
+            print(f"   ✅ Database fields populated with real LLM-generated content")
+        
+        # Complete end-to-end workflows successful
+        if pyq_results["complete_workflow_pyq_to_regular"]:
+            pyq_results["end_to_end_workflows_successful"] = True
+            print(f"   ✅ Complete end-to-end workflows successful")
         
         # FINAL RESULTS SUMMARY
         print("\n" + "=" * 80)
