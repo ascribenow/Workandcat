@@ -3206,9 +3206,9 @@ async def upload_questions_csv(
         images_processed = 0
         enrichment_results = []
         
-        # Initialize the new SimplifiedEnrichmentService
-        from llm_enrichment import SimplifiedEnrichmentService
-        simplified_enricher = SimplifiedEnrichmentService()
+        # Initialize the new Unified Enrichment Service
+        from unified_enrichment_service import UnifiedEnrichmentService
+        unified_enricher = UnifiedEnrichmentService()
         
         for i, row in enumerate(processed_rows):
             try:
@@ -3281,7 +3281,7 @@ async def upload_questions_csv(
                 # IMMEDIATE LLM ENRICHMENT (not background) - Generate 5 fields only
                 logger.info(f"🎯 Question {questions_created}: Starting immediate LLM enrichment")
                 
-                enrichment_result = await simplified_enricher.enrich_with_five_fields_only(
+                enrichment_result = await unified_enricher.enrich_with_five_fields_only(
                     stem=stem,
                     admin_answer=admin_answer
                 )
@@ -3355,7 +3355,7 @@ async def upload_questions_csv(
                     validation_message = "No admin answer to validate"
                     
                     if admin_answer and question.right_answer:
-                        validation_result = await simplified_enricher._validate_answer_consistency(
+                        validation_result = await unified_enricher._validate_answer_consistency(
                             admin_answer=admin_answer,
                             ai_right_answer=question.right_answer,
                             question_stem=stem
