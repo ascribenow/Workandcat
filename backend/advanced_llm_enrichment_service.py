@@ -161,7 +161,7 @@ class AdvancedLLMEnrichmentService:
     def _mark_primary_model_recovered(self):
         """Mark that primary model is working again"""
         if self.last_rate_limit_time is not None:
-            logger.info(f"✅ {self.primary_model} recovered! Switching back from temporary fallback")
+            logger.info(f"✅ {self.primary_model} recovered! Switching back from temporary fallback (quality standards maintained throughout)")
             self.last_rate_limit_time = None
 
     async def _perform_deep_mathematical_analysis(self, stem: str, admin_answer: str = None) -> Dict[str, Any]:
