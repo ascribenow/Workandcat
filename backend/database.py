@@ -276,7 +276,7 @@ class PYQPaper(Base):
 
 
 class PYQQuestion(Base):
-    """PYQ questions - normalized, taxonomy-mapped items"""
+    """PYQ questions - enhanced with LLM enrichment and conceptual analysis"""
     __tablename__ = "pyq_questions"
     
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
@@ -290,9 +290,90 @@ class PYQQuestion(Base):
     confirmed = Column(Boolean, default=False)  # human-verified mapping
     created_at = Column(DateTime, default=datetime.utcnow)
     
+    # NEW: Enhanced PYQ fields for LLM enrichment and conceptual analysis
+    is_active = Column(Boolean, default=False)  # Enable/disable for analysis
+    difficulty_band = Column(String(20), nullable=True)  # Easy|Medium|Hard (LLM-assessed)
+    difficulty_score = Column(Numeric(3, 2), nullable=True)  # 1-5 numeric scale
+    quality_verified = Column(Boolean, default=False)  # Quality gate for reliability
+    last_updated = Column(DateTime, nullable=True)  # Track processing dates
+    frequency_self_score = Column(Numeric(5, 4), default=0.0)  # Self-referential frequency
+    concept_extraction_status = Column(String(50), default='pending')  # pending|completed|failed
+    
+    # NEW: Concept storage fields for advanced matching
+    core_concepts = Column(Text, nullable=True)  # JSON: extracted mathematical concepts
+    solution_method = Column(String(100), nullable=True)  # Primary solution approach
+    concept_difficulty = Column(Text, nullable=True)  # JSON: difficulty indicators
+    operations_required = Column(Text, nullable=True)  # JSON: mathematical operations
+    problem_structure = Column(String(50), nullable=True)  # Structure pattern type
+    concept_keywords = Column(Text, nullable=True)  # JSON: searchable keywords
+    
     # Relationships
     paper = relationship("PYQPaper", back_populates="questions")
     topic = relationship("Topic")
+
+    @validates('difficulty_band')
+    def validate_difficulty_band(self, key, difficulty_band):
+        """Validate difficulty band values for PYQ questions"""
+        if difficulty_band is not None and difficulty_band not in ['Easy', 'Medium', 'Hard']:
+            raise ValueError("PYQ difficulty band must be Easy, Medium, or Hard")
+        return difficulty_band
+
+    async def ensure_enhanced_pyq_enrichment(self, db_session, enhanced_enricher=None):
+        """
+        Ensure this PYQ question has complete enhanced enrichment
+        Includes difficulty assessment and concept extraction
+        """
+        from datetime import datetime
+        
+        # Check if enhanced enrichment is needed
+        if (self.concept_extraction_status != 'completed' or 
+            self.difficulty_band is None or 
+            not self.is_active):
+            
+            logger.info(f"🔄 Triggering enhanced PYQ enrichment for question {self.id}")
+            
+            if enhanced_enricher is None:
+                from enhanced_pyq_enrichment_service import EnhancedPYQEnrichmentService
+                enhanced_enricher = EnhancedPYQEnrichmentService()
+            
+            try:
+                # Update status
+                self.concept_extraction_status = 'processing'
+                self.last_updated = datetime.utcnow()
+                
+                # Trigger Enhanced PYQ Enrichment
+                enrichment_result = await enhanced_enricher.full_pyq_enrichment(self)
+                
+                if enrichment_result["success"]:
+                    # Success - update status
+                    self.concept_extraction_status = 'completed'
+                    self.is_active = True
+                    self.quality_verified = True
+                    
+                    logger.info(f"✅ Enhanced PYQ enrichment successful for question {self.id}")
+                    
+                    await db_session.commit()
+                    return True
+                    
+                else:
+                    # Failed - record error
+                    self.concept_extraction_status = 'failed'
+                    self.is_active = False
+                    
+                    logger.error(f"❌ Enhanced PYQ enrichment failed for question {self.id}: {enrichment_result.get('error')}")
+                    await db_session.commit()
+                    return False
+                
+            except Exception as e:
+                # Exception - record failure
+                self.concept_extraction_status = 'failed'
+                self.is_active = False
+                
+                logger.error(f"❌ Enhanced PYQ enrichment exception for question {self.id}: {e}")
+                await db_session.commit()
+                return False
+        
+        return True  # Already has valid enrichment
 
 
 # User Management Tables
