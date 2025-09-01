@@ -1147,16 +1147,25 @@ Return ONLY one word: Easy, Medium, or Hard"""
                     timeout=30
                 )
                 
-                difficulty = response.choices[0].message.content.strip()
+                raw_difficulty = response.choices[0].message.content.strip()
+                logger.info(f"🤖 Raw LLM difficulty response: '{raw_difficulty}'")
                 
-                # Validate response - NO FALLBACK
-                if difficulty.lower() in ['easy', 'medium', 'hard']:
-                    difficulty = difficulty.capitalize()
-                    logger.info(f"✅ Difficulty assessed: {difficulty} (attempt {attempt + 1})")
-                    return difficulty
+                # Clean up the response to extract just the difficulty level
+                difficulty = raw_difficulty.lower()
+                
+                # Handle various possible formats from LLM
+                if 'easy' in difficulty:
+                    clean_difficulty = 'Easy'
+                elif 'medium' in difficulty:
+                    clean_difficulty = 'Medium'
+                elif 'hard' in difficulty:
+                    clean_difficulty = 'Hard'
                 else:
                     # Invalid response - treat as retry-able error
-                    raise ValueError(f"Invalid LLM difficulty response: {difficulty}")
+                    raise ValueError(f"Invalid LLM difficulty response: '{raw_difficulty}' - expected Easy, Medium, or Hard")
+                
+                logger.info(f"✅ Difficulty assessed: {clean_difficulty} (attempt {attempt + 1})")
+                return clean_difficulty
                     
             except Exception as e:
                 logger.warning(f"⚠️ Difficulty assessment attempt {attempt + 1} failed: {e}")
