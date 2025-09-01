@@ -2,7 +2,7 @@ import requests
 import json
 
 # Test the specific failing endpoints
-base_url = "https://cat-ai-tutor.preview.emergentagent.com/api"
+base_url = "https://question-engine-1.preview.emergentagent.com/api"
 
 # Login as student first
 login_data = {
