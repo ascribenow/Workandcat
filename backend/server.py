@@ -3281,9 +3281,10 @@ async def upload_questions_csv(
                 # IMMEDIATE LLM ENRICHMENT (not background) - Generate 5 fields only
                 logger.info(f"🎯 Question {questions_created}: Starting immediate LLM enrichment")
                 
-                enrichment_result = await unified_enricher.enrich_with_five_fields_only(
+                enrichment_result = await unified_enricher.enrich_question_comprehensive(
                     stem=stem,
-                    admin_answer=admin_answer
+                    admin_answer=admin_answer,
+                    question_type="regular"
                 )
                 
                 logger.info(f"🤖 Enrichment result for question {questions_created}: {enrichment_result}")
