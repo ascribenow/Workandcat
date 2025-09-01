@@ -76,7 +76,7 @@ class DynamicFrequencyCalculator:
                 'total_pyq_analyzed': len(active_pyqs),
                 'average_similarity': frequency_metrics['average_similarity'],
                 'confidence_score': frequency_metrics['confidence_score'],
-                'top_matching_years': time_weighted_metrics['top_years'],
+                'top_matching_years': time_weighted_metrics['top_categories'],
                 'matching_concepts_summary': frequency_metrics['concept_summary'],
                 'frequency_trend': time_weighted_metrics['trend_analysis'],
                 'calculation_metadata': {
