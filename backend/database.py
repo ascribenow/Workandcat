@@ -130,10 +130,7 @@ class Question(Base):
     mcq_options = Column(Text, nullable=True)  # JSON string of MCQ options
     
     # Metadata
-    video_url = Column(Text, nullable=True)
-    tags = Column(Text, default='[]')  # JSON string for SQLite
     source = Column(String(20), default='Admin')  # Admin|PYQ|Mock|AI_GEN
-    version = Column(Integer, default=1)
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     
