@@ -280,8 +280,6 @@ class PYQQuestion(Base):
     type_of_question = Column(String(150))  # Specific question type within subcategory
     stem = Column(Text, nullable=False)
     answer = Column(Text, nullable=False)
-    tags = Column(Text, default='[]')  # JSON string for SQLite
-    confirmed = Column(Boolean, default=False)  # human-verified mapping
     created_at = Column(DateTime, default=datetime.utcnow)
     
     # NEW: Enhanced PYQ fields for LLM enrichment and conceptual analysis
