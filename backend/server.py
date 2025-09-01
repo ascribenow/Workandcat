@@ -4127,12 +4127,11 @@ async def enhanced_pyq_enrichment_background(pyq_question_id: str):
                 logger.error(f"❌ PYQ question {pyq_question_id} not found")
                 return False
             
-            # Use unified enrichment service
-            from unified_enrichment_service import UnifiedEnrichmentService
-            unified_enricher = UnifiedEnrichmentService()
+            # Use Advanced LLM Enrichment Service - 100% QUALITY STANDARDS (NO FALLBACKS)
+            advanced_enricher = AdvancedLLMEnrichmentService()
             
-            # Perform comprehensive enrichment
-            enrichment_result = await unified_enricher.enrich_question_comprehensive(
+            # Perform comprehensive enrichment with strict quality standards
+            enrichment_result = await advanced_enricher.enrich_question_deeply(
                 stem=pyq_question.stem,
                 admin_answer=pyq_question.answer,
                 question_type="pyq"
