@@ -288,7 +288,6 @@ class PYQQuestion(Base):
     difficulty_score = Column(Numeric(3, 2), nullable=True)  # 1-5 numeric scale
     quality_verified = Column(Boolean, default=False)  # Quality gate for reliability
     last_updated = Column(DateTime, nullable=True)  # Track processing dates
-    frequency_self_score = Column(Numeric(5, 4), default=0.0)  # Self-referential frequency
     concept_extraction_status = Column(String(50), default='pending')  # pending|completed|failed
     
     # NEW: Concept storage fields for advanced matching
