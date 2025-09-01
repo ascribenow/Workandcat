@@ -1429,27 +1429,12 @@ Answer:"""
         Enrich ONLY metadata fields (difficulty, frequency, etc.) without touching admin content fields
         """
         try:
-            logger.info("📊 Enriching metadata fields only (protecting admin content)...")
+            logger.info("📊 LLM-ONLY metadata enrichment (no heuristics)...")
             
-            # Calculate metadata based on question characteristics and heuristics
-            # Since we don't have actual performance data, use heuristic estimates
+            # REMOVED: All heuristic difficulty calculation
+            # Only frequency bands remain based on subcategory (non-heuristic classification)
             
-            # Estimate difficulty based on question complexity
-            question_length = len(question_stem)
-            has_numbers = any(char.isdigit() for char in question_stem)
-            
-            # Heuristic difficulty calculation
-            if question_length > 200 or "calculate" in question_stem.lower() or "find" in question_stem.lower():
-                difficulty_score = 3.5  # Hard
-                difficulty_band = "Hard"
-            elif question_length > 100 or has_numbers:
-                difficulty_score = 2.5  # Medium
-                difficulty_band = "Medium"
-            else:
-                difficulty_score = 1.5  # Easy
-                difficulty_band = "Easy"
-            
-            # Frequency band based on subcategory
+            # Frequency band based on subcategory (categorical, not heuristic)
             high_freq_categories = [
                 'Time–Speed–Distance (TSD)', 'Percentages', 'Profit–Loss–Discount (PLD)',
                 'Linear Equations', 'Triangles', 'Divisibility', 'Permutation–Combination (P&C)'
@@ -1474,12 +1459,11 @@ Answer:"""
                 learning_impact = 50.0
                 importance_index = 50.0
             
-            logger.info(f"📊 Metadata calculated: {difficulty_band} difficulty, {frequency_band} frequency")
+            logger.info(f"📊 Metadata calculated: frequency={frequency_band} (LLM difficulty will be assessed separately)")
             
             return {
                 "success": True,
-                "difficulty_score": round(difficulty_score, 2),
-                "difficulty_band": difficulty_band,
+                # REMOVED: difficulty_score and difficulty_band (LLM-only now)
                 "frequency_band": frequency_band,
                 "learning_impact": round(learning_impact, 2),
                 "importance_index": round(importance_index, 2),
