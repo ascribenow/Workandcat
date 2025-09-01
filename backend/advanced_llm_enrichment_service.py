@@ -488,6 +488,10 @@ Return ONLY this JSON:
             try:
                 client = openai.OpenAI(api_key=self.openai_api_key, timeout=self.timeout)
                 
+                # Intelligent model selection
+                model_to_use, selection_reason = self._should_use_fallback_model()
+                logger.info(f"🤖 Using model: {model_to_use} for conceptual extraction (reason: {selection_reason})")
+                
                 system_message = """You are a mathematical concept extraction expert with deep insight into learning patterns and cognitive structures.
 
 Extract sophisticated conceptual information that would be genuinely useful for adaptive learning systems.
