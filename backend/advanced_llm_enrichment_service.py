@@ -317,7 +317,7 @@ Return ONLY this JSON:
 Be precise, specific, and demonstrate deep mathematical understanding."""
 
                 response = client.chat.completions.create(
-                    model="gpt-4o",
+                    model=model_to_use,
                     messages=[
                         {"role": "system", "content": system_message},
                         {"role": "user", "content": f"Question: {stem}\nMathematical Analysis: {deep_analysis.get('mathematical_foundation', '')}\nSolution Approach: {deep_analysis.get('solution_elegance', '')}"}
@@ -330,11 +330,20 @@ Be precise, specific, and demonstrate deep mathematical understanding."""
                 classification_text = response.choices[0].message.content.strip()
                 classification_data = json.loads(classification_text)
                 
-                logger.info(f"✅ Sophisticated classification completed")
+                # If we successfully used primary model after recovery, mark it as recovered
+                if selection_reason == "testing_primary_recovery":
+                    self._mark_primary_model_recovered()
+                
+                logger.info(f"✅ Sophisticated classification completed with {model_to_use}")
                 return classification_data
                 
             except Exception as e:
                 logger.warning(f"⚠️ Classification attempt {attempt + 1} failed: {e}")
+                
+                # Handle rate limit errors intelligently
+                if self._handle_rate_limit_error(e):
+                    logger.info("🔄 Retrying classification immediately with fallback model due to rate limit")
+                    continue
                 
                 if attempt < self.max_retries - 1:
                     delay = self.retry_delays[attempt]
