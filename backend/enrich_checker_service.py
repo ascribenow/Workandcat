@@ -281,19 +281,23 @@ QUALITY CRITERIA FOR ASSESSMENT:
    - ✅ Good: Specific operations (["vector_addition_conceptual", "algebraic_equation_setup", "proportional_reasoning"])
 
 ASSESSMENT GUIDELINES:
-- Score 0-100 based on sophistication and specificity
-- Score < 70: UNACCEPTABLE (needs re-enrichment)
-- Score ≥ 70: ACCEPTABLE (good quality)
+- ALL CRITERIA MUST BE MET 100% - NO COMPROMISES
+- RIGHT ANSWER: Must include detailed mathematical reasoning (not just the answer)
+- CATEGORY: Must be sophisticated and specific (not generic terms like "Arithmetic", "Algebra", "Mathematics")
+- SUBCATEGORY: Must be precise and detailed (not basic terms like "Percentages", "Time Speed Distance")
+- CORE CONCEPTS: Must be specific mathematical concepts (not generic like ["calculation"], ["mathematics"])
+- SOLUTION METHOD: Must be detailed methodology (not generic like "general_approach", "standard_method")
+- OPERATIONS: Must be specific operations (not generic like ["calculation"], ["basic_math"])
 
-Identify specific issues with the enrichment data.
+ANY GENERIC OR REPETITIVE CONTENT = UNACCEPTABLE (needs re-enrichment)
+ONLY SOPHISTICATED, DETAILED, SPECIFIC CONTENT = ACCEPTABLE
 
 Return ONLY this JSON:
 {
-  "quality_score": 85,
-  "is_acceptable": true,
-  "issues": ["list of specific issues identified"],
-  "strengths": ["list of good aspects"],
-  "assessment_reasoning": "detailed explanation of score"
+  "is_acceptable": false,
+  "failed_criteria": ["list of specific criteria that failed"],
+  "quality_issues": ["detailed list of quality issues"],
+  "assessment_reasoning": "detailed explanation of why unacceptable"
 }"""
 
                 response = client.chat.completions.create(
