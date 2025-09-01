@@ -4391,7 +4391,8 @@ async def enrich_checker_pyq(
                     "poor_enrichment_identified": check_results["poor_enrichment_identified"],
                     "re_enrichment_successful": check_results["re_enrichment_successful"],
                     "re_enrichment_failed": check_results["re_enrichment_failed"],
-                    "average_quality_score": check_results["average_quality_score"],
+                    "perfect_quality_count": check_results["perfect_quality_count"],
+                    "perfect_quality_percentage": check_results["perfect_quality_percentage"],
                     "improvement_rate_percentage": check_results["improvement_rate_percentage"]
                 },
                 "detailed_results": check_results["detailed_results"][:10],  # Show first 10 detailed results
