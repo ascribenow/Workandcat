@@ -3831,6 +3831,134 @@ async def get_pyq_questions(
         logger.error(f"Error retrieving PYQ questions: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to retrieve PYQ questions: {str(e)}")
 
+@api_router.get("/admin/pyq/enrichment-status")
+async def get_pyq_enrichment_status(
+    current_user: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_async_compatible_db)
+):
+    """
+    Get PYQ enrichment status and statistics
+    """
+    try:
+        # Get enrichment statistics
+        stats_query = await db.execute(
+            select(
+                func.count(PYQQuestion.id).label('total_questions'),
+                func.sum(case((PYQQuestion.is_active == True, 1), else_=0)).label('active_questions'),
+                func.sum(case((PYQQuestion.quality_verified == True, 1), else_=0)).label('quality_verified'),
+                func.sum(case((PYQQuestion.concept_extraction_status == 'completed', 1), else_=0)).label('concept_extracted'),
+                func.sum(case((PYQQuestion.concept_extraction_status == 'pending', 1), else_=0)).label('pending_enrichment'),
+                func.sum(case((PYQQuestion.concept_extraction_status == 'failed', 1), else_=0)).label('failed_enrichment'),
+                func.avg(PYQQuestion.difficulty_score).label('avg_difficulty_score')
+            )
+        )
+        
+        stats = stats_query.first()
+        
+        # Get recent enrichment activity (last 24 hours)
+        recent_cutoff = datetime.utcnow() - timedelta(hours=24)
+        recent_activity_query = await db.execute(
+            select(
+                func.count(PYQQuestion.id).label('recent_updates')
+            ).where(
+                or_(
+                    PYQQuestion.last_updated >= recent_cutoff,
+                    PYQQuestion.created_at >= recent_cutoff
+                )
+            )
+        )
+        recent_activity = recent_activity_query.first()
+        
+        # Get difficulty distribution
+        difficulty_distribution_query = await db.execute(
+            select(
+                PYQQuestion.difficulty_band,
+                func.count(PYQQuestion.id).label('count')
+            ).where(
+                PYQQuestion.difficulty_band.isnot(None)
+            ).group_by(PYQQuestion.difficulty_band)
+        )
+        difficulty_distribution = {row.difficulty_band: row.count for row in difficulty_distribution_query}
+        
+        # Calculate enrichment completion rate
+        total = stats.total_questions or 0
+        completed = stats.concept_extracted or 0
+        completion_rate = (completed / total * 100) if total > 0 else 0
+        
+        return {
+            "enrichment_statistics": {
+                "total_questions": total,
+                "active_questions": stats.active_questions or 0,
+                "quality_verified": stats.quality_verified or 0,
+                "concept_extracted": completed,
+                "pending_enrichment": stats.pending_enrichment or 0,
+                "failed_enrichment": stats.failed_enrichment or 0,
+                "completion_rate": round(completion_rate, 2),
+                "avg_difficulty_score": round(float(stats.avg_difficulty_score), 3) if stats.avg_difficulty_score else None
+            },
+            "recent_activity": {
+                "last_24_hours": recent_activity.recent_updates or 0
+            },
+            "difficulty_distribution": difficulty_distribution,
+            "status": "active" if completion_rate > 90 else "in_progress" if completion_rate > 50 else "needs_attention",
+            "message": f"PYQ enrichment is {completion_rate:.1f}% complete with {stats.pending_enrichment or 0} questions pending"
+        }
+        
+    except Exception as e:
+        logger.error(f"Error getting PYQ enrichment status: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to get enrichment status: {str(e)}")
+
+@api_router.post("/admin/pyq/trigger-enrichment")
+async def trigger_pyq_enrichment(
+    question_ids: Optional[List[str]] = None,
+    current_user: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_async_compatible_db)
+):
+    """
+    Manually trigger PYQ enrichment for specific questions or all pending questions
+    """
+    try:
+        # If no specific questions provided, get all pending questions
+        if not question_ids:
+            pending_query = await db.execute(
+                select(PYQQuestion.id).where(
+                    or_(
+                        PYQQuestion.concept_extraction_status == 'pending',
+                        PYQQuestion.concept_extraction_status == 'failed',
+                        PYQQuestion.is_active == False
+                    )
+                ).limit(50)  # Limit to prevent overload
+            )
+            question_ids = [str(row.id) for row in pending_query]
+        
+        if not question_ids:
+            return {
+                "message": "No questions found that need enrichment",
+                "triggered_count": 0
+            }
+        
+        # Trigger enrichment for each question
+        triggered_count = 0
+        for question_id in question_ids:
+            try:
+                asyncio.create_task(enhanced_pyq_enrichment_background(question_id))
+                triggered_count += 1
+            except Exception as task_error:
+                logger.error(f"Failed to trigger enrichment for question {question_id}: {task_error}")
+        
+        logger.info(f"Manually triggered PYQ enrichment for {triggered_count} questions")
+        
+        return {
+            "message": f"Triggered PYQ enrichment for {triggered_count} questions",
+            "triggered_count": triggered_count,
+            "question_ids": question_ids[:10],  # Show first 10 for reference
+            "total_requested": len(question_ids)
+        }
+        
+    except Exception as e:
+        logger.error(f"Error triggering PYQ enrichment: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to trigger enrichment: {str(e)}")
+
 async def enhanced_pyq_enrichment_background(pyq_question_id: str):
     """
     ENHANCED Background task for PYQ question enrichment using full LLM pipeline
