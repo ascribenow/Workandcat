@@ -5,6 +5,7 @@ Analyzes mathematical concepts and patterns using LLM intelligence
 
 import logging
 import asyncio
+import json
 from typing import Dict, List, Optional, Any, Tuple
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, and_, desc
