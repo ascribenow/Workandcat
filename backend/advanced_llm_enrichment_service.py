@@ -360,6 +360,10 @@ Be precise, specific, and demonstrate deep mathematical understanding."""
             try:
                 client = openai.OpenAI(api_key=self.openai_api_key, timeout=self.timeout)
                 
+                # Intelligent model selection
+                model_to_use, selection_reason = self._should_use_fallback_model()
+                logger.info(f"🤖 Using model: {model_to_use} for difficulty assessment (reason: {selection_reason})")
+                
                 system_message = """You are a CAT difficulty assessment expert with deep understanding of cognitive load and mathematical complexity.
 
 Assess difficulty with sophisticated reasoning considering multiple dimensions:
