@@ -265,6 +265,10 @@ Be precise, insightful, and demonstrate superior mathematical intelligence."""
             try:
                 client = openai.OpenAI(api_key=self.openai_api_key, timeout=self.timeout)
                 
+                # Intelligent model selection
+                model_to_use, selection_reason = self._should_use_fallback_model()
+                logger.info(f"🤖 Using model: {model_to_use} for classification (reason: {selection_reason})")
+                
                 system_message = """You are an expert in CAT quantitative taxonomy with deep understanding of mathematical classification.
 
 Your task is to provide sophisticated, nuanced classification that goes beyond superficial categorization.
