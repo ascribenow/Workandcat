@@ -1047,7 +1047,10 @@ Rules:
         try:
             import openai
             
-            client = openai.OpenAI(api_key=self.openai_api_key)
+            client = openai.OpenAI(
+                api_key=self.openai_api_key,
+                timeout=30.0  # 30 second timeout
+            )
             
             system_message = f"""You are an expert in CAT quantitative ability question classification.
 Classify the given question into the EXACT canonical taxonomy below.
@@ -1071,8 +1074,9 @@ EXAMPLES:
 
 Return ONLY JSON format: {{"category": "...", "subcategory": "...", "type_of_question": "..."}}"""
 
+            logger.info(f"🤖 Calling OpenAI API for question classification...")
             response = client.chat.completions.create(
-                model="gpt-4o",
+                model="gpt-4o-mini",  # Use more reliable model
                 messages=[
                     {"role": "system", "content": system_message},
                     {"role": "user", "content": f"Classify this question: {stem}"}
