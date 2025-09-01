@@ -395,6 +395,10 @@ const AdminPanel = () => {
   
   // PYQ Upload states
   const [uploading, setUploading] = useState(false);
+  
+  // Enrich Checker states
+  const [enriching, setEnriching] = useState(false);
+  const [enrichResults, setEnrichResults] = useState(null);
 
   const handleCSVUpload = async (event) => {
     const file = event.target.files[0];
