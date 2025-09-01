@@ -145,6 +145,78 @@ class Question(Base):
     question_options = relationship("QuestionOption", back_populates="question")
     attempts = relationship("Attempt", back_populates="question")
 
+    @validates('difficulty_band')
+    def validate_difficulty_band(self, key, difficulty_band):
+        """Validate difficulty band values"""
+        if difficulty_band is not None and difficulty_band not in ['Easy', 'Medium', 'Hard']:
+            raise ValueError("Difficulty band must be Easy, Medium, or Hard")
+        return difficulty_band
+
+    @validates('is_active')
+    def validate_active_status(self, key, is_active):
+        """Validate that questions can only become active if LLM assessment is complete"""
+        if is_active and (not self.difficulty_band or self.llm_difficulty_assessment_method != 'llm_verified'):
+            # Don't raise error here, just set to False and log for reprocessing
+            logger.warning(f"Question {self.id} cannot be activated - missing LLM difficulty assessment")
+            return False
+        return is_active
+
+    async def ensure_llm_difficulty_assessment(self, db_session, simplified_enricher=None):
+        """
+        Ensure this question has valid LLM difficulty assessment
+        If not, trigger Enhanced LLM Assessment with Retry Logic
+        """
+        from datetime import datetime
+        
+        # Check if LLM assessment is needed
+        if (self.difficulty_band is None or 
+            self.llm_difficulty_assessment_method != 'llm_verified'):
+            
+            logger.info(f"🔄 Triggering LLM difficulty assessment for question {self.id}")
+            
+            if simplified_enricher is None:
+                from llm_enrichment import SimplifiedEnrichmentService
+                simplified_enricher = SimplifiedEnrichmentService()
+            
+            try:
+                # Update attempt tracking
+                self.llm_assessment_attempts = (self.llm_assessment_attempts or 0) + 1
+                self.last_llm_assessment_date = datetime.utcnow()
+                self.llm_difficulty_assessment_method = 'processing'
+                
+                # Trigger Enhanced LLM Assessment with Retry Logic
+                difficulty_result = await simplified_enricher._determine_difficulty_level(
+                    self.stem, 
+                    self.right_answer or self.answer or "No answer provided"
+                )
+                
+                # Success - update fields
+                self.difficulty_band = difficulty_result
+                self.llm_difficulty_assessment_method = 'llm_verified'
+                self.llm_assessment_error = None
+                
+                logger.info(f"✅ LLM difficulty assessment successful: {difficulty_result}")
+                
+                # Now question can be activated
+                if not self.is_active:
+                    self.is_active = True
+                    logger.info(f"✅ Question {self.id} activated after successful LLM assessment")
+                
+                await db_session.commit()
+                return True
+                
+            except Exception as e:
+                # Failed - record error but don't activate
+                self.llm_difficulty_assessment_method = 'failed'
+                self.llm_assessment_error = str(e)
+                self.is_active = False
+                
+                logger.error(f"❌ LLM difficulty assessment failed for question {self.id}: {e}")
+                await db_session.commit()
+                return False
+        
+        return True  # Already has valid assessment
+
 
 class QuestionOption(Base):
     """Question options - cache of last MCQ set shown"""
