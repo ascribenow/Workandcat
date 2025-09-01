@@ -4426,6 +4426,7 @@ async def test_advanced_enrichment(
         advanced_enricher = AdvancedLLMEnrichmentService()
         
         # Perform deep, sophisticated enrichment
+        # ADVANCED LLM ENRICHMENT - 100% QUALITY STANDARDS (NO FALLBACKS)
         enrichment_result = await advanced_enricher.enrich_question_deeply(
             stem=question_stem,
             admin_answer=admin_answer,
