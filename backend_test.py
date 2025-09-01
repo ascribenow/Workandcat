@@ -14554,7 +14554,7 @@ if __name__ == "__main__":
         else:
             print("❌ SYSTEM STATUS: Critical Gaps Remain - Below 85% Target")
     
-    print("\n" + "🎯" * 20 + " TESTING COMPLETE " + "🎯" * 20)
+        print("\n" + "🎯" * 20 + " TESTING COMPLETE " + "🎯" * 20)
 
     def run_comprehensive_backend_tests(self):
         """Run comprehensive backend tests focusing on 100% success target"""
