@@ -376,14 +376,8 @@ Return ONLY this JSON:
                     await asyncio.sleep(delay)
                     continue
                 else:
-                    return {
-                        'difficulty_band': 'Medium',
-                        'difficulty_score': 2.5,
-                        'complexity_reasoning': 'Assessment failed - manual review required',
-                        'cognitive_load_factors': json.dumps(['unknown']),
-                        'time_estimate_minutes': 3.0,
-                        'error_trap_potential': 'unknown'
-                    }
+                    logger.error("❌ All difficulty assessment attempts failed - NO FALLBACK")
+                    raise Exception("Nuanced difficulty assessment failed after all retries - refusing to proceed with fallback data")
     
     async def _perform_advanced_conceptual_extraction(self, stem: str, deep_analysis: Dict[str, Any], classification: Dict[str, Any]) -> Dict[str, Any]:
         """Perform advanced conceptual extraction with sophisticated insight"""
