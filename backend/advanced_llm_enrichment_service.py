@@ -35,7 +35,14 @@ class AdvancedLLMEnrichmentService:
         
         self.max_retries = 4
         self.retry_delays = [3, 7, 15, 30]
-        self.timeout = 120  # Extended timeout for deep analysis
+        self.timeout = 180  # Increased timeout for GPT-4o latency (3 minutes)
+        
+        # Intelligent model switching for rate limit handling
+        self.primary_model = "gpt-4o"
+        self.fallback_model = "gpt-4o-mini" 
+        self.current_model = self.primary_model
+        self.last_rate_limit_time = None
+        self.rate_limit_recovery_interval = 300  # 5 minutes before testing GPT-4o again
         
     async def enrich_question_deeply(self, stem: str, admin_answer: str = None, question_type: str = "regular") -> Dict[str, Any]:
         """
