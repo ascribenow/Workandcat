@@ -161,7 +161,10 @@ Be precise, insightful, and demonstrate superior mathematical intelligence."""
                 return analysis_data
                 
             except Exception as e:
-                logger.warning(f"⚠️ Deep analysis attempt {attempt + 1} failed: {e}")
+                logger.error(f"⚠️ Deep analysis attempt {attempt + 1} failed: {str(e)}")
+                logger.error(f"🔍 Exception type: {type(e).__name__}")
+                import traceback
+                logger.error(f"📚 Traceback: {traceback.format_exc()}")
                 
                 if attempt < self.max_retries - 1:
                     delay = self.retry_delays[attempt]
