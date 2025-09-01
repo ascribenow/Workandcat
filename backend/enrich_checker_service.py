@@ -114,11 +114,13 @@ class EnrichCheckerService:
                     logger.info(f"✅ Perfect enrichment quality - all criteria met")
             
             # Calculate summary statistics
-            avg_quality_score = sum(check_results["quality_scores"]) / len(check_results["quality_scores"]) if check_results["quality_scores"] else 0
+            perfect_quality_count = sum(check_results["quality_scores"])
+            perfect_quality_percentage = (perfect_quality_count / len(check_results["quality_scores"])) * 100 if check_results["quality_scores"] else 0
             improvement_rate = (check_results["re_enrichment_successful"] / check_results["re_enrichment_attempted"]) * 100 if check_results["re_enrichment_attempted"] > 0 else 0
             
             check_results.update({
-                "average_quality_score": round(avg_quality_score, 2),
+                "perfect_quality_count": perfect_quality_count,
+                "perfect_quality_percentage": round(perfect_quality_percentage, 2),
                 "improvement_rate_percentage": round(improvement_rate, 2),
                 "processing_completed_at": datetime.utcnow().isoformat()
             })
