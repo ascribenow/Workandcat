@@ -186,8 +186,8 @@ class AuthService:
             email=db_user.email,
             full_name=db_user.full_name,
             is_admin=db_user.is_admin,
-            created_at=db_user.created_at,
-            tz=db_user.tz
+            created_at=db_user.created_at
+            # tz field removed as part of database cleanup
         )
 
 # Dependency functions for FastAPI
