@@ -4305,6 +4305,82 @@ async def enrich_pyq_question_background(pyq_question_id: str):
 
 # Admin Test Endpoints for Conceptual Frequency Analysis
 
+@api_router.post("/admin/test-advanced-enrichment", dependencies=[Depends(require_admin)])
+async def test_advanced_enrichment(
+    request: Dict[str, Any],
+    db = Depends(get_database)
+) -> Dict[str, Any]:
+    """
+    Test the new Advanced LLM Enrichment Service with sophisticated analysis
+    """
+    try:
+        question_stem = request.get("question_stem", "")
+        admin_answer = request.get("admin_answer", "")
+        
+        if not question_stem:
+            raise HTTPException(status_code=400, detail="question_stem is required")
+        
+        logger.info(f"🧠 Testing Advanced LLM Enrichment on: {question_stem[:50]}...")
+        
+        # Initialize Advanced LLM Enrichment Service
+        advanced_enricher = AdvancedLLMEnrichmentService()
+        
+        # Perform deep, sophisticated enrichment
+        enrichment_result = await advanced_enricher.enrich_question_deeply(
+            stem=question_stem,
+            admin_answer=admin_answer,
+            question_type="regular"
+        )
+        
+        if enrichment_result["success"]:
+            enrichment_data = enrichment_result["enrichment_data"]
+            
+            logger.info("✨ Advanced enrichment successful!")
+            
+            return {
+                "success": True,
+                "message": "Advanced LLM enrichment completed successfully",
+                "question_stem": question_stem,
+                "admin_answer": admin_answer,
+                "enrichment_analysis": {
+                    "right_answer": enrichment_data.get("right_answer"),
+                    "mathematical_foundation": enrichment_data.get("mathematical_foundation"),
+                    "solution_elegance": enrichment_data.get("solution_elegance"),
+                    "category": enrichment_data.get("category"),
+                    "subcategory": enrichment_data.get("subcategory"),
+                    "type_of_question": enrichment_data.get("type_of_question"),
+                    "difficulty_band": enrichment_data.get("difficulty_band"),
+                    "difficulty_score": enrichment_data.get("difficulty_score"),
+                    "complexity_reasoning": enrichment_data.get("complexity_reasoning"),
+                    "time_estimate_minutes": enrichment_data.get("time_estimate_minutes"),
+                    "core_concepts": enrichment_data.get("core_concepts"),
+                    "solution_method": enrichment_data.get("solution_method"),
+                    "concept_difficulty": enrichment_data.get("concept_difficulty"),
+                    "operations_required": enrichment_data.get("operations_required"),
+                    "problem_structure": enrichment_data.get("problem_structure"),
+                    "concept_keywords": enrichment_data.get("concept_keywords"),
+                    "quality_verified": enrichment_data.get("quality_verified"),
+                    "quality_score": enrichment_data.get("quality_score")
+                },
+                "processing_details": {
+                    "service_used": "AdvancedLLMEnrichmentService",
+                    "analysis_depth": "ultra_sophisticated",
+                    "processing_time": enrichment_result.get("processing_time")
+                }
+            }
+        else:
+            logger.error(f"❌ Advanced enrichment failed: {enrichment_result.get('error')}")
+            return {
+                "success": False,
+                "message": "Advanced LLM enrichment failed",
+                "error": enrichment_result.get("error"),
+                "question_stem": question_stem
+            }
+    
+    except Exception as e:
+        logger.error(f"❌ Test advanced enrichment error: {e}")
+        raise HTTPException(status_code=500, detail=f"Advanced enrichment test failed: {str(e)}")
+
 @api_router.post("/admin/test/immediate-enrichment")
 async def test_immediate_enrichment(
     current_user: User = Depends(require_admin),
