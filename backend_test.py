@@ -14393,22 +14393,28 @@ class CATBackendTester:
 if __name__ == "__main__":
     tester = CATBackendTester()
     
-    print("🚀 STARTING PYQ & CONCEPTUAL MATCHING IMPLEMENTATION TESTING")
+    print("🚀 STARTING COMPREHENSIVE PYQ INTEGRATION TESTING - VALIDATE 85%+ FUNCTIONALITY")
     print("=" * 80)
-    print("Testing PYQ Enhanced Schema, Enrichment, and Conceptual Matching as per review request")
+    print("Testing the major PYQ integration fixes that were just implemented")
+    print("Focus: Validating that critical gaps identified in previous testing have been resolved")
     print("")
     
-    # Run PYQ & Conceptual Matching Implementation testing (NEW - Review Request Focus)
-    pyq_success = tester.test_pyq_conceptual_matching_implementation()
+    # Run Comprehensive PYQ Integration testing (NEW - Review Request Focus)
+    pyq_integration_success = tester.test_pyq_integration_comprehensive()
     
     print("\n" + "=" * 80)
-    print("PYQ & CONCEPTUAL MATCHING IMPLEMENTATION SUMMARY")
+    print("COMPREHENSIVE PYQ INTEGRATION TESTING SUMMARY")
     print("=" * 80)
     
-    if pyq_success:
-        print("🎉 PYQ & CONCEPTUAL MATCHING: Core functionality working")
+    if pyq_integration_success:
+        print("🎉 COMPREHENSIVE PYQ INTEGRATION: Major functionality working - 85%+ achievement likely")
+        print("✅ Critical endpoints accessible and functional")
+        print("✅ End-to-end PYQ enrichment workflow operational")
+        print("✅ Significant progress from previous 14.3% success rate")
     else:
-        print("❌ PYQ & CONCEPTUAL MATCHING: Critical issues detected")
+        print("❌ COMPREHENSIVE PYQ INTEGRATION: Critical issues remain")
+        print("❌ Some endpoints not accessible or not working properly")
+        print("❌ 85%+ functionality achievement not validated")
     
     print(f"\nTotal Tests Run: {tester.tests_run}")
     print(f"Total Tests Passed: {tester.tests_passed}")
@@ -14417,12 +14423,11 @@ if __name__ == "__main__":
         overall_success_rate = (tester.tests_passed / tester.tests_run) * 100
         print(f"Overall Success Rate: {overall_success_rate:.1f}%")
         
-        if overall_success_rate >= 80:
-            print("🎉 SYSTEM STATUS: PYQ & Conceptual Matching Implementation Working")
-        elif overall_success_rate >= 60:
-            print("⚠️ SYSTEM STATUS: PYQ & Conceptual Matching Implementation Partially Working")
+        if overall_success_rate >= 85:
+            print("🎉 SYSTEM STATUS: 85%+ Functionality Achievement VALIDATED")
+        elif overall_success_rate >= 70:
+            print("⚠️ SYSTEM STATUS: Significant Progress Made - Approaching 85% Target")
         else:
-            print("❌ SYSTEM STATUS: PYQ & Conceptual Matching Implementation Need Attention")
+            print("❌ SYSTEM STATUS: Critical Gaps Remain - Below 85% Target")
     
-    print("\n🎯 TESTING COMPLETED")
-    print("=" * 80)
+    print("\n" + "🎯" * 20 + " TESTING COMPLETE " + "🎯" * 20)
