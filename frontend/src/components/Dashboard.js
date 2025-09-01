@@ -497,6 +497,82 @@ ${response.data.duplicate_questions > 0 ? 'ℹ️ Duplicate questions were autom
     }
   };
 
+  const handleEnrichRegularQuestions = async () => {
+    if (!window.confirm('🔍 Start Enrich Checker for Regular Questions?\n\nThis will:\n• Check enrichment quality of all regular questions\n• Re-enrich questions with poor quality using Advanced LLM\n• May take several minutes for large databases\n\nProceed?')) {
+      return;
+    }
+
+    try {
+      setEnriching(true);
+      setEnrichResults(null);
+
+      const response = await axios.post(`${API}/admin/enrich-checker/regular-questions`, {
+        limit: null // Check all questions
+      });
+
+      if (response.data.success) {
+        const summary = response.data.summary;
+        setEnrichResults(response.data);
+        
+        alert(`✅ Regular Questions Enrich Checker Completed!
+
+📊 RESULTS SUMMARY:
+• ${summary.total_questions_checked} questions checked
+• ${summary.poor_enrichment_identified} questions with poor enrichment identified
+• ${summary.re_enrichment_successful} questions successfully re-enriched
+• ${summary.re_enrichment_failed} questions failed re-enrichment
+• Average Quality Score: ${summary.average_quality_score}/100
+• Improvement Rate: ${summary.improvement_rate_percentage}%
+
+🎉 Enrichment quality check completed successfully!`);
+      }
+    } catch (error) {
+      console.error('Enrich Regular Questions error:', error);
+      const errorMessage = error.response?.data?.detail || error.message || 'Unknown error occurred';
+      alert(`❌ Enrich Checker failed: ${errorMessage}`);
+    } finally {
+      setEnriching(false);
+    }
+  };
+
+  const handleEnrichPYQQuestions = async () => {
+    if (!window.confirm('🔍 Start Enrich Checker for PYQ Questions?\n\nThis will:\n• Check enrichment quality of all PYQ questions\n• Re-enrich questions with poor quality using Advanced LLM\n• May take several minutes for large databases\n\nProceed?')) {
+      return;
+    }
+
+    try {
+      setEnriching(true);
+      setEnrichResults(null);
+
+      const response = await axios.post(`${API}/admin/enrich-checker/pyq-questions`, {
+        limit: null // Check all questions
+      });
+
+      if (response.data.success) {
+        const summary = response.data.summary;
+        setEnrichResults(response.data);
+        
+        alert(`✅ PYQ Questions Enrich Checker Completed!
+
+📊 RESULTS SUMMARY:
+• ${summary.total_questions_checked} PYQ questions checked
+• ${summary.poor_enrichment_identified} questions with poor enrichment identified
+• ${summary.re_enrichment_successful} questions successfully re-enriched
+• ${summary.re_enrichment_failed} questions failed re-enrichment
+• Average Quality Score: ${summary.average_quality_score}/100
+• Improvement Rate: ${summary.improvement_rate_percentage}%
+
+🎉 PYQ enrichment quality check completed successfully!`);
+      }
+    } catch (error) {
+      console.error('Enrich PYQ Questions error:', error);
+      const errorMessage = error.response?.data?.detail || error.message || 'Unknown error occurred';
+      alert(`❌ PYQ Enrich Checker failed: ${errorMessage}`);
+    } finally {
+      setEnriching(false);
+    }
+  };
+
   const handlePYQUpload = async (event) => {
     const file = event.target.files[0];
     if (!file) return;
