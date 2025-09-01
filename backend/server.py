@@ -180,6 +180,9 @@ class DoubtConversationHistory(BaseModel):
     remaining_messages: int
     is_locked: bool
 
+class TriggerEnrichmentRequest(BaseModel):
+    question_ids: Optional[List[str]] = None
+
 # Utility Functions
 
 def clean_solution_text(text: str) -> str:
