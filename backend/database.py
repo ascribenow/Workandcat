@@ -377,7 +377,6 @@ class User(Base):
     email = Column(String(255), unique=True, nullable=False)
     full_name = Column(String(255), nullable=False)
     password_hash = Column(Text, nullable=False)
-    tz = Column(String(50), default='Asia/Kolkata')
     is_admin = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow)
     
