@@ -4431,6 +4431,8 @@ async def list_running_enrichment_jobs() -> Dict[str, Any]:
     except Exception as e:
         logger.error(f"❌ Failed to list running jobs: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to list running jobs: {str(e)}")
+
+@api_router.post("/admin/enrich-checker/regular-questions", dependencies=[Depends(require_admin)])
 async def enrich_checker_regular(
     request: Dict[str, Any] = None,
     db = Depends(get_database)
