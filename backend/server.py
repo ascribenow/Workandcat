@@ -38,6 +38,7 @@ from auth_service import AuthService, UserCreate, UserLogin, TokenResponse, requ
 from llm_enrichment import LLMEnrichmentPipeline, SimplifiedEnrichmentService
 from advanced_llm_enrichment_service import AdvancedLLMEnrichmentService
 from enrich_checker_service import EnrichCheckerService
+from background_enrichment_jobs import background_jobs
 from gmail_service import gmail_service
 from payment_service import (
     razorpay_service,
