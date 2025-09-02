@@ -534,7 +534,37 @@ Return ONLY this JSON:
                 )
                 
                 difficulty_text = response.choices[0].message.content.strip()
-                difficulty_data = json.loads(difficulty_text)
+                logger.info(f"🔍 Raw difficulty assessment response: {difficulty_text[:200]}...")
+                
+                # Add JSON validation and error handling
+                try:
+                    difficulty_data = json.loads(difficulty_text)
+                except json.JSONDecodeError as json_err:
+                    logger.warning(f"⚠️ JSON parsing failed in difficulty assessment: {json_err}")
+                    logger.warning(f"Raw response: {difficulty_text}")
+                    
+                    # Try to extract JSON from response if it contains extra text
+                    try:
+                        # Look for JSON block in the response
+                        start_idx = difficulty_text.find('{')
+                        end_idx = difficulty_text.rfind('}') + 1
+                        if start_idx >= 0 and end_idx > start_idx:
+                            json_part = difficulty_text[start_idx:end_idx]
+                            difficulty_data = json.loads(json_part)
+                            logger.info("✅ Successfully extracted JSON from difficulty response")
+                        else:
+                            raise json_err
+                    except:
+                        # Final fallback: create default difficulty data
+                        logger.warning("⚠️ Creating default difficulty data due to JSON parsing failure")
+                        difficulty_data = {
+                            "difficulty_band": "Medium",
+                            "difficulty_score": 2.5,
+                            "complexity_reasoning": "Standard mathematical problem requiring moderate cognitive effort",
+                            "cognitive_load_factors": ["calculation", "reasoning"],
+                            "time_estimate_minutes": 3.0,
+                            "error_trap_potential": "medium"
+                        }
                 
                 # Validate and clean data
                 band = difficulty_data.get('difficulty_band', 'Medium').capitalize()
