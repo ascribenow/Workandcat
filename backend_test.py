@@ -3247,39 +3247,39 @@ Find the compound interest on Rs. 1000 for 2 years at 10% per annum.,210"""
 
 def main():
     """Main function to run comprehensive backend testing"""
-    print("🚀 STARTING COMPREHENSIVE DATABASE CLEANUP EXECUTION - AS REQUESTED")
+    print("🚀 STARTING BACKGROUND ENRICHMENT JOBS COMPREHENSIVE TESTING - AS REQUESTED")
     print("=" * 80)
     
     tester = CATBackendTester()
     
     try:
-        # Run Comprehensive Database Cleanup Execution (as per review request)
-        print("🧹 COMPREHENSIVE DATABASE CLEANUP EXECUTION - OPTION B")
-        cleanup_execution_success = tester.test_comprehensive_database_cleanup_execution()
+        # Run Background Enrichment Jobs Testing (as per review request)
+        print("🚀 BACKGROUND ENRICHMENT JOBS COMPREHENSIVE TESTING")
+        background_jobs_success = tester.test_background_enrichment_jobs_comprehensive()
         
         print("\n" + "=" * 80)
-        print("🏁 COMPREHENSIVE DATABASE CLEANUP EXECUTION COMPLETED")
+        print("🏁 BACKGROUND ENRICHMENT JOBS TESTING COMPLETED")
         print("=" * 80)
         
-        print(f"\n📊 CLEANUP EXECUTION RESULTS:")
-        print(f"  Database Cleanup Execution: {'✅ PASS' if cleanup_execution_success else '❌ FAIL'}")
+        print(f"\n📊 BACKGROUND JOBS TESTING RESULTS:")
+        print(f"  Background Enrichment Jobs: {'✅ PASS' if background_jobs_success else '❌ FAIL'}")
         
-        if cleanup_execution_success:
-            print("\n🎉 OVERALL RESULT: DATABASE CLEANUP EXECUTION SUCCESSFUL!")
-            print("✅ Comprehensive database cleanup executed successfully")
-            print("✅ Both regular and PYQ questions processed with larger batches")
-            print("✅ Quality improvements achieved across the database")
-            print("✅ Performance monitoring confirms system stability")
-            print("🏆 PRODUCTION READY - Database cleanup execution completed as requested")
+        if background_jobs_success:
+            print("\n🎉 OVERALL RESULT: BACKGROUND ENRICHMENT JOBS TESTING SUCCESSFUL!")
+            print("✅ Background job system accessible and functional")
+            print("✅ Database state monitoring working")
+            print("✅ LLM enrichment service operational")
+            print("✅ Admin endpoints accessible with proper authentication")
+            print("🏆 PRODUCTION READY - Background enrichment system validated")
         else:
-            print("\n❌ OVERALL RESULT: DATABASE CLEANUP EXECUTION FAILED")
-            print("🚨 Critical issues detected during comprehensive cleanup execution")
+            print("\n❌ OVERALL RESULT: BACKGROUND ENRICHMENT JOBS TESTING FAILED")
+            print("🚨 Critical issues detected with background job system")
         
         print(f"\nTests Run: {tester.tests_run}")
         print(f"Tests Passed: {tester.tests_passed}")
         print(f"Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%")
         
-        return cleanup_execution_success
+        return background_jobs_success
         
     except Exception as e:
         print(f"\n❌ TESTING FAILED: {e}")
