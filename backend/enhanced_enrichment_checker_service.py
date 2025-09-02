@@ -87,6 +87,36 @@ class EnhancedEnrichmentCheckerService:
             ]
         }
         
+        # CANONICAL QUESTION TYPES TAXONOMY
+        self.canonical_question_types = {
+            "A-Arithmetic": [
+                "Speed-Distance-Time Problem", "Relative Motion Analysis", "Work Rate Problem",
+                "Collaborative Work Problem", "Ratio-Proportion Problem", "Percentage Application Problem",
+                "Percentage Change Problem", "Average Calculation Problem", "Weighted Average Problem",
+                "Profit-Loss Analysis Problem", "Discount Calculation Problem", "Simple Interest Problem",
+                "Compound Interest Problem", "Mixture-Alligation Problem"
+            ],
+            "B-Algebra": [
+                "Linear Equation Problem", "System of Linear Equations", "Quadratic Equation Problem",
+                "Inequality Problem", "Sequence-Series Problem", "Function Analysis Problem",
+                "Logarithmic Problem", "Exponential Problem"
+            ],
+            "C-Geometry & Mensuration": [
+                "Triangle Properties Problem", "Circle Properties Problem", "Polygon Analysis Problem",
+                "Coordinate Geometry Problem", "Area Calculation Problem", "Volume Calculation Problem",
+                "Trigonometric Problem"
+            ],
+            "D-Number System": [
+                "Divisibility Analysis Problem", "HCF-LCM Problem", "Remainder Theorem Problem",
+                "Modular Arithmetic Problem", "Base System Conversion Problem", "Digit Properties Problem",
+                "Prime Factorization Problem"
+            ],
+            "E-Modern Math": [
+                "Permutation Problem", "Combination Problem", "Probability Calculation Problem",
+                "Set Theory Problem", "Venn Diagram Problem"
+            ]
+        }
+        
         # Forbidden generic terms for rejection
         self.forbidden_generic_terms = [
             "calculation", "basic", "mathematics", "basic_problem", "standard_problem",
