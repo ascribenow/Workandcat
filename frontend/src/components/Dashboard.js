@@ -502,7 +502,7 @@ ${response.data.duplicate_questions > 0 ? 'ℹ️ Duplicate questions were autom
   };
 
   const handleEnrichRegularQuestions = async () => {
-    if (!window.confirm('🔍 Start Enrich Checker for Regular Questions?\n\nThis will:\n• Check enrichment quality of 10 regular questions per batch\n• Re-enrich questions with poor quality using Advanced LLM\n• Process completes in 2-5 minutes per batch\n• Uses intelligent GPT-4o/GPT-4o-mini switching\n\nProceed?')) {
+    if (!window.confirm('🔍 Start Background Enrichment for Regular Questions?\n\nThis will:\n• Start enrichment job in background (no waiting/timeouts)\n• Process questions in batches with automatic retries\n• Send email notification when complete\n• Use intelligent GPT-4o/GPT-4o-mini switching\n\nProceed?')) {
       return;
     }
 
@@ -510,33 +510,41 @@ ${response.data.duplicate_questions > 0 ? 'ℹ️ Duplicate questions were autom
       setEnriching(true);
       setEnrichResults(null);
 
-      const response = await axios.post(`${API}/admin/enrich-checker/regular-questions`, {
-        limit: 10 // Process smaller batches to avoid timeout
-      }, {
-        timeout: 300000 // 5 minutes timeout for regular questions enrichment
+      const response = await axios.post(`${API}/admin/enrich-checker/regular-questions-background`, {
+        total_questions: null // Process all questions
       });
 
       if (response.data.success) {
-        const summary = response.data.summary;
-        setEnrichResults(response.data);
+        const jobId = response.data.job_id;
+        const adminEmail = response.data.admin_email;
         
-        alert(`✅ Regular Questions Enrich Checker Completed!
+        alert(`✅ Regular Questions Enrichment Job Started!
 
-📊 RESULTS SUMMARY:
-• ${summary.total_questions_checked} questions checked
-• ${summary.poor_enrichment_identified} questions with unacceptable enrichment identified
-• ${summary.re_enrichment_successful} questions successfully re-enriched
-• ${summary.re_enrichment_failed} questions failed re-enrichment
-• Perfect Quality Count: ${summary.perfect_quality_count}/${summary.total_questions_checked}
-• Perfect Quality Rate: ${summary.perfect_quality_percentage}%
-• Improvement Rate: ${summary.improvement_rate_percentage}%
+🚀 JOB DETAILS:
+• Job ID: ${jobId}
+• Processing: Background (no timeouts)
+• Batch Size: 10 questions per batch
+• Retries: Automatic for failed batches
+• Model: Intelligent GPT-4o/GPT-4o-mini switching
 
-🎉 100% Quality Standard enforced - only sophisticated enrichment accepted!`);
+📧 EMAIL NOTIFICATION:
+You will receive a detailed email at ${adminEmail} when the enrichment is complete.
+
+⏱️ ESTIMATED TIME: 10-30 minutes
+(depending on question count and LLM processing)
+
+🎯 BENEFITS:
+• No browser timeouts
+• Automatic retries
+• 100% quality standards maintained
+• Background processing with progress tracking
+
+You can continue using the dashboard while the job runs in background!`);
       }
     } catch (error) {
-      console.error('Enrich Regular Questions error:', error);
+      console.error('Background Regular Questions Enrichment error:', error);
       const errorMessage = error.response?.data?.detail || error.message || 'Unknown error occurred';
-      alert(`❌ Enrich Checker failed: ${errorMessage}`);
+      alert(`❌ Failed to start background enrichment: ${errorMessage}`);
     } finally {
       setEnriching(false);
     }
