@@ -395,6 +395,14 @@ class EnhancedEnrichmentCheckerService:
                     canonical_violations.append(f"Subcategory '{question.subcategory}' not valid for category '{question.category}'. Valid options: {valid_subcategories}")
                     is_acceptable = False
             
+            # Type of question validation
+            if question.category and question.category in self.canonical_question_types:
+                valid_types = self.canonical_question_types[question.category]
+                if not question.type_of_question or question.type_of_question not in valid_types:
+                    failed_criteria.append("canonical_taxonomy_type_violation")
+                    canonical_violations.append(f"Type '{question.type_of_question}' not valid for category '{question.category}'. Valid options: {valid_types}")
+                    is_acceptable = False
+            
             # 3. CHECK RIGHT_ANSWER QUALITY
             if not question.right_answer:
                 failed_criteria.append("right_answer_missing")
