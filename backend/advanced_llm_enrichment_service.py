@@ -402,6 +402,13 @@ Be precise, specific, and demonstrate deep mathematical understanding."""
                         logger.warning(f"⚠️ Empty fields in classification: {empty_fields}")
                         raise ValueError(f"Empty fields: {empty_fields}")
                     
+                    # CANONICAL TAXONOMY ENFORCEMENT - Map to canonical categories
+                    original_category = classification_data.get("category", "")
+                    canonical_category = self._map_to_canonical_category(original_category)
+                    if canonical_category != original_category:
+                        logger.info(f"📂 Mapped '{original_category}' → '{canonical_category}'")
+                        classification_data["category"] = canonical_category
+                    
                 except json.JSONDecodeError as json_err:
                     logger.warning(f"⚠️ JSON parsing failed: {json_err}")
                     logger.warning(f"Raw response: {classification_text}")
@@ -415,13 +422,18 @@ Be precise, specific, and demonstrate deep mathematical understanding."""
                             json_part = classification_text[start_idx:end_idx]
                             classification_data = json.loads(json_part)
                             logger.info("✅ Successfully extracted JSON from response")
+                            
+                            # Apply canonical mapping to extracted data too
+                            original_category = classification_data.get("category", "")
+                            canonical_category = self._map_to_canonical_category(original_category)
+                            classification_data["category"] = canonical_category
                         else:
                             raise json_err
                     except:
                         # Final fallback: create default classification
                         logger.warning("⚠️ Creating default classification due to JSON parsing failure")
                         classification_data = {
-                            "category": "Mathematical Problem Analysis",
+                            "category": "A-Arithmetic",  # Use canonical format
                             "subcategory": "Quantitative Reasoning",
                             "type_of_question": "Standard CAT Problem"
                         }
