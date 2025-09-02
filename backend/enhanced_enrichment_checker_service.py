@@ -654,7 +654,7 @@ class EnhancedEnrichmentCheckerService:
                     quality_issues.append(f"Hard PYQ questions must have score 3.6-5.0, got: {question.difficulty_score}")
                     is_acceptable = False
             
-            # 4. CHECK FOR GENERIC CONTENT
+            # 5. CHECK FOR GENERIC CONTENT
             
             # Core concepts validation
             if question.core_concepts:
