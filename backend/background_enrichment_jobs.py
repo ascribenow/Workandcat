@@ -14,7 +14,7 @@ import logging
 from sqlalchemy.orm import Session
 
 from database import SessionLocal, Question, PYQQuestion
-from enrich_checker_service import EnrichCheckerService
+from enhanced_enrichment_checker_service import EnhancedEnrichmentCheckerService
 from gmail_service import GmailService
 
 # Initialize Gmail service
@@ -185,7 +185,7 @@ class BackgroundEnrichmentJobs:
         Process regular questions with automatic retries and progress tracking
         """
         db = SessionLocal()
-        enrich_checker = EnrichCheckerService()
+        enrich_checker = EnhancedEnrichmentCheckerService()
         
         try:
             # Process in batches with retries
@@ -254,7 +254,7 @@ class BackgroundEnrichmentJobs:
         Process PYQ questions with automatic retries and progress tracking
         """
         db = SessionLocal()
-        enrich_checker = EnrichCheckerService()
+        enrich_checker = EnhancedEnrichmentCheckerService()
         
         try:
             # Process in batches with retries
