@@ -437,6 +437,13 @@ Be precise, specific, and demonstrate deep mathematical understanding."""
                         logger.info(f"📂 Mapped '{original_category}' → '{canonical_category}'")
                         classification_data["category"] = canonical_category
                     
+                    # CANONICAL TYPE_OF_QUESTION ENFORCEMENT
+                    original_type = classification_data.get("type_of_question", "")
+                    canonical_type = self._map_to_canonical_question_type(original_type, canonical_category)
+                    if canonical_type != original_type:
+                        logger.info(f"📋 Mapped type '{original_type}' → '{canonical_type}'")
+                        classification_data["type_of_question"] = canonical_type
+                    
                 except json.JSONDecodeError as json_err:
                     logger.warning(f"⚠️ JSON parsing failed: {json_err}")
                     logger.warning(f"Raw response: {classification_text}")
