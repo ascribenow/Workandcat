@@ -31,9 +31,9 @@ class CompletePYQBasicEnrichmentService:
         load_dotenv()
         
         # Initialize database connection
-        self.mongo_url = os.getenv('MONGO_URL')
+        self.mongo_url = os.getenv('DATABASE_URL')
         if not self.mongo_url:
-            raise ValueError("MONGO_URL environment variable not found")
+            raise ValueError("DATABASE_URL environment variable not found")
         
         self.engine = create_engine(self.mongo_url)
         self.SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=self.engine)
