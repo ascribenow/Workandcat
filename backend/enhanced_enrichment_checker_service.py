@@ -597,6 +597,14 @@ class EnhancedEnrichmentCheckerService:
                 canonical_violations.append(f"Subcategory '{question.subcategory}' not in canonical taxonomy. Valid options: {all_valid_subcategories}")
                 is_acceptable = False
             
+            # Type of question validation for PYQ
+            if category_for_subcategory and category_for_subcategory in self.canonical_question_types:
+                valid_types = self.canonical_question_types[category_for_subcategory]
+                if not question.type_of_question or question.type_of_question not in valid_types:
+                    failed_criteria.append("canonical_taxonomy_type_violation")
+                    canonical_violations.append(f"PYQ Type '{question.type_of_question}' not valid for inferred category '{category_for_subcategory}'. Valid options: {valid_types}")
+                    is_acceptable = False
+            
             # 3. CHECK DIFFICULTY CONSISTENCY
             if not question.difficulty_band or question.difficulty_band not in ['Easy', 'Medium', 'Hard']:
                 failed_criteria.append("difficulty_band_invalid")
