@@ -47,6 +47,34 @@ class AdvancedLLMEnrichmentService:
         # CRITICAL: Both models MUST maintain 100% quality standards
         # GPT-4o-mini uses IDENTICAL prompts and quality requirements as GPT-4o
         
+        logger.info("✅ AdvancedLLMEnrichmentService initialized with 100% quality standards")
+    
+    def _map_to_canonical_category(self, category: str) -> str:
+        """Map any category to canonical A-E format"""
+        if not category:
+            return "A-Arithmetic"
+        
+        category_lower = category.lower()
+        
+        # Direct canonical format check
+        if category.startswith(('A-', 'B-', 'C-', 'D-', 'E-')):
+            return category
+        
+        # Map to canonical categories
+        if any(term in category_lower for term in ['arithmetic', 'speed', 'distance', 'time', 'work', 'ratio', 'proportion', 'percentage', 'average', 'profit', 'loss', 'interest', 'mixture', 'kinematic', 'fundamental']):
+            return "A-Arithmetic"
+        elif any(term in category_lower for term in ['algebra', 'equation', 'inequality', 'progression', 'function', 'graph', 'logarithm', 'exponent']):
+            return "B-Algebra"
+        elif any(term in category_lower for term in ['geometry', 'mensuration', 'triangle', 'circle', 'polygon', 'coordinate', 'trigonometry']):
+            return "C-Geometry & Mensuration"
+        elif any(term in category_lower for term in ['number', 'divisibility', 'hcf', 'lcm', 'remainder', 'modular', 'base', 'digit']):
+            return "D-Number System"
+        elif any(term in category_lower for term in ['permutation', 'combination', 'probability', 'set', 'venn', 'modern']):
+            return "E-Modern Math"
+        else:
+            # Default mapping
+            return "A-Arithmetic"
+        
     async def enrich_question_deeply(self, stem: str, admin_answer: str = None, question_type: str = "regular") -> Dict[str, Any]:
         """
         Generate ultra-sophisticated, nuanced enrichment analysis
