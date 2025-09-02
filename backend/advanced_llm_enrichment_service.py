@@ -382,7 +382,49 @@ Be precise, specific, and demonstrate deep mathematical understanding."""
                 )
                 
                 classification_text = response.choices[0].message.content.strip()
-                classification_data = json.loads(classification_text)
+                logger.info(f"🔍 Raw classification response: {classification_text[:200]}...")
+                
+                # Add JSON validation and error handling
+                try:
+                    classification_data = json.loads(classification_text)
+                    
+                    # Validate required fields
+                    required_fields = ["category", "subcategory", "type_of_question"]
+                    missing_fields = [field for field in required_fields if field not in classification_data]
+                    
+                    if missing_fields:
+                        logger.warning(f"⚠️ Missing required fields in classification: {missing_fields}")
+                        raise ValueError(f"Missing required fields: {missing_fields}")
+                    
+                    # Ensure non-empty values
+                    empty_fields = [field for field in required_fields if not classification_data.get(field, "").strip()]
+                    if empty_fields:
+                        logger.warning(f"⚠️ Empty fields in classification: {empty_fields}")
+                        raise ValueError(f"Empty fields: {empty_fields}")
+                    
+                except json.JSONDecodeError as json_err:
+                    logger.warning(f"⚠️ JSON parsing failed: {json_err}")
+                    logger.warning(f"Raw response: {classification_text}")
+                    
+                    # Try to extract JSON from response if it contains extra text
+                    try:
+                        # Look for JSON block in the response
+                        start_idx = classification_text.find('{')
+                        end_idx = classification_text.rfind('}') + 1
+                        if start_idx >= 0 and end_idx > start_idx:
+                            json_part = classification_text[start_idx:end_idx]
+                            classification_data = json.loads(json_part)
+                            logger.info("✅ Successfully extracted JSON from response")
+                        else:
+                            raise json_err
+                    except:
+                        # Final fallback: create default classification
+                        logger.warning("⚠️ Creating default classification due to JSON parsing failure")
+                        classification_data = {
+                            "category": "Mathematical Problem Analysis",
+                            "subcategory": "Quantitative Reasoning",
+                            "type_of_question": "Standard CAT Problem"
+                        }
                 
                 # If we successfully used primary model after recovery, mark it as recovered
                 if selection_reason == "testing_primary_recovery":
