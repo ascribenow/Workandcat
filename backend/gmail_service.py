@@ -111,6 +111,89 @@ class GmailService:
             return True
         return False
     
+    def send_generic_email(self, to_email: str, subject: str, body: str) -> bool:
+        """Send a generic email with custom subject and body"""
+        if not self.service:
+            print("Gmail service not authenticated")
+            return False
+        
+        try:
+            # Create email content
+            plain_text = body
+            
+            html_content = f"""
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>{subject}</title>
+    <style>
+        body {{
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }}
+        .container {{
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }}
+        .header {{
+            text-align: center;
+            margin-bottom: 30px;
+        }}
+        .logo {{
+            font-size: 32px;
+            font-weight: bold;
+            color: #9ac026;
+        }}
+        .content {{
+            white-space: pre-line;
+        }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">Twelvr</div>
+            <p>CAT Preparation Platform</p>
+        </div>
+        <div class="content">{body}</div>
+    </div>
+</body>
+</html>
+            """
+            
+            # Create multipart message
+            msg = MIMEMultipart('alternative')
+            msg['From'] = self.sender_email
+            msg['To'] = to_email
+            msg['Subject'] = subject
+            
+            # Add text and HTML parts
+            text_part = MIMEText(plain_text, 'plain')
+            html_part = MIMEText(html_content, 'html')
+            
+            msg.attach(text_part)
+            msg.attach(html_part)
+            
+            # Send email
+            raw = base64.urlsafe_b64encode(msg.as_bytes()).decode()
+            message = {'raw': raw}
+            
+            self.service.users().messages().send(userId='me', body=message).execute()
+            print(f"Generic email sent successfully to {to_email}")
+            return True
+            
+        except Exception as e:
+            print(f"Error sending generic email: {e}")
+            return False
+
     def send_password_reset_email(self, to_email: str, code: str) -> bool:
         """Send password reset code email"""
         if not self.service:
