@@ -4306,7 +4306,131 @@ async def enrich_pyq_question_background(pyq_question_id: str):
 
 # Admin Test Endpoints for Conceptual Frequency Analysis
 
-@api_router.post("/admin/enrich-checker/regular-questions", dependencies=[Depends(require_admin)])
+@api_router.post("/admin/enrich-checker/regular-questions-background", dependencies=[Depends(require_admin)])
+async def enrich_checker_regular_background(
+    current_user: User = Depends(require_admin),
+    request: Dict[str, Any] = None
+) -> Dict[str, Any]:
+    """
+    Start background enrichment job for Regular Questions
+    Returns immediately with job ID, sends email when complete
+    """
+    try:
+        # Get admin email
+        admin_email = current_user.email
+        total_questions = None
+        
+        if request:
+            total_questions = request.get("total_questions")
+        
+        logger.info(f"🚀 Starting background regular questions enrichment for {admin_email}")
+        
+        # Start background job
+        job_id = background_jobs.start_regular_questions_enrichment(
+            admin_email=admin_email,
+            total_questions=total_questions
+        )
+        
+        return {
+            "success": True,
+            "message": "Regular Questions enrichment job started in background",
+            "job_id": job_id,
+            "admin_email": admin_email,
+            "notification": "You will receive an email when the enrichment is complete",
+            "estimated_time": "10-30 minutes depending on question count and LLM processing",
+            "processing_details": {
+                "batch_size": 10,
+                "automatic_retries": True,
+                "email_notification": True,
+                "intelligent_model_switching": True
+            }
+        }
+    
+    except Exception as e:
+        logger.error(f"❌ Failed to start background regular questions enrichment: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to start background enrichment: {str(e)}")
+
+@api_router.post("/admin/enrich-checker/pyq-questions-background", dependencies=[Depends(require_admin)])
+async def enrich_checker_pyq_background(
+    current_user: User = Depends(require_admin),
+    request: Dict[str, Any] = None
+) -> Dict[str, Any]:
+    """
+    Start background enrichment job for PYQ Questions
+    Returns immediately with job ID, sends email when complete
+    """
+    try:
+        # Get admin email
+        admin_email = current_user.email
+        total_questions = None
+        
+        if request:
+            total_questions = request.get("total_questions")
+        
+        logger.info(f"🚀 Starting background PYQ questions enrichment for {admin_email}")
+        
+        # Start background job
+        job_id = background_jobs.start_pyq_questions_enrichment(
+            admin_email=admin_email,
+            total_questions=total_questions
+        )
+        
+        return {
+            "success": True,
+            "message": "PYQ Questions enrichment job started in background",
+            "job_id": job_id,
+            "admin_email": admin_email,
+            "notification": "You will receive an email when the enrichment is complete",
+            "estimated_time": "5-15 minutes depending on question count and LLM processing",
+            "processing_details": {
+                "batch_size": 10,
+                "automatic_retries": True,
+                "email_notification": True,
+                "intelligent_model_switching": True
+            }
+        }
+    
+    except Exception as e:
+        logger.error(f"❌ Failed to start background PYQ questions enrichment: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to start background enrichment: {str(e)}")
+
+@api_router.get("/admin/enrich-checker/job-status/{job_id}", dependencies=[Depends(require_admin)])
+async def get_enrichment_job_status(job_id: str) -> Dict[str, Any]:
+    """
+    Get status of a background enrichment job
+    """
+    try:
+        job_status = background_jobs.get_job_status(job_id)
+        
+        if "error" in job_status:
+            raise HTTPException(status_code=404, detail="Job not found")
+        
+        return {
+            "success": True,
+            "job_status": job_status
+        }
+    
+    except Exception as e:
+        logger.error(f"❌ Failed to get job status for {job_id}: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to get job status: {str(e)}")
+
+@api_router.get("/admin/enrich-checker/running-jobs", dependencies=[Depends(require_admin)])
+async def list_running_enrichment_jobs() -> Dict[str, Any]:
+    """
+    List all currently running enrichment jobs
+    """
+    try:
+        running_jobs = background_jobs.list_running_jobs()
+        
+        return {
+            "success": True,
+            "running_jobs": running_jobs,
+            "job_count": len(running_jobs)
+        }
+    
+    except Exception as e:
+        logger.error(f"❌ Failed to list running jobs: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to list running jobs: {str(e)}")
 async def enrich_checker_regular(
     request: Dict[str, Any] = None,
     db = Depends(get_database)
