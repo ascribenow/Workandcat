@@ -18,7 +18,7 @@ import time
 from datetime import datetime
 
 class TwelvrAuthSessionTester:
-    def __init__(self, base_url="https://question-engine-1.preview.emergentagent.com/api"):
+    def __init__(self, base_url="https://adaptive-question.preview.emergentagent.com/api"):
         self.base_url = base_url
         self.student_token = None
         self.session_id = None
