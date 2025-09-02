@@ -15,7 +15,26 @@ from sqlalchemy.orm import Session
 
 from database import SessionLocal, Question, PYQQuestion
 from enrich_checker_service import EnrichCheckerService
-from gmail_service import send_email
+from gmail_service import GmailService
+
+# Initialize Gmail service
+gmail_service = GmailService()
+
+def send_email(to_email: str, subject: str, body: str) -> bool:
+    """
+    Send email using Gmail service
+    """
+    try:
+        # Authenticate service if not already done
+        if not gmail_service.service:
+            if not gmail_service.authenticate_service():
+                logger.error("Failed to authenticate Gmail service")
+                return False
+        
+        return gmail_service.send_generic_email(to_email, subject, body)
+    except Exception as e:
+        logger.error(f"Failed to send email: {e}")
+        return False
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
