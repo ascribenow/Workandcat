@@ -74,6 +74,139 @@ class AdvancedLLMEnrichmentService:
         else:
             # Default mapping
             return "A-Arithmetic"
+    
+    def _map_to_canonical_question_type(self, question_type: str, category: str) -> str:
+        """Map any question type to canonical type based on category"""
+        if not question_type or not category:
+            return "Speed-Distance-Time Problem"  # Default
+        
+        # Canonical question types by category
+        canonical_types = {
+            "A-Arithmetic": [
+                "Speed-Distance-Time Problem", "Relative Motion Analysis", "Work Rate Problem",
+                "Collaborative Work Problem", "Ratio-Proportion Problem", "Percentage Application Problem",
+                "Percentage Change Problem", "Average Calculation Problem", "Weighted Average Problem",
+                "Profit-Loss Analysis Problem", "Discount Calculation Problem", "Simple Interest Problem",
+                "Compound Interest Problem", "Mixture-Alligation Problem"
+            ],
+            "B-Algebra": [
+                "Linear Equation Problem", "System of Linear Equations", "Quadratic Equation Problem",
+                "Inequality Problem", "Sequence-Series Problem", "Function Analysis Problem",
+                "Logarithmic Problem", "Exponential Problem"
+            ],
+            "C-Geometry & Mensuration": [
+                "Triangle Properties Problem", "Circle Properties Problem", "Polygon Analysis Problem",
+                "Coordinate Geometry Problem", "Area Calculation Problem", "Volume Calculation Problem",
+                "Trigonometric Problem"
+            ],
+            "D-Number System": [
+                "Divisibility Analysis Problem", "HCF-LCM Problem", "Remainder Theorem Problem",
+                "Modular Arithmetic Problem", "Base System Conversion Problem", "Digit Properties Problem",
+                "Prime Factorization Problem"
+            ],
+            "E-Modern Math": [
+                "Permutation Problem", "Combination Problem", "Probability Calculation Problem",
+                "Set Theory Problem", "Venn Diagram Problem"
+            ]
+        }
+        
+        # If already canonical, return as-is
+        if category in canonical_types and question_type in canonical_types[category]:
+            return question_type
+        
+        question_type_lower = question_type.lower()
+        
+        # Map based on category and keywords
+        if category == "A-Arithmetic":
+            if any(term in question_type_lower for term in ['speed', 'distance', 'time', 'train', 'motion']):
+                return "Speed-Distance-Time Problem"
+            elif any(term in question_type_lower for term in ['work', 'rate', 'efficiency']):
+                return "Work Rate Problem"
+            elif any(term in question_type_lower for term in ['ratio', 'proportion']):
+                return "Ratio-Proportion Problem"
+            elif any(term in question_type_lower for term in ['percentage', 'percent']):
+                return "Percentage Application Problem"
+            elif any(term in question_type_lower for term in ['average', 'mean']):
+                return "Average Calculation Problem"
+            elif any(term in question_type_lower for term in ['profit', 'loss']):
+                return "Profit-Loss Analysis Problem"
+            elif any(term in question_type_lower for term in ['discount']):
+                return "Discount Calculation Problem"
+            elif any(term in question_type_lower for term in ['interest']):
+                return "Simple Interest Problem"
+            elif any(term in question_type_lower for term in ['mixture', 'alligation']):
+                return "Mixture-Alligation Problem"
+            else:
+                return "Speed-Distance-Time Problem"  # Default for arithmetic
+                
+        elif category == "B-Algebra":
+            if any(term in question_type_lower for term in ['system', 'variable']):
+                return "System of Linear Equations"
+            elif any(term in question_type_lower for term in ['quadratic', 'roots']):
+                return "Quadratic Equation Problem"
+            elif any(term in question_type_lower for term in ['inequality']):
+                return "Inequality Problem"
+            elif any(term in question_type_lower for term in ['sequence', 'series', 'progression']):
+                return "Sequence-Series Problem"
+            elif any(term in question_type_lower for term in ['function']):
+                return "Function Analysis Problem"
+            elif any(term in question_type_lower for term in ['logarithm', 'log']):
+                return "Logarithmic Problem"
+            elif any(term in question_type_lower for term in ['exponential', 'exponent']):
+                return "Exponential Problem"
+            else:
+                return "Linear Equation Problem"  # Default for algebra
+                
+        elif category == "C-Geometry & Mensuration":
+            if any(term in question_type_lower for term in ['triangle']):
+                return "Triangle Properties Problem"
+            elif any(term in question_type_lower for term in ['circle']):
+                return "Circle Properties Problem"
+            elif any(term in question_type_lower for term in ['polygon']):
+                return "Polygon Analysis Problem"
+            elif any(term in question_type_lower for term in ['coordinate']):
+                return "Coordinate Geometry Problem"
+            elif any(term in question_type_lower for term in ['area', 'rectangle']):
+                return "Area Calculation Problem"
+            elif any(term in question_type_lower for term in ['volume']):
+                return "Volume Calculation Problem"
+            elif any(term in question_type_lower for term in ['trigonometry', 'trigonometric']):
+                return "Trigonometric Problem"
+            else:
+                return "Area Calculation Problem"  # Default for geometry
+                
+        elif category == "D-Number System":
+            if any(term in question_type_lower for term in ['divisibility', 'divisible']):
+                return "Divisibility Analysis Problem"
+            elif any(term in question_type_lower for term in ['hcf', 'lcm', 'gcd']):
+                return "HCF-LCM Problem"
+            elif any(term in question_type_lower for term in ['remainder', 'modular']):
+                return "Remainder Theorem Problem"
+            elif any(term in question_type_lower for term in ['prime', 'factorization', 'factor']):
+                return "Prime Factorization Problem"
+            elif any(term in question_type_lower for term in ['digit', 'last']):
+                return "Digit Properties Problem"
+            elif any(term in question_type_lower for term in ['base', 'conversion']):
+                return "Base System Conversion Problem"
+            else:
+                return "Divisibility Analysis Problem"  # Default for number system
+                
+        elif category == "E-Modern Math":
+            if any(term in question_type_lower for term in ['permutation']):
+                return "Permutation Problem"
+            elif any(term in question_type_lower for term in ['combination']):
+                return "Combination Problem"
+            elif any(term in question_type_lower for term in ['probability']):
+                return "Probability Calculation Problem"
+            elif any(term in question_type_lower for term in ['set', 'union', 'intersection']):
+                return "Set Theory Problem"
+            elif any(term in question_type_lower for term in ['venn']):
+                return "Venn Diagram Problem"
+            else:
+                return "Permutation Problem"  # Default for modern math
+        
+        # Final fallback
+        return "Speed-Distance-Time Problem"
         
     async def enrich_question_deeply(self, stem: str, admin_answer: str = None, question_type: str = "regular") -> Dict[str, Any]:
         """
