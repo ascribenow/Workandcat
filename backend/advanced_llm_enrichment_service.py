@@ -643,7 +643,53 @@ Return ONLY this JSON format with sophisticated, specific content."""
                 )
                 
                 concept_text = response.choices[0].message.content.strip()
-                concept_data = json.loads(concept_text)
+                logger.info(f"🔍 Raw conceptual extraction response: {concept_text[:200]}...")
+                
+                # Add JSON validation and error handling
+                try:
+                    concept_data = json.loads(concept_text)
+                    
+                    # Validate required fields
+                    required_fields = ["core_concepts", "solution_method", "operations_required"]
+                    missing_fields = [field for field in required_fields if field not in concept_data]
+                    
+                    if missing_fields:
+                        logger.warning(f"⚠️ Missing required fields in conceptual extraction: {missing_fields}")
+                        # Don't raise error, use defaults instead
+                        for field in missing_fields:
+                            if field == "core_concepts":
+                                concept_data[field] = ["mathematical_analysis", "quantitative_reasoning"]
+                            elif field == "solution_method":
+                                concept_data[field] = "Mathematical Problem Solving"
+                            elif field == "operations_required":
+                                concept_data[field] = ["calculation", "analysis"]
+                    
+                except json.JSONDecodeError as json_err:
+                    logger.warning(f"⚠️ JSON parsing failed in conceptual extraction: {json_err}")
+                    logger.warning(f"Raw response: {concept_text}")
+                    
+                    # Try to extract JSON from response if it contains extra text
+                    try:
+                        # Look for JSON block in the response
+                        start_idx = concept_text.find('{')
+                        end_idx = concept_text.rfind('}') + 1
+                        if start_idx >= 0 and end_idx > start_idx:
+                            json_part = concept_text[start_idx:end_idx]
+                            concept_data = json.loads(json_part)
+                            logger.info("✅ Successfully extracted JSON from conceptual response")
+                        else:
+                            raise json_err
+                    except:
+                        # Final fallback: create default conceptual data
+                        logger.warning("⚠️ Creating default conceptual data due to JSON parsing failure")
+                        concept_data = {
+                            "core_concepts": ["mathematical_analysis", "quantitative_reasoning", "problem_solving"],
+                            "solution_method": "Systematic Mathematical Approach",
+                            "concept_difficulty": {"prerequisites": ["basic_arithmetic"], "cognitive_barriers": [], "mastery_indicators": []},
+                            "operations_required": ["calculation", "logical_reasoning"],
+                            "problem_structure": "standard_mathematical_problem",
+                            "concept_keywords": ["mathematics", "calculation"]
+                        }
                 
                 # Convert to database format
                 result = {
