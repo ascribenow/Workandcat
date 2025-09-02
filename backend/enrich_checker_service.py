@@ -27,13 +27,23 @@ class EnrichCheckerService:
     """
     
     def __init__(self):
-        # Load environment variables
+        # Load environment variables with explicit path
         from dotenv import load_dotenv
-        load_dotenv()
+        import os
+        
+        # Try to load from backend directory
+        backend_env_path = os.path.join(os.path.dirname(__file__), '.env')
+        load_dotenv(backend_env_path)
         
         self.openai_api_key = os.getenv('OPENAI_API_KEY')
         if not self.openai_api_key:
-            raise ValueError("OpenAI API key not found for EnrichCheckerService")
+            logger.warning(f"Attempting to load .env from: {backend_env_path}")
+            # Fallback: try loading from current directory
+            load_dotenv()
+            self.openai_api_key = os.getenv('OPENAI_API_KEY')
+        
+        if not self.openai_api_key:
+            raise ValueError(f"OpenAI API key not found for EnrichCheckerService. Checked paths: {backend_env_path}, current directory")
         
         self.advanced_enricher = AdvancedLLMEnrichmentService()
         self.max_retries = 3
