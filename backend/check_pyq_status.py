@@ -17,7 +17,7 @@ load_dotenv()
 def check_pyq_status():
     """Check current status of PYQ questions enrichment"""
     try:
-        mongo_url = os.getenv('MONGO_URL')
+        mongo_url = os.getenv('DATABASE_URL')
         engine = create_engine(mongo_url)
         SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
         
