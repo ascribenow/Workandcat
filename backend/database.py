@@ -129,6 +129,15 @@ class Question(Base):
     # MCQ Options (stored during enrichment)
     mcq_options = Column(Text, nullable=True)  # JSON string of MCQ options
     
+    # NEW: Advanced LLM enrichment fields for Enhanced Checker
+    quality_verified = Column(Boolean, default=False)  # Quality gate for Enhanced Checker
+    core_concepts = Column(Text, nullable=True)  # JSON: extracted mathematical concepts
+    solution_method = Column(String(200), nullable=True)  # Primary solution approach
+    concept_difficulty = Column(Text, nullable=True)  # JSON: difficulty indicators
+    operations_required = Column(Text, nullable=True)  # JSON: mathematical operations
+    problem_structure = Column(String(100), nullable=True)  # Structure pattern type
+    concept_keywords = Column(Text, nullable=True)  # JSON: searchable keywords
+    
     # Metadata
     source = Column(String(20), default='Admin')  # Admin|PYQ|Mock|AI_GEN
     is_active = Column(Boolean, default=True)
