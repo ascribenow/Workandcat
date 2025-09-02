@@ -35,7 +35,7 @@ class AdvancedLLMEnrichmentService:
         
         self.max_retries = 4
         self.retry_delays = [3, 7, 15, 30]
-        self.timeout = 180  # Increased timeout for GPT-4o latency (3 minutes)
+        self.timeout = 60  # Reduced timeout for better reliability (1 minute)
         
         # Intelligent model switching for rate limit handling
         self.primary_model = "gpt-4o"
