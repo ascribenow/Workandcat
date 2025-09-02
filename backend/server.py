@@ -37,7 +37,7 @@ from datetime import datetime
 from auth_service import AuthService, UserCreate, UserLogin, TokenResponse, require_auth, require_admin, ADMIN_EMAIL
 from llm_enrichment import LLMEnrichmentPipeline, SimplifiedEnrichmentService
 from advanced_llm_enrichment_service import AdvancedLLMEnrichmentService
-from enrich_checker_service import EnrichCheckerService
+from enhanced_enrichment_checker_service import EnhancedEnrichmentCheckerService
 from background_enrichment_jobs import background_jobs
 from gmail_service import gmail_service
 from payment_service import (
@@ -4447,7 +4447,7 @@ async def enrich_checker_regular(
         logger.info(f"🔍 Starting Enrich Checker for Regular Questions (limit: {limit})")
         
         # Initialize Enrich Checker Service
-        enrich_checker = EnrichCheckerService()
+        enrich_checker = EnhancedEnrichmentCheckerService()
         
         # Run quality check and re-enrichment
         result = await enrich_checker.check_and_enrich_regular_questions(db, limit)
@@ -4497,7 +4497,7 @@ async def enrich_checker_pyq(
         logger.info(f"🔍 Starting Enrich Checker for PYQ Questions (limit: {limit})")
         
         # Initialize Enrich Checker Service
-        enrich_checker = EnrichCheckerService()
+        enrich_checker = EnhancedEnrichmentCheckerService()
         
         # Run quality check and re-enrichment
         result = await enrich_checker.check_and_enrich_pyq_questions(db, limit)
