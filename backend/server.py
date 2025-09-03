@@ -627,7 +627,7 @@ SUBMITTED AT: {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')} UTC
 This feedback was submitted through the Twelvr feedback form.
         """.strip()
         
-        # Send email from costodigital@gmail.com to hello@twelvr.com
+        # Send email from hello@twelvr.com to hello@twelvr.com
         email_sent = gmail_service.send_generic_email(
             to_email="hello@twelvr.com",
             subject=subject,
