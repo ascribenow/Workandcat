@@ -152,8 +152,10 @@ class RazorpayService:
             
             return {
                 "id": razorpay_order["id"],
+                "order_id": razorpay_order["id"],
                 "amount": razorpay_order["amount"],
                 "currency": razorpay_order["currency"],
+                "key": os.getenv("RAZORPAY_KEY_ID"),  # Add the key for frontend
                 "plan_name": plan_config["name"],
                 "description": plan_config["description"],
                 "prefill": {
