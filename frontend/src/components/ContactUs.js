@@ -100,8 +100,8 @@ const ContactUs = () => {
               Your feedback shapes Twelvr! Tell us what's working, what isn't, and what you'd love to see. Every student voice helps us build better prep tools.
             </p>
             <div className="text-center">
-              <a 
-                href="mailto:hello@twelvr.com?subject=Student Feedback"
+              <button 
+                onClick={() => setIsFeedbackModalOpen(true)}
                 className="inline-flex items-center px-6 py-3 border-2 border-[#9ac026] text-[#9ac026] rounded-lg font-semibold hover:bg-[#9ac026] hover:text-white transition-colors"
                 style={{ fontFamily: 'Lato, sans-serif' }}
               >
@@ -109,7 +109,7 @@ const ContactUs = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                 </svg>
                 Send Feedback
-              </a>
+              </button>
             </div>
           </div>
         </div>
