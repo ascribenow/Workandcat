@@ -597,6 +597,59 @@ async def store_pending_user(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to store pending user: {str(e)}")
 
+@api_router.post("/feedback")
+async def submit_feedback(feedback_data: FeedbackSubmission):
+    """Submit user feedback and send email to support"""
+    try:
+        # Authenticate Gmail service if needed
+        if not gmail_service.service:
+            if not gmail_service.authenticate_service():
+                raise HTTPException(
+                    status_code=503, 
+                    detail="Email service not available. Please try again later."
+                )
+        
+        # Prepare email content
+        subject = "New Feedback from Twelvr User"
+        
+        # Create email body with feedback content
+        email_body = f"""
+New feedback received from Twelvr:
+
+FEEDBACK:
+{feedback_data.feedback}
+
+USER EMAIL: {feedback_data.user_email if feedback_data.user_email else 'Not provided'}
+
+SUBMITTED AT: {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')} UTC
+
+---
+This feedback was submitted through the Twelvr feedback form.
+        """.strip()
+        
+        # Send email from costodigital@gmail.com to hello@twelvr.com
+        email_sent = gmail_service.send_generic_email(
+            to_email="hello@twelvr.com",
+            subject=subject,
+            body=email_body
+        )
+        
+        if not email_sent:
+            raise HTTPException(
+                status_code=500,
+                detail="Failed to send feedback email. Please try again."
+            )
+        
+        return {
+            "success": True,
+            "message": "Feedback submitted successfully! Thank you for helping us improve Twelvr."
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to submit feedback: {str(e)}")
+
 # Import adaptive session engine
 from adaptive_session_engine import AdaptiveSessionEngine
 
