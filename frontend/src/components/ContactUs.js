@@ -137,7 +137,7 @@ const ContactUs = () => {
                 "My Daily-12 session isn't loading. What should I do?"
               </h3>
               <p style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
-                Try refreshing the page first. If that doesn't work, clear your browser cache or try a different browser. Still stuck? Email us immediately at support@twelvr.com - we'll get you back to your session in minutes.
+                Try refreshing the page first. If that doesn't work, clear your browser cache or try a different browser. Still stuck? Email us immediately at hello@twelvr.com - we'll get you back to your session in minutes.
               </p>
             </div>
 
