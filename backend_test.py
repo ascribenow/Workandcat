@@ -5107,42 +5107,42 @@ Find the compound interest on Rs. 1000 for 2 years at 10% per annum.,210"""
 
 def main():
     """Main function to run comprehensive backend testing"""
-    print("📧 STARTING FEEDBACK SUBMISSION SYSTEM TESTING - AS REQUESTED")
+    print("📧 STARTING EMAIL SENDER ADDRESS UPDATE TESTING - AS REQUESTED")
     print("=" * 80)
     
     tester = CATBackendTester()
     
     try:
-        # Run Feedback Submission System Testing (as per review request)
-        print("📧 FEEDBACK SUBMISSION SYSTEM COMPREHENSIVE TESTING")
-        feedback_success = tester.test_feedback_submission_system()
+        # Run Email Sender Address Update Testing (as per review request)
+        print("📧 EMAIL SENDER ADDRESS UPDATE COMPREHENSIVE TESTING")
+        email_sender_success = tester.test_email_sender_address_update()
         
         print("\n" + "=" * 80)
-        print("🏁 FEEDBACK SUBMISSION SYSTEM TESTING COMPLETED")
+        print("🏁 EMAIL SENDER ADDRESS UPDATE TESTING COMPLETED")
         print("=" * 80)
         
-        print(f"\n📊 FEEDBACK SUBMISSION SYSTEM RESULTS:")
-        print(f"  Feedback Submission System: {'✅ PASS' if feedback_success else '❌ FAIL'}")
+        print(f"\n📊 EMAIL SENDER ADDRESS UPDATE RESULTS:")
+        print(f"  Email Sender Address Update: {'✅ PASS' if email_sender_success else '❌ FAIL'}")
         
-        if feedback_success:
-            print("\n🎉 OVERALL RESULT: FEEDBACK SUBMISSION SYSTEM VALIDATION SUCCESSFUL!")
-            print("✅ Feedback endpoint working with proper validation")
-            print("✅ Required field validation (1-1000 characters) functional")
-            print("✅ Optional email field working correctly")
-            print("✅ Gmail service integration structure in place")
-            print("✅ Proper response formats and error handling")
-            print("✅ Email sending from costodigital@gmail.com to hello@twelvr.com")
-            print("✅ Comprehensive test cases validated")
-            print("🏆 PRODUCTION READY - Feedback submission system fully functional")
+        if email_sender_success:
+            print("\n🎉 OVERALL RESULT: EMAIL SENDER ADDRESS UPDATE VALIDATION SUCCESSFUL!")
+            print("✅ Gmail service configured with hello@twelvr.com as sender")
+            print("✅ Verification email endpoint using correct sender address")
+            print("✅ Password reset email endpoint using correct sender address")
+            print("✅ Feedback email endpoint using correct sender address")
+            print("✅ No references to old costodigital@gmail.com address found")
+            print("✅ Email content properly formatted with new sender")
+            print("✅ Service configuration and integration working")
+            print("🏆 PRODUCTION READY - Email sender address successfully updated")
         else:
-            print("\n❌ OVERALL RESULT: FEEDBACK SUBMISSION SYSTEM VALIDATION FAILED")
-            print("🚨 Critical issues detected with feedback submission system")
+            print("\n❌ OVERALL RESULT: EMAIL SENDER ADDRESS UPDATE VALIDATION FAILED")
+            print("🚨 Critical issues detected with email sender address configuration")
         
         print(f"\nTests Run: {tester.tests_run}")
         print(f"Tests Passed: {tester.tests_passed}")
         print(f"Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%")
         
-        return feedback_success
+        return email_sender_success
         
     except Exception as e:
         print(f"\n❌ TESTING FAILED: {e}")
