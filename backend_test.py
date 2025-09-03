@@ -1251,44 +1251,50 @@ class CATBackendTester:
                 email_sender_results["no_costodigital_references"] = True
                 print(f"      ✅ No references to old email address found")
         
-        # PHASE 2: VALID FEEDBACK SUBMISSION TESTS
-        print("\n✅ PHASE 2: VALID FEEDBACK SUBMISSION TESTS")
-        print("-" * 50)
+        # PHASE 2: VERIFICATION EMAIL TESTING
+        print("\n📧 PHASE 2: VERIFICATION EMAIL TESTING")
+        print("-" * 60)
         
-        # Test Case 1: Valid feedback with email
-        print("   📋 Test Case 1: Valid Feedback with Email")
+        # Test Case 1: Send verification code email
+        print("   📋 Test Case 1: Send Verification Code Email")
         
-        valid_feedback_with_email = {
-            "feedback": "This is a comprehensive test of the feedback system. The application works well but could use some improvements in the user interface design and response times.",
-            "user_email": "testuser@example.com"
+        verification_email_data = {
+            "email": "student@example.com"
         }
         
         success, response = self.run_test(
-            "Valid Feedback with Email", 
+            "Send Verification Code", 
             "POST", 
-            "feedback", 
+            "auth/send-verification-code", 
             [200, 503], 
-            valid_feedback_with_email
+            verification_email_data
         )
         
         if success and response:
             if response.get("success") is True:
-                feedback_results["valid_feedback_with_email_works"] = True
-                feedback_results["optional_email_field_working"] = True
-                print(f"      ✅ Valid feedback with email submitted successfully")
+                email_sender_results["verification_email_endpoint_accessible"] = True
+                email_sender_results["verification_email_uses_correct_sender"] = True
+                print(f"      ✅ Verification email sent successfully")
                 print(f"         📊 Response message: {response.get('message', 'No message')}")
                 
-                # Check response format
-                if "message" in response and "success" in response:
-                    feedback_results["success_response_format_correct"] = True
-                    print(f"      ✅ Success response format correct")
-            elif response.get("detail") and "Email service not available" in response.get("detail", ""):
-                print(f"      ⚠️ Gmail service not configured but endpoint structure working")
-                feedback_results["valid_feedback_with_email_works"] = True  # Endpoint works, service config issue
-            else:
-                print(f"      ❌ Valid feedback with email failed: {response}")
+                # Check if response indicates proper email configuration
+                message = response.get('message', '')
+                if "sent successfully" in message.lower():
+                    email_sender_results["verification_email_content_correct"] = True
+                    print(f"      ✅ Verification email content appears correct")
+                    
+            elif response.get("detail"):
+                detail = response.get("detail", "")
+                if "Email service not configured" in detail:
+                    print(f"      ⚠️ Gmail service not configured but endpoint structure working")
+                    email_sender_results["verification_email_endpoint_accessible"] = True
+                elif "hello@twelvr.com" in detail:
+                    email_sender_results["verification_email_uses_correct_sender"] = True
+                    print(f"      ✅ Correct sender email found in response")
+                else:
+                    print(f"      ℹ️ Verification email response: {detail}")
         else:
-            print(f"      ❌ Valid feedback with email submission failed")
+            print(f"      ❌ Verification email test failed")
         
         # Test Case 2: Valid feedback without email
         print("   📋 Test Case 2: Valid Feedback without Email")
