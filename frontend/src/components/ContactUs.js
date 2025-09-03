@@ -155,7 +155,7 @@ const ContactUs = () => {
                 "Can I talk to someone on the phone?"
               </h3>
               <p style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
-                Right now, we handle support through email for faster response times and better issue tracking. Email support@twelvr.com and we'll get back to you super quickly - often faster than a phone call!
+                Right now, we handle support through email for faster response times and better issue tracking. Email hello@twelvr.com and we'll get back to you super quickly - often faster than a phone call!
               </p>
             </div>
           </div>
