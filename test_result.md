@@ -128,7 +128,7 @@
 # END - Testing Protocol - DO NOT EDIT OR REMOVE THIS SECTION
 #====================================================================================================
 
-user_problem_statement: "Test that the email sender address has been successfully updated from costodigital@gmail.com to hello@twelvr.com: 1) Verify Gmail Service Configuration - Check that GmailService now uses hello@twelvr.com as sender, 2) Test Student-Facing Email Endpoints - Test all endpoints that send emails to students, 3) Verify Email Content - Ensure emails are properly formatted with new sender address, 4) Service Configuration Test - Verify GmailService instance has correct sender_email property."
+user_problem_statement: "Test the payment flow with the provided credentials to verify the 'Authentication key was missing during initialization' error has been resolved: 1) Login with provided credentials: sp@theskinmantra.com / student123, 2) Navigate to pricing page and attempt Pro Lite subscription, 3) Verify payment initialization works without authentication errors, 4) Check for specific error messages - should not see 'Authentication key was missing during initialization'"
 
 backend:
   - task: "Email Sender Address Update from costodigital@gmail.com to hello@twelvr.com"
