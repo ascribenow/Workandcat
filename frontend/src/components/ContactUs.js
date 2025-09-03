@@ -224,6 +224,12 @@ const ContactUs = () => {
           </div>
         </div>
       </footer>
+
+      {/* Feedback Modal */}
+      <FeedbackModal 
+        isOpen={isFeedbackModalOpen} 
+        onClose={() => setIsFeedbackModalOpen(false)} 
+      />
     </div>
   );
 };
