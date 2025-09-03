@@ -99,7 +99,7 @@ const ContactUs = () => {
             </p>
             <div className="text-center">
               <a 
-                href="mailto:support@twelvr.com?subject=Student Feedback"
+                href="mailto:hello@twelvr.com?subject=Student Feedback"
                 className="inline-flex items-center px-6 py-3 border-2 border-[#9ac026] text-[#9ac026] rounded-lg font-semibold hover:bg-[#9ac026] hover:text-white transition-colors"
                 style={{ fontFamily: 'Lato, sans-serif' }}
               >
