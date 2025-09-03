@@ -187,6 +187,10 @@ class DoubtConversationHistory(BaseModel):
 class TriggerEnrichmentRequest(BaseModel):
     question_ids: Optional[List[str]] = None
 
+class FeedbackSubmission(BaseModel):
+    feedback: str = Field(..., min_length=1, max_length=1000)
+    user_email: Optional[str] = None
+
 # Utility Functions
 
 def clean_solution_text(text: str) -> str:
