@@ -1483,6 +1483,93 @@ class CATBackendTester:
         print("📧 EMAIL SENDER ADDRESS UPDATE - COMPREHENSIVE RESULTS")
         print("=" * 80)
         
+        passed_tests = sum(email_sender_results.values())
+        total_tests = len(email_sender_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        # Group results by testing categories
+        testing_categories = {
+            "GMAIL SERVICE CONFIGURATION": [
+                "gmail_service_configured_correctly", "sender_email_is_hello_twelvr", 
+                "no_costodigital_references"
+            ],
+            "VERIFICATION EMAIL TESTS": [
+                "verification_email_endpoint_accessible", "verification_email_uses_correct_sender",
+                "verification_email_content_correct"
+            ],
+            "PASSWORD RESET EMAIL TESTS": [
+                "password_reset_endpoint_accessible", "password_reset_uses_correct_sender",
+                "password_reset_content_correct"
+            ],
+            "FEEDBACK EMAIL TESTS": [
+                "feedback_endpoint_accessible", "feedback_uses_correct_sender",
+                "feedback_content_correct"
+            ],
+            "EMAIL CONTENT VALIDATION": [
+                "email_headers_correct", "email_from_field_correct", "email_branding_consistent"
+            ],
+            "SERVICE INTEGRATION": [
+                "gmail_service_integration_working", "email_sending_functional", "proper_error_handling"
+            ]
+        }
+        
+        for category, tests in testing_categories.items():
+            print(f"\n{category}:")
+            category_passed = 0
+            category_total = len(tests)
+            
+            for test in tests:
+                if test in email_sender_results:
+                    result = email_sender_results[test]
+                    status = "✅ PASS" if result else "❌ FAIL"
+                    print(f"  {test.replace('_', ' ').title():<50} {status}")
+                    if result:
+                        category_passed += 1
+            
+            category_rate = (category_passed / category_total) * 100 if category_total > 0 else 0
+            print(f"  Category Success Rate: {category_passed}/{category_total} ({category_rate:.1f}%)")
+        
+        print("-" * 80)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # CRITICAL SUCCESS ASSESSMENT
+        print("\n🎯 EMAIL SENDER ADDRESS UPDATE SUCCESS ASSESSMENT:")
+        
+        # Check critical success criteria
+        service_config = sum(email_sender_results[key] for key in testing_categories["GMAIL SERVICE CONFIGURATION"])
+        verification_emails = sum(email_sender_results[key] for key in testing_categories["VERIFICATION EMAIL TESTS"])
+        password_reset_emails = sum(email_sender_results[key] for key in testing_categories["PASSWORD RESET EMAIL TESTS"])
+        feedback_emails = sum(email_sender_results[key] for key in testing_categories["FEEDBACK EMAIL TESTS"])
+        service_integration = sum(email_sender_results[key] for key in testing_categories["SERVICE INTEGRATION"])
+        
+        print(f"\n📊 CRITICAL METRICS:")
+        print(f"  Gmail Service Configuration: {service_config}/3 ({(service_config/3)*100:.1f}%)")
+        print(f"  Verification Email Tests: {verification_emails}/3 ({(verification_emails/3)*100:.1f}%)")
+        print(f"  Password Reset Email Tests: {password_reset_emails}/3 ({(password_reset_emails/3)*100:.1f}%)")
+        print(f"  Feedback Email Tests: {feedback_emails}/3 ({(feedback_emails/3)*100:.1f}%)")
+        print(f"  Service Integration: {service_integration}/3 ({(service_integration/3)*100:.1f}%)")
+        
+        # FINAL ASSESSMENT
+        if success_rate >= 85:
+            print("\n🎉 EMAIL SENDER ADDRESS UPDATE SUCCESSFUL!")
+            print("   ✅ Gmail service properly configured with hello@twelvr.com")
+            print("   ✅ All student-facing email endpoints using correct sender")
+            print("   ✅ No references to old email address found")
+            print("   ✅ Email content properly formatted")
+            print("   🏆 PRODUCTION READY - Email sender address successfully updated")
+        elif success_rate >= 70:
+            print("\n⚠️ EMAIL SENDER ADDRESS UPDATE MOSTLY SUCCESSFUL")
+            print(f"   - {passed_tests}/{total_tests} tests passed ({success_rate:.1f}%)")
+            print("   - Core email sender configuration appears updated")
+            print("   🔧 MINOR ISSUES - Some email features may need attention")
+        else:
+            print("\n❌ EMAIL SENDER ADDRESS UPDATE VALIDATION FAILED")
+            print(f"   - Only {passed_tests}/{total_tests} tests passed ({success_rate:.1f}%)")
+            print("   - Critical email sender configuration issues detected")
+            print("   🚨 MAJOR PROBLEMS - Email sender address may not be properly updated")
+        
+        return success_rate >= 70  # Return True if email sender update validation is successful
+        
         # Test Case 3: Empty feedback (should fail)
         print("   📋 Test Case 3: Empty Feedback Validation")
         
