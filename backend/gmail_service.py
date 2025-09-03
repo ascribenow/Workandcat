@@ -17,7 +17,7 @@ class GmailService:
     def __init__(self):
         self.scopes = ['https://mail.google.com/']
         self.credentials_file = '/app/backend/gmail_credentials.json'
-        self.sender_email = 'costodigital@gmail.com'
+        self.sender_email = 'hello@twelvr.com'
         self.service = None
         # In production, use proper database
         self.verification_codes: Dict[str, Dict] = {}
