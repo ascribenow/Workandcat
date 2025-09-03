@@ -1170,36 +1170,36 @@ class CATBackendTester:
         print("- Gmail service should be properly configured with new sender address")
         print("=" * 80)
         
-        feedback_results = {
-            # Basic Endpoint Accessibility
+        email_sender_results = {
+            # Gmail Service Configuration
+            "gmail_service_configured_correctly": False,
+            "sender_email_is_hello_twelvr": False,
+            "no_costodigital_references": False,
+            
+            # Verification Email Tests
+            "verification_email_endpoint_accessible": False,
+            "verification_email_uses_correct_sender": False,
+            "verification_email_content_correct": False,
+            
+            # Password Reset Email Tests
+            "password_reset_endpoint_accessible": False,
+            "password_reset_uses_correct_sender": False,
+            "password_reset_content_correct": False,
+            
+            # Feedback Email Tests
             "feedback_endpoint_accessible": False,
-            "feedback_endpoint_accepts_post": False,
+            "feedback_uses_correct_sender": False,
+            "feedback_content_correct": False,
             
-            # Valid Feedback Tests
-            "valid_feedback_with_email_works": False,
-            "valid_feedback_without_email_works": False,
-            "feedback_success_response_correct": False,
+            # Email Content Validation
+            "email_headers_correct": False,
+            "email_from_field_correct": False,
+            "email_branding_consistent": False,
             
-            # Validation Tests
-            "empty_feedback_rejected": False,
-            "feedback_over_1000_chars_rejected": False,
-            "feedback_under_1_char_rejected": False,
-            "proper_validation_error_messages": False,
-            
-            # Email Field Tests
-            "optional_email_field_working": False,
-            "invalid_email_format_accepted": False,
-            "email_field_not_required": False,
-            
-            # Gmail Service Integration
+            # Service Integration Tests
             "gmail_service_integration_working": False,
             "email_sending_functional": False,
-            "email_content_structure_correct": False,
-            
-            # Response Format Tests
-            "success_response_format_correct": False,
-            "error_response_format_correct": False,
-            "proper_http_status_codes": False
+            "proper_error_handling": False
         }
         
         # PHASE 1: BASIC ENDPOINT ACCESSIBILITY
