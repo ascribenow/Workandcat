@@ -4,6 +4,7 @@ import FeedbackModal from './FeedbackModal';
 
 const ContactUs = () => {
   const navigate = useNavigate();
+  const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
 
   // Navigation with scroll to top
   const navigateToPage = (path) => {
