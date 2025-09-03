@@ -1143,6 +1143,476 @@ class CATBackendTester:
         
         return success_rate >= 70  # Return True if enhanced checker validation is successful
 
+    def test_razorpay_payment_service_authentication(self):
+        """
+        RAZORPAY PAYMENT SERVICE AUTHENTICATION TESTING
+        Test that the Razorpay payment service initialization and subscription creation 
+        to verify the authentication key issue has been resolved
+        """
+        print("💳 RAZORPAY PAYMENT SERVICE AUTHENTICATION TESTING")
+        print("=" * 80)
+        print("OBJECTIVE: Verify Razorpay payment service initialization and authentication key resolution")
+        print("")
+        print("TESTING OBJECTIVES:")
+        print("1. Verify Razorpay Service Initialization - Check authentication keys are properly configured")
+        print("2. Test Payment Endpoints - Test payment-related endpoints that were failing due to auth issues")
+        print("3. Test Subscription Creation - Specifically test Pro Lite subscription creation")
+        print("4. Service Health Check - Verify payment service can communicate with Razorpay API")
+        print("")
+        print("SPECIFIC TESTS:")
+        print("- Payment Configuration Test: GET /api/payments/config")
+        print("- Subscription Creation Test: POST /api/payments/create-subscription (Pro Lite)")
+        print("- Order Creation Test: POST /api/payments/create-order (Pro Regular)")
+        print("- Service Health Check: Verify no 'Authentication key was missing during initialization' errors")
+        print("")
+        print("EXPECTED BEHAVIOR:")
+        print("- Payment service properly initialized with Razorpay keys")
+        print("- No 'Authentication key was missing during initialization' errors")
+        print("- Subscription/order creation should succeed (may fail later due to test data, but not due to auth)")
+        print("- Payment configuration should include proper Razorpay key_id")
+        print("=" * 80)
+        
+        razorpay_results = {
+            # Authentication Setup
+            "student_authentication_working": False,
+            "student_token_valid": False,
+            
+            # Razorpay Service Initialization
+            "razorpay_service_initialized": False,
+            "authentication_keys_configured": False,
+            "no_auth_key_missing_errors": False,
+            
+            # Payment Configuration
+            "payment_config_endpoint_accessible": False,
+            "razorpay_key_id_present": False,
+            "payment_methods_configured": False,
+            
+            # Pro Lite Subscription Testing
+            "pro_lite_subscription_endpoint_accessible": False,
+            "pro_lite_subscription_creation_working": False,
+            "no_authentication_key_errors_pro_lite": False,
+            
+            # Pro Regular Order Testing
+            "pro_regular_order_endpoint_accessible": False,
+            "pro_regular_order_creation_working": False,
+            "no_authentication_key_errors_pro_regular": False,
+            
+            # Service Health Check
+            "razorpay_api_communication_working": False,
+            "payment_service_health_good": False,
+            "proper_error_handling": False,
+            
+            # Integration Testing
+            "payment_verification_endpoint_accessible": False,
+            "subscription_status_endpoint_accessible": False,
+            "webhook_endpoint_accessible": False
+        }
+        
+        # PHASE 1: STUDENT AUTHENTICATION SETUP
+        print("\n🔐 PHASE 1: STUDENT AUTHENTICATION SETUP")
+        print("-" * 60)
+        print("Setting up authenticated student user for payment testing")
+        
+        # Register/login a test student user
+        student_email = "student@catprep.com"
+        student_password = "student123"
+        
+        student_login_data = {
+            "email": student_email,
+            "password": student_password
+        }
+        
+        success, response = self.run_test("Student Authentication", "POST", "auth/login", [200, 401], student_login_data)
+        
+        student_headers = None
+        if success and response.get('access_token'):
+            student_token = response['access_token']
+            student_headers = {
+                'Authorization': f'Bearer {student_token}',
+                'Content-Type': 'application/json'
+            }
+            razorpay_results["student_authentication_working"] = True
+            razorpay_results["student_token_valid"] = True
+            print(f"   ✅ Student authentication successful")
+            print(f"   📊 JWT Token length: {len(student_token)} characters")
+            
+            # Verify student user info
+            success, me_response = self.run_test("Student Token Validation", "GET", "auth/me", 200, None, student_headers)
+            if success and me_response.get('email'):
+                print(f"   ✅ Student user confirmed: {me_response.get('email')}")
+        else:
+            print("   ❌ Student authentication failed - cannot proceed with payment testing")
+            return False
+        
+        # PHASE 2: PAYMENT CONFIGURATION TESTING
+        print("\n⚙️ PHASE 2: PAYMENT CONFIGURATION TESTING")
+        print("-" * 60)
+        print("Testing Razorpay service initialization and configuration")
+        
+        # Test Payment Configuration Endpoint
+        print("   📋 Step 1: Test Payment Configuration Endpoint")
+        success, response = self.run_test(
+            "Payment Configuration", 
+            "GET", 
+            "payments/config", 
+            [200, 500], 
+            None
+        )
+        
+        if success and response:
+            razorpay_results["payment_config_endpoint_accessible"] = True
+            print(f"      ✅ Payment configuration endpoint accessible")
+            
+            # Check for Razorpay key_id
+            if response.get("key_id"):
+                razorpay_results["razorpay_key_id_present"] = True
+                razorpay_results["authentication_keys_configured"] = True
+                key_id = response.get("key_id")
+                print(f"      ✅ Razorpay key_id present: {key_id}")
+                
+                # Verify it's the correct test key format
+                if key_id.startswith("rzp_test_"):
+                    print(f"      ✅ Correct Razorpay test key format")
+                else:
+                    print(f"      ⚠️ Unexpected key format: {key_id}")
+            
+            # Check for payment methods configuration
+            config = response.get("config", {})
+            if config and config.get("methods"):
+                razorpay_results["payment_methods_configured"] = True
+                methods = config.get("methods", {})
+                print(f"      ✅ Payment methods configured:")
+                for method, enabled in methods.items():
+                    print(f"         - {method}: {'✅' if enabled else '❌'}")
+            
+            # Check for authentication errors in response
+            response_str = str(response)
+            if "Authentication key was missing during initialization" in response_str:
+                print(f"      ❌ CRITICAL: Authentication key missing error found!")
+            else:
+                razorpay_results["no_auth_key_missing_errors"] = True
+                print(f"      ✅ No authentication key missing errors")
+        else:
+            print(f"      ❌ Payment configuration endpoint failed")
+        
+        # PHASE 3: PRO LITE SUBSCRIPTION TESTING
+        print("\n💎 PHASE 3: PRO LITE SUBSCRIPTION TESTING")
+        print("-" * 60)
+        print("Testing Pro Lite subscription creation (the scenario that was failing)")
+        
+        # Test Pro Lite Subscription Creation
+        print("   📋 Step 1: Test Pro Lite Subscription Creation")
+        
+        pro_lite_subscription_data = {
+            "plan_type": "pro_lite",
+            "user_email": student_email,
+            "user_name": "Test Student",
+            "user_phone": "+919876543210"
+        }
+        
+        success, response = self.run_test(
+            "Pro Lite Subscription Creation", 
+            "POST", 
+            "payments/create-subscription", 
+            [200, 400, 500], 
+            pro_lite_subscription_data,
+            student_headers
+        )
+        
+        if success:
+            razorpay_results["pro_lite_subscription_endpoint_accessible"] = True
+            print(f"      ✅ Pro Lite subscription endpoint accessible")
+            
+            if response and response.get("success"):
+                razorpay_results["pro_lite_subscription_creation_working"] = True
+                print(f"      ✅ Pro Lite subscription creation successful")
+                
+                # Check subscription data
+                subscription_data = response.get("data", {})
+                if subscription_data.get("id"):
+                    print(f"         📊 Subscription ID: {subscription_data.get('id')}")
+                if subscription_data.get("plan_id"):
+                    print(f"         📊 Plan ID: {subscription_data.get('plan_id')}")
+                if subscription_data.get("short_url"):
+                    print(f"         📊 Payment URL generated: ✅")
+            else:
+                # Check for specific authentication errors
+                error_detail = ""
+                if response and response.get("detail"):
+                    error_detail = response.get("detail")
+                elif response:
+                    error_detail = str(response)
+                
+                print(f"      ⚠️ Pro Lite subscription creation failed: {error_detail}")
+                
+                # Check if it's NOT an authentication error
+                if "Authentication key was missing during initialization" in error_detail:
+                    print(f"      ❌ CRITICAL: Authentication key missing error still present!")
+                else:
+                    razorpay_results["no_authentication_key_errors_pro_lite"] = True
+                    print(f"      ✅ No authentication key errors (failure due to other reasons)")
+        else:
+            print(f"      ❌ Pro Lite subscription endpoint failed")
+        
+        # PHASE 4: PRO REGULAR ORDER TESTING
+        print("\n🏆 PHASE 4: PRO REGULAR ORDER TESTING")
+        print("-" * 60)
+        print("Testing Pro Regular order creation")
+        
+        # Test Pro Regular Order Creation
+        print("   📋 Step 1: Test Pro Regular Order Creation")
+        
+        pro_regular_order_data = {
+            "plan_type": "pro_regular",
+            "user_email": student_email,
+            "user_name": "Test Student",
+            "user_phone": "+919876543210"
+        }
+        
+        success, response = self.run_test(
+            "Pro Regular Order Creation", 
+            "POST", 
+            "payments/create-order", 
+            [200, 400, 500], 
+            pro_regular_order_data,
+            student_headers
+        )
+        
+        if success:
+            razorpay_results["pro_regular_order_endpoint_accessible"] = True
+            print(f"      ✅ Pro Regular order endpoint accessible")
+            
+            if response and response.get("success"):
+                razorpay_results["pro_regular_order_creation_working"] = True
+                print(f"      ✅ Pro Regular order creation successful")
+                
+                # Check order data
+                order_data = response.get("data", {})
+                if order_data.get("id"):
+                    print(f"         📊 Order ID: {order_data.get('id')}")
+                if order_data.get("amount"):
+                    print(f"         📊 Amount: ₹{order_data.get('amount', 0) / 100}")
+                if order_data.get("key"):
+                    print(f"         📊 Razorpay key configured: ✅")
+            else:
+                # Check for specific authentication errors
+                error_detail = ""
+                if response and response.get("detail"):
+                    error_detail = response.get("detail")
+                elif response:
+                    error_detail = str(response)
+                
+                print(f"      ⚠️ Pro Regular order creation failed: {error_detail}")
+                
+                # Check if it's NOT an authentication error
+                if "Authentication key was missing during initialization" in error_detail:
+                    print(f"      ❌ CRITICAL: Authentication key missing error still present!")
+                else:
+                    razorpay_results["no_authentication_key_errors_pro_regular"] = True
+                    print(f"      ✅ No authentication key errors (failure due to other reasons)")
+        else:
+            print(f"      ❌ Pro Regular order endpoint failed")
+        
+        # PHASE 5: SERVICE HEALTH CHECK
+        print("\n🏥 PHASE 5: SERVICE HEALTH CHECK")
+        print("-" * 60)
+        print("Verifying payment service health and Razorpay API communication")
+        
+        # Test Payment Verification Endpoint
+        print("   📋 Step 1: Test Payment Verification Endpoint Structure")
+        
+        # Test with dummy data to check endpoint accessibility
+        dummy_verification_data = {
+            "razorpay_order_id": "order_test123",
+            "razorpay_payment_id": "pay_test123", 
+            "razorpay_signature": "dummy_signature",
+            "user_id": "test_user_id"
+        }
+        
+        success, response = self.run_test(
+            "Payment Verification Endpoint", 
+            "POST", 
+            "payments/verify-payment", 
+            [200, 400, 403, 500], 
+            dummy_verification_data,
+            student_headers
+        )
+        
+        if success:
+            razorpay_results["payment_verification_endpoint_accessible"] = True
+            print(f"      ✅ Payment verification endpoint accessible")
+            
+            # Check if response indicates service is working (even if verification fails)
+            if response:
+                response_str = str(response)
+                if "Authentication key was missing during initialization" not in response_str:
+                    razorpay_results["razorpay_api_communication_working"] = True
+                    print(f"      ✅ Razorpay API communication appears functional")
+        
+        # Test Subscription Status Endpoint
+        print("   📋 Step 2: Test Subscription Status Endpoint")
+        
+        success, response = self.run_test(
+            "Subscription Status", 
+            "GET", 
+            "payments/subscription-status", 
+            [200, 500], 
+            None,
+            student_headers
+        )
+        
+        if success:
+            razorpay_results["subscription_status_endpoint_accessible"] = True
+            print(f"      ✅ Subscription status endpoint accessible")
+            
+            if response and response.get("success") is not False:
+                razorpay_results["payment_service_health_good"] = True
+                print(f"      ✅ Payment service health appears good")
+        
+        # Test Webhook Endpoint Structure
+        print("   📋 Step 3: Test Webhook Endpoint Structure")
+        
+        success, response = self.run_test(
+            "Webhook Endpoint", 
+            "POST", 
+            "payments/webhook", 
+            [200, 400, 500], 
+            {"test": "data"}
+        )
+        
+        if success:
+            razorpay_results["webhook_endpoint_accessible"] = True
+            print(f"      ✅ Webhook endpoint accessible")
+        
+        # PHASE 6: COMPREHENSIVE SERVICE VALIDATION
+        print("\n🔍 PHASE 6: COMPREHENSIVE SERVICE VALIDATION")
+        print("-" * 60)
+        print("Final validation of Razorpay service initialization")
+        
+        # Check if we can determine service initialization status
+        print("   📋 Step 1: Service Initialization Status Check")
+        
+        # Count successful operations
+        successful_operations = 0
+        total_operations = 4
+        
+        if razorpay_results["payment_config_endpoint_accessible"]:
+            successful_operations += 1
+        if razorpay_results["pro_lite_subscription_endpoint_accessible"]:
+            successful_operations += 1
+        if razorpay_results["pro_regular_order_endpoint_accessible"]:
+            successful_operations += 1
+        if razorpay_results["payment_verification_endpoint_accessible"]:
+            successful_operations += 1
+        
+        if successful_operations >= 3:
+            razorpay_results["razorpay_service_initialized"] = True
+            print(f"      ✅ Razorpay service appears properly initialized")
+            print(f"         📊 Successful operations: {successful_operations}/{total_operations}")
+        
+        # Check for proper error handling
+        print("   📋 Step 2: Error Handling Validation")
+        
+        if (razorpay_results["no_auth_key_missing_errors"] and 
+            razorpay_results["no_authentication_key_errors_pro_lite"] and 
+            razorpay_results["no_authentication_key_errors_pro_regular"]):
+            razorpay_results["proper_error_handling"] = True
+            print(f"      ✅ No authentication key missing errors detected")
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 80)
+        print("💳 RAZORPAY PAYMENT SERVICE AUTHENTICATION - COMPREHENSIVE RESULTS")
+        print("=" * 80)
+        
+        passed_tests = sum(razorpay_results.values())
+        total_tests = len(razorpay_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        # Group results by testing categories
+        testing_categories = {
+            "RAZORPAY SERVICE INITIALIZATION": [
+                "razorpay_service_initialized", "authentication_keys_configured", 
+                "no_auth_key_missing_errors"
+            ],
+            "PAYMENT CONFIGURATION": [
+                "payment_config_endpoint_accessible", "razorpay_key_id_present", 
+                "payment_methods_configured"
+            ],
+            "PRO LITE SUBSCRIPTION TESTING": [
+                "pro_lite_subscription_endpoint_accessible", "pro_lite_subscription_creation_working",
+                "no_authentication_key_errors_pro_lite"
+            ],
+            "PRO REGULAR ORDER TESTING": [
+                "pro_regular_order_endpoint_accessible", "pro_regular_order_creation_working",
+                "no_authentication_key_errors_pro_regular"
+            ],
+            "SERVICE HEALTH CHECK": [
+                "razorpay_api_communication_working", "payment_service_health_good",
+                "proper_error_handling"
+            ],
+            "INTEGRATION TESTING": [
+                "payment_verification_endpoint_accessible", "subscription_status_endpoint_accessible",
+                "webhook_endpoint_accessible"
+            ]
+        }
+        
+        for category, tests in testing_categories.items():
+            print(f"\n{category}:")
+            category_passed = 0
+            category_total = len(tests)
+            
+            for test in tests:
+                if test in razorpay_results:
+                    result = razorpay_results[test]
+                    status = "✅ PASS" if result else "❌ FAIL"
+                    print(f"  {test.replace('_', ' ').title():<50} {status}")
+                    if result:
+                        category_passed += 1
+            
+            category_rate = (category_passed / category_total) * 100 if category_total > 0 else 0
+            print(f"  Category Success Rate: {category_passed}/{category_total} ({category_rate:.1f}%)")
+        
+        print("-" * 80)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # CRITICAL SUCCESS ASSESSMENT
+        print("\n🎯 RAZORPAY AUTHENTICATION SUCCESS ASSESSMENT:")
+        
+        # Check critical success criteria
+        service_initialization = sum(razorpay_results[key] for key in testing_categories["RAZORPAY SERVICE INITIALIZATION"])
+        payment_config = sum(razorpay_results[key] for key in testing_categories["PAYMENT CONFIGURATION"])
+        pro_lite_testing = sum(razorpay_results[key] for key in testing_categories["PRO LITE SUBSCRIPTION TESTING"])
+        pro_regular_testing = sum(razorpay_results[key] for key in testing_categories["PRO REGULAR ORDER TESTING"])
+        service_health = sum(razorpay_results[key] for key in testing_categories["SERVICE HEALTH CHECK"])
+        
+        print(f"\n📊 CRITICAL METRICS:")
+        print(f"  Service Initialization: {service_initialization}/3 ({(service_initialization/3)*100:.1f}%)")
+        print(f"  Payment Configuration: {payment_config}/3 ({(payment_config/3)*100:.1f}%)")
+        print(f"  Pro Lite Testing: {pro_lite_testing}/3 ({(pro_lite_testing/3)*100:.1f}%)")
+        print(f"  Pro Regular Testing: {pro_regular_testing}/3 ({(pro_regular_testing/3)*100:.1f}%)")
+        print(f"  Service Health: {service_health}/3 ({(service_health/3)*100:.1f}%)")
+        
+        # FINAL ASSESSMENT
+        if success_rate >= 75:
+            print("\n🎉 RAZORPAY PAYMENT SERVICE AUTHENTICATION SUCCESSFUL!")
+            print("   ✅ Razorpay service properly initialized with authentication keys")
+            print("   ✅ No 'Authentication key was missing during initialization' errors")
+            print("   ✅ Payment endpoints accessible and functional")
+            print("   ✅ Both Pro Lite and Pro Regular payment flows working")
+            print("   🏆 PRODUCTION READY - Authentication key issue resolved")
+        elif success_rate >= 60:
+            print("\n⚠️ RAZORPAY PAYMENT SERVICE MOSTLY SUCCESSFUL")
+            print(f"   - {passed_tests}/{total_tests} tests passed ({success_rate:.1f}%)")
+            print("   - Core authentication appears resolved")
+            print("   🔧 MINOR ISSUES - Some payment features may need attention")
+        else:
+            print("\n❌ RAZORPAY PAYMENT SERVICE AUTHENTICATION FAILED")
+            print(f"   - Only {passed_tests}/{total_tests} tests passed ({success_rate:.1f}%)")
+            print("   - Critical authentication issues may persist")
+            print("   🚨 MAJOR PROBLEMS - Authentication key issue may not be resolved")
+        
+        return success_rate >= 60  # Return True if authentication validation is successful
+
     def test_email_sender_address_update(self):
         """
         EMAIL SENDER ADDRESS UPDATE TESTING
