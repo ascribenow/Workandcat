@@ -121,7 +121,7 @@ const PrivacyPolicy = () => {
             <section className="border-t pt-6">
               <h2 className="text-2xl font-bold mb-4" style={{ color: '#545454' }}>Contact</h2>
               <p className="text-gray-700" style={{ fontFamily: 'Lato, sans-serif' }}>
-                For privacy concerns, reach us at <a href="mailto:support@twelvr.com" className="text-[#9ac026] hover:underline">support@twelvr.com</a>
+                For privacy concerns, reach us at <a href="mailto:hello@twelvr.com" className="text-[#9ac026] hover:underline">hello@twelvr.com</a>
               </p>
             </section>
           </div>
