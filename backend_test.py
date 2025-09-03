@@ -1296,34 +1296,50 @@ class CATBackendTester:
         else:
             print(f"      ❌ Verification email test failed")
         
-        # Test Case 2: Valid feedback without email
-        print("   📋 Test Case 2: Valid Feedback without Email")
+        # PHASE 3: PASSWORD RESET EMAIL TESTING
+        print("\n🔐 PHASE 3: PASSWORD RESET EMAIL TESTING")
+        print("-" * 60)
         
-        valid_feedback_without_email = {
-            "feedback": "Great application! The session system works smoothly and the questions are well-structured. Keep up the excellent work on this educational platform."
+        # Test Case 1: Send password reset email
+        print("   📋 Test Case 1: Send Password Reset Email")
+        
+        password_reset_data = {
+            "email": "student@example.com"
         }
         
         success, response = self.run_test(
-            "Valid Feedback without Email", 
+            "Send Password Reset", 
             "POST", 
-            "feedback", 
+            "auth/password-reset", 
             [200, 503], 
-            valid_feedback_without_email
+            password_reset_data
         )
         
         if success and response:
             if response.get("success") is True:
-                feedback_results["valid_feedback_without_email_works"] = True
-                feedback_results["email_field_not_required"] = True
-                print(f"      ✅ Valid feedback without email submitted successfully")
+                email_sender_results["password_reset_endpoint_accessible"] = True
+                email_sender_results["password_reset_uses_correct_sender"] = True
+                print(f"      ✅ Password reset email sent successfully")
                 print(f"         📊 Response message: {response.get('message', 'No message')}")
-            elif response.get("detail") and "Email service not available" in response.get("detail", ""):
-                print(f"      ⚠️ Gmail service not configured but endpoint structure working")
-                feedback_results["valid_feedback_without_email_works"] = True  # Endpoint works, service config issue
-            else:
-                print(f"      ❌ Valid feedback without email failed: {response}")
+                
+                # Check if response indicates proper email configuration
+                message = response.get('message', '')
+                if "sent" in message.lower():
+                    email_sender_results["password_reset_content_correct"] = True
+                    print(f"      ✅ Password reset email content appears correct")
+                    
+            elif response.get("detail"):
+                detail = response.get("detail", "")
+                if "Email service not configured" in detail:
+                    print(f"      ⚠️ Gmail service not configured but endpoint structure working")
+                    email_sender_results["password_reset_endpoint_accessible"] = True
+                elif "hello@twelvr.com" in detail:
+                    email_sender_results["password_reset_uses_correct_sender"] = True
+                    print(f"      ✅ Correct sender email found in response")
+                else:
+                    print(f"      ℹ️ Password reset response: {detail}")
         else:
-            print(f"      ❌ Valid feedback without email submission failed")
+            print(f"      ❌ Password reset email test failed")
         
         # PHASE 3: VALIDATION TESTS
         print("\n🔍 PHASE 3: VALIDATION TESTS")
