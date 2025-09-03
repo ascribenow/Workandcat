@@ -128,7 +128,7 @@
 # END - Testing Protocol - DO NOT EDIT OR REMOVE THIS SECTION
 #====================================================================================================
 
-user_problem_statement: "Verify that the database schema updates and LLM prompt improvements are working correctly: 1) Database Schema Verification - Check that the new 'category' column exists in the questions table and is properly populated, 2) Test New Question Upload Workflow - Upload a test CSV with a simple question to verify that the enhanced LLM classification is working and storing the category field, 3) Session System Compatibility - Test /api/sessions/start to ensure the adaptive session logic can properly filter questions by category, 4) LLM Classification Quality - Verify that the updated LLM prompts are generating more specific and accurate classifications for type_of_question field."
+user_problem_statement: "Test that the email sender address has been successfully updated from costodigital@gmail.com to hello@twelvr.com: 1) Verify Gmail Service Configuration - Check that GmailService now uses hello@twelvr.com as sender, 2) Test Student-Facing Email Endpoints - Test all endpoints that send emails to students, 3) Verify Email Content - Ensure emails are properly formatted with new sender address, 4) Service Configuration Test - Verify GmailService instance has correct sender_email property."
 
 backend:
   - task: "Enhanced Enrichment Checker System with 100% Compliance Validation"
