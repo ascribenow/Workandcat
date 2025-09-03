@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import FeedbackModal from './FeedbackModal';
 
 const ContactUs = () => {
   const navigate = useNavigate();
