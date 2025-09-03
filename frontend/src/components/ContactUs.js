@@ -146,7 +146,7 @@ const ContactUs = () => {
                 "I want to suggest a new feature. How?"
               </h3>
               <p style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
-                We love feature requests! Email us at support@twelvr.com with "Feature Request" in the subject line. Be as detailed as you want - we read every single suggestion and many have made it into Twelvr.
+                We love feature requests! Email us at hello@twelvr.com with "Feature Request" in the subject line. Be as detailed as you want - we read every single suggestion and many have made it into Twelvr.
               </p>
             </div>
 
