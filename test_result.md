@@ -2773,9 +2773,8 @@ test_plan:
     - "Frontend Signin Issue Investigation - RESOLVED ✅"
     - "Database Cleanup Frontend Validation - VERIFIED ✅"
     - "Comprehensive UI Testing - COMPLETED ✅"
+    - "Feedback Submission System Testing - COMPLETED ✅"
   stuck_tasks: []
-    - "Session Management"
-    - "Question Creation with SQLite"
   test_all: false
   test_priority: "high_first"
 
