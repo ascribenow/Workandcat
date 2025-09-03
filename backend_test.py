@@ -1143,28 +1143,31 @@ class CATBackendTester:
         
         return success_rate >= 70  # Return True if enhanced checker validation is successful
 
-    def test_feedback_submission_system(self):
+    def test_email_sender_address_update(self):
         """
-        FEEDBACK SUBMISSION SYSTEM TESTING
-        Test the new /api/feedback endpoint with comprehensive validation and email integration
+        EMAIL SENDER ADDRESS UPDATE TESTING
+        Test that the email sender address has been successfully updated from costodigital@gmail.com to hello@twelvr.com
         """
-        print("📧 FEEDBACK SUBMISSION SYSTEM TESTING")
+        print("📧 EMAIL SENDER ADDRESS UPDATE TESTING")
         print("=" * 80)
-        print("OBJECTIVE: Test /api/feedback endpoint with validation and Gmail service integration")
+        print("OBJECTIVE: Verify that email sender address has been updated from costodigital@gmail.com to hello@twelvr.com")
         print("")
         print("TESTING OBJECTIVES:")
-        print("1. Test valid feedback submission with required field (1-1000 characters)")
-        print("2. Test optional email field functionality")
-        print("3. Test proper validation (feedback required, character limits)")
-        print("4. Test email sending from costodigital@gmail.com to hello@twelvr.com")
-        print("5. Test various edge cases and error scenarios")
+        print("1. Verify Gmail Service Configuration - Check that GmailService uses hello@twelvr.com as sender")
+        print("2. Test Student-Facing Email Endpoints - Test all endpoints that send emails to students")
+        print("3. Verify Email Content - Ensure emails are properly formatted with new sender address")
         print("")
-        print("TEST CASES:")
-        print("- Valid feedback with email")
-        print("- Valid feedback without email")
-        print("- Empty feedback (should fail)")
-        print("- Feedback over 1000 characters (should fail)")
-        print("- Invalid email format (should still work as it's optional)")
+        print("SPECIFIC TESTS:")
+        print("- Verification Email Test: POST /api/auth/send-verification-code")
+        print("- Password Reset Email Test: POST /api/auth/password-reset")
+        print("- Feedback Email Test: POST /api/feedback")
+        print("- Service Configuration Test: Verify GmailService instance has correct sender_email property")
+        print("")
+        print("EXPECTED BEHAVIOR:")
+        print("- All emails to students should now come from hello@twelvr.com")
+        print("- Email content should be properly formatted")
+        print("- No references to costodigital@gmail.com in student-facing communications")
+        print("- Gmail service should be properly configured with new sender address")
         print("=" * 80)
         
         feedback_results = {
