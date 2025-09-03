@@ -5577,42 +5577,42 @@ Find the compound interest on Rs. 1000 for 2 years at 10% per annum.,210"""
 
 def main():
     """Main function to run comprehensive backend testing"""
-    print("📧 STARTING EMAIL SENDER ADDRESS UPDATE TESTING - AS REQUESTED")
+    print("💳 STARTING RAZORPAY PAYMENT SERVICE AUTHENTICATION TESTING - AS REQUESTED")
     print("=" * 80)
     
     tester = CATBackendTester()
     
     try:
-        # Run Email Sender Address Update Testing (as per review request)
-        print("📧 EMAIL SENDER ADDRESS UPDATE COMPREHENSIVE TESTING")
-        email_sender_success = tester.test_email_sender_address_update()
+        # Run Razorpay Payment Service Authentication Testing (as per review request)
+        print("💳 RAZORPAY PAYMENT SERVICE AUTHENTICATION COMPREHENSIVE TESTING")
+        razorpay_success = tester.test_razorpay_payment_service_authentication()
         
         print("\n" + "=" * 80)
-        print("🏁 EMAIL SENDER ADDRESS UPDATE TESTING COMPLETED")
+        print("🏁 RAZORPAY PAYMENT SERVICE AUTHENTICATION TESTING COMPLETED")
         print("=" * 80)
         
-        print(f"\n📊 EMAIL SENDER ADDRESS UPDATE RESULTS:")
-        print(f"  Email Sender Address Update: {'✅ PASS' if email_sender_success else '❌ FAIL'}")
+        print(f"\n📊 RAZORPAY PAYMENT SERVICE AUTHENTICATION RESULTS:")
+        print(f"  Razorpay Payment Service Authentication: {'✅ PASS' if razorpay_success else '❌ FAIL'}")
         
-        if email_sender_success:
-            print("\n🎉 OVERALL RESULT: EMAIL SENDER ADDRESS UPDATE VALIDATION SUCCESSFUL!")
-            print("✅ Gmail service configured with hello@twelvr.com as sender")
-            print("✅ Verification email endpoint using correct sender address")
-            print("✅ Password reset email endpoint using correct sender address")
-            print("✅ Feedback email endpoint using correct sender address")
-            print("✅ No references to old costodigital@gmail.com address found")
-            print("✅ Email content properly formatted with new sender")
-            print("✅ Service configuration and integration working")
-            print("🏆 PRODUCTION READY - Email sender address successfully updated")
+        if razorpay_success:
+            print("\n🎉 OVERALL RESULT: RAZORPAY PAYMENT SERVICE AUTHENTICATION SUCCESSFUL!")
+            print("✅ Razorpay service properly initialized with authentication keys")
+            print("✅ Payment configuration endpoint returns proper Razorpay key_id")
+            print("✅ Pro Lite subscription creation endpoint accessible and functional")
+            print("✅ Pro Regular order creation endpoint accessible and functional")
+            print("✅ No 'Authentication key was missing during initialization' errors")
+            print("✅ Payment service can communicate with Razorpay API")
+            print("✅ Service health check passed")
+            print("🏆 PRODUCTION READY - Authentication key issue resolved")
         else:
-            print("\n❌ OVERALL RESULT: EMAIL SENDER ADDRESS UPDATE VALIDATION FAILED")
-            print("🚨 Critical issues detected with email sender address configuration")
+            print("\n❌ OVERALL RESULT: RAZORPAY PAYMENT SERVICE AUTHENTICATION FAILED")
+            print("🚨 Critical issues detected with Razorpay authentication configuration")
         
         print(f"\nTests Run: {tester.tests_run}")
         print(f"Tests Passed: {tester.tests_passed}")
         print(f"Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%")
         
-        return email_sender_success
+        return razorpay_success
         
     except Exception as e:
         print(f"\n❌ TESTING FAILED: {e}")
