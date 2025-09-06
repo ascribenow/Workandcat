@@ -1204,6 +1204,53 @@ async def get_referral_stats(
         logger.error(f"Error getting referral stats for {referral_code}: {e}")
         raise HTTPException(status_code=500, detail="Error retrieving referral statistics")
 
+class PaymentAmountVerificationRequest(BaseModel):
+    order_id: str
+    expected_amount: int
+    referral_code: Optional[str] = None
+
+@api_router.post("/admin/verify-payment-amount")
+async def verify_payment_amount(
+    request: PaymentAmountVerificationRequest,
+    current_user: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_async_compatible_db)
+):
+    """Verify payment amount calculation and referral code processing (Admin only)"""
+    try:
+        sync_db = db._session if hasattr(db, '_session') else db
+        
+        # Get payment order from database
+        order_result = sync_db.execute(
+            text("SELECT * FROM payment_orders WHERE razorpay_order_id = :order_id"),
+            {"order_id": request.order_id}
+        ).fetchone()
+        
+        if not order_result:
+            return {"error": "Payment order not found"}
+        
+        # Verify amounts match
+        amount_matches = order_result.amount == request.expected_amount
+        
+        # Check if referral code was used
+        referral_verification = {
+            "referral_code_provided": bool(request.referral_code),
+            "expected_discount": 500 if request.referral_code else 0,
+            "amount_matches_expectation": amount_matches
+        }
+        
+        return {
+            "verification_passed": amount_matches,
+            "order_amount": order_result.amount,
+            "expected_amount": request.expected_amount,
+            "plan_type": order_result.plan_type,
+            "referral_verification": referral_verification,
+            "order_created_at": order_result.created_at.isoformat() if order_result.created_at else None
+        }
+        
+    except Exception as e:
+        logger.error(f"Error verifying payment amount for order {request.order_id}: {e}")
+        raise HTTPException(status_code=500, detail="Error verifying payment amount")
+
 # ===========================================
 # END REFERRAL ENDPOINTS
 # ===========================================
