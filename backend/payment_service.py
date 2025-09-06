@@ -325,27 +325,29 @@ class RazorpayService:
                 if order:
                     plan_type = order.plan_type
                     
-                    # Set expiry based on plan type
+                    # Set subscription periods based on plan type
+                    current_period_start = datetime.utcnow()
+                    
                     if plan_type == "pro_regular":
-                        period_days = 30
-                        current_period_end = current_period_start + timedelta(days=period_days)
+                        # 30 days from subscription date
+                        current_period_end = current_period_start + timedelta(days=30)
                     elif plan_type == "pro_exclusive":
                         # Fixed end date: November 30, 2025 23:59 IST
-                        from datetime import datetime
                         import pytz
                         ist = pytz.timezone('Asia/Kolkata')
-                        current_period_end = ist.localize(datetime(2025, 11, 30, 23, 59, 0)).astimezone(pytz.UTC).replace(tzinfo=None)
+                        fixed_end = datetime(2025, 11, 30, 23, 59, 0)
+                        current_period_end = ist.localize(fixed_end).astimezone(pytz.UTC).replace(tzinfo=None)
                     else:
-                        period_days = 30
-                        current_period_end = current_period_start + timedelta(days=period_days)
+                        # Default: 30 days
+                        current_period_end = current_period_start + timedelta(days=30)
                     
                     subscription = Subscription(
                         user_id=user_id,
                         plan_type=plan_type,
                         amount=order.amount,
                         status="active",
-                        current_period_start=datetime.utcnow(),
-                        current_period_end=datetime.utcnow() + timedelta(days=period_days),
+                        current_period_start=current_period_start,
+                        current_period_end=current_period_end,
                         auto_renew=(plan_type == "pro_regular")
                     )
                     db.add(subscription)
