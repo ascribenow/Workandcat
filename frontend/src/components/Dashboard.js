@@ -409,34 +409,67 @@ const AdminPanel = () => {
   const [loadingReferrals, setLoadingReferrals] = useState(false);
   const [exportingReferrals, setExportingReferrals] = useState(false);
 
-  // Referral Dashboard Functions
-  const loadReferralDashboard = async () => {
+  // Referral Functions
+  const loadFilteredReferrals = async () => {
     setLoadingReferrals(true);
     try {
       const token = localStorage.getItem('cat_prep_token');
-      const response = await axios.get(`${API}/admin/referral-dashboard`, {
+      let url = `${API}/admin/referral-export?format=json`;
+      
+      // Add date filters if provided
+      const params = new URLSearchParams();
+      if (startDate) params.append('start_date', startDate);
+      if (endDate) params.append('end_date', endDate);
+      
+      if (params.toString()) {
+        url += '&' + params.toString();
+      }
+      
+      const response = await axios.get(url, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      setReferralDashboard(response.data);
+      
+      setReferralData(response.data.referral_data || []);
     } catch (error) {
-      console.error('Error loading referral dashboard:', error);
-      alert('❌ Failed to load referral dashboard');
+      console.error('Error loading referral data:', error);
+      alert('❌ Failed to load referral data');
     } finally {
       setLoadingReferrals(false);
     }
   };
 
-  const loadCashbackDue = async () => {
+  const searchReferralCode = async () => {
+    if (!searchCode || searchCode.length !== 6) {
+      alert('Please enter a valid 6-character referral code');
+      return;
+    }
+    
     setLoadingReferrals(true);
     try {
       const token = localStorage.getItem('cat_prep_token');
-      const response = await axios.get(`${API}/admin/cashback-due`, {
+      const response = await axios.get(`${API}/admin/referral-stats/${searchCode}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      setCashbackDue(response.data);
+      
+      // Convert the stats response to table format
+      if (response.data.recent_usage) {
+        const tableData = response.data.recent_usage.map(usage => ({
+          date: usage.created_at,
+          referral_code: searchCode,
+          referrer_name: response.data.owner?.full_name || '',
+          referrer_email: response.data.owner?.email || '',
+          used_by_email: usage.email,
+          usage_id: usage.user_id || 'N/A',
+          subscription_type: usage.subscription_type,
+          cashback_due: `₹${usage.discount_amount/100:.2f}`
+        }));
+        setReferralData(tableData);
+      } else {
+        setReferralData([]);
+      }
     } catch (error) {
-      console.error('Error loading cashback data:', error);
-      alert('❌ Failed to load cashback data');
+      console.error('Error searching referral code:', error);
+      alert('❌ Referral code not found or error occurred');
     } finally {
       setLoadingReferrals(false);
     }
