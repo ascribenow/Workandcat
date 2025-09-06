@@ -423,6 +423,73 @@ class ReferralUsage(Base):
     )
 
 
+# Payment and Subscription Tables
+
+class Subscription(Base):
+    """Subscriptions table - user subscription management"""
+    __tablename__ = "subscriptions"
+    
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = Column(String(36), ForeignKey("users.id"), nullable=False)
+    razorpay_subscription_id = Column(String(255), unique=True, nullable=True)
+    plan_type = Column(String(50), nullable=False)  # pro_regular or pro_exclusive
+    amount = Column(Integer, nullable=False)  # Amount in paise
+    status = Column(String(20), default="active")  # active, paused, cancelled, expired
+    current_period_start = Column(DateTime, nullable=False)
+    current_period_end = Column(DateTime, nullable=False)
+    auto_renew = Column(Boolean, default=False)
+    paused_at = Column(DateTime, nullable=True)  # When subscription was paused
+    paused_days_remaining = Column(Integer, nullable=True)  # Days remaining when paused
+    pause_count = Column(Integer, default=0)  # Track number of times paused
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    user = relationship("User", foreign_keys=[user_id])
+
+
+class PaymentOrder(Base):
+    """Payment Orders table - Razorpay order tracking"""
+    __tablename__ = "payment_orders"
+    
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = Column(String(36), ForeignKey("users.id"), nullable=False)
+    razorpay_order_id = Column(String(255), unique=True, nullable=False)
+    plan_type = Column(String(50), nullable=False)  # pro_regular or pro_exclusive
+    amount = Column(Integer, nullable=False)  # Amount in paise
+    currency = Column(String(10), default="INR")
+    status = Column(String(20), default="created")  # created, paid, failed, cancelled
+    receipt = Column(String(255), nullable=True)
+    notes = Column(JSON, default=dict)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    user = relationship("User", foreign_keys=[user_id])
+
+
+class PaymentTransaction(Base):
+    """Payment Transactions table - completed payment tracking"""
+    __tablename__ = "payment_transactions"
+    
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = Column(String(36), ForeignKey("users.id"), nullable=False)
+    razorpay_payment_id = Column(String(255), unique=True, nullable=False)
+    razorpay_order_id = Column(String(255), nullable=False)
+    amount = Column(Integer, nullable=False)  # Amount in paise
+    currency = Column(String(10), default="INR")
+    status = Column(String(20), nullable=False)  # captured, authorized, failed
+    method = Column(String(50), nullable=True)  # card, upi, netbanking, wallet
+    description = Column(Text, nullable=True)
+    notes = Column(JSON, default=dict)
+    fee = Column(Integer, nullable=True)
+    tax = Column(Integer, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    # Relationships
+    user = relationship("User", foreign_keys=[user_id])
+
+
 # Diagnostic System Tables
 
 class DiagnosticSet(Base):
