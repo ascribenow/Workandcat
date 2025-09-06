@@ -1363,7 +1363,7 @@ async def get_cashback_due(
                     u.referral_code,
                     COUNT(ru.id) as successful_referrals,
                     SUM(ru.discount_amount) as total_discount_given,
-                    (COUNT(ru.id) * 500) as total_cashback_due,
+                    (COUNT(ru.id) * 50000) as total_cashback_due,
                     STRING_AGG(ru.used_by_email, ', ') as referred_users,
                     MIN(ru.created_at) as first_referral_date,
                     MAX(ru.created_at) as latest_referral_date
