@@ -1111,6 +1111,101 @@ async def razorpay_webhook(request: Request):
 # END PAYMENT ENDPOINTS
 # ===========================================
 
+# ===========================================
+# REFERRAL SYSTEM ENDPOINTS
+# ===========================================
+
+class ReferralValidationRequest(BaseModel):
+    referral_code: str
+    user_email: str
+
+class ReferralValidationResponse(BaseModel):
+    valid: bool
+    can_use: bool
+    error: Optional[str] = None
+    referral_code: Optional[str] = None
+    referrer_name: Optional[str] = None
+    discount_amount: Optional[int] = None
+
+@api_router.post("/referral/validate", response_model=ReferralValidationResponse)
+async def validate_referral_code(
+    request: ReferralValidationRequest,
+    db: AsyncSession = Depends(get_async_compatible_db)
+):
+    """Validate a referral code for use by a specific user"""
+    try:
+        from referral_service import referral_service
+        
+        # Convert AsyncSession to regular session for referral service
+        sync_db = db._session if hasattr(db, '_session') else db
+        
+        result = referral_service.validate_referral_code(
+            request.referral_code, 
+            request.user_email, 
+            sync_db
+        )
+        
+        return ReferralValidationResponse(**result)
+        
+    except Exception as e:
+        logger.error(f"Error validating referral code {request.referral_code}: {e}")
+        return ReferralValidationResponse(
+            valid=False,
+            can_use=False,
+            error="An error occurred during validation"
+        )
+
+@api_router.get("/user/referral-code")
+async def get_user_referral_code(
+    current_user: User = Depends(require_auth),
+    db: AsyncSession = Depends(get_async_compatible_db)
+):
+    """Get the current user's referral code"""
+    try:
+        sync_db = db._session if hasattr(db, '_session') else db
+        
+        # Get user's referral code from database
+        result = sync_db.execute(
+            text("SELECT referral_code FROM users WHERE id = :user_id"),
+            {"user_id": current_user.id}
+        ).fetchone()
+        
+        if result and result.referral_code:
+            return {
+                "referral_code": result.referral_code,
+                "share_message": f"Use my referral code {result.referral_code} and get ₹500 off on Twelvr Pro subscription!"
+            }
+        else:
+            return {"error": "Referral code not found"}
+            
+    except Exception as e:
+        logger.error(f"Error getting referral code for user {current_user.id}: {e}")
+        raise HTTPException(status_code=500, detail="Error retrieving referral code")
+
+@api_router.get("/admin/referral-stats/{referral_code}")
+async def get_referral_stats(
+    referral_code: str,
+    current_user: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_async_compatible_db)
+):
+    """Get usage statistics for a referral code (Admin only)"""
+    try:
+        from referral_service import referral_service
+        
+        sync_db = db._session if hasattr(db, '_session') else db
+        
+        stats = referral_service.get_referral_usage_stats(referral_code, sync_db)
+        
+        return stats
+        
+    except Exception as e:
+        logger.error(f"Error getting referral stats for {referral_code}: {e}")
+        raise HTTPException(status_code=500, detail="Error retrieving referral statistics")
+
+# ===========================================
+# END REFERRAL ENDPOINTS
+# ===========================================
+
 @api_router.post("/questions")
 async def create_question(
     question_data: QuestionCreateRequest,
