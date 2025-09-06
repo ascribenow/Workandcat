@@ -110,6 +110,16 @@ class AuthService:
         await db.commit()
         await db.refresh(db_user)
         
+        # Generate referral code for the new user
+        try:
+            from referral_service import referral_service
+            # Convert AsyncSession to regular session for referral service
+            sync_db = db._session if hasattr(db, '_session') else db
+            referral_code = referral_service.assign_referral_code_to_user(str(db_user.id), sync_db)
+            logger.info(f"Generated referral code {referral_code} for new user {user_data.email}")
+        except Exception as e:
+            logger.warning(f"Failed to generate referral code for user {user_data.email}: {e}")
+        
         # Create response user object
         user = User(
             id=str(db_user.id),
