@@ -1665,8 +1665,8 @@ class CATBackendTester:
             category_total = len(tests)
             
             for test in tests:
-                if test in referral_system_results:
-                    result = referral_system_results[test]
+                if test in payment_referral_results:
+                    result = payment_referral_results[test]
                     status = "✅ PASS" if result else "❌ FAIL"
                     print(f"  {test.replace('_', ' ').title():<50} {status}")
                     if result:
