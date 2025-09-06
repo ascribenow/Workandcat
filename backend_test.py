@@ -2030,29 +2030,33 @@ class CATBackendTester:
             "AUTHENTICATION SETUP": [
                 "admin_authentication_working", "student_authentication_working"
             ],
-            "DATABASE SCHEMA FIXED (NEW - CRITICAL)": [
-                "payment_orders_table_accepts_receipt_column", "payment_order_creation_no_database_errors",
-                "database_schema_issue_resolved"
+            "DATABASE SCHEMA COMPLETELY FIXED (CRITICAL)": [
+                "payment_orders_table_complete_schema", "receipt_column_working", "notes_column_working",
+                "payment_order_creation_no_database_errors", "database_schema_issue_completely_resolved"
             ],
-            "PAYMENT AMOUNT DISPLAY VERIFICATION (MUST BE 100%)": [
+            "PAYMENT ORDER CREATION (CRITICAL)": [
+                "pro_regular_payment_creation_working", "pro_exclusive_payment_creation_working",
+                "payment_endpoints_functional", "payment_orders_stored_successfully"
+            ],
+            "PAYMENT AMOUNT DISPLAY VERIFICATION (CRITICAL)": [
                 "payment_response_includes_original_amount", "payment_response_includes_final_amount",
-                "payment_response_includes_discount_applied", "pro_regular_amount_calculation_correct",
-                "pro_exclusive_amount_calculation_correct", "payment_verification_shows_correct_calculations"
+                "payment_response_includes_discount_applied", "pro_regular_amount_calculation_perfect",
+                "pro_exclusive_amount_calculation_perfect", "payment_verification_shows_correct_calculations"
             ],
-            "RAZORPAY PARAMETER PASSING CONFIRMATION (MUST BE 100%)": [
-                "referral_code_explicitly_passed_in_notes", "discount_applied_flag_in_notes",
-                "referrer_cashback_due_in_notes", "final_amount_matches_discounted_calculation"
+            "RAZORPAY PARAMETER PASSING (CRITICAL)": [
+                "referral_code_stored_in_notes_json", "discount_applied_flag_in_notes",
+                "referrer_cashback_due_tracked_in_notes", "notes_json_structure_correct"
             ],
-            "END-TO-END PAYMENT FLOW VERIFICATION (MUST BE 100%)": [
-                "complete_payment_flow_with_referral_working", "database_tracking_includes_referral_info",
-                "payment_orders_store_correct_amounts", "payment_orders_store_referral_data"
+            "END-TO-END REFERRAL FLOW (CRITICAL)": [
+                "complete_payment_flow_with_referral_working", "referral_usage_tracking_in_database",
+                "all_referral_metadata_properly_stored", "end_to_end_referral_flow_perfect"
             ],
-            "REFERRAL CODE VALIDATION (MUST BE 100%)": [
+            "REFERRAL CODE VALIDATION (CRITICAL)": [
                 "referral_validate_endpoint_accessible", "valid_referral_code_validation_working",
                 "invalid_referral_code_proper_handling", "self_referral_prevention_enforced",
                 "one_time_usage_enforcement_working"
             ],
-            "PAYMENT CONFIGURATION AND INTEGRATION (MUST BE 100%)": [
+            "PAYMENT CONFIGURATION AND INTEGRATION (CRITICAL)": [
                 "payment_configuration_working", "razorpay_integration_functional"
             ]
         }
