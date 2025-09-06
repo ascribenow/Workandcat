@@ -26,7 +26,7 @@ export const PLAN_CONFIG = {
   [PLAN_TYPES.PRO_EXCLUSIVE]: {
     name: 'Pro Exclusive',
     amount: 256500, // ₹2,565 in paise
-    description: 'Best for the small time window to CAT 2025'
+    description: 'Access till Nov 30, 2025 with Ask Twelvr'
   }
 };
 
