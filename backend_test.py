@@ -1650,7 +1650,7 @@ class CATBackendTester:
             if success and response:
                 # If already used, should not be usable again
                 if not response.get("can_use"):
-                    referral_results["one_time_usage_enforcement"] = True
+                    referral_results["one_time_usage_enforcement_working"] = True
                     print(f"      ✅ One-time usage properly enforced")
                     print(f"         📊 Error: {response.get('error', 'Already used')}")
                 else:
