@@ -1282,7 +1282,6 @@ class CATBackendTester:
             # Payment Configuration (SUPPORTING)
             "payment_configuration_working": False,
             "razorpay_integration_functional": False
-            "invalid_referral_code_proper_handling": False,
             "self_referral_prevention_enforced": False,
             "one_time_usage_enforcement_working": False,
             
