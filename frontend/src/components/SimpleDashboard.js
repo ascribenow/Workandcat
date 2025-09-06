@@ -239,6 +239,11 @@ export const SimpleDashboard = () => {
             </div>
           </div>
         )}
+
+        {/* Subscription Management */}
+        <div className="mt-8">
+          <SubscriptionManagement />
+        </div>
         
       </div>
     </div>
