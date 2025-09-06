@@ -1682,10 +1682,10 @@ class CATBackendTester:
         print("\n🎯 PAYMENT REFERRAL SYSTEM SUCCESS ASSESSMENT:")
         
         # Check critical success criteria
-        business_rules = sum(referral_system_results[key] for key in testing_categories["BUSINESS RULE VALIDATION (CRITICAL)"])
-        mathematical_accuracy = sum(referral_system_results[key] for key in testing_categories["MATHEMATICAL ACCURACY (CRITICAL)"])
-        database_integration = sum(referral_system_results[key] for key in testing_categories["DATABASE INTEGRATION (CRITICAL)"])
-        api_validation = sum(referral_system_results[key] for key in testing_categories["API ENDPOINT VALIDATION (CRITICAL)"])
+        mathematical_accuracy = sum(payment_referral_results[key] for key in testing_categories["MATHEMATICAL ACCURACY VERIFICATION (CRITICAL)"])
+        business_rules = sum(payment_referral_results[key] for key in testing_categories["BUSINESS RULES VALIDATION (CRITICAL)"])
+        database_integration = sum(payment_referral_results[key] for key in testing_categories["DATABASE INTEGRATION (CRITICAL)"])
+        api_validation = sum(payment_referral_results[key] for key in testing_categories["API ENDPOINTS FULL FUNCTIONALITY (CRITICAL)"])
         
         print(f"\n📊 CRITICAL METRICS:")
         print(f"  Business Rule Validation: {business_rules}/5 ({(business_rules/5)*100:.1f}%)")
