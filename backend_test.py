@@ -1505,7 +1505,7 @@ class CATBackendTester:
             
             if success and response:
                 if not response.get("can_use"):
-                    referral_results["self_referral_prevention"] = True
+                    referral_results["self_referral_prevention_enforced"] = True
                     print(f"      ✅ Self-referral properly prevented")
                     print(f"         📊 Error: {response.get('error', 'Self-referral blocked')}")
         
