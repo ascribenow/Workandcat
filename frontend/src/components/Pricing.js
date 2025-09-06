@@ -354,10 +354,10 @@ const Pricing = () => {
 
             <div className="bg-gray-50 rounded-xl p-6">
               <h3 className="text-xl font-semibold mb-3" style={{ color: '#545454' }}>
-                What's the difference between Pro Lite and Pro Regular?
+                What's the difference between Pro Regular and Pro Exclusive?
               </h3>
               <p style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
-                Pro Lite gives you 30 days of unlimited sessions, perfect for focused monthly prep cycles. Pro Regular extends to 60 days with enhanced analytics and priority support, ideal for comprehensive CAT preparation.
+                Pro Regular gives you 30 days of unlimited sessions, perfect for focused monthly prep cycles. Pro Exclusive extends to 60 days with the exclusive Ask Twelvr feature for real-time doubt resolution, ideal for comprehensive CAT preparation.
               </p>
             </div>
 
