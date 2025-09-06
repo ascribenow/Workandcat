@@ -324,7 +324,20 @@ class RazorpayService:
                 # Create subscription record if order exists
                 if order:
                     plan_type = order.plan_type
-                    period_days = 30 if plan_type == "pro_regular" else 60
+                    
+                    # Set expiry based on plan type
+                    if plan_type == "pro_regular":
+                        period_days = 30
+                        current_period_end = current_period_start + timedelta(days=period_days)
+                    elif plan_type == "pro_exclusive":
+                        # Fixed end date: November 30, 2025 23:59 IST
+                        from datetime import datetime
+                        import pytz
+                        ist = pytz.timezone('Asia/Kolkata')
+                        current_period_end = ist.localize(datetime(2025, 11, 30, 23, 59, 0)).astimezone(pytz.UTC).replace(tzinfo=None)
+                    else:
+                        period_days = 30
+                        current_period_end = current_period_start + timedelta(days=period_days)
                     
                     subscription = Subscription(
                         user_id=user_id,
