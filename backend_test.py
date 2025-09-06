@@ -1714,15 +1714,8 @@ class CATBackendTester:
             print("   🚨 MAJOR PROBLEMS - Payment referral system needs significant fixes")
         
         return success_rate >= 95  # Return True if 95%+ success achieved
-            
-            # End-to-End Referral Flow (CRITICAL - FIXED)
-            "complete_payment_creation_with_referral_codes": False,
-            "referral_usage_tracking_in_database": False,
-            "all_calculations_mathematically_perfect": False,
-            "end_to_end_flow_working": False,
-            
-            # Referral Code Validation (SUPPORTING)
-            "referral_validate_endpoint_accessible": False,
+
+    def test_enhanced_enrichment_checker_system(self):
             "valid_referral_code_validation_working": False,
             "invalid_referral_code_proper_handling": False,
             "self_referral_prevention_enforced": False,
