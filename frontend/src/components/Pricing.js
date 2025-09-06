@@ -320,7 +320,7 @@ const Pricing = () => {
               planType="pro_exclusive"
               amount={256500}
               planName="Pro Exclusive"
-              description="Pro Exclusive - Unlimited sessions + Ask Twelvr till Nov 30, 2025"
+              description="Pro Exclusive - Unlimited sessions + Ask Twelvr till Dec 31, 2025"
               onSuccess={handlePaymentSuccess}
               onError={handlePaymentError}
             />
