@@ -125,6 +125,30 @@ class RazorpayService:
                 raise ValueError(f"Invalid plan type: {plan_type}")
             
             plan_config = self.plans[plan_type]
+            original_amount = plan_config["amount"]
+            final_amount = original_amount
+            referral_discount = 0
+            
+            # Apply referral discount if provided
+            if referral_code:
+                try:
+                    from referral_service import referral_service
+                    db = SessionLocal()
+                    try:
+                        discount_result = referral_service.apply_referral_discount(
+                            referral_code, user_id, user_email, plan_type, original_amount, db
+                        )
+                        if discount_result["success"]:
+                            final_amount = discount_result["discounted_amount"]
+                            referral_discount = discount_result["discount_applied"]
+                            logger.info(f"Applied referral discount: {referral_code}, discount: ₹{referral_discount/100:.2f}")
+                        else:
+                            logger.warning(f"Referral code validation failed: {discount_result.get('error')}")
+                    finally:
+                        db.close()
+                except Exception as e:
+                    logger.error(f"Error applying referral discount: {e}")
+                    # Continue without discount if referral service fails
             
             # Create Razorpay order with all payment methods enabled
             order_data = {
