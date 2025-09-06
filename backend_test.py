@@ -1145,33 +1145,35 @@ class CATBackendTester:
 
     def test_payment_referral_system_database_schema_fixed(self):
         """
-        FINAL 100% SUCCESS VERIFICATION: Test the payment referral system after fixing the database schema issue.
+        ULTIMATE 100% SUCCESS VERIFICATION - COMPLETE DATABASE SCHEMA FIXED: Test the payment referral system after fixing both missing columns.
 
-        **CONTEXT**: Successfully fixed the critical database schema issue:
-        - ✅ Added missing 'receipt' column to payment_orders table
+        **CONTEXT**: Successfully completed the database schema fix:
+        - ✅ Added missing 'receipt' column to payment_orders table (VARCHAR(255))
+        - ✅ Added missing 'notes' column to payment_orders table (JSON)
         - ✅ Backend restarted successfully
-        - ✅ Previous tests showed all referral logic working perfectly
+        - ✅ Database schema now complete with all required columns
 
-        **ULTIMATE VERIFICATION OBJECTIVES - MUST ACHIEVE 100%**:
+        **FINAL VERIFICATION OBJECTIVES - MUST ACHIEVE 100%**:
 
-        **1. Database Schema Fixed**:
-        - Verify payment_orders table now accepts new records with receipt column
+        **1. Payment Order Creation (CRITICAL)**:
         - Test payment order creation works without database errors
+        - Verify both Pro Regular and Pro Exclusive payment endpoints functional
+        - Confirm payment orders are stored successfully in database
 
-        **2. Payment Amount Display Verification**:
-        - Verify payment responses include original_amount, final_amount, discount_applied
-        - Confirm Pro Regular: ₹1,495 → ₹995 (₹500 discount)
-        - Confirm Pro Exclusive: ₹2,565 → ₹2,065 (₹500 discount)
+        **2. Payment Amount Display Verification (CRITICAL)**:
+        - Verify payment responses show original_amount, final_amount, discount_applied
+        - Confirm exact calculations: Pro Regular ₹1,495 → ₹995, Pro Exclusive ₹2,565 → ₹2,065
+        - Test payment_verification section shows correct data
 
-        **3. Razorpay Parameter Passing**:
-        - Verify referral_code in order notes
-        - Check discount_applied="yes/no" flag
-        - Confirm referrer_cashback_due="500" in notes
+        **3. Razorpay Parameter Passing (CRITICAL)**:
+        - Verify referral_code stored in order notes JSON
+        - Check discount_applied="yes/no" flag in notes
+        - Confirm referrer_cashback_due="500" tracked in notes
 
-        **4. Complete Payment Flow**:
-        - Test end-to-end payment creation with referral codes
-        - Verify database tracking stores all referral information
-        - Confirm payment verification endpoint works
+        **4. End-to-End Referral Flow (CRITICAL)**:
+        - Test complete payment creation with referral codes
+        - Verify referral usage tracking in database
+        - Confirm all referral metadata properly stored
 
         **AUTHENTICATION**:
         - Admin: sumedhprabhu18@gmail.com / admin2025
@@ -1179,48 +1181,54 @@ class CATBackendTester:
 
         **SUCCESS CRITERIA**:
         - **MUST achieve exactly 100% success rate**
-        - All payment creation must work without database errors
-        - Every amount calculation must be mathematically perfect
-        - All referral metadata must be tracked in Razorpay orders
+        - All payment endpoints must work without errors
+        - Every discount calculation must be mathematically perfect  
+        - All referral tracking must be complete and accurate
 
-        This is the ultimate verification after fixing the database schema. The referral system logic was already perfect - now with the schema fixed, we should achieve complete 100% success.
+        This is the final test after complete database schema fix. All components should now work perfectly to achieve 100% success rate for real money transaction reliability.
         """
-        print("💳 FINAL 100% SUCCESS VERIFICATION: Payment Referral System After Database Schema Fix")
+        print("💳 ULTIMATE 100% SUCCESS VERIFICATION - COMPLETE DATABASE SCHEMA FIXED")
         print("=" * 100)
-        print("CONTEXT: Successfully fixed the critical database schema issue:")
-        print("- ✅ Added missing 'receipt' column to payment_orders table")
+        print("CONTEXT: Successfully completed the database schema fix:")
+        print("- ✅ Added missing 'receipt' column to payment_orders table (VARCHAR(255))")
+        print("- ✅ Added missing 'notes' column to payment_orders table (JSON)")
         print("- ✅ Backend restarted successfully")
-        print("- ✅ Previous tests showed all referral logic working perfectly")
+        print("- ✅ Database schema now complete with all required columns")
         print("")
-        print("ULTIMATE VERIFICATION OBJECTIVES - MUST ACHIEVE 100%:")
+        print("FINAL VERIFICATION OBJECTIVES - MUST ACHIEVE 100%:")
         print("")
-        print("1. Database Schema Fixed:")
-        print("   - Verify payment_orders table now accepts new records with receipt column")
+        print("1. Payment Order Creation (CRITICAL):")
         print("   - Test payment order creation works without database errors")
+        print("   - Verify both Pro Regular and Pro Exclusive payment endpoints functional")
+        print("   - Confirm payment orders are stored successfully in database")
         print("")
-        print("2. Payment Amount Display Verification:")
-        print("   - Verify payment responses include original_amount, final_amount, discount_applied")
-        print("   - Confirm Pro Regular: ₹1,495 → ₹995 (₹500 discount)")
-        print("   - Confirm Pro Exclusive: ₹2,565 → ₹2,065 (₹500 discount)")
+        print("2. Payment Amount Display Verification (CRITICAL):")
+        print("   - Verify payment responses show original_amount, final_amount, discount_applied")
+        print("   - Confirm exact calculations: Pro Regular ₹1,495 → ₹995, Pro Exclusive ₹2,565 → ₹2,065")
+        print("   - Test payment_verification section shows correct data")
         print("")
-        print("3. Razorpay Parameter Passing:")
-        print("   - Verify referral_code in order notes")
-        print("   - Check discount_applied='yes/no' flag")
-        print("   - Confirm referrer_cashback_due='500' in notes")
+        print("3. Razorpay Parameter Passing (CRITICAL):")
+        print("   - Verify referral_code stored in order notes JSON")
+        print("   - Check discount_applied='yes/no' flag in notes")
+        print("   - Confirm referrer_cashback_due='500' tracked in notes")
         print("")
-        print("4. Complete Payment Flow:")
-        print("   - Test end-to-end payment creation with referral codes")
-        print("   - Verify database tracking stores all referral information")
-        print("   - Confirm payment verification endpoint works")
+        print("4. End-to-End Referral Flow (CRITICAL):")
+        print("   - Test complete payment creation with referral codes")
+        print("   - Verify referral usage tracking in database")
+        print("   - Confirm all referral metadata properly stored")
         print("")
         print("AUTHENTICATION:")
         print("- Admin: sumedhprabhu18@gmail.com / admin2025")
         print("- Student: sp@theskinmantra.com / student123")
         print("")
         print("SUCCESS CRITERIA: MUST achieve exactly 100% success rate")
-        print("This is the ultimate verification after fixing the database schema.")
-        print("The referral system logic was already perfect - now with the schema fixed,")
-        print("we should achieve complete 100% success.")
+        print("All payment endpoints must work without errors")
+        print("Every discount calculation must be mathematically perfect")
+        print("All referral tracking must be complete and accurate")
+        print("")
+        print("This is the final test after complete database schema fix.")
+        print("All components should now work perfectly to achieve 100% success rate")
+        print("for real money transaction reliability.")
         print("=" * 100)
         
         payment_referral_results = {
@@ -1228,39 +1236,47 @@ class CATBackendTester:
             "admin_authentication_working": False,
             "student_authentication_working": False,
             
-            # Database Schema Fixed (NEW - CRITICAL)
-            "payment_orders_table_accepts_receipt_column": False,
+            # Database Schema Completely Fixed (CRITICAL)
+            "payment_orders_table_complete_schema": False,
+            "receipt_column_working": False,
+            "notes_column_working": False,
             "payment_order_creation_no_database_errors": False,
-            "database_schema_issue_resolved": False,
+            "database_schema_issue_completely_resolved": False,
             
-            # Payment Amount Display Verification (MUST BE 100%)
+            # Payment Order Creation (CRITICAL)
+            "pro_regular_payment_creation_working": False,
+            "pro_exclusive_payment_creation_working": False,
+            "payment_endpoints_functional": False,
+            "payment_orders_stored_successfully": False,
+            
+            # Payment Amount Display Verification (CRITICAL)
             "payment_response_includes_original_amount": False,
             "payment_response_includes_final_amount": False,
             "payment_response_includes_discount_applied": False,
-            "pro_regular_amount_calculation_correct": False,  # ₹1,495 → ₹995
-            "pro_exclusive_amount_calculation_correct": False,  # ₹2,565 → ₹2,065
+            "pro_regular_amount_calculation_perfect": False,  # ₹1,495 → ₹995
+            "pro_exclusive_amount_calculation_perfect": False,  # ₹2,565 → ₹2,065
             "payment_verification_shows_correct_calculations": False,
             
-            # Razorpay Parameter Passing Confirmation (MUST BE 100%)
-            "referral_code_explicitly_passed_in_notes": False,
+            # Razorpay Parameter Passing (CRITICAL)
+            "referral_code_stored_in_notes_json": False,
             "discount_applied_flag_in_notes": False,
-            "referrer_cashback_due_in_notes": False,
-            "final_amount_matches_discounted_calculation": False,
+            "referrer_cashback_due_tracked_in_notes": False,
+            "notes_json_structure_correct": False,
             
-            # End-to-End Payment Flow Verification (MUST BE 100%)
+            # End-to-End Referral Flow (CRITICAL)
             "complete_payment_flow_with_referral_working": False,
-            "database_tracking_includes_referral_info": False,
-            "payment_orders_store_correct_amounts": False,
-            "payment_orders_store_referral_data": False,
+            "referral_usage_tracking_in_database": False,
+            "all_referral_metadata_properly_stored": False,
+            "end_to_end_referral_flow_perfect": False,
             
-            # Referral Code Validation (MUST BE 100%)
+            # Referral Code Validation (CRITICAL)
             "referral_validate_endpoint_accessible": False,
             "valid_referral_code_validation_working": False,
             "invalid_referral_code_proper_handling": False,
             "self_referral_prevention_enforced": False,
             "one_time_usage_enforcement_working": False,
             
-            # Payment Configuration and Integration (MUST BE 100%)
+            # Payment Configuration and Integration (CRITICAL)
             "payment_configuration_working": False,
             "razorpay_integration_functional": False
         }
