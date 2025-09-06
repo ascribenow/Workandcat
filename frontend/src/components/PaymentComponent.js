@@ -318,12 +318,12 @@ const PaymentComponent = ({ planType, amount, planName, description, onSuccess, 
                 <div className="text-right">
                   {referralValidation && referralValidation.valid && referralValidation.can_use ? (
                     <>
-                      <span className="text-gray-400 line-through text-sm">₹{amount}</span>
-                      <span className="text-green-600 font-bold text-lg ml-2">₹{calculateDiscountedAmount()}</span>
+                      <span className="text-gray-400 line-through text-sm">₹{(amount/100).toFixed(0)}</span>
+                      <span className="text-green-600 font-bold text-lg ml-2">₹{(calculateDiscountedAmount()/100).toFixed(0)}</span>
                       <div className="text-green-600 text-sm">₹500 referral discount applied!</div>
                     </>
                   ) : (
-                    <span className="text-lg font-bold">₹{amount}</span>
+                    <span className="text-lg font-bold">₹{(amount/100).toFixed(0)}</span>
                   )}
                 </div>
               </div>
