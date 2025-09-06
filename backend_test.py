@@ -1714,10 +1714,6 @@ class CATBackendTester:
             print("   🚨 MAJOR PROBLEMS - Payment referral system needs significant fixes")
         
         return success_rate >= 95  # Return True if 95%+ success achieved
-            "notes_json_contains_referral_code": False,
-            "notes_json_contains_discount_applied": False,
-            "notes_json_contains_referrer_cashback_due": False,
-            "database_tracking_complete": False,
             
             # End-to-End Referral Flow (CRITICAL - FIXED)
             "complete_payment_creation_with_referral_codes": False,
