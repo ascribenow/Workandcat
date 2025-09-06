@@ -1767,26 +1767,6 @@ class CATBackendTester:
             print("   🚨 MAJOR PROBLEMS - Discount calculation bug may not be fixed")
         
         return success_rate == 100  # Return True only if 100% success achieved
-            "user_name": "SP",
-            "user_phone": "+919876543210",
-            "referral_code": admin_referral_code
-        }
-        
-        success, response = self.run_test(
-            "Pro Exclusive Payment Creation", 
-            "POST", 
-            "payments/create-order", 
-            [200, 500], 
-            pro_exclusive_data, 
-            student_headers
-        )
-        
-        if success and response:
-            payment_referral_results["pro_exclusive_payment_creation_working"] = True
-            payment_referral_results["payment_orders_stored_successfully"] = True
-            print(f"      ✅ Pro Exclusive payment creation working")
-        else:
-            print(f"      ❌ Pro Exclusive payment creation failed")
         
         # PHASE 4: PAYMENT AMOUNT DISPLAY VERIFICATION (CRITICAL)
         print("\n💰 PHASE 4: PAYMENT AMOUNT DISPLAY VERIFICATION (CRITICAL)")
