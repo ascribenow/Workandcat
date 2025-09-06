@@ -1694,37 +1694,43 @@ class CATBackendTester:
         total_tests = len(referral_results)
         success_rate = (passed_tests / total_tests) * 100
         
-        # Group results by testing categories
+        # Group results by testing categories (using actual result keys)
         testing_categories = {
             "AUTHENTICATION SETUP": [
                 "admin_authentication_working", "student_authentication_working",
                 "admin_token_valid", "student_token_valid"
             ],
-            "DATABASE STRUCTURE VERIFICATION": [
-                "referral_usage_table_exists", "users_referral_code_column", 
-                "database_schema_correct"
+            "DATABASE STRUCTURE VERIFICATION (CRITICAL)": [
+                "payment_subscription_models_import_correctly", "referral_usage_table_accessible", 
+                "users_referral_code_column_exists", "database_schema_integrity", 
+                "subscription_access_service_imports"
             ],
-            "REFERRAL CODE GENERATION": [
-                "new_user_generates_referral_code", "referral_code_6_characters",
-                "referral_code_alphanumeric", "referral_code_uniqueness", 
-                "referral_code_stored_in_database"
+            "REFERRAL CODE GENERATION (CRITICAL)": [
+                "referral_code_generation_working", "referral_code_6_characters_format",
+                "referral_code_alphanumeric_validation", "referral_code_uniqueness_enforced", 
+                "referral_code_database_storage"
             ],
-            "REFERRAL CODE VALIDATION API": [
-                "referral_validate_endpoint_accessible", "valid_referral_code_validation",
-                "invalid_referral_code_handling", "self_referral_prevention", 
-                "one_time_usage_enforcement"
+            "REFERRAL CODE VALIDATION API (CRITICAL)": [
+                "referral_validate_endpoint_accessible", "valid_referral_code_validation_working",
+                "invalid_referral_code_proper_handling", "self_referral_prevention_enforced", 
+                "one_time_usage_enforcement_working"
             ],
-            "PAYMENT INTEGRATION": [
-                "payment_subscription_accepts_referral", "payment_order_accepts_referral",
-                "discount_calculation_correct", "referral_usage_tracked_in_db"
+            "PAYMENT INTEGRATION (CRITICAL - MUST BE 100%)": [
+                "pro_regular_subscription_accepts_referral", "pro_exclusive_order_accepts_referral",
+                "discount_calculation_exactly_500_rupees", "referral_usage_tracked_in_database",
+                "payment_flow_with_referral_complete"
             ],
-            "USER REFERRAL CODE RETRIEVAL": [
-                "user_referral_code_endpoint", "authenticated_user_gets_code", 
-                "referral_code_share_message"
+            "USER REFERRAL CODE RETRIEVAL (CRITICAL)": [
+                "user_referral_code_endpoint_working", "authenticated_user_gets_referral_code", 
+                "referral_code_share_message_correct"
             ],
-            "ERROR HANDLING AND EDGE CASES": [
-                "authentication_required_enforced", "invalid_referral_format_rejected",
-                "expired_referral_handling", "database_error_handling"
+            "SUBSCRIPTION ACCESS INTEGRATION (CRITICAL)": [
+                "subscription_access_service_functional", "feature_access_validation_working",
+                "session_limit_calculations_correct"
+            ],
+            "ERROR HANDLING AND EDGE CASES (CRITICAL)": [
+                "authentication_required_properly_enforced", "invalid_referral_format_properly_rejected",
+                "comprehensive_error_messages", "edge_case_handling_robust"
             ]
         }
         
