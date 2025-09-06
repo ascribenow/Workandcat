@@ -6673,7 +6673,7 @@ def main():
     try:
         # Run Student Referral Mechanism Testing (as per review request)
         print("🎯 STUDENT REFERRAL MECHANISM COMPREHENSIVE TESTING")
-        referral_success = tester.test_student_referral_mechanism()
+        referral_success = tester.test_student_referral_mechanism_critical_verification()
         
         print("\n" + "=" * 80)
         print("🏁 STUDENT REFERRAL MECHANISM TESTING COMPLETED")
