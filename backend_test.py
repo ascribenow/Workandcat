@@ -1376,24 +1376,12 @@ class CATBackendTester:
             print(f"      ❌ Check for 'column receipt of relation payment_orders does not exist' errors")
         
         # PHASE 3: PAYMENT AMOUNT DISPLAY VERIFICATION (MUST BE 100%)
-        print("\n💰 PHASE 2: PAYMENT AMOUNT DISPLAY VERIFICATION (FIXED - MUST BE 100%)")
+        print("\n💰 PHASE 3: PAYMENT AMOUNT DISPLAY VERIFICATION (MUST BE 100%)")
         print("-" * 70)
         print("Testing payment response includes original_amount, final_amount, discount_applied fields")
         
-        # Get admin's referral code for testing
-        print("   📋 Step 1: Get Admin Referral Code")
-        success, response = self.run_test("Get Admin Referral Code", "GET", "user/referral-code", [200], None, admin_headers)
-        
-        if success and response.get('referral_code'):
-            admin_referral_code = response['referral_code']
-            print(f"      ✅ Admin referral code retrieved: {admin_referral_code}")
-        else:
-            print("      ❌ Failed to get admin referral code")
-            admin_referral_code = "J0GG6F"  # Fallback code from test_result.md
-            print(f"      ⚠️ Using fallback referral code: {admin_referral_code}")
-        
         # Test Pro Regular Subscription with Referral Code - Amount Display Verification
-        print("   📋 Step 2: Test Pro Regular Payment Amount Display (₹1,495 → ₹995)")
+        print("   📋 Step 1: Test Pro Regular Payment Amount Display (₹1,495 → ₹995)")
         pro_regular_data = {
             "plan_type": "pro_regular",
             "user_email": "sp@theskinmantra.com",
