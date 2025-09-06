@@ -115,13 +115,13 @@ class SubscriptionAccessService:
         try:
             from database import Subscription
             
-            # Get active subscriptions that haven't expired
+            # Get active subscriptions that haven't expired (paused subscriptions don't grant access)
             now = datetime.utcnow()
             
             result = db.execute(
                 select(Subscription).where(
                     Subscription.user_id == user_id,
-                    Subscription.status == "active",
+                    Subscription.status == "active",  # Only active subscriptions grant access
                     Subscription.current_period_end > now
                 ).order_by(Subscription.created_at.desc())
             )
