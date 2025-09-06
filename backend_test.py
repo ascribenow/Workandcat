@@ -1435,7 +1435,7 @@ class CATBackendTester:
             print("      ❌ Pro Regular subscription creation failed")
         
         # Test Pro Exclusive Order with Referral Code - Amount Display Verification
-        print("   📋 Step 3: Test Pro Exclusive Payment Amount Display (₹2,565 → ₹2,065)")
+        print("   📋 Step 2: Test Pro Exclusive Payment Amount Display (₹2,565 → ₹2,065)")
         pro_exclusive_data = {
             "plan_type": "pro_exclusive",
             "user_email": "sp@theskinmantra.com",
