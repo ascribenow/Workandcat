@@ -1210,47 +1210,55 @@ class CATBackendTester:
         print("=" * 100)
         
         referral_results = {
-            # Authentication Setup
+            # Authentication Setup (CRITICAL)
             "admin_authentication_working": False,
             "student_authentication_working": False,
             "admin_token_valid": False,
             "student_token_valid": False,
             
-            # Database Structure Verification
-            "referral_usage_table_exists": False,
-            "users_referral_code_column": False,
-            "database_schema_correct": False,
+            # Database Structure Verification (CRITICAL)
+            "payment_subscription_models_import_correctly": False,
+            "referral_usage_table_accessible": False,
+            "users_referral_code_column_exists": False,
+            "database_schema_integrity": False,
+            "subscription_access_service_imports": False,
             
-            # Referral Code Generation Testing
-            "new_user_generates_referral_code": False,
-            "referral_code_6_characters": False,
-            "referral_code_alphanumeric": False,
-            "referral_code_uniqueness": False,
-            "referral_code_stored_in_database": False,
+            # Referral Code Generation Testing (CRITICAL)
+            "referral_code_generation_working": False,
+            "referral_code_6_characters_format": False,
+            "referral_code_alphanumeric_validation": False,
+            "referral_code_uniqueness_enforced": False,
+            "referral_code_database_storage": False,
             
-            # Referral Code Validation API Testing
+            # Referral Code Validation API Testing (CRITICAL)
             "referral_validate_endpoint_accessible": False,
-            "valid_referral_code_validation": False,
-            "invalid_referral_code_handling": False,
-            "self_referral_prevention": False,
-            "one_time_usage_enforcement": False,
+            "valid_referral_code_validation_working": False,
+            "invalid_referral_code_proper_handling": False,
+            "self_referral_prevention_enforced": False,
+            "one_time_usage_enforcement_working": False,
             
-            # Payment Integration Testing
-            "payment_subscription_accepts_referral": False,
-            "payment_order_accepts_referral": False,
-            "discount_calculation_correct": False,
-            "referral_usage_tracked_in_db": False,
+            # Payment Integration Testing (CRITICAL - MUST BE 100%)
+            "pro_regular_subscription_accepts_referral": False,
+            "pro_exclusive_order_accepts_referral": False,
+            "discount_calculation_exactly_500_rupees": False,
+            "referral_usage_tracked_in_database": False,
+            "payment_flow_with_referral_complete": False,
             
-            # User Referral Code Retrieval Testing
-            "user_referral_code_endpoint": False,
-            "authenticated_user_gets_code": False,
-            "referral_code_share_message": False,
+            # User Referral Code Retrieval Testing (CRITICAL)
+            "user_referral_code_endpoint_working": False,
+            "authenticated_user_gets_referral_code": False,
+            "referral_code_share_message_correct": False,
             
-            # Error Handling and Edge Cases
-            "authentication_required_enforced": False,
-            "invalid_referral_format_rejected": False,
-            "expired_referral_handling": False,
-            "database_error_handling": False
+            # Subscription Access Integration (CRITICAL)
+            "subscription_access_service_functional": False,
+            "feature_access_validation_working": False,
+            "session_limit_calculations_correct": False,
+            
+            # Error Handling and Edge Cases (CRITICAL)
+            "authentication_required_properly_enforced": False,
+            "invalid_referral_format_properly_rejected": False,
+            "comprehensive_error_messages": False,
+            "edge_case_handling_robust": False
         }
         
         # PHASE 1: AUTHENTICATION SETUP
