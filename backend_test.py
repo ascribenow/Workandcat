@@ -1243,8 +1243,7 @@ class CATBackendTester:
                 'Authorization': f'Bearer {admin_token}',
                 'Content-Type': 'application/json'
             }
-            referral_results["admin_authentication_working"] = True
-            referral_results["admin_token_valid"] = True
+            payment_referral_results["admin_authentication_working"] = True
             print(f"      ✅ Admin authentication successful")
             print(f"      📊 JWT Token length: {len(admin_token)} characters")
         else:
@@ -1260,28 +1259,20 @@ class CATBackendTester:
         success, response = self.run_test("Student Authentication", "POST", "auth/login", [200, 401], student_login_data)
         
         student_headers = None
-        student_user_id = None
         if success and response.get('access_token'):
             student_token = response['access_token']
             student_headers = {
                 'Authorization': f'Bearer {student_token}',
                 'Content-Type': 'application/json'
             }
-            referral_results["student_authentication_working"] = True
-            referral_results["student_token_valid"] = True
+            payment_referral_results["student_authentication_working"] = True
             print(f"      ✅ Student authentication successful")
             print(f"      📊 JWT Token length: {len(student_token)} characters")
-            
-            # Get student user info
-            success, me_response = self.run_test("Student User Info", "GET", "auth/me", 200, None, student_headers)
-            if success and me_response.get('id'):
-                student_user_id = me_response.get('id')
-                print(f"      📊 Student User ID: {student_user_id}")
         else:
             print("      ❌ Student authentication failed")
         
         if not (admin_headers and student_headers):
-            print("   ❌ Authentication setup failed - cannot proceed with referral testing")
+            print("   ❌ Authentication setup failed - cannot proceed with payment testing")
             return False
         
         # PHASE 2: DATABASE STRUCTURE VERIFICATION (CRITICAL)
