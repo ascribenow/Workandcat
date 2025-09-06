@@ -1463,8 +1463,8 @@ class CATBackendTester:
                 print(f"      📊 Expected discount: ₹{expected_discount/100} ({expected_discount} paise)")
                 
                 if actual_amount == expected_final_amount:
-                    referral_system_results["pro_regular_discount_calculation_perfect"] = True
-                    referral_system_results["discount_amount_exactly_50000_paise"] = True
+                    payment_referral_results["pro_regular_discount_calculation_perfect"] = True
+                    payment_referral_results["discount_amount_exactly_50000_paise"] = True
                     print(f"      ✅ Pro Regular discount calculation PERFECT")
                 else:
                     print(f"      ❌ Pro Regular discount calculation incorrect")
