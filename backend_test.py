@@ -1564,8 +1564,7 @@ class CATBackendTester:
             )
             
             if success and response:
-                referral_system_results["referral_validate_endpoint_working"] = True
-                referral_system_results["api_responses_accurate"] = True
+                payment_referral_results["referral_validate_endpoint_working"] = True
                 print(f"      ✅ Referral validation endpoint working perfectly")
                 
                 # Check response structure
