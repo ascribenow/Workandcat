@@ -107,10 +107,11 @@ class RazorpayService:
                 "name": "Pro Exclusive", 
                 "amount": 256500,  # ₹2,565 in paise
                 "interval": None,  # One-time payment
-                "period": 60,  # 60 days validity
-                "description": "Pro Exclusive - Unlimited sessions + Ask Twelvr for 60 days",
+                "period": "fixed_date",  # Fixed end date: Nov 30, 2025
+                "description": "Pro Exclusive - Unlimited sessions + Ask Twelvr till Nov 30, 2025",
                 "auto_renew": False,
-                "features": ["unlimited_sessions", "ask_twelvr"]
+                "features": ["unlimited_sessions", "ask_twelvr"],
+                "fixed_end_date": "2025-11-30 23:59:00"  # IST
             }
         }
 
