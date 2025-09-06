@@ -24,6 +24,41 @@ const PaymentComponent = ({ planType, amount, planName, description, onSuccess, 
     });
   };
 
+  const validateReferralCode = async (code) => {
+    if (!code || code.length !== 6) {
+      setReferralValidation(null);
+      return;
+    }
+
+    setValidatingReferral(true);
+    try {
+      const token = localStorage.getItem('cat_prep_token');
+      const response = await fetch(`${API}/referral/validate`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          referral_code: code,
+          user_email: user?.email || ''
+        })
+      });
+
+      const result = await response.json();
+      setReferralValidation(result);
+    } catch (error) {
+      console.error('Error validating referral code:', error);
+      setReferralValidation({
+        valid: false,
+        can_use: false,
+        error: 'Error validating referral code'
+      });
+    } finally {
+      setValidatingReferral(false);
+    }
+  };
+
   const handlePayment = async () => {
     console.log('Payment button clicked for plan:', planType);
     setLoading(true);
