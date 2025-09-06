@@ -1423,7 +1423,7 @@ async def export_referral_data(
                 ru.subscription_type,
                 ru.discount_amount,
                 ru.created_at,
-                500 as cashback_due
+                50000 as cashback_due
             FROM referral_usage ru
             LEFT JOIN users u ON u.referral_code = ru.referral_code
         """
