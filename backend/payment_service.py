@@ -461,6 +461,156 @@ class RazorpayService:
         except Exception as e:
             logger.error(f"Error cancelling subscription: {str(e)}")
             raise
+    
+    def pause_subscription(self, user_id: str) -> Dict[str, Any]:
+        """Pause user's active subscription"""
+        try:
+            with SessionLocal() as db:
+                # Find active subscription
+                subscription = db.query(Subscription).filter(
+                    Subscription.user_id == user_id,
+                    Subscription.status == "active"
+                ).first()
+                
+                if not subscription:
+                    return {
+                        "success": False,
+                        "error": "No active subscription found"
+                    }
+                
+                # Calculate remaining days
+                now = datetime.utcnow()
+                if subscription.current_period_end > now:
+                    remaining_days = (subscription.current_period_end - now).days
+                else:
+                    remaining_days = 0
+                
+                # Update subscription to paused status
+                subscription.status = "paused"
+                subscription.paused_at = now
+                subscription.paused_days_remaining = remaining_days
+                subscription.pause_count += 1
+                
+                db.commit()
+                
+                logger.info(f"Paused subscription {subscription.id} for user {user_id} with {remaining_days} days remaining")
+                
+                return {
+                    "success": True,
+                    "message": "Subscription paused successfully",
+                    "remaining_days": remaining_days,
+                    "paused_at": now.isoformat(),
+                    "can_resume": True
+                }
+                
+        except Exception as e:
+            logger.error(f"Error pausing subscription for user {user_id}: {e}")
+            return {
+                "success": False,
+                "error": str(e)
+            }
+    
+    def resume_subscription(self, user_id: str) -> Dict[str, Any]:
+        """Resume user's paused subscription with balance days calculation"""
+        try:
+            with SessionLocal() as db:
+                # Find paused subscription
+                subscription = db.query(Subscription).filter(
+                    Subscription.user_id == user_id,
+                    Subscription.status == "paused"
+                ).first()
+                
+                if not subscription:
+                    return {
+                        "success": False,
+                        "error": "No paused subscription found"
+                    }
+                
+                now = datetime.utcnow()
+                balance_days = subscription.paused_days_remaining or 0
+                
+                # Calculate new expiry: current_date + 30_days + balance_days
+                if subscription.plan_type == "pro_regular":
+                    new_end_date = now + timedelta(days=30 + balance_days)
+                elif subscription.plan_type == "pro_exclusive":
+                    # For Pro Exclusive, keep the fixed end date (Nov 30, 2025)
+                    import pytz
+                    ist = pytz.timezone('Asia/Kolkata')
+                    fixed_end = datetime(2025, 11, 30, 23, 59, 0)
+                    new_end_date = ist.localize(fixed_end).astimezone(pytz.UTC).replace(tzinfo=None)
+                else:
+                    new_end_date = now + timedelta(days=30 + balance_days)
+                
+                # Update subscription to active status
+                subscription.status = "active"
+                subscription.current_period_start = now
+                subscription.current_period_end = new_end_date
+                subscription.paused_at = None
+                subscription.paused_days_remaining = None
+                
+                db.commit()
+                
+                logger.info(f"Resumed subscription {subscription.id} for user {user_id} with {balance_days} balance days")
+                
+                return {
+                    "success": True,
+                    "message": "Subscription resumed successfully",
+                    "balance_days_added": balance_days,
+                    "new_expiry": new_end_date.isoformat(),
+                    "total_days": 30 + balance_days if subscription.plan_type == "pro_regular" else "Till Nov 30, 2025"
+                }
+                
+        except Exception as e:
+            logger.error(f"Error resuming subscription for user {user_id}: {e}")
+            return {
+                "success": False,
+                "error": str(e)
+            }
+    
+    def get_subscription_status(self, user_id: str) -> Dict[str, Any]:
+        """Get detailed subscription status including pause/resume info"""
+        try:
+            with SessionLocal() as db:
+                subscription = db.query(Subscription).filter(
+                    Subscription.user_id == user_id
+                ).order_by(Subscription.created_at.desc()).first()
+                
+                if not subscription:
+                    return {
+                        "success": True,
+                        "has_subscription": False,
+                        "subscription": None
+                    }
+                
+                now = datetime.utcnow()
+                
+                return {
+                    "success": True,
+                    "has_subscription": True,
+                    "subscription": {
+                        "id": subscription.id,
+                        "plan_type": subscription.plan_type,
+                        "status": subscription.status,
+                        "current_period_start": subscription.current_period_start.isoformat(),
+                        "current_period_end": subscription.current_period_end.isoformat(),
+                        "auto_renew": subscription.auto_renew,
+                        "is_active": subscription.status == "active" and subscription.current_period_end > now,
+                        "is_paused": subscription.status == "paused",
+                        "can_pause": subscription.status == "active" and subscription.plan_type == "pro_regular",
+                        "can_resume": subscription.status == "paused",
+                        "paused_at": subscription.paused_at.isoformat() if subscription.paused_at else None,
+                        "paused_days_remaining": subscription.paused_days_remaining,
+                        "pause_count": subscription.pause_count,
+                        "days_remaining": (subscription.current_period_end - now).days if subscription.current_period_end > now else 0
+                    }
+                }
+                
+        except Exception as e:
+            logger.error(f"Error getting subscription status for user {user_id}: {e}")
+            return {
+                "success": False,
+                "error": str(e)
+            }
 
 # Global instance
 razorpay_service = RazorpayService()
