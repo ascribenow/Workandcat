@@ -2542,14 +2542,8 @@ async def get_user_session_limit_status(
     current_user: User = Depends(require_auth),
     db: AsyncSession = Depends(get_async_compatible_db)
 ):
-    """Check if user has reached the 15-session limit for free trial"""
+    """Check user's session access based on subscription status"""
     try:
-        # First check if user email is in privileged list (bypass limits)
-        privileged_result = await db.execute(
-            select(PrivilegedEmail).where(PrivilegedEmail.email == current_user.email.lower())
-        )
-        is_privileged = privileged_result.scalar() is not None
-        
         # Get completed sessions count for the user
         sessions_result = await db.execute(
             select(func.count(Session.id))
@@ -2558,21 +2552,32 @@ async def get_user_session_limit_status(
         )
         completed_sessions = sessions_result.scalar() or 0
         
-        # Check user's subscription status - for now assume all users are on free trial unless privileged
-        # When payment system is fully integrated, check user's plan type here
-        is_free_trial = not is_privileged  # Privileged users bypass free trial limits
-        session_limit = None if is_privileged else 15  # None means unlimited for privileged users
-        
-        limit_reached = is_free_trial and completed_sessions >= 15
-        
-        return {
-            "completed_sessions": completed_sessions,
-            "session_limit": session_limit,
-            "limit_reached": limit_reached,
-            "is_free_trial": is_free_trial,
-            "is_privileged": is_privileged,
-            "sessions_remaining": max(0, 15 - completed_sessions) if is_free_trial else None
-        }
+        # Use subscription access service to check session access
+        # Convert AsyncSession to regular Session for the service
+        with SessionLocal() as sync_db:
+            session_access = subscription_access_service.check_session_access(
+                user_id=str(current_user.id),
+                user_email=current_user.email,
+                completed_sessions=completed_sessions,
+                db=sync_db
+            )
+            
+            access_level = session_access["access_level"]
+            
+            return {
+                "completed_sessions": completed_sessions,
+                "session_limit": access_level["session_limit"],
+                "limit_reached": session_access["limit_reached"],
+                "can_start_session": session_access["can_start_session"],
+                "sessions_remaining": session_access["sessions_remaining"],
+                "access_type": access_level["access_type"],
+                "plan_type": access_level["plan_type"],
+                "subscription_status": access_level["subscription_status"],
+                "unlimited_sessions": access_level["unlimited_sessions"],
+                "features": access_level["features"],
+                "expires_at": access_level.get("expires_at"),
+                "auto_renew": access_level.get("auto_renew", False)
+            }
         
     except Exception as e:
         logger.error(f"Error checking session limit status: {e}")
