@@ -260,11 +260,11 @@ backend:
 
   - task: "Student Referral Mechanism with Unique Codes and Payment Integration"
     implemented: true
-    working: true
+    working: false
     file: "/app/backend/referral_service.py, /app/backend/server.py, /app/backend/auth_service.py, /app/backend/payment_service.py, /app/backend/database.py"
-    stuck_count: 0
+    stuck_count: 1
     priority: "critical"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
         -working: true
         -agent: "testing"
