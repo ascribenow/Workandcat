@@ -1325,7 +1325,7 @@ class CATBackendTester:
                 'Authorization': f'Bearer {student_token}',
                 'Content-Type': 'application/json'
             }
-            referral_system_results["student_authentication_working"] = True
+            payment_referral_results["student_authentication_working"] = True
             print(f"   ✅ Student authentication successful")
             print(f"   📊 JWT Token length: {len(student_token)} characters")
         else:
