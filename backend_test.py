@@ -1369,10 +1369,44 @@ class CATBackendTester:
             admin_referral_code = "XTJC41"  # Fallback code from test_result.md
             print(f"      ⚠️ Using fallback referral code: {admin_referral_code}")
         
-        # PHASE 2: DATABASE SCHEMA COMPLETELY FIXED VERIFICATION (CRITICAL)
-        print("\n🗄️ PHASE 2: DATABASE SCHEMA COMPLETELY FIXED VERIFICATION (CRITICAL)")
+        # PHASE 2: REFERRAL CODE VALIDATION TESTING
+        print("\n🔍 PHASE 2: REFERRAL CODE VALIDATION TESTING")
+        print("-" * 60)
+        print("Testing referral code validation system before payment testing")
+        
+        # Test referral code validation endpoint
+        print("   📋 Step 1: Test Referral Code Validation Endpoint")
+        validation_data = {
+            "referral_code": admin_referral_code,
+            "user_email": "sp@theskinmantra.com"
+        }
+        
+        success, response = self.run_test(
+            "Referral Code Validation", 
+            "POST", 
+            "referral/validate", 
+            [200], 
+            validation_data
+        )
+        
+        if success and response:
+            discount_calculation_results["referral_validate_endpoint_accessible"] = True
+            print(f"      ✅ Referral validation endpoint accessible")
+            
+            if response.get('valid') and response.get('can_use'):
+                discount_calculation_results["valid_referral_code_validation_working"] = True
+                print(f"      ✅ Valid referral code validation working")
+                print(f"         📊 Referrer: {response.get('referrer_name', 'N/A')}")
+                print(f"         📊 Discount: ₹{response.get('discount_amount', 0)}")
+            else:
+                print(f"      ⚠️ Referral validation response: {response}")
+        else:
+            print(f"      ❌ Referral validation endpoint failed")
+        
+        # PHASE 3: DISCOUNT CALCULATION VERIFICATION (CRITICAL - FIXED)
+        print("\n💰 PHASE 3: DISCOUNT CALCULATION VERIFICATION (CRITICAL - FIXED)")
         print("-" * 70)
-        print("Testing that payment_orders table now accepts records with both receipt AND notes columns")
+        print("Testing the critical discount calculation bug fix: 500 → 50000 paise conversion")
         
         # Test database schema fix by creating payment orders
         print("   📋 Step 1: Test Payment Order Creation (Complete Database Schema Fix)")
