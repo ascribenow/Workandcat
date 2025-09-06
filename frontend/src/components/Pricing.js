@@ -252,7 +252,7 @@ const Pricing = () => {
             <div className="mb-6 mt-4">
               <h3 className="text-2xl font-bold mb-2" style={{ color: '#545454' }}>Pro Exclusive</h3>
               <p className="text-gray-600" style={{ fontFamily: 'Lato, sans-serif' }}>
-                Best for the small time window to CAT 2025
+                Crafted for CAT 2025 quick prep
               </p>
             </div>
             
