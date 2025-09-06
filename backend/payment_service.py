@@ -195,6 +195,12 @@ class RazorpayService:
                     "name": user_name,
                     "email": user_email,
                     "contact": user_phone or ""
+                },
+                "referral_info": {
+                    "code_used": referral_code or "",
+                    "original_amount": original_amount,
+                    "discount_applied": referral_discount,
+                    "final_amount": final_amount
                 }
             }
             
