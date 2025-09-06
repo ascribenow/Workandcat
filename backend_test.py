@@ -1143,72 +1143,85 @@ class CATBackendTester:
         
         return success_rate == 100  # Return True only if 100% success achieved
 
-    def test_payment_referral_system_100_percent_verification(self):
+    def test_payment_referral_system_database_schema_fixed(self):
         """
-        ULTIMATE 100% SUCCESS VERIFICATION: Test the payment referral system after fixing payment amount display and Razorpay parameter passing issues.
+        FINAL 100% SUCCESS VERIFICATION: Test the payment referral system after fixing the database schema issue.
 
-        **CONTEXT**: Fixed the remaining 12.5% issues:
-        1. ✅ **Payment Response Enhancement**: Added clear amount verification with original_amount, final_amount, discount_applied fields
-        2. ✅ **Razorpay Parameter Verification**: Enhanced order notes with explicit referral tracking including referrer_cashback_due, discount_applied flags
-        3. ✅ **Payment Verification Endpoint**: Added admin endpoint to verify payment amounts and referral processing
+        **CONTEXT**: Successfully fixed the critical database schema issue:
+        - ✅ Added missing 'receipt' column to payment_orders table
+        - ✅ Backend restarted successfully
+        - ✅ Previous tests showed all referral logic working perfectly
 
-        **CRITICAL VERIFICATION OBJECTIVES - MUST ACHIEVE 100%**:
+        **ULTIMATE VERIFICATION OBJECTIVES - MUST ACHIEVE 100%**:
 
-        **1. Payment Amount Display Verification (FIXED)**:
-        - Test payment response includes original_amount, final_amount, discount_applied fields
-        - Verify Pro Regular: ₹1,495 → ₹995 (with ₹500 referral discount)
-        - Verify Pro Exclusive: ₹2,565 → ₹2,065 (with ₹500 referral discount)
-        - Confirm payment_verification section shows correct calculations
+        **1. Database Schema Fixed**:
+        - Verify payment_orders table now accepts new records with receipt column
+        - Test payment order creation works without database errors
 
-        **2. Razorpay Parameter Passing Confirmation (FIXED)**:
-        - Verify referral_code is explicitly passed in order notes
-        - Check discount_applied="yes/no" flag in notes
-        - Confirm referrer_cashback_due="500/0" in notes
-        - Validate final_amount matches discounted calculation
+        **2. Payment Amount Display Verification**:
+        - Verify payment responses include original_amount, final_amount, discount_applied
+        - Confirm Pro Regular: ₹1,495 → ₹995 (₹500 discount)
+        - Confirm Pro Exclusive: ₹2,565 → ₹2,065 (₹500 discount)
 
-        **3. End-to-End Payment Flow Verification**:
-        - Test complete payment flow with referral codes
-        - Verify database tracking includes all referral information
-        - Confirm payment orders store correct amounts and referral data
+        **3. Razorpay Parameter Passing**:
+        - Verify referral_code in order notes
+        - Check discount_applied="yes/no" flag
+        - Confirm referrer_cashback_due="500" in notes
+
+        **4. Complete Payment Flow**:
+        - Test end-to-end payment creation with referral codes
+        - Verify database tracking stores all referral information
+        - Confirm payment verification endpoint works
+
+        **AUTHENTICATION**:
+        - Admin: sumedhprabhu18@gmail.com / admin2025
+        - Student: sp@theskinmantra.com / student123
 
         **SUCCESS CRITERIA**:
-        - **MUST achieve 100% success rate (no failures)**
-        - Every payment amount calculation must be mathematically verified
-        - All referral codes must be explicitly tracked in Razorpay parameters
-        - Payment responses must show clear original vs discounted amounts
+        - **MUST achieve exactly 100% success rate**
+        - All payment creation must work without database errors
+        - Every amount calculation must be mathematically perfect
+        - All referral metadata must be tracked in Razorpay orders
+
+        This is the ultimate verification after fixing the database schema. The referral system logic was already perfect - now with the schema fixed, we should achieve complete 100% success.
         """
-        print("💳 ULTIMATE 100% SUCCESS VERIFICATION: Payment Referral System After Fixes")
-        print("=" * 90)
-        print("CONTEXT: Fixed the remaining 12.5% issues:")
-        print("1. ✅ Payment Response Enhancement: Added clear amount verification with original_amount, final_amount, discount_applied fields")
-        print("2. ✅ Razorpay Parameter Verification: Enhanced order notes with explicit referral tracking")
-        print("3. ✅ Payment Verification Endpoint: Added admin endpoint to verify payment amounts and referral processing")
+        print("💳 FINAL 100% SUCCESS VERIFICATION: Payment Referral System After Database Schema Fix")
+        print("=" * 100)
+        print("CONTEXT: Successfully fixed the critical database schema issue:")
+        print("- ✅ Added missing 'receipt' column to payment_orders table")
+        print("- ✅ Backend restarted successfully")
+        print("- ✅ Previous tests showed all referral logic working perfectly")
         print("")
-        print("CRITICAL VERIFICATION OBJECTIVES - MUST ACHIEVE 100%:")
+        print("ULTIMATE VERIFICATION OBJECTIVES - MUST ACHIEVE 100%:")
         print("")
-        print("1. Payment Amount Display Verification (FIXED):")
-        print("   - Test payment response includes original_amount, final_amount, discount_applied fields")
-        print("   - Verify Pro Regular: ₹1,495 → ₹995 (with ₹500 referral discount)")
-        print("   - Verify Pro Exclusive: ₹2,565 → ₹2,065 (with ₹500 referral discount)")
-        print("   - Confirm payment_verification section shows correct calculations")
+        print("1. Database Schema Fixed:")
+        print("   - Verify payment_orders table now accepts new records with receipt column")
+        print("   - Test payment order creation works without database errors")
         print("")
-        print("2. Razorpay Parameter Passing Confirmation (FIXED):")
-        print("   - Verify referral_code is explicitly passed in order notes")
-        print("   - Check discount_applied='yes/no' flag in notes")
-        print("   - Confirm referrer_cashback_due='500/0' in notes")
-        print("   - Validate final_amount matches discounted calculation")
+        print("2. Payment Amount Display Verification:")
+        print("   - Verify payment responses include original_amount, final_amount, discount_applied")
+        print("   - Confirm Pro Regular: ₹1,495 → ₹995 (₹500 discount)")
+        print("   - Confirm Pro Exclusive: ₹2,565 → ₹2,065 (₹500 discount)")
         print("")
-        print("3. End-to-End Payment Flow Verification:")
-        print("   - Test complete payment flow with referral codes")
-        print("   - Verify database tracking includes all referral information")
-        print("   - Confirm payment orders store correct amounts and referral data")
+        print("3. Razorpay Parameter Passing:")
+        print("   - Verify referral_code in order notes")
+        print("   - Check discount_applied='yes/no' flag")
+        print("   - Confirm referrer_cashback_due='500' in notes")
+        print("")
+        print("4. Complete Payment Flow:")
+        print("   - Test end-to-end payment creation with referral codes")
+        print("   - Verify database tracking stores all referral information")
+        print("   - Confirm payment verification endpoint works")
         print("")
         print("AUTHENTICATION:")
         print("- Admin: sumedhprabhu18@gmail.com / admin2025")
         print("- Student: sp@theskinmantra.com / student123")
         print("")
-        print("SUCCESS CRITERIA: MUST achieve 100% success rate (no failures)")
-        print("=" * 90)
+        print("SUCCESS CRITERIA: MUST achieve exactly 100% success rate")
+        print("This is the ultimate verification after fixing the database schema.")
+        print("The referral system logic was already perfect - now with the schema fixed,")
+        print("we should achieve complete 100% success.")
+        print("=" * 100)
         
         payment_referral_results = {
             # Authentication Setup (CRITICAL)
