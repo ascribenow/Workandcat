@@ -5131,6 +5131,30 @@ async def test_enhanced_session_logic(
         logger.error(f"Error testing enhanced session logic: {e}")
         raise HTTPException(status_code=500, detail=f"Enhanced session test failed: {str(e)}")
 
+@api_router.post("/admin/expire-subscriptions")
+async def expire_subscriptions_job(
+    current_user: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_async_compatible_db)
+):
+    """Manually trigger subscription expiry job (Admin only)"""
+    try:
+        with SessionLocal() as sync_db:
+            result = subscription_access_service.expire_subscriptions(sync_db)
+            
+        if result["success"]:
+            logger.info(f"Subscription expiry job completed: {result['expired_count']} expired, {result['auto_renewed_count']} renewed")
+            return {
+                "success": True,
+                "message": f"Processed subscriptions: {result['expired_count']} expired, {result['auto_renewed_count']} auto-renewed",
+                "details": result
+            }
+        else:
+            raise HTTPException(status_code=500, detail=f"Subscription expiry job failed: {result['error']}")
+            
+    except Exception as e:
+        logger.error(f"Error running subscription expiry job: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 # Background Tasks
 
 async def enrich_question_background(question_id: str, hint_category: str = None, hint_subcategory: str = None):
