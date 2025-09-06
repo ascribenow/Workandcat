@@ -6967,9 +6967,9 @@ def main():
     tester = CATBackendTester()
     
     try:
-        # Run Payment Referral System 100% Verification (after fixes)
-        print("💳 PAYMENT REFERRAL SYSTEM 100% VERIFICATION AFTER FIXES")
-        payment_success = tester.test_payment_referral_system_100_percent_verification()
+        # Run Payment Referral System Database Schema Fixed Verification
+        print("💳 PAYMENT REFERRAL SYSTEM DATABASE SCHEMA FIXED VERIFICATION")
+        payment_success = tester.test_payment_referral_system_database_schema_fixed()
         
         print("\n" + "=" * 90)
         print("🏁 PAYMENT REFERRAL SYSTEM TESTING COMPLETED")
