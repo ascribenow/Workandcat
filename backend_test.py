@@ -1215,25 +1215,36 @@ class CATBackendTester:
             "admin_authentication_working": False,
             "student_authentication_working": False,
             
-            # Referral Code Validation API (CRITICAL - MUST BE 100%)
+            # Payment Amount Display Verification (FIXED - MUST BE 100%)
+            "payment_response_includes_original_amount": False,
+            "payment_response_includes_final_amount": False,
+            "payment_response_includes_discount_applied": False,
+            "pro_regular_amount_calculation_correct": False,  # ₹1,495 → ₹995
+            "pro_exclusive_amount_calculation_correct": False,  # ₹2,565 → ₹2,065
+            "payment_verification_shows_correct_calculations": False,
+            
+            # Razorpay Parameter Passing Confirmation (FIXED - MUST BE 100%)
+            "referral_code_explicitly_passed_in_notes": False,
+            "discount_applied_flag_in_notes": False,
+            "referrer_cashback_due_in_notes": False,
+            "final_amount_matches_discounted_calculation": False,
+            
+            # End-to-End Payment Flow Verification (MUST BE 100%)
+            "complete_payment_flow_with_referral_working": False,
+            "database_tracking_includes_referral_info": False,
+            "payment_orders_store_correct_amounts": False,
+            "payment_orders_store_referral_data": False,
+            
+            # Referral Code Validation (MUST BE 100%)
             "referral_validate_endpoint_accessible": False,
             "valid_referral_code_validation_working": False,
             "invalid_referral_code_proper_handling": False,
             "self_referral_prevention_enforced": False,
             "one_time_usage_enforcement_working": False,
             
-            # Payment Endpoints with Referral Codes (CRITICAL - MUST BE 100%)
-            "pro_regular_subscription_accepts_referral": False,
-            "pro_exclusive_order_accepts_referral": False,
-            "discount_calculation_exactly_500_rupees": False,
-            "payment_amounts_correct_after_discount": False,
-            "referral_code_passed_to_razorpay": False,
-            
-            # Payment Integration Reliability (CRITICAL - MUST BE 100%)
-            "payment_flow_with_referral_complete": False,
-            "referral_usage_tracked_in_database": False,
-            "discount_application_in_payment_flow": False,
-            "payment_configuration_working": False
+            # Payment Configuration and Integration (MUST BE 100%)
+            "payment_configuration_working": False,
+            "razorpay_integration_functional": False
         }
         
         # PHASE 1: AUTHENTICATION SETUP
