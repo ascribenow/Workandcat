@@ -964,14 +964,14 @@ async def create_payment_order(order_request: CreateOrderRequest, current_user: 
     try:
         user_id = str(current_user.id)
         
-        if order_request.plan_type not in ["pro_lite", "pro_regular"]:
+        if order_request.plan_type not in ["pro_regular", "pro_exclusive"]:
             raise HTTPException(status_code=400, detail="Invalid plan type")
         
-        # For Pro Lite, redirect to subscription
-        if order_request.plan_type == "pro_lite":
+        # For Pro Regular, redirect to subscription
+        if order_request.plan_type == "pro_regular":
             raise HTTPException(
                 status_code=400, 
-                detail="Pro Lite requires subscription. Use /api/payments/create-subscription endpoint"
+                detail="Pro Regular requires subscription. Use /api/payments/create-subscription endpoint"
             )
         
         order = await razorpay_service.create_order(
