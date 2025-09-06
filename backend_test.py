@@ -1678,7 +1678,7 @@ class CATBackendTester:
         
         if success and response:
             if not response.get("valid"):
-                referral_results["invalid_referral_format_rejected"] = True
+                referral_results["invalid_referral_format_properly_rejected"] = True
                 print(f"      ✅ Invalid referral format properly rejected")
         
         # Test database error handling
