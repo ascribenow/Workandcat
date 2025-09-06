@@ -828,7 +828,7 @@ ${response.data.errors > 0 ? '⚠️ Check the logs for error details.' : ''}`);
                 🔐 Privileges
               </button>
               <button
-                onClick={() => setActiveTab('referral-tracker')}
+                onClick={() => handleTabChange('referral-tracker')}
                 className={`py-4 text-lg font-medium transition-colors ${
                   activeTab === 'referral-tracker' 
                     ? 'text-[#9ac026] border-b-2 border-[#9ac026]' 
