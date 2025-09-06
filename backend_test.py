@@ -1614,8 +1614,8 @@ class CATBackendTester:
         critical_tests_passed = sum(payment_referral_results[test] for test in total_critical_tests)
         
         if critical_tests_passed >= 7:  # At least 7 out of 8 critical tests
-            referral_system_results["end_to_end_referral_flow_working"] = True
-            referral_system_results["production_readiness_confirmed"] = True
+            payment_referral_results["end_to_end_referral_flow_working"] = True
+            payment_referral_results["production_readiness_confirmed"] = True
             print(f"   ✅ End-to-end referral flow working perfectly")
             print(f"   📊 Critical tests passed: {critical_tests_passed}/{len(total_critical_tests)}")
         else:
