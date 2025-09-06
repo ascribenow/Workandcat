@@ -15,7 +15,7 @@ const Pricing = () => {
     if (planContext) {
       setHighlightedPlan(planContext.planType);
       setPaymentStatus({
-        message: `Complete your ${planContext.planType === PLAN_TYPES.PRO_LITE ? 'Pro Lite' : 'Pro Regular'} purchase within ${Math.floor((planContext.expiresAt - Date.now()) / (60 * 1000))} minutes.`,
+        message: `Complete your ${planContext.planType === PLAN_TYPES.PRO_REGULAR ? 'Pro Regular' : 'Pro Exclusive'} purchase within ${Math.floor((planContext.expiresAt - Date.now()) / (60 * 1000))} minutes.`,
         type: 'info'
       });
       
