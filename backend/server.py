@@ -1314,7 +1314,7 @@ async def get_referral_dashboard(
                 "total_referral_codes_used": overall_stats.total_referral_codes_used or 0,
                 "total_referral_usage": overall_stats.total_referral_usage or 0,
                 "total_discount_given": f"₹{(overall_stats.total_discount_given or 0)/100:.2f}",
-                "total_cashback_due": f"₹{(overall_stats.total_referral_usage or 0) * 5:.2f}",
+                "total_cashback_due": f"₹{(overall_stats.total_referral_usage or 0) * 500:.2f}",
                 "pro_regular_uses": overall_stats.pro_regular_uses or 0,
                 "pro_exclusive_uses": overall_stats.pro_exclusive_uses or 0
             },
