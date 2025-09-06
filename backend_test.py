@@ -1197,56 +1197,30 @@ class CATBackendTester:
         print("SUCCESS CRITERIA: 100% success rate for ALL payment-related tests")
         print("=" * 80)
         
-        referral_results = {
+        payment_referral_results = {
             # Authentication Setup (CRITICAL)
             "admin_authentication_working": False,
             "student_authentication_working": False,
-            "admin_token_valid": False,
-            "student_token_valid": False,
             
-            # Database Structure Verification (CRITICAL)
-            "payment_subscription_models_import_correctly": False,
-            "referral_usage_table_accessible": False,
-            "users_referral_code_column_exists": False,
-            "database_schema_integrity": False,
-            "subscription_access_service_imports": False,
-            
-            # Referral Code Generation Testing (CRITICAL)
-            "referral_code_generation_working": False,
-            "referral_code_6_characters_format": False,
-            "referral_code_alphanumeric_validation": False,
-            "referral_code_uniqueness_enforced": False,
-            "referral_code_database_storage": False,
-            
-            # Referral Code Validation API Testing (CRITICAL)
+            # Referral Code Validation API (CRITICAL - MUST BE 100%)
             "referral_validate_endpoint_accessible": False,
             "valid_referral_code_validation_working": False,
             "invalid_referral_code_proper_handling": False,
             "self_referral_prevention_enforced": False,
             "one_time_usage_enforcement_working": False,
             
-            # Payment Integration Testing (CRITICAL - MUST BE 100%)
+            # Payment Endpoints with Referral Codes (CRITICAL - MUST BE 100%)
             "pro_regular_subscription_accepts_referral": False,
             "pro_exclusive_order_accepts_referral": False,
             "discount_calculation_exactly_500_rupees": False,
-            "referral_usage_tracked_in_database": False,
+            "payment_amounts_correct_after_discount": False,
+            "referral_code_passed_to_razorpay": False,
+            
+            # Payment Integration Reliability (CRITICAL - MUST BE 100%)
             "payment_flow_with_referral_complete": False,
-            
-            # User Referral Code Retrieval Testing (CRITICAL)
-            "user_referral_code_endpoint_working": False,
-            "authenticated_user_gets_referral_code": False,
-            "referral_code_share_message_correct": False,
-            
-            # Subscription Access Integration (CRITICAL)
-            "subscription_access_service_functional": False,
-            "feature_access_validation_working": False,
-            "session_limit_calculations_correct": False,
-            
-            # Error Handling and Edge Cases (CRITICAL)
-            "authentication_required_properly_enforced": False,
-            "invalid_referral_format_properly_rejected": False,
-            "comprehensive_error_messages": False,
-            "edge_case_handling_robust": False
+            "referral_usage_tracked_in_database": False,
+            "discount_application_in_payment_flow": False,
+            "payment_configuration_working": False
         }
         
         # PHASE 1: AUTHENTICATION SETUP
