@@ -7,6 +7,7 @@ const PaymentComponent = ({ planType, amount, planName, description, onSuccess, 
   const [referralCode, setReferralCode] = useState('');
   const [validatingReferral, setValidatingReferral] = useState(false);
   const [referralValidation, setReferralValidation] = useState(null);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
 
   const loadRazorpayScript = () => {
     return new Promise((resolve) => {
