@@ -1046,42 +1046,35 @@ class CATBackendTester:
         print("💳 PAYMENT REFERRAL SYSTEM - ULTIMATE 100% SUCCESS VERIFICATION RESULTS")
         print("=" * 90)
         
-        passed_tests = sum(enhanced_checker_results.values())
-        total_tests = len(enhanced_checker_results)
+        passed_tests = sum(payment_referral_results.values())
+        total_tests = len(payment_referral_results)
         success_rate = (passed_tests / total_tests) * 100
         
         # Group results by testing categories
         testing_categories = {
-            "ENHANCED CHECKER INTEGRATION": [
-                "enhanced_checker_service_integrated", "regular_questions_checker_endpoint", 
-                "pyq_questions_checker_endpoint", "background_job_integration"
+            "AUTHENTICATION SETUP": [
+                "admin_authentication_working", "student_authentication_working"
             ],
-            "CANONICAL TAXONOMY VALIDATION": [
-                "canonical_categories_enforced", "canonical_subcategories_enforced",
-                "invalid_taxonomy_rejected", "a_e_format_validation"
+            "PAYMENT AMOUNT DISPLAY VERIFICATION (FIXED)": [
+                "payment_response_includes_original_amount", "payment_response_includes_final_amount",
+                "payment_response_includes_discount_applied", "pro_regular_amount_calculation_correct",
+                "pro_exclusive_amount_calculation_correct", "payment_verification_shows_correct_calculations"
             ],
-            "GENERIC CONTENT ELIMINATION": [
-                "generic_terms_rejected", "calculation_basic_rejected", 
-                "standard_method_rejected", "general_approach_rejected"
+            "RAZORPAY PARAMETER PASSING CONFIRMATION (FIXED)": [
+                "referral_code_explicitly_passed_in_notes", "discount_applied_flag_in_notes",
+                "referrer_cashback_due_in_notes", "final_amount_matches_discounted_calculation"
             ],
-            "QUALITY-VERIFIED FLAG ENFORCEMENT": [
-                "quality_verified_false_rejection", "quality_verified_true_acceptance"
+            "END-TO-END PAYMENT FLOW VERIFICATION": [
+                "complete_payment_flow_with_referral_working", "database_tracking_includes_referral_info",
+                "payment_orders_store_correct_amounts", "payment_orders_store_referral_data"
             ],
-            "DIFFICULTY CONSISTENCY VALIDATION": [
-                "easy_band_score_alignment", "medium_band_score_alignment", 
-                "hard_band_score_alignment", "misaligned_difficulty_triggers_re_enrichment"
+            "REFERRAL CODE VALIDATION": [
+                "referral_validate_endpoint_accessible", "valid_referral_code_validation_working",
+                "invalid_referral_code_proper_handling", "self_referral_prevention_enforced",
+                "one_time_usage_enforcement_working"
             ],
-            "COMPREHENSIVE FIELD VALIDATION": [
-                "regular_question_13_fields_validated", "pyq_question_11_fields_validated",
-                "required_fields_presence_check", "json_format_validation", 
-                "content_sophistication_assessment"
-            ],
-            "BACKGROUND JOB INTEGRATION": [
-                "background_job_creation", "job_status_monitoring", "job_completion_tracking"
-            ],
-            "RE-ENRICHMENT SYSTEM": [
-                "failed_questions_re_enriched", "advanced_llm_service_used", 
-                "re_enrichment_success_tracking"
+            "PAYMENT CONFIGURATION AND INTEGRATION": [
+                "payment_configuration_working", "razorpay_integration_functional"
             ]
         }
         
