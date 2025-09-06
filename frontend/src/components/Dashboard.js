@@ -30,6 +30,12 @@ export const Dashboard = () => {
   const [enriching, setEnriching] = useState(false);
   const [enrichResults, setEnrichResults] = useState(null);
 
+  // Referral Tracker states
+  const [referralDashboard, setReferralDashboard] = useState(null);
+  const [cashbackDue, setCashbackDue] = useState(null);
+  const [loadingReferrals, setLoadingReferrals] = useState(false);
+  const [exportingReferrals, setExportingReferrals] = useState(false);
+
 
 
   useEffect(() => {
