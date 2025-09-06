@@ -980,7 +980,8 @@ async def create_payment_order(order_request: CreateOrderRequest, current_user: 
             user_email=order_request.user_email,
             user_name=order_request.user_name,
             user_id=user_id,
-            user_phone=order_request.user_phone
+            user_phone=order_request.user_phone,
+            referral_code=order_request.referral_code
         )
         
         # Add payment methods configuration
