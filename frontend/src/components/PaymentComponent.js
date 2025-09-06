@@ -258,8 +258,6 @@ const PaymentComponent = ({ planType, amount, planName, description, onSuccess, 
     }
   };
 
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
-
   const handleButtonClick = () => {
     const token = localStorage.getItem('cat_prep_token');
     if (!token || !isAuthenticated()) {
