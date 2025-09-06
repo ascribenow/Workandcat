@@ -1359,8 +1359,8 @@ class CATBackendTester:
                 
                 # Check if user has already used a referral code
                 if not response.get('can_use', True):
-                    referral_system_results["already_used_referral_properly_rejected"] = True
-                    referral_system_results["one_time_usage_rule_enforced"] = True
+                    payment_referral_results["already_used_referral_properly_rejected"] = True
+                    payment_referral_results["one_time_usage_rule_enforced"] = True
                     print(f"      ✅ One-time usage rule working: User cannot use multiple referral codes")
                     print(f"      📊 Error message: {response.get('error', 'N/A')}")
                 else:
