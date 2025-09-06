@@ -239,9 +239,9 @@ const Pricing = () => {
             />
           </div>
 
-          {/* Pro Regular - Ideal for CAT 2025 */}
+          {/* Pro Exclusive - Ideal for CAT 2025 */}
           <div className={`bg-white border-2 rounded-2xl p-8 text-center relative shadow-lg transform scale-105 ${
-            highlightedPlan === PLAN_TYPES.PRO_REGULAR ? 'border-[#9ac026] ring-2 ring-[#9ac026] ring-opacity-20' : 'border-[#9ac026]'
+            highlightedPlan === PLAN_TYPES.PRO_EXCLUSIVE ? 'border-[#9ac026] ring-2 ring-[#9ac026] ring-opacity-20' : 'border-[#9ac026]'
           }`}>
             <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
               <span className="bg-[#9ac026] text-white px-4 py-1 rounded-full text-sm font-semibold" style={{ fontFamily: 'Lato, sans-serif' }}>
@@ -250,7 +250,7 @@ const Pricing = () => {
             </div>
             
             <div className="mb-6 mt-4">
-              <h3 className="text-2xl font-bold mb-2" style={{ color: '#545454' }}>Pro Regular</h3>
+              <h3 className="text-2xl font-bold mb-2" style={{ color: '#545454' }}>Pro Exclusive</h3>
               <p className="text-gray-600" style={{ fontFamily: 'Lato, sans-serif' }}>
                 Best for the small time window to CAT 2025
               </p>
