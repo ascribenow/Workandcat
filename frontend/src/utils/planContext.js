@@ -18,13 +18,13 @@ export const PLAN_CONFIG = {
     amount: 0,
     description: 'Perfect for testing the waters'
   },
-  [PLAN_TYPES.PRO_LITE]: {
-    name: 'Pro Lite',
+  [PLAN_TYPES.PRO_REGULAR]: {
+    name: 'Pro Regular',
     amount: 149500, // ₹1,495 in paise
     description: 'For long-term prep spaced across months'
   },
-  [PLAN_TYPES.PRO_REGULAR]: {
-    name: 'Pro Regular',
+  [PLAN_TYPES.PRO_EXCLUSIVE]: {
+    name: 'Pro Exclusive',
     amount: 256500, // ₹2,565 in paise
     description: 'Best for the small time window to CAT 2025'
   }
