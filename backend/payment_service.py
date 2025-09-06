@@ -305,7 +305,13 @@ class RazorpayService:
                     "ondismiss": "console.log('Payment modal closed')"
                 },
                 "subscription_style": True,
-                "message": "Processing as monthly payment - 30 day access"
+                "message": "Processing as monthly payment - 30 day access",
+                "referral_info": {
+                    "code_used": referral_code or "",
+                    "original_amount": original_amount,
+                    "discount_applied": referral_discount,
+                    "final_amount": final_amount
+                }
             }
             
         except Exception as e:
