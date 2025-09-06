@@ -1598,7 +1598,7 @@ class CATBackendTester:
         )
         
         if success and response:
-            referral_results["user_referral_code_endpoint"] = True
+            referral_results["user_referral_code_endpoint_working"] = True
             
             if response.get("referral_code"):
                 referral_results["authenticated_user_gets_code"] = True
