@@ -1228,7 +1228,12 @@ class CATBackendTester:
             "admin_authentication_working": False,
             "student_authentication_working": False,
             
-            # Payment Amount Display Verification (FIXED - MUST BE 100%)
+            # Database Schema Fixed (NEW - CRITICAL)
+            "payment_orders_table_accepts_receipt_column": False,
+            "payment_order_creation_no_database_errors": False,
+            "database_schema_issue_resolved": False,
+            
+            # Payment Amount Display Verification (MUST BE 100%)
             "payment_response_includes_original_amount": False,
             "payment_response_includes_final_amount": False,
             "payment_response_includes_discount_applied": False,
@@ -1236,7 +1241,7 @@ class CATBackendTester:
             "pro_exclusive_amount_calculation_correct": False,  # ₹2,565 → ₹2,065
             "payment_verification_shows_correct_calculations": False,
             
-            # Razorpay Parameter Passing Confirmation (FIXED - MUST BE 100%)
+            # Razorpay Parameter Passing Confirmation (MUST BE 100%)
             "referral_code_explicitly_passed_in_notes": False,
             "discount_applied_flag_in_notes": False,
             "referrer_cashback_due_in_notes": False,
