@@ -1627,8 +1627,8 @@ class CATBackendTester:
         print("💳 PAYMENT REFERRAL SYSTEM - FINAL 100% SUCCESS VERIFICATION RESULTS")
         print("=" * 100)
         
-        passed_tests = sum(referral_system_results.values())
-        total_tests = len(referral_system_results)
+        passed_tests = sum(payment_referral_results.values())
+        total_tests = len(payment_referral_results)
         success_rate = (passed_tests / total_tests) * 100
         
         # Group results by testing categories
