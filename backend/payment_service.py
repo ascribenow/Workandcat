@@ -39,52 +39,6 @@ class SubscriptionRequest(BaseModel):
     user_phone: Optional[str] = None
     referral_code: Optional[str] = None  # Referral code for discount
 
-# Database Models
-class PaymentOrder(Base):
-    __tablename__ = "payment_orders"
-    
-    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
-    user_id = Column(String, ForeignKey("users.id"), nullable=False)
-    razorpay_order_id = Column(String, unique=True, nullable=False)
-    plan_type = Column(String, nullable=False)  # "pro_lite" or "pro_regular"
-    amount = Column(Integer, nullable=False)  # Amount in paise
-    currency = Column(String, default="INR")
-    status = Column(String, default="created")  # created, paid, failed
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
-class Subscription(Base):
-    __tablename__ = "subscriptions"
-    
-    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
-    user_id = Column(String, ForeignKey("users.id"), nullable=False)
-    razorpay_subscription_id = Column(String, unique=True, nullable=True)
-    plan_type = Column(String, nullable=False)
-    amount = Column(Integer, nullable=False)  # Amount in paise
-    status = Column(String, default="active")  # active, paused, cancelled, expired
-    current_period_start = Column(DateTime, nullable=False)
-    current_period_end = Column(DateTime, nullable=False)
-    auto_renew = Column(Boolean, default=False)
-    paused_at = Column(DateTime, nullable=True)  # When subscription was paused
-    paused_days_remaining = Column(Integer, nullable=True)  # Days remaining when paused
-    pause_count = Column(Integer, default=0)  # Track number of times paused
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
-class PaymentTransaction(Base):
-    __tablename__ = "payment_transactions"
-    
-    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
-    user_id = Column(String, ForeignKey("users.id"), nullable=False)
-    razorpay_payment_id = Column(String, unique=True, nullable=False)
-    razorpay_order_id = Column(String, nullable=False)
-    amount = Column(Integer, nullable=False)
-    currency = Column(String, default="INR")
-    method = Column(String, nullable=True)  # card, netbanking, wallet, upi, etc.
-    status = Column(String, nullable=False)  # captured, failed, refunded
-    gateway_response = Column(Text, nullable=True)  # Store full response as JSON
-    created_at = Column(DateTime, default=datetime.utcnow)
-
 class RazorpayService:
     def __init__(self):
         self.client = razorpay.Client(
