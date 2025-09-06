@@ -1282,7 +1282,7 @@ async def get_referral_dashboard(
                     u.email as referrer_email,
                     COUNT(*) as total_uses,
                     SUM(ru.discount_amount) as total_discount_given,
-                    (COUNT(*) * 500) as cashback_due
+                    (COUNT(*) * 50000) as cashback_due
                 FROM referral_usage ru
                 LEFT JOIN users u ON u.referral_code = ru.referral_code
                 GROUP BY ru.referral_code, u.full_name, u.email
