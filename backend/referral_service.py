@@ -148,7 +148,7 @@ class ReferralService:
         """
         try:
             referral_code = referral_code.upper().strip()
-            discount_amount = 500  # Fixed ₹500 discount
+            discount_amount_paise = 50000  # Fixed ₹500 discount = 50000 paise
             
             # Validate the referral code first
             validation_result = self.validate_referral_code(referral_code, user_email, db)
@@ -162,8 +162,8 @@ class ReferralService:
                     "discount_applied": 0
                 }
             
-            # Calculate discounted amount (minimum ₹1)
-            discounted_amount = max(original_amount - discount_amount, 100)  # Minimum ₹1 = 100 paise
+            # Calculate discounted amount (minimum ₹1 = 100 paise)
+            discounted_amount = max(original_amount - discount_amount_paise, 100)
             actual_discount = original_amount - discounted_amount
             
             # Record referral usage
