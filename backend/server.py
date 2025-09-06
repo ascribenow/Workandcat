@@ -2661,14 +2661,89 @@ async def pause_user_subscription(
         logger.error(f"Error pausing subscription: {e}")
         raise HTTPException(status_code=500, detail="Error pausing subscription")
 
-@api_router.post("/user/resume-subscription")
-async def resume_user_subscription(
+@api_router.get("/user/resume-subscription-details")
+async def get_resume_subscription_details(
     current_user: User = Depends(require_auth),
     db: AsyncSession = Depends(get_async_compatible_db)
 ):
-    """Resume user's paused subscription with balance days calculation"""
+    """Get details and cost for resuming paused subscription"""
     try:
-        result = razorpay_service.resume_subscription(str(current_user.id))
+        result = razorpay_service.get_resume_payment_details(str(current_user.id))
+        
+        if result.get("success"):
+            return {
+                "success": True,
+                "subscription_id": result.get("subscription_id"),
+                "plan_type": result.get("plan_type"),
+                "amount": result.get("amount"),
+                "balance_days": result.get("balance_days"),
+                "total_days_after_resume": result.get("total_days_after_resume"),
+                "message": result.get("message")
+            }
+        else:
+            raise HTTPException(status_code=400, detail=result.get("error", "No paused subscription found"))
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting resume details: {e}")
+        raise HTTPException(status_code=500, detail="Error getting resume subscription details")
+
+@api_router.post("/user/create-resume-payment")
+async def create_resume_payment_order(
+    current_user: User = Depends(require_auth),
+    db: AsyncSession = Depends(get_async_compatible_db)
+):
+    """Create payment order for resuming paused subscription"""
+    try:
+        result = razorpay_service.create_resume_payment_order(
+            user_id=str(current_user.id),
+            user_email=current_user.email,
+            user_name=current_user.full_name,
+            user_phone=getattr(current_user, 'phone', None)
+        )
+        
+        if result.get("success"):
+            return {
+                "success": True,
+                "data": {
+                    "id": result.get("id"),
+                    "order_id": result.get("order_id"),
+                    "amount": result.get("amount"),
+                    "currency": result.get("currency"),
+                    "key": result.get("key"),
+                    "plan_name": result.get("plan_name"),
+                    "description": result.get("description"),
+                    "prefill": result.get("prefill"),
+                    "theme": result.get("theme"),
+                    "resume_payment": result.get("resume_payment"),
+                    "balance_days": result.get("balance_days"),
+                    "total_days": result.get("total_days")
+                }
+            }
+        else:
+            raise HTTPException(status_code=400, detail=result.get("error", "Failed to create resume payment order"))
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error creating resume payment order: {e}")
+        raise HTTPException(status_code=500, detail="Error creating resume payment order")
+
+@api_router.post("/user/complete-resume-payment")
+async def complete_resume_payment(
+    payment_data: PaymentVerificationRequest,
+    current_user: User = Depends(require_auth),
+    db: AsyncSession = Depends(get_async_compatible_db)
+):
+    """Complete resume payment and activate subscription"""
+    try:
+        result = razorpay_service.complete_resume_payment(
+            payment_id=payment_data.razorpay_payment_id,
+            order_id=payment_data.razorpay_order_id,
+            signature=payment_data.razorpay_signature,
+            user_id=str(current_user.id)
+        )
         
         if result.get("success"):
             return {
@@ -2676,16 +2751,17 @@ async def resume_user_subscription(
                 "message": result.get("message"),
                 "balance_days_added": result.get("balance_days_added"),
                 "new_expiry": result.get("new_expiry"),
-                "total_days": result.get("total_days")
+                "total_days": result.get("total_days"),
+                "amount_paid": result.get("amount_paid")
             }
         else:
-            raise HTTPException(status_code=400, detail=result.get("error", "Failed to resume subscription"))
+            raise HTTPException(status_code=400, detail=result.get("error", "Failed to complete resume payment"))
         
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Error resuming subscription: {e}")
-        raise HTTPException(status_code=500, detail="Error resuming subscription")
+        logger.error(f"Error completing resume payment: {e}")
+        raise HTTPException(status_code=500, detail="Error completing resume payment")
 
 @api_router.get("/user/subscription-management")
 async def get_subscription_management(
