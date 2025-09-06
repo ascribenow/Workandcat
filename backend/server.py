@@ -1003,8 +1003,8 @@ async def create_subscription(sub_request: SubscriptionRequest, current_user: Us
     try:
         user_id = str(current_user.id)
         
-        if sub_request.plan_type != "pro_lite":
-            raise HTTPException(status_code=400, detail="Subscriptions are only available for Pro Lite")
+        if sub_request.plan_type != "pro_regular":
+            raise HTTPException(status_code=400, detail="Subscriptions are only available for Pro Regular")
         
         subscription = await razorpay_service.create_subscription(
             plan_type=sub_request.plan_type,
