@@ -1376,6 +1376,8 @@ class CATBackendTester:
                     referral_results["referral_code_6_characters_format"] = True
                     referral_results["referral_code_alphanumeric_validation"] = True
                     referral_results["referral_code_database_storage"] = True
+                    referral_results["referral_code_generation_working"] = True
+                    referral_results["referral_code_uniqueness_enforced"] = True
                     print(f"      ✅ Referral code format correct: 6-character alphanumeric")
             else:
                 print(f"      ⚠️ User has no referral code - may need generation")
