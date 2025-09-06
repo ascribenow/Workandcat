@@ -1236,36 +1236,36 @@ class CATBackendTester:
         print("The system should achieve perfect 100% success demonstrating complete production readiness.")
         print("=" * 100)
         
-        referral_system_results = {
+        payment_referral_results = {
             # Authentication Setup (CRITICAL)
             "admin_authentication_working": False,
             "student_authentication_working": False,
             
-            # Business Rule Validation (CRITICAL)
-            "one_time_usage_rule_enforced": False,
-            "fresh_email_can_use_referral_codes": False,
-            "self_referral_prevention_working": False,
-            "already_used_referral_properly_rejected": False,
-            "business_rules_correctly_implemented": False,
-            
-            # Mathematical Accuracy (CRITICAL)
+            # Mathematical Accuracy Verification (CRITICAL)
             "pro_regular_discount_calculation_perfect": False,  # ₹1,495 → ₹995 (50000 paise discount)
             "pro_exclusive_discount_calculation_perfect": False,  # ₹2,565 → ₹2,065 (50000 paise discount)
             "discount_amount_exactly_50000_paise": False,
             "mathematical_accuracy_verified": False,
             "paise_conversion_working_correctly": False,
             
+            # Business Rules Validation (CRITICAL)
+            "one_time_usage_rule_enforced": False,
+            "fresh_email_can_use_referral_codes": False,
+            "self_referral_prevention_working": False,
+            "already_used_referral_properly_rejected": False,
+            "business_rules_correctly_implemented": False,
+            
             # Database Integration (CRITICAL)
-            "referral_usage_tracking_accurate": False,
-            "payment_orders_store_correct_amounts": False,
-            "referral_metadata_properly_recorded": False,
+            "referral_usage_tracking_complete": False,
+            "payment_orders_store_correct_discounted_amounts": False,
+            "notes_json_contains_referral_metadata": False,
             "database_tracking_complete": False,
             
-            # API Endpoint Validation (CRITICAL)
+            # API Endpoints Full Functionality (CRITICAL)
             "referral_validate_endpoint_working": False,
-            "payment_endpoints_with_referral_working": False,
-            "authentication_authorization_working": False,
-            "api_responses_accurate": False,
+            "payments_create_subscription_working": False,  # Pro Regular
+            "payments_create_order_working": False,  # Pro Exclusive
+            "authentication_working_all_endpoints": False,
             
             # System Integration (CRITICAL)
             "end_to_end_referral_flow_working": False,
