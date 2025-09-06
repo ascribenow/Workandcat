@@ -1075,6 +1075,290 @@ ${response.data.errors > 0 ? '⚠️ Check the logs for error details.' : ''}`);
             {activeTab === 'privileges' && (
               <Privileges />
             )}
+
+            {activeTab === 'referral-tracker' && (
+              <div>
+                <div className="flex justify-between items-center mb-8">
+                  <h2 className="text-3xl font-bold text-gray-900" style={{ fontFamily: 'Lato, sans-serif' }}>
+                    🎯 Referral Tracker Dashboard
+                  </h2>
+                  <div className="flex space-x-3">
+                    <button
+                      onClick={() => exportReferralData('csv')}
+                      disabled={exportingReferrals}
+                      className="bg-[#9ac026] hover:bg-[#8bb024] text-white px-6 py-3 rounded-lg font-medium flex items-center disabled:opacity-50"
+                      style={{ fontFamily: 'Lato, sans-serif' }}
+                    >
+                      {exportingReferrals ? (
+                        <>
+                          <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          Exporting...
+                        </>
+                      ) : (
+                        <>📊 Export CSV</>
+                      )}
+                    </button>
+                    <button
+                      onClick={() => { loadReferralDashboard(); loadCashbackDue(); }}
+                      disabled={loadingReferrals}
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium flex items-center disabled:opacity-50"
+                      style={{ fontFamily: 'Lato, sans-serif' }}
+                    >
+                      {loadingReferrals ? (
+                        <>
+                          <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          Loading...
+                        </>
+                      ) : (
+                        <>🔄 Refresh Data</>
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                {loadingReferrals ? (
+                  <div className="flex justify-center items-center py-12">
+                    <div className="text-center">
+                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#9ac026] mx-auto mb-4"></div>
+                      <p className="text-gray-600">Loading referral data...</p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-8">
+                    
+                    {/* Overall Statistics */}
+                    {referralDashboard && (
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div className="bg-gradient-to-r from-green-400 to-green-600 p-6 rounded-xl text-white">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="text-green-100 text-sm">Total Referrals</p>
+                              <p className="text-2xl font-bold">{referralDashboard.overall_stats.total_referral_usage}</p>
+                            </div>
+                            <div className="text-3xl">🎯</div>
+                          </div>
+                        </div>
+                        
+                        <div className="bg-gradient-to-r from-blue-400 to-blue-600 p-6 rounded-xl text-white">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="text-blue-100 text-sm">Discount Given</p>
+                              <p className="text-2xl font-bold">{referralDashboard.overall_stats.total_discount_given}</p>
+                            </div>
+                            <div className="text-3xl">💰</div>
+                          </div>
+                        </div>
+                        
+                        <div className="bg-gradient-to-r from-purple-400 to-purple-600 p-6 rounded-xl text-white">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="text-purple-100 text-sm">Cashback Due</p>
+                              <p className="text-2xl font-bold">{referralDashboard.overall_stats.total_cashback_due}</p>
+                            </div>
+                            <div className="text-3xl">🎁</div>
+                          </div>
+                        </div>
+                        
+                        <div className="bg-gradient-to-r from-orange-400 to-orange-600 p-6 rounded-xl text-white">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="text-orange-100 text-sm">Active Codes</p>
+                              <p className="text-2xl font-bold">{referralDashboard.overall_stats.total_referral_codes_used}</p>
+                            </div>
+                            <div className="text-3xl">🔑</div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Cashback Processing Section */}
+                    {cashbackDue && cashbackDue.cashback_details.length > 0 && (
+                      <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-xl p-6 border border-green-200">
+                        <div className="flex items-center justify-between mb-6">
+                          <h3 className="text-2xl font-bold text-gray-900">💳 Cashback Processing Queue</h3>
+                          <div className="bg-red-100 text-red-800 px-4 py-2 rounded-full text-sm font-medium">
+                            {cashbackDue.cashback_summary.total_users_due_cashback} users pending
+                          </div>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                          <div className="bg-white p-4 rounded-lg border">
+                            <p className="text-sm text-gray-600">Total Users</p>
+                            <p className="text-xl font-bold text-gray-900">{cashbackDue.cashback_summary.total_users_due_cashback}</p>
+                          </div>
+                          <div className="bg-white p-4 rounded-lg border">
+                            <p className="text-sm text-gray-600">Total Amount</p>
+                            <p className="text-xl font-bold text-green-600">{cashbackDue.cashback_summary.total_cashback_amount}</p>
+                          </div>
+                          <div className="bg-white p-4 rounded-lg border">
+                            <p className="text-sm text-gray-600">Total Referrals</p>
+                            <p className="text-xl font-bold text-blue-600">{cashbackDue.cashback_summary.total_successful_referrals}</p>
+                          </div>
+                        </div>
+
+                        <div className="space-y-4">
+                          <h4 className="text-lg font-semibold text-gray-900">👥 Users Due Cashback:</h4>
+                          {cashbackDue.cashback_details.map((user, index) => (
+                            <div key={index} className="bg-white p-6 rounded-lg border border-gray-200 hover:shadow-md transition-shadow">
+                              <div className="flex justify-between items-start">
+                                <div className="flex-1">
+                                  <div className="flex items-center space-x-3 mb-2">
+                                    <h5 className="text-lg font-semibold text-gray-900">{user.referrer_name}</h5>
+                                    <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+                                      {user.referral_code}
+                                    </span>
+                                  </div>
+                                  <p className="text-gray-600 mb-3">{user.referrer_email}</p>
+                                  
+                                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                                    <div>
+                                      <span className="text-gray-500">Successful Referrals:</span>
+                                      <span className="font-semibold ml-2">{user.successful_referrals}</span>
+                                    </div>
+                                    <div>
+                                      <span className="text-gray-500">First Referral:</span>
+                                      <span className="font-semibold ml-2">{user.first_referral}</span>
+                                    </div>
+                                    <div>
+                                      <span className="text-gray-500">Latest Referral:</span>
+                                      <span className="font-semibold ml-2">{user.latest_referral}</span>
+                                    </div>
+                                  </div>
+
+                                  <div className="mt-3">
+                                    <span className="text-gray-500 text-sm">Referred Users:</span>
+                                    <div className="flex flex-wrap gap-2 mt-1">
+                                      {user.referred_users.slice(0, 3).map((email, idx) => (
+                                        <span key={idx} className="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs">
+                                          {email}
+                                        </span>
+                                      ))}
+                                      {user.referred_users.length > 3 && (
+                                        <span className="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs">
+                                          +{user.referred_users.length - 3} more
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                                
+                                <div className="text-right">
+                                  <div className="bg-green-100 text-green-800 px-4 py-2 rounded-lg">
+                                    <p className="text-sm font-medium">Cashback Due</p>
+                                    <p className="text-2xl font-bold">{user.cashback_due}</p>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Top Referrals */}
+                    {referralDashboard && referralDashboard.top_referrals.length > 0 && (
+                      <div className="bg-white rounded-xl p-6 border border-gray-200">
+                        <h3 className="text-xl font-bold text-gray-900 mb-6">🏆 Top Performing Referral Codes</h3>
+                        <div className="overflow-x-auto">
+                          <table className="min-w-full">
+                            <thead>
+                              <tr className="bg-gray-50">
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Code</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Referrer</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Uses</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Discount Given</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cashback Due</th>
+                              </tr>
+                            </thead>
+                            <tbody className="bg-white divide-y divide-gray-200">
+                              {referralDashboard.top_referrals.map((ref, index) => (
+                                <tr key={index} className="hover:bg-gray-50">
+                                  <td className="px-6 py-4 whitespace-nowrap">
+                                    <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+                                      {ref.referral_code}
+                                    </span>
+                                  </td>
+                                  <td className="px-6 py-4 whitespace-nowrap">
+                                    <div>
+                                      <div className="text-sm font-medium text-gray-900">{ref.referrer_name}</div>
+                                      <div className="text-sm text-gray-500">{ref.referrer_email}</div>
+                                    </div>
+                                  </td>
+                                  <td className="px-6 py-4 whitespace-nowrap">
+                                    <span className="text-sm font-semibold text-gray-900">{ref.total_uses}</span>
+                                  </td>
+                                  <td className="px-6 py-4 whitespace-nowrap">
+                                    <span className="text-sm font-semibold text-green-600">{ref.total_discount_given}</span>
+                                  </td>
+                                  <td className="px-6 py-4 whitespace-nowrap">
+                                    <span className="text-sm font-semibold text-purple-600">{ref.cashback_due}</span>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Recent Activity */}
+                    {referralDashboard && referralDashboard.recent_activity.length > 0 && (
+                      <div className="bg-white rounded-xl p-6 border border-gray-200">
+                        <h3 className="text-xl font-bold text-gray-900 mb-6">📈 Recent Referral Activity (Last 30 Days)</h3>
+                        <div className="space-y-3">
+                          {referralDashboard.recent_activity.slice(0, 10).map((activity, index) => (
+                            <div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                              <div className="flex items-center space-x-4">
+                                <div className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+                                  {activity.referral_code}
+                                </div>
+                                <div>
+                                  <p className="text-sm font-medium text-gray-900">
+                                    {activity.referrer_name} referred {activity.used_by_email}
+                                  </p>
+                                  <p className="text-sm text-gray-500">
+                                    {activity.subscription_type} • {activity.date}
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="text-right">
+                                <p className="text-sm font-semibold text-green-600">{activity.discount_amount} saved</p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Instructions for Admin */}
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-6">
+                      <h3 className="text-lg font-semibold text-yellow-800 mb-3">📋 Cashback Processing Instructions</h3>
+                      <div className="text-sm text-yellow-700 space-y-2">
+                        <p>• <strong>Step 1:</strong> Review the "Cashback Processing Queue" above to see who needs payments</p>
+                        <p>• <strong>Step 2:</strong> Use "Export CSV" button to download payment processing data</p>
+                        <p>• <strong>Step 3:</strong> Process cashback payments via bank transfer, UPI, or preferred method</p>
+                        <p>• <strong>Step 4:</strong> Keep records of processed payments for accounting</p>
+                        <p>• <strong>Step 5:</strong> Use the exported data to track payment completion</p>
+                      </div>
+                    </div>
+
+                    {(!referralDashboard || !cashbackDue) && (
+                      <div className="text-center py-12">
+                        <div className="text-gray-400 text-6xl mb-4">🎯</div>
+                        <h3 className="text-xl font-semibold text-gray-700 mb-2">No Referral Data</h3>
+                        <p className="text-gray-500">Click "Refresh Data" to load the referral dashboard</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>
