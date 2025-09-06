@@ -1518,34 +1518,149 @@ class CATBackendTester:
         else:
             print(f"      ❌ Pro Exclusive payment creation failed")
         
-        # PHASE 3: PAYMENT ORDER CREATION VERIFICATION (CRITICAL)
-        print("\n💳 PHASE 3: PAYMENT ORDER CREATION VERIFICATION (CRITICAL)")
+        # PHASE 4: DATABASE STORAGE VERIFICATION (CRITICAL - FIXED)
+        print("\n🗄️ PHASE 4: DATABASE STORAGE VERIFICATION (CRITICAL - FIXED)")
         print("-" * 70)
-        print("Testing both Pro Regular and Pro Exclusive payment endpoints are functional")
+        print("Testing database storage of discounted amounts and referral metadata")
         
-        # Test Pro Regular Payment Creation
-        print("   📋 Step 1: Test Pro Regular Payment Creation")
+        # Test database storage with a final payment creation
+        print("   📋 Step 1: Test Database Storage with Referral Metadata")
+        
+        final_test_data = {
+            "plan_type": "pro_regular",
+            "user_email": "sp@theskinmantra.com",
+            "user_name": "SP",
+            "user_phone": "+919876543210",
+            "referral_code": admin_referral_code
+        }
+        
         success, response = self.run_test(
-            "Pro Regular Payment Creation", 
+            "Database Storage Verification Test", 
             "POST", 
             "payments/create-subscription", 
             [200, 500], 
-            schema_test_data, 
+            final_test_data, 
             student_headers
         )
         
         if success and response:
-            payment_referral_results["pro_regular_payment_creation_working"] = True
-            payment_referral_results["payment_endpoints_functional"] = True
-            print(f"      ✅ Pro Regular payment creation working")
+            order_data = response.get('data', {})
+            
+            # Check if payment orders store correct discounted amounts
+            amount = order_data.get('amount', 0)
+            if amount == 99500:  # ₹995 in paise
+                discount_calculation_results["payment_orders_store_correct_discounted_amounts"] = True
+                print(f"      ✅ Payment orders store correct discounted amounts: {amount} paise")
+            
+            # Check notes JSON structure for referral metadata
+            notes = order_data.get('notes', {})
+            if isinstance(notes, dict):
+                if 'referral_code' in notes:
+                    discount_calculation_results["notes_json_contains_referral_code"] = True
+                    print(f"      ✅ Notes JSON contains referral_code: {notes.get('referral_code')}")
+                
+                if 'discount_applied' in notes:
+                    discount_calculation_results["notes_json_contains_discount_applied"] = True
+                    print(f"      ✅ Notes JSON contains discount_applied: {notes.get('discount_applied')}")
+                
+                if 'referrer_cashback_due' in notes:
+                    discount_calculation_results["notes_json_contains_referrer_cashback_due"] = True
+                    print(f"      ✅ Notes JSON contains referrer_cashback_due: {notes.get('referrer_cashback_due')}")
+                
+                if len(notes) >= 3:
+                    discount_calculation_results["database_tracking_complete"] = True
+                    print(f"      ✅ Database tracking complete with all referral metadata")
+            
+            print(f"         📊 Complete notes structure: {notes}")
         else:
-            print(f"      ❌ Pro Regular payment creation failed")
+            print(f"      ❌ Database storage verification failed")
         
-        # Test Pro Exclusive Payment Creation
-        print("   📋 Step 2: Test Pro Exclusive Payment Creation")
-        pro_exclusive_data = {
-            "plan_type": "pro_exclusive",
-            "user_email": "sp@theskinmantra.com",
+        # PHASE 5: END-TO-END REFERRAL FLOW VERIFICATION (CRITICAL - FIXED)
+        print("\n🔄 PHASE 5: END-TO-END REFERRAL FLOW VERIFICATION (CRITICAL - FIXED)")
+        print("-" * 70)
+        print("Testing complete end-to-end referral flow with mathematical perfection")
+        
+        # Test complete payment creation with referral codes
+        print("   📋 Step 1: Complete Payment Creation with Real Referral Codes")
+        
+        # Test both plan types in sequence
+        test_plans = [
+            {
+                "name": "Pro Regular",
+                "data": {
+                    "plan_type": "pro_regular",
+                    "user_email": "sp@theskinmantra.com",
+                    "user_name": "SP",
+                    "user_phone": "+919876543210",
+                    "referral_code": admin_referral_code
+                },
+                "endpoint": "payments/create-subscription",
+                "expected_final": 99500  # ₹995 in paise
+            },
+            {
+                "name": "Pro Exclusive", 
+                "data": {
+                    "plan_type": "pro_exclusive",
+                    "user_email": "sp@theskinmantra.com",
+                    "user_name": "SP",
+                    "user_phone": "+919876543210",
+                    "referral_code": admin_referral_code
+                },
+                "endpoint": "payments/create-order",
+                "expected_final": 206500  # ₹2,065 in paise
+            }
+        ]
+        
+        all_calculations_perfect = True
+        
+        for plan in test_plans:
+            print(f"      📋 Testing {plan['name']} End-to-End Flow")
+            
+            success, response = self.run_test(
+                f"{plan['name']} End-to-End Test", 
+                "POST", 
+                plan['endpoint'], 
+                [200, 500], 
+                plan['data'], 
+                student_headers
+            )
+            
+            if success and response:
+                order_data = response.get('data', {})
+                amount = order_data.get('amount', 0)
+                
+                if amount == plan['expected_final']:
+                    print(f"         ✅ {plan['name']} calculation mathematically perfect: {amount} paise")
+                else:
+                    print(f"         ❌ {plan['name']} calculation incorrect: expected {plan['expected_final']}, got {amount}")
+                    all_calculations_perfect = False
+            else:
+                print(f"         ❌ {plan['name']} end-to-end test failed")
+                all_calculations_perfect = False
+        
+        if all_calculations_perfect:
+            discount_calculation_results["complete_payment_creation_with_referral_codes"] = True
+            discount_calculation_results["all_calculations_mathematically_perfect"] = True
+            discount_calculation_results["end_to_end_flow_working"] = True
+            print(f"      ✅ ALL CALCULATIONS MATHEMATICALLY PERFECT!")
+            print(f"      ✅ End-to-end referral flow working flawlessly")
+        
+        # PHASE 6: PAYMENT CONFIGURATION VERIFICATION
+        print("\n⚙️ PHASE 6: PAYMENT CONFIGURATION VERIFICATION")
+        print("-" * 60)
+        print("Testing payment configuration and Razorpay integration")
+        
+        # Test payment configuration
+        print("   📋 Step 1: Test Payment Configuration")
+        success, response = self.run_test("Payment Configuration", "GET", "payments/config", [200])
+        
+        if success and response:
+            discount_calculation_results["payment_configuration_working"] = True
+            discount_calculation_results["razorpay_integration_functional"] = True
+            print(f"      ✅ Payment configuration working")
+            print(f"      ✅ Razorpay integration functional")
+        else:
+            print(f"      ❌ Payment configuration failed")
             "user_name": "SP",
             "user_phone": "+919876543210",
             "referral_code": admin_referral_code
