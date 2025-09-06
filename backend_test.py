@@ -1468,8 +1468,8 @@ class CATBackendTester:
         else:
             print("      ❌ Pro Exclusive order creation failed")
         
-        # PHASE 3: RAZORPAY PARAMETER PASSING CONFIRMATION (FIXED - MUST BE 100%)
-        print("\n🏦 PHASE 3: RAZORPAY PARAMETER PASSING CONFIRMATION (FIXED - MUST BE 100%)")
+        # PHASE 4: RAZORPAY PARAMETER PASSING CONFIRMATION (MUST BE 100%)
+        print("\n🏦 PHASE 4: RAZORPAY PARAMETER PASSING CONFIRMATION (MUST BE 100%)")
         print("-" * 70)
         print("Testing referral_code explicitly passed in order notes with discount flags")
         
