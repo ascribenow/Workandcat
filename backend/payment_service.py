@@ -333,10 +333,10 @@ class RazorpayService:
                         # 30 days from subscription date
                         current_period_end = current_period_start + timedelta(days=30)
                     elif plan_type == "pro_exclusive":
-                        # Fixed end date: November 30, 2025 23:59 IST
+                        # Fixed end date: December 31, 2025 23:59 IST
                         import pytz
                         ist = pytz.timezone('Asia/Kolkata')
-                        fixed_end = datetime(2025, 11, 30, 23, 59, 0)
+                        fixed_end = datetime(2025, 12, 31, 23, 59, 0)
                         current_period_end = ist.localize(fixed_end).astimezone(pytz.UTC).replace(tzinfo=None)
                     else:
                         # Default: 30 days
