@@ -1403,6 +1403,8 @@ async def get_cashback_due(
 @api_router.get("/admin/referral-export")
 async def export_referral_data(
     format: str = "json",  # json or csv
+    start_date: str = None,  # YYYY-MM-DD format
+    end_date: str = None,    # YYYY-MM-DD format
     current_user: User = Depends(require_admin),
     db: AsyncSession = Depends(get_async_compatible_db)
 ):
@@ -1410,24 +1412,41 @@ async def export_referral_data(
     try:
         sync_db = db._session if hasattr(db, '_session') else db
         
+        # Build query with optional date filters
+        query = """
+            SELECT 
+                ru.id as usage_id,
+                ru.referral_code,
+                u.full_name as referrer_name,
+                u.email as referrer_email,
+                ru.used_by_email,
+                ru.subscription_type,
+                ru.discount_amount,
+                ru.created_at,
+                500 as cashback_due
+            FROM referral_usage ru
+            LEFT JOIN users u ON u.referral_code = ru.referral_code
+        """
+        
+        # Add date filters if provided
+        conditions = []
+        params = {}
+        
+        if start_date:
+            conditions.append("ru.created_at >= :start_date")
+            params["start_date"] = start_date + " 00:00:00"
+            
+        if end_date:
+            conditions.append("ru.created_at <= :end_date")
+            params["end_date"] = end_date + " 23:59:59"
+            
+        if conditions:
+            query += " WHERE " + " AND ".join(conditions)
+            
+        query += " ORDER BY ru.created_at DESC"
+        
         # Get comprehensive referral data
-        referral_data = sync_db.execute(
-            text("""
-                SELECT 
-                    ru.id as usage_id,
-                    ru.referral_code,
-                    u.full_name as referrer_name,
-                    u.email as referrer_email,
-                    ru.used_by_email,
-                    ru.subscription_type,
-                    ru.discount_amount,
-                    ru.created_at,
-                    500 as cashback_due
-                FROM referral_usage ru
-                LEFT JOIN users u ON u.referral_code = ru.referral_code
-                ORDER BY ru.created_at DESC
-            """)
-        ).fetchall()
+        referral_data = sync_db.execute(text(query), params).fetchall()
         
         if format.lower() == "csv":
             # Return CSV format for easy Excel import
