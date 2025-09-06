@@ -31,7 +31,7 @@ from adaptive_session_logic import AdaptiveSessionLogic
 from mcq_validation_service import mcq_validation_service
 from database import (
     get_async_compatible_db, get_database, init_database, User, Question, Topic, Attempt, Mastery, Plan, PlanUnit, Session,
-    PYQIngestion, PYQPaper, PYQQuestion, QuestionOption, DoubtsConversation, PrivilegedEmail, AsyncSession
+    PYQIngestion, PYQPaper, PYQQuestion, QuestionOption, DoubtsConversation, PrivilegedEmail, AsyncSession, SessionLocal
 )
 from datetime import datetime
 from auth_service import AuthService, UserCreate, UserLogin, TokenResponse, require_auth, require_admin, ADMIN_EMAIL
