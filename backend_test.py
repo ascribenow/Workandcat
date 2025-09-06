@@ -1586,8 +1586,8 @@ class CATBackendTester:
             payment_referral_results["complete_payment_flow_with_referral_working"] = True
             print(f"      ✅ Complete payment flow with referral working")
         
-        # PHASE 5: REFERRAL CODE VALIDATION (MUST BE 100%)
-        print("\n🔍 PHASE 5: REFERRAL CODE VALIDATION (MUST BE 100%)")
+        # PHASE 6: REFERRAL CODE VALIDATION (MUST BE 100%)
+        print("\n🔍 PHASE 6: REFERRAL CODE VALIDATION (MUST BE 100%)")
         print("-" * 70)
         print("Testing POST /api/referral/validate with comprehensive validation")
         
