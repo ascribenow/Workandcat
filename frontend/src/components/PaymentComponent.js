@@ -97,7 +97,8 @@ const PaymentComponent = ({ planType, amount, planName, description, onSuccess, 
         plan_type: planType,
         user_email: user?.email || '',
         user_name: user?.name || user?.full_name || '',
-        user_phone: user?.phone || ''
+        user_phone: user?.phone || '',
+        referral_code: referralCode || null
       };
 
       console.log('Making API call to:', endpoint);
