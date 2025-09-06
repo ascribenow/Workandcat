@@ -1317,7 +1317,7 @@ class CATBackendTester:
                 'Authorization': f'Bearer {admin_token}',
                 'Content-Type': 'application/json'
             }
-            payment_referral_results["admin_authentication_working"] = True
+            discount_calculation_results["admin_authentication_working"] = True
             print(f"      ✅ Admin authentication successful")
             print(f"      📊 JWT Token length: {len(admin_token)} characters")
         else:
@@ -1339,7 +1339,7 @@ class CATBackendTester:
                 'Authorization': f'Bearer {student_token}',
                 'Content-Type': 'application/json'
             }
-            payment_referral_results["student_authentication_working"] = True
+            discount_calculation_results["student_authentication_working"] = True
             print(f"      ✅ Student authentication successful")
             print(f"      📊 JWT Token length: {len(student_token)} characters")
         else:
