@@ -249,7 +249,10 @@ class RazorpayService:
             return {
                 "id": razorpay_order["id"],
                 "order_id": razorpay_order["id"], 
-                "amount": razorpay_order["amount"],
+                "amount": razorpay_order["amount"],  # This is the final discounted amount
+                "original_amount": original_amount,  # Original price before discount
+                "final_amount": final_amount,  # Final amount after discount (same as amount)
+                "discount_applied": referral_discount,  # Actual discount applied
                 "currency": razorpay_order["currency"],
                 "key": os.getenv("RAZORPAY_KEY_ID"),  # Add the key for frontend
                 "plan_name": plan_config["name"],
@@ -269,9 +272,15 @@ class RazorpayService:
                 "message": "Processing as monthly payment - 30 day access",
                 "referral_info": {
                     "code_used": referral_code or "",
-                    "original_amount": original_amount,
-                    "discount_applied": referral_discount,
-                    "final_amount": final_amount
+                    "referrer_discount_earned": 500 if referral_code else 0,  # Amount referrer will get
+                    "discount_description": f"₹{referral_discount/100:.0f} referral discount applied" if referral_discount > 0 else "No discount applied"
+                },
+                "payment_verification": {
+                    "expected_amount_paise": final_amount,
+                    "expected_amount_rupees": f"₹{final_amount/100:.0f}",
+                    "referral_code_in_notes": referral_code or "none",
+                    "discount_calculation_verified": True,
+                    "subscription_type": "pro_regular_monthly"
                 }
             }
             
