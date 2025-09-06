@@ -2636,6 +2636,81 @@ async def get_user_subscription_details(
         logger.error(f"Error getting subscription details: {e}")
         raise HTTPException(status_code=500, detail="Error getting subscription details")
 
+@api_router.post("/user/pause-subscription")
+async def pause_user_subscription(
+    current_user: User = Depends(require_auth),
+    db: AsyncSession = Depends(get_async_compatible_db)
+):
+    """Pause user's active subscription (Pro Regular only)"""
+    try:
+        result = razorpay_service.pause_subscription(str(current_user.id))
+        
+        if result.get("success"):
+            return {
+                "success": True,
+                "message": result.get("message"),
+                "remaining_days": result.get("remaining_days"),
+                "paused_at": result.get("paused_at")
+            }
+        else:
+            raise HTTPException(status_code=400, detail=result.get("error", "Failed to pause subscription"))
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error pausing subscription: {e}")
+        raise HTTPException(status_code=500, detail="Error pausing subscription")
+
+@api_router.post("/user/resume-subscription")
+async def resume_user_subscription(
+    current_user: User = Depends(require_auth),
+    db: AsyncSession = Depends(get_async_compatible_db)
+):
+    """Resume user's paused subscription with balance days calculation"""
+    try:
+        result = razorpay_service.resume_subscription(str(current_user.id))
+        
+        if result.get("success"):
+            return {
+                "success": True,
+                "message": result.get("message"),
+                "balance_days_added": result.get("balance_days_added"),
+                "new_expiry": result.get("new_expiry"),
+                "total_days": result.get("total_days")
+            }
+        else:
+            raise HTTPException(status_code=400, detail=result.get("error", "Failed to resume subscription"))
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error resuming subscription: {e}")
+        raise HTTPException(status_code=500, detail="Error resuming subscription")
+
+@api_router.get("/user/subscription-management")
+async def get_subscription_management(
+    current_user: User = Depends(require_auth),
+    db: AsyncSession = Depends(get_async_compatible_db)
+):
+    """Get detailed subscription management information"""
+    try:
+        result = razorpay_service.get_subscription_status(str(current_user.id))
+        
+        if result.get("success"):
+            return {
+                "success": True,
+                "has_subscription": result.get("has_subscription"),
+                "subscription": result.get("subscription")
+            }
+        else:
+            raise HTTPException(status_code=500, detail=result.get("error", "Failed to get subscription status"))
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting subscription management info: {e}")
+        raise HTTPException(status_code=500, detail="Error getting subscription management info")
+
 
 @api_router.get("/dashboard/simple-taxonomy")
 async def get_simple_taxonomy_dashboard(
