@@ -7819,7 +7819,7 @@ def main():
     try:
         # Run Payment Referral System Final 100% Verification
         print("💳 PAYMENT REFERRAL SYSTEM FINAL 100% VERIFICATION")
-        payment_success = tester.test_payment_referral_system_final_100_percent_verification()
+        payment_success = tester.test_payment_referral_system_ultimate_100_percent_verification()
         
         print("\n" + "=" * 100)
         print("🏁 PAYMENT REFERRAL SYSTEM TESTING COMPLETED")
