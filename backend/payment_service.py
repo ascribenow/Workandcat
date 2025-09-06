@@ -555,7 +555,7 @@ class RazorpayService:
                     "message": "Subscription resumed successfully",
                     "balance_days_added": balance_days,
                     "new_expiry": new_end_date.isoformat(),
-                    "total_days": 30 + balance_days if subscription.plan_type == "pro_regular" else "Till Nov 30, 2025"
+                    "total_days": 30 + balance_days if subscription.plan_type == "pro_regular" else "Till Dec 31, 2025"
                 }
                 
         except Exception as e:
