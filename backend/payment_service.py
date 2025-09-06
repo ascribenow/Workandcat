@@ -198,7 +198,7 @@ class RazorpayService:
                     "user_name": user_name,
                     "user_id": user_id,
                     "billing_cycle": "monthly",
-                    "subscription_type": "pro_lite_monthly"
+                    "subscription_type": "pro_regular_monthly"
                 }
             }
             
