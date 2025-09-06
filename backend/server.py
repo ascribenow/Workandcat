@@ -46,6 +46,7 @@ from payment_service import (
     PaymentVerificationRequest,
     SubscriptionRequest
 )
+from subscription_access_service import subscription_access_service
 from mcq_generator import MCQGenerator
 from study_planner import StudyPlanner
 from mastery_tracker import MasteryTracker
