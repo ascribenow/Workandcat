@@ -6539,42 +6539,43 @@ Find the compound interest on Rs. 1000 for 2 years at 10% per annum.,210"""
         return success_rate >= 60  # Return True if validation is successful
 
 def main():
-    """Main function to run comprehensive backend testing"""
-    print("🎯 STARTING STUDENT REFERRAL MECHANISM TESTING - AS REQUESTED")
+    """Main function to run focused payment referral testing"""
+    print("💳 STARTING PAYMENT REFERRAL FUNCTIONALITY TESTING - 100% SUCCESS TARGET")
     print("=" * 80)
     
     tester = CATBackendTester()
     
     try:
-        # Run Student Referral Mechanism Testing (as per review request)
-        print("🎯 STUDENT REFERRAL MECHANISM COMPREHENSIVE TESTING")
-        referral_success = tester.test_student_referral_mechanism_critical_verification()
+        # Run Payment Referral Functionality Testing (focused on 100% success)
+        print("💳 PAYMENT REFERRAL FUNCTIONALITY 100% SUCCESS VERIFICATION")
+        payment_success = tester.test_payment_referral_functionality_100_percent_success()
         
         print("\n" + "=" * 80)
-        print("🏁 STUDENT REFERRAL MECHANISM TESTING COMPLETED")
+        print("🏁 PAYMENT REFERRAL FUNCTIONALITY TESTING COMPLETED")
         print("=" * 80)
         
-        print(f"\n📊 STUDENT REFERRAL MECHANISM RESULTS:")
-        print(f"  Student Referral Mechanism: {'✅ PASS' if referral_success else '❌ FAIL'}")
+        print(f"\n📊 PAYMENT REFERRAL FUNCTIONALITY RESULTS:")
+        print(f"  Payment Referral Functionality: {'✅ PASS' if payment_success else '❌ FAIL'}")
         
-        if referral_success:
-            print("\n🎉 OVERALL RESULT: STUDENT REFERRAL MECHANISM SUCCESSFUL!")
-            print("✅ Unique 6-character alphanumeric referral codes generated on signup")
-            print("✅ Referral code validation API endpoint working (POST /api/referral/validate)")
-            print("✅ ₹500 discount application in payment flow functional")
-            print("✅ Database tracking of referral usage working")
-            print("✅ User referral code retrieval endpoint working (GET /api/user/referral-code)")
+        if payment_success:
+            print("\n🎉 OVERALL RESULT: PAYMENT REFERRAL FUNCTIONALITY 100% SUCCESS ACHIEVED!")
+            print("✅ All payment endpoints accept referral codes correctly")
+            print("✅ Exact ₹500 discount calculation working perfectly")
+            print("✅ Payment amounts correct (Pro Regular: ₹1,495 → ₹995, Pro Exclusive: ₹2,565 → ₹2,065)")
+            print("✅ Referral code validation API 100% functional")
             print("✅ Self-referral prevention and one-time usage enforcement working")
-            print("🏆 PRODUCTION READY - Student referral mechanism fully functional")
+            print("✅ Referral codes passed to Razorpay correctly")
+            print("✅ Database tracking of referral usage confirmed")
+            print("🏆 PRODUCTION READY - Payment referral functionality 100% successful")
         else:
-            print("\n❌ OVERALL RESULT: STUDENT REFERRAL MECHANISM FAILED")
-            print("🚨 Critical issues detected with student referral mechanism")
+            print("\n❌ OVERALL RESULT: PAYMENT REFERRAL FUNCTIONALITY FAILED")
+            print("🚨 Critical issues detected with payment referral functionality")
         
         print(f"\nTests Run: {tester.tests_run}")
         print(f"Tests Passed: {tester.tests_passed}")
         print(f"Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%")
         
-        return referral_success
+        return payment_success
         
     except Exception as e:
         print(f"\n❌ TESTING FAILED: {e}")
