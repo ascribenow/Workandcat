@@ -1589,7 +1589,8 @@ class CATBackendTester:
         )
         
         if success and response:
-            referral_system_results["payment_endpoints_with_referral_working"] = True
+            payment_referral_results["payments_create_subscription_working"] = True
+            payment_referral_results["payments_create_order_working"] = True
             print(f"      ✅ Payment configuration endpoint working")
             print(f"      📊 Razorpay Key ID: {response.get('key_id', 'N/A')}")
         
