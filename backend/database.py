@@ -398,6 +398,31 @@ class User(Base):
     sessions = relationship("Session", back_populates="user")
 
 
+class ReferralUsage(Base):
+    """Referral usage tracking table"""
+    __tablename__ = "referral_usage"
+    
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    referral_code = Column(String(6), nullable=False)  # The referral code used
+    used_by_user_id = Column(String(36), ForeignKey('users.id'), nullable=True)  # User who used the code (if registered)
+    used_by_email = Column(String(255), nullable=False)  # Email of user who used the code
+    discount_amount = Column(Integer, nullable=False, default=500)  # Discount amount in INR
+    subscription_type = Column(String(50), nullable=False)  # pro_regular or pro_exclusive
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    # Relationships
+    used_by_user = relationship("User", foreign_keys=[used_by_user_id])
+    
+    # Indexes for performance
+    __table_args__ = (
+        Index('idx_referral_usage_code', 'referral_code'),
+        Index('idx_referral_usage_email', 'used_by_email'),
+        Index('idx_referral_usage_user', 'used_by_user_id'),
+        # Ensure one referral code usage per email
+        Index('idx_referral_usage_unique', 'used_by_email', 'referral_code', unique=True),
+    )
+
+
 # Diagnostic System Tables
 
 class DiagnosticSet(Base):
