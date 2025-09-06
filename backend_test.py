@@ -1636,23 +1636,23 @@ class CATBackendTester:
             "AUTHENTICATION SETUP": [
                 "admin_authentication_working", "student_authentication_working"
             ],
-            "BUSINESS RULE VALIDATION (CRITICAL)": [
-                "one_time_usage_rule_enforced", "fresh_email_can_use_referral_codes",
-                "self_referral_prevention_working", "already_used_referral_properly_rejected",
-                "business_rules_correctly_implemented"
-            ],
-            "MATHEMATICAL ACCURACY (CRITICAL)": [
+            "MATHEMATICAL ACCURACY VERIFICATION (CRITICAL)": [
                 "pro_regular_discount_calculation_perfect", "pro_exclusive_discount_calculation_perfect",
                 "discount_amount_exactly_50000_paise", "mathematical_accuracy_verified",
                 "paise_conversion_working_correctly"
             ],
-            "DATABASE INTEGRATION (CRITICAL)": [
-                "referral_usage_tracking_accurate", "payment_orders_store_correct_amounts",
-                "referral_metadata_properly_recorded", "database_tracking_complete"
+            "BUSINESS RULES VALIDATION (CRITICAL)": [
+                "one_time_usage_rule_enforced", "fresh_email_can_use_referral_codes",
+                "self_referral_prevention_working", "already_used_referral_properly_rejected",
+                "business_rules_correctly_implemented"
             ],
-            "API ENDPOINT VALIDATION (CRITICAL)": [
-                "referral_validate_endpoint_working", "payment_endpoints_with_referral_working",
-                "authentication_authorization_working", "api_responses_accurate"
+            "DATABASE INTEGRATION (CRITICAL)": [
+                "referral_usage_tracking_complete", "payment_orders_store_correct_discounted_amounts",
+                "notes_json_contains_referral_metadata", "database_tracking_complete"
+            ],
+            "API ENDPOINTS FULL FUNCTIONALITY (CRITICAL)": [
+                "referral_validate_endpoint_working", "payments_create_subscription_working",
+                "payments_create_order_working", "authentication_working_all_endpoints"
             ],
             "SYSTEM INTEGRATION": [
                 "end_to_end_referral_flow_working", "production_readiness_confirmed"
