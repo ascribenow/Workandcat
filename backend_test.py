@@ -1989,15 +1989,21 @@ class CATBackendTester:
         
         # Check critical success criteria
         auth_setup = sum(payment_referral_results[key] for key in testing_categories["AUTHENTICATION SETUP"])
-        validation_api = sum(payment_referral_results[key] for key in testing_categories["REFERRAL CODE VALIDATION API (CRITICAL - MUST BE 100%)"])
-        payment_endpoints = sum(payment_referral_results[key] for key in testing_categories["PAYMENT ENDPOINTS WITH REFERRAL CODES (CRITICAL - MUST BE 100%)"])
-        payment_integration = sum(payment_referral_results[key] for key in testing_categories["PAYMENT INTEGRATION RELIABILITY (CRITICAL - MUST BE 100%)"])
+        database_schema = sum(payment_referral_results[key] for key in testing_categories["DATABASE SCHEMA FIXED (NEW - CRITICAL)"])
+        amount_display = sum(payment_referral_results[key] for key in testing_categories["PAYMENT AMOUNT DISPLAY VERIFICATION (MUST BE 100%)"])
+        razorpay_params = sum(payment_referral_results[key] for key in testing_categories["RAZORPAY PARAMETER PASSING CONFIRMATION (MUST BE 100%)"])
+        payment_flow = sum(payment_referral_results[key] for key in testing_categories["END-TO-END PAYMENT FLOW VERIFICATION (MUST BE 100%)"])
+        referral_validation = sum(payment_referral_results[key] for key in testing_categories["REFERRAL CODE VALIDATION (MUST BE 100%)"])
+        payment_config = sum(payment_referral_results[key] for key in testing_categories["PAYMENT CONFIGURATION AND INTEGRATION (MUST BE 100%)"])
         
         print(f"\n📊 CRITICAL METRICS:")
         print(f"  Authentication Setup: {auth_setup}/2 ({(auth_setup/2)*100:.1f}%)")
-        print(f"  Referral Code Validation API: {validation_api}/5 ({(validation_api/5)*100:.1f}%)")
-        print(f"  Payment Endpoints with Referral Codes: {payment_endpoints}/5 ({(payment_endpoints/5)*100:.1f}%)")
-        print(f"  Payment Integration Reliability: {payment_integration}/4 ({(payment_integration/4)*100:.1f}%)")
+        print(f"  Database Schema Fixed: {database_schema}/3 ({(database_schema/3)*100:.1f}%)")
+        print(f"  Payment Amount Display: {amount_display}/6 ({(amount_display/6)*100:.1f}%)")
+        print(f"  Razorpay Parameter Passing: {razorpay_params}/4 ({(razorpay_params/4)*100:.1f}%)")
+        print(f"  End-to-End Payment Flow: {payment_flow}/4 ({(payment_flow/4)*100:.1f}%)")
+        print(f"  Referral Code Validation: {referral_validation}/5 ({(referral_validation/5)*100:.1f}%)")
+        print(f"  Payment Configuration: {payment_config}/2 ({(payment_config/2)*100:.1f}%)")
         
         # FINAL ASSESSMENT
         if success_rate >= 95:
