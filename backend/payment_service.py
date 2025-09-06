@@ -94,21 +94,23 @@ class RazorpayService:
         
         # Plan configurations
         self.plans = {
-            "pro_lite": {
-                "name": "Pro Lite",
+            "pro_regular": {
+                "name": "Pro Regular",
                 "amount": 149500,  # ₹1,495 in paise
                 "interval": "monthly",
-                "period": 1,
-                "description": "Pro Lite - Unlimited Daily-12 sessions for 30 days",
-                "auto_renew": True
+                "period": 30,  # 30 days validity
+                "description": "Pro Regular - Unlimited sessions for 30 days",
+                "auto_renew": True,
+                "features": ["unlimited_sessions"]
             },
-            "pro_regular": {
-                "name": "Pro Regular", 
+            "pro_exclusive": {
+                "name": "Pro Exclusive", 
                 "amount": 256500,  # ₹2,565 in paise
                 "interval": None,  # One-time payment
                 "period": 60,  # 60 days validity
-                "description": "Pro Regular - Unlimited Daily-12 sessions for 60 days",
-                "auto_renew": False
+                "description": "Pro Exclusive - Unlimited sessions + Ask Twelvr for 60 days",
+                "auto_renew": False,
+                "features": ["unlimited_sessions", "ask_twelvr"]
             }
         }
 
