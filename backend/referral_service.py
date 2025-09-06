@@ -129,7 +129,7 @@ class ReferralService:
                 "can_use": True,
                 "referral_code": code,
                 "referrer_name": referral_owner.full_name,
-                "discount_amount": 500
+                "discount_amount": 50000  # ₹500 in paise
             }
             
         except Exception as e:
