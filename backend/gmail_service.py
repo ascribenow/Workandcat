@@ -577,5 +577,169 @@ The Twelvr Team
         for email in expired_users:
             del self.pending_users[email]
 
+    def send_referral_code_email(self, to_email: str, full_name: str, referral_code: str) -> bool:
+        """Send referral code email to new user"""
+        if not self.service:
+            print("Gmail service not authenticated")
+            return False
+        
+        try:
+            # Create email content
+            subject = "Welcome to Twelvr! Your Referral Code Inside"
+            
+            plain_text = f"""
+Welcome to Twelvr, {full_name}!
+
+Congratulations on joining India's premier CAT preparation platform! We're excited to help you achieve your dream B-school admission.
+
+🎯 YOUR UNIQUE REFERRAL CODE: {referral_code}
+
+HOW TO USE YOUR REFERRAL CODE:
+1. Share your code with friends and family preparing for CAT
+2. They get ₹500 discount on any Pro subscription (Pro Regular or Pro Exclusive)
+3. You get ₹500 cashback for every successful referral (processed manually by our admin team)
+
+TERMS & CONDITIONS:
+- Eligible for Pro Regular and Pro Exclusive plans only
+- One-time discount per user email
+- Cannot use your own referral code
+- Discount applies to original plan price only
+- Not stackable with other promotions
+
+Start your CAT journey today and help others succeed too!
+
+Best regards,
+The Twelvr Team
+hello@twelvr.com
+            """.strip()
+            
+            html_content = f"""
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Welcome to Twelvr - Your Referral Code</title>
+    <style>
+        body {{
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }}
+        .container {{
+            background-color: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }}
+        .header {{
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }}
+        .header h1 {{
+            margin: 0;
+            font-size: 28px;
+            font-weight: 700;
+        }}
+        .content {{
+            padding: 30px 25px;
+        }}
+        .referral-code {{
+            background: linear-gradient(135deg, #ff6b6b 0%, #feca57 100%);
+            color: white;
+            text-align: center;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-size: 24px;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }}
+        .terms {{
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            margin-top: 20px;
+        }}
+        .footer {{
+            background-color: #f1f1f1;
+            padding: 20px;
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }}
+        .cta-button {{
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 30px;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: bold;
+            margin: 15px 0;
+        }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 Welcome to Twelvr!</h1>
+            <p>India's Premier CAT Preparation Platform</p>
+        </div>
+        <div class="content">
+            <h2>Hello {full_name},</h2>
+            <p>Congratulations on joining Twelvr! We're excited to help you achieve your dream B-school admission.</p>
+            
+            <div class="referral-code">
+                YOUR REFERRAL CODE: {referral_code}
+            </div>
+            
+            <h3>🚀 How Your Referral Code Works:</h3>
+            <ul>
+                <li><strong>₹500 Discount:</strong> Your friends get ₹500 off any Pro subscription</li>
+                <li><strong>₹500 Cashback:</strong> You get ₹500 cashback for every successful referral</li>
+                <li><strong>Unlimited Uses:</strong> Share with as many friends as you want</li>
+                <li><strong>Easy Sharing:</strong> Just share your code: <strong>{referral_code}</strong></li>
+            </ul>
+            
+            <div class="terms">
+                <h4>📋 Terms & Conditions:</h4>
+                <ul>
+                    <li>Valid for Pro Regular (₹1,495) and Pro Exclusive (₹2,565) plans</li>
+                    <li>One-time discount per user email address</li>
+                    <li>Cannot use your own referral code</li>
+                    <li>Discount applies to original plan price only</li>
+                    <li>Not stackable with other promotions</li>
+                    <li>Cashback processed manually by admin team</li>
+                </ul>
+            </div>
+            
+            <p style="text-align: center; margin-top: 30px;">
+                <a href="https://twelvr.com" class="cta-button">Start Your CAT Journey Now!</a>
+            </p>
+        </div>
+        <div class="footer">
+            <p>Best regards,<br>
+            <strong>The Twelvr Team</strong><br>
+            hello@twelvr.com</p>
+        </div>
+    </div>
+</body>
+</html>            
+            """
+            
+            # Send email
+            return self._send_html_email(to_email, subject, html_content, plain_text)
+            
+        except Exception as e:
+            print(f"Error sending referral code email: {e}")
+            return False
+
 # Global instance
 gmail_service = GmailService()
