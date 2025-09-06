@@ -1938,19 +1938,30 @@ class CATBackendTester:
             "AUTHENTICATION SETUP": [
                 "admin_authentication_working", "student_authentication_working"
             ],
-            "REFERRAL CODE VALIDATION API (CRITICAL - MUST BE 100%)": [
+            "DATABASE SCHEMA FIXED (NEW - CRITICAL)": [
+                "payment_orders_table_accepts_receipt_column", "payment_order_creation_no_database_errors",
+                "database_schema_issue_resolved"
+            ],
+            "PAYMENT AMOUNT DISPLAY VERIFICATION (MUST BE 100%)": [
+                "payment_response_includes_original_amount", "payment_response_includes_final_amount",
+                "payment_response_includes_discount_applied", "pro_regular_amount_calculation_correct",
+                "pro_exclusive_amount_calculation_correct", "payment_verification_shows_correct_calculations"
+            ],
+            "RAZORPAY PARAMETER PASSING CONFIRMATION (MUST BE 100%)": [
+                "referral_code_explicitly_passed_in_notes", "discount_applied_flag_in_notes",
+                "referrer_cashback_due_in_notes", "final_amount_matches_discounted_calculation"
+            ],
+            "END-TO-END PAYMENT FLOW VERIFICATION (MUST BE 100%)": [
+                "complete_payment_flow_with_referral_working", "database_tracking_includes_referral_info",
+                "payment_orders_store_correct_amounts", "payment_orders_store_referral_data"
+            ],
+            "REFERRAL CODE VALIDATION (MUST BE 100%)": [
                 "referral_validate_endpoint_accessible", "valid_referral_code_validation_working",
-                "invalid_referral_code_proper_handling", "self_referral_prevention_enforced", 
+                "invalid_referral_code_proper_handling", "self_referral_prevention_enforced",
                 "one_time_usage_enforcement_working"
             ],
-            "PAYMENT ENDPOINTS WITH REFERRAL CODES (CRITICAL - MUST BE 100%)": [
-                "pro_regular_subscription_accepts_referral", "pro_exclusive_order_accepts_referral",
-                "discount_calculation_exactly_500_rupees", "payment_amounts_correct_after_discount",
-                "referral_code_passed_to_razorpay"
-            ],
-            "PAYMENT INTEGRATION RELIABILITY (CRITICAL - MUST BE 100%)": [
-                "payment_flow_with_referral_complete", "referral_usage_tracked_in_database",
-                "discount_application_in_payment_flow", "payment_configuration_working"
+            "PAYMENT CONFIGURATION AND INTEGRATION (MUST BE 100%)": [
+                "payment_configuration_working", "razorpay_integration_functional"
             ]
         }
         
