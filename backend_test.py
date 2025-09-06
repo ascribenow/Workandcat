@@ -1607,7 +1607,7 @@ class CATBackendTester:
                 
                 # Check for share message
                 if response.get("share_message"):
-                    referral_results["referral_code_share_message"] = True
+                    referral_results["referral_code_share_message_correct"] = True
                     print(f"      ✅ Share message provided")
                     print(f"         📊 Message: {response.get('share_message')[:50]}...")
         
