@@ -184,8 +184,8 @@ class RazorpayService:
             plan_config = self.plans[plan_type]
             
             # Since Razorpay subscriptions require account activation, 
-            # we'll implement Pro Lite as one-time payments with subscription-like UX
-            logger.info(f"Creating Pro Lite payment (subscription-style) for user {user_id}")
+            # we'll implement Pro Regular as one-time payments with subscription-like UX
+            logger.info(f"Creating Pro Regular payment (subscription-style) for user {user_id}")
             
             # Create as one-time payment but handle as subscription
             order_data = {
