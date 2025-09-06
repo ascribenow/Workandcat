@@ -1534,8 +1534,8 @@ class CATBackendTester:
             )
             
             if success and response:
-                referral_system_results["referral_usage_tracking_accurate"] = True
-                referral_system_results["database_tracking_complete"] = True
+                payment_referral_results["referral_usage_tracking_complete"] = True
+                payment_referral_results["database_tracking_complete"] = True
                 print(f"      ✅ Referral usage tracking working")
                 print(f"      📊 Usage stats: {response}")
             else:
