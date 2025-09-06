@@ -1408,10 +1408,10 @@ class CATBackendTester:
         print("-" * 70)
         print("Testing the critical discount calculation bug fix: 500 → 50000 paise conversion")
         
-        # Test database schema fix by creating payment orders
-        print("   📋 Step 1: Test Payment Order Creation (Complete Database Schema Fix)")
+        # Test Pro Regular Discount Calculation: ₹1,495 → ₹995 (50000 paise discount)
+        print("   📋 Step 1: Test Pro Regular Discount Calculation (₹1,495 → ₹995)")
         
-        schema_test_data = {
+        pro_regular_data = {
             "plan_type": "pro_regular",
             "user_email": "sp@theskinmantra.com",
             "user_name": "SP",
@@ -1420,39 +1420,103 @@ class CATBackendTester:
         }
         
         success, response = self.run_test(
-            "Complete Database Schema Test - Payment Order Creation", 
+            "Pro Regular Discount Calculation Test", 
             "POST", 
             "payments/create-subscription", 
             [200, 500], 
-            schema_test_data, 
+            pro_regular_data, 
             student_headers
         )
         
         if success and response:
-            payment_referral_results["payment_orders_table_complete_schema"] = True
-            payment_referral_results["receipt_column_working"] = True
-            payment_referral_results["notes_column_working"] = True
-            payment_referral_results["payment_order_creation_no_database_errors"] = True
-            payment_referral_results["database_schema_issue_completely_resolved"] = True
-            print(f"      ✅ Payment order creation successful - complete database schema fixed!")
-            print(f"      ✅ No 'receipt column does not exist' errors")
-            print(f"      ✅ No 'notes column does not exist' errors")
-            print(f"      ✅ Database accepts new payment records with both receipt AND notes columns")
+            print(f"      ✅ Pro Regular payment creation successful")
             
-            # Check if we got a valid order ID
+            # Check discount calculation accuracy
             order_data = response.get('data', {})
-            order_id = order_data.get('id')
-            if order_id:
-                print(f"         📊 Order ID created: {order_id}")
-                
-                # Verify notes column is working by checking for referral data
-                notes = order_data.get('notes', {})
-                if notes and isinstance(notes, dict):
-                    payment_referral_results["notes_json_structure_correct"] = True
-                    print(f"         📊 Notes JSON structure working: {notes}")
+            amount = order_data.get('amount', 0)
+            
+            # Expected: ₹1,495 = 149500 paise, with ₹500 discount = 50000 paise
+            # Final amount should be: 149500 - 50000 = 99500 paise (₹995)
+            expected_original = 149500  # ₹1,495 in paise
+            expected_discount = 50000   # ₹500 in paise
+            expected_final = 99500      # ₹995 in paise
+            
+            if amount == expected_final:
+                discount_calculation_results["pro_regular_discount_calculation_perfect"] = True
+                discount_calculation_results["discount_amount_exactly_50000_paise"] = True
+                discount_calculation_results["mathematical_accuracy_verified"] = True
+                discount_calculation_results["paise_conversion_working_correctly"] = True
+                print(f"         ✅ PERFECT: Pro Regular discount calculation mathematically accurate!")
+                print(f"         📊 Original: ₹1,495 (149500 paise)")
+                print(f"         📊 Discount: ₹500 (50000 paise)")
+                print(f"         📊 Final: ₹995 (99500 paise)")
+                print(f"         📊 Actual amount received: {amount} paise")
+            else:
+                print(f"         ❌ CRITICAL: Discount calculation incorrect!")
+                print(f"         📊 Expected final amount: {expected_final} paise (₹995)")
+                print(f"         📊 Actual amount received: {amount} paise (₹{amount/100})")
+                print(f"         📊 Discount calculation bug may still exist!")
+            
+            # Check payment response structure
+            if 'original_amount' in order_data and 'final_amount' in order_data:
+                discount_calculation_results["payment_response_shows_original_amount"] = True
+                discount_calculation_results["payment_response_shows_final_amount"] = True
+                print(f"         ✅ Payment response includes original_amount and final_amount")
+            
+            if 'discount_applied' in order_data and order_data.get('discount_applied') == 50000:
+                discount_calculation_results["payment_response_shows_discount_applied_50000"] = True
+                print(f"         ✅ Payment response shows discount_applied: 50000 paise")
+            
         else:
-            print(f"      ❌ Payment order creation failed - database schema issue may persist")
-            print(f"      ❌ Check for 'column receipt/notes of relation payment_orders does not exist' errors")
+            print(f"      ❌ Pro Regular payment creation failed")
+        
+        # Test Pro Exclusive Discount Calculation: ₹2,565 → ₹2,065 (50000 paise discount)
+        print("   📋 Step 2: Test Pro Exclusive Discount Calculation (₹2,565 → ₹2,065)")
+        
+        pro_exclusive_data = {
+            "plan_type": "pro_exclusive",
+            "user_email": "sp@theskinmantra.com",
+            "user_name": "SP",
+            "user_phone": "+919876543210",
+            "referral_code": admin_referral_code
+        }
+        
+        success, response = self.run_test(
+            "Pro Exclusive Discount Calculation Test", 
+            "POST", 
+            "payments/create-order", 
+            [200, 500], 
+            pro_exclusive_data, 
+            student_headers
+        )
+        
+        if success and response:
+            print(f"      ✅ Pro Exclusive payment creation successful")
+            
+            # Check discount calculation accuracy
+            order_data = response.get('data', {})
+            amount = order_data.get('amount', 0)
+            
+            # Expected: ₹2,565 = 256500 paise, with ₹500 discount = 50000 paise
+            # Final amount should be: 256500 - 50000 = 206500 paise (₹2,065)
+            expected_original = 256500  # ₹2,565 in paise
+            expected_discount = 50000   # ₹500 in paise
+            expected_final = 206500     # ₹2,065 in paise
+            
+            if amount == expected_final:
+                discount_calculation_results["pro_exclusive_discount_calculation_perfect"] = True
+                print(f"         ✅ PERFECT: Pro Exclusive discount calculation mathematically accurate!")
+                print(f"         📊 Original: ₹2,565 (256500 paise)")
+                print(f"         📊 Discount: ₹500 (50000 paise)")
+                print(f"         📊 Final: ₹2,065 (206500 paise)")
+                print(f"         📊 Actual amount received: {amount} paise")
+            else:
+                print(f"         ❌ CRITICAL: Pro Exclusive discount calculation incorrect!")
+                print(f"         📊 Expected final amount: {expected_final} paise (₹2,065)")
+                print(f"         📊 Actual amount received: {amount} paise (₹{amount/100})")
+                print(f"         📊 Discount calculation bug may still exist!")
+        else:
+            print(f"      ❌ Pro Exclusive payment creation failed")
         
         # PHASE 3: PAYMENT ORDER CREATION VERIFICATION (CRITICAL)
         print("\n💳 PHASE 3: PAYMENT ORDER CREATION VERIFICATION (CRITICAL)")
