@@ -166,12 +166,12 @@ const Pricing = () => {
             </button>
           </div>
 
-          {/* Pro Lite */}
+          {/* Pro Regular */}
           <div className={`bg-white border-2 rounded-2xl p-8 text-center hover:border-[#9ac026] transition-colors ${
-            highlightedPlan === PLAN_TYPES.PRO_LITE ? 'border-[#9ac026] ring-2 ring-[#9ac026] ring-opacity-20' : 'border-gray-200'
+            highlightedPlan === PLAN_TYPES.PRO_REGULAR ? 'border-[#9ac026] ring-2 ring-[#9ac026] ring-opacity-20' : 'border-gray-200'
           }`}>
             <div className="mb-6">
-              <h3 className="text-2xl font-bold mb-2" style={{ color: '#545454' }}>Pro Lite</h3>
+              <h3 className="text-2xl font-bold mb-2" style={{ color: '#545454' }}>Pro Regular</h3>
               <p className="text-gray-600" style={{ fontFamily: 'Lato, sans-serif' }}>
                 For long-term prep spaced across months
               </p>
