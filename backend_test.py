@@ -1413,8 +1413,8 @@ class CATBackendTester:
             
             if success and response:
                 if response.get('valid', False) and response.get('can_use', False):
-                    referral_system_results["fresh_email_can_use_referral_codes"] = True
-                    referral_system_results["business_rules_correctly_implemented"] = True
+                    payment_referral_results["fresh_email_can_use_referral_codes"] = True
+                    payment_referral_results["business_rules_correctly_implemented"] = True
                     print(f"      ✅ Fresh email can use referral codes")
                     print(f"      📊 Referrer: {response.get('referrer_name', 'N/A')}")
                     print(f"      📊 Discount: ₹{response.get('discount_amount', 0)}")
