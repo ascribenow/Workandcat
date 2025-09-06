@@ -1143,35 +1143,71 @@ class CATBackendTester:
         
         return success_rate >= 70  # Return True if enhanced checker validation is successful
 
-    def test_student_referral_mechanism(self):
+    def test_student_referral_mechanism_critical_verification(self):
         """
-        COMPREHENSIVE STUDENT REFERRAL MECHANISM TESTING
-        Test the complete student referral system with unique codes, validation, and payment integration
+        CRITICAL 100% SUCCESS VERIFICATION: Test the student referral mechanism backend after fixing the critical import issue with Subscription class.
+        
+        CONTEXT: Main agent fixed critical issue where Subscription class was missing from database.py imports, 
+        causing 78.6% success rate. Now need to verify 100% success rate for the payment referral system.
+        
+        CRITICAL ISSUE FIXED: 
+        - Moved Subscription, PaymentOrder, PaymentTransaction classes from payment_service.py to database.py
+        - Fixed import errors in subscription_access_service.py
+        - Backend restarted successfully
+        
+        TESTING OBJECTIVES - MUST ACHIEVE 100%:
+        1. Database Structure Verification (CRITICAL) - Verify all payment and subscription models import correctly
+        2. Referral Code System (CRITICAL) - Test referral code generation, validation API, self-referral prevention, one-time usage
+        3. Payment Integration (CRITICAL - MUST BE 100%) - Test Pro Regular/Exclusive with referral codes, verify ₹500 discount calculation
+        4. Subscription Access Integration (CRITICAL) - Test subscription_access_service imports working
+        5. Error Handling (CRITICAL) - Test all edge cases and invalid inputs
+        
+        SUCCESS CRITERIA: Must achieve 100% success rate (no failures acceptable)
         """
-        print("🎯 STUDENT REFERRAL MECHANISM TESTING - COMPREHENSIVE VALIDATION")
-        print("=" * 90)
-        print("OBJECTIVE: Test comprehensive student referral mechanism with unique codes, validation, and payment integration")
+        print("🎯 STUDENT REFERRAL MECHANISM CRITICAL 100% SUCCESS VERIFICATION")
+        print("=" * 100)
+        print("CONTEXT: Testing after fixing critical Subscription class import issue")
+        print("OBJECTIVE: Verify 100% success rate for payment referral system (no failures acceptable)")
         print("")
-        print("TESTING OBJECTIVES:")
-        print("1. Database Structure Verification - referral_usage table exists with correct schema")
-        print("2. Referral Code Generation - new user signup generates unique 6-character alphanumeric codes")
-        print("3. Referral Code Validation API - POST /api/referral/validate endpoint")
-        print("4. Payment Integration - payment endpoints accept referral_code parameter with ₹500 discount")
-        print("5. User Referral Code Retrieval - GET /api/user/referral-code endpoint")
-        print("6. Database Tracking - referral usage tracking in database")
+        print("CRITICAL ISSUE FIXED:")
+        print("- Moved Subscription, PaymentOrder, PaymentTransaction classes from payment_service.py to database.py")
+        print("- Fixed import errors in subscription_access_service.py")
+        print("- Backend restarted successfully")
         print("")
-        print("SPECIFIC TESTS:")
-        print("- Referral Code Validation: POST /api/referral/validate")
-        print("- User Referral Code: GET /api/user/referral-code")
-        print("- Payment with Referral: POST /api/payments/create-subscription (with referral_code)")
-        print("- Payment with Referral: POST /api/payments/create-order (with referral_code)")
-        print("- Self-referral Prevention: Validate user cannot use own code")
-        print("- One-time Usage: Validate referral code can only be used once per email")
+        print("TESTING OBJECTIVES - MUST ACHIEVE 100%:")
+        print("1. Database Structure Verification (CRITICAL)")
+        print("   - Verify all payment and subscription models import correctly")
+        print("   - Test referral_usage table is accessible")
+        print("   - Verify users table has referral_code column")
         print("")
-        print("AUTHENTICATION DETAILS:")
+        print("2. Referral Code System (CRITICAL)")
+        print("   - Test referral code generation for new users")
+        print("   - Test referral code validation API")
+        print("   - Verify self-referral prevention")
+        print("   - Test one-time usage enforcement")
+        print("")
+        print("3. Payment Integration (CRITICAL - MUST BE 100%)")
+        print("   - Test Pro Regular subscription with referral codes")
+        print("   - Test Pro Exclusive order with referral codes")
+        print("   - Verify ₹500 discount calculation is exact")
+        print("   - Test referral usage tracking in database")
+        print("")
+        print("4. Subscription Access Integration (CRITICAL)")
+        print("   - Test subscription_access_service imports working")
+        print("   - Verify feature access validation")
+        print("   - Test session limit calculations")
+        print("")
+        print("5. Error Handling (CRITICAL)")
+        print("   - Test all edge cases and invalid inputs")
+        print("   - Verify proper error messages")
+        print("   - Test authentication requirements")
+        print("")
+        print("AUTHENTICATION:")
         print("- Admin: sumedhprabhu18@gmail.com / admin2025")
-        print("- Test User: sp@theskinmantra.com / student123")
-        print("=" * 90)
+        print("- Student: sp@theskinmantra.com / student123")
+        print("")
+        print("SUCCESS CRITERIA: Must achieve 100% success rate (no failures acceptable)")
+        print("=" * 100)
         
         referral_results = {
             # Authentication Setup
