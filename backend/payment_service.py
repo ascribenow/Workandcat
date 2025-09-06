@@ -38,6 +38,7 @@ class SubscriptionRequest(BaseModel):
     user_email: str
     user_name: str
     user_phone: Optional[str] = None
+    referral_code: Optional[str] = None  # Referral code for discount
 
 # Database Models
 class PaymentOrder(Base):
