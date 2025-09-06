@@ -1013,7 +1013,8 @@ async def create_subscription(sub_request: SubscriptionRequest, current_user: Us
             user_email=sub_request.user_email,
             user_name=sub_request.user_name,
             user_id=user_id,
-            user_phone=sub_request.user_phone
+            user_phone=sub_request.user_phone,
+            referral_code=sub_request.referral_code
         )
         
         return {"success": True, "data": subscription}
