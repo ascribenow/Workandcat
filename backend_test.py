@@ -6618,41 +6618,41 @@ Find the compound interest on Rs. 1000 for 2 years at 10% per annum.,210"""
 
 def main():
     """Main function to run comprehensive backend testing"""
-    print("🔐 STARTING SUBSCRIPTION INTEGRATION SYSTEM TESTING - AS REQUESTED")
+    print("🎯 STARTING STUDENT REFERRAL MECHANISM TESTING - AS REQUESTED")
     print("=" * 80)
     
     tester = CATBackendTester()
     
     try:
-        # Run Subscription Integration System Testing (as per review request)
-        print("🔐 SUBSCRIPTION INTEGRATION SYSTEM COMPREHENSIVE TESTING")
-        subscription_success = tester.test_subscription_integration_system()
+        # Run Student Referral Mechanism Testing (as per review request)
+        print("🎯 STUDENT REFERRAL MECHANISM COMPREHENSIVE TESTING")
+        referral_success = tester.test_student_referral_mechanism()
         
         print("\n" + "=" * 80)
-        print("🏁 SUBSCRIPTION INTEGRATION SYSTEM TESTING COMPLETED")
+        print("🏁 STUDENT REFERRAL MECHANISM TESTING COMPLETED")
         print("=" * 80)
         
-        print(f"\n📊 SUBSCRIPTION INTEGRATION SYSTEM RESULTS:")
-        print(f"  Subscription Integration System: {'✅ PASS' if subscription_success else '❌ FAIL'}")
+        print(f"\n📊 STUDENT REFERRAL MECHANISM RESULTS:")
+        print(f"  Student Referral Mechanism: {'✅ PASS' if referral_success else '❌ FAIL'}")
         
-        if subscription_success:
-            print("\n🎉 OVERALL RESULT: SUBSCRIPTION INTEGRATION SYSTEM SUCCESSFUL!")
-            print("✅ Plan name updates implemented correctly (Pro Lite → Pro Regular, Pro Regular → Pro Exclusive)")
-            print("✅ Subscription-based access control working (paid users get unlimited sessions)")
-            print("✅ Feature access integration functional (Ask Twelvr only for Pro Exclusive)")
-            print("✅ New API endpoints working (session-limit-status, feature-access, subscription-details)")
-            print("✅ Payment flow working with new plan names")
-            print("✅ Error handling properly implemented")
-            print("🏆 PRODUCTION READY - Subscription integration system fully functional")
+        if referral_success:
+            print("\n🎉 OVERALL RESULT: STUDENT REFERRAL MECHANISM SUCCESSFUL!")
+            print("✅ Unique 6-character alphanumeric referral codes generated on signup")
+            print("✅ Referral code validation API endpoint working (POST /api/referral/validate)")
+            print("✅ ₹500 discount application in payment flow functional")
+            print("✅ Database tracking of referral usage working")
+            print("✅ User referral code retrieval endpoint working (GET /api/user/referral-code)")
+            print("✅ Self-referral prevention and one-time usage enforcement working")
+            print("🏆 PRODUCTION READY - Student referral mechanism fully functional")
         else:
-            print("\n❌ OVERALL RESULT: SUBSCRIPTION INTEGRATION SYSTEM FAILED")
-            print("🚨 Critical issues detected with subscription integration system")
+            print("\n❌ OVERALL RESULT: STUDENT REFERRAL MECHANISM FAILED")
+            print("🚨 Critical issues detected with student referral mechanism")
         
         print(f"\nTests Run: {tester.tests_run}")
         print(f"Tests Passed: {tester.tests_passed}")
         print(f"Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%")
         
-        return subscription_success
+        return referral_success
         
     except Exception as e:
         print(f"\n❌ TESTING FAILED: {e}")
