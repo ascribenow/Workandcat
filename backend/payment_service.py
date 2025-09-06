@@ -175,7 +175,7 @@ class RazorpayService:
                     user_id=user_id,
                     razorpay_order_id=razorpay_order["id"],
                     plan_type=plan_type,
-                    amount=plan_config["amount"],
+                    amount=final_amount,
                     status="created"
                 )
                 db.add(db_order)
