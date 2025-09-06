@@ -1283,6 +1283,10 @@ class CATBackendTester:
         print("-" * 60)
         print("Verifying referral_usage table exists and users table has referral_code column")
         
+        # Initialize referral code variables
+        student_referral_code = None
+        admin_referral_code = None
+        
         # Test if user has referral code (indirect database structure verification)
         print("   📋 Step 1: Verify Users Table Has Referral Code Column")
         success, response = self.run_test(
