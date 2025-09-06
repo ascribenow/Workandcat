@@ -508,10 +508,145 @@ class RazorpayService:
                 "error": str(e)
             }
     
-    def resume_subscription(self, user_id: str) -> Dict[str, Any]:
-        """Resume user's paused subscription with balance days calculation"""
+    def get_resume_payment_details(self, user_id: str) -> Dict[str, Any]:
+        """Get payment details for resuming a paused subscription"""
         try:
             with SessionLocal() as db:
+                # Find paused subscription
+                subscription = db.query(Subscription).filter(
+                    Subscription.user_id == user_id,
+                    Subscription.status == "paused"
+                ).first()
+                
+                if not subscription:
+                    return {
+                        "success": False,
+                        "error": "No paused subscription found"
+                    }
+                
+                if subscription.plan_type != "pro_regular":
+                    return {
+                        "success": False,
+                        "error": "Resume payment only required for Pro Regular subscriptions"
+                    }
+                
+                balance_days = subscription.paused_days_remaining or 0
+                plan_config = self.plans.get("pro_regular", {})
+                
+                return {
+                    "success": True,
+                    "subscription_id": subscription.id,
+                    "plan_type": subscription.plan_type,
+                    "amount": plan_config.get("amount", 149500),  # ₹1,495
+                    "balance_days": balance_days,
+                    "total_days_after_resume": 30 + balance_days,
+                    "message": f"Resume Pro Regular subscription with {balance_days} balance days (Total: {30 + balance_days} days)"
+                }
+                
+        except Exception as e:
+            logger.error(f"Error getting resume payment details for user {user_id}: {e}")
+            return {
+                "success": False,
+                "error": str(e)
+            }
+    
+    def create_resume_payment_order(self, user_id: str, user_email: str, user_name: str, user_phone: Optional[str] = None) -> Dict[str, Any]:
+        """Create payment order for resuming paused subscription"""
+        try:
+            with SessionLocal() as db:
+                # Find paused subscription
+                subscription = db.query(Subscription).filter(
+                    Subscription.user_id == user_id,
+                    Subscription.status == "paused"
+                ).first()
+                
+                if not subscription:
+                    return {
+                        "success": False,
+                        "error": "No paused subscription found"
+                    }
+                
+                if subscription.plan_type != "pro_regular":
+                    return {
+                        "success": False,
+                        "error": "Resume payment only required for Pro Regular subscriptions"
+                    }
+                
+                balance_days = subscription.paused_days_remaining or 0
+                plan_config = self.plans.get("pro_regular", {})
+                amount = plan_config.get("amount", 149500)  # ₹1,495
+                
+                # Create Razorpay order
+                razorpay_order = self.client.order.create({
+                    "amount": amount,
+                    "currency": "INR",
+                    "payment_capture": 1,
+                    "notes": {
+                        "plan_type": "pro_regular",
+                        "user_email": user_email,
+                        "user_name": user_name,
+                        "user_id": user_id,
+                        "subscription_action": "resume",
+                        "subscription_id": subscription.id,
+                        "balance_days": balance_days
+                    }
+                })
+                
+                # Store order in database
+                db_order = PaymentOrder(
+                    razorpay_order_id=razorpay_order["id"],
+                    user_id=user_id,
+                    plan_type="pro_regular",
+                    amount=amount,
+                    status="created"
+                )
+                db.add(db_order)
+                db.commit()
+                
+                logger.info(f"Created resume payment order {razorpay_order['id']} for user {user_id}")
+                
+                return {
+                    "success": True,
+                    "id": razorpay_order["id"],
+                    "order_id": razorpay_order["id"],
+                    "amount": razorpay_order["amount"],
+                    "currency": razorpay_order["currency"],
+                    "key": os.getenv("RAZORPAY_KEY_ID"),
+                    "plan_name": "Resume Pro Regular",
+                    "description": f"Resume Pro Regular subscription with {balance_days} bonus days",
+                    "prefill": {
+                        "name": user_name,
+                        "email": user_email,
+                        "contact": user_phone or ""
+                    },
+                    "theme": {
+                        "color": "#9ac026"
+                    },
+                    "resume_payment": True,
+                    "balance_days": balance_days,
+                    "total_days": 30 + balance_days
+                }
+                
+        except Exception as e:
+            logger.error(f"Error creating resume payment order for user {user_id}: {e}")
+            return {
+                "success": False,
+                "error": str(e)
+            }
+    
+    def complete_resume_payment(self, payment_id: str, order_id: str, signature: str, user_id: str) -> Dict[str, Any]:
+        """Complete resume payment and activate subscription with balance days"""
+        try:
+            with SessionLocal() as db:
+                # Verify payment
+                verification_result = self.verify_payment(payment_id, order_id, signature)
+                
+                if not verification_result.get("success"):
+                    return {
+                        "success": False,
+                        "error": "Payment verification failed"
+                    }
+                
                 # Find paused subscription
                 subscription = db.query(Subscription).filter(
                     Subscription.user_id == user_id,
@@ -528,16 +663,7 @@ class RazorpayService:
                 balance_days = subscription.paused_days_remaining or 0
                 
                 # Calculate new expiry: current_date + 30_days + balance_days
-                if subscription.plan_type == "pro_regular":
-                    new_end_date = now + timedelta(days=30 + balance_days)
-                elif subscription.plan_type == "pro_exclusive":
-                    # For Pro Exclusive, keep the fixed end date (Dec 31, 2025)
-                    import pytz
-                    ist = pytz.timezone('Asia/Kolkata')
-                    fixed_end = datetime(2025, 12, 31, 23, 59, 0)
-                    new_end_date = ist.localize(fixed_end).astimezone(pytz.UTC).replace(tzinfo=None)
-                else:
-                    new_end_date = now + timedelta(days=30 + balance_days)
+                new_end_date = now + timedelta(days=30 + balance_days)
                 
                 # Update subscription to active status
                 subscription.status = "active"
@@ -546,20 +672,32 @@ class RazorpayService:
                 subscription.paused_at = None
                 subscription.paused_days_remaining = None
                 
+                # Record the payment transaction
+                transaction = PaymentTransaction(
+                    user_id=user_id,
+                    razorpay_payment_id=payment_id,
+                    razorpay_order_id=order_id,
+                    amount=149500,  # ₹1,495
+                    method="resume_subscription",
+                    status="captured"
+                )
+                db.add(transaction)
+                
                 db.commit()
                 
-                logger.info(f"Resumed subscription {subscription.id} for user {user_id} with {balance_days} balance days")
+                logger.info(f"Completed resume payment for subscription {subscription.id} with {balance_days} balance days")
                 
                 return {
                     "success": True,
-                    "message": "Subscription resumed successfully",
+                    "message": "Subscription resumed successfully with payment",
                     "balance_days_added": balance_days,
                     "new_expiry": new_end_date.isoformat(),
-                    "total_days": 30 + balance_days if subscription.plan_type == "pro_regular" else "Till Dec 31, 2025"
+                    "total_days": 30 + balance_days,
+                    "amount_paid": 149500
                 }
                 
         except Exception as e:
-            logger.error(f"Error resuming subscription for user {user_id}: {e}")
+            logger.error(f"Error completing resume payment: {e}")
             return {
                 "success": False,
                 "error": str(e)
