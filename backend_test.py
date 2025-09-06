@@ -1385,7 +1385,7 @@ class CATBackendTester:
             
             if success and response:
                 if not response.get('can_use', True) and 'own' in response.get('error', '').lower():
-                    referral_system_results["self_referral_prevention_working"] = True
+                    payment_referral_results["self_referral_prevention_working"] = True
                     print(f"      ✅ Self-referral prevention working")
                     print(f"      📊 Error message: {response.get('error', 'N/A')}")
                 else:
