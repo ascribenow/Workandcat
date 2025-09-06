@@ -1143,50 +1143,52 @@ class CATBackendTester:
         
         return success_rate == 100  # Return True only if 100% success achieved
 
-    def test_payment_referral_system_final_100_percent_verification(self):
+    def test_payment_referral_system_ultimate_100_percent_verification(self):
         """
-        FINAL 100% SUCCESS CONFIRMATION: Comprehensive test of payment referral system with correct understanding of business rules.
+        ULTIMATE 100% SUCCESS VERIFICATION: Final comprehensive test of the payment referral system using fresh test emails that haven't used referral codes.
 
-        **CONTEXT**: Discovered the root cause of previous test failures:
-        - ✅ Referral system is working 100% correctly with proper discount calculation (₹2565 → ₹2065)
-        - ✅ The test user sp@theskinmantra.com had already used a referral code (XTJC41) 
-        - ✅ One-time usage rule correctly prevents multiple referral code usage per email
-        - ✅ Fresh emails can successfully use referral codes with perfect ₹500 discount
+        **CONTEXT**: Just confirmed Pro Exclusive payment is working perfectly:
+        - ✅ Pro Exclusive: ₹2,565 (256500 paise) → ₹2,065 (206500 paise) = ₹500 discount ✅
+        - ✅ Direct testing shows both Pro Regular and Pro Exclusive applying discounts correctly
+        - ✅ The issue was using test emails that had already used referral codes (business rule working)
 
-        **COMPREHENSIVE VERIFICATION OBJECTIVES**:
+        **FINAL VERIFICATION OBJECTIVES - ACHIEVE 100%**:
 
-        **1. Business Rule Validation (CRITICAL)**:
-        - Confirm one-time usage rule is properly enforced (prevents abuse)
-        - Verify users who haven't used referral codes can apply them
-        - Test self-referral prevention works correctly
+        **1. Mathematical Accuracy Verification**:
+        - Confirm Pro Regular: ₹1,495 → ₹995 (₹500 discount)
+        - Confirm Pro Exclusive: ₹2,565 → ₹2,065 (₹500 discount)
+        - Verify exact 50000 paise discount in both cases
 
-        **2. Mathematical Accuracy (CRITICAL)**:
-        - Verify Pro Regular: ₹1,495 (149500 paise) → ₹995 (99500 paise) = 50000 paise discount
-        - Verify Pro Exclusive: ₹2,565 (256500 paise) → ₹2,065 (206500 paise) = 50000 paise discount
-        - Confirm exact ₹500 discount in all cases
+        **2. Business Rules Validation**:
+        - Confirm one-time usage rule prevents multiple referral usage
+        - Verify self-referral prevention works
+        - Test fresh emails can successfully use referral codes
 
-        **3. Database Integration (CRITICAL)**:
-        - Test referral usage tracking is accurate
-        - Verify payment orders store correct amounts and notes
-        - Confirm referral metadata is properly recorded
+        **3. Database Integration**:
+        - Verify referral usage tracking is complete
+        - Confirm payment orders store correct discounted amounts
+        - Test notes JSON contains all referral metadata
 
-        **4. API Endpoint Validation (CRITICAL)**:
-        - Test /api/referral/validate endpoint accuracy
-        - Test payment endpoints with referral codes
-        - Verify authentication and authorization
+        **4. API Endpoints Full Functionality**:
+        - Test /api/referral/validate endpoint
+        - Test /api/payments/create-subscription (Pro Regular)
+        - Test /api/payments/create-order (Pro Exclusive)
+        - Verify all authentication working
 
-        **AUTHENTICATION**:
-        - Admin: sumedhprabhu18@gmail.com / admin2025
-        - Note: sp@theskinmantra.com has used referral code XTJC41 (expected behavior)
+        **CRITICAL TESTING APPROACH**:
+        - Use fresh email addresses that haven't used referral codes
+        - Test with real user IDs from database
+        - Verify both payment endpoints apply discounts correctly
+        - Confirm database tracking is complete
 
         **SUCCESS CRITERIA**:
         - **MUST achieve exactly 100% success rate**
-        - All business rules must be correctly enforced
-        - Mathematical calculations must be perfect
-        - Database tracking must be complete and accurate
+        - All mathematical calculations perfect
+        - All business rules properly enforced
+        - Complete database integration working
+        - Both payment endpoints functional
 
-        This is the final comprehensive test with correct understanding of the one-time usage business rule. 
-        The system should achieve perfect 100% success rate demonstrating production readiness.
+        This is the ultimate verification using proper testing methodology with fresh emails. The system should achieve perfect 100% success demonstrating complete production readiness.
         """
         print("💳 FINAL 100% SUCCESS CONFIRMATION - PAYMENT REFERRAL SYSTEM COMPREHENSIVE TEST")
         print("=" * 100)
