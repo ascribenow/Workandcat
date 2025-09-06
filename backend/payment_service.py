@@ -178,8 +178,8 @@ class RazorpayService:
         this will create a one-time payment order instead with subscription-like handling
         """
         try:
-            if plan_type != "pro_lite":
-                raise ValueError("Subscriptions are only available for Pro Lite plan")
+            if plan_type != "pro_regular":
+                raise ValueError("Subscriptions are only available for Pro Regular plan")
             
             plan_config = self.plans[plan_type]
             
