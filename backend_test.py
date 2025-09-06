@@ -1240,41 +1240,48 @@ class CATBackendTester:
         print("The system should now achieve perfect 100% success rate.")
         print("=" * 100)
         
-        payment_referral_results = {
+        discount_calculation_results = {
             # Authentication Setup (CRITICAL)
             "admin_authentication_working": False,
             "student_authentication_working": False,
             
-            # Database Schema Completely Fixed (CRITICAL)
-            "payment_orders_table_complete_schema": False,
-            "receipt_column_working": False,
-            "notes_column_working": False,
-            "payment_order_creation_no_database_errors": False,
-            "database_schema_issue_completely_resolved": False,
+            # Discount Calculation Verification (CRITICAL - FIXED)
+            "pro_regular_discount_calculation_perfect": False,  # ₹1,495 → ₹995 (50000 paise discount)
+            "pro_exclusive_discount_calculation_perfect": False,  # ₹2,565 → ₹2,065 (50000 paise discount)
+            "discount_amount_exactly_50000_paise": False,
+            "mathematical_accuracy_verified": False,
+            "paise_conversion_working_correctly": False,
             
-            # Payment Order Creation (CRITICAL)
-            "pro_regular_payment_creation_working": False,
-            "pro_exclusive_payment_creation_working": False,
-            "payment_endpoints_functional": False,
-            "payment_orders_stored_successfully": False,
+            # Payment Response Verification (CRITICAL - FIXED)
+            "payment_response_shows_original_amount": False,
+            "payment_response_shows_final_amount": False,
+            "payment_response_shows_discount_applied_50000": False,
+            "payment_verification_section_accurate": False,
+            "response_structure_includes_all_amounts": False,
             
-            # Payment Amount Display Verification (CRITICAL)
-            "payment_response_includes_original_amount": False,
-            "payment_response_includes_final_amount": False,
-            "payment_response_includes_discount_applied": False,
-            "pro_regular_amount_calculation_perfect": False,  # ₹1,495 → ₹995
-            "pro_exclusive_amount_calculation_perfect": False,  # ₹2,565 → ₹2,065
-            "payment_verification_shows_correct_calculations": False,
+            # Database Storage Verification (CRITICAL - FIXED)
+            "payment_orders_store_correct_discounted_amounts": False,
+            "notes_json_contains_referral_code": False,
+            "notes_json_contains_discount_applied": False,
+            "notes_json_contains_referrer_cashback_due": False,
+            "database_tracking_complete": False,
             
-            # Razorpay Parameter Passing (CRITICAL)
-            "referral_code_stored_in_notes_json": False,
-            "discount_applied_flag_in_notes": False,
-            "referrer_cashback_due_tracked_in_notes": False,
-            "notes_json_structure_correct": False,
-            
-            # End-to-End Referral Flow (CRITICAL)
-            "complete_payment_flow_with_referral_working": False,
+            # End-to-End Referral Flow (CRITICAL - FIXED)
+            "complete_payment_creation_with_referral_codes": False,
             "referral_usage_tracking_in_database": False,
+            "all_calculations_mathematically_perfect": False,
+            "end_to_end_flow_working": False,
+            
+            # Referral Code Validation (SUPPORTING)
+            "referral_validate_endpoint_accessible": False,
+            "valid_referral_code_validation_working": False,
+            "invalid_referral_code_proper_handling": False,
+            "self_referral_prevention_enforced": False,
+            "one_time_usage_enforcement_working": False,
+            
+            # Payment Configuration (SUPPORTING)
+            "payment_configuration_working": False,
+            "razorpay_integration_functional": Falserral_usage_tracking_in_database": False,
             "all_referral_metadata_properly_stored": False,
             "end_to_end_referral_flow_perfect": False,
             
