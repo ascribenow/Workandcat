@@ -1688,10 +1688,10 @@ class CATBackendTester:
         api_validation = sum(payment_referral_results[key] for key in testing_categories["API ENDPOINTS FULL FUNCTIONALITY (CRITICAL)"])
         
         print(f"\n📊 CRITICAL METRICS:")
-        print(f"  Business Rule Validation: {business_rules}/5 ({(business_rules/5)*100:.1f}%)")
-        print(f"  Mathematical Accuracy: {mathematical_accuracy}/5 ({(mathematical_accuracy/5)*100:.1f}%)")
+        print(f"  Mathematical Accuracy Verification: {mathematical_accuracy}/5 ({(mathematical_accuracy/5)*100:.1f}%)")
+        print(f"  Business Rules Validation: {business_rules}/5 ({(business_rules/5)*100:.1f}%)")
         print(f"  Database Integration: {database_integration}/4 ({(database_integration/4)*100:.1f}%)")
-        print(f"  API Endpoint Validation: {api_validation}/4 ({(api_validation/4)*100:.1f}%)")
+        print(f"  API Endpoints Full Functionality: {api_validation}/4 ({(api_validation/4)*100:.1f}%)")
         
         # FINAL ASSESSMENT
         if success_rate == 100:
