@@ -257,32 +257,155 @@ const PaymentComponent = ({ planType, amount, planName, description, onSuccess, 
     }
   };
 
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+
+  const handleButtonClick = () => {
+    const token = localStorage.getItem('cat_prep_token');
+    if (!token || !isAuthenticated()) {
+      alert('Please login to purchase a plan');
+      return;
+    }
+    setShowPaymentModal(true);
+  };
+
+  const calculateDiscountedAmount = () => {
+    if (referralValidation && referralValidation.valid && referralValidation.can_use) {
+      return Math.max(amount - 500, 1); // Minimum ₹1
+    }
+    return amount;
+  };
+
   return (
-    <button
-      onClick={handlePayment}
-      disabled={loading}
-      className={`w-full py-3 px-6 rounded-lg font-semibold transition-colors ${
-        planType === 'pro_exclusive' 
-          ? 'bg-[#9ac026] text-white hover:bg-[#8bb024] disabled:bg-gray-400' 
-          : 'border-2 border-[#9ac026] text-[#9ac026] hover:bg-[#9ac026] hover:text-white disabled:border-gray-400 disabled:text-gray-400'
-      }`}
-      style={{ fontFamily: 'Lato, sans-serif' }}
-    >
-      {loading ? (
-        <div className="flex items-center justify-center">
-          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-current mr-2"></div>
-          {planType === 'pro_regular' ? 'Starting Subscription...' : 'Processing Payment...'}
+    <>
+      <button
+        onClick={handleButtonClick}
+        disabled={loading}
+        className={`w-full py-3 px-6 rounded-lg font-semibold transition-colors ${
+          planType === 'pro_exclusive' 
+            ? 'bg-[#9ac026] text-white hover:bg-[#8bb024] disabled:bg-gray-400' 
+            : 'border-2 border-[#9ac026] text-[#9ac026] hover:bg-[#9ac026] hover:text-white disabled:border-gray-400 disabled:text-gray-400'
+        }`}
+        style={{ fontFamily: 'Lato, sans-serif' }}
+      >
+        {!localStorage.getItem('cat_prep_token') || !isAuthenticated() ? (
+          <>
+            {planType === 'pro_regular' ? 'Login to Subscribe' : 'Login to Purchase'}
+          </>
+        ) : (
+          <>
+            {planType === 'pro_regular' ? 'Subscribe to Pro Regular' : 'Choose Pro Exclusive'}
+          </>
+        )}
+      </button>
+
+      {/* Payment Modal */}
+      {showPaymentModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg max-w-md w-full p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-bold text-gray-800">{planName}</h3>
+              <button
+                onClick={() => setShowPaymentModal(false)}
+                className="text-gray-500 hover:text-gray-700 text-2xl"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="mb-4">
+              <p className="text-gray-600 mb-2">{description}</p>
+              <div className="flex items-center justify-between">
+                <span className="text-lg font-semibold">Amount:</span>
+                <div className="text-right">
+                  {referralValidation && referralValidation.valid && referralValidation.can_use ? (
+                    <>
+                      <span className="text-gray-400 line-through text-sm">₹{amount}</span>
+                      <span className="text-green-600 font-bold text-lg ml-2">₹{calculateDiscountedAmount()}</span>
+                      <div className="text-green-600 text-sm">₹500 referral discount applied!</div>
+                    </>
+                  ) : (
+                    <span className="text-lg font-bold">₹{amount}</span>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Referral Code Input */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Referral Code (Optional)
+                <span className="text-gray-500 font-normal"> - Get ₹500 off</span>
+              </label>
+              <div className="relative">
+                <input
+                  type="text"
+                  value={referralCode}
+                  onChange={(e) => {
+                    const code = e.target.value.toUpperCase().slice(0, 6);
+                    setReferralCode(code);
+                    if (code.length === 6) {
+                      validateReferralCode(code);
+                    } else {
+                      setReferralValidation(null);
+                    }
+                  }}
+                  placeholder="Enter 6-character code"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#9ac026] focus:border-transparent"
+                  maxLength={6}
+                />
+                {validatingReferral && (
+                  <div className="absolute right-2 top-2">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[#9ac026]"></div>
+                  </div>
+                )}
+              </div>
+              
+              {/* Referral Validation Messages */}
+              {referralValidation && (
+                <div className={`mt-2 text-sm ${referralValidation.valid && referralValidation.can_use ? 'text-green-600' : 'text-red-600'}`}>
+                  {referralValidation.valid && referralValidation.can_use ? (
+                    <div className="flex items-center">
+                      <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                      Valid! You'll save ₹500 on this purchase.
+                    </div>
+                  ) : (
+                    <div className="flex items-center">
+                      <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                      </svg>
+                      {referralValidation.error}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Payment Button */}
+            <button
+              onClick={() => {
+                setShowPaymentModal(false);
+                handlePayment();
+              }}
+              disabled={loading}
+              className="w-full py-3 px-6 bg-[#9ac026] text-white rounded-lg font-semibold hover:bg-[#8bb024] disabled:bg-gray-400 transition-colors"
+            >
+              {loading ? (
+                <div className="flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-current mr-2"></div>
+                  {planType === 'pro_regular' ? 'Starting Subscription...' : 'Processing Payment...'}
+                </div>
+              ) : (
+                <>
+                  {planType === 'pro_regular' ? 'Subscribe Now' : 'Pay Now'} - ₹{calculateDiscountedAmount()}
+                </>
+              )}
+            </button>
+          </div>
         </div>
-      ) : !localStorage.getItem('cat_prep_token') || !isAuthenticated() ? (
-        <>
-          {planType === 'pro_regular' ? 'Login to Subscribe' : 'Login to Purchase'}
-        </>
-      ) : (
-        <>
-          {planType === 'pro_regular' ? 'Subscribe to Pro Regular' : 'Choose Pro Exclusive'}
-        </>
       )}
-    </button>
+    </>
   );
 };
 
