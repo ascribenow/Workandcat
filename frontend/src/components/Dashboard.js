@@ -522,8 +522,15 @@ const AdminPanel = () => {
   const handleTabChange = (tab) => {
     setActiveTab(tab);
     if (tab === 'referral-tracker') {
-      loadReferralDashboard();
-      loadCashbackDue();
+      // Set default date range (last 30 days)
+      const today = new Date();
+      const thirtyDaysAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
+      
+      setEndDate(today.toISOString().split('T')[0]);
+      setStartDate(thirtyDaysAgo.toISOString().split('T')[0]);
+      
+      // Load initial data
+      loadFilteredReferrals();
     }
   };
 
