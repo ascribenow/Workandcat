@@ -87,6 +87,7 @@ async def add_referral_system():
                 db.commit()
                 logger.info(f"✅ Created index: {index_query.split('idx_')[1].split(' ')[0] if 'idx_' in index_query else 'unknown'}")
             except Exception as e:
+                db.rollback()  # Rollback transaction on error
                 if "already exists" in str(e).lower():
                     logger.info(f"⚠️ Index already exists: {index_query}")
                 else:
