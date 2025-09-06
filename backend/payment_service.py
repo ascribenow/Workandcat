@@ -9,9 +9,7 @@ import uuid
 from datetime import datetime, timedelta
 from typing import Dict, Any, Optional, List
 from pydantic import BaseModel
-from sqlalchemy import Column, String, Integer, Float, DateTime, Boolean, Text, ForeignKey
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship
+from sqlalchemy import Column, String, Integer, DateTime, Boolean, Text, ForeignKey
 from database import Base, SessionLocal
 import logging
 from dotenv import load_dotenv
@@ -221,7 +219,7 @@ class RazorpayService:
                 )
                 db.add(db_order)
                 db.commit()
-                logger.info(f"Stored Pro Lite order in database")
+                logger.info("Stored Pro Lite order in database")
             finally:
                 db.close()
             
