@@ -230,10 +230,10 @@ const Pricing = () => {
             </div>
 
             <PaymentComponent
-              planType="pro_lite"
+              planType="pro_regular"
               amount={149500}
-              planName="Pro Lite"
-              description="Pro Lite - Unlimited Daily-12 sessions for 30 days"
+              planName="Pro Regular"
+              description="Pro Regular - Unlimited sessions for 30 days"
               onSuccess={handlePaymentSuccess}
               onError={handlePaymentError}
             />
