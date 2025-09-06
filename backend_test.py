@@ -1572,7 +1572,7 @@ class CATBackendTester:
             )
             
             if success and response:
-                referral_results["payment_order_accepts_referral"] = True
+                referral_results["pro_exclusive_order_accepts_referral"] = True
                 print(f"      ✅ Pro Exclusive order accepts referral code")
                 
                 # Check if order was created with discount
