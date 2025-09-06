@@ -1483,7 +1483,7 @@ class CATBackendTester:
         
         if success and response:
             if not response.get("valid") or not response.get("can_use"):
-                referral_results["invalid_referral_code_handling"] = True
+                referral_results["invalid_referral_code_proper_handling"] = True
                 print(f"      ✅ Invalid referral code properly rejected")
                 print(f"         📊 Error: {response.get('error', 'No error message')}")
         
