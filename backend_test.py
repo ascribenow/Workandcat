@@ -1511,8 +1511,8 @@ class CATBackendTester:
                 payment_referral_results["final_amount_matches_discounted_calculation"] = True
                 print(f"      ✅ final_amount matches discounted calculation: ₹{final_amount/100}")
         
-        # PHASE 4: END-TO-END PAYMENT FLOW VERIFICATION (MUST BE 100%)
-        print("\n🔄 PHASE 4: END-TO-END PAYMENT FLOW VERIFICATION (MUST BE 100%)")
+        # PHASE 5: END-TO-END PAYMENT FLOW VERIFICATION (MUST BE 100%)
+        print("\n🔄 PHASE 5: END-TO-END PAYMENT FLOW VERIFICATION (MUST BE 100%)")
         print("-" * 70)
         print("Testing complete payment flow with referral codes and database tracking")
         
