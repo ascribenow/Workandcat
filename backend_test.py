@@ -1383,10 +1383,10 @@ class CATBackendTester:
             admin_referral_code = response.get("referral_code")
             print(f"      📊 Admin referral code: {admin_referral_code}")
             
-            # Test validation with admin's code for student
+            # Test validation with admin's code for a fresh email (not the existing student)
             validation_data = {
                 "referral_code": admin_referral_code,
-                "user_email": "sp@theskinmantra.com"
+                "user_email": "fresh_test_user@example.com"  # Use fresh email for testing
             }
             
             success, response = self.run_test(
