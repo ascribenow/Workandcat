@@ -66,6 +66,9 @@ class Subscription(Base):
     current_period_start = Column(DateTime, nullable=False)
     current_period_end = Column(DateTime, nullable=False)
     auto_renew = Column(Boolean, default=False)
+    paused_at = Column(DateTime, nullable=True)  # When subscription was paused
+    paused_days_remaining = Column(Integer, nullable=True)  # Days remaining when paused
+    pause_count = Column(Integer, default=0)  # Track number of times paused
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
