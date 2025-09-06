@@ -2583,6 +2583,59 @@ async def get_user_session_limit_status(
         logger.error(f"Error checking session limit status: {e}")
         raise HTTPException(status_code=500, detail="Error checking session limit")
 
+@api_router.get("/user/feature-access/{feature_name}")
+async def check_feature_access(
+    feature_name: str,
+    current_user: User = Depends(require_auth),
+    db: AsyncSession = Depends(get_async_compatible_db)
+):
+    """Check if user has access to a specific feature"""
+    try:
+        # Use subscription access service to check feature access
+        with SessionLocal() as sync_db:
+            feature_access = subscription_access_service.check_feature_access(
+                user_id=str(current_user.id),
+                user_email=current_user.email,
+                feature_name=feature_name,
+                db=sync_db
+            )
+            
+            return {
+                "success": True,
+                "feature": feature_name,
+                "has_access": feature_access["has_access"],
+                "plan_type": feature_access["plan_type"],
+                "access_type": feature_access["access_type"],
+                "subscription_status": feature_access["subscription_status"]
+            }
+        
+    except Exception as e:
+        logger.error(f"Error checking feature access: {e}")
+        raise HTTPException(status_code=500, detail="Error checking feature access")
+
+@api_router.get("/user/subscription-details")
+async def get_user_subscription_details(
+    current_user: User = Depends(require_auth),
+    db: AsyncSession = Depends(get_async_compatible_db)
+):
+    """Get detailed subscription information for the user"""
+    try:
+        with SessionLocal() as sync_db:
+            access_level = subscription_access_service.get_user_access_level(
+                user_id=str(current_user.id),
+                user_email=current_user.email,
+                db=sync_db
+            )
+            
+            return {
+                "success": True,
+                "access_level": access_level
+            }
+        
+    except Exception as e:
+        logger.error(f"Error getting subscription details: {e}")
+        raise HTTPException(status_code=500, detail="Error getting subscription details")
+
 
 @api_router.get("/dashboard/simple-taxonomy")
 async def get_simple_taxonomy_dashboard(
