@@ -1624,7 +1624,9 @@ class CATBackendTester:
         if (payment_referral_results["valid_referral_code_validation_working"] and 
             payment_referral_results["self_referral_prevention_enforced"]):
             payment_referral_results["one_time_usage_enforcement_working"] = True
-            print(f"      ✅ One-time usage enforcement system functional")elf.run_test(
+            print(f"      ✅ One-time usage enforcement system functional")
+
+        success, response = self.run_test(
             "Admin Referral Code", 
             "GET", 
             "user/referral-code", 
