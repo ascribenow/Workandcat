@@ -203,7 +203,7 @@ class RazorpayService:
             }
             
             razorpay_order = self.client.order.create(order_data)
-            logger.info(f"Successfully created Pro Lite order: {razorpay_order['id']}")
+            logger.info(f"Successfully created Pro Regular order: {razorpay_order['id']}")
             
             # Store order in database with subscription flag
             db = SessionLocal()
