@@ -1608,7 +1608,8 @@ class CATBackendTester:
             "pro_exclusive_discount_calculation_perfect",
             "mathematical_accuracy_verified",
             "referral_validate_endpoint_working",
-            "payment_endpoints_with_referral_working"
+            "payments_create_subscription_working",
+            "payments_create_order_working"
         ]
         
         critical_tests_passed = sum(payment_referral_results[test] for test in total_critical_tests)
