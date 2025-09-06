@@ -8,8 +8,8 @@ const CONTEXT_DURATION_MS = 15 * 60 * 1000; // 15 minutes
 
 export const PLAN_TYPES = {
   FREE_TRIAL: 'free_trial',
-  PRO_LITE: 'pro_lite',
-  PRO_REGULAR: 'pro_regular'
+  PRO_REGULAR: 'pro_regular',
+  PRO_EXCLUSIVE: 'pro_exclusive'
 };
 
 export const PLAN_CONFIG = {
