@@ -6071,42 +6071,41 @@ Find the compound interest on Rs. 1000 for 2 years at 10% per annum.,210"""
 
 def main():
     """Main function to run comprehensive backend testing"""
-    print("💳 STARTING RAZORPAY PAYMENT SERVICE AUTHENTICATION TESTING - AS REQUESTED")
+    print("🔐 STARTING SUBSCRIPTION INTEGRATION SYSTEM TESTING - AS REQUESTED")
     print("=" * 80)
     
     tester = CATBackendTester()
     
     try:
-        # Run Razorpay Payment Service Authentication Testing (as per review request)
-        print("💳 RAZORPAY PAYMENT SERVICE AUTHENTICATION COMPREHENSIVE TESTING")
-        razorpay_success = tester.test_razorpay_payment_service_authentication()
+        # Run Subscription Integration System Testing (as per review request)
+        print("🔐 SUBSCRIPTION INTEGRATION SYSTEM COMPREHENSIVE TESTING")
+        subscription_success = tester.test_subscription_integration_system()
         
         print("\n" + "=" * 80)
-        print("🏁 RAZORPAY PAYMENT SERVICE AUTHENTICATION TESTING COMPLETED")
+        print("🏁 SUBSCRIPTION INTEGRATION SYSTEM TESTING COMPLETED")
         print("=" * 80)
         
-        print(f"\n📊 RAZORPAY PAYMENT SERVICE AUTHENTICATION RESULTS:")
-        print(f"  Razorpay Payment Service Authentication: {'✅ PASS' if razorpay_success else '❌ FAIL'}")
+        print(f"\n📊 SUBSCRIPTION INTEGRATION SYSTEM RESULTS:")
+        print(f"  Subscription Integration System: {'✅ PASS' if subscription_success else '❌ FAIL'}")
         
-        if razorpay_success:
-            print("\n🎉 OVERALL RESULT: RAZORPAY PAYMENT SERVICE AUTHENTICATION SUCCESSFUL!")
-            print("✅ Razorpay service properly initialized with authentication keys")
-            print("✅ Payment configuration endpoint returns proper Razorpay key_id")
-            print("✅ Pro Lite subscription creation endpoint accessible and functional")
-            print("✅ Pro Regular order creation endpoint accessible and functional")
-            print("✅ No 'Authentication key was missing during initialization' errors")
-            print("✅ Payment service can communicate with Razorpay API")
-            print("✅ Service health check passed")
-            print("🏆 PRODUCTION READY - Authentication key issue resolved")
+        if subscription_success:
+            print("\n🎉 OVERALL RESULT: SUBSCRIPTION INTEGRATION SYSTEM SUCCESSFUL!")
+            print("✅ Plan name updates implemented correctly (Pro Lite → Pro Regular, Pro Regular → Pro Exclusive)")
+            print("✅ Subscription-based access control working (paid users get unlimited sessions)")
+            print("✅ Feature access integration functional (Ask Twelvr only for Pro Exclusive)")
+            print("✅ New API endpoints working (session-limit-status, feature-access, subscription-details)")
+            print("✅ Payment flow working with new plan names")
+            print("✅ Error handling properly implemented")
+            print("🏆 PRODUCTION READY - Subscription integration system fully functional")
         else:
-            print("\n❌ OVERALL RESULT: RAZORPAY PAYMENT SERVICE AUTHENTICATION FAILED")
-            print("🚨 Critical issues detected with Razorpay authentication configuration")
+            print("\n❌ OVERALL RESULT: SUBSCRIPTION INTEGRATION SYSTEM FAILED")
+            print("🚨 Critical issues detected with subscription integration system")
         
         print(f"\nTests Run: {tester.tests_run}")
         print(f"Tests Passed: {tester.tests_passed}")
         print(f"Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%")
         
-        return razorpay_success
+        return subscription_success
         
     except Exception as e:
         print(f"\n❌ TESTING FAILED: {e}")
