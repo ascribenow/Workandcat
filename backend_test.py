@@ -7,7 +7,7 @@ import os
 import io
 
 class CATBackendTester:
-    def __init__(self, base_url="https://brave-feynman.preview.emergentagent.com/api"):
+    def __init__(self, base_url="https://prep-genius-5.preview.emergentagent.com/api"):
         self.base_url = base_url
         self.student_user = None
         self.admin_user = None

@@ -6,7 +6,7 @@ import time
 import os
 
 class OPTION2Tester:
-    def __init__(self, base_url="https://question-quality.preview.emergentagent.com/api"):
+    def __init__(self, base_url="https://prep-genius-5.preview.emergentagent.com/api"):
         self.base_url = base_url
         self.admin_token = None
         self.student_token = None
