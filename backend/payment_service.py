@@ -250,7 +250,7 @@ class RazorpayService:
             
             # Create as one-time payment but handle as subscription
             order_data = {
-                "amount": plan_config["amount"],
+                "amount": final_amount,
                 "currency": "INR",
                 "payment_capture": 1,
                 "notes": {
@@ -259,7 +259,10 @@ class RazorpayService:
                     "user_name": user_name,
                     "user_id": user_id,
                     "billing_cycle": "monthly",
-                    "subscription_type": "pro_regular_monthly"
+                    "subscription_type": "pro_regular_monthly",
+                    "referral_code": referral_code or "",
+                    "original_amount": original_amount,
+                    "referral_discount": referral_discount
                 }
             }
             
