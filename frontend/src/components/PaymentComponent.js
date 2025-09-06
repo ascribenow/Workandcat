@@ -99,7 +99,7 @@ const PaymentComponent = ({ planType, amount, planName, description, onSuccess, 
         }
       }
 
-      // For one-time payments (Pro Regular), open Razorpay checkout
+      // For one-time payments (Pro Exclusive), open Razorpay checkout
       const options = {
         key: result.data.key,
         amount: result.data.amount,
