@@ -21,10 +21,11 @@ logger = logging.getLogger(__name__)
 
 # Pydantic models for API requests
 class CreateOrderRequest(BaseModel):
-    plan_type: str  # "pro_lite" or "pro_regular"
+    plan_type: str  # "pro_regular" or "pro_exclusive"
     user_email: str
     user_name: str
     user_phone: Optional[str] = None
+    referral_code: Optional[str] = None  # Referral code for discount
 
 class PaymentVerificationRequest(BaseModel):
     razorpay_order_id: str
