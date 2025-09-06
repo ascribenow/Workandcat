@@ -113,9 +113,12 @@ class RazorpayService:
                     "user_email": user_email,
                     "user_name": user_name,
                     "user_id": user_id,
-                    "referral_code": referral_code or "",
-                    "original_amount": original_amount,
-                    "referral_discount": referral_discount
+                    "referral_code": referral_code or "none",
+                    "original_amount": str(original_amount),
+                    "referral_discount": str(referral_discount),
+                    "final_amount": str(final_amount),
+                    "discount_applied": "yes" if referral_discount > 0 else "no",
+                    "referrer_cashback_due": "500" if referral_discount > 0 else "0"
                 }
             }
             
