@@ -185,7 +185,7 @@ class ReferralService:
             )
             db.commit()
             
-            logger.info(f"Applied referral discount: {referral_code} used by {user_email}, discount: ₹{actual_discount/100:.2f}")
+            logger.info(f"Applied referral discount: {referral_code} used by {user_email}, discount: ₹{actual_discount/100:.2f} (original: ₹{original_amount/100:.2f} → final: ₹{discounted_amount/100:.2f})")
             
             return {
                 "success": True,
