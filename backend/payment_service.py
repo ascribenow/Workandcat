@@ -152,14 +152,17 @@ class RazorpayService:
             
             # Create Razorpay order with all payment methods enabled
             order_data = {
-                "amount": plan_config["amount"],
+                "amount": final_amount,
                 "currency": "INR",
                 "payment_capture": 1,
                 "notes": {
                     "plan_type": plan_type,
                     "user_email": user_email,
                     "user_name": user_name,
-                    "user_id": user_id
+                    "user_id": user_id,
+                    "referral_code": referral_code or "",
+                    "original_amount": original_amount,
+                    "referral_discount": referral_discount
                 }
             }
             
