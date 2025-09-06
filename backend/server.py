@@ -1251,6 +1251,240 @@ async def verify_payment_amount(
         logger.error(f"Error verifying payment amount for order {request.order_id}: {e}")
         raise HTTPException(status_code=500, detail="Error verifying payment amount")
 
+@api_router.get("/admin/referral-dashboard")
+async def get_referral_dashboard(
+    current_user: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_async_compatible_db)
+):
+    """Get comprehensive referral dashboard for admin (Admin only)"""
+    try:
+        sync_db = db._session if hasattr(db, '_session') else db
+        
+        # Overall referral statistics
+        overall_stats = sync_db.execute(
+            text("""
+                SELECT 
+                    COUNT(DISTINCT referral_code) as total_referral_codes_used,
+                    COUNT(*) as total_referral_usage,
+                    SUM(discount_amount) as total_discount_given,
+                    COUNT(CASE WHEN subscription_type = 'pro_regular' THEN 1 END) as pro_regular_uses,
+                    COUNT(CASE WHEN subscription_type = 'pro_exclusive' THEN 1 END) as pro_exclusive_uses
+                FROM referral_usage
+            """)
+        ).fetchone()
+        
+        # Top performing referral codes
+        top_referrals = sync_db.execute(
+            text("""
+                SELECT 
+                    ru.referral_code,
+                    u.full_name as referrer_name,
+                    u.email as referrer_email,
+                    COUNT(*) as total_uses,
+                    SUM(ru.discount_amount) as total_discount_given,
+                    (COUNT(*) * 500) as cashback_due
+                FROM referral_usage ru
+                LEFT JOIN users u ON u.referral_code = ru.referral_code
+                GROUP BY ru.referral_code, u.full_name, u.email
+                ORDER BY total_uses DESC
+                LIMIT 20
+            """)
+        ).fetchall()
+        
+        # Recent referral activity (last 30 days)
+        recent_activity = sync_db.execute(
+            text("""
+                SELECT 
+                    ru.referral_code,
+                    u.full_name as referrer_name,
+                    ru.used_by_email,
+                    ru.subscription_type,
+                    ru.discount_amount,
+                    ru.created_at
+                FROM referral_usage ru
+                LEFT JOIN users u ON u.referral_code = ru.referral_code
+                WHERE ru.created_at >= NOW() - INTERVAL '30 days'
+                ORDER BY ru.created_at DESC
+                LIMIT 50
+            """)
+        ).fetchall()
+        
+        return {
+            "overall_stats": {
+                "total_referral_codes_used": overall_stats.total_referral_codes_used or 0,
+                "total_referral_usage": overall_stats.total_referral_usage or 0,
+                "total_discount_given": f"₹{(overall_stats.total_discount_given or 0)/100:.2f}",
+                "total_cashback_due": f"₹{(overall_stats.total_referral_usage or 0) * 5:.2f}",
+                "pro_regular_uses": overall_stats.pro_regular_uses or 0,
+                "pro_exclusive_uses": overall_stats.pro_exclusive_uses or 0
+            },
+            "top_referrals": [
+                {
+                    "referral_code": ref.referral_code,
+                    "referrer_name": ref.referrer_name,
+                    "referrer_email": ref.referrer_email,
+                    "total_uses": ref.total_uses,
+                    "total_discount_given": f"₹{ref.total_discount_given/100:.2f}",
+                    "cashback_due": f"₹{ref.cashback_due/100:.2f}"
+                }
+                for ref in top_referrals
+            ],
+            "recent_activity": [
+                {
+                    "referral_code": activity.referral_code,
+                    "referrer_name": activity.referrer_name,
+                    "used_by_email": activity.used_by_email,
+                    "subscription_type": activity.subscription_type,
+                    "discount_amount": f"₹{activity.discount_amount/100:.2f}",
+                    "date": activity.created_at.strftime("%Y-%m-%d %H:%M:%S") if activity.created_at else None
+                }
+                for activity in recent_activity
+            ]
+        }
+        
+    except Exception as e:
+        logger.error(f"Error getting referral dashboard: {e}")
+        raise HTTPException(status_code=500, detail="Error retrieving referral dashboard")
+
+@api_router.get("/admin/cashback-due")
+async def get_cashback_due(
+    current_user: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_async_compatible_db)
+):
+    """Get list of users who are due cashback payments (Admin only)"""
+    try:
+        sync_db = db._session if hasattr(db, '_session') else db
+        
+        cashback_due = sync_db.execute(
+            text("""
+                SELECT 
+                    u.full_name as referrer_name,
+                    u.email as referrer_email,
+                    u.referral_code,
+                    COUNT(ru.id) as successful_referrals,
+                    SUM(ru.discount_amount) as total_discount_given,
+                    (COUNT(ru.id) * 500) as total_cashback_due,
+                    STRING_AGG(ru.used_by_email, ', ') as referred_users,
+                    MIN(ru.created_at) as first_referral_date,
+                    MAX(ru.created_at) as latest_referral_date
+                FROM users u
+                INNER JOIN referral_usage ru ON u.referral_code = ru.referral_code
+                GROUP BY u.id, u.full_name, u.email, u.referral_code
+                ORDER BY successful_referrals DESC
+            """)
+        ).fetchall()
+        
+        return {
+            "cashback_summary": {
+                "total_users_due_cashback": len(cashback_due),
+                "total_cashback_amount": f"₹{sum(cb.total_cashback_due for cb in cashback_due)/100:.2f}",
+                "total_successful_referrals": sum(cb.successful_referrals for cb in cashback_due)
+            },
+            "cashback_details": [
+                {
+                    "referrer_name": cb.referrer_name,
+                    "referrer_email": cb.referrer_email,
+                    "referral_code": cb.referral_code,
+                    "successful_referrals": cb.successful_referrals,
+                    "total_discount_given": f"₹{cb.total_discount_given/100:.2f}",
+                    "cashback_due": f"₹{cb.total_cashback_due/100:.2f}",
+                    "referred_users": cb.referred_users.split(", ") if cb.referred_users else [],
+                    "first_referral": cb.first_referral_date.strftime("%Y-%m-%d") if cb.first_referral_date else None,
+                    "latest_referral": cb.latest_referral_date.strftime("%Y-%m-%d") if cb.latest_referral_date else None
+                }
+                for cb in cashback_due
+            ]
+        }
+        
+    except Exception as e:
+        logger.error(f"Error getting cashback due: {e}")
+        raise HTTPException(status_code=500, detail="Error retrieving cashback information")
+
+@api_router.get("/admin/referral-export")
+async def export_referral_data(
+    format: str = "json",  # json or csv
+    current_user: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_async_compatible_db)
+):
+    """Export referral data for processing (Admin only)"""
+    try:
+        sync_db = db._session if hasattr(db, '_session') else db
+        
+        # Get comprehensive referral data
+        referral_data = sync_db.execute(
+            text("""
+                SELECT 
+                    ru.id as usage_id,
+                    ru.referral_code,
+                    u.full_name as referrer_name,
+                    u.email as referrer_email,
+                    ru.used_by_email,
+                    ru.subscription_type,
+                    ru.discount_amount,
+                    ru.created_at,
+                    500 as cashback_due
+                FROM referral_usage ru
+                LEFT JOIN users u ON u.referral_code = ru.referral_code
+                ORDER BY ru.created_at DESC
+            """)
+        ).fetchall()
+        
+        if format.lower() == "csv":
+            # Return CSV format for easy Excel import
+            csv_data = "Usage ID,Referral Code,Referrer Name,Referrer Email,Used By Email,Subscription Type,Discount Given,Cashback Due,Date\n"
+            for row in referral_data:
+                csv_data += f"{row.usage_id},{row.referral_code},{row.referrer_name},{row.referrer_email},{row.used_by_email},{row.subscription_type},₹{row.discount_amount/100:.2f},₹{row.cashback_due/100:.2f},{row.created_at.strftime('%Y-%m-%d %H:%M:%S') if row.created_at else ''}\n"
+            
+            return Response(content=csv_data, media_type="text/csv", headers={"Content-Disposition": "attachment; filename=referral_export.csv"})
+        
+        else:
+            # Return JSON format
+            return {
+                "export_date": datetime.utcnow().isoformat(),
+                "total_records": len(referral_data),
+                "referral_data": [
+                    {
+                        "usage_id": row.usage_id,
+                        "referral_code": row.referral_code,
+                        "referrer_name": row.referrer_name,
+                        "referrer_email": row.referrer_email,
+                        "used_by_email": row.used_by_email,
+                        "subscription_type": row.subscription_type,
+                        "discount_given": f"₹{row.discount_amount/100:.2f}",
+                        "cashback_due": f"₹{row.cashback_due/100:.2f}",
+                        "date": row.created_at.strftime("%Y-%m-%d %H:%M:%S") if row.created_at else None
+                    }
+                    for row in referral_data
+                ]
+            }
+        
+    except Exception as e:
+        logger.error(f"Error exporting referral data: {e}")
+        raise HTTPException(status_code=500, detail="Error exporting referral data")
+
+@api_router.post("/admin/mark-cashback-processed")
+async def mark_cashback_processed(
+    referral_code: str = None,
+    user_email: str = None,
+    current_user: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_async_compatible_db)
+):
+    """Mark cashback as processed for a specific referrer (Admin only)"""
+    try:
+        # Note: This endpoint is for future enhancement when we add cashback tracking
+        # Currently cashback is processed manually outside the system
+        
+        return {
+            "message": "Cashback tracking is currently manual",
+            "note": "Use the referral dashboard and export features to track who needs cashback payments",
+            "referral_code": referral_code,
+            "user_email": user_email
+        }
+        
+    except Exception as e:
+        logger.error(f"Error marking cashback processed: {e}")
+        raise HTTPException(status_code=500, detail="Error processing cashback update")
+
 # ===========================================
 # END REFERRAL ENDPOINTS
 # ===========================================
