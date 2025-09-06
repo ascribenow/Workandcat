@@ -332,7 +332,7 @@ class RazorpayService:
                         status="active",
                         current_period_start=datetime.utcnow(),
                         current_period_end=datetime.utcnow() + timedelta(days=period_days),
-                        auto_renew=(plan_type == "pro_lite")
+                        auto_renew=(plan_type == "pro_regular")
                     )
                     db.add(subscription)
                 
