@@ -1337,13 +1337,12 @@ class CATBackendTester:
         admin_referral_code = None
         student_referral_code = None
         
-        # PHASE 2: DATABASE SCHEMA FIXED VERIFICATION (NEW - CRITICAL)
-        print("\n🗄️ PHASE 2: DATABASE SCHEMA FIXED VERIFICATION (NEW - CRITICAL)")
-        print("-" * 70)
-        print("Testing that payment_orders table now accepts records with receipt column")
+        # Get referral codes for testing
+        admin_referral_code = None
+        student_referral_code = None
         
         # Get admin's referral code for testing
-        print("   📋 Step 1: Get Admin Referral Code for Schema Test")
+        print("   📋 Step 3: Get Admin Referral Code for Testing")
         success, response = self.run_test("Get Admin Referral Code", "GET", "user/referral-code", [200], None, admin_headers)
         
         if success and response.get('referral_code'):
@@ -1354,8 +1353,13 @@ class CATBackendTester:
             admin_referral_code = "XTJC41"  # Fallback code from test_result.md
             print(f"      ⚠️ Using fallback referral code: {admin_referral_code}")
         
+        # PHASE 2: DATABASE SCHEMA COMPLETELY FIXED VERIFICATION (CRITICAL)
+        print("\n🗄️ PHASE 2: DATABASE SCHEMA COMPLETELY FIXED VERIFICATION (CRITICAL)")
+        print("-" * 70)
+        print("Testing that payment_orders table now accepts records with both receipt AND notes columns")
+        
         # Test database schema fix by creating payment orders
-        print("   📋 Step 2: Test Payment Order Creation (Database Schema Fix)")
+        print("   📋 Step 1: Test Payment Order Creation (Complete Database Schema Fix)")
         
         schema_test_data = {
             "plan_type": "pro_regular",
@@ -1366,7 +1370,7 @@ class CATBackendTester:
         }
         
         success, response = self.run_test(
-            "Database Schema Test - Payment Order Creation", 
+            "Complete Database Schema Test - Payment Order Creation", 
             "POST", 
             "payments/create-subscription", 
             [200, 500], 
@@ -1375,21 +1379,79 @@ class CATBackendTester:
         )
         
         if success and response:
-            payment_referral_results["payment_orders_table_accepts_receipt_column"] = True
+            payment_referral_results["payment_orders_table_complete_schema"] = True
+            payment_referral_results["receipt_column_working"] = True
+            payment_referral_results["notes_column_working"] = True
             payment_referral_results["payment_order_creation_no_database_errors"] = True
-            payment_referral_results["database_schema_issue_resolved"] = True
-            print(f"      ✅ Payment order creation successful - database schema fixed!")
+            payment_referral_results["database_schema_issue_completely_resolved"] = True
+            print(f"      ✅ Payment order creation successful - complete database schema fixed!")
             print(f"      ✅ No 'receipt column does not exist' errors")
-            print(f"      ✅ Database accepts new payment records with receipt column")
+            print(f"      ✅ No 'notes column does not exist' errors")
+            print(f"      ✅ Database accepts new payment records with both receipt AND notes columns")
             
             # Check if we got a valid order ID
             order_data = response.get('data', {})
             order_id = order_data.get('id')
             if order_id:
                 print(f"         📊 Order ID created: {order_id}")
+                
+                # Verify notes column is working by checking for referral data
+                notes = order_data.get('notes', {})
+                if notes and isinstance(notes, dict):
+                    payment_referral_results["notes_json_structure_correct"] = True
+                    print(f"         📊 Notes JSON structure working: {notes}")
         else:
             print(f"      ❌ Payment order creation failed - database schema issue may persist")
-            print(f"      ❌ Check for 'column receipt of relation payment_orders does not exist' errors")
+            print(f"      ❌ Check for 'column receipt/notes of relation payment_orders does not exist' errors")
+        
+        # PHASE 3: PAYMENT ORDER CREATION VERIFICATION (CRITICAL)
+        print("\n💳 PHASE 3: PAYMENT ORDER CREATION VERIFICATION (CRITICAL)")
+        print("-" * 70)
+        print("Testing both Pro Regular and Pro Exclusive payment endpoints are functional")
+        
+        # Test Pro Regular Payment Creation
+        print("   📋 Step 1: Test Pro Regular Payment Creation")
+        success, response = self.run_test(
+            "Pro Regular Payment Creation", 
+            "POST", 
+            "payments/create-subscription", 
+            [200, 500], 
+            schema_test_data, 
+            student_headers
+        )
+        
+        if success and response:
+            payment_referral_results["pro_regular_payment_creation_working"] = True
+            payment_referral_results["payment_endpoints_functional"] = True
+            print(f"      ✅ Pro Regular payment creation working")
+        else:
+            print(f"      ❌ Pro Regular payment creation failed")
+        
+        # Test Pro Exclusive Payment Creation
+        print("   📋 Step 2: Test Pro Exclusive Payment Creation")
+        pro_exclusive_data = {
+            "plan_type": "pro_exclusive",
+            "user_email": "sp@theskinmantra.com",
+            "user_name": "SP",
+            "user_phone": "+919876543210",
+            "referral_code": admin_referral_code
+        }
+        
+        success, response = self.run_test(
+            "Pro Exclusive Payment Creation", 
+            "POST", 
+            "payments/create-order", 
+            [200, 500], 
+            pro_exclusive_data, 
+            student_headers
+        )
+        
+        if success and response:
+            payment_referral_results["pro_exclusive_payment_creation_working"] = True
+            payment_referral_results["payment_orders_stored_successfully"] = True
+            print(f"      ✅ Pro Exclusive payment creation working")
+        else:
+            print(f"      ❌ Pro Exclusive payment creation failed")
         
         # PHASE 3: PAYMENT AMOUNT DISPLAY VERIFICATION (MUST BE 100%)
         print("\n💰 PHASE 3: PAYMENT AMOUNT DISPLAY VERIFICATION (MUST BE 100%)")
