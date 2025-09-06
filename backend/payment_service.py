@@ -245,7 +245,8 @@ class RazorpayService:
                     razorpay_order_id=razorpay_order["id"],
                     plan_type=plan_type,
                     amount=final_amount,
-                    status="created"
+                    status="created",
+                    notes=order_data["notes"]  # Store the notes with referral info
                 )
                 db.add(db_order)
                 db.commit()
