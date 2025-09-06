@@ -35,6 +35,7 @@ async def add_referral_system():
             db.commit()
             logger.info("✅ Added referral_code field to users table")
         except Exception as e:
+            db.rollback()  # Rollback transaction on error
             if "already exists" in str(e).lower() or "duplicate" in str(e).lower():
                 logger.info("⚠️ referral_code field already exists in users table")
             else:
