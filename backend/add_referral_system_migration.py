@@ -64,6 +64,7 @@ async def add_referral_system():
             db.commit()
             logger.info("✅ Created referral_usage table")
         except Exception as e:
+            db.rollback()  # Rollback transaction on error
             if "already exists" in str(e).lower():
                 logger.info("⚠️ referral_usage table already exists")
             else:
