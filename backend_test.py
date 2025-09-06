@@ -1611,7 +1611,7 @@ class CATBackendTester:
             "payment_endpoints_with_referral_working"
         ]
         
-        critical_tests_passed = sum(referral_system_results[test] for test in total_critical_tests)
+        critical_tests_passed = sum(payment_referral_results[test] for test in total_critical_tests)
         
         if critical_tests_passed >= 7:  # At least 7 out of 8 critical tests
             referral_system_results["end_to_end_referral_flow_working"] = True
