@@ -1236,27 +1236,36 @@ class CATBackendTester:
         print("The system should now achieve perfect 100% success rate.")
         print("=" * 100)
         
-        discount_calculation_results = {
+        referral_system_results = {
             # Authentication Setup (CRITICAL)
             "admin_authentication_working": False,
             "student_authentication_working": False,
             
-            # Discount Calculation Verification (CRITICAL - FIXED)
+            # Business Rule Validation (CRITICAL)
+            "one_time_usage_rule_enforced": False,
+            "fresh_email_can_use_referral_codes": False,
+            "self_referral_prevention_working": False,
+            "already_used_referral_properly_rejected": False,
+            "business_rules_correctly_implemented": False,
+            
+            # Mathematical Accuracy (CRITICAL)
             "pro_regular_discount_calculation_perfect": False,  # ₹1,495 → ₹995 (50000 paise discount)
             "pro_exclusive_discount_calculation_perfect": False,  # ₹2,565 → ₹2,065 (50000 paise discount)
             "discount_amount_exactly_50000_paise": False,
             "mathematical_accuracy_verified": False,
             "paise_conversion_working_correctly": False,
             
-            # Payment Response Verification (CRITICAL - FIXED)
-            "payment_response_shows_original_amount": False,
-            "payment_response_shows_final_amount": False,
-            "payment_response_shows_discount_applied_50000": False,
-            "payment_verification_section_accurate": False,
-            "response_structure_includes_all_amounts": False,
+            # Database Integration (CRITICAL)
+            "referral_usage_tracking_accurate": False,
+            "payment_orders_store_correct_amounts": False,
+            "referral_metadata_properly_recorded": False,
+            "database_tracking_complete": False,
             
-            # Database Storage Verification (CRITICAL - FIXED)
-            "payment_orders_store_correct_discounted_amounts": False,
+            # API Endpoint Validation (CRITICAL)
+            "referral_validate_endpoint_working": False,
+            "payment_endpoints_with_referral_working": False,
+            "authentication_authorization_working": False,
+            "api_responses_accurate": False,
             "notes_json_contains_referral_code": False,
             "notes_json_contains_discount_applied": False,
             "notes_json_contains_referrer_cashback_due": False,
