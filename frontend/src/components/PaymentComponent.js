@@ -50,8 +50,8 @@ const PaymentComponent = ({ planType, amount, planName, description, onSuccess, 
       }
       console.log('Razorpay script loaded successfully');
 
-      // For Pro Lite, create subscription; for Pro Regular, create order
-      const endpoint = planType === 'pro_lite' ? 
+      // For Pro Regular, create subscription; for Pro Exclusive, create order
+      const endpoint = planType === 'pro_regular' ? 
         `${API}/payments/create-subscription` : 
         `${API}/payments/create-order`;
 
