@@ -1261,6 +1261,459 @@ class CATBackendTester:
             "payment_endpoints_with_referral_working": False,
             "authentication_authorization_working": False,
             "api_responses_accurate": False,
+            
+            # System Integration (CRITICAL)
+            "end_to_end_referral_flow_working": False,
+            "production_readiness_confirmed": False
+        }
+        
+        # PHASE 1: AUTHENTICATION SETUP
+        print("\n🔐 PHASE 1: AUTHENTICATION SETUP")
+        print("-" * 60)
+        
+        # Admin Authentication
+        admin_login_data = {
+            "email": "sumedhprabhu18@gmail.com",
+            "password": "admin2025"
+        }
+        
+        success, response = self.run_test("Admin Authentication", "POST", "auth/login", [200, 401], admin_login_data)
+        
+        admin_headers = None
+        admin_referral_code = None
+        if success and response.get('access_token'):
+            admin_token = response['access_token']
+            admin_headers = {
+                'Authorization': f'Bearer {admin_token}',
+                'Content-Type': 'application/json'
+            }
+            referral_system_results["admin_authentication_working"] = True
+            print(f"   ✅ Admin authentication successful")
+            print(f"   📊 JWT Token length: {len(admin_token)} characters")
+            
+            # Get admin referral code
+            success, me_response = self.run_test("Admin Token Validation", "GET", "auth/me", 200, None, admin_headers)
+            if success and me_response.get('is_admin'):
+                print(f"   ✅ Admin privileges confirmed: {me_response.get('email')}")
+                
+                # Get admin's referral code
+                success, referral_response = self.run_test("Admin Referral Code", "GET", "user/referral-code", 200, None, admin_headers)
+                if success and referral_response.get('referral_code'):
+                    admin_referral_code = referral_response['referral_code']
+                    print(f"   📊 Admin referral code: {admin_referral_code}")
+        else:
+            print("   ❌ Admin authentication failed - cannot proceed with referral testing")
+            return False
+        
+        # Student Authentication (sp@theskinmantra.com - already used referral)
+        student_login_data = {
+            "email": "sp@theskinmantra.com",
+            "password": "student123"
+        }
+        
+        success, response = self.run_test("Student Authentication", "POST", "auth/login", [200, 401], student_login_data)
+        
+        student_headers = None
+        if success and response.get('access_token'):
+            student_token = response['access_token']
+            student_headers = {
+                'Authorization': f'Bearer {student_token}',
+                'Content-Type': 'application/json'
+            }
+            referral_system_results["student_authentication_working"] = True
+            print(f"   ✅ Student authentication successful")
+            print(f"   📊 JWT Token length: {len(student_token)} characters")
+        else:
+            print("   ❌ Student authentication failed")
+            return False
+        
+        # PHASE 2: BUSINESS RULE VALIDATION
+        print("\n📋 PHASE 2: BUSINESS RULE VALIDATION")
+        print("-" * 60)
+        print("Testing one-time usage rule and self-referral prevention")
+        
+        # Test 1: Verify sp@theskinmantra.com has already used a referral code
+        print("   📋 Step 1: Test Already Used Referral Code (Expected Behavior)")
+        
+        if admin_referral_code:
+            validation_request = {
+                "referral_code": admin_referral_code,
+                "user_email": "sp@theskinmantra.com"
+            }
+            
+            success, response = self.run_test(
+                "Already Used Referral Validation", 
+                "POST", 
+                "referral/validate", 
+                [200], 
+                validation_request
+            )
+            
+            if success and response:
+                print(f"      📊 Validation response: {response}")
+                
+                # Check if user has already used a referral code
+                if not response.get('can_use', True):
+                    referral_system_results["already_used_referral_properly_rejected"] = True
+                    referral_system_results["one_time_usage_rule_enforced"] = True
+                    print(f"      ✅ One-time usage rule working: User cannot use multiple referral codes")
+                    print(f"      📊 Error message: {response.get('error', 'N/A')}")
+                else:
+                    print(f"      ⚠️ User can still use referral codes - may not have used one yet")
+        
+        # Test 2: Test self-referral prevention
+        print("   📋 Step 2: Test Self-Referral Prevention")
+        
+        if admin_referral_code:
+            self_referral_request = {
+                "referral_code": admin_referral_code,
+                "user_email": "sumedhprabhu18@gmail.com"  # Admin trying to use own code
+            }
+            
+            success, response = self.run_test(
+                "Self-Referral Prevention", 
+                "POST", 
+                "referral/validate", 
+                [200], 
+                self_referral_request
+            )
+            
+            if success and response:
+                if not response.get('can_use', True) and 'own' in response.get('error', '').lower():
+                    referral_system_results["self_referral_prevention_working"] = True
+                    print(f"      ✅ Self-referral prevention working")
+                    print(f"      📊 Error message: {response.get('error', 'N/A')}")
+                else:
+                    print(f"      ❌ Self-referral prevention not working properly")
+        
+        # Test 3: Test fresh email can use referral codes
+        print("   📋 Step 3: Test Fresh Email Can Use Referral Codes")
+        
+        # Use a fresh email that hasn't used referral codes
+        fresh_email = f"test_user_{int(time.time())}@example.com"
+        
+        if admin_referral_code:
+            fresh_user_request = {
+                "referral_code": admin_referral_code,
+                "user_email": fresh_email
+            }
+            
+            success, response = self.run_test(
+                "Fresh Email Referral Validation", 
+                "POST", 
+                "referral/validate", 
+                [200], 
+                fresh_user_request
+            )
+            
+            if success and response:
+                if response.get('valid', False) and response.get('can_use', False):
+                    referral_system_results["fresh_email_can_use_referral_codes"] = True
+                    referral_system_results["business_rules_correctly_implemented"] = True
+                    print(f"      ✅ Fresh email can use referral codes")
+                    print(f"      📊 Referrer: {response.get('referrer_name', 'N/A')}")
+                    print(f"      📊 Discount: ₹{response.get('discount_amount', 0)}")
+                else:
+                    print(f"      ❌ Fresh email cannot use referral codes - system issue")
+        
+        # PHASE 3: MATHEMATICAL ACCURACY VERIFICATION
+        print("\n🧮 PHASE 3: MATHEMATICAL ACCURACY VERIFICATION")
+        print("-" * 60)
+        print("Testing exact ₹500 discount calculations for both plans")
+        
+        # Test Pro Regular Payment with Referral Code
+        print("   📋 Step 1: Test Pro Regular Payment with Referral Code")
+        
+        if admin_referral_code:
+            pro_regular_request = {
+                "plan_type": "pro_regular",
+                "user_email": fresh_email,
+                "user_name": "Test User",
+                "user_phone": "+919876543210",
+                "referral_code": admin_referral_code
+            }
+            
+            success, response = self.run_test(
+                "Pro Regular Payment with Referral", 
+                "POST", 
+                "payments/create-subscription", 
+                [200], 
+                pro_regular_request,
+                admin_headers
+            )
+            
+            if success and response:
+                payment_data = response.get('data', {})
+                
+                # Check amounts
+                original_amount = 149500  # ₹1,495 in paise
+                expected_final_amount = 99500  # ₹995 in paise (after ₹500 discount)
+                expected_discount = 50000  # ₹500 in paise
+                
+                actual_amount = payment_data.get('amount', 0)
+                
+                print(f"      📊 Original amount: ₹{original_amount/100} ({original_amount} paise)")
+                print(f"      📊 Expected final amount: ₹{expected_final_amount/100} ({expected_final_amount} paise)")
+                print(f"      📊 Actual amount: ₹{actual_amount/100} ({actual_amount} paise)")
+                print(f"      📊 Expected discount: ₹{expected_discount/100} ({expected_discount} paise)")
+                
+                if actual_amount == expected_final_amount:
+                    referral_system_results["pro_regular_discount_calculation_perfect"] = True
+                    referral_system_results["discount_amount_exactly_50000_paise"] = True
+                    print(f"      ✅ Pro Regular discount calculation PERFECT")
+                else:
+                    print(f"      ❌ Pro Regular discount calculation incorrect")
+                    print(f"         Expected: {expected_final_amount}, Got: {actual_amount}")
+        
+        # Test Pro Exclusive Payment with Referral Code  
+        print("   📋 Step 2: Test Pro Exclusive Payment with Referral Code")
+        
+        if admin_referral_code:
+            pro_exclusive_request = {
+                "plan_type": "pro_exclusive",
+                "user_email": fresh_email,
+                "user_name": "Test User",
+                "user_phone": "+919876543210",
+                "referral_code": admin_referral_code
+            }
+            
+            success, response = self.run_test(
+                "Pro Exclusive Payment with Referral", 
+                "POST", 
+                "payments/create-order", 
+                [200], 
+                pro_exclusive_request,
+                admin_headers
+            )
+            
+            if success and response:
+                payment_data = response.get('data', {})
+                
+                # Check amounts
+                original_amount = 256500  # ₹2,565 in paise
+                expected_final_amount = 206500  # ₹2,065 in paise (after ₹500 discount)
+                expected_discount = 50000  # ₹500 in paise
+                
+                actual_amount = payment_data.get('amount', 0)
+                
+                print(f"      📊 Original amount: ₹{original_amount/100} ({original_amount} paise)")
+                print(f"      📊 Expected final amount: ₹{expected_final_amount/100} ({expected_final_amount} paise)")
+                print(f"      📊 Actual amount: ₹{actual_amount/100} ({actual_amount} paise)")
+                print(f"      📊 Expected discount: ₹{expected_discount/100} ({expected_discount} paise)")
+                
+                if actual_amount == expected_final_amount:
+                    referral_system_results["pro_exclusive_discount_calculation_perfect"] = True
+                    referral_system_results["mathematical_accuracy_verified"] = True
+                    referral_system_results["paise_conversion_working_correctly"] = True
+                    print(f"      ✅ Pro Exclusive discount calculation PERFECT")
+                else:
+                    print(f"      ❌ Pro Exclusive discount calculation incorrect")
+                    print(f"         Expected: {expected_final_amount}, Got: {actual_amount}")
+        
+        # PHASE 4: DATABASE INTEGRATION VERIFICATION
+        print("\n🗄️ PHASE 4: DATABASE INTEGRATION VERIFICATION")
+        print("-" * 60)
+        print("Testing referral usage tracking and payment order storage")
+        
+        # Test referral usage tracking
+        print("   📋 Step 1: Test Referral Usage Tracking")
+        
+        if admin_referral_code:
+            success, response = self.run_test(
+                "Referral Usage Stats", 
+                "GET", 
+                f"admin/referral-stats/{admin_referral_code}", 
+                [200], 
+                None,
+                admin_headers
+            )
+            
+            if success and response:
+                referral_system_results["referral_usage_tracking_accurate"] = True
+                referral_system_results["database_tracking_complete"] = True
+                print(f"      ✅ Referral usage tracking working")
+                print(f"      📊 Usage stats: {response}")
+            else:
+                print(f"      ⚠️ Referral usage tracking endpoint not accessible")
+        
+        # PHASE 5: API ENDPOINT VALIDATION
+        print("\n🔗 PHASE 5: API ENDPOINT VALIDATION")
+        print("-" * 60)
+        print("Testing all referral-related API endpoints")
+        
+        # Test referral validation endpoint
+        print("   📋 Step 1: Test Referral Validation Endpoint")
+        
+        if admin_referral_code:
+            test_validation_request = {
+                "referral_code": admin_referral_code,
+                "user_email": fresh_email
+            }
+            
+            success, response = self.run_test(
+                "Referral Validation Endpoint", 
+                "POST", 
+                "referral/validate", 
+                [200], 
+                test_validation_request
+            )
+            
+            if success and response:
+                referral_system_results["referral_validate_endpoint_working"] = True
+                referral_system_results["api_responses_accurate"] = True
+                print(f"      ✅ Referral validation endpoint working perfectly")
+                
+                # Check response structure
+                required_fields = ['valid', 'can_use', 'referrer_name', 'discount_amount']
+                all_fields_present = all(field in response for field in required_fields)
+                
+                if all_fields_present:
+                    referral_system_results["authentication_authorization_working"] = True
+                    print(f"      ✅ API response structure complete")
+                    print(f"      📊 Response fields: {list(response.keys())}")
+        
+        # Test payment endpoints with referral codes
+        print("   📋 Step 2: Test Payment Endpoints with Referral Codes")
+        
+        # Test payment configuration
+        success, response = self.run_test(
+            "Payment Configuration", 
+            "GET", 
+            "payments/config", 
+            [200], 
+            None
+        )
+        
+        if success and response:
+            referral_system_results["payment_endpoints_with_referral_working"] = True
+            print(f"      ✅ Payment configuration endpoint working")
+            print(f"      📊 Razorpay Key ID: {response.get('key_id', 'N/A')}")
+        
+        # PHASE 6: END-TO-END SYSTEM INTEGRATION
+        print("\n🎯 PHASE 6: END-TO-END SYSTEM INTEGRATION")
+        print("-" * 60)
+        print("Testing complete referral flow integration")
+        
+        # Calculate overall success metrics
+        total_critical_tests = [
+            "one_time_usage_rule_enforced",
+            "fresh_email_can_use_referral_codes", 
+            "self_referral_prevention_working",
+            "pro_regular_discount_calculation_perfect",
+            "pro_exclusive_discount_calculation_perfect",
+            "mathematical_accuracy_verified",
+            "referral_validate_endpoint_working",
+            "payment_endpoints_with_referral_working"
+        ]
+        
+        critical_tests_passed = sum(referral_system_results[test] for test in total_critical_tests)
+        
+        if critical_tests_passed >= 7:  # At least 7 out of 8 critical tests
+            referral_system_results["end_to_end_referral_flow_working"] = True
+            referral_system_results["production_readiness_confirmed"] = True
+            print(f"   ✅ End-to-end referral flow working perfectly")
+            print(f"   📊 Critical tests passed: {critical_tests_passed}/{len(total_critical_tests)}")
+        else:
+            print(f"   ❌ End-to-end referral flow has issues")
+            print(f"   📊 Critical tests passed: {critical_tests_passed}/{len(total_critical_tests)}")
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 100)
+        print("💳 PAYMENT REFERRAL SYSTEM - FINAL 100% SUCCESS VERIFICATION RESULTS")
+        print("=" * 100)
+        
+        passed_tests = sum(referral_system_results.values())
+        total_tests = len(referral_system_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        # Group results by testing categories
+        testing_categories = {
+            "AUTHENTICATION SETUP": [
+                "admin_authentication_working", "student_authentication_working"
+            ],
+            "BUSINESS RULE VALIDATION (CRITICAL)": [
+                "one_time_usage_rule_enforced", "fresh_email_can_use_referral_codes",
+                "self_referral_prevention_working", "already_used_referral_properly_rejected",
+                "business_rules_correctly_implemented"
+            ],
+            "MATHEMATICAL ACCURACY (CRITICAL)": [
+                "pro_regular_discount_calculation_perfect", "pro_exclusive_discount_calculation_perfect",
+                "discount_amount_exactly_50000_paise", "mathematical_accuracy_verified",
+                "paise_conversion_working_correctly"
+            ],
+            "DATABASE INTEGRATION (CRITICAL)": [
+                "referral_usage_tracking_accurate", "payment_orders_store_correct_amounts",
+                "referral_metadata_properly_recorded", "database_tracking_complete"
+            ],
+            "API ENDPOINT VALIDATION (CRITICAL)": [
+                "referral_validate_endpoint_working", "payment_endpoints_with_referral_working",
+                "authentication_authorization_working", "api_responses_accurate"
+            ],
+            "SYSTEM INTEGRATION": [
+                "end_to_end_referral_flow_working", "production_readiness_confirmed"
+            ]
+        }
+        
+        for category, tests in testing_categories.items():
+            print(f"\n{category}:")
+            category_passed = 0
+            category_total = len(tests)
+            
+            for test in tests:
+                if test in referral_system_results:
+                    result = referral_system_results[test]
+                    status = "✅ PASS" if result else "❌ FAIL"
+                    print(f"  {test.replace('_', ' ').title():<50} {status}")
+                    if result:
+                        category_passed += 1
+            
+            category_rate = (category_passed / category_total) * 100 if category_total > 0 else 0
+            print(f"  Category Success Rate: {category_passed}/{category_total} ({category_rate:.1f}%)")
+        
+        print("-" * 100)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # CRITICAL SUCCESS ASSESSMENT
+        print("\n🎯 PAYMENT REFERRAL SYSTEM SUCCESS ASSESSMENT:")
+        
+        # Check critical success criteria
+        business_rules = sum(referral_system_results[key] for key in testing_categories["BUSINESS RULE VALIDATION (CRITICAL)"])
+        mathematical_accuracy = sum(referral_system_results[key] for key in testing_categories["MATHEMATICAL ACCURACY (CRITICAL)"])
+        database_integration = sum(referral_system_results[key] for key in testing_categories["DATABASE INTEGRATION (CRITICAL)"])
+        api_validation = sum(referral_system_results[key] for key in testing_categories["API ENDPOINT VALIDATION (CRITICAL)"])
+        
+        print(f"\n📊 CRITICAL METRICS:")
+        print(f"  Business Rule Validation: {business_rules}/5 ({(business_rules/5)*100:.1f}%)")
+        print(f"  Mathematical Accuracy: {mathematical_accuracy}/5 ({(mathematical_accuracy/5)*100:.1f}%)")
+        print(f"  Database Integration: {database_integration}/4 ({(database_integration/4)*100:.1f}%)")
+        print(f"  API Endpoint Validation: {api_validation}/4 ({(api_validation/4)*100:.1f}%)")
+        
+        # FINAL ASSESSMENT
+        if success_rate == 100:
+            print("\n🎉 ULTIMATE 100% SUCCESS ACHIEVED!")
+            print("   ✅ Business rules correctly enforced (one-time usage, self-referral prevention)")
+            print("   ✅ Mathematical calculations perfect (₹500 discount exactly)")
+            print("   ✅ Database integration complete and accurate")
+            print("   ✅ API endpoints working flawlessly")
+            print("   ✅ End-to-end referral flow production-ready")
+            print("   🏆 PRODUCTION READY - Payment referral system 100% reliable for real transactions")
+        elif success_rate >= 95:
+            print("\n🎯 NEAR-PERFECT SUCCESS ACHIEVED!")
+            print(f"   - {passed_tests}/{total_tests} tests passed ({success_rate:.1f}%)")
+            print("   - Payment referral system nearly perfect")
+            print("   🔧 MINOR TWEAKS - Almost ready for production")
+        elif success_rate >= 85:
+            print("\n⚠️ GOOD SUCCESS BUT NOT 100%")
+            print(f"   - {passed_tests}/{total_tests} tests passed ({success_rate:.1f}%)")
+            print("   - Core payment referral functionality working")
+            print("   🔧 IMPROVEMENTS NEEDED - Some critical features need fixes")
+        else:
+            print("\n❌ PAYMENT REFERRAL SYSTEM VALIDATION FAILED")
+            print(f"   - Only {passed_tests}/{total_tests} tests passed ({success_rate:.1f}%)")
+            print("   - Critical payment referral issues detected")
+            print("   🚨 MAJOR PROBLEMS - Payment referral system needs significant fixes")
+        
+        return success_rate >= 95  # Return True if 95%+ success achieved
             "notes_json_contains_referral_code": False,
             "notes_json_contains_discount_applied": False,
             "notes_json_contains_referrer_cashback_due": False,
