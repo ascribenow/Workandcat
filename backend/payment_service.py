@@ -323,7 +323,7 @@ class RazorpayService:
                 # Create subscription record if order exists
                 if order:
                     plan_type = order.plan_type
-                    period_days = 30 if plan_type == "pro_lite" else 60
+                    period_days = 30 if plan_type == "pro_regular" else 60
                     
                     subscription = Subscription(
                         user_id=user_id,
