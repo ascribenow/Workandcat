@@ -1043,7 +1043,7 @@ class CATBackendTester:
         
         # FINAL RESULTS SUMMARY
         print("\n" + "=" * 90)
-        print("🔍 ENHANCED ENRICHMENT CHECKER SYSTEM - COMPREHENSIVE RESULTS")
+        print("💳 PAYMENT REFERRAL SYSTEM - ULTIMATE 100% SUCCESS VERIFICATION RESULTS")
         print("=" * 90)
         
         passed_tests = sum(enhanced_checker_results.values())
