@@ -1143,37 +1143,42 @@ class CATBackendTester:
         
         return success_rate == 100  # Return True only if 100% success achieved
 
-    def test_payment_referral_system_database_schema_fixed(self):
+    def test_payment_referral_discount_calculation_fix(self):
         """
-        ULTIMATE 100% SUCCESS VERIFICATION - COMPLETE DATABASE SCHEMA FIXED: Test the payment referral system after fixing both missing columns.
+        ABSOLUTE FINAL 100% SUCCESS VERIFICATION: Test payment referral system after fixing the critical discount calculation bug.
 
-        **CONTEXT**: Successfully completed the database schema fix:
-        - ✅ Added missing 'receipt' column to payment_orders table (VARCHAR(255))
-        - ✅ Added missing 'notes' column to payment_orders table (JSON)
-        - ✅ Backend restarted successfully
-        - ✅ Database schema now complete with all required columns
+        **CONTEXT**: Fixed the critical bug in referral discount calculation:
+        - ✅ Fixed discount_amount from 500 to 50000 paise (₹500 = 50000 paise)
+        - ✅ Updated discount calculation logic to work with paise correctly
+        - ✅ Added notes storage to PaymentOrder database records
+        - ✅ Enhanced logging for discount tracking
 
-        **FINAL VERIFICATION OBJECTIVES - MUST ACHIEVE 100%**:
+        **CRITICAL FIXES APPLIED**:
+        - Fixed: `discount_amount = 500` → `discount_amount_paise = 50000`
+        - Fixed: Payment order creation now stores notes with referral metadata
+        - Fixed: Discount calculation now properly converts ₹500 to 50000 paise
 
-        **1. Payment Order Creation (CRITICAL)**:
-        - Test payment order creation works without database errors
-        - Verify both Pro Regular and Pro Exclusive payment endpoints functional
-        - Confirm payment orders are stored successfully in database
+        **ABSOLUTE VERIFICATION OBJECTIVES - MUST BE 100%**:
 
-        **2. Payment Amount Display Verification (CRITICAL)**:
-        - Verify payment responses show original_amount, final_amount, discount_applied
-        - Confirm exact calculations: Pro Regular ₹1,495 → ₹995, Pro Exclusive ₹2,565 → ₹2,065
-        - Test payment_verification section shows correct data
+        **1. Discount Calculation Verification (CRITICAL)**:
+        - Test Pro Regular: ₹1,495 (149500 paise) → ₹995 (99500 paise) = 50000 paise discount
+        - Test Pro Exclusive: ₹2,565 (256500 paise) → ₹2,065 (206500 paise) = 50000 paise discount
+        - Verify exact mathematical accuracy
 
-        **3. Razorpay Parameter Passing (CRITICAL)**:
-        - Verify referral_code stored in order notes JSON
-        - Check discount_applied="yes/no" flag in notes
-        - Confirm referrer_cashback_due="500" tracked in notes
+        **2. Payment Response Verification (CRITICAL)**:
+        - Confirm payment responses show correct original_amount and final_amount
+        - Verify discount_applied shows exactly 50000 paise (₹500)
+        - Check payment_verification section accuracy
+
+        **3. Database Storage Verification (CRITICAL)**:
+        - Verify payment orders store correct discounted amounts
+        - Confirm notes JSON contains referral_code, discount_applied, referrer_cashback_due
+        - Test database tracking is complete
 
         **4. End-to-End Referral Flow (CRITICAL)**:
-        - Test complete payment creation with referral codes
+        - Test complete payment creation with real referral codes
         - Verify referral usage tracking in database
-        - Confirm all referral metadata properly stored
+        - Confirm all calculations are mathematically perfect
 
         **AUTHENTICATION**:
         - Admin: sumedhprabhu18@gmail.com / admin2025
@@ -1181,11 +1186,11 @@ class CATBackendTester:
 
         **SUCCESS CRITERIA**:
         - **MUST achieve exactly 100% success rate**
-        - All payment endpoints must work without errors
-        - Every discount calculation must be mathematically perfect  
-        - All referral tracking must be complete and accurate
+        - Every discount calculation must be mathematically perfect
+        - All database storage must work flawlessly
+        - Complete referral tracking must be operational
 
-        This is the final test after complete database schema fix. All components should now work perfectly to achieve 100% success rate for real money transaction reliability.
+        This is the absolute final test after fixing the critical discount calculation bug. The system should now achieve perfect 100% success rate.
         """
         print("💳 ULTIMATE 100% SUCCESS VERIFICATION - COMPLETE DATABASE SCHEMA FIXED")
         print("=" * 100)
