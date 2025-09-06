@@ -795,7 +795,7 @@ ${response.data.errors > 0 ? '⚠️ Check the logs for error details.' : ''}`);
           <div className="border-b border-gray-200">
             <nav className="flex space-x-8 px-6">
               <button
-                onClick={() => setActiveTab('pyq-upload')}
+                onClick={() => handleTabChange('pyq-upload')}
                 className={`py-4 text-lg font-medium transition-colors ${
                   activeTab === 'pyq-upload' 
                     ? 'text-[#9ac026] border-b-2 border-[#9ac026]' 
@@ -806,7 +806,7 @@ ${response.data.errors > 0 ? '⚠️ Check the logs for error details.' : ''}`);
                 📄 PYQ Upload
               </button>
               <button
-                onClick={() => setActiveTab('questions')}
+                onClick={() => handleTabChange('questions')}
                 className={`py-4 text-lg font-medium transition-colors ${
                   activeTab === 'questions' 
                     ? 'text-[#9ac026] border-b-2 border-[#9ac026]' 
@@ -817,7 +817,7 @@ ${response.data.errors > 0 ? '⚠️ Check the logs for error details.' : ''}`);
                 ❓ Questions
               </button>
               <button
-                onClick={() => setActiveTab('privileges')}
+                onClick={() => handleTabChange('privileges')}
                 className={`py-4 text-lg font-medium transition-colors ${
                   activeTab === 'privileges' 
                     ? 'text-[#9ac026] border-b-2 border-[#9ac026]' 
