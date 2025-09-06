@@ -223,7 +223,7 @@ const PaymentComponent = ({ planType, amount, planName, description, onSuccess, 
       onClick={handlePayment}
       disabled={loading}
       className={`w-full py-3 px-6 rounded-lg font-semibold transition-colors ${
-        planType === 'pro_regular' 
+        planType === 'pro_exclusive' 
           ? 'bg-[#9ac026] text-white hover:bg-[#8bb024] disabled:bg-gray-400' 
           : 'border-2 border-[#9ac026] text-[#9ac026] hover:bg-[#9ac026] hover:text-white disabled:border-gray-400 disabled:text-gray-400'
       }`}
