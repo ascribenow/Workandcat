@@ -4,6 +4,9 @@ import { useAuth } from './AuthProvider';
 const PaymentComponent = ({ planType, amount, planName, description, onSuccess, onError }) => {
   const { API, user, isAuthenticated } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [referralCode, setReferralCode] = useState('');
+  const [validatingReferral, setValidatingReferral] = useState(false);
+  const [referralValidation, setReferralValidation] = useState(null);
 
   const loadRazorpayScript = () => {
     return new Promise((resolve) => {
