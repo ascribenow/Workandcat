@@ -397,7 +397,7 @@ const PaymentComponent = ({ planType, amount, planName, description, onSuccess, 
                 </div>
               ) : (
                 <>
-                  {planType === 'pro_regular' ? 'Subscribe Now' : 'Pay Now'} - ₹{calculateDiscountedAmount()}
+                  {planType === 'pro_regular' ? 'Subscribe Now' : 'Pay Now'} - ₹{(calculateDiscountedAmount()/100).toFixed(0)}
                 </>
               )}
             </button>
