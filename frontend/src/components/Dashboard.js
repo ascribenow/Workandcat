@@ -736,6 +736,17 @@ ${response.data.errors > 0 ? '⚠️ Check the logs for error details.' : ''}`);
               >
                 🔐 Privileges
               </button>
+              <button
+                onClick={() => setActiveTab('referral-tracker')}
+                className={`py-4 text-lg font-medium transition-colors ${
+                  activeTab === 'referral-tracker' 
+                    ? 'text-[#9ac026] border-b-2 border-[#9ac026]' 
+                    : 'text-[#545454] hover:text-[#9ac026]'
+                }`}
+                style={{ fontFamily: 'Lato, sans-serif' }}
+              >
+                🎯 Referral Tracker
+              </button>
             </nav>
           </div>
 
