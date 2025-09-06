@@ -1326,7 +1326,6 @@ class CATBackendTester:
         print("   📋 Step 1: Test Valid Referral Code Validation")
         
         # First get admin's referral code
-        admin_referral_code = None
         success, response = self.run_test(
             "Admin Referral Code", 
             "GET", 
