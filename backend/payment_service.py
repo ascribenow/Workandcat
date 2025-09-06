@@ -245,7 +245,7 @@ class RazorpayService:
             }
             
         except Exception as e:
-            logger.error(f"Error creating Pro Lite subscription: {str(e)}")
+            logger.error(f"Error creating Pro Regular subscription: {str(e)}")
             raise
 
     async def _get_or_create_plan(self, plan_type: str) -> str:
