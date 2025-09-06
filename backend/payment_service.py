@@ -208,7 +208,7 @@ class RazorpayService:
             logger.error(f"Error creating order: {str(e)}")
             raise
 
-    async def create_subscription(self, plan_type: str, user_email: str, user_name: str, user_id: str, user_phone: Optional[str] = None) -> Dict[str, Any]:
+    async def create_subscription(self, plan_type: str, user_email: str, user_name: str, user_id: str, user_phone: Optional[str] = None, referral_code: Optional[str] = None) -> Dict[str, Any]:
         """Create a Razorpay subscription for recurring payments (Pro Lite)
         
         Note: If Razorpay subscriptions are not enabled for the account,
