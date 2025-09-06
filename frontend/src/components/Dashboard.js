@@ -407,6 +407,91 @@ const AdminPanel = () => {
   const [loadingReferrals, setLoadingReferrals] = useState(false);
   const [exportingReferrals, setExportingReferrals] = useState(false);
 
+  // Referral Dashboard Functions
+  const loadReferralDashboard = async () => {
+    setLoadingReferrals(true);
+    try {
+      const token = localStorage.getItem('cat_prep_token');
+      const response = await axios.get(`${API}/admin/referral-dashboard`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setReferralDashboard(response.data);
+    } catch (error) {
+      console.error('Error loading referral dashboard:', error);
+      alert('❌ Failed to load referral dashboard');
+    } finally {
+      setLoadingReferrals(false);
+    }
+  };
+
+  const loadCashbackDue = async () => {
+    setLoadingReferrals(true);
+    try {
+      const token = localStorage.getItem('cat_prep_token');
+      const response = await axios.get(`${API}/admin/cashback-due`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setCashbackDue(response.data);
+    } catch (error) {
+      console.error('Error loading cashback data:', error);
+      alert('❌ Failed to load cashback data');
+    } finally {
+      setLoadingReferrals(false);
+    }
+  };
+
+  const exportReferralData = async (format = 'csv') => {
+    setExportingReferrals(true);
+    try {
+      const token = localStorage.getItem('cat_prep_token');
+      const response = await axios.get(`${API}/admin/referral-export?format=${format}`, {
+        headers: { Authorization: `Bearer ${token}` },
+        responseType: format === 'csv' ? 'blob' : 'json'
+      });
+
+      if (format === 'csv') {
+        // Handle CSV download
+        const blob = new Blob([response.data], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `referral_export_${new Date().toISOString().split('T')[0]}.csv`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+        alert('✅ Referral data exported successfully!');
+      } else {
+        // Handle JSON export
+        const jsonData = JSON.stringify(response.data, null, 2);
+        const blob = new Blob([jsonData], { type: 'application/json' });
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `referral_export_${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+        alert('✅ Referral data exported successfully!');
+      }
+    } catch (error) {
+      console.error('Error exporting referral data:', error);
+      alert('❌ Failed to export referral data');
+    } finally {
+      setExportingReferrals(false);
+    }
+  };
+
+  // Load referral data when tab is selected
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    if (tab === 'referral-tracker') {
+      loadReferralDashboard();
+      loadCashbackDue();
+    }
+  };
+
   const handleCSVUpload = async (event) => {
     const file = event.target.files[0];
     if (!file) return;
