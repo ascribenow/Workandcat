@@ -1572,7 +1572,7 @@ class CATBackendTester:
                 all_fields_present = all(field in response for field in required_fields)
                 
                 if all_fields_present:
-                    referral_system_results["authentication_authorization_working"] = True
+                    payment_referral_results["authentication_working_all_endpoints"] = True
                     print(f"      ✅ API response structure complete")
                     print(f"      📊 Response fields: {list(response.keys())}")
         
