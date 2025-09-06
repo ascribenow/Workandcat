@@ -199,7 +199,7 @@ backend:
     implemented: true
     working: false
     file: "/app/backend/payment_service.py, /app/backend/referral_service.py, /app/backend/server.py"
-    stuck_count: 2
+    stuck_count: 3
     priority: "critical"
     needs_retesting: true
     status_history:
