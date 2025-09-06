@@ -130,7 +130,7 @@
 # END - Testing Protocol - DO NOT EDIT OR REMOVE THIS SECTION
 #====================================================================================================
 
-user_problem_statement: "Test the payment flow with the provided credentials to verify the 'Authentication key was missing during initialization' error has been resolved: 1) Login with provided credentials: sp@theskinmantra.com / student123, 2) Navigate to pricing page and attempt Pro Lite subscription, 3) Verify payment initialization works without authentication errors, 4) Check for specific error messages - should not see 'Authentication key was missing during initialization'"
+user_problem_statement: "Test the updated subscription system with new plan names, features, and functionality: 1) Plan Name Updates: Verify pricing page shows 'Pro Regular' and 'Pro Exclusive' (not old names), 2) Pro Exclusive Timeline: Verify Pro Exclusive shows 'Till Nov 30, 2025' instead of '60 days', 3) Payment Flow: Test that payment buttons work with new plan structure, 4) Feature Descriptions: Verify Ask Twelvr feature is mentioned only for Pro Exclusive, 5) Subscription Management: Test session limit and feature access based on user's subscription status"
 
 frontend:
   - task: "Razorpay Payment Integration Authentication Error Resolution"
