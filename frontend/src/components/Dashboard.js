@@ -461,7 +461,7 @@ const AdminPanel = () => {
           used_by_email: usage.email,
           usage_id: usage.user_id || 'N/A',
           subscription_type: usage.subscription_type,
-          cashback_due: `₹${usage.discount_amount/100:.2f}`
+          cashback_due: "₹500.00"
         }));
         setReferralData(tableData);
       } else {
