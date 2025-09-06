@@ -317,10 +317,10 @@ const Pricing = () => {
             </div>
 
             <PaymentComponent
-              planType="pro_regular"
+              planType="pro_exclusive"
               amount={256500}
-              planName="Pro Regular"
-              description="Pro Regular - Unlimited Daily-12 sessions for 60 days with Ask Twelvr"
+              planName="Pro Exclusive"
+              description="Pro Exclusive - Unlimited sessions for 60 days with Ask Twelvr"
               onSuccess={handlePaymentSuccess}
               onError={handlePaymentError}
             />
