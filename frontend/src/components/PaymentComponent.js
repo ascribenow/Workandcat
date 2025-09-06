@@ -86,7 +86,7 @@ const PaymentComponent = ({ planType, amount, planName, description, onSuccess, 
       console.log('Payment data received:', result);
       
       // Handle subscription-style payment or one-time payment
-      if (planType === 'pro_lite') {
+      if (planType === 'pro_regular') {
         if (result.data.short_url) {
           // For true subscriptions, redirect to Razorpay hosted page
           console.log('Redirecting to subscription URL:', result.data.short_url);
@@ -95,7 +95,7 @@ const PaymentComponent = ({ planType, amount, planName, description, onSuccess, 
           return;
         } else if (result.data.subscription_style) {
           // For subscription-style one-time payment, show message
-          console.log('Pro Lite subscription-style payment:', result.data.message);
+          console.log('Pro Regular subscription-style payment:', result.data.message);
         }
       }
 
