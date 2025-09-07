@@ -1346,55 +1346,74 @@ class CATBackendTester:
         print("ensuring 100% payment data integrity for all future transactions.")
         print("=" * 90)
         
-        enhanced_checker_results = {
+        razorpay_results = {
             # Admin Authentication
             "admin_authentication_working": False,
             "admin_token_valid": False,
             
-            # Enhanced Checker Integration
-            "enhanced_checker_service_integrated": False,
-            "regular_questions_checker_endpoint": False,
-            "pyq_questions_checker_endpoint": False,
-            "background_job_integration": False,
+            # Student Authentication (for sp@theskinmantra.com)
+            "customer_authentication_working": False,
+            "customer_user_id_verified": False,
+            "customer_subscription_status_retrieved": False,
             
-            # Canonical Taxonomy Validation
-            "canonical_categories_enforced": False,
-            "canonical_subcategories_enforced": False,
-            "invalid_taxonomy_rejected": False,
-            "a_e_format_validation": False,
+            # Razorpay API Integration Methods
+            "fetch_payment_details_method_accessible": False,
+            "fetch_order_details_method_accessible": False,
+            "verify_payment_integrity_method_accessible": False,
+            "detect_plan_from_amount_method_working": False,
+            "detect_referral_discount_method_working": False,
             
-            # Generic Content Elimination
-            "generic_terms_rejected": False,
-            "calculation_basic_rejected": False,
-            "standard_method_rejected": False,
-            "general_approach_rejected": False,
+            # Payment Plan Detection Tests
+            "pro_regular_1495_detection": False,  # ₹1,495 → Pro Regular
+            "pro_regular_995_referral_detection": False,  # ₹995 → Pro Regular with referral
+            "pro_exclusive_2565_detection": False,  # ₹2,565 → Pro Exclusive
+            "pro_exclusive_2065_referral_detection": False,  # ₹2,065 → Pro Exclusive with referral
             
-            # Quality-Verified Flag Enforcement
-            "quality_verified_false_rejection": False,
-            "quality_verified_true_acceptance": False,
+            # Enhanced Payment Verification
+            "industry_standard_verify_payment_working": False,
+            "signature_verification_working": False,
+            "payment_status_validation_working": False,
+            "currency_validation_inr_working": False,
+            "amount_consistency_checks_working": False,
             
-            # Difficulty Consistency Validation
-            "easy_band_score_alignment": False,
-            "medium_band_score_alignment": False,
-            "hard_band_score_alignment": False,
-            "misaligned_difficulty_triggers_re_enrichment": False,
+            # Data Integrity Verification
+            "razorpay_as_source_of_truth": False,
+            "payment_data_integrity_verified": False,
+            "order_data_integrity_verified": False,
+            "comprehensive_integrity_checks": False,
             
-            # Comprehensive Field Validation
-            "regular_question_13_fields_validated": False,
-            "pyq_question_11_fields_validated": False,
-            "required_fields_presence_check": False,
-            "json_format_validation": False,
-            "content_sophistication_assessment": False,
+            # Subscription Creation Based on Verified Data
+            "pro_regular_subscription_creation": False,
+            "pro_exclusive_subscription_creation": False,
+            "correct_end_dates_pro_regular_30_days": False,
+            "correct_end_dates_pro_exclusive_dec_31_2025": False,
+            "accurate_amount_storage_from_razorpay": False,
             
-            # Background Job Integration
-            "background_job_creation": False,
-            "job_status_monitoring": False,
-            "job_completion_tracking": False,
+            # Admin Data Integrity Tools
+            "audit_customer_payment_endpoint": False,
+            "cleanup_duplicate_subscriptions_endpoint": False,
+            "emergency_activation_with_proper_data": False,
             
-            # Re-enrichment System
-            "failed_questions_re_enriched": False,
-            "advanced_llm_service_used": False,
-            "re_enrichment_success_tracking": False
+            # Customer Verification (sp@theskinmantra.com)
+            "customer_current_subscription_status": False,
+            "customer_shows_pro_exclusive_only": False,
+            "customer_amount_2065_verified": False,
+            "customer_end_date_dec_31_2025": False,
+            "duplicate_subscriptions_cleaned": False,
+            
+            # Payment Configuration
+            "razorpay_config_accessible": False,
+            "razorpay_keys_configured": False,
+            "payment_methods_enabled": False,
+            
+            # Email Confirmations
+            "payment_confirmation_emails_working": False,
+            "accurate_data_in_emails": False,
+            
+            # Referral System Integration
+            "referral_discount_500_detection": False,
+            "referral_usage_tracking": False,
+            "referral_validation_api_working": False
         }
         
         # PHASE 1: AUTHENTICATION SETUP
