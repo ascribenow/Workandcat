@@ -266,6 +266,8 @@ const PaymentComponent = ({ planType, amount, planName, description, onSuccess, 
     const token = localStorage.getItem('cat_prep_token');
     if (!token || !isAuthenticated()) {
       alert('Please login to purchase a plan');
+      // Redirect to landing page for sign-in
+      navigate('/');
       return;
     }
     setShowPaymentModal(true);
