@@ -1562,6 +1562,7 @@ async def emergency_activate_subscription(
                 id=str(uuid.uuid4()),
                 user_id=user.id,
                 plan_type=plan_type,
+                amount=int(payment_amount * 100) if payment_amount else 149500,  # Convert to paise
                 status="active",
                 current_period_start=current_period_start,
                 current_period_end=current_period_end,
