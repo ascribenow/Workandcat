@@ -1641,6 +1641,164 @@ async def emergency_activate_subscription(
         raise HTTPException(status_code=500, detail=f"Emergency activation failed: {str(e)}")
 
 # ===========================================
+# PAYMENT DATA INTEGRITY AUDIT ENDPOINTS
+# ===========================================
+
+@api_router.post("/admin/audit-customer-payment")
+async def audit_customer_payment(
+    request: dict,
+    current_user: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_async_compatible_db)
+):
+    """Audit customer payment using actual Razorpay API data for data integrity"""
+    try:
+        user_email = request.get('user_email')
+        razorpay_payment_id = request.get('razorpay_payment_id')  # If known
+        razorpay_order_id = request.get('razorpay_order_id')  # If known
+        
+        if not user_email:
+            raise HTTPException(status_code=400, detail="user_email is required")
+        
+        logger.info(f"Starting payment audit for customer: {user_email}")
+        
+        # Find the user
+        result = await db.execute(select(User).where(User.email == user_email))
+        user = result.scalar_one_or_none()
+        
+        if not user:
+            raise HTTPException(status_code=404, detail=f"User not found: {user_email}")
+        
+        audit_results = {
+            "user_email": user_email,
+            "user_id": user.id,
+            "current_subscription_status": {
+                "subscription_type": user.subscription_type,
+                "subscription_active": user.subscription_active,
+                "subscription_end_date": user.subscription_end_date.isoformat() if user.subscription_end_date else None
+            },
+            "payment_audit_results": [],
+            "recommendations": []
+        }
+        
+        # If specific payment ID provided, audit that payment
+        if razorpay_payment_id:
+            try:
+                from payment_service import razorpay_service
+                
+                # Fetch actual payment data from Razorpay API
+                payment_result = await razorpay_service.fetch_payment_details_from_razorpay(razorpay_payment_id)
+                
+                if payment_result["success"]:
+                    payment_data = payment_result["payment"]
+                    
+                    # Detect plan from actual payment amount
+                    detected_plan = razorpay_service._detect_plan_from_amount(payment_data["amount"])
+                    referral_info = razorpay_service._detect_referral_discount(payment_data["amount"], detected_plan)
+                    
+                    audit_results["payment_audit_results"].append({
+                        "payment_id": razorpay_payment_id,
+                        "actual_amount_paid": payment_data["amount"],
+                        "actual_amount_inr": payment_data["amount"] / 100,
+                        "currency": payment_data["currency"],
+                        "status": payment_data["status"],
+                        "method": payment_data.get("method"),
+                        "detected_plan": detected_plan,
+                        "referral_discount_applied": referral_info["applied"],
+                        "referral_discount_amount": referral_info["discount_amount_inr"],
+                        "payment_date": payment_data["created_at"],
+                        "captured": payment_data.get("captured", False)
+                    })
+                    
+                    # Compare with current subscription
+                    current_plan = user.subscription_type
+                    actual_plan = detected_plan["plan_type"]
+                    
+                    if current_plan != actual_plan:
+                        audit_results["recommendations"].append({
+                            "type": "plan_mismatch",
+                            "issue": f"User has {current_plan} but paid for {actual_plan}",
+                            "action": f"Update user subscription to {actual_plan}",
+                            "priority": "high"
+                        })
+                    
+                    if not user.subscription_active:
+                        audit_results["recommendations"].append({
+                            "type": "inactive_subscription",
+                            "issue": "User paid but subscription is inactive",
+                            "action": "Activate subscription with correct plan and end date",
+                            "priority": "critical"
+                        })
+                        
+                else:
+                    audit_results["payment_audit_results"].append({
+                        "payment_id": razorpay_payment_id,
+                        "error": f"Failed to fetch payment from Razorpay: {payment_result['error']}"
+                    })
+            
+            except Exception as e:
+                audit_results["payment_audit_results"].append({
+                    "payment_id": razorpay_payment_id,
+                    "error": f"Payment audit failed: {str(e)}"
+                })
+        
+        # Find recent payment orders for this user in our database
+        recent_orders = await db.execute(
+            select(PaymentOrder)
+            .where(PaymentOrder.user_email == user_email)
+            .order_by(desc(PaymentOrder.created_at))
+            .limit(5)
+        )
+        orders = recent_orders.scalars().all()
+        
+        audit_results["recent_orders"] = []
+        for order in orders:
+            audit_results["recent_orders"].append({
+                "order_id": order.id,
+                "razorpay_order_id": order.razorpay_order_id,
+                "plan_type": order.plan_type,
+                "amount": order.amount,
+                "amount_inr": order.amount / 100,
+                "status": order.status,
+                "created_at": order.created_at.isoformat(),
+                "updated_at": order.updated_at.isoformat()
+            })
+        
+        # Find payment transactions for this user
+        transactions = await db.execute(
+            select(PaymentTransaction)
+            .where(PaymentTransaction.user_id == user.id)
+            .order_by(desc(PaymentTransaction.created_at))
+            .limit(5)
+        )
+        txns = transactions.scalars().all()
+        
+        audit_results["recent_transactions"] = []
+        for txn in txns:
+            audit_results["recent_transactions"].append({
+                "transaction_id": txn.id,
+                "razorpay_payment_id": txn.razorpay_payment_id,
+                "amount": txn.amount,
+                "amount_inr": txn.amount / 100,
+                "currency": txn.currency,
+                "status": txn.status,
+                "method": txn.method,
+                "created_at": txn.created_at.isoformat()
+            })
+        
+        audit_results["audit_timestamp"] = datetime.utcnow().isoformat()
+        audit_results["audited_by"] = current_user.email
+        
+        return audit_results
+        
+    except Exception as e:
+        logger.error(f"Customer payment audit failed: {e}")
+        raise HTTPException(status_code=500, detail=f"Payment audit failed: {str(e)}")
+
+# ===========================================
+# END PAYMENT DATA INTEGRITY AUDIT ENDPOINTS
+# ===========================================
+
+# ===========================================
 # END EMERGENCY PAYMENT RECOVERY ENDPOINTS
 # ===========================================
 
