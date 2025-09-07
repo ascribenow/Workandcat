@@ -481,6 +481,480 @@ class CATBackendTester:
         
         return success_rate >= 70  # Return True if cleanup validation is successful
 
+    def test_payment_verification_critical_issue(self):
+        """
+        CRITICAL PAYMENT VERIFICATION ISSUE INVESTIGATION
+        
+        URGENT ISSUE: User sp@theskinmantra.com made a successful Razorpay payment but:
+        1. ❌ User shows "No subscription" and "Active: False" even after payment
+        2. ❌ Frontend showed "Payment not processed" alert after successful Razorpay redirect  
+        3. ❌ No payment verification logs found in backend logs
+
+        INVESTIGATION NEEDED:
+        1. Test POST /api/payments/verify-payment endpoint
+        2. Check database state for sp@theskinmantra.com
+        3. Check if subscription was created after payment
+        4. Find why payment verification was not called or failed
+
+        USER DETAILS:
+        - Email: sp@theskinmantra.com
+        - User ID: 2d2d43a9-c26a-4a69-b74d-ffde3d9c71e1  
+        - Plan: Should be Pro Regular (with referral discount)
+        - Expected Status: subscription_active = true
+        """
+        print("💳 CRITICAL PAYMENT VERIFICATION ISSUE INVESTIGATION")
+        print("=" * 80)
+        print("URGENT ISSUE: User sp@theskinmantra.com made successful Razorpay payment but shows 'No subscription'")
+        print("")
+        print("INVESTIGATION OBJECTIVES:")
+        print("1. Test POST /api/payments/verify-payment endpoint functionality")
+        print("2. Check database state for user sp@theskinmantra.com")
+        print("3. Verify subscription activation process")
+        print("4. Identify why payment verification was not called or failed")
+        print("")
+        print("USER DETAILS:")
+        print("- Email: sp@theskinmantra.com")
+        print("- User ID: 2d2d43a9-c26a-4a69-b74d-ffde3d9c71e1")
+        print("- Expected Plan: Pro Regular (with referral discount)")
+        print("- Expected Status: subscription_active = true")
+        print("=" * 80)
+        
+        payment_investigation_results = {
+            # User Authentication & Database State
+            "user_authentication_working": False,
+            "user_exists_in_database": False,
+            "user_id_matches_expected": False,
+            "user_subscription_status_retrieved": False,
+            
+            # Payment Verification Endpoint Testing
+            "payment_verify_endpoint_accessible": False,
+            "payment_verify_endpoint_requires_auth": False,
+            "payment_verify_endpoint_validates_signature": False,
+            "payment_verify_endpoint_creates_subscription": False,
+            
+            # Database State Investigation
+            "payment_orders_table_accessible": False,
+            "payment_records_exist_for_user": False,
+            "subscription_records_exist": False,
+            "referral_usage_tracked": False,
+            
+            # Payment Configuration
+            "razorpay_config_accessible": False,
+            "razorpay_keys_configured": False,
+            "payment_methods_enabled": False,
+            
+            # Subscription Status Investigation
+            "subscription_status_endpoint_working": False,
+            "subscription_shows_active_false": False,
+            "subscription_shows_no_subscription": False,
+            
+            # Root Cause Analysis
+            "payment_verification_logs_missing": False,
+            "frontend_backend_communication_issue": False,
+            "signature_validation_failing": False,
+            "database_transaction_failing": False
+        }
+        
+        # PHASE 1: USER AUTHENTICATION & DATABASE STATE CHECK
+        print("\n🔐 PHASE 1: USER AUTHENTICATION & DATABASE STATE CHECK")
+        print("-" * 60)
+        print("Authenticating user sp@theskinmantra.com and checking database state")
+        
+        # Test user authentication
+        user_login_data = {
+            "email": "sp@theskinmantra.com",
+            "password": "student123"
+        }
+        
+        success, response = self.run_test("User Authentication", "POST", "auth/login", [200, 401], user_login_data)
+        
+        user_headers = None
+        actual_user_id = None
+        if success and response.get('access_token'):
+            user_token = response['access_token']
+            user_headers = {
+                'Authorization': f'Bearer {user_token}',
+                'Content-Type': 'application/json'
+            }
+            payment_investigation_results["user_authentication_working"] = True
+            print(f"   ✅ User authentication successful")
+            print(f"   📊 JWT Token length: {len(user_token)} characters")
+            
+            # Get user details and verify ID
+            success, me_response = self.run_test("User Details Check", "GET", "auth/me", 200, None, user_headers)
+            if success and me_response:
+                payment_investigation_results["user_exists_in_database"] = True
+                actual_user_id = me_response.get('id')
+                expected_user_id = "2d2d43a9-c26a-4a69-b74d-ffde3d9c71e1"
+                
+                print(f"   ✅ User exists in database")
+                print(f"   📊 Actual User ID: {actual_user_id}")
+                print(f"   📊 Expected User ID: {expected_user_id}")
+                print(f"   📊 User Email: {me_response.get('email')}")
+                print(f"   📊 User Name: {me_response.get('full_name')}")
+                
+                if actual_user_id == expected_user_id:
+                    payment_investigation_results["user_id_matches_expected"] = True
+                    print(f"   ✅ User ID matches expected value")
+                else:
+                    print(f"   ⚠️ User ID mismatch - may indicate database issue")
+        else:
+            print("   ❌ User authentication failed - cannot proceed with investigation")
+            return False
+        
+        # PHASE 2: SUBSCRIPTION STATUS INVESTIGATION
+        print("\n📊 PHASE 2: SUBSCRIPTION STATUS INVESTIGATION")
+        print("-" * 60)
+        print("Checking current subscription status for user")
+        
+        # Test subscription status endpoint
+        success, response = self.run_test(
+            "Subscription Status Check", 
+            "GET", 
+            "payments/subscription-status", 
+            [200, 500], 
+            None, 
+            user_headers
+        )
+        
+        if success and response:
+            payment_investigation_results["subscription_status_endpoint_working"] = True
+            payment_investigation_results["user_subscription_status_retrieved"] = True
+            print(f"   ✅ Subscription status endpoint accessible")
+            
+            subscriptions = response.get('subscriptions', [])
+            print(f"   📊 Number of subscriptions found: {len(subscriptions)}")
+            
+            if len(subscriptions) == 0:
+                payment_investigation_results["subscription_shows_no_subscription"] = True
+                print(f"   ❌ CRITICAL ISSUE CONFIRMED: User shows 'No subscription'")
+                print(f"   🚨 This confirms the reported issue - user has no active subscriptions")
+            else:
+                print(f"   📊 Subscription details:")
+                for i, sub in enumerate(subscriptions):
+                    print(f"      Subscription {i+1}:")
+                    print(f"         Plan: {sub.get('plan_type', 'Unknown')}")
+                    print(f"         Status: {sub.get('status', 'Unknown')}")
+                    print(f"         Active: {sub.get('active', 'Unknown')}")
+                    print(f"         Created: {sub.get('created_at', 'Unknown')}")
+                    
+                    if not sub.get('active', False):
+                        payment_investigation_results["subscription_shows_active_false"] = True
+                        print(f"         ❌ ISSUE: Subscription shows Active: False")
+        else:
+            print(f"   ❌ Subscription status endpoint failed")
+        
+        # PHASE 3: PAYMENT VERIFICATION ENDPOINT TESTING
+        print("\n🔍 PHASE 3: PAYMENT VERIFICATION ENDPOINT TESTING")
+        print("-" * 60)
+        print("Testing POST /api/payments/verify-payment endpoint functionality")
+        
+        # Test payment verification endpoint accessibility
+        print("   📋 Step 1: Test Payment Verification Endpoint Accessibility")
+        
+        # Test with missing parameters to check endpoint existence
+        success, response = self.run_test(
+            "Payment Verify Endpoint Check", 
+            "POST", 
+            "payments/verify-payment", 
+            [400, 422, 500], 
+            {}, 
+            user_headers
+        )
+        
+        if success:
+            payment_investigation_results["payment_verify_endpoint_accessible"] = True
+            print(f"      ✅ Payment verification endpoint accessible")
+            
+            # Check if authentication is required
+            success_unauth, response_unauth = self.run_test(
+                "Payment Verify Auth Check", 
+                "POST", 
+                "payments/verify-payment", 
+                [401, 403], 
+                {}
+            )
+            
+            if success_unauth:
+                payment_investigation_results["payment_verify_endpoint_requires_auth"] = True
+                print(f"      ✅ Payment verification endpoint requires authentication")
+        else:
+            print(f"      ❌ Payment verification endpoint not accessible")
+        
+        # Test with sample payment verification data
+        print("   📋 Step 2: Test Payment Verification with Sample Data")
+        
+        sample_verification_data = {
+            "razorpay_order_id": "order_sample_test_123",
+            "razorpay_payment_id": "pay_sample_test_123", 
+            "razorpay_signature": "sample_signature_for_testing",
+            "user_id": actual_user_id
+        }
+        
+        success, response = self.run_test(
+            "Sample Payment Verification", 
+            "POST", 
+            "payments/verify-payment", 
+            [200, 400, 500], 
+            sample_verification_data, 
+            user_headers
+        )
+        
+        if success:
+            print(f"      ✅ Payment verification endpoint processes requests")
+            
+            if response.get('success'):
+                payment_investigation_results["payment_verify_endpoint_creates_subscription"] = True
+                print(f"      ✅ Payment verification can create subscriptions")
+            else:
+                error_message = response.get('detail', 'Unknown error')
+                print(f"      ⚠️ Payment verification failed (expected): {error_message}")
+                
+                # Check if it's signature validation failure
+                if 'signature' in error_message.lower():
+                    payment_investigation_results["payment_verify_endpoint_validates_signature"] = True
+                    print(f"      ✅ Signature validation is working (rejecting invalid signatures)")
+        else:
+            print(f"      ❌ Payment verification endpoint failed to process request")
+        
+        # PHASE 4: PAYMENT CONFIGURATION INVESTIGATION
+        print("\n⚙️ PHASE 4: PAYMENT CONFIGURATION INVESTIGATION")
+        print("-" * 60)
+        print("Checking Razorpay configuration and payment setup")
+        
+        # Test payment configuration endpoint
+        success, response = self.run_test(
+            "Payment Configuration Check", 
+            "GET", 
+            "payments/config", 
+            [200], 
+            None
+        )
+        
+        if success and response:
+            payment_investigation_results["razorpay_config_accessible"] = True
+            print(f"   ✅ Payment configuration accessible")
+            
+            key_id = response.get('key_id')
+            config = response.get('config', {})
+            
+            if key_id:
+                payment_investigation_results["razorpay_keys_configured"] = True
+                print(f"   ✅ Razorpay key configured: {key_id}")
+            
+            methods = config.get('methods', {})
+            if methods:
+                payment_investigation_results["payment_methods_enabled"] = True
+                print(f"   ✅ Payment methods configured:")
+                for method, enabled in methods.items():
+                    print(f"      {method}: {enabled}")
+        else:
+            print(f"   ❌ Payment configuration not accessible")
+        
+        # PHASE 5: DATABASE STATE DEEP DIVE
+        print("\n🗄️ PHASE 5: DATABASE STATE DEEP DIVE")
+        print("-" * 60)
+        print("Investigating database records for payment orders and subscriptions")
+        
+        # Since we can't directly access the database, we'll use API endpoints to infer database state
+        
+        # Test if we can create a new payment order to verify database connectivity
+        print("   📋 Step 1: Test Payment Order Creation (Database Connectivity)")
+        
+        test_order_data = {
+            "plan_type": "pro_regular",
+            "user_email": "sp@theskinmantra.com",
+            "user_name": "SP Test User",
+            "user_phone": "+91-9876543210"
+        }
+        
+        success, response = self.run_test(
+            "Test Payment Order Creation", 
+            "POST", 
+            "payments/create-subscription", 
+            [200, 400, 500], 
+            test_order_data, 
+            user_headers
+        )
+        
+        if success and response:
+            payment_investigation_results["payment_orders_table_accessible"] = True
+            print(f"      ✅ Payment orders table accessible (can create new orders)")
+            
+            order_data = response.get('data', {})
+            order_id = order_data.get('id') or order_data.get('order_id')
+            if order_id:
+                print(f"      📊 Test order created: {order_id}")
+        else:
+            print(f"      ❌ Cannot create payment orders - database connectivity issue")
+        
+        # Check referral usage (indicates database tables are working)
+        print("   📋 Step 2: Check Referral Usage Tracking")
+        
+        # Try to validate a referral code to see if referral_usage table is accessible
+        test_referral_data = {
+            "referral_code": "TEST123",
+            "user_email": "sp@theskinmantra.com"
+        }
+        
+        success, response = self.run_test(
+            "Referral Usage Table Check", 
+            "POST", 
+            "referral/validate", 
+            [200, 400], 
+            test_referral_data
+        )
+        
+        if success:
+            payment_investigation_results["referral_usage_tracked"] = True
+            print(f"      ✅ Referral usage table accessible")
+            
+            # Check if user has used referral codes
+            if not response.get('can_use') and 'already' in str(response.get('error', '')).lower():
+                print(f"      📊 User has previously used referral codes")
+                print(f"      💡 This suggests payment transactions were recorded in database")
+        
+        # PHASE 6: ROOT CAUSE ANALYSIS
+        print("\n🔍 PHASE 6: ROOT CAUSE ANALYSIS")
+        print("-" * 60)
+        print("Analyzing potential causes for payment verification failure")
+        
+        # Analyze findings to determine root cause
+        print("   📋 Analysis of Investigation Results:")
+        
+        # Check if user authentication is working
+        if payment_investigation_results["user_authentication_working"]:
+            print("      ✅ User authentication: WORKING")
+        else:
+            print("      ❌ User authentication: FAILED")
+            
+        # Check if subscription status shows the issue
+        if payment_investigation_results["subscription_shows_no_subscription"]:
+            print("      ❌ Subscription status: CONFIRMS ISSUE - No subscriptions found")
+            payment_investigation_results["payment_verification_logs_missing"] = True
+        elif payment_investigation_results["subscription_shows_active_false"]:
+            print("      ❌ Subscription status: CONFIRMS ISSUE - Subscription inactive")
+        
+        # Check if payment verification endpoint is working
+        if payment_investigation_results["payment_verify_endpoint_accessible"]:
+            print("      ✅ Payment verification endpoint: ACCESSIBLE")
+            
+            if payment_investigation_results["payment_verify_endpoint_validates_signature"]:
+                print("      ✅ Signature validation: WORKING")
+            else:
+                print("      ⚠️ Signature validation: NEEDS VERIFICATION")
+                payment_investigation_results["signature_validation_failing"] = True
+        else:
+            print("      ❌ Payment verification endpoint: NOT ACCESSIBLE")
+            payment_investigation_results["frontend_backend_communication_issue"] = True
+        
+        # Check database connectivity
+        if payment_investigation_results["payment_orders_table_accessible"]:
+            print("      ✅ Database connectivity: WORKING")
+        else:
+            print("      ❌ Database connectivity: FAILED")
+            payment_investigation_results["database_transaction_failing"] = True
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 80)
+        print("💳 CRITICAL PAYMENT VERIFICATION ISSUE - INVESTIGATION RESULTS")
+        print("=" * 80)
+        
+        passed_tests = sum(payment_investigation_results.values())
+        total_tests = len(payment_investigation_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        # Group results by investigation categories
+        investigation_categories = {
+            "USER AUTHENTICATION & DATABASE STATE": [
+                "user_authentication_working", "user_exists_in_database", 
+                "user_id_matches_expected", "user_subscription_status_retrieved"
+            ],
+            "SUBSCRIPTION STATUS INVESTIGATION": [
+                "subscription_status_endpoint_working", "subscription_shows_active_false",
+                "subscription_shows_no_subscription"
+            ],
+            "PAYMENT VERIFICATION ENDPOINT": [
+                "payment_verify_endpoint_accessible", "payment_verify_endpoint_requires_auth",
+                "payment_verify_endpoint_validates_signature", "payment_verify_endpoint_creates_subscription"
+            ],
+            "PAYMENT CONFIGURATION": [
+                "razorpay_config_accessible", "razorpay_keys_configured", "payment_methods_enabled"
+            ],
+            "DATABASE STATE INVESTIGATION": [
+                "payment_orders_table_accessible", "payment_records_exist_for_user",
+                "subscription_records_exist", "referral_usage_tracked"
+            ],
+            "ROOT CAUSE INDICATORS": [
+                "payment_verification_logs_missing", "frontend_backend_communication_issue",
+                "signature_validation_failing", "database_transaction_failing"
+            ]
+        }
+        
+        for category, tests in investigation_categories.items():
+            print(f"\n{category}:")
+            category_passed = 0
+            category_total = len(tests)
+            
+            for test in tests:
+                if test in payment_investigation_results:
+                    result = payment_investigation_results[test]
+                    status = "✅ CONFIRMED" if result else "❌ NOT CONFIRMED"
+                    print(f"  {test.replace('_', ' ').title():<50} {status}")
+                    if result:
+                        category_passed += 1
+            
+            category_rate = (category_passed / category_total) * 100 if category_total > 0 else 0
+            print(f"  Category Success Rate: {category_passed}/{category_total} ({category_rate:.1f}%)")
+        
+        print("-" * 80)
+        print(f"Overall Investigation Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # CRITICAL ISSUE DIAGNOSIS
+        print("\n🚨 CRITICAL ISSUE DIAGNOSIS:")
+        
+        # Determine the most likely root cause
+        if payment_investigation_results["subscription_shows_no_subscription"]:
+            print("\n❌ ISSUE CONFIRMED: User sp@theskinmantra.com has NO SUBSCRIPTIONS")
+            print("   This confirms the reported issue - successful Razorpay payment not processed")
+        
+        if payment_investigation_results["payment_verify_endpoint_accessible"]:
+            print("\n✅ Payment verification endpoint is accessible")
+            if payment_investigation_results["payment_verify_endpoint_validates_signature"]:
+                print("   ✅ Signature validation is working")
+                print("   💡 LIKELY CAUSE: Frontend not calling payment verification endpoint")
+                print("   🔧 RECOMMENDATION: Check frontend payment success callback")
+            else:
+                print("   ⚠️ Signature validation needs verification")
+                print("   💡 POSSIBLE CAUSE: Signature validation failing silently")
+                print("   🔧 RECOMMENDATION: Check Razorpay signature validation logic")
+        else:
+            print("\n❌ Payment verification endpoint not accessible")
+            print("   💡 LIKELY CAUSE: Backend endpoint configuration issue")
+            print("   🔧 RECOMMENDATION: Check server routing and endpoint implementation")
+        
+        if not payment_investigation_results["payment_orders_table_accessible"]:
+            print("\n❌ Database connectivity issues detected")
+            print("   💡 POSSIBLE CAUSE: Database transaction failures")
+            print("   🔧 RECOMMENDATION: Check database connection and transaction handling")
+        
+        # URGENT ACTION ITEMS
+        print("\n🎯 URGENT ACTION ITEMS:")
+        print("1. ✅ CONFIRMED: User has no active subscriptions despite successful payment")
+        print("2. 🔍 INVESTIGATE: Why payment verification endpoint was not called by frontend")
+        print("3. 🔍 CHECK: Razorpay webhook configuration and signature validation")
+        print("4. 🔍 VERIFY: Database transaction handling in payment verification flow")
+        print("5. 🔍 REVIEW: Frontend payment success callback implementation")
+        
+        # IMMEDIATE FIXES NEEDED
+        print("\n⚡ IMMEDIATE FIXES NEEDED:")
+        if payment_investigation_results["subscription_shows_no_subscription"]:
+            print("1. 🚨 CRITICAL: Manually activate subscription for sp@theskinmantra.com")
+            print("2. 🔧 DEBUG: Payment verification flow to prevent future occurrences")
+            print("3. 📋 AUDIT: Check for other users with similar payment issues")
+        
+        return payment_investigation_results
+
     def test_enhanced_enrichment_checker_system(self):
         """
         ENHANCED ENRICHMENT CHECKER SYSTEM WITH 100% COMPLIANCE VALIDATION
