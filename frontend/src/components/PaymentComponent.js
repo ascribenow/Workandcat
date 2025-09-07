@@ -72,6 +72,8 @@ const PaymentComponent = ({ planType, amount, planName, description, onSuccess, 
       if (!token || !isAuthenticated()) {
         alert('Please login to purchase a plan');
         setLoading(false);
+        // Redirect to landing page for sign-in
+        navigate('/');
         return;
       }
 
