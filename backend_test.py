@@ -1145,6 +1145,29 @@ class CATBackendTester:
         # CRITICAL ISSUE DIAGNOSIS
         print("\n🚨 CRITICAL ISSUE DIAGNOSIS:")
         
+        # Emergency Activation Endpoint Analysis
+        if payment_investigation_results["emergency_activation_500_error_reproduced"]:
+            print("\n❌ EMERGENCY ACTIVATION ISSUE CONFIRMED: 500 Internal Server Error")
+            print("   This confirms the reported issue - emergency activation endpoint failing")
+            payment_investigation_results["emergency_activation_database_issue"] = True
+        elif payment_investigation_results["emergency_activation_creates_subscription"]:
+            print("\n✅ Emergency activation endpoint is working")
+        
+        # Payment Verification Analysis
+        error_count = 0
+        if payment_investigation_results["payment_verify_422_error_reproduced"]:
+            print("\n❌ PAYMENT VERIFICATION 422 ERROR CONFIRMED: Validation issues")
+            error_count += 1
+        if payment_investigation_results["payment_verify_401_error_reproduced"]:
+            print("\n❌ PAYMENT VERIFICATION 401 ERROR CONFIRMED: Authentication issues")
+            error_count += 1
+        if payment_investigation_results["payment_verify_400_error_reproduced"]:
+            print("\n❌ PAYMENT VERIFICATION 400 ERROR CONFIRMED: Parameter issues")
+            error_count += 1
+        
+        if error_count > 0:
+            print(f"\n🚨 MULTIPLE PAYMENT VERIFICATION ERRORS REPRODUCED: {error_count}/3 error types")
+        
         # Determine the most likely root cause
         if payment_investigation_results["subscription_shows_no_subscription"]:
             print("\n❌ ISSUE CONFIRMED: User sp@theskinmantra.com has NO SUBSCRIPTIONS")
@@ -1172,18 +1195,22 @@ class CATBackendTester:
         
         # URGENT ACTION ITEMS
         print("\n🎯 URGENT ACTION ITEMS:")
-        print("1. ✅ CONFIRMED: User has no active subscriptions despite successful payment")
-        print("2. 🔍 INVESTIGATE: Why payment verification endpoint was not called by frontend")
-        print("3. 🔍 CHECK: Razorpay webhook configuration and signature validation")
-        print("4. 🔍 VERIFY: Database transaction handling in payment verification flow")
-        print("5. 🔍 REVIEW: Frontend payment success callback implementation")
+        print("1. 🚨 CRITICAL: Debug emergency activation 500 error for immediate customer fix")
+        print("2. ✅ CONFIRMED: User has no active subscriptions despite successful payment")
+        print("3. 🔍 INVESTIGATE: Why payment verification endpoint was not called by frontend")
+        print("4. 🔍 DEBUG: 422, 401, 400 errors in payment verification endpoint")
+        print("5. 🔍 CHECK: Razorpay webhook configuration and signature validation")
+        print("6. 🔍 VERIFY: Database transaction handling in payment verification flow")
         
         # IMMEDIATE FIXES NEEDED
         print("\n⚡ IMMEDIATE FIXES NEEDED:")
+        if payment_investigation_results["emergency_activation_500_error_reproduced"]:
+            print("1. 🚨 CRITICAL: Fix emergency activation endpoint 500 error")
+            print("2. 🚨 CRITICAL: Manually activate subscription for sp@theskinmantra.com using alternative method")
         if payment_investigation_results["subscription_shows_no_subscription"]:
-            print("1. 🚨 CRITICAL: Manually activate subscription for sp@theskinmantra.com")
-            print("2. 🔧 DEBUG: Payment verification flow to prevent future occurrences")
-            print("3. 📋 AUDIT: Check for other users with similar payment issues")
+            print("3. 🔧 DEBUG: Payment verification flow to prevent future occurrences")
+            print("4. 📋 AUDIT: Check for other users with similar payment issues")
+            print("5. 🔧 FIX: Frontend payment success callback to ensure verification is called")
         
         return payment_investigation_results
 
