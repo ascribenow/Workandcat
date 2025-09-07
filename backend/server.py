@@ -1668,13 +1668,25 @@ async def audit_customer_payment(
         if not user:
             raise HTTPException(status_code=404, detail=f"User not found: {user_email}")
         
+        # Get current subscription status from Subscription table
+        current_subscription = await db.execute(
+            select(Subscription)
+            .where(Subscription.user_id == user.id)
+            .where(Subscription.status == "active")
+            .order_by(desc(Subscription.created_at))
+            .limit(1)
+        )
+        active_subscription = current_subscription.scalar_one_or_none()
+        
         audit_results = {
             "user_email": user_email,
             "user_id": user.id,
             "current_subscription_status": {
-                "subscription_type": user.subscription_type,
-                "subscription_active": user.subscription_active,
-                "subscription_end_date": user.subscription_end_date.isoformat() if user.subscription_end_date else None
+                "has_active_subscription": active_subscription is not None,
+                "subscription_type": active_subscription.plan_type if active_subscription else None,
+                "subscription_status": active_subscription.status if active_subscription else None,
+                "subscription_end_date": active_subscription.current_period_end.isoformat() if active_subscription and active_subscription.current_period_end else None,
+                "subscription_amount": active_subscription.amount / 100 if active_subscription and active_subscription.amount else None
             },
             "payment_audit_results": [],
             "recommendations": []
