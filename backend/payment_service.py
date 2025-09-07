@@ -824,6 +824,216 @@ class RazorpayService:
                 "success": False,
                 "error": str(e)
             }
+    
+    # ==========================================
+    # RAZORPAY API INTEGRATION FOR DATA INTEGRITY
+    # ==========================================
+    
+    async def fetch_payment_details_from_razorpay(self, payment_id: str) -> Dict[str, Any]:
+        """
+        Fetch actual payment details from Razorpay API
+        This ensures data integrity by using Razorpay as source of truth
+        """
+        try:
+            logger.info(f"Fetching payment details from Razorpay API: {payment_id}")
+            
+            # Call Razorpay Payment API
+            payment_details = self.client.payment.fetch(payment_id)
+            
+            logger.info(f"Razorpay payment details retrieved: {payment_details}")
+            
+            return {
+                "success": True,
+                "payment": {
+                    "id": payment_details["id"],
+                    "amount": payment_details["amount"],  # Amount in paise
+                    "currency": payment_details["currency"],
+                    "status": payment_details["status"],
+                    "method": payment_details.get("method"),
+                    "created_at": payment_details["created_at"],
+                    "captured": payment_details.get("captured", False),
+                    "order_id": payment_details.get("order_id"),
+                    "email": payment_details.get("email"),
+                    "contact": payment_details.get("contact"),
+                    "description": payment_details.get("description"),
+                    "notes": payment_details.get("notes", {}),
+                    "fee": payment_details.get("fee"),
+                    "tax": payment_details.get("tax"),
+                    "refund_status": payment_details.get("refund_status"),
+                    "amount_refunded": payment_details.get("amount_refunded", 0)
+                }
+            }
+            
+        except Exception as e:
+            logger.error(f"Failed to fetch payment details from Razorpay: {payment_id}, Error: {e}")
+            return {
+                "success": False,
+                "error": str(e),
+                "payment_id": payment_id
+            }
+    
+    async def fetch_order_details_from_razorpay(self, order_id: str) -> Dict[str, Any]:
+        """
+        Fetch actual order details from Razorpay API
+        This provides the original order amount and plan details
+        """
+        try:
+            logger.info(f"Fetching order details from Razorpay API: {order_id}")
+            
+            # Call Razorpay Order API
+            order_details = self.client.order.fetch(order_id)
+            
+            logger.info(f"Razorpay order details retrieved: {order_details}")
+            
+            return {
+                "success": True,
+                "order": {
+                    "id": order_details["id"],
+                    "amount": order_details["amount"],  # Original order amount in paise
+                    "currency": order_details["currency"],
+                    "status": order_details["status"],
+                    "created_at": order_details["created_at"],
+                    "notes": order_details.get("notes", {}),
+                    "receipt": order_details.get("receipt"),
+                    "attempts": order_details.get("attempts", 0),
+                    "amount_paid": order_details.get("amount_paid", 0),
+                    "amount_due": order_details.get("amount_due", 0)
+                }
+            }
+            
+        except Exception as e:
+            logger.error(f"Failed to fetch order details from Razorpay: {order_id}, Error: {e}")
+            return {
+                "success": False,
+                "error": str(e),
+                "order_id": order_id
+            }
+    
+    async def verify_payment_integrity(self, payment_id: str, order_id: str, expected_amount: Optional[int] = None) -> Dict[str, Any]:
+        """
+        Comprehensive payment integrity verification using Razorpay API
+        Ensures data integrity by comparing actual vs expected values
+        """
+        try:
+            logger.info(f"Starting payment integrity verification: Payment={payment_id}, Order={order_id}")
+            
+            # Fetch actual payment and order data from Razorpay
+            payment_result = await self.fetch_payment_details_from_razorpay(payment_id)
+            order_result = await self.fetch_order_details_from_razorpay(order_id)
+            
+            if not payment_result["success"]:
+                return {
+                    "success": False,
+                    "error": f"Failed to fetch payment details: {payment_result['error']}",
+                    "verification_status": "failed_payment_fetch"
+                }
+            
+            if not order_result["success"]:
+                return {
+                    "success": False,
+                    "error": f"Failed to fetch order details: {order_result['error']}",
+                    "verification_status": "failed_order_fetch"
+                }
+            
+            payment_data = payment_result["payment"]
+            order_data = order_result["order"]
+            
+            # Data integrity checks
+            integrity_checks = {
+                "payment_captured": payment_data["status"] == "captured",
+                "payment_order_match": payment_data["order_id"] == order_id,
+                "currency_valid": payment_data["currency"] == "INR",
+                "amount_consistency": payment_data["amount"] == order_data["amount"],
+                "no_refunds": payment_data["amount_refunded"] == 0,
+                "expected_amount_match": True  # Default, will be updated if expected_amount provided
+            }
+            
+            # Check expected amount if provided
+            if expected_amount is not None:
+                integrity_checks["expected_amount_match"] = payment_data["amount"] == expected_amount
+            
+            # Overall integrity status
+            all_checks_passed = all(integrity_checks.values())
+            
+            # Determine plan type from actual payment amount
+            actual_amount = payment_data["amount"]
+            detected_plan = self._detect_plan_from_amount(actual_amount)
+            
+            # Check for referral discount
+            referral_discount_applied = self._detect_referral_discount(actual_amount, detected_plan)
+            
+            logger.info(f"Payment integrity verification completed: {integrity_checks}")
+            
+            return {
+                "success": True,
+                "verification_status": "passed" if all_checks_passed else "failed",
+                "integrity_checks": integrity_checks,
+                "payment_data": payment_data,
+                "order_data": order_data,
+                "detected_plan": detected_plan,
+                "referral_discount_applied": referral_discount_applied,
+                "actual_amount_paid": actual_amount,
+                "actual_amount_inr": actual_amount / 100,  # Convert paise to rupees
+                "verification_timestamp": datetime.utcnow().isoformat()
+            }
+            
+        except Exception as e:
+            logger.error(f"Payment integrity verification failed: {e}")
+            return {
+                "success": False,
+                "error": str(e),
+                "verification_status": "error"
+            }
+    
+    def _detect_plan_from_amount(self, amount_in_paise: int) -> Dict[str, Any]:
+        """
+        Detect which plan was purchased based on actual amount paid
+        Accounts for referral discounts (₹500 = 50000 paise)
+        """
+        amount = amount_in_paise
+        referral_discount = 50000  # ₹500 in paise
+        
+        # Check exact matches (no discount)
+        if amount == 149500:  # ₹1,495
+            return {"plan_type": "pro_regular", "discount_applied": False, "original_amount": 149500}
+        elif amount == 256500:  # ₹2,565
+            return {"plan_type": "pro_exclusive", "discount_applied": False, "original_amount": 256500}
+        
+        # Check with referral discount applied
+        elif amount == 149500 - referral_discount:  # ₹995 (₹1,495 - ₹500)
+            return {"plan_type": "pro_regular", "discount_applied": True, "original_amount": 149500, "discount_amount": referral_discount}
+        elif amount == 256500 - referral_discount:  # ₹2,065 (₹2,565 - ₹500)
+            return {"plan_type": "pro_exclusive", "discount_applied": True, "original_amount": 256500, "discount_amount": referral_discount}
+        
+        # Unknown amount - return as detected but flag as unknown
+        return {
+            "plan_type": "unknown",
+            "discount_applied": None,
+            "original_amount": None,
+            "actual_amount": amount,
+            "note": f"Unknown payment amount: ₹{amount/100:.2f}"
+        }
+    
+    def _detect_referral_discount(self, actual_amount: int, detected_plan: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Detect if referral discount was applied based on actual payment amount
+        """
+        if detected_plan["discount_applied"]:
+            return {
+                "applied": True,
+                "discount_amount_paise": 50000,
+                "discount_amount_inr": 500,
+                "original_amount": detected_plan["original_amount"],
+                "discounted_amount": actual_amount
+            }
+        else:
+            return {
+                "applied": False,
+                "discount_amount_paise": 0,
+                "discount_amount_inr": 0,
+                "original_amount": actual_amount,
+                "discounted_amount": actual_amount
+            }
 
 # Global instance
 razorpay_service = RazorpayService()
