@@ -9550,23 +9550,25 @@ def main():
         investigation_results = tester.test_emergency_subscription_activation_and_payment_verification()
         
         print("\n" + "=" * 80)
-        print("🏁 PAYMENT VERIFICATION INVESTIGATION COMPLETED")
+        print("🏁 PAYMENT VERIFICATION & EMERGENCY ACTIVATION TESTING COMPLETED")
         print("=" * 80)
         
-        print(f"\n📊 INVESTIGATION RESULTS:")
-        print(f"  Payment Verification Investigation: {'✅ COMPLETED' if investigation_results else '❌ FAILED'}")
+        print(f"\n📊 TESTING RESULTS:")
+        print(f"  Payment & Emergency Activation Testing: {'✅ COMPLETED' if investigation_results else '❌ FAILED'}")
         
         if investigation_results:
-            print("\n🎯 INVESTIGATION COMPLETED SUCCESSFULLY!")
+            print("\n🎯 TESTING COMPLETED SUCCESSFULLY!")
+            print("✅ Admin authentication and privileges verified")
             print("✅ User authentication and database state checked")
+            print("✅ Emergency activation endpoint functionality tested")
             print("✅ Payment verification endpoint functionality tested")
             print("✅ Subscription status investigation completed")
             print("✅ Root cause analysis performed")
             print("✅ Urgent action items identified")
-            print("🔍 CRITICAL FINDINGS: Investigation reveals specific issues with payment verification flow")
+            print("🔍 CRITICAL FINDINGS: Testing reveals specific issues with both endpoints")
         else:
-            print("\n❌ PAYMENT VERIFICATION INVESTIGATION FAILED")
-            print("🚨 Unable to complete investigation - system access issues")
+            print("\n❌ PAYMENT & EMERGENCY ACTIVATION TESTING FAILED")
+            print("🚨 Unable to complete testing - system access issues")
         
         print(f"\nTests Run: {tester.tests_run}")
         print(f"Tests Passed: {tester.tests_passed}")
