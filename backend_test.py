@@ -10219,9 +10219,9 @@ def main():
     tester = CATBackendTester()
     
     try:
-        # Run Comprehensive Razorpay Payment System Testing (as per review request)
-        print("💳 COMPREHENSIVE TESTING: INDUSTRY-STANDARD RAZORPAY PAYMENT SYSTEM")
-        razorpay_results = tester.test_razorpay_payment_system_comprehensive()
+        # Run Comprehensive Payment Security Enhancements Testing (as per review request)
+        print("🔐 COMPREHENSIVE TESTING: ALL PAYMENT SECURITY ENHANCEMENTS IMPLEMENTED")
+        razorpay_results = tester.test_payment_security_enhancements_comprehensive()
         
         print("\n" + "=" * 80)
         print("🏁 RAZORPAY PAYMENT SYSTEM TESTING COMPLETED")
