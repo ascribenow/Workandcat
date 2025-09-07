@@ -256,7 +256,7 @@ const LandingPage = () => {
                   onClick={scrollToSignUp}
                   className="bg-[#9ac026] text-white px-6 sm:px-8 py-3 sm:py-4 rounded-full text-base sm:text-lg font-semibold hover:bg-[#8bb024] transition-colors shadow-lg"
                 >
-                  Start My Daily-12
+                  Start My 12
                 </button>
               </div>
             </div>
