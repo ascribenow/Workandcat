@@ -61,9 +61,9 @@ async def fix_payment_transactions_schema():
         
         logger.info(f"🔧 Missing columns found: {[col[0] for col in missing_columns]}")
         
-        # Create async engine for executing commands using asyncpg
+        # Create async engine for executing commands using asyncpg with pgbouncer fix
         async_database_url = DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://") if "postgresql://" in DATABASE_URL and "asyncpg" not in DATABASE_URL else DATABASE_URL
-        async_engine = create_async_engine(async_database_url)
+        async_engine = create_async_engine(async_database_url, pool_pre_ping=True, echo=False, connect_args={"statement_cache_size": 0})
         
         async with async_engine.begin() as conn:
             for col_name, col_type in missing_columns:
