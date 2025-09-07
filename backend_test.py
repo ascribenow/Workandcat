@@ -1262,7 +1262,7 @@ class CATBackendTester:
         - Admin tools providing comprehensive system insights
         - Monitoring service detecting anomalies and health issues
         """
-        print("💳 COMPREHENSIVE TESTING: INDUSTRY-STANDARD RAZORPAY PAYMENT SYSTEM")
+        print("🔐 COMPREHENSIVE TESTING: ALL PAYMENT SECURITY ENHANCEMENTS IMPLEMENTED")
         print("=" * 90)
         print("TESTING OBJECTIVES:")
         print("Test the newly implemented industry-standard payment verification system with Razorpay API integration")
