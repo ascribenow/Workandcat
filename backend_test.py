@@ -2011,15 +2011,15 @@ class CATBackendTester:
         
         # Calculate overall success metrics
         total_critical_tests = [
-            "one_time_usage_rule_enforced",
-            "fresh_email_can_use_referral_codes", 
-            "self_referral_prevention_working",
-            "pro_regular_discount_calculation_perfect",
-            "pro_exclusive_discount_calculation_perfect",
-            "mathematical_accuracy_verified",
-            "referral_validate_endpoint_working",
-            "payments_create_subscription_working",
-            "payments_create_order_working"
+            "one_time_usage_enforcement_working",
+            "self_referral_prevention_enforced", 
+            "pro_regular_discount_calculation_correct",
+            "pro_exclusive_discount_calculation_correct",
+            "pro_regular_exact_500_rupee_discount",
+            "pro_exclusive_exact_500_rupee_discount",
+            "referral_validate_endpoint_accessible",
+            "pro_regular_accepts_referral_code",
+            "pro_exclusive_accepts_referral_code"
         ]
         
         critical_tests_passed = sum(referral_system_results[test] for test in total_critical_tests)
