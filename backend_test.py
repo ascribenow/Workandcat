@@ -481,26 +481,25 @@ class CATBackendTester:
         
         return success_rate >= 70  # Return True if cleanup validation is successful
 
-    def test_payment_verification_critical_issue(self):
+    def test_emergency_subscription_activation_and_payment_verification(self):
         """
-        CRITICAL PAYMENT VERIFICATION ISSUE INVESTIGATION
+        CRITICAL PAYMENT VERIFICATION & EMERGENCY ACTIVATION TESTING
         
-        URGENT ISSUE: User sp@theskinmantra.com made a successful Razorpay payment but:
-        1. ❌ User shows "No subscription" and "Active: False" even after payment
-        2. ❌ Frontend showed "Payment not processed" alert after successful Razorpay redirect  
-        3. ❌ No payment verification logs found in backend logs
+        TWO URGENT ISSUES TO INVESTIGATE:
+        1. **EMERGENCY SUBSCRIPTION ACTIVATION ENDPOINT BUG**:
+           - Endpoint: POST /api/admin/emergency-activate-subscription
+           - Error: 500 Internal Server Error when trying to activate subscription for sp@theskinmantra.com
+           
+        2. **PAYMENT VERIFICATION ENDPOINT ISSUES**:
+           - Frontend calls /api/payments/verify-payment after successful Razorpay payment
+           - But verification fails causing "Payment not processed" alert
+           - Backend logs show various verify-payment errors: 422, 401, 400
 
-        INVESTIGATION NEEDED:
-        1. Test POST /api/payments/verify-payment endpoint
-        2. Check database state for sp@theskinmantra.com
-        3. Check if subscription was created after payment
-        4. Find why payment verification was not called or failed
-
-        USER DETAILS:
+        CUSTOMER DETAILS:
         - Email: sp@theskinmantra.com
-        - User ID: 2d2d43a9-c26a-4a69-b74d-ffde3d9c71e1  
-        - Plan: Should be Pro Regular (with referral discount)
-        - Expected Status: subscription_active = true
+        - User ID: 2d2d43a9-c26a-4a69-b74d-ffde3d9c71e1
+        - Plan: Pro Regular (₹995 with referral discount)
+        - Status: Payment successful on Razorpay, verification failed on backend
         """
         print("💳 CRITICAL PAYMENT VERIFICATION ISSUE INVESTIGATION")
         print("=" * 80)
