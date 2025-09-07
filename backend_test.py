@@ -9279,45 +9279,41 @@ Find the compound interest on Rs. 1000 for 2 years at 10% per annum.,210"""
         return success_rate == 100  # Return True only if 100% success achieved
 
 def main():
-    """Main function to run comprehensive payment referral system testing"""
-    print("💳 FINAL 100% SUCCESS CONFIRMATION - PAYMENT REFERRAL SYSTEM COMPREHENSIVE TEST")
-    print("=" * 100)
+    """Main function to run critical payment verification issue investigation"""
+    print("💳 CRITICAL PAYMENT VERIFICATION ISSUE INVESTIGATION")
+    print("=" * 80)
     
     tester = CATBackendTester()
     
     try:
-        # Run Payment Referral System Final 100% Success Confirmation
-        print("💳 PAYMENT REFERRAL SYSTEM FINAL 100% SUCCESS CONFIRMATION")
-        payment_success = tester.test_payment_referral_system_final_100_percent_success_confirmation()
+        # Run Critical Payment Verification Issue Investigation
+        print("💳 CRITICAL PAYMENT VERIFICATION ISSUE INVESTIGATION")
+        investigation_results = tester.test_payment_verification_critical_issue()
         
-        print("\n" + "=" * 100)
-        print("🏁 PAYMENT REFERRAL SYSTEM TESTING COMPLETED")
-        print("=" * 100)
+        print("\n" + "=" * 80)
+        print("🏁 PAYMENT VERIFICATION INVESTIGATION COMPLETED")
+        print("=" * 80)
         
-        print(f"\n📊 PAYMENT REFERRAL SYSTEM RESULTS:")
-        print(f"  Payment Referral System 100%: {'✅ PASS' if payment_success else '❌ FAIL'}")
+        print(f"\n📊 INVESTIGATION RESULTS:")
+        print(f"  Payment Verification Investigation: {'✅ COMPLETED' if investigation_results else '❌ FAILED'}")
         
-        if payment_success:
-            print("\n🎉 FINAL 100% SUCCESS CONFIRMATION ACHIEVED!")
-            print("✅ Complete Mathematical Accuracy PERFECT - Both plans applying exactly ₹500 discount")
-            print("✅ Business Rules Validation PERFECT - All validation rules working correctly")
-            print("✅ Complete System Integration PERFECT - All components working together")
-            print("✅ Production Readiness Confirmation PERFECT - System ready for deployment")
-            print("✅ Pro Regular: ₹1,495 → ₹995 = ₹500 discount (mathematically perfect)")
-            print("✅ Pro Exclusive: ₹2,565 → ₹2,065 = ₹500 discount (mathematically perfect)")
-            print("✅ All business rules properly enforced (one-time usage, self-referral prevention)")
-            print("✅ Complete database integration working")
-            print("✅ All API endpoints functional")
-            print("🏆 PRODUCTION READY - Payment referral system 100% reliable for real money transactions")
+        if investigation_results:
+            print("\n🎯 INVESTIGATION COMPLETED SUCCESSFULLY!")
+            print("✅ User authentication and database state checked")
+            print("✅ Payment verification endpoint functionality tested")
+            print("✅ Subscription status investigation completed")
+            print("✅ Root cause analysis performed")
+            print("✅ Urgent action items identified")
+            print("🔍 CRITICAL FINDINGS: Investigation reveals specific issues with payment verification flow")
         else:
-            print("\n❌ PAYMENT REFERRAL SYSTEM VALIDATION FAILED")
-            print("🚨 Critical issues detected - system needs attention before production")
+            print("\n❌ PAYMENT VERIFICATION INVESTIGATION FAILED")
+            print("🚨 Unable to complete investigation - system access issues")
         
         print(f"\nTests Run: {tester.tests_run}")
         print(f"Tests Passed: {tester.tests_passed}")
         print(f"Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%")
         
-        return payment_success
+        return investigation_results
         
     except Exception as e:
         print(f"\n❌ TESTING FAILED: {e}")
