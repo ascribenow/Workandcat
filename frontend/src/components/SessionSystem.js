@@ -311,7 +311,7 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
     return (
       <div className="max-w-4xl mx-auto p-6" style={{ fontFamily: 'Manrope, sans-serif' }}>
         <div className="border border-gray-200 rounded-lg p-6 text-center" style={{ backgroundColor: '#fff5f3' }}>
-          <h3 className="text-lg font-semibold mb-4" style={{ color: '#545454' }}>Consistency, Compounded.</h3>
+          <h3 className="text-lg font-semibold mb-4" style={{ color: '#545454' }}>You, Compounded.</h3>
           <p className="text-base mb-6" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
             Twelvr is compiling your perfect session.
           </p>
