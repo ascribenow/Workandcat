@@ -4,6 +4,7 @@ import { useAuth } from './AuthProvider';
 
 const PaymentComponent = ({ planType, amount, planName, description, onSuccess, onError }) => {
   const { API, user, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [referralCode, setReferralCode] = useState('');
   const [validatingReferral, setValidatingReferral] = useState(false);
