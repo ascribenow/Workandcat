@@ -651,8 +651,109 @@ class CATBackendTester:
             print("   ❌ User authentication failed - cannot proceed with investigation")
             return False
         
-        # PHASE 2: SUBSCRIPTION STATUS INVESTIGATION
-        print("\n📊 PHASE 2: SUBSCRIPTION STATUS INVESTIGATION")
+        # PHASE 3: EMERGENCY ACTIVATION ENDPOINT TESTING
+        print("\n🚨 PHASE 3: EMERGENCY ACTIVATION ENDPOINT TESTING")
+        print("-" * 60)
+        print("Testing POST /api/admin/emergency-activate-subscription endpoint")
+        
+        if admin_headers:
+            # Test emergency activation endpoint accessibility
+            print("   📋 Step 1: Test Emergency Activation Endpoint Accessibility")
+            
+            # Test with missing parameters to check endpoint existence
+            success, response = self.run_test(
+                "Emergency Activation Endpoint Check", 
+                "POST", 
+                "admin/emergency-activate-subscription", 
+                [400, 422, 500], 
+                {}, 
+                admin_headers
+            )
+            
+            if success:
+                payment_investigation_results["emergency_activation_endpoint_accessible"] = True
+                print(f"      ✅ Emergency activation endpoint accessible")
+                
+                # Check if admin authentication is required
+                success_unauth, response_unauth = self.run_test(
+                    "Emergency Activation Auth Check", 
+                    "POST", 
+                    "admin/emergency-activate-subscription", 
+                    [401, 403], 
+                    {}
+                )
+                
+                if success_unauth:
+                    payment_investigation_results["emergency_activation_requires_admin"] = True
+                    print(f"      ✅ Emergency activation endpoint requires admin authentication")
+            else:
+                print(f"      ❌ Emergency activation endpoint not accessible")
+            
+            # Test emergency activation with customer data
+            print("   📋 Step 2: Test Emergency Activation with Customer Data")
+            
+            emergency_activation_data = {
+                "user_email": "sp@theskinmantra.com",
+                "plan_type": "pro_regular",
+                "payment_amount": 995,  # ₹995 with referral discount
+                "razorpay_payment_id": "pay_test_emergency_activation",
+                "reason": "Payment verification failed - manual activation for testing"
+            }
+            
+            success, response = self.run_test(
+                "Emergency Activation for Customer", 
+                "POST", 
+                "admin/emergency-activate-subscription", 
+                [200, 400, 500], 
+                emergency_activation_data, 
+                admin_headers
+            )
+            
+            if success:
+                if response.get('message') and 'successfully' in response.get('message', '').lower():
+                    payment_investigation_results["emergency_activation_creates_subscription"] = True
+                    print(f"      ✅ Emergency activation successful")
+                    print(f"      📊 Response: {response.get('message', 'No message')}")
+                elif 'already has' in response.get('message', '').lower():
+                    print(f"      ℹ️ User already has subscription: {response.get('message')}")
+                else:
+                    print(f"      ⚠️ Emergency activation response: {response}")
+            else:
+                if response and response.get('status_code') == 500:
+                    payment_investigation_results["emergency_activation_500_error_reproduced"] = True
+                    print(f"      ❌ CRITICAL: 500 error reproduced in emergency activation")
+                    print(f"      🚨 Error details: {response.get('detail', 'No details')}")
+                else:
+                    print(f"      ❌ Emergency activation failed")
+            
+            # Test parameter validation
+            print("   📋 Step 3: Test Emergency Activation Parameter Validation")
+            
+            invalid_activation_data = {
+                "user_email": "",  # Invalid email
+                "plan_type": "invalid_plan",  # Invalid plan
+                "payment_amount": -100  # Invalid amount
+            }
+            
+            success, response = self.run_test(
+                "Emergency Activation Parameter Validation", 
+                "POST", 
+                "admin/emergency-activate-subscription", 
+                [400, 422], 
+                invalid_activation_data, 
+                admin_headers
+            )
+            
+            if success:
+                payment_investigation_results["emergency_activation_validates_parameters"] = True
+                print(f"      ✅ Emergency activation validates parameters properly")
+            else:
+                print(f"      ❌ Emergency activation parameter validation failed")
+        else:
+            print("   ❌ Cannot test emergency activation - admin authentication failed")
+        
+        # PHASE 4: SUBSCRIPTION STATUS INVESTIGATION
+        print("\n📊 PHASE 4: SUBSCRIPTION STATUS INVESTIGATION")
         print("-" * 60)
         print("Checking current subscription status for user")
         
