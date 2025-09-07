@@ -1078,7 +1078,7 @@ class CATBackendTester:
         
         # FINAL RESULTS SUMMARY
         print("\n" + "=" * 80)
-        print("💳 CRITICAL PAYMENT VERIFICATION ISSUE - INVESTIGATION RESULTS")
+        print("💳 CRITICAL PAYMENT VERIFICATION & EMERGENCY ACTIVATION - INVESTIGATION RESULTS")
         print("=" * 80)
         
         passed_tests = sum(payment_investigation_results.values())
