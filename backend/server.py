@@ -1626,7 +1626,7 @@ async def emergency_activate_subscription(
             "user_email": user_email,
             "plan_type": plan_type,
             "subscription_id": subscription.id,
-            "payment_transaction_id": payment_transaction.id,
+            "payment_transaction_id": payment_transaction_id,
             "current_period_end": current_period_end.isoformat(),
             "reason": reason,
             "activated_by": current_user.email,
