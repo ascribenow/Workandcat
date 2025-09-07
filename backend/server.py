@@ -1756,7 +1756,7 @@ async def audit_customer_payment(
         # Find recent payment orders for this user in our database
         recent_orders = await db.execute(
             select(PaymentOrder)
-            .where(PaymentOrder.user_email == user_email)
+            .where(PaymentOrder.user_id == user.id)
             .order_by(desc(PaymentOrder.created_at))
             .limit(5)
         )
