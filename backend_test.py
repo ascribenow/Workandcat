@@ -1214,26 +1214,136 @@ class CATBackendTester:
         
         return payment_investigation_results
 
-    def test_enhanced_enrichment_checker_system(self):
+    def test_razorpay_payment_system_comprehensive(self):
         """
-        ENHANCED ENRICHMENT CHECKER SYSTEM WITH 100% COMPLIANCE VALIDATION
-        Test the newly implemented Enhanced Enrichment Checker System with 100% compliance validation standards
+        COMPREHENSIVE TESTING: INDUSTRY-STANDARD RAZORPAY PAYMENT SYSTEM
+        
+        Test the newly implemented industry-standard payment verification system with Razorpay API integration 
+        for complete data integrity as specified in the review request.
+        
+        TESTING OBJECTIVES:
+        1. **Razorpay API Integration Methods**:
+           - fetch_payment_details_from_razorpay()
+           - fetch_order_details_from_razorpay() 
+           - verify_payment_integrity()
+           - _detect_plan_from_amount()
+           - _detect_referral_discount()
+
+        2. **Enhanced Payment Verification**:
+           - Industry-standard verify_payment() method
+           - Comprehensive integrity checks
+           - Plan detection from actual payment amounts
+           - Referral discount detection
+           - Database updates with verified data
+
+        3. **Admin Data Integrity Tools**:
+           - audit-customer-payment endpoint
+           - cleanup-duplicate-subscriptions endpoint
+           - Emergency activation with proper data
+
+        4. **Payment Plan Detection**:
+           - Pro Regular: ₹1,495 (₹995 with referral)
+           - Pro Exclusive: ₹2,565 (₹2,065 with referral)
+           - Accurate referral discount detection (₹500)
+
+        CRITICAL TEST SCENARIOS:
+        1. **Payment Amount Detection**:
+           - Test ₹2,065 → Pro Exclusive with referral
+           - Test ₹2,565 → Pro Exclusive without referral
+           - Test ₹995 → Pro Regular with referral
+           - Test ₹1,495 → Pro Regular without referral
+
+        2. **Data Integrity Verification**:
+           - Signature verification working
+           - Payment status validation
+           - Currency validation (INR)
+           - Amount consistency checks
+
+        3. **Subscription Creation**:
+           - Correct plan activation based on actual payment
+           - Proper end dates (Pro Regular: 30 days, Pro Exclusive: Dec 31, 2025)
+           - Accurate amount storage from Razorpay API
+
+        CUSTOMER VERIFICATION:
+        - sp@theskinmantra.com should show ONLY Pro Exclusive (₹2,065, Dec 31 2025)
+        - Duplicate subscriptions successfully cleaned up
+        - Customer getting exactly what they paid for
+
+        SUCCESS CRITERIA:
+        - All API integration methods functional
+        - Payment verification uses Razorpay as source of truth
+        - Plan detection accurate for all amount scenarios
+        - Data integrity checks prevent inconsistencies
+        - Admin tools working for audit and cleanup
+        - Email confirmations sent with accurate data
+
+        FOCUS: Verify the system now uses actual Razorpay API data instead of assumptions, 
+        ensuring 100% payment data integrity for all future transactions.
         """
-        print("🔍 ENHANCED ENRICHMENT CHECKER SYSTEM TESTING - 100% COMPLIANCE VALIDATION")
+        print("💳 COMPREHENSIVE TESTING: INDUSTRY-STANDARD RAZORPAY PAYMENT SYSTEM")
         print("=" * 90)
-        print("OBJECTIVE: Test Enhanced Enrichment Checker System with 100% compliance validation standards")
-        print("")
         print("TESTING OBJECTIVES:")
-        print("1. Enhanced Checker Integration - verify enhanced_enrichment_checker_service.py integration")
-        print("2. Canonical Taxonomy Validation - test strict canonical taxonomy compliance (A-E format)")
-        print("3. Generic Content Elimination - verify automatic rejection of generic terms")
-        print("4. Quality-Verified Flag Enforcement - confirm quality_verified=False triggers rejection")
-        print("5. Difficulty Consistency Validation - test band-score alignment")
-        print("6. Comprehensive Field Validation - verify all 13 Regular + 11 PYQ fields")
-        print("7. Background Job Integration - test enhanced checker in background jobs")
-        print("8. Re-enrichment System - confirm failed questions are re-enriched using AdvancedLLMEnrichmentService")
+        print("Test the newly implemented industry-standard payment verification system with Razorpay API integration")
+        print("for complete data integrity as specified in the review request.")
         print("")
-        print("ADMIN CREDENTIALS: sumedhprabhu18@gmail.com/admin2025")
+        print("SYSTEM COMPONENTS TO TEST:")
+        print("1. **Razorpay API Integration Methods**:")
+        print("   - fetch_payment_details_from_razorpay()")
+        print("   - fetch_order_details_from_razorpay()")
+        print("   - verify_payment_integrity()")
+        print("   - _detect_plan_from_amount()")
+        print("   - _detect_referral_discount()")
+        print("")
+        print("2. **Enhanced Payment Verification**:")
+        print("   - Industry-standard verify_payment() method")
+        print("   - Comprehensive integrity checks")
+        print("   - Plan detection from actual payment amounts")
+        print("   - Referral discount detection")
+        print("   - Database updates with verified data")
+        print("")
+        print("3. **Admin Data Integrity Tools**:")
+        print("   - audit-customer-payment endpoint")
+        print("   - cleanup-duplicate-subscriptions endpoint")
+        print("   - Emergency activation with proper data")
+        print("")
+        print("4. **Payment Plan Detection**:")
+        print("   - Pro Regular: ₹1,495 (₹995 with referral)")
+        print("   - Pro Exclusive: ₹2,565 (₹2,065 with referral)")
+        print("   - Accurate referral discount detection (₹500)")
+        print("")
+        print("CRITICAL TEST SCENARIOS:")
+        print("1. **Payment Amount Detection**:")
+        print("   - Test ₹2,065 → Pro Exclusive with referral")
+        print("   - Test ₹2,565 → Pro Exclusive without referral")
+        print("   - Test ₹995 → Pro Regular with referral")
+        print("   - Test ₹1,495 → Pro Regular without referral")
+        print("")
+        print("2. **Data Integrity Verification**:")
+        print("   - Signature verification working")
+        print("   - Payment status validation")
+        print("   - Currency validation (INR)")
+        print("   - Amount consistency checks")
+        print("")
+        print("3. **Subscription Creation**:")
+        print("   - Correct plan activation based on actual payment")
+        print("   - Proper end dates (Pro Regular: 30 days, Pro Exclusive: Dec 31, 2025)")
+        print("   - Accurate amount storage from Razorpay API")
+        print("")
+        print("CUSTOMER VERIFICATION:")
+        print("- sp@theskinmantra.com should show ONLY Pro Exclusive (₹2,065, Dec 31 2025)")
+        print("- Duplicate subscriptions successfully cleaned up")
+        print("- Customer getting exactly what they paid for")
+        print("")
+        print("SUCCESS CRITERIA:")
+        print("- All API integration methods functional")
+        print("- Payment verification uses Razorpay as source of truth")
+        print("- Plan detection accurate for all amount scenarios")
+        print("- Data integrity checks prevent inconsistencies")
+        print("- Admin tools working for audit and cleanup")
+        print("- Email confirmations sent with accurate data")
+        print("")
+        print("FOCUS: Verify the system now uses actual Razorpay API data instead of assumptions,")
+        print("ensuring 100% payment data integrity for all future transactions.")
         print("=" * 90)
         
         enhanced_checker_results = {
