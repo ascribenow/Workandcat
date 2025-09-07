@@ -20,7 +20,7 @@ def add_payment_idempotency_constraints():
     CRITICAL for payment system integrity
     """
     try:
-        db = get_database()
+        with engine.connect() as db:
         
         logger.info("🔒 ADDING PAYMENT IDEMPOTENCY CONSTRAINTS")
         logger.info("=" * 60)
