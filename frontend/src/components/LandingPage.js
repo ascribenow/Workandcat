@@ -694,7 +694,7 @@ const LandingPage = () => {
               onMouseOver={(e) => e.target.style.backgroundColor = '#8bb024'}
               onMouseOut={(e) => e.target.style.backgroundColor = '#9ac026'}
             >
-              Start My Daily-12
+              Start My 12
             </button>
 
             {/* Disclaimer */}
