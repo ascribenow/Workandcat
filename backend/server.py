@@ -1505,6 +1505,154 @@ async def mark_cashback_processed(
         raise HTTPException(status_code=500, detail="Error processing cashback update")
 
 # ===========================================
+# EMERGENCY PAYMENT RECOVERY ENDPOINTS
+# ===========================================
+
+@api_router.post("/admin/emergency-activate-subscription")
+async def emergency_activate_subscription(
+    request: dict,
+    current_user: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_async_compatible_db)
+):
+    """Emergency manual subscription activation for payment verification failures"""
+    try:
+        user_email = request.get('user_email')
+        plan_type = request.get('plan_type')  # e.g., "pro_regular", "pro_exclusive"
+        payment_amount = request.get('payment_amount')  # in rupees
+        razorpay_payment_id = request.get('razorpay_payment_id', f'manual_{int(datetime.utcnow().timestamp())}')
+        reason = request.get('reason', 'Payment verification failed - manual activation')
+        
+        if not user_email or not plan_type:
+            raise HTTPException(status_code=400, detail="user_email and plan_type are required")
+        
+        # Find the user
+        result = await db.execute(select(User).where(User.email == user_email))
+        user = result.scalar_one_or_none()
+        
+        if not user:
+            raise HTTPException(status_code=404, detail=f"User not found: {user_email}")
+        
+        # Check if user already has an active subscription for this plan
+        existing_sub = await db.execute(
+            select(Subscription).where(
+                Subscription.user_id == user.id,
+                Subscription.plan_type == plan_type,
+                Subscription.status == "active"
+            )
+        )
+        existing = existing_sub.scalar_one_or_none()
+        
+        if existing:
+            return {
+                "message": "User already has an active subscription for this plan",
+                "existing_subscription": {
+                    "plan_type": existing.plan_type,
+                    "status": existing.status,
+                    "created_at": existing.created_at.isoformat(),
+                    "current_period_end": existing.current_period_end.isoformat() if existing.current_period_end else None
+                }
+            }
+        
+        # Create subscription based on plan type
+        if plan_type == "pro_regular":
+            current_period_start = datetime.utcnow()
+            current_period_end = current_period_start + timedelta(days=30)
+            subscription = Subscription(
+                id=str(uuid.uuid4()),
+                user_id=user.id,
+                plan_type=plan_type,
+                status="active",
+                current_period_start=current_period_start,
+                current_period_end=current_period_end,
+                auto_renew=True,
+                created_at=current_period_start,
+                updated_at=current_period_start
+            )
+        elif plan_type == "pro_exclusive":
+            current_period_start = datetime.utcnow()
+            # Pro Exclusive runs till Dec 31, 2025 23:59 IST
+            current_period_end = datetime(2025, 12, 31, 23, 59, 0)
+            subscription = Subscription(
+                id=str(uuid.uuid4()),
+                user_id=user.id,
+                plan_type=plan_type,
+                status="active",
+                current_period_start=current_period_start,
+                current_period_end=current_period_end,
+                auto_renew=False,  # Pro Exclusive is one-time
+                created_at=current_period_start,
+                updated_at=current_period_start
+            )
+        else:
+            raise HTTPException(status_code=400, detail=f"Invalid plan_type: {plan_type}")
+        
+        db.add(subscription)
+        
+        # Create payment transaction record
+        payment_transaction = PaymentTransaction(
+            id=str(uuid.uuid4()),
+            user_id=user.id,
+            subscription_id=subscription.id,
+            razorpay_payment_id=razorpay_payment_id,
+            amount=int(payment_amount * 100) if payment_amount else 0,  # Convert to paise
+            currency="INR",
+            status="captured",
+            method="emergency_manual",
+            created_at=datetime.utcnow()
+        )
+        
+        db.add(payment_transaction)
+        
+        # Update user subscription fields
+        user.subscription_type = plan_type
+        user.subscription_active = True
+        user.subscription_end_date = current_period_end
+        user.updated_at = datetime.utcnow()
+        
+        await db.commit()
+        
+        # Send confirmation email
+        try:
+            from gmail_service import gmail_service
+            plan_name = plan_type.replace("_", " ").title()
+            amount_text = f"₹{payment_amount:.2f}" if payment_amount else "N/A"
+            end_date_text = current_period_end.strftime("%B %d, %Y") if current_period_end else None
+            
+            email_sent = gmail_service.send_payment_confirmation_email(
+                to_email=user_email,
+                plan_name=plan_name,
+                amount=amount_text,
+                payment_id=razorpay_payment_id,
+                end_date=end_date_text
+            )
+            
+            if email_sent:
+                logger.info(f"Emergency activation confirmation email sent to {user_email}")
+        except Exception as email_error:
+            logger.error(f"Error sending emergency activation email: {email_error}")
+        
+        return {
+            "message": "Emergency subscription activation successful",
+            "user_email": user_email,
+            "plan_type": plan_type,
+            "subscription_id": subscription.id,
+            "payment_transaction_id": payment_transaction.id,
+            "current_period_end": current_period_end.isoformat(),
+            "reason": reason,
+            "activated_by": current_user.email,
+            "activated_at": datetime.utcnow().isoformat()
+        }
+        
+    except Exception as e:
+        await db.rollback()
+        logger.error(f"Emergency subscription activation failed: {e}")
+        raise HTTPException(status_code=500, detail=f"Emergency activation failed: {str(e)}")
+
+# ===========================================
+# END EMERGENCY PAYMENT RECOVERY ENDPOINTS
+# ===========================================
+
+# ===========================================
 # END REFERRAL ENDPOINTS
 # ===========================================
 
