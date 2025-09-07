@@ -1450,39 +1450,47 @@ class CATBackendTester:
             print(f"      ❌ Re-enrichment system test failed")
         
         # FINAL RESULTS SUMMARY
-        print("\n" + "=" * 90)
-        print("💳 PAYMENT REFERRAL SYSTEM - ULTIMATE 100% SUCCESS VERIFICATION RESULTS")
-        print("=" * 90)
+        print("\n" + "=" * 80)
+        print("💳 CRITICAL FINANCIAL REFERRAL SYSTEM COMPREHENSIVE TESTING RESULTS")
+        print("=" * 80)
         
-        passed_tests = sum(payment_referral_results.values())
-        total_tests = len(payment_referral_results)
+        passed_tests = sum(referral_system_results.values())
+        total_tests = len(referral_system_results)
         success_rate = (passed_tests / total_tests) * 100
         
         # Group results by testing categories
         testing_categories = {
             "AUTHENTICATION SETUP": [
-                "admin_authentication_working", "student_authentication_working"
+                "admin_authentication_working", "student_authentication_working",
+                "admin_token_valid", "student_token_valid"
             ],
-            "PAYMENT AMOUNT DISPLAY VERIFICATION (FIXED)": [
-                "payment_response_includes_original_amount", "payment_response_includes_final_amount",
-                "payment_response_includes_discount_applied", "pro_regular_amount_calculation_correct",
-                "pro_exclusive_amount_calculation_correct", "payment_verification_shows_correct_calculations"
+            "DATABASE STRUCTURE VERIFICATION": [
+                "referral_usage_table_exists", "users_table_has_referral_code_column",
+                "foreign_key_relationships_correct", "database_schema_constraints_working"
             ],
-            "RAZORPAY PARAMETER PASSING CONFIRMATION (FIXED)": [
-                "referral_code_explicitly_passed_in_notes", "discount_applied_flag_in_notes",
-                "referrer_cashback_due_in_notes", "final_amount_matches_discounted_calculation"
+            "REFERRAL CODE GENERATION": [
+                "unique_6_character_codes_generated", "codes_stored_in_database_correctly",
+                "uniqueness_enforcement_working", "alphanumeric_format_validation"
             ],
-            "END-TO-END PAYMENT FLOW VERIFICATION": [
-                "complete_payment_flow_with_referral_working", "database_tracking_includes_referral_info",
-                "payment_orders_store_correct_amounts", "payment_orders_store_referral_data"
+            "REFERRAL VALIDATION API": [
+                "referral_validate_endpoint_accessible", "valid_referral_code_returns_proper_info",
+                "invalid_referral_code_proper_error", "self_referral_prevention_enforced",
+                "one_time_usage_enforcement_working", "referral_discount_amount_correct"
             ],
-            "REFERRAL CODE VALIDATION": [
-                "referral_validate_endpoint_accessible", "valid_referral_code_validation_working",
-                "invalid_referral_code_proper_handling", "self_referral_prevention_enforced",
-                "one_time_usage_enforcement_working"
+            "PAYMENT INTEGRATION - PRO REGULAR": [
+                "pro_regular_accepts_referral_code", "pro_regular_discount_calculation_correct",
+                "pro_regular_exact_500_rupee_discount"
             ],
-            "PAYMENT CONFIGURATION AND INTEGRATION": [
-                "payment_configuration_working", "razorpay_integration_functional"
+            "PAYMENT INTEGRATION - PRO EXCLUSIVE": [
+                "pro_exclusive_accepts_referral_code", "pro_exclusive_discount_calculation_correct",
+                "pro_exclusive_exact_500_rupee_discount"
+            ],
+            "SECURITY & ABUSE PREVENTION": [
+                "authentication_required_for_endpoints", "referral_usage_prevents_reuse",
+                "database_logging_all_transactions", "no_double_discounting_possible"
+            ],
+            "USER REFERRAL CODE RETRIEVAL": [
+                "user_can_retrieve_own_referral_code", "admin_referral_code_retrievable"
             ]
         }
         
