@@ -634,23 +634,29 @@ const LandingPage = () => {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl lg:text-5xl font-bold text-[#545454] mb-12">
-              Our belief
+              You, Compounded.
             </h2>
           </div>
 
           <div className="max-w-4xl mx-auto text-center space-y-8">
             <p className="text-xl lg:text-2xl text-[#545454] font-medium" style={{ fontFamily: 'Lato, sans-serif' }}>
-              Prep shouldn't feel overwhelming
+              Every round of 12Qs sharpens you a little more.
             </p>
             <p className="text-xl lg:text-2xl text-[#545454] font-medium" style={{ fontFamily: 'Lato, sans-serif' }}>
-              Progress is built in small, daily victories
+              Not in noise, not in endless banks but in focus.
             </p>
             <p className="text-xl lg:text-2xl text-[#545454] font-medium" style={{ fontFamily: 'Lato, sans-serif' }}>
-              Learning should fit your life, not the other way around
+              Your strengths, doubled. Your weak spots, cracked.
+            </p>
+            <p className="text-xl lg:text-2xl text-[#545454] font-medium" style={{ fontFamily: 'Lato, sans-serif' }}>
+              Day by day, session by session,
+            </p>
+            <p className="text-xl lg:text-2xl text-[#545454] font-medium" style={{ fontFamily: 'Lato, sans-serif' }}>
+              what compounds isn't just practice.
             </p>
             <div className="pt-8">
-              <p className="text-lg text-[#545454]" style={{ fontFamily: 'Lato, sans-serif' }}>
-                That's why Twelvr exists: your daily sparring partner, keeping you covered, consistent, and always moving forward
+              <p className="text-xl lg:text-2xl text-[#545454] font-bold" style={{ fontFamily: 'Lato, sans-serif' }}>
+                It's you.
               </p>
             </div>
           </div>
