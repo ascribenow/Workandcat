@@ -1145,50 +1145,52 @@ class CATBackendTester:
 
     def test_critical_financial_referral_system_comprehensive(self):
         """
-        ULTIMATE 100% SUCCESS VERIFICATION: Final comprehensive test of the payment referral system using fresh test emails that haven't used referral codes.
+        CRITICAL FINANCIAL REFERRAL SYSTEM COMPREHENSIVE TESTING
 
-        **CONTEXT**: Just confirmed Pro Exclusive payment is working perfectly:
-        - ✅ Pro Exclusive: ₹2,565 (256500 paise) → ₹2,065 (206500 paise) = ₹500 discount ✅
-        - ✅ Direct testing shows both Pro Regular and Pro Exclusive applying discounts correctly
-        - ✅ The issue was using test emails that had already used referral codes (business rule working)
+        This is a high-priority test involving real money transactions. The referral system must be 100% accurate since it affects payment amounts.
 
-        **FINAL VERIFICATION OBJECTIVES - ACHIEVE 100%**:
+        TESTING SCOPE:
+        1. **Database Structure Verification**:
+           - Verify referral_usage table exists with proper schema
+           - Verify users table has referral_code column
+           - Check foreign key relationships and constraints
 
-        **1. Mathematical Accuracy Verification**:
-        - Confirm Pro Regular: ₹1,495 → ₹995 (₹500 discount)
-        - Confirm Pro Exclusive: ₹2,565 → ₹2,065 (₹500 discount)
-        - Verify exact 50000 paise discount in both cases
+        2. **Referral Code Generation**:
+           - Test new user signup generates unique 6-character alphanumeric codes
+           - Verify codes are stored in database correctly
+           - Test uniqueness enforcement across multiple signups
 
-        **2. Business Rules Validation**:
-        - Confirm one-time usage rule prevents multiple referral usage
-        - Verify self-referral prevention works
-        - Test fresh emails can successfully use referral codes
+        3. **CRITICAL Referral Validation API**:
+           - Test POST /api/referral/validate endpoint with various scenarios
+           - Valid referral codes return proper referrer info and ₹500 discount
+           - Invalid referral codes return appropriate error messages
+           - Self-referral prevention (users cannot use their own codes)
+           - One-time usage enforcement (already used codes rejected)
 
-        **3. Database Integration**:
-        - Verify referral usage tracking is complete
-        - Confirm payment orders store correct discounted amounts
-        - Test notes JSON contains all referral metadata
+        4. **MONEY-CRITICAL Payment Integration**:
+           - Test Pro Regular: ₹1,495 → ₹995 (exactly ₹500 discount)
+           - Test Pro Exclusive: ₹2,565 → ₹2,065 (exactly ₹500 discount)
+           - Verify no double-discounting or discount stacking
+           - Test payment endpoints accept referral_code parameter
+           - Verify referral usage is tracked in database after successful payment
 
-        **4. API Endpoints Full Functionality**:
-        - Test /api/referral/validate endpoint
-        - Test /api/payments/create-subscription (Pro Regular)
-        - Test /api/payments/create-order (Pro Exclusive)
-        - Verify all authentication working
+        5. **Security & Abuse Prevention**:
+           - Test authentication requirements
+           - Verify referral usage tracking prevents re-use
+           - Check database logging of all referral transactions
 
-        **CRITICAL TESTING APPROACH**:
-        - Use fresh email addresses that haven't used referral codes
-        - Test with real user IDs from database
-        - Verify both payment endpoints apply discounts correctly
-        - Confirm database tracking is complete
+        CRITICAL SUCCESS CRITERIA:
+        - Mathematical accuracy in discount calculations
+        - No referral code abuse possibilities
+        - Proper database tracking of all transactions
+        - Secure API endpoints with proper validation
 
-        **SUCCESS CRITERIA**:
-        - **MUST achieve exactly 100% success rate**
-        - All mathematical calculations perfect
-        - All business rules properly enforced
-        - Complete database integration working
-        - Both payment endpoints functional
+        TEST CREDENTIALS:
+        - Admin: sumedhprabhu18@gmail.com / admin2025
+        - Student: sp@theskinmantra.com / student123
+        - Admin referral code: should be retrievable via API
 
-        This is the ultimate verification using proper testing methodology with fresh emails. The system should achieve perfect 100% success demonstrating complete production readiness.
+        Please perform exhaustive testing as this system handles real money and any bugs could result in financial losses.
         """
         print("💳 ULTIMATE 100% SUCCESS VERIFICATION - PAYMENT REFERRAL SYSTEM FINAL TEST")
         print("=" * 100)
