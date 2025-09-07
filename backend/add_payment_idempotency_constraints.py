@@ -81,22 +81,19 @@ def add_payment_idempotency_constraints():
             logger.error(f"❌ Failed to add subscription status index: {e}")
             raise
         
-        # Commit all changes
-        db.commit()
-        
-        logger.info("🎉 PAYMENT IDEMPOTENCY CONSTRAINTS SUCCESSFULLY ADDED")
-        logger.info("✅ Payment system now protected against duplicate processing")
-        logger.info("✅ Database integrity constraints in place")
-        logger.info("✅ Performance indexes added for reconciliation")
-        
-        return True
+            # Commit all changes
+            db.commit()
+            
+            logger.info("🎉 PAYMENT IDEMPOTENCY CONSTRAINTS SUCCESSFULLY ADDED")
+            logger.info("✅ Payment system now protected against duplicate processing")
+            logger.info("✅ Database integrity constraints in place")
+            logger.info("✅ Performance indexes added for reconciliation")
+            
+            return True
         
     except Exception as e:
         logger.error(f"❌ CRITICAL: Failed to add payment idempotency constraints: {e}")
-        db.rollback()
         return False
-    finally:
-        db.close()
 
 if __name__ == "__main__":
     success = add_payment_idempotency_constraints()
