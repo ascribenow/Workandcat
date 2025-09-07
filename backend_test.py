@@ -9538,16 +9538,16 @@ Find the compound interest on Rs. 1000 for 2 years at 10% per annum.,210"""
         return success_rate == 100  # Return True only if 100% success achieved
 
 def main():
-    """Main function to run critical payment verification issue investigation"""
-    print("💳 CRITICAL PAYMENT VERIFICATION ISSUE INVESTIGATION")
+    """Main function to run critical payment verification and emergency activation testing"""
+    print("💳 CRITICAL PAYMENT VERIFICATION & EMERGENCY ACTIVATION TESTING")
     print("=" * 80)
     
     tester = CATBackendTester()
     
     try:
-        # Run Critical Payment Verification Issue Investigation
-        print("💳 CRITICAL PAYMENT VERIFICATION ISSUE INVESTIGATION")
-        investigation_results = tester.test_payment_verification_critical_issue()
+        # Run Critical Payment Verification & Emergency Activation Testing
+        print("💳 CRITICAL PAYMENT VERIFICATION & EMERGENCY ACTIVATION TESTING")
+        investigation_results = tester.test_emergency_subscription_activation_and_payment_verification()
         
         print("\n" + "=" * 80)
         print("🏁 PAYMENT VERIFICATION INVESTIGATION COMPLETED")
