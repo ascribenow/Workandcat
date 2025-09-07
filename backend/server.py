@@ -2122,7 +2122,7 @@ async def get_payment_analytics(
         # Referral usage
         referral_usage = await db.execute(
             select(func.count(ReferralUsage.id))
-            .where(ReferralUsage.used_at >= cutoff_date)
+            .where(ReferralUsage.created_at >= cutoff_date)
         )
         
         analytics = {
