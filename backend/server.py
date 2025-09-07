@@ -1806,6 +1806,124 @@ async def audit_customer_payment(
         logger.error(f"Customer payment audit failed: {e}")
         raise HTTPException(status_code=500, detail=f"Payment audit failed: {str(e)}")
 
+@api_router.post("/admin/cleanup-duplicate-subscriptions")
+async def cleanup_duplicate_subscriptions(
+    request: dict,
+    current_user: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_async_compatible_db)
+):
+    """Clean up duplicate subscriptions for a user, keeping the most valuable one"""
+    try:
+        user_email = request.get('user_email')
+        dry_run = request.get('dry_run', True)  # Default to dry run for safety
+        
+        if not user_email:
+            raise HTTPException(status_code=400, detail="user_email is required")
+        
+        # Find the user
+        result = await db.execute(select(User).where(User.email == user_email))
+        user = result.scalar_one_or_none()
+        
+        if not user:
+            raise HTTPException(status_code=404, detail=f"User not found: {user_email}")
+        
+        # Get all active subscriptions for this user
+        subscriptions_result = await db.execute(
+            select(Subscription)
+            .where(Subscription.user_id == user.id)
+            .where(Subscription.status == "active")
+            .order_by(desc(Subscription.created_at))
+        )
+        subscriptions = subscriptions_result.scalars().all()
+        
+        if len(subscriptions) <= 1:
+            return {
+                "message": "No duplicate subscriptions found",
+                "user_email": user_email,
+                "subscriptions_count": len(subscriptions),
+                "subscriptions": [
+                    {
+                        "id": sub.id,
+                        "plan_type": sub.plan_type,
+                        "amount": sub.amount / 100 if sub.amount else 0,
+                        "end_date": sub.current_period_end.isoformat(),
+                        "created_at": sub.created_at.isoformat()
+                    } for sub in subscriptions
+                ]
+            }
+        
+        # Determine which subscription to keep (highest value/longest duration)
+        subscription_values = []
+        for sub in subscriptions:
+            # Calculate subscription value score
+            plan_value = 2565 if sub.plan_type == "pro_exclusive" else 1495  # Base plan values
+            duration_value = (sub.current_period_end - sub.current_period_start).days
+            
+            subscription_values.append({
+                "subscription": sub,
+                "plan_value": plan_value,
+                "duration_value": duration_value,
+                "total_score": plan_value + (duration_value * 10),  # Weight duration
+                "details": {
+                    "id": sub.id,
+                    "plan_type": sub.plan_type,
+                    "amount": sub.amount / 100 if sub.amount else 0,
+                    "start_date": sub.current_period_start.isoformat(),
+                    "end_date": sub.current_period_end.isoformat(),
+                    "duration_days": duration_value,
+                    "created_at": sub.created_at.isoformat()
+                }
+            })
+        
+        # Sort by score (highest first)
+        subscription_values.sort(key=lambda x: x["total_score"], reverse=True)
+        
+        keeper = subscription_values[0]
+        duplicates = subscription_values[1:]
+        
+        cleanup_plan = {
+            "user_email": user_email,
+            "user_id": user.id,
+            "total_subscriptions": len(subscriptions),
+            "duplicates_count": len(duplicates),
+            "dry_run": dry_run,
+            "keeper_subscription": keeper["details"],
+            "duplicate_subscriptions": [dup["details"] for dup in duplicates],
+            "cleanup_actions": []
+        }
+        
+        if not dry_run:
+            # Actually perform cleanup
+            logger.info(f"Performing duplicate subscription cleanup for {user_email}")
+            
+            for dup in duplicates:
+                duplicate_sub = dup["subscription"]
+                duplicate_sub.status = "cancelled"
+                duplicate_sub.updated_at = datetime.utcnow()
+                
+                cleanup_plan["cleanup_actions"].append({
+                    "action": "cancelled_subscription",
+                    "subscription_id": duplicate_sub.id,
+                    "plan_type": duplicate_sub.plan_type,
+                    "amount": duplicate_sub.amount / 100 if duplicate_sub.amount else 0,
+                    "reason": "duplicate_cleanup"
+                })
+            
+            await db.commit()
+            logger.info(f"Cancelled {len(duplicates)} duplicate subscriptions for {user_email}")
+            
+            cleanup_plan["status"] = "completed"
+            cleanup_plan["message"] = f"Successfully cleaned up {len(duplicates)} duplicate subscriptions"
+        else:
+            cleanup_plan["status"] = "dry_run"
+            cleanup_plan["message"] = f"DRY RUN: Would cancel {len(duplicates)} duplicate subscriptions. Set dry_run=false to execute."
+        
+        return cleanup_plan
+        
+    except Exception as e:
+        logger.error(f"Duplicate subscription cleanup failed: {e}")
+        raise HTTPException(status_code=500, detail=f"Cleanup failed: {str(e)}")
+
 # ===========================================
 # END PAYMENT DATA INTEGRITY AUDIT ENDPOINTS
 # ===========================================
