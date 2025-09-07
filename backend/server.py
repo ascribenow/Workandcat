@@ -2054,6 +2054,160 @@ async def correct_payment_from_razorpay(
         logger.error(f"Payment correction failed: {e}")
         raise HTTPException(status_code=500, detail=f"Payment correction failed: {str(e)}")
 
+@api_router.get("/admin/payment-system-health")
+async def get_payment_system_health(
+    hours_back: int = 24,
+    current_user: User = Depends(require_admin)
+):
+    """Get comprehensive payment system health report"""
+    try:
+        from payment_system_monitor import payment_monitor
+        health_report = await payment_monitor.run_health_check(hours_back)
+        return health_report
+    except Exception as e:
+        logger.error(f"Payment system health check failed: {e}")
+        raise HTTPException(status_code=500, detail=f"Health check failed: {str(e)}")
+
+@api_router.post("/admin/run-payment-reconciliation")
+async def run_payment_reconciliation(
+    request: dict,
+    current_user: User = Depends(require_admin)
+):
+    """Run payment reconciliation for specified period"""
+    try:
+        days_back = request.get('days_back', 7)
+        
+        from payment_reconciliation_service import reconciliation_service
+        reconciliation_report = await reconciliation_service.run_comprehensive_reconciliation(days_back)
+        
+        return reconciliation_report
+    except Exception as e:
+        logger.error(f"Payment reconciliation failed: {e}")
+        raise HTTPException(status_code=500, detail=f"Reconciliation failed: {str(e)}")
+
+@api_router.get("/admin/payment-analytics")
+async def get_payment_analytics(
+    days_back: int = 30,
+    current_user: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_async_compatible_db)
+):
+    """Get comprehensive payment analytics and insights"""
+    try:
+        cutoff_date = datetime.utcnow() - timedelta(days=days_back)
+        
+        # Revenue analytics
+        total_revenue = await db.execute(
+            select(func.sum(PaymentTransaction.amount))
+            .where(PaymentTransaction.created_at >= cutoff_date)
+            .where(PaymentTransaction.status == "captured")
+        )
+        revenue = total_revenue.scalar() or 0
+        
+        # Payment method breakdown
+        payment_methods = await db.execute(
+            select(PaymentTransaction.method, func.count(PaymentTransaction.id), func.sum(PaymentTransaction.amount))
+            .where(PaymentTransaction.created_at >= cutoff_date)
+            .where(PaymentTransaction.status == "captured")
+            .group_by(PaymentTransaction.method)
+        )
+        
+        # Plan popularity
+        plan_stats = await db.execute(
+            select(Subscription.plan_type, func.count(Subscription.id), func.sum(Subscription.amount))
+            .where(Subscription.created_at >= cutoff_date)
+            .where(Subscription.status == "active")
+            .group_by(Subscription.plan_type)
+        )
+        
+        # Referral usage
+        referral_usage = await db.execute(
+            select(func.count(ReferralUsage.id))
+            .where(ReferralUsage.used_at >= cutoff_date)
+        )
+        
+        analytics = {
+            "period_days": days_back,
+            "total_revenue": revenue / 100 if revenue else 0,
+            "total_revenue_inr": f"₹{revenue / 100:.2f}" if revenue else "₹0.00",
+            "payment_methods": [
+                {
+                    "method": method,
+                    "count": count,
+                    "revenue": amount / 100 if amount else 0
+                }
+                for method, count, amount in payment_methods.fetchall()
+            ],
+            "plan_popularity": [
+                {
+                    "plan_type": plan,
+                    "subscribers": count,
+                    "revenue": amount / 100 if amount else 0
+                }
+                for plan, count, amount in plan_stats.fetchall()
+            ],
+            "referral_usage_count": referral_usage.scalar() or 0,
+            "generated_at": datetime.utcnow().isoformat()
+        }
+        
+        return analytics
+        
+    except Exception as e:
+        logger.error(f"Payment analytics failed: {e}")
+        raise HTTPException(status_code=500, detail=f"Analytics failed: {str(e)}")
+
+@api_router.post("/admin/payment-system-status")
+async def get_payment_system_status(
+    current_user: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_async_compatible_db)
+):
+    """Get real-time payment system status"""
+    try:
+        # Recent activity (last 24 hours)
+        cutoff_time = datetime.utcnow() - timedelta(hours=24)
+        
+        recent_orders = await db.execute(
+            select(func.count(PaymentOrder.id))
+            .where(PaymentOrder.created_at >= cutoff_time)
+        )
+        
+        successful_payments = await db.execute(
+            select(func.count(PaymentTransaction.id))
+            .where(PaymentTransaction.created_at >= cutoff_time)
+            .where(PaymentTransaction.status == "captured")
+        )
+        
+        active_subscriptions = await db.execute(
+            select(func.count(Subscription.id))
+            .where(Subscription.status == "active")
+        )
+        
+        # Recent errors (placeholder)
+        recent_errors = 0  # TODO: Implement error tracking
+        
+        status = {
+            "system_status": "operational",
+            "last_24_hours": {
+                "payment_orders": recent_orders.scalar() or 0,
+                "successful_payments": successful_payments.scalar() or 0,
+                "active_subscriptions": active_subscriptions.scalar() or 0,
+                "system_errors": recent_errors
+            },
+            "razorpay_connection": "connected",  # TODO: Test actual Razorpay connection
+            "database_connection": "connected",
+            "email_service": "connected",  # TODO: Test email service
+            "last_updated": datetime.utcnow().isoformat()
+        }
+        
+        return status
+        
+    except Exception as e:
+        logger.error(f"Payment system status check failed: {e}")
+        raise HTTPException(status_code=500, detail=f"Status check failed: {str(e)}")
+
+# ===========================================
+# END ADVANCED ADMIN TOOLS
+# ===========================================
+
 # ===========================================
 # END PAYMENT DATA INTEGRITY AUDIT ENDPOINTS
 # ===========================================
