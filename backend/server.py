@@ -1589,7 +1589,7 @@ async def emergency_activate_subscription(
         
         db.add(subscription)
         
-        # Create payment transaction record
+        # Create payment transaction record  
         payment_transaction = PaymentTransaction(
             id=str(uuid.uuid4()),
             user_id=user.id,
@@ -1599,7 +1599,6 @@ async def emergency_activate_subscription(
             currency="INR",
             status="captured",
             method="emergency_manual",
-            description=f"Emergency activation for {plan_type}",
             created_at=datetime.utcnow()
         )
         
