@@ -794,8 +794,8 @@ class CATBackendTester:
         else:
             print(f"   ❌ Subscription status endpoint failed")
         
-        # PHASE 3: PAYMENT VERIFICATION ENDPOINT TESTING
-        print("\n🔍 PHASE 3: PAYMENT VERIFICATION ENDPOINT TESTING")
+        # PHASE 5: PAYMENT VERIFICATION ENDPOINT TESTING
+        print("\n🔍 PHASE 5: PAYMENT VERIFICATION ENDPOINT TESTING")
         print("-" * 60)
         print("Testing POST /api/payments/verify-payment endpoint functionality")
         
