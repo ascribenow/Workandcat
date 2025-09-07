@@ -1215,35 +1215,52 @@ class CATBackendTester:
         print("- Secure API endpoints with proper validation")
         print("=" * 80)
         
-        payment_referral_results = {
+        referral_system_results = {
             # Authentication Setup (CRITICAL)
             "admin_authentication_working": False,
             "student_authentication_working": False,
+            "admin_token_valid": False,
+            "student_token_valid": False,
             
-            # Mathematical Accuracy Verification (CRITICAL)
-            "pro_regular_discount_calculation_perfect": False,  # ₹1,495 → ₹995 (50000 paise discount)
-            "pro_exclusive_discount_calculation_perfect": False,  # ₹2,565 → ₹2,065 (50000 paise discount)
-            "discount_amount_exactly_50000_paise": False,
-            "mathematical_accuracy_verified": False,
-            "paise_conversion_working_correctly": False,
+            # Database Structure Verification (CRITICAL)
+            "referral_usage_table_exists": False,
+            "users_table_has_referral_code_column": False,
+            "foreign_key_relationships_correct": False,
+            "database_schema_constraints_working": False,
             
-            # Business Rules Validation (CRITICAL)
-            "one_time_usage_rule_enforced": False,
-            "fresh_email_can_use_referral_codes": False,
-            "self_referral_prevention_working": False,
-            "already_used_referral_properly_rejected": False,
-            "business_rules_correctly_implemented": False,
+            # Referral Code Generation (CRITICAL)
+            "unique_6_character_codes_generated": False,
+            "codes_stored_in_database_correctly": False,
+            "uniqueness_enforcement_working": False,
+            "alphanumeric_format_validation": False,
             
-            # Database Integration (CRITICAL)
-            "referral_usage_tracking_complete": False,
-            "payment_orders_store_correct_discounted_amounts": False,
-            "notes_json_contains_referral_metadata": False,
-            "database_tracking_complete": False,
+            # Referral Validation API (CRITICAL)
+            "referral_validate_endpoint_accessible": False,
+            "valid_referral_code_returns_proper_info": False,
+            "invalid_referral_code_proper_error": False,
+            "self_referral_prevention_enforced": False,
+            "one_time_usage_enforcement_working": False,
+            "referral_discount_amount_correct": False,  # ₹500
             
-            # API Endpoints Full Functionality (CRITICAL)
-            "referral_validate_endpoint_working": False,
-            "payments_create_subscription_working": False,  # Pro Regular
-            "payments_create_order_working": False,  # Pro Exclusive
+            # Payment Integration - Pro Regular (MONEY-CRITICAL)
+            "pro_regular_accepts_referral_code": False,
+            "pro_regular_discount_calculation_correct": False,  # ₹1,495 → ₹995
+            "pro_regular_exact_500_rupee_discount": False,
+            
+            # Payment Integration - Pro Exclusive (MONEY-CRITICAL)
+            "pro_exclusive_accepts_referral_code": False,
+            "pro_exclusive_discount_calculation_correct": False,  # ₹2,565 → ₹2,065
+            "pro_exclusive_exact_500_rupee_discount": False,
+            
+            # Security & Abuse Prevention (CRITICAL)
+            "authentication_required_for_endpoints": False,
+            "referral_usage_prevents_reuse": False,
+            "database_logging_all_transactions": False,
+            "no_double_discounting_possible": False,
+            
+            # User Referral Code Retrieval (CRITICAL)
+            "user_can_retrieve_own_referral_code": False,
+            "admin_referral_code_retrievable": False
             "authentication_working_all_endpoints": False,
             
             # System Integration (CRITICAL)
