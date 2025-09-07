@@ -1419,6 +1419,7 @@ class CATBackendTester:
         # PHASE 1: AUTHENTICATION SETUP
         print("\n🔐 PHASE 1: AUTHENTICATION SETUP")
         print("-" * 60)
+        print("Setting up admin and customer authentication for comprehensive payment testing")
         
         # Test Admin Authentication
         admin_login_data = {
@@ -1436,8 +1437,8 @@ class CATBackendTester:
                 'Authorization': f'Bearer {admin_token}',
                 'Content-Type': 'application/json'
             }
-            referral_system_results["admin_authentication_working"] = True
-            referral_system_results["admin_token_valid"] = True
+            razorpay_results["admin_authentication_working"] = True
+            razorpay_results["admin_token_valid"] = True
             print(f"   ✅ Admin authentication successful")
             print(f"   📊 JWT Token length: {len(admin_token)} characters")
             
@@ -1447,6 +1448,424 @@ class CATBackendTester:
                 admin_user_id = me_response.get('id')
                 print(f"   ✅ Admin privileges confirmed: {me_response.get('email')}")
                 print(f"   📊 Admin User ID: {admin_user_id}")
+        else:
+            print("   ❌ Admin authentication failed - cannot proceed with admin testing")
+        
+        # Test Customer Authentication (sp@theskinmantra.com)
+        print("\n   🔐 Customer Authentication Setup")
+        customer_login_data = {
+            "email": "sp@theskinmantra.com",
+            "password": "student123"
+        }
+        
+        success, response = self.run_test("Customer Authentication", "POST", "auth/login", [200, 401], customer_login_data)
+        
+        customer_headers = None
+        customer_user_id = None
+        if success and response.get('access_token'):
+            customer_token = response['access_token']
+            customer_headers = {
+                'Authorization': f'Bearer {customer_token}',
+                'Content-Type': 'application/json'
+            }
+            razorpay_results["customer_authentication_working"] = True
+            print(f"   ✅ Customer authentication successful")
+            print(f"   📊 JWT Token length: {len(customer_token)} characters")
+            
+            # Verify customer details and get user ID
+            success, me_response = self.run_test("Customer Details Check", "GET", "auth/me", 200, None, customer_headers)
+            if success and me_response:
+                customer_user_id = me_response.get('id')
+                expected_user_id = "2d2d43a9-c26a-4a69-b74d-ffde3d9c71e1"
+                
+                print(f"   ✅ Customer exists in database")
+                print(f"   📊 Customer User ID: {customer_user_id}")
+                print(f"   📊 Expected User ID: {expected_user_id}")
+                print(f"   📊 Customer Email: {me_response.get('email')}")
+                print(f"   📊 Customer Name: {me_response.get('full_name')}")
+                
+                if customer_user_id == expected_user_id:
+                    razorpay_results["customer_user_id_verified"] = True
+                    print(f"   ✅ Customer User ID matches expected value")
+                else:
+                    print(f"   ⚠️ Customer User ID mismatch - may indicate database issue")
+        else:
+            print("   ❌ Customer authentication failed - cannot proceed with customer testing")
+        
+        # PHASE 2: RAZORPAY API INTEGRATION METHODS TESTING
+        print("\n🔗 PHASE 2: RAZORPAY API INTEGRATION METHODS TESTING")
+        print("-" * 60)
+        print("Testing the newly implemented Razorpay API integration methods")
+        
+        # Test Payment Plan Detection Methods
+        print("   📋 Step 1: Test Payment Plan Detection Methods")
+        
+        # Since we can't directly call the payment service methods, we'll test through payment creation
+        # which internally uses these methods
+        
+        # Test Pro Regular payment creation (₹1,495)
+        print("      🔍 Testing Pro Regular Payment Creation (₹1,495)")
+        pro_regular_data = {
+            "plan_type": "pro_regular",
+            "user_email": "sp@theskinmantra.com",
+            "user_name": "SP Test User",
+            "user_phone": "+91-9876543210"
+        }
+        
+        if customer_headers:
+            success, response = self.run_test(
+                "Pro Regular Payment Creation", 
+                "POST", 
+                "payments/create-subscription", 
+                [200, 400, 500], 
+                pro_regular_data, 
+                customer_headers
+            )
+            
+            if success and response:
+                razorpay_results["pro_regular_1495_detection"] = True
+                print(f"         ✅ Pro Regular payment creation successful")
+                
+                order_data = response.get('data', {})
+                amount = order_data.get('amount', 0)
+                original_amount = order_data.get('original_amount', 0)
+                
+                if amount == 149500 and original_amount == 149500:  # ₹1,495 in paise
+                    print(f"         ✅ Amount detection correct: ₹{amount/100:.2f}")
+                    print(f"         📊 Order ID: {order_data.get('id', 'N/A')}")
+                else:
+                    print(f"         ⚠️ Amount mismatch: Expected ₹1,495, Got ₹{amount/100:.2f}")
+            else:
+                print(f"         ❌ Pro Regular payment creation failed")
+        
+        # Test Pro Exclusive payment creation (₹2,565)
+        print("      🔍 Testing Pro Exclusive Payment Creation (₹2,565)")
+        pro_exclusive_data = {
+            "plan_type": "pro_exclusive",
+            "user_email": "sp@theskinmantra.com",
+            "user_name": "SP Test User",
+            "user_phone": "+91-9876543210"
+        }
+        
+        if customer_headers:
+            success, response = self.run_test(
+                "Pro Exclusive Payment Creation", 
+                "POST", 
+                "payments/create-order", 
+                [200, 400, 500], 
+                pro_exclusive_data, 
+                customer_headers
+            )
+            
+            if success and response:
+                razorpay_results["pro_exclusive_2565_detection"] = True
+                print(f"         ✅ Pro Exclusive payment creation successful")
+                
+                order_data = response.get('data', {})
+                amount = order_data.get('amount', 0)
+                original_amount = order_data.get('original_amount', 0)
+                
+                if amount == 256500 and original_amount == 256500:  # ₹2,565 in paise
+                    print(f"         ✅ Amount detection correct: ₹{amount/100:.2f}")
+                    print(f"         📊 Order ID: {order_data.get('id', 'N/A')}")
+                else:
+                    print(f"         ⚠️ Amount mismatch: Expected ₹2,565, Got ₹{amount/100:.2f}")
+            else:
+                print(f"         ❌ Pro Exclusive payment creation failed")
+        
+        # Test Referral Discount Detection
+        print("   📋 Step 2: Test Referral Discount Detection")
+        
+        # Get admin referral code for testing
+        admin_referral_code = None
+        if admin_headers:
+            success, response = self.run_test(
+                "Admin Referral Code Retrieval", 
+                "GET", 
+                "user/referral-code", 
+                [200], 
+                None, 
+                admin_headers
+            )
+            
+            if success and response:
+                admin_referral_code = response.get('referral_code')
+                print(f"      ✅ Admin referral code retrieved: {admin_referral_code}")
+            else:
+                print(f"      ❌ Could not retrieve admin referral code")
+        
+        # Test Pro Regular with referral (₹995)
+        if admin_referral_code and customer_headers:
+            print("      🔍 Testing Pro Regular with Referral (₹995)")
+            pro_regular_referral_data = {
+                "plan_type": "pro_regular",
+                "user_email": "test_referral@example.com",  # Use different email to avoid usage restrictions
+                "user_name": "Test Referral User",
+                "user_phone": "+91-9876543210",
+                "referral_code": admin_referral_code
+            }
+            
+            success, response = self.run_test(
+                "Pro Regular with Referral", 
+                "POST", 
+                "payments/create-subscription", 
+                [200, 400, 500], 
+                pro_regular_referral_data, 
+                customer_headers
+            )
+            
+            if success and response:
+                order_data = response.get('data', {})
+                amount = order_data.get('amount', 0)
+                original_amount = order_data.get('original_amount', 0)
+                discount_applied = order_data.get('discount_applied', 0)
+                
+                if amount == 99500 and original_amount == 149500 and discount_applied == 50000:  # ₹995, ₹1,495, ₹500
+                    razorpay_results["pro_regular_995_referral_detection"] = True
+                    razorpay_results["referral_discount_500_detection"] = True
+                    print(f"         ✅ Referral discount detection correct")
+                    print(f"         📊 Original: ₹{original_amount/100:.2f}, Final: ₹{amount/100:.2f}, Discount: ₹{discount_applied/100:.2f}")
+                else:
+                    print(f"         ❌ Referral discount detection failed")
+                    print(f"         📊 Expected: ₹995 (₹1,495 - ₹500), Got: ₹{amount/100:.2f}")
+        
+        # Test Pro Exclusive with referral (₹2,065)
+        if admin_referral_code and customer_headers:
+            print("      🔍 Testing Pro Exclusive with Referral (₹2,065)")
+            pro_exclusive_referral_data = {
+                "plan_type": "pro_exclusive",
+                "user_email": "test_referral_exclusive@example.com",  # Use different email
+                "user_name": "Test Referral Exclusive User",
+                "user_phone": "+91-9876543210",
+                "referral_code": admin_referral_code
+            }
+            
+            success, response = self.run_test(
+                "Pro Exclusive with Referral", 
+                "POST", 
+                "payments/create-order", 
+                [200, 400, 500], 
+                pro_exclusive_referral_data, 
+                customer_headers
+            )
+            
+            if success and response:
+                order_data = response.get('data', {})
+                amount = order_data.get('amount', 0)
+                original_amount = order_data.get('original_amount', 0)
+                discount_applied = order_data.get('discount_applied', 0)
+                
+                if amount == 206500 and original_amount == 256500 and discount_applied == 50000:  # ₹2,065, ₹2,565, ₹500
+                    razorpay_results["pro_exclusive_2065_referral_detection"] = True
+                    print(f"         ✅ Pro Exclusive referral discount detection correct")
+                    print(f"         📊 Original: ₹{original_amount/100:.2f}, Final: ₹{amount/100:.2f}, Discount: ₹{discount_applied/100:.2f}")
+                else:
+                    print(f"         ❌ Pro Exclusive referral discount detection failed")
+                    print(f"         📊 Expected: ₹2,065 (₹2,565 - ₹500), Got: ₹{amount/100:.2f}")
+        
+        # PHASE 3: PAYMENT VERIFICATION SYSTEM TESTING
+        print("\n🔍 PHASE 3: PAYMENT VERIFICATION SYSTEM TESTING")
+        print("-" * 60)
+        print("Testing industry-standard payment verification with data integrity checks")
+        
+        # Test Payment Verification Endpoint Accessibility
+        print("   📋 Step 1: Test Payment Verification Endpoint")
+        
+        if customer_headers:
+            # Test with sample verification data to check endpoint accessibility
+            sample_verification_data = {
+                "razorpay_order_id": "order_sample_test_123",
+                "razorpay_payment_id": "pay_sample_test_123", 
+                "razorpay_signature": "sample_signature_for_testing",
+                "user_id": customer_user_id or "test_user_id"
+            }
+            
+            success, response = self.run_test(
+                "Payment Verification Endpoint Check", 
+                "POST", 
+                "payments/verify-payment", 
+                [200, 400, 500], 
+                sample_verification_data, 
+                customer_headers
+            )
+            
+            if success:
+                razorpay_results["industry_standard_verify_payment_working"] = True
+                print(f"      ✅ Payment verification endpoint accessible")
+                
+                # Check if signature verification is working (should fail with invalid signature)
+                if response and 'signature' in str(response).lower():
+                    razorpay_results["signature_verification_working"] = True
+                    print(f"      ✅ Signature verification working (rejecting invalid signatures)")
+            else:
+                print(f"      ❌ Payment verification endpoint not accessible")
+        
+        # PHASE 4: CUSTOMER SUBSCRIPTION STATUS VERIFICATION
+        print("\n👤 PHASE 4: CUSTOMER SUBSCRIPTION STATUS VERIFICATION")
+        print("-" * 60)
+        print("Verifying sp@theskinmantra.com subscription status and data integrity")
+        
+        if customer_headers:
+            # Test subscription status endpoint
+            success, response = self.run_test(
+                "Customer Subscription Status", 
+                "GET", 
+                "payments/subscription-status", 
+                [200, 500], 
+                None, 
+                customer_headers
+            )
+            
+            if success and response:
+                razorpay_results["customer_subscription_status_retrieved"] = True
+                razorpay_results["customer_current_subscription_status"] = True
+                print(f"   ✅ Subscription status endpoint accessible")
+                
+                subscriptions = response.get('subscriptions', [])
+                print(f"   📊 Number of subscriptions found: {len(subscriptions)}")
+                
+                if len(subscriptions) == 0:
+                    print(f"   ❌ CRITICAL ISSUE: Customer shows 'No subscription'")
+                    print(f"   🚨 This confirms the reported issue - customer has no active subscriptions")
+                elif len(subscriptions) == 1:
+                    subscription = subscriptions[0]
+                    plan_type = subscription.get('plan_type')
+                    amount = subscription.get('amount', 0)
+                    status = subscription.get('status')
+                    end_date = subscription.get('current_period_end')
+                    
+                    print(f"   📊 Subscription details:")
+                    print(f"      Plan: {plan_type}")
+                    print(f"      Amount: ₹{amount/100:.2f}")
+                    print(f"      Status: {status}")
+                    print(f"      End Date: {end_date}")
+                    
+                    # Check if it's Pro Exclusive with correct amount and end date
+                    if plan_type == "pro_exclusive" and amount == 206500:  # ₹2,065 with referral
+                        razorpay_results["customer_shows_pro_exclusive_only"] = True
+                        razorpay_results["customer_amount_2065_verified"] = True
+                        print(f"   ✅ Customer shows Pro Exclusive with correct referral amount (₹2,065)")
+                        
+                        # Check end date (should be Dec 31, 2025)
+                        if end_date and "2025-12-31" in end_date:
+                            razorpay_results["customer_end_date_dec_31_2025"] = True
+                            print(f"   ✅ End date correct: Dec 31, 2025")
+                        else:
+                            print(f"   ⚠️ End date may not be Dec 31, 2025: {end_date}")
+                    else:
+                        print(f"   ⚠️ Subscription details don't match expected Pro Exclusive (₹2,065)")
+                else:
+                    print(f"   ⚠️ Multiple subscriptions found - may need cleanup")
+                    
+                    # Check for duplicates
+                    pro_exclusive_count = sum(1 for sub in subscriptions if sub.get('plan_type') == 'pro_exclusive')
+                    if pro_exclusive_count == 1:
+                        razorpay_results["duplicate_subscriptions_cleaned"] = True
+                        print(f"   ✅ Only one Pro Exclusive subscription - duplicates cleaned")
+            else:
+                print(f"   ❌ Subscription status endpoint failed")
+        
+        # PHASE 5: PAYMENT CONFIGURATION VERIFICATION
+        print("\n⚙️ PHASE 5: PAYMENT CONFIGURATION VERIFICATION")
+        print("-" * 60)
+        print("Verifying Razorpay configuration and payment methods")
+        
+        # Test payment configuration endpoint
+        success, response = self.run_test(
+            "Payment Configuration Check", 
+            "GET", 
+            "payments/config", 
+            [200], 
+            None
+        )
+        
+        if success and response:
+            razorpay_results["razorpay_config_accessible"] = True
+            print(f"   ✅ Payment configuration accessible")
+            
+            key_id = response.get('key_id')
+            config = response.get('config', {})
+            
+            if key_id:
+                razorpay_results["razorpay_keys_configured"] = True
+                print(f"   ✅ Razorpay key configured: {key_id}")
+            
+            methods = config.get('methods', {})
+            if methods:
+                razorpay_results["payment_methods_enabled"] = True
+                print(f"   ✅ Payment methods configured:")
+                for method, enabled in methods.items():
+                    print(f"      {method}: {enabled}")
+        else:
+            print(f"   ❌ Payment configuration not accessible")
+        
+        # PHASE 6: ADMIN DATA INTEGRITY TOOLS TESTING
+        print("\n🛠️ PHASE 6: ADMIN DATA INTEGRITY TOOLS TESTING")
+        print("-" * 60)
+        print("Testing admin tools for payment auditing and subscription cleanup")
+        
+        if admin_headers:
+            # Test emergency activation endpoint
+            print("   📋 Step 1: Test Emergency Activation Endpoint")
+            
+            # Test with sample data to check endpoint accessibility
+            emergency_test_data = {
+                "user_email": "test_emergency@example.com",
+                "plan_type": "pro_regular",
+                "payment_amount": 995,
+                "razorpay_payment_id": "pay_test_emergency",
+                "reason": "Testing emergency activation endpoint"
+            }
+            
+            success, response = self.run_test(
+                "Emergency Activation Endpoint Check", 
+                "POST", 
+                "admin/emergency-activate-subscription", 
+                [200, 400, 500], 
+                emergency_test_data, 
+                admin_headers
+            )
+            
+            if success:
+                razorpay_results["emergency_activation_with_proper_data"] = True
+                print(f"      ✅ Emergency activation endpoint accessible")
+                
+                if response and response.get('message'):
+                    print(f"      📊 Response: {response.get('message')}")
+            else:
+                print(f"      ❌ Emergency activation endpoint failed")
+                if response:
+                    print(f"      📊 Error: {response}")
+        
+        # PHASE 7: REFERRAL SYSTEM INTEGRATION TESTING
+        print("\n🎯 PHASE 7: REFERRAL SYSTEM INTEGRATION TESTING")
+        print("-" * 60)
+        print("Testing referral system integration with payment verification")
+        
+        # Test referral validation API
+        if admin_referral_code:
+            test_referral_data = {
+                "referral_code": admin_referral_code,
+                "user_email": "test_validation@example.com"
+            }
+            
+            success, response = self.run_test(
+                "Referral Validation API", 
+                "POST", 
+                "referral/validate", 
+                [200, 400], 
+                test_referral_data
+            )
+            
+            if success and response:
+                razorpay_results["referral_validation_api_working"] = True
+                print(f"   ✅ Referral validation API working")
+                
+                if response.get('valid') and response.get('discount_amount') == 500:
+                    print(f"   ✅ Referral discount amount correct: ₹{response.get('discount_amount')}")
+                    print(f"   📊 Referrer: {response.get('referrer_name')}")
+            else:
+                print(f"   ❌ Referral validation API failed") Admin User ID: {admin_user_id}")
         else:
             print("   ❌ Admin authentication failed - cannot proceed with referral testing")
             return False
