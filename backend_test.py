@@ -730,7 +730,134 @@ class CATBackendTester:
         else:
             print(f"      ❌ PYQ questions checker endpoint failed")
         
-        # PHASE 3: BACKGROUND JOB INTEGRATION TESTING
+        # PHASE 3: REFERRAL VALIDATION API TESTING
+        print("\n🔍 PHASE 3: REFERRAL VALIDATION API TESTING")
+        print("-" * 60)
+        print("Testing POST /api/referral/validate endpoint with various scenarios")
+        
+        # Get admin referral code for testing
+        success, response = self.run_test(
+            "Get Admin Referral Code", 
+            "GET", 
+            "user/referral-code", 
+            [200], 
+            None, 
+            admin_headers
+        )
+        
+        admin_referral_code = None
+        if success and response:
+            admin_referral_code = response.get('referral_code')
+            print(f"   📊 Admin referral code for testing: {admin_referral_code}")
+        
+        if admin_referral_code:
+            # Test 1: Valid referral code validation
+            print("   📋 Test 1: Valid Referral Code Validation")
+            valid_validation_data = {
+                "referral_code": admin_referral_code,
+                "user_email": "fresh_user@example.com"  # Fresh email that hasn't used referrals
+            }
+            
+            success, response = self.run_test(
+                "Valid Referral Code Test", 
+                "POST", 
+                "referral/validate", 
+                [200], 
+                valid_validation_data
+            )
+            
+            if success and response:
+                referral_system_results["referral_validate_endpoint_accessible"] = True
+                print(f"      ✅ Referral validate endpoint accessible")
+                
+                if response.get('valid') and response.get('can_use'):
+                    referral_system_results["valid_referral_code_returns_proper_info"] = True
+                    print(f"      ✅ Valid referral code returns proper info")
+                    
+                    # Check discount amount
+                    discount_amount = response.get('discount_amount')
+                    if discount_amount == 500:
+                        referral_system_results["referral_discount_amount_correct"] = True
+                        print(f"      ✅ Discount amount correct: ₹{discount_amount}")
+                    else:
+                        print(f"      ❌ Discount amount incorrect: ₹{discount_amount} (expected ₹500)")
+                    
+                    # Check referrer name
+                    referrer_name = response.get('referrer_name')
+                    if referrer_name:
+                        print(f"      ✅ Referrer name provided: {referrer_name}")
+                else:
+                    print(f"      ❌ Valid referral code validation failed")
+            
+            # Test 2: Invalid referral code
+            print("   📋 Test 2: Invalid Referral Code Handling")
+            invalid_validation_data = {
+                "referral_code": "INVALID123",
+                "user_email": "fresh_user2@example.com"
+            }
+            
+            success, response = self.run_test(
+                "Invalid Referral Code Test", 
+                "POST", 
+                "referral/validate", 
+                [200], 
+                invalid_validation_data
+            )
+            
+            if success and response:
+                if not response.get('valid') and response.get('error'):
+                    referral_system_results["invalid_referral_code_proper_error"] = True
+                    print(f"      ✅ Invalid referral code properly rejected: {response.get('error')}")
+                else:
+                    print(f"      ❌ Invalid referral code not properly handled")
+            
+            # Test 3: Self-referral prevention
+            print("   📋 Test 3: Self-Referral Prevention")
+            self_referral_data = {
+                "referral_code": admin_referral_code,
+                "user_email": "sumedhprabhu18@gmail.com"  # Admin's own email
+            }
+            
+            success, response = self.run_test(
+                "Self-Referral Prevention Test", 
+                "POST", 
+                "referral/validate", 
+                [200], 
+                self_referral_data
+            )
+            
+            if success and response:
+                if not response.get('can_use') and 'own' in str(response.get('error', '')).lower():
+                    referral_system_results["self_referral_prevention_enforced"] = True
+                    print(f"      ✅ Self-referral prevention working: {response.get('error')}")
+                else:
+                    print(f"      ❌ Self-referral prevention not working")
+            
+            # Test 4: One-time usage enforcement (using student email that may have used referrals)
+            print("   📋 Test 4: One-Time Usage Enforcement")
+            used_referral_data = {
+                "referral_code": admin_referral_code,
+                "user_email": "sp@theskinmantra.com"  # Student email that may have used referrals
+            }
+            
+            success, response = self.run_test(
+                "One-Time Usage Test", 
+                "POST", 
+                "referral/validate", 
+                [200], 
+                used_referral_data
+            )
+            
+            if success and response:
+                if not response.get('can_use') and 'already' in str(response.get('error', '')).lower():
+                    referral_system_results["one_time_usage_enforcement_working"] = True
+                    print(f"      ✅ One-time usage enforcement working: {response.get('error')}")
+                elif response.get('can_use'):
+                    print(f"      ℹ️ Student email hasn't used referrals yet (can still use)")
+                else:
+                    print(f"      ❌ One-time usage enforcement unclear")
+        
+        # PHASE 4: PAYMENT INTEGRATION TESTING
         print("\n🚀 PHASE 3: BACKGROUND JOB INTEGRATION TESTING")
         print("-" * 60)
         print("Testing enhanced checker integration into background jobs")
