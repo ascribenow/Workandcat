@@ -2098,17 +2098,25 @@ class CATBackendTester:
         # CRITICAL SUCCESS ASSESSMENT
         print("\n🎯 PAYMENT REFERRAL SYSTEM SUCCESS ASSESSMENT:")
         
-        # Check critical success criteria
-        mathematical_accuracy = sum(referral_system_results[key] for key in testing_categories["MATHEMATICAL ACCURACY VERIFICATION (CRITICAL)"])
-        business_rules = sum(referral_system_results[key] for key in testing_categories["BUSINESS RULES VALIDATION (CRITICAL)"])
-        database_integration = sum(referral_system_results[key] for key in testing_categories["DATABASE INTEGRATION (CRITICAL)"])
-        api_validation = sum(referral_system_results[key] for key in testing_categories["API ENDPOINTS FULL FUNCTIONALITY (CRITICAL)"])
+        # Check critical success criteria (using the correct category names)
+        authentication = sum(referral_system_results[key] for key in testing_categories["AUTHENTICATION SETUP"])
+        database_structure = sum(referral_system_results[key] for key in testing_categories["DATABASE STRUCTURE VERIFICATION"])
+        code_generation = sum(referral_system_results[key] for key in testing_categories["REFERRAL CODE GENERATION"])
+        validation_api = sum(referral_system_results[key] for key in testing_categories["REFERRAL VALIDATION API"])
+        pro_regular = sum(referral_system_results[key] for key in testing_categories["PAYMENT INTEGRATION - PRO REGULAR"])
+        pro_exclusive = sum(referral_system_results[key] for key in testing_categories["PAYMENT INTEGRATION - PRO EXCLUSIVE"])
+        security = sum(referral_system_results[key] for key in testing_categories["SECURITY & ABUSE PREVENTION"])
+        user_retrieval = sum(referral_system_results[key] for key in testing_categories["USER REFERRAL CODE RETRIEVAL"])
         
         print(f"\n📊 CRITICAL METRICS:")
-        print(f"  Mathematical Accuracy Verification: {mathematical_accuracy}/5 ({(mathematical_accuracy/5)*100:.1f}%)")
-        print(f"  Business Rules Validation: {business_rules}/5 ({(business_rules/5)*100:.1f}%)")
-        print(f"  Database Integration: {database_integration}/4 ({(database_integration/4)*100:.1f}%)")
-        print(f"  API Endpoints Full Functionality: {api_validation}/4 ({(api_validation/4)*100:.1f}%)")
+        print(f"  Authentication Setup: {authentication}/4 ({(authentication/4)*100:.1f}%)")
+        print(f"  Database Structure: {database_structure}/4 ({(database_structure/4)*100:.1f}%)")
+        print(f"  Referral Code Generation: {code_generation}/4 ({(code_generation/4)*100:.1f}%)")
+        print(f"  Referral Validation API: {validation_api}/6 ({(validation_api/6)*100:.1f}%)")
+        print(f"  Pro Regular Payment: {pro_regular}/3 ({(pro_regular/3)*100:.1f}%)")
+        print(f"  Pro Exclusive Payment: {pro_exclusive}/3 ({(pro_exclusive/3)*100:.1f}%)")
+        print(f"  Security & Abuse Prevention: {security}/4 ({(security/4)*100:.1f}%)")
+        print(f"  User Referral Code Retrieval: {user_retrieval}/2 ({(user_retrieval/2)*100:.1f}%)")
         
         # FINAL ASSESSMENT
         if success_rate == 100:
