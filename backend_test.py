@@ -867,8 +867,8 @@ class CATBackendTester:
         else:
             print(f"      ❌ Payment verification endpoint failed to process request")
         
-        # PHASE 4: PAYMENT CONFIGURATION INVESTIGATION
-        print("\n⚙️ PHASE 4: PAYMENT CONFIGURATION INVESTIGATION")
+        # PHASE 6: PAYMENT CONFIGURATION INVESTIGATION
+        print("\n⚙️ PHASE 6: PAYMENT CONFIGURATION INVESTIGATION")
         print("-" * 60)
         print("Checking Razorpay configuration and payment setup")
         
