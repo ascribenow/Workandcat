@@ -366,7 +366,7 @@ const Pricing = () => {
                 Can I do more than one session per day?
               </h3>
               <p style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
-                Absolutely! While our system is designed around the Daily-12 concept, Pro plans give you unlimited sessions. You can do multiple sessions per day to accelerate your preparation.
+                Absolutely! While our system is designed around the 12 concept, Pro plans give you unlimited sessions. You can do multiple sessions per day to accelerate your preparation.
               </p>
             </div>
           </div>
