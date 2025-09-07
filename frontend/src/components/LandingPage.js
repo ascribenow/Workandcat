@@ -609,15 +609,21 @@ const LandingPage = () => {
       <section className="py-16 lg:py-24 bg-[#545454]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl lg:text-5xl font-bold text-white mb-8">
-            Built for working professionals who want CAT success
+            Why It Matters
           </h2>
           
           <div className="max-w-4xl mx-auto">
             <p className="text-lg lg:text-xl text-gray-200 mb-6" style={{ fontFamily: 'Lato, sans-serif' }}>
-              You don't need another 3-hour lecture, you need a system that keeps you moving forward, even on packed workdays
+              Time is short. Focus matters.
+            </p>
+            <p className="text-lg lg:text-xl text-gray-200 mb-6" style={{ fontFamily: 'Lato, sans-serif' }}>
+              With CAT, the overwhelm is real: too much to cover, too little time.
+            </p>
+            <p className="text-lg lg:text-xl text-gray-200 mb-6" style={{ fontFamily: 'Lato, sans-serif' }}>
+              Twelvr cuts through the clutter.
             </p>
             <p className="text-lg lg:text-xl text-gray-200" style={{ fontFamily: 'Lato, sans-serif' }}>
-              Twelvr makes sure you're covered daily, so no matter how hectic life gets, your CAT prep never stops
+              It doubles down on your strengths, keeps pressing on your weak spots, and always brings you back to what counts for CAT.
             </p>
           </div>
         </div>
