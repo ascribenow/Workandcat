@@ -332,9 +332,14 @@ class RazorpayService:
             raise
 
     async def verify_payment(self, order_id: str, payment_id: str, signature: str, user_id: str) -> Dict[str, Any]:
-        """Verify Razorpay payment signature and update order status"""
+        """
+        INDUSTRY-STANDARD PAYMENT VERIFICATION WITH DATA INTEGRITY
+        Uses Razorpay API as source of truth for all payment data
+        """
         try:
-            # Verify signature
+            logger.info(f"Starting industry-standard payment verification: Payment={payment_id}, Order={order_id}, User={user_id}")
+            
+            # Step 1: Verify signature (security check)
             params_dict = {
                 'razorpay_order_id': order_id,
                 'razorpay_payment_id': payment_id,
@@ -343,70 +348,132 @@ class RazorpayService:
             
             # This will raise an exception if signature is invalid
             self.client.utility.verify_payment_signature(params_dict)
+            logger.info(f"Payment signature verification passed for {payment_id}")
             
-            # Fetch payment details
-            payment_details = self.client.payment.fetch(payment_id)
+            # Step 2: Comprehensive payment integrity verification using Razorpay API
+            integrity_result = await self.verify_payment_integrity(payment_id, order_id)
             
-            # Update database (synchronous)
+            if not integrity_result["success"]:
+                logger.error(f"Payment integrity verification failed: {integrity_result['error']}")
+                raise Exception(f"Payment integrity verification failed: {integrity_result['error']}")
+            
+            if integrity_result["verification_status"] != "passed":
+                logger.error(f"Payment integrity checks failed: {integrity_result['integrity_checks']}")
+                raise Exception(f"Payment integrity checks failed: {integrity_result['integrity_checks']}")
+            
+            # Extract verified data from Razorpay API
+            payment_data = integrity_result["payment_data"]
+            order_data = integrity_result["order_data"]
+            detected_plan = integrity_result["detected_plan"]
+            referral_info = integrity_result["referral_discount_applied"]
+            
+            logger.info(f"✅ Payment integrity verified - Plan: {detected_plan['plan_type']}, Amount: ₹{payment_data['amount']/100:.2f}, Referral: {referral_info['applied']}")
+            
+            # Step 3: Update database with VERIFIED data from Razorpay
             db = SessionLocal()
             try:
-                # Update order status
+                # Update order status with actual payment data
                 order = db.query(PaymentOrder).filter(PaymentOrder.razorpay_order_id == order_id).first()
                 if order:
                     order.status = "paid"
                     order.updated_at = datetime.utcnow()
+                    
+                    # Verify order matches actual payment
+                    if order.plan_type != detected_plan["plan_type"]:
+                        logger.warning(f"Order plan type mismatch: DB={order.plan_type}, Actual={detected_plan['plan_type']}")
                 
-                # Create transaction record
+                # Create transaction record with ACTUAL payment data
                 transaction = PaymentTransaction(
+                    id=str(uuid.uuid4()),
                     user_id=user_id,
                     razorpay_payment_id=payment_id,
                     razorpay_order_id=order_id,
-                    amount=payment_details["amount"],
-                    method=payment_details.get("method"),
-                    status=payment_details["status"],
-                    gateway_response=str(payment_details)
+                    amount=payment_data["amount"],  # ACTUAL amount from Razorpay
+                    currency=payment_data["currency"],  # ACTUAL currency from Razorpay
+                    status=payment_data["status"],  # ACTUAL status from Razorpay
+                    method=payment_data.get("method"),  # ACTUAL method from Razorpay
+                    created_at=datetime.utcnow()
                 )
                 db.add(transaction)
                 
-                # Create subscription record if order exists
-                if order:
-                    plan_type = order.plan_type
+                # Step 4: Create subscription based on VERIFIED payment data
+                subscription = None
+                if detected_plan["plan_type"] == "pro_regular":
+                    # Check if subscription already exists
+                    existing_subscription = db.query(Subscription).filter(
+                        Subscription.user_id == user_id,
+                        Subscription.plan_type == "pro_regular",
+                        Subscription.status == "active"
+                    ).first()
                     
-                    # Set subscription periods based on plan type
-                    current_period_start = datetime.utcnow()
-                    
-                    if plan_type == "pro_regular":
-                        # 30 days from subscription date
-                        current_period_end = current_period_start + timedelta(days=30)
-                    elif plan_type == "pro_exclusive":
-                        # Fixed end date: December 31, 2025 23:59 IST
-                        import pytz
-                        ist = pytz.timezone('Asia/Kolkata')
-                        fixed_end = datetime(2025, 12, 31, 23, 59, 0)
-                        current_period_end = ist.localize(fixed_end).astimezone(pytz.UTC).replace(tzinfo=None)
+                    if existing_subscription:
+                        # Extend existing subscription by 30 days
+                        existing_subscription.current_period_end = existing_subscription.current_period_end + timedelta(days=30)
+                        existing_subscription.updated_at = datetime.utcnow()
+                        subscription = existing_subscription
+                        logger.info(f"Extended existing Pro Regular subscription for user {user_id}")
                     else:
-                        # Default: 30 days
+                        # Create new subscription with ACTUAL payment amount
+                        current_period_start = datetime.utcnow()
                         current_period_end = current_period_start + timedelta(days=30)
+                        
+                        subscription = Subscription(
+                            id=str(uuid.uuid4()),
+                            user_id=user_id,
+                            plan_type="pro_regular",
+                            amount=payment_data["amount"],  # ACTUAL amount paid
+                            status="active",
+                            current_period_start=current_period_start,
+                            current_period_end=current_period_end,
+                            auto_renew=True,
+                            created_at=current_period_start,
+                            updated_at=current_period_start
+                        )
+                        db.add(subscription)
+                        logger.info(f"Created new Pro Regular subscription for user {user_id} with actual amount ₹{payment_data['amount']/100:.2f}")
+                
+                elif detected_plan["plan_type"] == "pro_exclusive":
+                    # Pro Exclusive - one-time payment till Dec 31, 2025
+                    current_period_start = datetime.utcnow()
+                    current_period_end = datetime(2025, 12, 31, 23, 59, 0)
                     
                     subscription = Subscription(
+                        id=str(uuid.uuid4()),
                         user_id=user_id,
-                        plan_type=plan_type,
-                        amount=order.amount,
+                        plan_type="pro_exclusive",
+                        amount=payment_data["amount"],  # ACTUAL amount paid
                         status="active",
                         current_period_start=current_period_start,
                         current_period_end=current_period_end,
-                        auto_renew=(plan_type == "pro_regular")
+                        auto_renew=False,
+                        created_at=current_period_start,
+                        updated_at=current_period_start
                     )
                     db.add(subscription)
+                    logger.info(f"Created new Pro Exclusive subscription for user {user_id} with actual amount ₹{payment_data['amount']/100:.2f}")
+                
+                else:
+                    logger.error(f"Unknown plan type detected from payment: {detected_plan}")
+                    raise Exception(f"Cannot create subscription for unknown plan type: {detected_plan['plan_type']}")
+                
+                # Step 5: Update user subscription fields with VERIFIED data
+                from database import User
+                user = db.query(User).filter(User.id == user_id).first()
+                if user:
+                    user.subscription_type = detected_plan["plan_type"]
+                    user.subscription_active = True
+                    user.subscription_end_date = subscription.current_period_end if subscription else None
+                    user.updated_at = datetime.utcnow()
+                    logger.info(f"Updated user {user_id} subscription fields with verified data")
                 
                 db.commit()
                 
-                # Send payment confirmation email
+                # Step 6: Send payment confirmation email with ACCURATE data
                 try:
                     from gmail_service import gmail_service
-                    user_email = order.user_email if order else "user@example.com"
-                    plan_name = order.plan_type.replace("_", " ").title() if order else "Subscription"
-                    amount_rupees = f"₹{payment_details['amount'] / 100:.2f}"
+                    user_email = order.user_email if order else payment_data.get("email", "user@example.com")
+                    plan_name = detected_plan["plan_type"].replace("_", " ").title()
+                    amount_rupees = f"₹{payment_data['amount'] / 100:.2f}"
                     
                     # Format end date for email
                     end_date_text = None
@@ -422,7 +489,7 @@ class RazorpayService:
                     )
                     
                     if email_sent:
-                        logger.info(f"Payment confirmation email sent to {user_email}")
+                        logger.info(f"Payment confirmation email sent to {user_email} with verified data")
                     else:
                         logger.warning(f"Failed to send payment confirmation email to {user_email}")
                         
@@ -433,12 +500,20 @@ class RazorpayService:
             finally:
                 db.close()
             
+            # Step 7: Return comprehensive verification result
             return {
                 "status": "success",
                 "payment_id": payment_id,
                 "order_id": order_id,
-                "method": payment_details.get("method"),
-                "amount": payment_details["amount"]
+                "method": payment_data.get("method"),
+                "amount": payment_data["amount"],
+                "amount_inr": payment_data["amount"] / 100,
+                "currency": payment_data["currency"],
+                "plan_type": detected_plan["plan_type"],
+                "referral_discount_applied": referral_info["applied"],
+                "referral_discount_amount": referral_info["discount_amount_inr"],
+                "verification_timestamp": integrity_result["verification_timestamp"],
+                "data_integrity_status": "verified_from_razorpay_api"
             }
             
         except Exception as e:
