@@ -2040,31 +2040,39 @@ class CATBackendTester:
         total_tests = len(referral_system_results)
         success_rate = (passed_tests / total_tests) * 100
         
-        # Group results by testing categories
+        # Group results by testing categories (using the correct test names)
         testing_categories = {
             "AUTHENTICATION SETUP": [
-                "admin_authentication_working", "student_authentication_working"
+                "admin_authentication_working", "student_authentication_working",
+                "admin_token_valid", "student_token_valid"
             ],
-            "MATHEMATICAL ACCURACY VERIFICATION (CRITICAL)": [
-                "pro_regular_discount_calculation_perfect", "pro_exclusive_discount_calculation_perfect",
-                "discount_amount_exactly_50000_paise", "mathematical_accuracy_verified",
-                "paise_conversion_working_correctly"
+            "DATABASE STRUCTURE VERIFICATION": [
+                "referral_usage_table_exists", "users_table_has_referral_code_column",
+                "foreign_key_relationships_correct", "database_schema_constraints_working"
             ],
-            "BUSINESS RULES VALIDATION (CRITICAL)": [
-                "one_time_usage_rule_enforced", "fresh_email_can_use_referral_codes",
-                "self_referral_prevention_working", "already_used_referral_properly_rejected",
-                "business_rules_correctly_implemented"
+            "REFERRAL CODE GENERATION": [
+                "unique_6_character_codes_generated", "codes_stored_in_database_correctly",
+                "uniqueness_enforcement_working", "alphanumeric_format_validation"
             ],
-            "DATABASE INTEGRATION (CRITICAL)": [
-                "referral_usage_tracking_complete", "payment_orders_store_correct_discounted_amounts",
-                "notes_json_contains_referral_metadata", "database_tracking_complete"
+            "REFERRAL VALIDATION API": [
+                "referral_validate_endpoint_accessible", "valid_referral_code_returns_proper_info",
+                "invalid_referral_code_proper_error", "self_referral_prevention_enforced",
+                "one_time_usage_enforcement_working", "referral_discount_amount_correct"
             ],
-            "API ENDPOINTS FULL FUNCTIONALITY (CRITICAL)": [
-                "referral_validate_endpoint_working", "payments_create_subscription_working",
-                "payments_create_order_working", "authentication_working_all_endpoints"
+            "PAYMENT INTEGRATION - PRO REGULAR": [
+                "pro_regular_accepts_referral_code", "pro_regular_discount_calculation_correct",
+                "pro_regular_exact_500_rupee_discount"
             ],
-            "SYSTEM INTEGRATION": [
-                "end_to_end_referral_flow_working", "production_readiness_confirmed"
+            "PAYMENT INTEGRATION - PRO EXCLUSIVE": [
+                "pro_exclusive_accepts_referral_code", "pro_exclusive_discount_calculation_correct",
+                "pro_exclusive_exact_500_rupee_discount"
+            ],
+            "SECURITY & ABUSE PREVENTION": [
+                "authentication_required_for_endpoints", "referral_usage_prevents_reuse",
+                "database_logging_all_transactions", "no_double_discounting_possible"
+            ],
+            "USER REFERRAL CODE RETRIEVAL": [
+                "user_can_retrieve_own_referral_code", "admin_referral_code_retrievable"
             ]
         }
         
