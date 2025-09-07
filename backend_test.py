@@ -1214,71 +1214,53 @@ class CATBackendTester:
         
         return payment_investigation_results
 
-    def test_razorpay_payment_system_comprehensive(self):
+    def test_payment_security_enhancements_comprehensive(self):
         """
-        COMPREHENSIVE TESTING: INDUSTRY-STANDARD RAZORPAY PAYMENT SYSTEM
+        COMPREHENSIVE TESTING: ALL PAYMENT SECURITY ENHANCEMENTS IMPLEMENTED
         
-        Test the newly implemented industry-standard payment verification system with Razorpay API integration 
-        for complete data integrity as specified in the review request.
-        
-        TESTING OBJECTIVES:
-        1. **Razorpay API Integration Methods**:
-           - fetch_payment_details_from_razorpay()
-           - fetch_order_details_from_razorpay() 
-           - verify_payment_integrity()
-           - _detect_plan_from_amount()
-           - _detect_referral_discount()
+        Test the comprehensive payment security system with all enhancements as specified in the review request:
+        1. Database Idempotency Constraints
+        2. Payment Idempotency Logic in verify_payment()
+        3. Backend-Only Amount Calculation (calculate_final_amount)
+        4. Payment Reconciliation Service
+        5. Payment System Health Monitoring
+        6. Advanced Admin Tools & Analytics
+        7. Frontend Security Fixes
+        8. Enhanced Error Recovery
 
-        2. **Enhanced Payment Verification**:
-           - Industry-standard verify_payment() method
-           - Comprehensive integrity checks
-           - Plan detection from actual payment amounts
-           - Referral discount detection
-           - Database updates with verified data
+        CRITICAL SECURITY FEATURES TO TEST:
+        1. **Database Idempotency Constraints**:
+           - Unique constraints on razorpay_payment_id and razorpay_order_id
+           - Prevent duplicate payment processing
+           - Performance indexes for reconciliation queries
 
-        3. **Admin Data Integrity Tools**:
-           - audit-customer-payment endpoint
-           - cleanup-duplicate-subscriptions endpoint
-           - Emergency activation with proper data
+        2. **Payment Idempotency Logic**:
+           - Same payment_id should not be processed twice
+           - Idempotency protection in verify_payment()
+           - Return existing payment information for duplicates
 
-        4. **Payment Plan Detection**:
-           - Pro Regular: ₹1,495 (₹995 with referral)
-           - Pro Exclusive: ₹2,565 (₹2,065 with referral)
-           - Accurate referral discount detection (₹500)
+        3. **Backend-Only Amount Calculation**:
+           - calculate_final_amount() method security
+           - No frontend manipulation possible
+           - Referral discount calculations from backend only
 
-        CRITICAL TEST SCENARIOS:
-        1. **Payment Amount Detection**:
-           - Test ₹2,065 → Pro Exclusive with referral
-           - Test ₹2,565 → Pro Exclusive without referral
-           - Test ₹995 → Pro Regular with referral
-           - Test ₹1,495 → Pro Regular without referral
+        4. **Payment Reconciliation Service**:
+           - Automatic detection of paid-but-not-activated subscriptions
+           - Amount discrepancy detection and correction
+           - Duplicate payment detection and cleanup
 
-        2. **Data Integrity Verification**:
-           - Signature verification working
-           - Payment status validation
-           - Currency validation (INR)
-           - Amount consistency checks
-
-        3. **Subscription Creation**:
-           - Correct plan activation based on actual payment
-           - Proper end dates (Pro Regular: 30 days, Pro Exclusive: Dec 31, 2025)
-           - Accurate amount storage from Razorpay API
-
-        CUSTOMER VERIFICATION:
-        - sp@theskinmantra.com should show ONLY Pro Exclusive (₹2,065, Dec 31 2025)
-        - Duplicate subscriptions successfully cleaned up
-        - Customer getting exactly what they paid for
+        5. **Payment System Health Monitoring**:
+           - Payment system health monitoring endpoints
+           - Payment analytics and reporting
+           - Admin dashboard data integrity tools
 
         SUCCESS CRITERIA:
-        - All API integration methods functional
-        - Payment verification uses Razorpay as source of truth
-        - Plan detection accurate for all amount scenarios
-        - Data integrity checks prevent inconsistencies
-        - Admin tools working for audit and cleanup
-        - Email confirmations sent with accurate data
-
-        FOCUS: Verify the system now uses actual Razorpay API data instead of assumptions, 
-        ensuring 100% payment data integrity for all future transactions.
+        - All security vulnerabilities addressed
+        - No frontend amount manipulation possible
+        - Idempotency protection working for all payment operations
+        - Reconciliation service detecting and fixing discrepancies
+        - Admin tools providing comprehensive system insights
+        - Monitoring service detecting anomalies and health issues
         """
         print("💳 COMPREHENSIVE TESTING: INDUSTRY-STANDARD RAZORPAY PAYMENT SYSTEM")
         print("=" * 90)
