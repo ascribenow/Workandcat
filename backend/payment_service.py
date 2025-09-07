@@ -142,6 +142,9 @@ class RazorpayService:
             
             logger.info(f"🔒 BACKEND-CALCULATED AMOUNTS: Original=₹{original_amount/100:.2f}, Final=₹{final_amount/100:.2f}, Discount=₹{referral_discount/100:.2f}")
             
+            # Get plan configuration for metadata
+            plan_config = self.plans[plan_type]
+            
             # Create Razorpay order with all payment methods enabled
             order_data = {
                 "amount": final_amount,
