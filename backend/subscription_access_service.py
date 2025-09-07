@@ -22,8 +22,8 @@ class SubscriptionAccessService:
             "free_trial": {
                 "session_limit": 10,
                 "unlimited_sessions": False,
-                "ask_twelvr": False,
-                "features": []
+                "ask_twelvr": True,
+                "features": ["ask_twelvr"]
             },
             "pro_regular": {
                 "session_limit": None,  # Unlimited
