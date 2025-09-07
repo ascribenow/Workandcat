@@ -20,14 +20,18 @@ class AdminEndpointsTester:
         try:
             url = f"{self.base_url}/{endpoint}"
             
+            # Add SSL verification disable and connection settings
+            session = requests.Session()
+            session.verify = False
+            
             if method.upper() == "GET":
-                response = requests.get(url, headers=headers, timeout=30)
+                response = session.get(url, headers=headers, timeout=30)
             elif method.upper() == "POST":
-                response = requests.post(url, json=data, headers=headers, timeout=30)
+                response = session.post(url, json=data, headers=headers, timeout=30)
             elif method.upper() == "PUT":
-                response = requests.put(url, json=data, headers=headers, timeout=30)
+                response = session.put(url, json=data, headers=headers, timeout=30)
             elif method.upper() == "DELETE":
-                response = requests.delete(url, headers=headers, timeout=30)
+                response = session.delete(url, headers=headers, timeout=30)
             else:
                 print(f"❌ {test_name}: Unsupported method {method}")
                 return False, None
