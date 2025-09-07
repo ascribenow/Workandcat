@@ -9,7 +9,7 @@ import json
 import sys
 
 class ConceptualFrequencyTester:
-    def __init__(self, base_url="https://twelvr-referral.preview.emergentagent.com/api"):
+    def __init__(self, base_url="https://payment-integrity.preview.emergentagent.com/api"):
         self.base_url = base_url
         self.admin_token = None
         self.tests_run = 0

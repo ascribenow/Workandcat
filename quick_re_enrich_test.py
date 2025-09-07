@@ -7,7 +7,7 @@ import json
 import time
 
 def test_re_enrichment():
-    base_url = "https://twelvr-referral.preview.emergentagent.com/api"
+    base_url = "https://payment-integrity.preview.emergentagent.com/api"
     
     print("🚨 CRITICAL RE-ENRICHMENT TEST")
     print("=" * 50)
