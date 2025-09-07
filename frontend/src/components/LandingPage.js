@@ -467,21 +467,18 @@ const LandingPage = () => {
       <section className="py-16 lg:py-24 bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl lg:text-5xl font-bold text-[#545454] mb-8">
-            No more overwhelm, just progress
+            Consistency, without the grind.
           </h2>
           
           <div className="max-w-4xl mx-auto">
             <p className="text-lg lg:text-xl text-[#545454] mb-6" style={{ fontFamily: 'Lato, sans-serif' }}>
-              CAT prep usually means 1000+ questions, hours of classes, and constant pressure
+              Every session = <strong className="text-[#9ac026]">12Qs.</strong>
             </p>
             <p className="text-lg lg:text-xl text-[#545454] mb-6" style={{ fontFamily: 'Lato, sans-serif' }}>
-              <strong>Twelvr flips the script.</strong>
-            </p>
-            <p className="text-lg lg:text-xl text-[#545454] mb-6" style={{ fontFamily: 'Lato, sans-serif' }}>
-              Every day you get exactly <strong className="text-[#9ac026]">12 adaptive questions</strong>, starting easy, building to hard, so you stay consistent, confident, and covered
+              Small enough to do, sharp enough to count.
             </p>
             <p className="text-lg lg:text-xl text-[#545454]" style={{ fontFamily: 'Lato, sans-serif' }}>
-              Prep that fits your busy life, without sacrificing seriousness
+              Each round compounds into focus.
             </p>
           </div>
         </div>
