@@ -832,8 +832,33 @@ class CATBackendTester:
             print(f"      ❌ Payment verification endpoint not accessible")
         
         # Test with sample payment verification data
-        print("   📋 Step 2: Test Payment Verification with Sample Data")
+        print("   📋 Step 2: Test Payment Verification Error Scenarios")
         
+        # Test 2a: 422 Unprocessable Entity (validation error)
+        print("      🔍 Test 2a: Reproduce 422 Validation Error")
+        invalid_validation_data = {
+            "razorpay_order_id": "",  # Empty order ID
+            "razorpay_payment_id": "",  # Empty payment ID
+            "razorpay_signature": "",  # Empty signature
+            "user_id": actual_user_id
+        }
+        
+        success, response = self.run_test(
+            "422 Validation Error Test", 
+            "POST", 
+            "payments/verify-payment", 
+            [422, 400], 
+            invalid_validation_data, 
+            user_headers
+        )
+        
+        if success and response.get('status_code') == 422:
+            payment_investigation_results["payment_verify_422_error_reproduced"] = True
+            print(f"         ✅ 422 Unprocessable Entity error reproduced")
+            print(f"         📊 Error: {response.get('detail', 'No details')}")
+        
+        # Test 2b: 401 Unauthorized (auth error)
+        print("      🔍 Test 2b: Reproduce 401 Authentication Error")
         sample_verification_data = {
             "razorpay_order_id": "order_sample_test_123",
             "razorpay_payment_id": "pay_sample_test_123", 
@@ -842,11 +867,57 @@ class CATBackendTester:
         }
         
         success, response = self.run_test(
-            "Sample Payment Verification", 
+            "401 Auth Error Test", 
+            "POST", 
+            "payments/verify-payment", 
+            [401, 403], 
+            sample_verification_data
+            # No headers - should cause auth error
+        )
+        
+        if success and response.get('status_code') == 401:
+            payment_investigation_results["payment_verify_401_error_reproduced"] = True
+            print(f"         ✅ 401 Unauthorized error reproduced")
+            print(f"         📊 Error: {response.get('detail', 'No details')}")
+        
+        # Test 2c: 400 Bad Request (parameter error)
+        print("      🔍 Test 2c: Reproduce 400 Parameter Error")
+        bad_parameter_data = {
+            "razorpay_order_id": "order_sample_test_123",
+            "razorpay_payment_id": "pay_sample_test_123", 
+            "razorpay_signature": "sample_signature_for_testing",
+            "user_id": "invalid_user_id_format"  # Invalid user ID
+        }
+        
+        success, response = self.run_test(
+            "400 Parameter Error Test", 
+            "POST", 
+            "payments/verify-payment", 
+            [400, 403], 
+            bad_parameter_data, 
+            user_headers
+        )
+        
+        if success and response.get('status_code') == 400:
+            payment_investigation_results["payment_verify_400_error_reproduced"] = True
+            print(f"         ✅ 400 Bad Request error reproduced")
+            print(f"         📊 Error: {response.get('detail', 'No details')}")
+        
+        # Test 2d: Valid format but invalid signature
+        print("      🔍 Test 2d: Test Signature Validation")
+        valid_format_data = {
+            "razorpay_order_id": "order_sample_test_123",
+            "razorpay_payment_id": "pay_sample_test_123", 
+            "razorpay_signature": "invalid_signature_for_testing",
+            "user_id": actual_user_id
+        }
+        
+        success, response = self.run_test(
+            "Signature Validation Test", 
             "POST", 
             "payments/verify-payment", 
             [200, 400, 500], 
-            sample_verification_data, 
+            valid_format_data, 
             user_headers
         )
         
