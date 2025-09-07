@@ -20,7 +20,7 @@ class SubscriptionAccessService:
     def __init__(self):
         self.plan_features = {
             "free_trial": {
-                "session_limit": 15,
+                "session_limit": 10,
                 "unlimited_sessions": False,
                 "ask_twelvr": False,
                 "features": []
