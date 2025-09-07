@@ -522,17 +522,31 @@ class CATBackendTester:
         print("=" * 80)
         
         payment_investigation_results = {
+            # Admin Authentication
+            "admin_authentication_working": False,
+            "admin_token_valid": False,
+            
             # User Authentication & Database State
             "user_authentication_working": False,
             "user_exists_in_database": False,
             "user_id_matches_expected": False,
             "user_subscription_status_retrieved": False,
             
+            # Emergency Activation Endpoint Testing
+            "emergency_activation_endpoint_accessible": False,
+            "emergency_activation_requires_admin": False,
+            "emergency_activation_validates_parameters": False,
+            "emergency_activation_creates_subscription": False,
+            "emergency_activation_500_error_reproduced": False,
+            
             # Payment Verification Endpoint Testing
             "payment_verify_endpoint_accessible": False,
             "payment_verify_endpoint_requires_auth": False,
             "payment_verify_endpoint_validates_signature": False,
             "payment_verify_endpoint_creates_subscription": False,
+            "payment_verify_422_error_reproduced": False,
+            "payment_verify_401_error_reproduced": False,
+            "payment_verify_400_error_reproduced": False,
             
             # Database State Investigation
             "payment_orders_table_accessible": False,
@@ -554,7 +568,8 @@ class CATBackendTester:
             "payment_verification_logs_missing": False,
             "frontend_backend_communication_issue": False,
             "signature_validation_failing": False,
-            "database_transaction_failing": False
+            "database_transaction_failing": False,
+            "emergency_activation_database_issue": False
         }
         
         # PHASE 1: USER AUTHENTICATION & DATABASE STATE CHECK
