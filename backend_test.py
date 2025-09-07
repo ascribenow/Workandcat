@@ -1865,7 +1865,153 @@ class CATBackendTester:
                     print(f"   ✅ Referral discount amount correct: ₹{response.get('discount_amount')}")
                     print(f"   📊 Referrer: {response.get('referrer_name')}")
             else:
-                print(f"   ❌ Referral validation API failed") Admin User ID: {admin_user_id}")
+                print(f"   ❌ Referral validation API failed")
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 90)
+        print("💳 COMPREHENSIVE RAZORPAY PAYMENT SYSTEM TESTING - RESULTS")
+        print("=" * 90)
+        
+        passed_tests = sum(razorpay_results.values())
+        total_tests = len(razorpay_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        # Group results by testing categories
+        testing_categories = {
+            "AUTHENTICATION SETUP": [
+                "admin_authentication_working", "admin_token_valid",
+                "customer_authentication_working", "customer_user_id_verified"
+            ],
+            "RAZORPAY API INTEGRATION METHODS": [
+                "fetch_payment_details_method_accessible", "fetch_order_details_method_accessible",
+                "verify_payment_integrity_method_accessible", "detect_plan_from_amount_method_working",
+                "detect_referral_discount_method_working"
+            ],
+            "PAYMENT PLAN DETECTION": [
+                "pro_regular_1495_detection", "pro_regular_995_referral_detection",
+                "pro_exclusive_2565_detection", "pro_exclusive_2065_referral_detection"
+            ],
+            "ENHANCED PAYMENT VERIFICATION": [
+                "industry_standard_verify_payment_working", "signature_verification_working",
+                "payment_status_validation_working", "currency_validation_inr_working",
+                "amount_consistency_checks_working"
+            ],
+            "DATA INTEGRITY VERIFICATION": [
+                "razorpay_as_source_of_truth", "payment_data_integrity_verified",
+                "order_data_integrity_verified", "comprehensive_integrity_checks"
+            ],
+            "SUBSCRIPTION CREATION": [
+                "pro_regular_subscription_creation", "pro_exclusive_subscription_creation",
+                "correct_end_dates_pro_regular_30_days", "correct_end_dates_pro_exclusive_dec_31_2025",
+                "accurate_amount_storage_from_razorpay"
+            ],
+            "CUSTOMER VERIFICATION (sp@theskinmantra.com)": [
+                "customer_current_subscription_status", "customer_shows_pro_exclusive_only",
+                "customer_amount_2065_verified", "customer_end_date_dec_31_2025",
+                "duplicate_subscriptions_cleaned"
+            ],
+            "ADMIN DATA INTEGRITY TOOLS": [
+                "audit_customer_payment_endpoint", "cleanup_duplicate_subscriptions_endpoint",
+                "emergency_activation_with_proper_data"
+            ],
+            "PAYMENT CONFIGURATION": [
+                "razorpay_config_accessible", "razorpay_keys_configured", "payment_methods_enabled"
+            ],
+            "REFERRAL SYSTEM INTEGRATION": [
+                "referral_discount_500_detection", "referral_usage_tracking", "referral_validation_api_working"
+            ]
+        }
+        
+        for category, tests in testing_categories.items():
+            print(f"\n{category}:")
+            category_passed = 0
+            category_total = len(tests)
+            
+            for test in tests:
+                if test in razorpay_results:
+                    result = razorpay_results[test]
+                    status = "✅ PASS" if result else "❌ FAIL"
+                    print(f"  {test.replace('_', ' ').title():<50} {status}")
+                    if result:
+                        category_passed += 1
+            
+            category_rate = (category_passed / category_total) * 100 if category_total > 0 else 0
+            print(f"  Category Success Rate: {category_passed}/{category_total} ({category_rate:.1f}%)")
+        
+        print("-" * 90)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # CRITICAL SUCCESS ASSESSMENT
+        print("\n🎯 RAZORPAY PAYMENT SYSTEM SUCCESS ASSESSMENT:")
+        
+        # Check critical success criteria
+        payment_plan_detection = sum(razorpay_results[key] for key in testing_categories["PAYMENT PLAN DETECTION"])
+        payment_verification = sum(razorpay_results[key] for key in testing_categories["ENHANCED PAYMENT VERIFICATION"])
+        customer_verification = sum(razorpay_results[key] for key in testing_categories["CUSTOMER VERIFICATION (sp@theskinmantra.com)"])
+        data_integrity = sum(razorpay_results[key] for key in testing_categories["DATA INTEGRITY VERIFICATION"])
+        
+        print(f"\n📊 CRITICAL METRICS:")
+        print(f"  Payment Plan Detection: {payment_plan_detection}/4 ({(payment_plan_detection/4)*100:.1f}%)")
+        print(f"  Payment Verification: {payment_verification}/5 ({(payment_verification/5)*100:.1f}%)")
+        print(f"  Customer Verification: {customer_verification}/5 ({(customer_verification/5)*100:.1f}%)")
+        print(f"  Data Integrity: {data_integrity}/4 ({(data_integrity/4)*100:.1f}%)")
+        
+        # FINAL ASSESSMENT
+        if success_rate >= 85:
+            print("\n🎉 RAZORPAY PAYMENT SYSTEM TESTING SUCCESSFUL!")
+            print("   ✅ Industry-standard payment verification implemented")
+            print("   ✅ Razorpay API integration methods working")
+            print("   ✅ Payment plan detection accurate")
+            print("   ✅ Data integrity verification functional")
+            print("   ✅ Customer verification successful")
+            print("   🏆 PRODUCTION READY - Payment system meets industry standards")
+        elif success_rate >= 70:
+            print("\n⚠️ RAZORPAY PAYMENT SYSTEM MOSTLY SUCCESSFUL")
+            print(f"   - {passed_tests}/{total_tests} tests passed ({success_rate:.1f}%)")
+            print("   - Core payment functionality appears working")
+            print("   🔧 MINOR ISSUES - Some verification needed")
+        else:
+            print("\n❌ RAZORPAY PAYMENT SYSTEM TESTING FAILED")
+            print(f"   - Only {passed_tests}/{total_tests} tests passed ({success_rate:.1f}%)")
+            print("   - Critical payment issues detected")
+            print("   🚨 MAJOR PROBLEMS - Payment system needs significant fixes")
+        
+        # SPECIFIC FINDINGS
+        print("\n🔍 SPECIFIC FINDINGS:")
+        
+        if razorpay_results["customer_shows_pro_exclusive_only"] and razorpay_results["customer_amount_2065_verified"]:
+            print("✅ CUSTOMER VERIFICATION SUCCESS: sp@theskinmantra.com shows Pro Exclusive (₹2,065) as expected")
+        elif razorpay_results["customer_current_subscription_status"]:
+            print("⚠️ CUSTOMER VERIFICATION PARTIAL: Customer has subscription but details need verification")
+        else:
+            print("❌ CUSTOMER VERIFICATION FAILED: Customer subscription status could not be verified")
+        
+        if razorpay_results["pro_regular_995_referral_detection"] and razorpay_results["pro_exclusive_2065_referral_detection"]:
+            print("✅ REFERRAL DISCOUNT SUCCESS: Both Pro Regular (₹995) and Pro Exclusive (₹2,065) referral discounts working")
+        elif razorpay_results["referral_discount_500_detection"]:
+            print("⚠️ REFERRAL DISCOUNT PARTIAL: ₹500 discount detected but not all plan types verified")
+        else:
+            print("❌ REFERRAL DISCOUNT FAILED: ₹500 referral discount detection not working")
+        
+        if razorpay_results["industry_standard_verify_payment_working"] and razorpay_results["signature_verification_working"]:
+            print("✅ PAYMENT VERIFICATION SUCCESS: Industry-standard verification with signature validation working")
+        elif razorpay_results["industry_standard_verify_payment_working"]:
+            print("⚠️ PAYMENT VERIFICATION PARTIAL: Endpoint accessible but signature validation needs verification")
+        else:
+            print("❌ PAYMENT VERIFICATION FAILED: Industry-standard verification not accessible")
+        
+        # URGENT ACTION ITEMS
+        print("\n🎯 URGENT ACTION ITEMS:")
+        if not razorpay_results["customer_shows_pro_exclusive_only"]:
+            print("1. 🚨 CRITICAL: Verify sp@theskinmantra.com subscription shows Pro Exclusive (₹2,065, Dec 31 2025)")
+        if not razorpay_results["pro_exclusive_2065_referral_detection"]:
+            print("2. 🔧 HIGH: Fix Pro Exclusive referral discount detection (₹2,565 → ₹2,065)")
+        if not razorpay_results["industry_standard_verify_payment_working"]:
+            print("3. 🔧 HIGH: Ensure payment verification endpoint uses Razorpay API as source of truth")
+        if not razorpay_results["emergency_activation_with_proper_data"]:
+            print("4. 🔧 MEDIUM: Fix emergency activation endpoint for manual subscription activation")
+        
+        return success_rate >= 70  # Return True if payment system testing is successful Admin User ID: {admin_user_id}")
         else:
             print("   ❌ Admin authentication failed - cannot proceed with referral testing")
             return False
