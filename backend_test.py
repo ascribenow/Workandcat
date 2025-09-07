@@ -11180,3 +11180,512 @@ def main():
 def main():
     success = main()
     sys.exit(0 if success else 1)
+    def test_pro_exclusive_referral_discount_issue(self):
+        """
+        CRITICAL PRO EXCLUSIVE REFERRAL DISCOUNT TESTING
+        
+        SPECIFIC ISSUE TO TEST:
+        - Pro Regular working perfectly (₹1,495 → ₹995 = ₹500 discount ✅)
+        - Pro Exclusive NOT applying discount (₹2,565 → ₹2,565 = ₹0 discount ❌)
+        
+        TEST PLAN:
+        1. Authenticate as admin: sumedhprabhu18@gmail.com / admin2025
+        2. Get admin referral code: GET /api/user/referral-code  
+        3. Test Pro Exclusive payment creation: POST /api/payments/create-order
+           - Use fresh user email: testuser123@example.com
+           - Use admin referral code 
+           - Plan type: "pro_exclusive"
+           - Expected: ₹2,565 → ₹2,065 (₹500 discount)
+        
+        VALIDATION POINTS:
+        - Check if create-order returns discounted amount (206500 paise instead of 256500 paise)
+        - Verify backend logs show referral discount calculation
+        - Compare with Pro Regular flow to ensure both work consistently
+        """
+        print("💳 CRITICAL PRO EXCLUSIVE REFERRAL DISCOUNT TESTING")
+        print("=" * 80)
+        print("SPECIFIC ISSUE TO TEST:")
+        print("- Pro Regular working perfectly (₹1,495 → ₹995 = ₹500 discount ✅)")
+        print("- Pro Exclusive NOT applying discount (₹2,565 → ₹2,565 = ₹0 discount ❌)")
+        print("")
+        print("TEST PLAN:")
+        print("1. Authenticate as admin: sumedhprabhu18@gmail.com / admin2025")
+        print("2. Get admin referral code: GET /api/user/referral-code")
+        print("3. Test Pro Exclusive payment creation: POST /api/payments/create-order")
+        print("   - Use fresh user email: testuser123@example.com")
+        print("   - Use admin referral code")
+        print("   - Plan type: \"pro_exclusive\"")
+        print("   - Expected: ₹2,565 → ₹2,065 (₹500 discount)")
+        print("")
+        print("VALIDATION POINTS:")
+        print("- Check if create-order returns discounted amount (206500 paise instead of 256500 paise)")
+        print("- Verify Pro Exclusive referral discount logic is working")
+        print("- Compare with Pro Regular flow to ensure both work consistently")
+        print("=" * 80)
+        
+        referral_test_results = {
+            # Admin Authentication
+            "admin_authentication_working": False,
+            "admin_token_valid": False,
+            "admin_privileges_confirmed": False,
+            
+            # Admin Referral Code Retrieval
+            "admin_referral_code_retrieved": False,
+            "admin_referral_code_valid_format": False,
+            
+            # Fresh User Authentication Setup
+            "fresh_user_authentication_working": False,
+            "fresh_user_token_valid": False,
+            
+            # Referral Code Validation
+            "referral_code_validation_working": False,
+            "fresh_user_can_use_referral": False,
+            "referral_discount_amount_correct": False,
+            
+            # Pro Regular Payment Testing (Control Test)
+            "pro_regular_payment_creation_working": False,
+            "pro_regular_discount_applied_correctly": False,
+            "pro_regular_amount_calculation_correct": False,
+            
+            # Pro Exclusive Payment Testing (Main Test)
+            "pro_exclusive_payment_creation_working": False,
+            "pro_exclusive_discount_applied_correctly": False,
+            "pro_exclusive_amount_calculation_correct": False,
+            "pro_exclusive_discount_issue_reproduced": False,
+            
+            # Mathematical Validation
+            "pro_regular_math_correct": False,  # ₹1,495 → ₹995 = ₹500 discount
+            "pro_exclusive_math_correct": False,  # ₹2,565 → ₹2,065 = ₹500 discount
+            "discount_consistency_between_plans": False,
+            
+            # Backend Integration
+            "payment_service_integration_working": False,
+            "referral_service_integration_working": False,
+            "discount_calculation_logic_working": False
+        }
+        
+        # PHASE 1: ADMIN AUTHENTICATION SETUP
+        print("
+🔐 PHASE 1: ADMIN AUTHENTICATION SETUP")
+        print("-" * 60)
+        print("Authenticating as admin to get referral code")
+        
+        admin_login_data = {
+            "email": "sumedhprabhu18@gmail.com",
+            "password": "admin2025"
+        }
+        
+        success, response = self.run_test("Admin Authentication", "POST", "auth/login", [200, 401], admin_login_data)
+        
+        admin_headers = None
+        admin_referral_code = None
+        
+        if success and response.get("access_token"):
+            admin_token = response["access_token"]
+            admin_headers = {
+                "Authorization": f"Bearer {admin_token}",
+                "Content-Type": "application/json"
+            }
+            referral_test_results["admin_authentication_working"] = True
+            referral_test_results["admin_token_valid"] = True
+            print(f"   ✅ Admin authentication successful")
+            print(f"   📊 JWT Token length: {len(admin_token)} characters")
+            
+            # Verify admin privileges
+            success, me_response = self.run_test("Admin Token Validation", "GET", "auth/me", 200, None, admin_headers)
+            if success and me_response.get("is_admin"):
+                referral_test_results["admin_privileges_confirmed"] = True
+                print(f"   ✅ Admin privileges confirmed: {me_response.get(\"email\")}")
+        else:
+            print("   ❌ Admin authentication failed - cannot proceed with referral testing")
+            return False
+        
+        # PHASE 2: ADMIN REFERRAL CODE RETRIEVAL
+        print("
+🎫 PHASE 2: ADMIN REFERRAL CODE RETRIEVAL")
+        print("-" * 60)
+        print("Getting admin referral code for testing")
+        
+        success, response = self.run_test("Admin Referral Code", "GET", "user/referral-code", [200], None, admin_headers)
+        
+        if success and response.get("referral_code"):
+            admin_referral_code = response["referral_code"]
+            referral_test_results["admin_referral_code_retrieved"] = True
+            print(f"   ✅ Admin referral code retrieved: {admin_referral_code}")
+            
+            # Validate referral code format (6-character alphanumeric)
+            if len(admin_referral_code) == 6 and admin_referral_code.isalnum():
+                referral_test_results["admin_referral_code_valid_format"] = True
+                print(f"   ✅ Referral code format valid: 6-character alphanumeric")
+            else:
+                print(f"   ⚠️ Referral code format unexpected: {admin_referral_code}")
+        else:
+            print("   ❌ Failed to retrieve admin referral code")
+            return False
+        
+        # PHASE 3: FRESH USER AUTHENTICATION SETUP
+        print("
+👤 PHASE 3: FRESH USER AUTHENTICATION SETUP")
+        print("-" * 60)
+        print("Setting up fresh user authentication for referral testing")
+        
+        # First try to register the fresh user (in case they dont exist)
+        fresh_user_data = {
+            "email": "testuser123@example.com",
+            "password": "testpass123",
+            "full_name": "Test User 123"
+        }
+        
+        # Try to register (might fail if user exists, thats OK)
+        success, response = self.run_test("Fresh User Registration", "POST", "auth/register", [200, 400], fresh_user_data)
+        if success:
+            print(f"   ✅ Fresh user registered successfully")
+        else:
+            print(f"   ℹ️ Fresh user registration failed (user may already exist)")
+        
+        # Now authenticate the fresh user
+        fresh_user_login = {
+            "email": "testuser123@example.com",
+            "password": "testpass123"
+        }
+        
+        success, response = self.run_test("Fresh User Authentication", "POST", "auth/login", [200, 401], fresh_user_login)
+        
+        fresh_user_headers = None
+        fresh_user_id = None
+        
+        if success and response.get("access_token"):
+            fresh_user_token = response["access_token"]
+            fresh_user_headers = {
+                "Authorization": f"Bearer {fresh_user_token}",
+                "Content-Type": "application/json"
+            }
+            referral_test_results["fresh_user_authentication_working"] = True
+            referral_test_results["fresh_user_token_valid"] = True
+            print(f"   ✅ Fresh user authentication successful")
+            print(f"   📊 JWT Token length: {len(fresh_user_token)} characters")
+            
+            # Get fresh user details
+            success, me_response = self.run_test("Fresh User Details", "GET", "auth/me", 200, None, fresh_user_headers)
+            if success and me_response:
+                fresh_user_id = me_response.get("id")
+                print(f"   ✅ Fresh user details retrieved")
+                print(f"   📊 User ID: {fresh_user_id}")
+                print(f"   📊 User Email: {me_response.get(\"email\")}")
+        else:
+            print("   ❌ Fresh user authentication failed - cannot proceed with referral testing")
+            return False
+        
+        # PHASE 4: REFERRAL CODE VALIDATION
+        print("
+🔍 PHASE 4: REFERRAL CODE VALIDATION")
+        print("-" * 60)
+        print("Validating admin referral code for fresh user")
+        
+        referral_validation_data = {
+            "referral_code": admin_referral_code,
+            "user_email": "testuser123@example.com"
+        }
+        
+        success, response = self.run_test("Referral Code Validation", "POST", "referral/validate", [200], referral_validation_data)
+        
+        if success and response:
+            referral_test_results["referral_code_validation_working"] = True
+            print(f"   ✅ Referral validation endpoint working")
+            
+            if response.get("valid") and response.get("can_use"):
+                referral_test_results["fresh_user_can_use_referral"] = True
+                print(f"   ✅ Fresh user can use referral code")
+                
+                discount_amount = response.get("discount_amount")
+                if discount_amount == 500:
+                    referral_test_results["referral_discount_amount_correct"] = True
+                    print(f"   ✅ Referral discount amount correct: ₹{discount_amount}")
+                else:
+                    print(f"   ⚠️ Referral discount amount unexpected: ₹{discount_amount} (expected ₹500)")
+                
+                referrer_name = response.get("referrer_name")
+                print(f"   📊 Referrer: {referrer_name}")
+            else:
+                print(f"   ❌ Fresh user cannot use referral code")
+                print(f"   📊 Valid: {response.get(\"valid\")}, Can Use: {response.get(\"can_use\")}")
+                print(f"   📊 Error: {response.get(\"error\")}")
+        else:
+            print("   ❌ Referral code validation failed")
+            return False
+        
+        # PHASE 5: PRO REGULAR PAYMENT TESTING (CONTROL TEST)
+        print("
+💰 PHASE 5: PRO REGULAR PAYMENT TESTING (CONTROL TEST)")
+        print("-" * 60)
+        print("Testing Pro Regular payment with referral code (should work correctly)")
+        
+        pro_regular_data = {
+            "plan_type": "pro_regular",
+            "user_email": "testuser123@example.com",
+            "user_name": "Test User 123",
+            "user_phone": "+91-9876543210",
+            "referral_code": admin_referral_code
+        }
+        
+        success, response = self.run_test("Pro Regular Payment Creation", "POST", "payments/create-subscription", [200, 400], pro_regular_data, fresh_user_headers)
+        
+        if success and response:
+            referral_test_results["pro_regular_payment_creation_working"] = True
+            print(f"   ✅ Pro Regular payment creation working")
+            
+            payment_data = response.get("data", {})
+            amount = payment_data.get("amount")  # Should be in paise
+            
+            if amount:
+                amount_rupees = amount / 100
+                print(f"   📊 Pro Regular amount: ₹{amount_rupees} ({amount} paise)")
+                
+                # Expected: ₹1,495 → ₹995 = ₹500 discount
+                expected_discounted_amount = 99500  # ₹995 in paise
+                original_amount = 149500  # ₹1,495 in paise
+                
+                if amount == expected_discounted_amount:
+                    referral_test_results["pro_regular_discount_applied_correctly"] = True
+                    referral_test_results["pro_regular_amount_calculation_correct"] = True
+                    referral_test_results["pro_regular_math_correct"] = True
+                    print(f"   ✅ Pro Regular discount applied correctly: ₹1,495 → ₹{amount_rupees} = ₹{(original_amount - amount)/100} discount")
+                elif amount == original_amount:
+                    print(f"   ❌ Pro Regular discount NOT applied: ₹{amount_rupees} (expected ₹995)")
+                else:
+                    print(f"   ⚠️ Pro Regular amount unexpected: ₹{amount_rupees} (expected ₹995)")
+            else:
+                print(f"   ⚠️ Pro Regular payment response missing amount")
+        else:
+            print("   ❌ Pro Regular payment creation failed")
+            if response and "already" in str(response.get("detail", "")).lower():
+                print("   ℹ️ User may have already used referral code - this is expected for control test")
+        
+        # PHASE 6: PRO EXCLUSIVE PAYMENT TESTING (MAIN TEST)
+        print("
+🎯 PHASE 6: PRO EXCLUSIVE PAYMENT TESTING (MAIN TEST)")
+        print("-" * 60)
+        print("Testing Pro Exclusive payment with referral code (CRITICAL TEST)")
+        
+        pro_exclusive_data = {
+            "plan_type": "pro_exclusive",
+            "user_email": "testuser123@example.com",
+            "user_name": "Test User 123",
+            "user_phone": "+91-9876543210",
+            "referral_code": admin_referral_code
+        }
+        
+        success, response = self.run_test("Pro Exclusive Payment Creation", "POST", "payments/create-order", [200, 400], pro_exclusive_data, fresh_user_headers)
+        
+        if success and response:
+            referral_test_results["pro_exclusive_payment_creation_working"] = True
+            print(f"   ✅ Pro Exclusive payment creation working")
+            
+            payment_data = response.get("data", {})
+            amount = payment_data.get("amount")  # Should be in paise
+            
+            if amount:
+                amount_rupees = amount / 100
+                print(f"   📊 Pro Exclusive amount: ₹{amount_rupees} ({amount} paise)")
+                
+                # Expected: ₹2,565 → ₹2,065 = ₹500 discount
+                expected_discounted_amount = 206500  # ₹2,065 in paise
+                original_amount = 256500  # ₹2,565 in paise
+                
+                if amount == expected_discounted_amount:
+                    referral_test_results["pro_exclusive_discount_applied_correctly"] = True
+                    referral_test_results["pro_exclusive_amount_calculation_correct"] = True
+                    referral_test_results["pro_exclusive_math_correct"] = True
+                    print(f"   ✅ Pro Exclusive discount applied correctly: ₹2,565 → ₹{amount_rupees} = ₹{(original_amount - amount)/100} discount")
+                elif amount == original_amount:
+                    referral_test_results["pro_exclusive_discount_issue_reproduced"] = True
+                    print(f"   ❌ CRITICAL ISSUE REPRODUCED: Pro Exclusive discount NOT applied")
+                    print(f"   🚨 Amount: ₹{amount_rupees} (expected ₹2,065 with ₹500 discount)")
+                    print(f"   🚨 This confirms the reported issue: Pro Exclusive NOT applying discount")
+                else:
+                    print(f"   ⚠️ Pro Exclusive amount unexpected: ₹{amount_rupees} (expected ₹2,065)")
+            else:
+                print(f"   ⚠️ Pro Exclusive payment response missing amount")
+        else:
+            print("   ❌ Pro Exclusive payment creation failed")
+            if response:
+                print(f"   📊 Error details: {response}")
+        
+        # PHASE 7: MATHEMATICAL VALIDATION & COMPARISON
+        print("
+🧮 PHASE 7: MATHEMATICAL VALIDATION & COMPARISON")
+        print("-" * 60)
+        print("Comparing Pro Regular vs Pro Exclusive discount calculations")
+        
+        # Check if both plans apply discounts consistently
+        if referral_test_results["pro_regular_math_correct"] and referral_test_results["pro_exclusive_math_correct"]:
+            referral_test_results["discount_consistency_between_plans"] = True
+            print(f"   ✅ Both plans apply ₹500 discount consistently")
+        elif referral_test_results["pro_regular_math_correct"] and not referral_test_results["pro_exclusive_math_correct"]:
+            print(f"   ❌ INCONSISTENCY CONFIRMED: Pro Regular works, Pro Exclusive doesnt")
+            print(f"   🚨 This confirms the exact issue reported in the review request")
+        elif not referral_test_results["pro_regular_math_correct"] and referral_test_results["pro_exclusive_math_correct"]:
+            print(f"   ⚠️ Unexpected: Pro Exclusive works, Pro Regular doesnt")
+        else:
+            print(f"   ❌ Both plans have discount issues")
+        
+        # Validate service integration
+        if referral_test_results["referral_code_validation_working"]:
+            referral_test_results["referral_service_integration_working"] = True
+            print(f"   ✅ Referral service integration working")
+        
+        if referral_test_results["pro_regular_payment_creation_working"] or referral_test_results["pro_exclusive_payment_creation_working"]:
+            referral_test_results["payment_service_integration_working"] = True
+            print(f"   ✅ Payment service integration working")
+        
+        if referral_test_results["pro_regular_discount_applied_correctly"]:
+            referral_test_results["discount_calculation_logic_working"] = True
+            print(f"   ✅ Discount calculation logic working (at least for Pro Regular)")
+        
+        # FINAL RESULTS SUMMARY
+        print("
+" + "=" * 80)
+        print("💳 PRO EXCLUSIVE REFERRAL DISCOUNT TESTING - RESULTS")
+        print("=" * 80)
+        
+        passed_tests = sum(referral_test_results.values())
+        total_tests = len(referral_test_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        # Group results by test categories
+        test_categories = {
+            "ADMIN AUTHENTICATION": [
+                "admin_authentication_working", "admin_token_valid", "admin_privileges_confirmed"
+            ],
+            "REFERRAL CODE SETUP": [
+                "admin_referral_code_retrieved", "admin_referral_code_valid_format"
+            ],
+            "FRESH USER SETUP": [
+                "fresh_user_authentication_working", "fresh_user_token_valid"
+            ],
+            "REFERRAL VALIDATION": [
+                "referral_code_validation_working", "fresh_user_can_use_referral", 
+                "referral_discount_amount_correct"
+            ],
+            "PRO REGULAR TESTING (CONTROL)": [
+                "pro_regular_payment_creation_working", "pro_regular_discount_applied_correctly",
+                "pro_regular_amount_calculation_correct", "pro_regular_math_correct"
+            ],
+            "PRO EXCLUSIVE TESTING (MAIN)": [
+                "pro_exclusive_payment_creation_working", "pro_exclusive_discount_applied_correctly",
+                "pro_exclusive_amount_calculation_correct", "pro_exclusive_math_correct",
+                "pro_exclusive_discount_issue_reproduced"
+            ],
+            "SYSTEM INTEGRATION": [
+                "payment_service_integration_working", "referral_service_integration_working",
+                "discount_calculation_logic_working", "discount_consistency_between_plans"
+            ]
+        }
+        
+        for category, tests in test_categories.items():
+            print(f"
+{category}:")
+            category_passed = 0
+            category_total = len(tests)
+            
+            for test in tests:
+                if test in referral_test_results:
+                    result = referral_test_results[test]
+                    status = "✅ PASS" if result else "❌ FAIL"
+                    print(f"  {test.replace(\"_\", \" \").title():<50} {status}")
+                    if result:
+                        category_passed += 1
+            
+            category_rate = (category_passed / category_total) * 100 if category_total > 0 else 0
+            print(f"  Category Success Rate: {category_passed}/{category_total} ({category_rate:.1f}%)")
+        
+        print("-" * 80)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # CRITICAL ISSUE ANALYSIS
+        print("
+🚨 CRITICAL ISSUE ANALYSIS:")
+        
+        if referral_test_results["pro_exclusive_discount_issue_reproduced"]:
+            print("
+❌ CRITICAL ISSUE CONFIRMED: Pro Exclusive referral discount NOT working")
+            print("   🚨 Pro Exclusive shows ₹2,565 → ₹2,565 = ₹0 discount")
+            print("   🚨 Expected: ₹2,565 → ₹2,065 = ₹500 discount")
+            print("   🚨 This exactly matches the reported issue in the review request")
+        elif referral_test_results["pro_exclusive_math_correct"]:
+            print("
+✅ ISSUE RESOLVED: Pro Exclusive referral discount working correctly")
+            print("   ✅ Pro Exclusive shows ₹2,565 → ₹2,065 = ₹500 discount")
+        else:
+            print("
+⚠️ INCONCLUSIVE: Unable to determine Pro Exclusive discount status")
+        
+        if referral_test_results["pro_regular_math_correct"]:
+            print("
+✅ Pro Regular referral discount working correctly")
+            print("   ✅ Pro Regular shows ₹1,495 → ₹995 = ₹500 discount")
+        else:
+            print("
+❌ Pro Regular referral discount also has issues")
+        
+        # ROOT CAUSE ANALYSIS
+        print("
+🔍 ROOT CAUSE ANALYSIS:")
+        
+        if referral_test_results["referral_service_integration_working"]:
+            print("   ✅ Referral service is working (validation successful)")
+        else:
+            print("   ❌ Referral service has issues")
+        
+        if referral_test_results["payment_service_integration_working"]:
+            print("   ✅ Payment service is accessible")
+        else:
+            print("   ❌ Payment service has issues")
+        
+        if referral_test_results["discount_calculation_logic_working"]:
+            print("   ✅ Discount calculation logic works (at least for Pro Regular)")
+            if referral_test_results["pro_exclusive_discount_issue_reproduced"]:
+                print("   🚨 LIKELY CAUSE: Pro Exclusive endpoint (/api/payments/create-order) not integrating with referral service")
+                print("   🚨 LIKELY CAUSE: create-order method missing referral discount application logic")
+        else:
+            print("   ❌ Discount calculation logic has fundamental issues")
+        
+        # URGENT ACTION ITEMS
+        print("
+🎯 URGENT ACTION ITEMS:")
+        
+        if referral_test_results["pro_exclusive_discount_issue_reproduced"]:
+            print("1. 🚨 CRITICAL: Debug /api/payments/create-order endpoint")
+            print("2. 🚨 CRITICAL: Check if create-order method calls referral_service.apply_referral_discount()")
+            print("3. 🚨 CRITICAL: Compare create-order vs create-subscription referral integration")
+            print("4. 🔧 FIX: Ensure Pro Exclusive payment endpoint applies referral discounts")
+            print("5. 🔧 TEST: Verify fix with fresh user email and admin referral code")
+        elif referral_test_results["pro_exclusive_math_correct"]:
+            print("1. ✅ RESOLVED: Pro Exclusive referral discount is working correctly")
+            print("2. 📋 VERIFY: Test with multiple referral codes to ensure consistency")
+            print("3. 📋 MONITOR: Check for any edge cases or specific user scenarios")
+        else:
+            print("1. 🔍 INVESTIGATE: Unable to reproduce or confirm the issue")
+            print("2. 🔍 CHECK: Test environment setup and user authentication")
+            print("3. 🔍 VERIFY: Referral code validity and user eligibility")
+        
+        return referral_test_results
+
+
+if __name__ == "__main__":
+    tester = CATBackendTester()
+    
+    print("🚀 Starting CAT Backend Testing Suite")
+    print("=" * 50)
+    
+    # Run the Pro Exclusive referral discount testing
+    tester.test_pro_exclusive_referral_discount_issue()
+    
+    print("
+" + "=" * 50)
+    print("🏁 CAT Backend Testing Complete")
+    print(f"📊 Total Tests: {tester.tests_run}")
+    print(f"✅ Passed: {tester.tests_passed}")
+    print(f"❌ Failed: {tester.tests_run - tester.tests_passed}")
+    print(f"📈 Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%")
+
