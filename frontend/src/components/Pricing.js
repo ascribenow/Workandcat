@@ -132,7 +132,7 @@ const Pricing = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
                 <span className="text-left" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
-                  30 adaptive Daily-12 sessions
+                  10 adaptive sessions
                 </span>
               </div>
               <div className="flex items-center">
