@@ -1589,7 +1589,7 @@ async def emergency_activate_subscription(
         
         db.add(subscription)
         
-        # Create payment transaction record  
+        # Create payment transaction record (only with fields that exist in database)
         payment_transaction = PaymentTransaction(
             id=str(uuid.uuid4()),
             user_id=user.id,
@@ -1598,8 +1598,7 @@ async def emergency_activate_subscription(
             amount=int(payment_amount * 100) if payment_amount else 0,  # Convert to paise
             currency="INR",
             status="captured",
-            method="emergency_manual",
-            created_at=datetime.utcnow()
+            method="emergency_manual"
         )
         
         db.add(payment_transaction)
