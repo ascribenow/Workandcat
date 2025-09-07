@@ -7,7 +7,7 @@ import os
 import io
 
 class CATBackendTester:
-    def __init__(self, base_url="https://twelvr-referral.preview.emergentagent.com/api"):
+    def __init__(self, base_url="http://localhost:8001/api"):
         self.base_url = base_url
         self.student_user = None
         self.admin_user = None
