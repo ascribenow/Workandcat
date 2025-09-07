@@ -11836,16 +11836,16 @@ Find the compound interest on Rs. 1000 for 2 years at 10% per annum.,210"""
         return success_rate >= 70  # Return True if Pro Regular testing is successful
 
 def main():
-    """Main function to run comprehensive Razorpay payment system testing"""
-    print("💳 COMPREHENSIVE RAZORPAY PAYMENT SYSTEM TESTING")
+    """Main function to run Pro Regular subscription comprehensive testing"""
+    print("💳 PRO REGULAR SUBSCRIPTION COMPREHENSIVE TESTING")
     print("=" * 80)
     
     tester = CATBackendTester()
     
     try:
-        # Run Comprehensive Payment Security Enhancements Testing (as per review request)
-        print("🔐 COMPREHENSIVE TESTING: ALL PAYMENT SECURITY ENHANCEMENTS IMPLEMENTED")
-        razorpay_results = tester.test_payment_security_enhancements_comprehensive()
+        # Run Pro Regular Subscription Comprehensive Testing (as per review request)
+        print("🔐 PRO REGULAR SUBSCRIPTION TESTING: ALL FEATURES AND BUSINESS LOGIC")
+        pro_regular_results = tester.test_pro_regular_subscription_comprehensive()
         
         print("\n" + "=" * 80)
         print("🏁 RAZORPAY PAYMENT SYSTEM TESTING COMPLETED")
