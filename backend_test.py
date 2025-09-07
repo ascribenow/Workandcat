@@ -354,7 +354,7 @@ class CATBackendTester:
                     
                     valid = response.get('valid', False)
                     can_use = response.get('can_use', False)
-                    discount_amount = response.get('discount_amount', 0)
+                    discount_amount = response.get('discount_amount', 0) or 0
                     
                     print(f"      📊 Valid: {valid}, Can Use: {can_use}")
                     print(f"      📊 Discount Amount: ₹{discount_amount/100:.2f}")
