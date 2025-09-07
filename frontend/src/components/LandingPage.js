@@ -275,7 +275,7 @@ const LandingPage = () => {
                         : 'text-gray-500 hover:text-[#545454]'
                     }`}
                   >
-                    Start my Daily-12
+                    Start My 12
                   </button>
                   <button
                     onClick={() => setShowSignIn(false)}
