@@ -131,36 +131,16 @@ class RazorpayService:
             raise
     
     async def create_order(self, plan_type: str, user_email: str, user_name: str, user_id: str, user_phone: Optional[str] = None, referral_code: Optional[str] = None) -> Dict[str, Any]:
-        """Create a Razorpay order for one-time payments"""
+        """Create a Razorpay order for one-time payments using backend-only amount calculation"""
         try:
-            if plan_type not in self.plans:
-                raise ValueError(f"Invalid plan type: {plan_type}")
+            # BACKEND-ONLY AMOUNT CALCULATION (SECURITY CRITICAL)
+            amount_calculation = self.calculate_final_amount(plan_type, referral_code, user_email)
             
-            plan_config = self.plans[plan_type]
-            original_amount = plan_config["amount"]
-            final_amount = original_amount
-            referral_discount = 0
+            final_amount = amount_calculation["final_amount"]
+            original_amount = amount_calculation["base_amount"]
+            referral_discount = amount_calculation["referral_discount"]
             
-            # Apply referral discount if provided
-            if referral_code:
-                try:
-                    from referral_service import referral_service
-                    db = SessionLocal()
-                    try:
-                        discount_result = referral_service.apply_referral_discount(
-                            referral_code, user_id, user_email, plan_type, original_amount, db
-                        )
-                        if discount_result["success"]:
-                            final_amount = discount_result["discounted_amount"]
-                            referral_discount = discount_result["discount_applied"]
-                            logger.info(f"Applied referral discount: {referral_code}, discount: ₹{referral_discount/100:.2f}")
-                        else:
-                            logger.warning(f"Referral code validation failed: {discount_result.get('error')}")
-                    finally:
-                        db.close()
-                except Exception as e:
-                    logger.error(f"Error applying referral discount: {e}")
-                    # Continue without discount if referral service fails
+            logger.info(f"🔒 BACKEND-CALCULATED AMOUNTS: Original=₹{original_amount/100:.2f}, Final=₹{final_amount/100:.2f}, Discount=₹{referral_discount/100:.2f}")
             
             # Create Razorpay order with all payment methods enabled
             order_data = {
