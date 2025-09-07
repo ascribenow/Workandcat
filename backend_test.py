@@ -2012,10 +2012,9 @@ class CATBackendTester:
             print("4. 🔧 MEDIUM: Fix emergency activation endpoint for manual subscription activation")
         
         return success_rate >= 70  # Return True if payment system testing is successful
-            print("   ❌ Admin authentication failed - cannot proceed with referral testing")
-            return False
-        
-        # Test Student Authentication
+
+    def test_student_referral_mechanism_comprehensive(self):
+        """Test Student Authentication"""
         student_login_data = {
             "email": "sp@theskinmantra.com",
             "password": "student123"
