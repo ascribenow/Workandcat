@@ -400,6 +400,36 @@ class RazorpayService:
                     db.add(subscription)
                 
                 db.commit()
+                
+                # Send payment confirmation email
+                try:
+                    from gmail_service import gmail_service
+                    user_email = order.user_email if order else "user@example.com"
+                    plan_name = order.plan_type.replace("_", " ").title() if order else "Subscription"
+                    amount_rupees = f"₹{payment_details['amount'] / 100:.2f}"
+                    
+                    # Format end date for email
+                    end_date_text = None
+                    if subscription and subscription.current_period_end:
+                        end_date_text = subscription.current_period_end.strftime("%B %d, %Y")
+                    
+                    email_sent = gmail_service.send_payment_confirmation_email(
+                        to_email=user_email,
+                        plan_name=plan_name,
+                        amount=amount_rupees,
+                        payment_id=payment_id,
+                        end_date=end_date_text
+                    )
+                    
+                    if email_sent:
+                        logger.info(f"Payment confirmation email sent to {user_email}")
+                    else:
+                        logger.warning(f"Failed to send payment confirmation email to {user_email}")
+                        
+                except Exception as email_error:
+                    logger.error(f"Error sending payment confirmation email: {email_error}")
+                    # Don't fail the payment verification due to email error
+                
             finally:
                 db.close()
             
