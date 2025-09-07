@@ -964,10 +964,10 @@ class CATBackendTester:
                 print(f"      📊 User has previously used referral codes")
                 print(f"      💡 This suggests payment transactions were recorded in database")
         
-        # PHASE 6: ROOT CAUSE ANALYSIS
-        print("\n🔍 PHASE 6: ROOT CAUSE ANALYSIS")
+        # PHASE 8: ROOT CAUSE ANALYSIS
+        print("\n🔍 PHASE 8: ROOT CAUSE ANALYSIS")
         print("-" * 60)
-        print("Analyzing potential causes for payment verification failure")
+        print("Analyzing potential causes for payment verification and emergency activation failures")
         
         # Analyze findings to determine root cause
         print("   📋 Analysis of Investigation Results:")
