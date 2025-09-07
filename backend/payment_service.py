@@ -335,9 +335,39 @@ class RazorpayService:
         """
         INDUSTRY-STANDARD PAYMENT VERIFICATION WITH DATA INTEGRITY
         Uses Razorpay API as source of truth for all payment data
+        Includes idempotency protection against duplicate processing
         """
         try:
             logger.info(f"Starting industry-standard payment verification: Payment={payment_id}, Order={order_id}, User={user_id}")
+            
+            # STEP 0: IDEMPOTENCY CHECK - Prevent duplicate payment processing
+            db = SessionLocal()
+            try:
+                existing_payment = db.query(PaymentTransaction).filter(
+                    PaymentTransaction.razorpay_payment_id == payment_id
+                ).first()
+                
+                if existing_payment:
+                    logger.info(f"🔒 IDEMPOTENCY: Payment {payment_id} already processed at {existing_payment.created_at}")
+                    
+                    # Return existing payment information instead of processing again
+                    return {
+                        "status": "already_processed",
+                        "payment_id": payment_id,
+                        "order_id": order_id,
+                        "amount": existing_payment.amount,
+                        "amount_inr": existing_payment.amount / 100,
+                        "currency": existing_payment.currency,
+                        "method": existing_payment.method,
+                        "original_processing_time": existing_payment.created_at.isoformat(),
+                        "message": "Payment was already successfully processed",
+                        "idempotency_protection": True
+                    }
+                    
+            finally:
+                db.close()
+            
+            logger.info(f"✅ IDEMPOTENCY: Payment {payment_id} not previously processed, continuing with verification")
             
             # Step 1: Verify signature (security check)
             params_dict = {
