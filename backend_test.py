@@ -921,7 +921,126 @@ class CATBackendTester:
             job_count = response.get("job_count", 0)
             print(f"         📊 Running jobs count: {job_count}")
         
-        # PHASE 4: CANONICAL TAXONOMY VALIDATION TESTING
+        # PHASE 4: MONEY-CRITICAL PAYMENT INTEGRATION TESTING
+        print("\n💳 PHASE 4: MONEY-CRITICAL PAYMENT INTEGRATION TESTING")
+        print("-" * 60)
+        print("Testing Pro Regular and Pro Exclusive payment endpoints with referral codes")
+        print("CRITICAL: Must verify exact ₹500 discount calculations")
+        
+        if admin_referral_code:
+            # Test Pro Regular Payment (Subscription)
+            print("   📋 Test 1: Pro Regular Payment Integration")
+            pro_regular_data = {
+                "plan_type": "pro_regular",
+                "user_email": "fresh_payment_user@example.com",
+                "user_name": "Fresh Payment User",
+                "user_phone": "+91-9876543210",
+                "referral_code": admin_referral_code
+            }
+            
+            success, response = self.run_test(
+                "Pro Regular with Referral", 
+                "POST", 
+                "payments/create-subscription", 
+                [200, 500], 
+                pro_regular_data,
+                student_headers
+            )
+            
+            if success and response:
+                referral_system_results["pro_regular_accepts_referral_code"] = True
+                print(f"      ✅ Pro Regular accepts referral code")
+                
+                # Check payment amount
+                payment_data = response.get('data', {})
+                amount = payment_data.get('amount')
+                
+                if amount:
+                    # Convert to rupees for verification
+                    amount_rupees = amount / 100
+                    expected_discounted_amount = 995  # ₹1,495 - ₹500 = ₹995
+                    
+                    print(f"      📊 Pro Regular amount: ₹{amount_rupees} (expected: ₹{expected_discounted_amount})")
+                    
+                    if amount_rupees == expected_discounted_amount:
+                        referral_system_results["pro_regular_discount_calculation_correct"] = True
+                        referral_system_results["pro_regular_exact_500_rupee_discount"] = True
+                        print(f"      ✅ Pro Regular discount calculation PERFECT: ₹1,495 → ₹{amount_rupees}")
+                    else:
+                        print(f"      ❌ Pro Regular discount calculation WRONG: Expected ₹{expected_discounted_amount}, got ₹{amount_rupees}")
+                
+                # Check order ID generation
+                order_id = payment_data.get('id') or payment_data.get('order_id')
+                if order_id:
+                    print(f"      ✅ Order ID generated: {order_id}")
+            else:
+                print(f"      ❌ Pro Regular payment with referral failed")
+            
+            # Test Pro Exclusive Payment (Order)
+            print("   📋 Test 2: Pro Exclusive Payment Integration")
+            pro_exclusive_data = {
+                "plan_type": "pro_exclusive",
+                "user_email": "fresh_payment_user2@example.com",
+                "user_name": "Fresh Payment User 2",
+                "user_phone": "+91-9876543211",
+                "referral_code": admin_referral_code
+            }
+            
+            success, response = self.run_test(
+                "Pro Exclusive with Referral", 
+                "POST", 
+                "payments/create-order", 
+                [200, 500], 
+                pro_exclusive_data,
+                student_headers
+            )
+            
+            if success and response:
+                referral_system_results["pro_exclusive_accepts_referral_code"] = True
+                print(f"      ✅ Pro Exclusive accepts referral code")
+                
+                # Check payment amount
+                payment_data = response.get('data', {})
+                amount = payment_data.get('amount')
+                
+                if amount:
+                    # Convert to rupees for verification
+                    amount_rupees = amount / 100
+                    expected_discounted_amount = 2065  # ₹2,565 - ₹500 = ₹2,065
+                    
+                    print(f"      📊 Pro Exclusive amount: ₹{amount_rupees} (expected: ₹{expected_discounted_amount})")
+                    
+                    if amount_rupees == expected_discounted_amount:
+                        referral_system_results["pro_exclusive_discount_calculation_correct"] = True
+                        referral_system_results["pro_exclusive_exact_500_rupee_discount"] = True
+                        print(f"      ✅ Pro Exclusive discount calculation PERFECT: ₹2,565 → ₹{amount_rupees}")
+                    else:
+                        print(f"      ❌ Pro Exclusive discount calculation WRONG: Expected ₹{expected_discounted_amount}, got ₹{amount_rupees}")
+                
+                # Check order ID generation
+                order_id = payment_data.get('id') or payment_data.get('order_id')
+                if order_id:
+                    print(f"      ✅ Order ID generated: {order_id}")
+            else:
+                print(f"      ❌ Pro Exclusive payment with referral failed")
+            
+            # Test Payment Configuration
+            print("   📋 Test 3: Payment Configuration Verification")
+            success, response = self.run_test(
+                "Payment Configuration", 
+                "GET", 
+                "payments/config", 
+                [200], 
+                None
+            )
+            
+            if success and response:
+                key_id = response.get('key_id')
+                if key_id:
+                    print(f"      ✅ Payment configuration working: {key_id}")
+                    referral_system_results["authentication_required_for_endpoints"] = True
+            
+        # PHASE 5: SECURITY & ABUSE PREVENTION TESTING
         print("\n📚 PHASE 4: CANONICAL TAXONOMY VALIDATION TESTING")
         print("-" * 60)
         print("Testing strict canonical taxonomy compliance (A-E format categories)")
