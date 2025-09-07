@@ -111,7 +111,7 @@ const Privileges = () => {
           🔐 Email Privileges Management
         </h2>
         <p className="text-gray-600" style={{ fontFamily: 'Lato, sans-serif' }}>
-          Manage email addresses that bypass the 15-session free trial limit. Privileged users have unlimited session access.
+          Manage email addresses that bypass the 10-session free trial limit. Privileged users have unlimited session access.
         </p>
       </div>
 
