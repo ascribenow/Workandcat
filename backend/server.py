@@ -1593,12 +1593,13 @@ async def emergency_activate_subscription(
         payment_transaction = PaymentTransaction(
             id=str(uuid.uuid4()),
             user_id=user.id,
-            subscription_id=subscription.id,
             razorpay_payment_id=razorpay_payment_id,
+            razorpay_order_id=f"emergency_{razorpay_payment_id}",
             amount=int(payment_amount * 100) if payment_amount else 0,  # Convert to paise
             currency="INR",
             status="captured",
             method="emergency_manual",
+            description=f"Emergency activation for {plan_type}",
             created_at=datetime.utcnow()
         )
         
