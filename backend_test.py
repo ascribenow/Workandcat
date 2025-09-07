@@ -1500,8 +1500,8 @@ class CATBackendTester:
             category_total = len(tests)
             
             for test in tests:
-                if test in payment_referral_results:
-                    result = payment_referral_results[test]
+                if test in referral_system_results:
+                    result = referral_system_results[test]
                     status = "✅ PASS" if result else "❌ FAIL"
                     print(f"  {test.replace('_', ' ').title():<50} {status}")
                     if result:
@@ -1735,7 +1735,7 @@ class CATBackendTester:
                 'Authorization': f'Bearer {student_token}',
                 'Content-Type': 'application/json'
             }
-            payment_referral_results["student_authentication_working"] = True
+            referral_system_results["student_authentication_working"] = True
             print(f"   ✅ Student authentication successful")
             print(f"   📊 JWT Token length: {len(student_token)} characters")
         else:
@@ -1769,8 +1769,8 @@ class CATBackendTester:
                 
                 # Check if user has already used a referral code
                 if not response.get('can_use', True):
-                    payment_referral_results["already_used_referral_properly_rejected"] = True
-                    payment_referral_results["one_time_usage_rule_enforced"] = True
+                    referral_system_results["already_used_referral_properly_rejected"] = True
+                    referral_system_results["one_time_usage_rule_enforced"] = True
                     print(f"      ✅ One-time usage rule working: User cannot use multiple referral codes")
                     print(f"      📊 Error message: {response.get('error', 'N/A')}")
                 else:
@@ -1795,7 +1795,7 @@ class CATBackendTester:
             
             if success and response:
                 if not response.get('can_use', True) and 'own' in response.get('error', '').lower():
-                    payment_referral_results["self_referral_prevention_working"] = True
+                    referral_system_results["self_referral_prevention_working"] = True
                     print(f"      ✅ Self-referral prevention working")
                     print(f"      📊 Error message: {response.get('error', 'N/A')}")
                 else:
@@ -1823,8 +1823,8 @@ class CATBackendTester:
             
             if success and response:
                 if response.get('valid', False) and response.get('can_use', False):
-                    payment_referral_results["fresh_email_can_use_referral_codes"] = True
-                    payment_referral_results["business_rules_correctly_implemented"] = True
+                    referral_system_results["fresh_email_can_use_referral_codes"] = True
+                    referral_system_results["business_rules_correctly_implemented"] = True
                     print(f"      ✅ Fresh email can use referral codes")
                     print(f"      📊 Referrer: {response.get('referrer_name', 'N/A')}")
                     print(f"      📊 Discount: ₹{response.get('discount_amount', 0)}")
@@ -1873,8 +1873,8 @@ class CATBackendTester:
                 print(f"      📊 Expected discount: ₹{expected_discount/100} ({expected_discount} paise)")
                 
                 if actual_amount == expected_final_amount:
-                    payment_referral_results["pro_regular_discount_calculation_perfect"] = True
-                    payment_referral_results["discount_amount_exactly_50000_paise"] = True
+                    referral_system_results["pro_regular_discount_calculation_perfect"] = True
+                    referral_system_results["discount_amount_exactly_50000_paise"] = True
                     print(f"      ✅ Pro Regular discount calculation PERFECT")
                 else:
                     print(f"      ❌ Pro Regular discount calculation incorrect")
@@ -1917,9 +1917,9 @@ class CATBackendTester:
                 print(f"      📊 Expected discount: ₹{expected_discount/100} ({expected_discount} paise)")
                 
                 if actual_amount == expected_final_amount:
-                    payment_referral_results["pro_exclusive_discount_calculation_perfect"] = True
-                    payment_referral_results["mathematical_accuracy_verified"] = True
-                    payment_referral_results["paise_conversion_working_correctly"] = True
+                    referral_system_results["pro_exclusive_discount_calculation_perfect"] = True
+                    referral_system_results["mathematical_accuracy_verified"] = True
+                    referral_system_results["paise_conversion_working_correctly"] = True
                     print(f"      ✅ Pro Exclusive discount calculation PERFECT")
                 else:
                     print(f"      ❌ Pro Exclusive discount calculation incorrect")
@@ -1944,8 +1944,8 @@ class CATBackendTester:
             )
             
             if success and response:
-                payment_referral_results["referral_usage_tracking_complete"] = True
-                payment_referral_results["database_tracking_complete"] = True
+                referral_system_results["referral_usage_tracking_complete"] = True
+                referral_system_results["database_tracking_complete"] = True
                 print(f"      ✅ Referral usage tracking working")
                 print(f"      📊 Usage stats: {response}")
             else:
@@ -1974,7 +1974,7 @@ class CATBackendTester:
             )
             
             if success and response:
-                payment_referral_results["referral_validate_endpoint_working"] = True
+                referral_system_results["referral_validate_endpoint_working"] = True
                 print(f"      ✅ Referral validation endpoint working perfectly")
                 
                 # Check response structure
@@ -1982,7 +1982,7 @@ class CATBackendTester:
                 all_fields_present = all(field in response for field in required_fields)
                 
                 if all_fields_present:
-                    payment_referral_results["authentication_working_all_endpoints"] = True
+                    referral_system_results["authentication_working_all_endpoints"] = True
                     print(f"      ✅ API response structure complete")
                     print(f"      📊 Response fields: {list(response.keys())}")
         
@@ -1999,8 +1999,8 @@ class CATBackendTester:
         )
         
         if success and response:
-            payment_referral_results["payments_create_subscription_working"] = True
-            payment_referral_results["payments_create_order_working"] = True
+            referral_system_results["payments_create_subscription_working"] = True
+            referral_system_results["payments_create_order_working"] = True
             print(f"      ✅ Payment configuration endpoint working")
             print(f"      📊 Razorpay Key ID: {response.get('key_id', 'N/A')}")
         
@@ -2022,11 +2022,11 @@ class CATBackendTester:
             "payments_create_order_working"
         ]
         
-        critical_tests_passed = sum(payment_referral_results[test] for test in total_critical_tests)
+        critical_tests_passed = sum(referral_system_results[test] for test in total_critical_tests)
         
         if critical_tests_passed >= 8:  # At least 8 out of 9 critical tests
-            payment_referral_results["end_to_end_referral_flow_working"] = True
-            payment_referral_results["production_readiness_confirmed"] = True
+            referral_system_results["end_to_end_referral_flow_working"] = True
+            referral_system_results["production_readiness_confirmed"] = True
             print(f"   ✅ End-to-end referral flow working perfectly")
             print(f"   📊 Critical tests passed: {critical_tests_passed}/{len(total_critical_tests)}")
         else:
@@ -2038,8 +2038,8 @@ class CATBackendTester:
         print("💳 PAYMENT REFERRAL SYSTEM - FINAL 100% SUCCESS VERIFICATION RESULTS")
         print("=" * 100)
         
-        passed_tests = sum(payment_referral_results.values())
-        total_tests = len(payment_referral_results)
+        passed_tests = sum(referral_system_results.values())
+        total_tests = len(referral_system_results)
         success_rate = (passed_tests / total_tests) * 100
         
         # Group results by testing categories
@@ -2076,8 +2076,8 @@ class CATBackendTester:
             category_total = len(tests)
             
             for test in tests:
-                if test in payment_referral_results:
-                    result = payment_referral_results[test]
+                if test in referral_system_results:
+                    result = referral_system_results[test]
                     status = "✅ PASS" if result else "❌ FAIL"
                     print(f"  {test.replace('_', ' ').title():<50} {status}")
                     if result:
@@ -2093,10 +2093,10 @@ class CATBackendTester:
         print("\n🎯 PAYMENT REFERRAL SYSTEM SUCCESS ASSESSMENT:")
         
         # Check critical success criteria
-        mathematical_accuracy = sum(payment_referral_results[key] for key in testing_categories["MATHEMATICAL ACCURACY VERIFICATION (CRITICAL)"])
-        business_rules = sum(payment_referral_results[key] for key in testing_categories["BUSINESS RULES VALIDATION (CRITICAL)"])
-        database_integration = sum(payment_referral_results[key] for key in testing_categories["DATABASE INTEGRATION (CRITICAL)"])
-        api_validation = sum(payment_referral_results[key] for key in testing_categories["API ENDPOINTS FULL FUNCTIONALITY (CRITICAL)"])
+        mathematical_accuracy = sum(referral_system_results[key] for key in testing_categories["MATHEMATICAL ACCURACY VERIFICATION (CRITICAL)"])
+        business_rules = sum(referral_system_results[key] for key in testing_categories["BUSINESS RULES VALIDATION (CRITICAL)"])
+        database_integration = sum(referral_system_results[key] for key in testing_categories["DATABASE INTEGRATION (CRITICAL)"])
+        api_validation = sum(referral_system_results[key] for key in testing_categories["API ENDPOINTS FULL FUNCTIONALITY (CRITICAL)"])
         
         print(f"\n📊 CRITICAL METRICS:")
         print(f"  Mathematical Accuracy Verification: {mathematical_accuracy}/5 ({(mathematical_accuracy/5)*100:.1f}%)")
@@ -2644,15 +2644,15 @@ class CATBackendTester:
             
             # Check for enhanced payment response fields
             if 'original_amount' in payment_data:
-                payment_referral_results["payment_response_includes_original_amount"] = True
+                referral_system_results["payment_response_includes_original_amount"] = True
                 print(f"      ✅ original_amount field present: ₹{payment_data['original_amount']/100}")
             
             if 'final_amount' in payment_data:
-                payment_referral_results["payment_response_includes_final_amount"] = True
+                referral_system_results["payment_response_includes_final_amount"] = True
                 print(f"      ✅ final_amount field present: ₹{payment_data['final_amount']/100}")
             
             if 'discount_applied' in payment_data:
-                payment_referral_results["payment_response_includes_discount_applied"] = True
+                referral_system_results["payment_response_includes_discount_applied"] = True
                 print(f"      ✅ discount_applied field present: {payment_data['discount_applied']}")
             
             # Verify Pro Regular amount calculation: ₹1,495 → ₹995 (₹500 discount)
@@ -2662,7 +2662,7 @@ class CATBackendTester:
             
             # Check if amounts are correct (Pro Regular: ₹1,495 → ₹995 with ₹500 discount)
             if amount == 99500:  # ₹995 in paise (discounted amount)
-                payment_referral_results["pro_regular_amount_calculation_perfect"] = True
+                referral_system_results["pro_regular_amount_calculation_perfect"] = True
                 print(f"      ✅ Pro Regular amount calculation perfect: ₹1,495 → ₹995")
             else:
                 print(f"      ❌ Pro Regular amount calculation incorrect: Expected ₹995, got ₹{amount/100}")
@@ -2671,7 +2671,7 @@ class CATBackendTester:
             if 'payment_verification' in payment_data:
                 verification = payment_data['payment_verification']
                 if verification.get('discount_amount') == 50000:  # ₹500 in paise
-                    payment_referral_results["payment_verification_shows_correct_calculations"] = True
+                    referral_system_results["payment_verification_shows_correct_calculations"] = True
                     print(f"      ✅ Payment verification shows correct ₹500 discount")
         else:
             print("      ❌ Pro Regular subscription creation failed")
@@ -2703,7 +2703,7 @@ class CATBackendTester:
             
             # Check if amount is correct (Pro Exclusive: ₹2,565 → ₹2,065 with ₹500 discount)
             if amount == 206500:  # ₹2,065 in paise (discounted amount)
-                payment_referral_results["pro_exclusive_amount_calculation_perfect"] = True
+                referral_system_results["pro_exclusive_amount_calculation_perfect"] = True
                 print(f"      ✅ Pro Exclusive amount calculation perfect: ₹2,565 → ₹2,065")
             else:
                 print(f"      ❌ Pro Exclusive amount calculation incorrect: Expected ₹2,065, got ₹{amount/100}")
@@ -2734,22 +2734,22 @@ class CATBackendTester:
             
             # Check for explicit referral_code in notes JSON
             if isinstance(notes, dict) and 'referral_code' in notes and notes['referral_code'] == admin_referral_code:
-                payment_referral_results["referral_code_stored_in_notes_json"] = True
+                referral_system_results["referral_code_stored_in_notes_json"] = True
                 print(f"      ✅ referral_code stored in notes JSON: {notes['referral_code']}")
             
             # Check for discount_applied flag in notes
             if isinstance(notes, dict) and 'discount_applied' in notes:
-                payment_referral_results["discount_applied_flag_in_notes"] = True
+                referral_system_results["discount_applied_flag_in_notes"] = True
                 print(f"      ✅ discount_applied flag in notes: {notes['discount_applied']}")
             
             # Check for referrer_cashback_due in notes
             if isinstance(notes, dict) and 'referrer_cashback_due' in notes:
-                payment_referral_results["referrer_cashback_due_tracked_in_notes"] = True
+                referral_system_results["referrer_cashback_due_tracked_in_notes"] = True
                 print(f"      ✅ referrer_cashback_due tracked in notes: {notes['referrer_cashback_due']}")
             
             # Verify notes JSON structure is correct
             if isinstance(notes, dict) and len(notes) > 0:
-                payment_referral_results["notes_json_structure_correct"] = True
+                referral_system_results["notes_json_structure_correct"] = True
                 print(f"      ✅ Notes JSON structure correct: {notes}")
         else:
             print("      ❌ Pro Regular subscription for notes check failed")
@@ -2766,11 +2766,11 @@ class CATBackendTester:
         success, response = self.run_test("Payment Configuration", "GET", "payments/config", [200], None, None)
         
         if success and response:
-            payment_referral_results["payment_configuration_working"] = True
+            referral_system_results["payment_configuration_working"] = True
             print(f"      ✅ Payment configuration endpoint working")
             
             if response.get('key_id'):
-                payment_referral_results["razorpay_integration_functional"] = True
+                referral_system_results["razorpay_integration_functional"] = True
                 print(f"      ✅ Razorpay integration functional: {response['key_id']}")
         
         # Test payment verification endpoint (admin only)
@@ -2808,35 +2808,35 @@ class CATBackendTester:
                 
                 if success and verify_response:
                     if verify_response.get('verification_passed'):
-                        payment_referral_results["payment_orders_store_correct_amounts"] = True
+                        referral_system_results["payment_orders_store_correct_amounts"] = True
                         print(f"      ✅ Payment orders store correct amounts")
                     
                     referral_verification = verify_response.get('referral_verification', {})
                     if referral_verification.get('referral_code_provided'):
-                        payment_referral_results["payment_orders_store_referral_data"] = True
+                        referral_system_results["payment_orders_store_referral_data"] = True
                         print(f"      ✅ Payment orders store referral data")
         
         # Test database tracking
         print("   📋 Step 3: Test Database Tracking of Referral Information")
         
         # This would be verified through the payment verification endpoint results
-        if payment_referral_results.get("payment_orders_store_referral_data"):
-            payment_referral_results["referral_usage_tracking_in_database"] = True
+        if referral_system_results.get("payment_orders_store_referral_data"):
+            referral_system_results["referral_usage_tracking_in_database"] = True
             print(f"      ✅ Referral usage tracking in database")
         
         # Test all referral metadata properly stored
-        if (payment_referral_results.get("referral_code_stored_in_notes_json") and 
-            payment_referral_results.get("discount_applied_flag_in_notes") and
-            payment_referral_results.get("referrer_cashback_due_tracked_in_notes")):
-            payment_referral_results["all_referral_metadata_properly_stored"] = True
+        if (referral_system_results.get("referral_code_stored_in_notes_json") and 
+            referral_system_results.get("discount_applied_flag_in_notes") and
+            referral_system_results.get("referrer_cashback_due_tracked_in_notes")):
+            referral_system_results["all_referral_metadata_properly_stored"] = True
             print(f"      ✅ All referral metadata properly stored")
         
         # Test complete end-to-end referral flow
-        if (payment_referral_results.get("pro_regular_payment_creation_working") and 
-            payment_referral_results.get("pro_exclusive_payment_creation_working") and
-            payment_referral_results.get("all_referral_metadata_properly_stored")):
-            payment_referral_results["complete_payment_flow_with_referral_working"] = True
-            payment_referral_results["end_to_end_referral_flow_perfect"] = True
+        if (referral_system_results.get("pro_regular_payment_creation_working") and 
+            referral_system_results.get("pro_exclusive_payment_creation_working") and
+            referral_system_results.get("all_referral_metadata_properly_stored")):
+            referral_system_results["complete_payment_flow_with_referral_working"] = True
+            referral_system_results["end_to_end_referral_flow_perfect"] = True
             print(f"      ✅ Complete payment flow with referral working")
             print(f"      ✅ End-to-end referral flow perfect")
         
@@ -2863,11 +2863,11 @@ class CATBackendTester:
         )
         
         if success and response:
-            payment_referral_results["referral_validate_endpoint_accessible"] = True
+            referral_system_results["referral_validate_endpoint_accessible"] = True
             print(f"      ✅ Referral validation endpoint accessible")
             
             if response.get('valid') and response.get('can_use'):
-                payment_referral_results["valid_referral_code_validation_working"] = True
+                referral_system_results["valid_referral_code_validation_working"] = True
                 print(f"      ✅ Valid referral code validation working")
                 print(f"         📊 Referrer: {response.get('referrer_name')}")
                 print(f"         📊 Discount: ₹{response.get('discount_amount', 0)}")
@@ -2891,7 +2891,7 @@ class CATBackendTester:
         
         if success and response:
             if not response.get('valid'):
-                payment_referral_results["invalid_referral_code_proper_handling"] = True
+                referral_system_results["invalid_referral_code_proper_handling"] = True
                 print(f"      ✅ Invalid referral code properly handled")
         
         # Test self-referral prevention
@@ -2927,7 +2927,7 @@ class CATBackendTester:
                 
                 if success and response:
                     if not response.get('can_use'):
-                        payment_referral_results["self_referral_prevention_enforced"] = True
+                        referral_system_results["self_referral_prevention_enforced"] = True
                         print(f"      ✅ Self-referral prevention enforced")
         
         # Test one-time usage enforcement (would need a used code to test properly)
@@ -2935,9 +2935,9 @@ class CATBackendTester:
         
         # This is harder to test without creating actual usage, but we can check the validation logic
         # For now, mark as true if other validations work
-        if (payment_referral_results.get("valid_referral_code_validation_working") and 
-            payment_referral_results.get("self_referral_prevention_enforced")):
-            payment_referral_results["one_time_usage_enforcement_working"] = True
+        if (referral_system_results.get("valid_referral_code_validation_working") and 
+            referral_system_results.get("self_referral_prevention_enforced")):
+            referral_system_results["one_time_usage_enforcement_working"] = True
             print(f"      ✅ One-time usage enforcement system functional")
 
         success, response = self.run_test(
@@ -2972,17 +2972,17 @@ class CATBackendTester:
             )
             
             if success and response:
-                payment_referral_results["referral_validate_endpoint_accessible"] = True
+                referral_system_results["referral_validate_endpoint_accessible"] = True
                 
                 if response.get("valid"):
-                    payment_referral_results["valid_referral_code_validation_working"] = True
+                    referral_system_results["valid_referral_code_validation_working"] = True
                     print(f"      ✅ Valid referral code validation working")
                     print(f"         📊 Referrer: {response.get('referrer_name', 'Unknown')}")
                     print(f"         📊 Discount: ₹{response.get('discount_amount', 0)}")
                     
                     # Verify discount amount is exactly ₹500
                     if response.get("discount_amount") == 500:
-                        payment_referral_results["discount_calculation_exactly_500_rupees"] = True
+                        referral_system_results["discount_calculation_exactly_500_rupees"] = True
                         print(f"      ✅ Discount amount correct: ₹500")
         
         # Test invalid referral code handling
@@ -3002,7 +3002,7 @@ class CATBackendTester:
         
         if success and response:
             if not response.get("valid"):
-                payment_referral_results["invalid_referral_code_proper_handling"] = True
+                referral_system_results["invalid_referral_code_proper_handling"] = True
                 print(f"      ✅ Invalid referral code properly rejected")
         
         # Test self-referral prevention
@@ -3034,7 +3034,7 @@ class CATBackendTester:
             
             if success and response:
                 if not response.get("can_use"):
-                    payment_referral_results["self_referral_prevention_enforced"] = True
+                    referral_system_results["self_referral_prevention_enforced"] = True
                     print(f"      ✅ Self-referral properly prevented")
         
         # Test one-time usage enforcement
@@ -3055,7 +3055,7 @@ class CATBackendTester:
             
             if success and response:
                 if not response.get("can_use"):
-                    payment_referral_results["one_time_usage_enforcement_working"] = True
+                    referral_system_results["one_time_usage_enforcement_working"] = True
                     print(f"      ✅ One-time usage properly enforced")
         
         # PHASE 3: PAYMENT ENDPOINTS WITH REFERRAL CODES (CRITICAL - MUST BE 100%)
@@ -3084,7 +3084,7 @@ class CATBackendTester:
             )
             
             if success and response:
-                payment_referral_results["pro_regular_subscription_accepts_referral"] = True
+                referral_system_results["pro_regular_subscription_accepts_referral"] = True
                 print(f"      ✅ Pro Regular subscription accepts referral code")
                 
                 # Check payment amounts (Pro Regular: ₹1,495 → ₹995 with ₹500 discount)
@@ -3096,12 +3096,12 @@ class CATBackendTester:
                     
                     # Check if amount reflects ₹500 discount (149500 paise → 99500 paise)
                     if amount == 99500:  # ₹995 in paise
-                        payment_referral_results["payment_amounts_correct_after_discount"] = True
+                        referral_system_results["payment_amounts_correct_after_discount"] = True
                         print(f"      ✅ Payment amount correct after ₹500 discount: ₹995")
                     
                     # Check if referral code is passed to Razorpay
                     if order_data.get("notes") and admin_referral_code in str(order_data.get("notes")):
-                        payment_referral_results["referral_code_passed_to_razorpay"] = True
+                        referral_system_results["referral_code_passed_to_razorpay"] = True
                         print(f"      ✅ Referral code passed to Razorpay in notes")
         
         # Test Pro Exclusive order with referral code
@@ -3125,7 +3125,7 @@ class CATBackendTester:
             )
             
             if success and response:
-                payment_referral_results["pro_exclusive_order_accepts_referral"] = True
+                referral_system_results["pro_exclusive_order_accepts_referral"] = True
                 print(f"      ✅ Pro Exclusive order accepts referral code")
                 
                 # Check payment amounts (Pro Exclusive: ₹2,565 → ₹2,065 with ₹500 discount)
@@ -3137,7 +3137,7 @@ class CATBackendTester:
                     
                     # Check if amount reflects ₹500 discount (256500 paise → 206500 paise)
                     if amount == 206500:  # ₹2,065 in paise
-                        payment_referral_results["payment_amounts_correct_after_discount"] = True
+                        referral_system_results["payment_amounts_correct_after_discount"] = True
                         print(f"      ✅ Payment amount correct after ₹500 discount: ₹2,065")
         
         # PHASE 4: PAYMENT INTEGRATION RELIABILITY (CRITICAL - MUST BE 100%)
@@ -3156,7 +3156,7 @@ class CATBackendTester:
         )
         
         if success and response:
-            payment_referral_results["payment_configuration_working"] = True
+            referral_system_results["payment_configuration_working"] = True
             print(f"      ✅ Payment configuration endpoint working")
             print(f"         📊 Razorpay Key: {response.get('key_id', 'N/A')}")
         
@@ -3164,18 +3164,18 @@ class CATBackendTester:
         print("   📋 Step 2: Test Discount Application in Payment Flow")
         if admin_referral_code:
             # This is verified through the payment endpoint tests above
-            payment_referral_results["discount_application_in_payment_flow"] = True
+            referral_system_results["discount_application_in_payment_flow"] = True
             print(f"      ✅ Discount application verified through payment tests")
         
         # Test referral usage tracking in database
         print("   📋 Step 3: Test Referral Usage Tracking in Database")
         # This is indirectly tested through the validation endpoint behavior
-        payment_referral_results["referral_usage_tracked_in_database"] = True
+        referral_system_results["referral_usage_tracked_in_database"] = True
         print(f"      ✅ Referral usage tracking verified through validation behavior")
         
         # Test complete payment flow with referral
         print("   📋 Step 4: Test Complete Payment Flow with Referral")
-        payment_referral_results["payment_flow_with_referral_complete"] = True
+        referral_system_results["payment_flow_with_referral_complete"] = True
         print(f"      ✅ Complete payment flow with referral working")
         
         # FINAL RESULTS SUMMARY
@@ -3183,8 +3183,8 @@ class CATBackendTester:
         print("💳 PAYMENT REFERRAL FUNCTIONALITY - FINAL 100% SUCCESS VERIFICATION")
         print("=" * 80)
         
-        passed_tests = sum(payment_referral_results.values())
-        total_tests = len(payment_referral_results)
+        passed_tests = sum(referral_system_results.values())
+        total_tests = len(referral_system_results)
         success_rate = (passed_tests / total_tests) * 100
         
         # Group results by critical categories
@@ -3229,8 +3229,8 @@ class CATBackendTester:
             category_total = len(tests)
             
             for test in tests:
-                if test in payment_referral_results:
-                    result = payment_referral_results[test]
+                if test in referral_system_results:
+                    result = referral_system_results[test]
                     status = "✅ PASS" if result else "❌ FAIL"
                     print(f"  {test.replace('_', ' ').title():<50} {status}")
                     if result:
@@ -3246,14 +3246,14 @@ class CATBackendTester:
         print("\n🎯 PAYMENT REFERRAL FUNCTIONALITY SUCCESS ASSESSMENT:")
         
         # Check critical success criteria
-        auth_setup = sum(payment_referral_results[key] for key in testing_categories["AUTHENTICATION SETUP"])
-        database_schema = sum(payment_referral_results[key] for key in testing_categories["DATABASE SCHEMA COMPLETELY FIXED (CRITICAL)"])
-        payment_creation = sum(payment_referral_results[key] for key in testing_categories["PAYMENT ORDER CREATION (CRITICAL)"])
-        amount_display = sum(payment_referral_results[key] for key in testing_categories["PAYMENT AMOUNT DISPLAY VERIFICATION (CRITICAL)"])
-        razorpay_params = sum(payment_referral_results[key] for key in testing_categories["RAZORPAY PARAMETER PASSING (CRITICAL)"])
-        payment_flow = sum(payment_referral_results[key] for key in testing_categories["END-TO-END REFERRAL FLOW (CRITICAL)"])
-        referral_validation = sum(payment_referral_results[key] for key in testing_categories["REFERRAL CODE VALIDATION (CRITICAL)"])
-        payment_config = sum(payment_referral_results[key] for key in testing_categories["PAYMENT CONFIGURATION AND INTEGRATION (CRITICAL)"])
+        auth_setup = sum(referral_system_results[key] for key in testing_categories["AUTHENTICATION SETUP"])
+        database_schema = sum(referral_system_results[key] for key in testing_categories["DATABASE SCHEMA COMPLETELY FIXED (CRITICAL)"])
+        payment_creation = sum(referral_system_results[key] for key in testing_categories["PAYMENT ORDER CREATION (CRITICAL)"])
+        amount_display = sum(referral_system_results[key] for key in testing_categories["PAYMENT AMOUNT DISPLAY VERIFICATION (CRITICAL)"])
+        razorpay_params = sum(referral_system_results[key] for key in testing_categories["RAZORPAY PARAMETER PASSING (CRITICAL)"])
+        payment_flow = sum(referral_system_results[key] for key in testing_categories["END-TO-END REFERRAL FLOW (CRITICAL)"])
+        referral_validation = sum(referral_system_results[key] for key in testing_categories["REFERRAL CODE VALIDATION (CRITICAL)"])
+        payment_config = sum(referral_system_results[key] for key in testing_categories["PAYMENT CONFIGURATION AND INTEGRATION (CRITICAL)"])
         
         print(f"\n📊 CRITICAL METRICS:")
         print(f"  Authentication Setup: {auth_setup}/2 ({(auth_setup/2)*100:.1f}%)")
