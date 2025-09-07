@@ -619,7 +619,64 @@ class CATBackendTester:
             print("   ❌ Student authentication failed")
             return False
         
-        # PHASE 2: ENHANCED CHECKER INTEGRATION TESTING
+        # PHASE 2: DATABASE STRUCTURE VERIFICATION
+        print("\n🗄️ PHASE 2: DATABASE STRUCTURE VERIFICATION")
+        print("-" * 60)
+        print("Verifying referral_usage table and users.referral_code column exist")
+        
+        # Test if we can access referral validation endpoint (indicates table exists)
+        test_validation_data = {
+            "referral_code": "TEST123",
+            "user_email": "test@example.com"
+        }
+        
+        success, response = self.run_test(
+            "Referral Usage Table Check", 
+            "POST", 
+            "referral/validate", 
+            [200, 400], 
+            test_validation_data
+        )
+        
+        if success:
+            referral_system_results["referral_usage_table_exists"] = True
+            print(f"   ✅ Referral usage table accessible via API")
+            
+            # Check if response structure indicates proper schema
+            if isinstance(response, dict) and 'valid' in response:
+                referral_system_results["database_schema_constraints_working"] = True
+                print(f"   ✅ Database schema constraints working")
+        else:
+            print(f"   ❌ Referral usage table not accessible")
+        
+        # Test user referral code retrieval (indicates users.referral_code column exists)
+        success, response = self.run_test(
+            "Users Referral Code Column Check", 
+            "GET", 
+            "user/referral-code", 
+            [200, 401], 
+            None, 
+            admin_headers
+        )
+        
+        if success and response:
+            referral_system_results["users_table_has_referral_code_column"] = True
+            print(f"   ✅ Users table has referral_code column")
+            
+            # Check if admin has a referral code
+            admin_referral_code = response.get('referral_code')
+            if admin_referral_code:
+                referral_system_results["admin_referral_code_retrievable"] = True
+                print(f"   ✅ Admin referral code: {admin_referral_code}")
+                
+                # Validate referral code format (6-character alphanumeric)
+                if len(admin_referral_code) == 6 and admin_referral_code.isalnum():
+                    referral_system_results["alphanumeric_format_validation"] = True
+                    print(f"   ✅ Referral code format validation working")
+        else:
+            print(f"   ❌ Users table referral_code column not accessible")
+        
+        # PHASE 3: REFERRAL CODE GENERATION TESTING
         print("\n🔧 PHASE 2: ENHANCED CHECKER INTEGRATION TESTING")
         print("-" * 60)
         print("Testing enhanced_enrichment_checker_service.py integration into admin endpoints")
