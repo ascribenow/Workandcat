@@ -10232,43 +10232,43 @@ Find the compound interest on Rs. 1000 for 2 years at 10% per annum.,210"""
         return success_rate == 100  # Return True only if 100% success achieved
 
 def main():
-    """Main function to run critical payment verification and emergency activation testing"""
-    print("💳 CRITICAL PAYMENT VERIFICATION & EMERGENCY ACTIVATION TESTING")
+    """Main function to run comprehensive Razorpay payment system testing"""
+    print("💳 COMPREHENSIVE RAZORPAY PAYMENT SYSTEM TESTING")
     print("=" * 80)
     
     tester = CATBackendTester()
     
     try:
-        # Run Critical Payment Verification & Emergency Activation Testing
-        print("💳 CRITICAL PAYMENT VERIFICATION & EMERGENCY ACTIVATION TESTING")
-        investigation_results = tester.test_emergency_subscription_activation_and_payment_verification()
+        # Run Comprehensive Razorpay Payment System Testing (as per review request)
+        print("💳 COMPREHENSIVE TESTING: INDUSTRY-STANDARD RAZORPAY PAYMENT SYSTEM")
+        razorpay_results = tester.test_razorpay_payment_system_comprehensive()
         
         print("\n" + "=" * 80)
-        print("🏁 PAYMENT VERIFICATION & EMERGENCY ACTIVATION TESTING COMPLETED")
+        print("🏁 RAZORPAY PAYMENT SYSTEM TESTING COMPLETED")
         print("=" * 80)
         
         print(f"\n📊 TESTING RESULTS:")
-        print(f"  Payment & Emergency Activation Testing: {'✅ COMPLETED' if investigation_results else '❌ FAILED'}")
+        print(f"  Razorpay Payment System Testing: {'✅ COMPLETED' if razorpay_results else '❌ FAILED'}")
         
-        if investigation_results:
+        if razorpay_results:
             print("\n🎯 TESTING COMPLETED SUCCESSFULLY!")
-            print("✅ Admin authentication and privileges verified")
-            print("✅ User authentication and database state checked")
-            print("✅ Emergency activation endpoint functionality tested")
-            print("✅ Payment verification endpoint functionality tested")
-            print("✅ Subscription status investigation completed")
-            print("✅ Root cause analysis performed")
-            print("✅ Urgent action items identified")
-            print("🔍 CRITICAL FINDINGS: Testing reveals specific issues with both endpoints")
+            print("✅ Admin and customer authentication verified")
+            print("✅ Razorpay API integration methods tested")
+            print("✅ Payment plan detection validated")
+            print("✅ Enhanced payment verification tested")
+            print("✅ Customer subscription status verified")
+            print("✅ Data integrity verification completed")
+            print("✅ Referral system integration tested")
+            print("🔍 CRITICAL FINDINGS: Industry-standard payment system validation completed")
         else:
-            print("\n❌ PAYMENT & EMERGENCY ACTIVATION TESTING FAILED")
-            print("🚨 Unable to complete testing - system access issues")
+            print("\n❌ RAZORPAY PAYMENT SYSTEM TESTING FAILED")
+            print("🚨 Critical payment system issues detected")
         
         print(f"\nTests Run: {tester.tests_run}")
         print(f"Tests Passed: {tester.tests_passed}")
         print(f"Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%")
         
-        return investigation_results
+        return razorpay_results
         
     except Exception as e:
         print(f"\n❌ TESTING FAILED: {e}")
