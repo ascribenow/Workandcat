@@ -22,12 +22,12 @@ def add_payment_idempotency_constraints():
     try:
         with engine.connect() as db:
             logger.info("🔒 ADDING PAYMENT IDEMPOTENCY CONSTRAINTS")
-        logger.info("=" * 60)
-        
-        # Add unique constraint on razorpay_payment_id to prevent duplicate payment processing
-        logger.info("Adding unique constraint on payment_transactions.razorpay_payment_id...")
-        try:
-            db.execute(text("""
+            logger.info("=" * 60)
+            
+            # Add unique constraint on razorpay_payment_id to prevent duplicate payment processing
+            logger.info("Adding unique constraint on payment_transactions.razorpay_payment_id...")
+            try:
+                db.execute(text("""
                 ALTER TABLE payment_transactions 
                 ADD CONSTRAINT unique_razorpay_payment_id 
                 UNIQUE (razorpay_payment_id)
