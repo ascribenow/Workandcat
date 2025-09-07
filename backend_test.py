@@ -2011,8 +2011,7 @@ class CATBackendTester:
         if not razorpay_results["emergency_activation_with_proper_data"]:
             print("4. 🔧 MEDIUM: Fix emergency activation endpoint for manual subscription activation")
         
-        return success_rate >= 70  # Return True if payment system testing is successful Admin User ID: {admin_user_id}")
-        else:
+        return success_rate >= 70  # Return True if payment system testing is successful
             print("   ❌ Admin authentication failed - cannot proceed with referral testing")
             return False
         
