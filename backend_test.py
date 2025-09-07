@@ -1680,7 +1680,7 @@ class CATBackendTester:
             # User Referral Code Retrieval (CRITICAL)
             "user_can_retrieve_own_referral_code": False,
             "admin_referral_code_retrievable": False
-            "authentication_working_all_endpoints": False,
+        }
             
             # System Integration (CRITICAL)
             "end_to_end_referral_flow_working": False,
