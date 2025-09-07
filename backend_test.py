@@ -572,8 +572,40 @@ class CATBackendTester:
             "emergency_activation_database_issue": False
         }
         
-        # PHASE 1: USER AUTHENTICATION & DATABASE STATE CHECK
-        print("\n🔐 PHASE 1: USER AUTHENTICATION & DATABASE STATE CHECK")
+        # PHASE 1: ADMIN AUTHENTICATION SETUP
+        print("\n🔐 PHASE 1: ADMIN AUTHENTICATION SETUP")
+        print("-" * 60)
+        print("Setting up admin authentication for emergency activation testing")
+        
+        # Test Admin Authentication
+        admin_login_data = {
+            "email": "sumedhprabhu18@gmail.com",
+            "password": "admin2025"
+        }
+        
+        success, response = self.run_test("Admin Authentication", "POST", "auth/login", [200, 401], admin_login_data)
+        
+        admin_headers = None
+        if success and response.get('access_token'):
+            admin_token = response['access_token']
+            admin_headers = {
+                'Authorization': f'Bearer {admin_token}',
+                'Content-Type': 'application/json'
+            }
+            payment_investigation_results["admin_authentication_working"] = True
+            payment_investigation_results["admin_token_valid"] = True
+            print(f"   ✅ Admin authentication successful")
+            print(f"   📊 JWT Token length: {len(admin_token)} characters")
+            
+            # Verify admin privileges
+            success, me_response = self.run_test("Admin Token Validation", "GET", "auth/me", 200, None, admin_headers)
+            if success and me_response.get('is_admin'):
+                print(f"   ✅ Admin privileges confirmed: {me_response.get('email')}")
+        else:
+            print("   ❌ Admin authentication failed - cannot test emergency activation")
+        
+        # PHASE 2: USER AUTHENTICATION & DATABASE STATE CHECK
+        print("\n🔐 PHASE 2: USER AUTHENTICATION & DATABASE STATE CHECK")
         print("-" * 60)
         print("Authenticating user sp@theskinmantra.com and checking database state")
         
