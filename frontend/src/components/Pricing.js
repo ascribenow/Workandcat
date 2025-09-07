@@ -70,7 +70,7 @@ const Pricing = () => {
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="text-center mb-16">
           <h1 className="text-4xl lg:text-5xl font-bold mb-6" style={{ color: '#545454' }}>
-            Choose Your Daily-12 Plan
+            Choose Your 12 Plan
           </h1>
           <p className="text-xl" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
             Consistent prep, smart pricing, serious results
