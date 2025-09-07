@@ -725,6 +725,60 @@ class RazorpayService:
                 "error": str(e)
             }
     
+    def resume_subscription(self, user_id: str) -> Dict[str, Any]:
+        """Resume a paused subscription"""
+        try:
+            with SessionLocal() as db:
+                # Find paused subscription
+                subscription = db.query(Subscription).filter(
+                    Subscription.user_id == user_id,
+                    Subscription.status == "paused"
+                ).first()
+                
+                if not subscription:
+                    return {
+                        "success": False,
+                        "error": "No paused subscription found"
+                    }
+                
+                # Calculate new end date with remaining days
+                now = datetime.utcnow()
+                remaining_days = subscription.paused_days_remaining or 0
+                
+                # For Pro Regular, add remaining days to current period
+                if subscription.plan_type == "pro_regular":
+                    new_end_date = now + timedelta(days=30 + remaining_days)
+                else:
+                    # For Pro Exclusive, use original end date
+                    new_end_date = subscription.current_period_end
+                
+                # Update subscription to active status
+                subscription.status = "active"
+                subscription.current_period_start = now
+                subscription.current_period_end = new_end_date
+                subscription.resumed_at = now
+                subscription.paused_days_remaining = 0
+                subscription.updated_at = now
+                
+                db.commit()
+                
+                logger.info(f"Resumed subscription {subscription.id} for user {user_id}")
+                
+                return {
+                    "success": True,
+                    "message": "Subscription resumed successfully",
+                    "resumed_at": now.isoformat(),
+                    "next_billing_date": new_end_date.isoformat(),
+                    "bonus_days_added": remaining_days
+                }
+                
+        except Exception as e:
+            logger.error(f"Error resuming subscription for user {user_id}: {e}")
+            return {
+                "success": False,
+                "error": str(e)
+            }
+    
     def get_resume_payment_details(self, user_id: str) -> Dict[str, Any]:
         """Get payment details for resuming a paused subscription"""
         try:
