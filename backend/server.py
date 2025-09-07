@@ -1505,6 +1505,92 @@ async def mark_cashback_processed(
         logger.error(f"Error marking cashback processed: {e}")
         raise HTTPException(status_code=500, detail="Error processing cashback update")
 
+@api_router.post("/admin/pause-subscription")
+async def admin_pause_subscription(
+    request: dict,
+    current_user: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_async_compatible_db)
+):
+    """Admin endpoint to pause a user's subscription"""
+    try:
+        user_email = request.get('user_email')
+        reason = request.get('reason', 'Admin action')
+        
+        if not user_email:
+            raise HTTPException(status_code=400, detail="user_email is required")
+        
+        # Find the user
+        result = await db.execute(select(User).where(User.email == user_email))
+        user = result.scalar_one_or_none()
+        
+        if not user:
+            raise HTTPException(status_code=404, detail=f"User not found: {user_email}")
+        
+        # Use payment service to pause subscription
+        pause_result = razorpay_service.pause_subscription(str(user.id))
+        
+        if pause_result.get("success"):
+            return {
+                "success": True,
+                "message": f"Subscription paused for {user_email}",
+                "user_email": user_email,
+                "reason": reason,
+                "remaining_days": pause_result.get("remaining_days"),
+                "paused_at": pause_result.get("paused_at"),
+                "admin_action": True
+            }
+        else:
+            raise HTTPException(status_code=400, detail=pause_result.get("error", "Failed to pause subscription"))
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Admin pause subscription failed: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to pause subscription: {str(e)}")
+
+@api_router.post("/admin/resume-subscription")
+async def admin_resume_subscription(
+    request: dict,
+    current_user: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_async_compatible_db)
+):
+    """Admin endpoint to resume a user's paused subscription"""
+    try:
+        user_email = request.get('user_email')
+        reason = request.get('reason', 'Admin action')
+        
+        if not user_email:
+            raise HTTPException(status_code=400, detail="user_email is required")
+        
+        # Find the user
+        result = await db.execute(select(User).where(User.email == user_email))
+        user = result.scalar_one_or_none()
+        
+        if not user:
+            raise HTTPException(status_code=404, detail=f"User not found: {user_email}")
+        
+        # Use payment service to resume subscription
+        resume_result = razorpay_service.resume_subscription(str(user.id))
+        
+        if resume_result.get("success"):
+            return {
+                "success": True,
+                "message": f"Subscription resumed for {user_email}",
+                "user_email": user_email,
+                "reason": reason,
+                "resumed_at": resume_result.get("resumed_at"),
+                "next_billing_date": resume_result.get("next_billing_date"),
+                "admin_action": True
+            }
+        else:
+            raise HTTPException(status_code=400, detail=resume_result.get("error", "Failed to resume subscription"))
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Admin resume subscription failed: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to resume subscription: {str(e)}")
+
 # ===========================================
 # EMERGENCY PAYMENT RECOVERY ENDPOINTS
 # ===========================================
