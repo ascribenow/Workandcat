@@ -1817,8 +1817,31 @@ async def cleanup_duplicate_subscriptions(
         user_email = request.get('user_email')
         dry_run = request.get('dry_run', True)  # Default to dry run for safety
         
+        # If no user_email provided, return a list of users with duplicate subscriptions
         if not user_email:
-            raise HTTPException(status_code=400, detail="user_email is required")
+            # Find all users with multiple active subscriptions
+            duplicate_users = await db.execute(
+                select(User.email, func.count(Subscription.id).label('subscription_count'))
+                .join(Subscription, Subscription.user_id == User.id)
+                .where(Subscription.status == "active")
+                .group_by(User.email)
+                .having(func.count(Subscription.id) > 1)
+            )
+            
+            results = duplicate_users.fetchall()
+            
+            return {
+                "message": "Users with duplicate subscriptions found" if results else "No users with duplicate subscriptions found",
+                "users_with_duplicates": [
+                    {
+                        "email": result.email,
+                        "subscription_count": result.subscription_count
+                    }
+                    for result in results
+                ],
+                "total_users_affected": len(results),
+                "note": "Provide user_email parameter to clean up specific user's duplicates"
+            }
         
         # Find the user
         result = await db.execute(select(User).where(User.email == user_email))
