@@ -1924,6 +1924,136 @@ async def cleanup_duplicate_subscriptions(
         logger.error(f"Duplicate subscription cleanup failed: {e}")
         raise HTTPException(status_code=500, detail=f"Cleanup failed: {str(e)}")
 
+@api_router.post("/admin/correct-payment-from-razorpay")
+async def correct_payment_from_razorpay(
+    request: dict,
+    current_user: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_async_compatible_db)
+):
+    """Correct payment data by fetching ACTUAL data from Razorpay API"""
+    try:
+        user_email = request.get('user_email')
+        razorpay_payment_id = request.get('razorpay_payment_id')  # From Razorpay dashboard
+        
+        if not user_email:
+            raise HTTPException(status_code=400, detail="user_email is required")
+            
+        if not razorpay_payment_id:
+            raise HTTPException(status_code=400, detail="razorpay_payment_id is required (get from Razorpay dashboard)")
+        
+        # Find the user
+        result = await db.execute(select(User).where(User.email == user_email))
+        user = result.scalar_one_or_none()
+        
+        if not user:
+            raise HTTPException(status_code=404, detail=f"User not found: {user_email}")
+        
+        logger.info(f"Correcting payment data from Razorpay API for {user_email}, Payment ID: {razorpay_payment_id}")
+        
+        # Fetch ACTUAL payment data from Razorpay API
+        from payment_service import razorpay_service
+        payment_result = await razorpay_service.fetch_payment_details_from_razorpay(razorpay_payment_id)
+        
+        if not payment_result["success"]:
+            raise HTTPException(status_code=400, detail=f"Failed to fetch payment from Razorpay: {payment_result['error']}")
+        
+        actual_payment_data = payment_result["payment"]
+        actual_amount = actual_payment_data["amount"]  # Amount in paise from Razorpay
+        actual_amount_inr = actual_amount / 100
+        
+        # Determine correct plan from ACTUAL amount
+        if actual_amount == 256500:  # ₹2,565 - Pro Exclusive full price
+            correct_plan = "pro_exclusive"
+            referral_applied = False
+            logger.info(f"ACTUAL PAYMENT: ₹{actual_amount_inr} = Pro Exclusive (NO referral discount)")
+        elif actual_amount == 206500:  # ₹2,065 - Pro Exclusive with referral
+            correct_plan = "pro_exclusive"
+            referral_applied = True
+            logger.info(f"ACTUAL PAYMENT: ₹{actual_amount_inr} = Pro Exclusive WITH referral discount")
+        elif actual_amount == 149500:  # ₹1,495 - Pro Regular full price
+            correct_plan = "pro_regular"
+            referral_applied = False
+            logger.info(f"ACTUAL PAYMENT: ₹{actual_amount_inr} = Pro Regular (NO referral discount)")
+        elif actual_amount == 99500:  # ₹995 - Pro Regular with referral
+            correct_plan = "pro_regular"
+            referral_applied = True
+            logger.info(f"ACTUAL PAYMENT: ₹{actual_amount_inr} = Pro Regular WITH referral discount")
+        else:
+            raise HTTPException(status_code=400, detail=f"Unknown payment amount: ₹{actual_amount_inr}")
+        
+        # Get current subscription to compare
+        current_subscription = await db.execute(
+            select(Subscription)
+            .where(Subscription.user_id == user.id)
+            .where(Subscription.status == "active")
+            .order_by(desc(Subscription.created_at))
+            .limit(1)
+        )
+        current_sub = current_subscription.scalar_one_or_none()
+        
+        correction_result = {
+            "user_email": user_email,
+            "razorpay_payment_id": razorpay_payment_id,
+            "actual_payment_data": {
+                "amount_paise": actual_amount,
+                "amount_inr": actual_amount_inr,
+                "currency": actual_payment_data["currency"],
+                "status": actual_payment_data["status"],
+                "method": actual_payment_data.get("method"),
+                "created_at": actual_payment_data["created_at"]
+            },
+            "detected_plan": {
+                "plan_type": correct_plan,
+                "referral_applied": referral_applied
+            },
+            "current_subscription": {
+                "plan_type": current_sub.plan_type if current_sub else None,
+                "amount_paise": current_sub.amount if current_sub else None,
+                "amount_inr": current_sub.amount / 100 if current_sub and current_sub.amount else None,
+                "end_date": current_sub.current_period_end.isoformat() if current_sub else None
+            },
+            "correction_needed": False,
+            "corrections_made": []
+        }
+        
+        # Check if correction is needed
+        if current_sub:
+            if current_sub.amount != actual_amount:
+                correction_result["correction_needed"] = True
+                correction_result["amount_mismatch"] = {
+                    "system_amount": current_sub.amount / 100,
+                    "actual_razorpay_amount": actual_amount_inr,
+                    "difference": (actual_amount - current_sub.amount) / 100
+                }
+                
+                # Correct the subscription amount
+                current_sub.amount = actual_amount
+                current_sub.updated_at = datetime.utcnow()
+                
+                correction_result["corrections_made"].append({
+                    "field": "subscription_amount",
+                    "old_value": current_sub.amount / 100 if current_sub.amount else None,
+                    "new_value": actual_amount_inr,
+                    "correction": f"Updated to actual Razorpay payment amount"
+                })
+                
+                logger.info(f"CORRECTED: Subscription amount from ₹{current_sub.amount/100:.2f} to ₹{actual_amount_inr:.2f}")
+        
+        if correction_result["correction_needed"]:
+            await db.commit()
+            correction_result["status"] = "corrected"
+            correction_result["message"] = f"Payment data corrected using actual Razorpay API data"
+        else:
+            correction_result["status"] = "no_correction_needed"
+            correction_result["message"] = "Payment data already matches Razorpay API data"
+        
+        return correction_result
+        
+    except Exception as e:
+        await db.rollback()
+        logger.error(f"Payment correction failed: {e}")
+        raise HTTPException(status_code=500, detail=f"Payment correction failed: {str(e)}")
+
 # ===========================================
 # END PAYMENT DATA INTEGRITY AUDIT ENDPOINTS
 # ===========================================
