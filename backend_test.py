@@ -1214,53 +1214,34 @@ class CATBackendTester:
         
         return payment_investigation_results
 
-    def test_payment_security_enhancements_comprehensive(self):
+    def test_admin_endpoints_404_500_errors(self):
         """
-        COMPREHENSIVE TESTING: ALL PAYMENT SECURITY ENHANCEMENTS IMPLEMENTED
+        CRITICAL ADMIN ENDPOINTS TESTING - 404/500 ERROR INVESTIGATION
         
-        Test the comprehensive payment security system with all enhancements as specified in the review request:
-        1. Database Idempotency Constraints
-        2. Payment Idempotency Logic in verify_payment()
-        3. Backend-Only Amount Calculation (calculate_final_amount)
-        4. Payment Reconciliation Service
-        5. Payment System Health Monitoring
-        6. Advanced Admin Tools & Analytics
-        7. Frontend Security Fixes
-        8. Enhanced Error Recovery
+        Test the admin endpoints that are reported to be returning 404/500 errors:
+        1. /api/admin/audit-customer-payment (POST)
+        2. /api/admin/cleanup-duplicate-subscriptions (POST) 
+        3. /api/admin/correct-payment-from-razorpay (POST)
+        4. /api/admin/run-payment-reconciliation (POST)
+        5. /api/admin/payment-system-health (GET)
+        6. /api/admin/payment-analytics (GET)
+        7. /api/admin/emergency-activate-subscription (POST)
 
-        CRITICAL SECURITY FEATURES TO TEST:
-        1. **Database Idempotency Constraints**:
-           - Unique constraints on razorpay_payment_id and razorpay_order_id
-           - Prevent duplicate payment processing
-           - Performance indexes for reconciliation queries
+        AUTHENTICATION:
+        Use admin credentials: sumedhprabhu18@gmail.com / admin2025
 
-        2. **Payment Idempotency Logic**:
-           - Same payment_id should not be processed twice
-           - Idempotency protection in verify_payment()
-           - Return existing payment information for duplicates
+        EXPECTED BEHAVIOR:
+        - All endpoints should return 200 OK with proper data
+        - No 404 "Not Found" errors
+        - No 500 "Internal Server Error" responses
+        - Proper JSON responses with audit/analytics/monitoring data
 
-        3. **Backend-Only Amount Calculation**:
-           - calculate_final_amount() method security
-           - No frontend manipulation possible
-           - Referral discount calculations from backend only
-
-        4. **Payment Reconciliation Service**:
-           - Automatic detection of paid-but-not-activated subscriptions
-           - Amount discrepancy detection and correction
-           - Duplicate payment detection and cleanup
-
-        5. **Payment System Health Monitoring**:
-           - Payment system health monitoring endpoints
-           - Payment analytics and reporting
-           - Admin dashboard data integrity tools
-
-        SUCCESS CRITERIA:
-        - All security vulnerabilities addressed
-        - No frontend amount manipulation possible
-        - Idempotency protection working for all payment operations
-        - Reconciliation service detecting and fixing discrepancies
-        - Admin tools providing comprehensive system insights
-        - Monitoring service detecting anomalies and health issues
+        FOCUS AREAS:
+        - Test if endpoints exist and are accessible 
+        - Check for database dependency issues (missing tables/columns)
+        - Verify import issues with payment services
+        - Test database connection problems
+        - Check for proper error handling vs crashes
         """
         print("🔐 COMPREHENSIVE TESTING: ALL PAYMENT SECURITY ENHANCEMENTS IMPLEMENTED")
         print("=" * 90)
