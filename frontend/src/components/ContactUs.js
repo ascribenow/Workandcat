@@ -136,7 +136,7 @@ const ContactUs = () => {
           <div className="space-y-6">
             <div className="bg-gray-50 rounded-xl p-6">
               <h3 className="text-xl font-semibold mb-3" style={{ color: '#545454' }}>
-                "My Daily-12 session isn't loading. What should I do?"
+                "My 12 session isn't loading. What should I do?"
               </h3>
               <p style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
                 Try refreshing the page first. If that doesn't work, clear your browser cache or try a different browser. Still stuck? Email us immediately at hello@twelvr.com - we'll get you back to your session in minutes.
