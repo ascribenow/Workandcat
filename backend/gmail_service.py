@@ -741,5 +741,206 @@ hello@twelvr.com
             print(f"Error sending referral code email: {e}")
             return False
 
+    def send_payment_confirmation_email(self, to_email: str, plan_name: str, amount: str, payment_id: str, end_date: str = None) -> bool:
+        """Send payment confirmation email after successful subscription"""
+        if not self.service:
+            print("Gmail service not authenticated")
+            return False
+        
+        try:
+            # Create email content
+            subject = f"Payment Confirmed - {plan_name} Subscription - Twelvr"
+            
+            # Format end date nicely
+            end_date_text = f" until {end_date}" if end_date else ""
+            
+            plain_text = f"""
+Payment Confirmation - Twelvr
+
+Thank you for your payment! Your {plan_name} subscription is now active{end_date_text}.
+
+Payment Details:
+- Plan: {plan_name}
+- Amount: {amount}
+- Payment ID: {payment_id}
+- Status: Successfully Processed
+
+Your subscription includes:
+{self._get_plan_features(plan_name)}
+
+You can now access all your premium features on the Twelvr dashboard.
+
+Login to start your journey: https://twelvr.com
+
+If you have any questions, feel free to reply to this email.
+
+Best regards,
+The Twelvr Team
+hello@twelvr.com
+            """.strip()
+            
+            html_content = f"""
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Payment Confirmed - Twelvr</title>
+    <style>
+        body {{
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }}
+        .container {{
+            background-color: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }}
+        .header {{
+            background: linear-gradient(135deg, #9ac026 0%, #7da21f 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }}
+        .content {{
+            padding: 30px 20px;
+        }}
+        .success-badge {{
+            background-color: #4CAF50;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            display: inline-block;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }}
+        .payment-details {{
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }}
+        .plan-features {{
+            background-color: #e8f5e8;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }}
+        .cta-button {{
+            display: inline-block;
+            background: linear-gradient(135deg, #9ac026 0%, #7da21f 100%);
+            color: white;
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-weight: bold;
+            margin: 20px 0;
+        }}
+        .footer {{
+            background-color: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎉 Payment Confirmed!</h1>
+            <p>Welcome to {plan_name}</p>
+        </div>
+        <div class="content">
+            <div class="success-badge">✅ Successfully Processed</div>
+            
+            <p>Thank you for choosing Twelvr! Your {plan_name} subscription is now active{end_date_text}.</p>
+            
+            <div class="payment-details">
+                <h3>Payment Details</h3>
+                <p><strong>Plan:</strong> {plan_name}<br>
+                <strong>Amount:</strong> {amount}<br>
+                <strong>Payment ID:</strong> {payment_id}<br>
+                <strong>Status:</strong> Successfully Processed</p>
+            </div>
+            
+            <div class="plan-features">
+                <h3>Your Subscription Includes:</h3>
+                {self._get_plan_features_html(plan_name)}
+            </div>
+            
+            <p>You can now access all your premium features on the Twelvr dashboard.</p>
+            
+            <a href="https://twelvr.com" class="cta-button">Start Your Journey</a>
+            
+            <p>If you have any questions about your subscription or need help getting started, feel free to reply to this email.</p>
+        </div>
+        <div class="footer">
+            <p>Best regards,<br>
+            The Twelvr Team<br>
+            hello@twelvr.com</p>
+        </div>
+    </div>
+</body>
+</html>            
+            """
+            
+            # Send email
+            return self._send_html_email(to_email, subject, html_content, plain_text)
+            
+        except Exception as e:
+            print(f"Error sending payment confirmation email: {e}")
+            return False
+
+    def _get_plan_features(self, plan_name: str) -> str:
+        """Get plain text plan features"""
+        if "Pro Regular" in plan_name:
+            return """- Unlimited sessions for 30 days
+- Full Adaptivity (Trend Matrix + Reflex Loop + Learning Impact)
+- Progress dashboard & analytics
+- Comprehensive performance reports
+- Renews every month, pause anytime"""
+        elif "Pro Exclusive" in plan_name:
+            return """- Unlimited sessions till Dec 31, 2025
+- Full Adaptivity (Trend Matrix + Reflex Loop + Learning Impact)  
+- Progress dashboard & analytics
+- Comprehensive performance reports
+- Full syllabus coverage in 90 sessions (only for Quantitative Ability section)
+- Ask Twelvr: Real-time doubt resolution per question"""
+        else:
+            return "- 10 adaptive sessions\n- Limited Adaptivity (Mindprint)\n- Progress dashboard & analytics\n- Ask Twelvr: Real-time doubt resolution per question"
+
+    def _get_plan_features_html(self, plan_name: str) -> str:
+        """Get HTML formatted plan features"""
+        if "Pro Regular" in plan_name:
+            return """<ul>
+<li>✅ Unlimited sessions for 30 days</li>
+<li>✅ Full Adaptivity (Trend Matrix + Reflex Loop + Learning Impact)</li>
+<li>✅ Progress dashboard & analytics</li>
+<li>✅ Comprehensive performance reports</li>
+<li>✅ Renews every month, pause anytime</li>
+</ul>"""
+        elif "Pro Exclusive" in plan_name:
+            return """<ul>
+<li>✅ Unlimited sessions till Dec 31, 2025</li>
+<li>✅ Full Adaptivity (Trend Matrix + Reflex Loop + Learning Impact)</li>
+<li>✅ Progress dashboard & analytics</li>
+<li>✅ Comprehensive performance reports</li>
+<li>✅ Full syllabus coverage in 90 sessions (only for Quantitative Ability section)</li>
+<li>✅ Ask Twelvr: Real-time doubt resolution per question</li>
+</ul>"""
+        else:
+            return """<ul>
+<li>✅ 10 adaptive sessions</li>
+<li>✅ Limited Adaptivity (Mindprint)</li>
+<li>✅ Progress dashboard & analytics</li>
+<li>✅ Ask Twelvr: Real-time doubt resolution per question</li>
+</ul>"""
+
 # Global instance
 gmail_service = GmailService()
