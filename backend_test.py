@@ -901,8 +901,8 @@ class CATBackendTester:
         else:
             print(f"   ❌ Payment configuration not accessible")
         
-        # PHASE 5: DATABASE STATE DEEP DIVE
-        print("\n🗄️ PHASE 5: DATABASE STATE DEEP DIVE")
+        # PHASE 7: DATABASE STATE DEEP DIVE
+        print("\n🗄️ PHASE 7: DATABASE STATE DEEP DIVE")
         print("-" * 60)
         print("Investigating database records for payment orders and subscriptions")
         
