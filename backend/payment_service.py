@@ -71,6 +71,65 @@ class RazorpayService:
             }
         }
 
+    def calculate_final_amount(self, plan_type: str, referral_code: Optional[str] = None, user_email: Optional[str] = None) -> Dict[str, Any]:
+        """
+        BACKEND-ONLY AMOUNT CALCULATION FOR SECURITY
+        Frontend should never be trusted for amount calculations
+        """
+        try:
+            if plan_type not in self.plans:
+                raise ValueError(f"Invalid plan type: {plan_type}")
+            
+            plan_config = self.plans[plan_type]
+            base_amount = plan_config["amount"]
+            
+            calculation_result = {
+                "plan_type": plan_type,
+                "base_amount": base_amount,
+                "base_amount_inr": base_amount / 100,
+                "referral_discount": 0,
+                "referral_discount_inr": 0,
+                "final_amount": base_amount,
+                "final_amount_inr": base_amount / 100,
+                "referral_applied": False,
+                "referral_code": referral_code or "none"
+            }
+            
+            # Apply referral discount if provided and valid
+            if referral_code and user_email:
+                from referral_service import referral_service
+                db = SessionLocal()
+                try:
+                    referral_validation = referral_service.validate_referral_code(referral_code, user_email, db)
+                    
+                    if referral_validation["valid"] and referral_validation["can_use"]:
+                        discount_amount = referral_validation["discount_amount"]  # ₹500 in paise
+                        final_amount = max(base_amount - discount_amount, 100)  # Minimum ₹1
+                        
+                        calculation_result.update({
+                            "referral_discount": discount_amount,
+                            "referral_discount_inr": discount_amount / 100,
+                            "final_amount": final_amount,
+                            "final_amount_inr": final_amount / 100,
+                            "referral_applied": True,
+                            "referral_validation": referral_validation
+                        })
+                        
+                        logger.info(f"✅ BACKEND CALCULATION: Referral discount applied - ₹{base_amount/100:.2f} → ₹{final_amount/100:.2f}")
+                    else:
+                        logger.info(f"⚠️ BACKEND CALCULATION: Referral code invalid - {referral_validation.get('error', 'Unknown error')}")
+                        calculation_result["referral_validation_error"] = referral_validation.get('error')
+                        
+                finally:
+                    db.close()
+            
+            logger.info(f"💰 BACKEND AMOUNT CALCULATION: {plan_type} = ₹{calculation_result['final_amount_inr']:.2f}")
+            return calculation_result
+            
+        except Exception as e:
+            logger.error(f"❌ Backend amount calculation failed: {e}")
+            raise
+    
     async def create_order(self, plan_type: str, user_email: str, user_name: str, user_id: str, user_phone: Optional[str] = None, referral_code: Optional[str] = None) -> Dict[str, Any]:
         """Create a Razorpay order for one-time payments"""
         try:
