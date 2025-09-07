@@ -274,8 +274,11 @@ const PaymentComponent = ({ planType, amount, planName, description, onSuccess, 
   };
 
   const calculateDiscountedAmount = () => {
+    // SECURITY: Frontend should NEVER calculate amounts
+    // Display amounts should come from backend validation response only
     if (referralValidation && referralValidation.valid && referralValidation.can_use) {
-      return Math.max(amount - 500, 1); // Minimum ₹1
+      // Show discount amount from backend validation response
+      return referralValidation.discounted_amount || amount;
     }
     return amount;
   };
