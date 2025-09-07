@@ -7,7 +7,7 @@ import os
 import io
 
 class CATBackendTester:
-    def __init__(self, base_url="http://localhost:8001/api"):
+    def __init__(self, base_url="https://thirsty-ptolemy.preview.emergentagent.com/api"):
         self.base_url = base_url
         self.student_user = None
         self.admin_user = None
