@@ -1087,17 +1087,27 @@ class CATBackendTester:
         
         # Group results by investigation categories
         investigation_categories = {
+            "ADMIN AUTHENTICATION": [
+                "admin_authentication_working", "admin_token_valid"
+            ],
             "USER AUTHENTICATION & DATABASE STATE": [
                 "user_authentication_working", "user_exists_in_database", 
                 "user_id_matches_expected", "user_subscription_status_retrieved"
             ],
-            "SUBSCRIPTION STATUS INVESTIGATION": [
-                "subscription_status_endpoint_working", "subscription_shows_active_false",
-                "subscription_shows_no_subscription"
+            "EMERGENCY ACTIVATION ENDPOINT": [
+                "emergency_activation_endpoint_accessible", "emergency_activation_requires_admin",
+                "emergency_activation_validates_parameters", "emergency_activation_creates_subscription",
+                "emergency_activation_500_error_reproduced"
             ],
             "PAYMENT VERIFICATION ENDPOINT": [
                 "payment_verify_endpoint_accessible", "payment_verify_endpoint_requires_auth",
-                "payment_verify_endpoint_validates_signature", "payment_verify_endpoint_creates_subscription"
+                "payment_verify_endpoint_validates_signature", "payment_verify_endpoint_creates_subscription",
+                "payment_verify_422_error_reproduced", "payment_verify_401_error_reproduced",
+                "payment_verify_400_error_reproduced"
+            ],
+            "SUBSCRIPTION STATUS INVESTIGATION": [
+                "subscription_status_endpoint_working", "subscription_shows_active_false",
+                "subscription_shows_no_subscription"
             ],
             "PAYMENT CONFIGURATION": [
                 "razorpay_config_accessible", "razorpay_keys_configured", "payment_methods_enabled"
@@ -1108,7 +1118,8 @@ class CATBackendTester:
             ],
             "ROOT CAUSE INDICATORS": [
                 "payment_verification_logs_missing", "frontend_backend_communication_issue",
-                "signature_validation_failing", "database_transaction_failing"
+                "signature_validation_failing", "database_transaction_failing",
+                "emergency_activation_database_issue"
             ]
         }
         
