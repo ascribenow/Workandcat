@@ -456,15 +456,9 @@ class RazorpayService:
                     logger.error(f"Unknown plan type detected from payment: {detected_plan}")
                     raise Exception(f"Cannot create subscription for unknown plan type: {detected_plan['plan_type']}")
                 
-                # Step 5: Update user subscription fields with VERIFIED data
-                from database import User
-                user = db.query(User).filter(User.id == user_id).first()
-                if user:
-                    user.subscription_type = detected_plan["plan_type"]
-                    user.subscription_active = True
-                    user.subscription_end_date = subscription.current_period_end if subscription else None
-                    user.updated_at = datetime.utcnow()
-                    logger.info(f"Updated user {user_id} subscription fields with verified data")
+                # Step 5: Subscription is now created with VERIFIED data from Razorpay API
+                # User subscription status can be determined from active Subscription records
+                logger.info(f"Subscription created with verified payment data for user {user_id}")
                 
                 db.commit()
                 
