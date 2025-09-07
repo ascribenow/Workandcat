@@ -554,10 +554,11 @@ class CATBackendTester:
             "re_enrichment_success_tracking": False
         }
         
-        # PHASE 1: ADMIN AUTHENTICATION SETUP
-        print("\n🔐 PHASE 1: ADMIN AUTHENTICATION SETUP")
+        # PHASE 1: AUTHENTICATION SETUP
+        print("\n🔐 PHASE 1: AUTHENTICATION SETUP")
         print("-" * 60)
         
+        # Test Admin Authentication
         admin_login_data = {
             "email": "sumedhprabhu18@gmail.com",
             "password": "admin2025"
@@ -566,23 +567,56 @@ class CATBackendTester:
         success, response = self.run_test("Admin Authentication", "POST", "auth/login", [200, 401], admin_login_data)
         
         admin_headers = None
+        admin_user_id = None
         if success and response.get('access_token'):
             admin_token = response['access_token']
             admin_headers = {
                 'Authorization': f'Bearer {admin_token}',
                 'Content-Type': 'application/json'
             }
-            enhanced_checker_results["admin_authentication_working"] = True
-            enhanced_checker_results["admin_token_valid"] = True
+            referral_system_results["admin_authentication_working"] = True
+            referral_system_results["admin_token_valid"] = True
             print(f"   ✅ Admin authentication successful")
             print(f"   📊 JWT Token length: {len(admin_token)} characters")
             
-            # Verify admin privileges
+            # Verify admin privileges and get user ID
             success, me_response = self.run_test("Admin Token Validation", "GET", "auth/me", 200, None, admin_headers)
             if success and me_response.get('is_admin'):
+                admin_user_id = me_response.get('id')
                 print(f"   ✅ Admin privileges confirmed: {me_response.get('email')}")
+                print(f"   📊 Admin User ID: {admin_user_id}")
         else:
-            print("   ❌ Admin authentication failed - cannot proceed with enhanced checker testing")
+            print("   ❌ Admin authentication failed - cannot proceed with referral testing")
+            return False
+        
+        # Test Student Authentication
+        student_login_data = {
+            "email": "sp@theskinmantra.com",
+            "password": "student123"
+        }
+        
+        success, response = self.run_test("Student Authentication", "POST", "auth/login", [200, 401], student_login_data)
+        
+        student_headers = None
+        student_user_id = None
+        if success and response.get('access_token'):
+            student_token = response['access_token']
+            student_headers = {
+                'Authorization': f'Bearer {student_token}',
+                'Content-Type': 'application/json'
+            }
+            referral_system_results["student_authentication_working"] = True
+            referral_system_results["student_token_valid"] = True
+            print(f"   ✅ Student authentication successful")
+            print(f"   📊 JWT Token length: {len(student_token)} characters")
+            
+            # Get student user ID
+            success, me_response = self.run_test("Student Token Validation", "GET", "auth/me", 200, None, student_headers)
+            if success:
+                student_user_id = me_response.get('id')
+                print(f"   ✅ Student user ID: {student_user_id}")
+        else:
+            print("   ❌ Student authentication failed")
             return False
         
         # PHASE 2: ENHANCED CHECKER INTEGRATION TESTING
