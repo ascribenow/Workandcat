@@ -503,7 +503,7 @@ const LandingPage = () => {
               </div>
               <h3 className="text-xl font-bold text-[#545454] mb-4">Step 1, Sign in</h3>
               <p className="text-[#545454]" style={{ fontFamily: 'Lato, sans-serif' }}>
-                Pick your reminder time
+                Twelvr compiles your perfect 12
               </p>
             </div>
 
