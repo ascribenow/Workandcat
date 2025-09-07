@@ -1722,7 +1722,7 @@ async def audit_customer_payment(
                     })
                     
                     # Compare with current subscription
-                    current_plan = user.subscription_type
+                    current_plan = audit_results["current_subscription_status"]["subscription_type"]
                     actual_plan = detected_plan["plan_type"]
                     
                     if current_plan != actual_plan:
@@ -1733,7 +1733,7 @@ async def audit_customer_payment(
                             "priority": "high"
                         })
                     
-                    if not user.subscription_active:
+                    if not audit_results["current_subscription_status"]["has_active_subscription"]:
                         audit_results["recommendations"].append({
                             "type": "inactive_subscription",
                             "issue": "User paid but subscription is inactive",
