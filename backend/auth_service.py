@@ -110,7 +110,7 @@ class AuthService:
         await db.commit()
         await db.refresh(db_user)
         
-        # Generate referral code for the new user and send welcome email
+        # Generate referral code and send welcome emails
         try:
             from referral_service import referral_service
             from gmail_service import gmail_service
@@ -118,21 +118,34 @@ class AuthService:
             sync_db = db._session if hasattr(db, '_session') else db
             referral_code = referral_service.assign_referral_code_to_user(str(db_user.id), sync_db)
             
-            # Send referral code welcome email with duplicate prevention
+            # Send EMAIL 1: Basic signup confirmation email
             try:
-                email_sent = gmail_service.send_referral_code_email(
+                signup_email_sent = gmail_service.send_signup_confirmation_email(
+                    user_data.email, 
+                    user_data.full_name
+                )
+                if signup_email_sent:
+                    logger.info(f"✅ Sent signup confirmation email to {user_data.email}")
+                else:
+                    logger.warning(f"❌ Failed to send signup confirmation email to {user_data.email}")
+            except Exception as email_error:
+                logger.warning(f"Error sending signup confirmation email to {user_data.email}: {email_error}")
+            
+            # Send EMAIL 2: Referral code welcome email 
+            try:
+                referral_email_sent = gmail_service.send_referral_code_email(
                     user_data.email, 
                     user_data.full_name, 
                     referral_code
                 )
-                if email_sent:
+                if referral_email_sent:
                     logger.info(f"✅ Sent referral code welcome email to {user_data.email} with code {referral_code}")
                 else:
                     logger.warning(f"❌ Failed to send referral code email to {user_data.email}")
             except Exception as email_error:
                 logger.warning(f"Error sending referral code email to {user_data.email}: {email_error}")
             
-            logger.info(f"✅ Generated referral code {referral_code} for new user {user_data.email} on signup")
+            logger.info(f"✅ Generated referral code {referral_code} for new user {user_data.email} on signup - TWO emails sent")
         except Exception as e:
             logger.warning(f"Failed to generate referral code for user {user_data.email}: {e}")
         
