@@ -1847,20 +1847,26 @@ class CATBackendTester:
         print(f"Total Tests Passed: {self.tests_passed}")
         print(f"Overall Success Rate: {(self.tests_passed/self.tests_run)*100:.1f}%")
         
-        if referral_success:
-            print("\n🎉 CRITICAL REFERRAL USAGE RECORDING LOGIC: FUNCTIONAL")
-            print("✅ Order creation calculates discount without recording usage")
-            print("✅ Payment verification records usage only after successful payment")
-            print("✅ Abandoned payments don't burn referral codes")
-            print("✅ Database state validation working")
-            print("✅ Backward compatibility maintained")
+        print(f"\n📊 TEST RESULTS:")
+        print(f"  Signup Email Flow: {'✅ PASS' if signup_success else '❌ FAIL'}")
+        print(f"  Critical Referral Usage Recording Logic: {'✅ PASS' if referral_success else '❌ FAIL'}")
+        
+        total_success = signup_success and referral_success
+        
+        if total_success:
+            print("\n🎉 ALL TESTS PASSED - SYSTEM FULLY FUNCTIONAL!")
+            print("✅ Signup email flow working correctly")
+            print("✅ Referral usage recording logic working correctly")
             print("🏆 PRODUCTION READY")
         else:
-            print("\n⚠️ CRITICAL REFERRAL USAGE RECORDING LOGIC: NEEDS ATTENTION")
-            print("❌ Some critical components not working")
-            print("🔧 Review failed tests and fix issues")
+            print("\n⚠️ SOME TESTS FAILED - SYSTEM NEEDS ATTENTION")
+            if not signup_success:
+                print("❌ Signup email flow issues")
+            if not referral_success:
+                print("❌ Referral usage recording logic issues")
+            print("🔧 FIXES NEEDED BEFORE PRODUCTION")
         
-        return referral_success
+        return total_success
 
 if __name__ == "__main__":
     tester = CATBackendTester()
