@@ -75,7 +75,7 @@ const TermsConditions = () => {
             <section>
               <h2 className="text-2xl font-bold mb-4" style={{ color: '#545454' }}>2. Services Provided</h2>
               <ul className="space-y-2 text-gray-700" style={{ fontFamily: 'Lato, sans-serif' }}>
-                <li>Daily adaptive question sessions ("The 12") for Quantitative Ability section only.</li>
+                <li>Adaptive question sessions ("My 12") for Quantitative Ability section only.</li>
                 <li>Performance tracking, analysis, and recommendations for QA section.</li>
                 <li>Access may vary depending on subscription plan.</li>
               </ul>
