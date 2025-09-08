@@ -5145,10 +5145,18 @@ async def upload_pyq_csv(file: UploadFile, db: AsyncSession, current_user: User)
         # Process images from Google Drive URLs (same as questions)
         processed_rows = GoogleDriveImageFetcher.process_csv_image_urls(csv_rows, UPLOAD_DIR)
         
-        # Group questions by year for paper organization
+        # Group questions by year for paper organization (use current year if not provided)
         questions_by_year = {}
+        current_year = datetime.utcnow().year
+        
         for row in processed_rows:
-            year = int(row.get('year', 2024))
+            # Use provided year or default to current year
+            year_str = row.get('year', str(current_year))
+            try:
+                year = int(year_str) if year_str else current_year
+            except (ValueError, TypeError):
+                year = current_year
+                
             if year not in questions_by_year:
                 questions_by_year[year] = []
             questions_by_year[year].append(row)
