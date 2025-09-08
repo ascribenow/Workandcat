@@ -126,7 +126,7 @@ const TermsConditions = () => {
             <section>
               <h2 className="text-2xl font-bold mb-4" style={{ color: '#545454' }}>6. Intellectual Property</h2>
               <p className="text-gray-700" style={{ fontFamily: 'Lato, sans-serif' }}>
-                All platform content, algorithms, and trademarks are owned by M/s Costo Digital. Users may not copy, distribute, or repurpose platform materials.
+                All platform content, algorithms, and trademarks are owned by Twelvr. Users may not copy, distribute, or repurpose platform materials.
               </p>
             </section>
 
