@@ -216,18 +216,13 @@ class DynamicFrequencyCalculator:
         """
         return {
             'frequency_score': 0.5,  # Neutral default
-            'time_weighted_frequency': 0.5,
             'conceptual_matches_count': 0,
             'total_pyq_analyzed': 0,
             'average_similarity': 0.0,
             'confidence_score': 0.0,
-            'top_matching_years': [],
             'matching_concepts_summary': [],
-            'frequency_trend': 'no_data',
             'calculation_metadata': {
                 'similarity_threshold': self.similarity_threshold,
-                'analysis_window_years': self.total_years_window,
-                'recent_years_window': self.recent_years_window,
                 'calculation_timestamp': datetime.utcnow().isoformat(),
                 'error': error
             }
