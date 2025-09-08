@@ -210,58 +210,6 @@ class DynamicFrequencyCalculator:
                 'concept_summary': []
             }
     
-    def _calculate_time_weighted_metrics(self, conceptual_matches: List[Dict[str, Any]], total_pyqs: int) -> Dict[str, Any]:
-        """
-        Calculate weighted frequency metrics based on overall PYQ database entries (no year dependency)
-        """
-        try:
-            if not conceptual_matches:
-                return {
-                    'recent_frequency': 0.0,
-                    'top_categories': [],
-                    'trend_analysis': 'insufficient_data'
-                }
-            
-            # Calculate frequency based on total conceptual matches
-            overall_frequency = len(conceptual_matches) / total_pyqs if total_pyqs > 0 else 0.0
-            
-            # Category distribution instead of year distribution
-            category_counts = {}
-            for match in conceptual_matches:
-                category = match.get('subcategory', 'Unknown')
-                category_counts[category] = category_counts.get(category, 0) + 1
-            
-            top_categories = sorted(category_counts.items(), key=lambda x: x[1], reverse=True)[:5]
-            
-            # Trend analysis based on category distribution
-            if len(top_categories) >= 3:
-                # Simple trend analysis based on category diversity
-                total_matches = sum(count for category, count in top_categories)
-                top_category_dominance = top_categories[0][1] / total_matches if total_matches > 0 else 0
-                
-                if top_category_dominance > 0.6:
-                    trend_analysis = 'concentrated'  # One category dominates
-                elif top_category_dominance < 0.3:
-                    trend_analysis = 'diverse'  # Well distributed across categories
-                else:
-                    trend_analysis = 'balanced'  # Moderate distribution
-            else:
-                trend_analysis = 'limited_data'
-            
-            return {
-                'recent_frequency': min(1.0, overall_frequency),
-                'top_categories': [category for category, count in top_categories],
-                'trend_analysis': trend_analysis
-            }
-            
-        except Exception as e:
-            logger.error(f"❌ Error calculating time-weighted metrics: {e}")
-            return {
-                'recent_frequency': 0.0,
-                'top_categories': [],
-                'trend_analysis': 'calculation_error'
-            }
-    
     def _create_default_frequency_result(self, error: Optional[str] = None) -> Dict[str, Any]:
         """
         Create default frequency result for error cases or when no data available
