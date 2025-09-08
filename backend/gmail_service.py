@@ -773,48 +773,32 @@ You, Compounded.
             return False
         
         try:
-            # Create email content with preheader for deliverability
-            subject = "🎯 Welcome to Twelvr! Your Exclusive Referral Code & ₹500 Rewards Inside"
-            preheader = "₹500 for them. ₹500 for you. One code, once."
+            # Create email content with preheader for deliverability - Twelvr brand style
+            subject = f"Your referral code: {referral_code}. ₹500 for them, ₹500 for you."
+            preheader = "One code. Unlimited sharing. Compound your impact."
             
             plain_text = f"""
 {preheader}
 
-Welcome to Twelvr, {full_name}!
+{full_name},
 
-Adaptive CAT prep that compounds. Your referral rewards await!
+Your referral code: {referral_code}
 
-🎯 YOUR EXCLUSIVE REFERRAL CODE: {referral_code}
+₹500 for them. ₹500 for you.
 
-💰 REFERRAL REWARDS:
-• Your Friends Save: ₹500 discount on any Pro subscription
-• You Earn: ₹500 cashback for each friend's successful subscription
+Share {referral_code} → They save ₹500 → You earn ₹500 cashback
 
-🔥 HOW IT WORKS:
-1. Share your code: {referral_code}
-2. Friend subscribes with your code and gets ₹500 discount
-3. ₹500 cashback is processed after every successful use of your referral code
+Pro Regular ₹1,495 → ₹995 with your code
+Pro Exclusive ₹2,565 → ₹2,065 with your code
 
-💡 PERFECT FOR:
-• Pro Regular (₹1,495): Monthly subscription → ₹995 after your code
-• Pro Exclusive (₹2,565): One-time till Dec 2025 → ₹2,065 after your code
+One-time use per person. Unlimited shares for you.
+Cashback processed after successful subscriptions.
 
-📋 IMPORTANT TERMS:
-• One-time usage: Each person can use only one referral code ever
-• No self-referral: Cannot use your own code  
-• Successful payments only: Discount applied only on completed transactions
-• Cashback processing: ₹500 cashback is processed after every successful use of your referral code
-• Valid plans: Pro Regular and Pro Exclusive only
+T&Cs: https://twelvr.com/terms
 
-T&Cs apply: https://twelvr.com/terms
-
-Start your 12: https://twelvr.com
-
-Questions? Reply to this email or reach us at hello@twelvr.com
-
-Best regards,
 The Twelvr Team
 hello@twelvr.com
+
 You, Compounded.
             """.strip()
             
@@ -823,260 +807,130 @@ You, Compounded.
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Welcome to Twelvr - Your Referral Rewards</title>
+    <title>Your referral code: {referral_code}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!--[if !mso]><!-->
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <!--<![endif]-->
     <!-- Preheader text for better deliverability -->
-    <div style="display: none; font-size: 1px; color: #fefefe; line-height: 1px; font-family: Arial, sans-serif; max-height: 0px; max-width: 0px; opacity: 0; overflow: hidden;">
+    <div style="display: none; font-size: 1px; color: #fefefe; line-height: 1px; font-family: Lato, sans-serif; max-height: 0px; max-width: 0px; opacity: 0; overflow: hidden;">
         {preheader}
     </div>
     <style>
         body {{
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Lato', sans-serif;
             line-height: 1.6;
-            color: #333;
+            color: #545454;
             max-width: 600px;
             margin: 0 auto;
             padding: 20px;
-            background-color: #f8f9fa;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
+            background-color: #ffffff;
         }}
         .container {{
-            background-color: white;
-            border-radius: 12px;
+            background-color: #ffffff;
+            border-radius: 0;
             overflow: hidden;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e5e5;
         }}
         .header {{
-            background: linear-gradient(135deg, #9ac026 0%, #667eea 100%);
-            color: white;
-            padding: 30px 20px;
-            text-align: center;
+            background-color: #ffffff;
+            color: #545454;
+            padding: 40px 30px 20px 30px;
+            text-align: left;
         }}
         .header h1 {{
             margin: 0;
             font-size: 28px;
             font-weight: 700;
-        }}
-        .tagline {{
-            margin: 10px 0 0 0;
-            font-size: 16px;
-            opacity: 0.9;
+            color: #545454;
+            line-height: 1.3;
         }}
         .content {{
-            padding: 35px 30px;
+            padding: 20px 30px 40px 30px;
         }}
         .referral-code {{
-            background: linear-gradient(135deg, #ff6b6b 0%, #feca57 100%);
-            color: white;
+            background-color: #f8f8f8;
+            border: 2px solid #9ac026;
+            color: #545454;
             text-align: center;
             padding: 25px;
-            border-radius: 12px;
+            border-radius: 8px;
             margin: 25px 0;
-            font-size: 28px;
-            font-weight: bold;
-            letter-spacing: 3px;
-            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: 2px;
         }}
-        .benefits {{
-            display: flex;
-            justify-content: space-between;
-            margin: 30px 0;
-            flex-wrap: wrap;
+        .highlight {{
+            color: #9ac026;
+            font-weight: 600;
         }}
-        .benefit {{
-            flex: 1;
-            text-align: center;
-            padding: 20px 15px;
-            margin: 10px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-radius: 10px;
-            min-width: 200px;
-        }}
-        .benefit h3 {{
-            margin: 0 0 10px 0;
-            font-size: 24px;
-        }}
-        .benefit p {{
-            margin: 0;
-            opacity: 0.9;
+        .accent {{
+            color: #ff6d4d;
+            font-weight: 600;
         }}
         .how-it-works {{
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            background-color: #f8f9fa;
             padding: 25px;
-            border-radius: 12px;
-            border-left: 5px solid #9ac026;
+            border-radius: 8px;
+            border-left: 4px solid #9ac026;
             margin: 25px 0;
         }}
-        .steps {{
-            display: flex;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            margin-top: 20px;
-        }}
-        .step {{
-            flex: 1;
-            text-align: center;
-            padding: 15px 10px;
-            margin: 10px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            min-width: 150px;
-        }}
-        .step-number {{
-            background: #9ac026;
-            color: white;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }}
-        .terms {{
+        .pricing {{
             background-color: #fff8e1;
             padding: 20px;
             border-radius: 8px;
-            border-left: 4px solid #ffc107;
-            margin-top: 25px;
-            font-size: 14px;
-        }}
-        .cta-button {{
-            display: inline-block;
-            background: linear-gradient(135deg, #9ac026 0%, #667eea 100%);
-            color: white;
-            padding: 15px 35px;
-            text-decoration: none;
-            border-radius: 30px;
-            font-weight: bold;
-            font-size: 16px;
-            margin: 20px 0;
-            box-shadow: 0 4px 15px rgba(154, 192, 38, 0.3);
+            border-left: 4px solid #ff6d4d;
+            margin: 25px 0;
         }}
         .footer {{
-            background-color: #f1f3f4;
-            padding: 25px;
-            text-align: center;
-            color: #666;
+            background-color: #f8f8f8;
+            padding: 30px;
+            text-align: left;
+            color: #545454;
             font-size: 14px;
+            border-top: 1px solid #e5e5e5;
         }}
-        .legal-link {{
+        .tagline {{
+            font-size: 14px;
+            font-weight: 600;
             color: #9ac026;
-            text-decoration: none;
-            font-weight: 500;
-        }}
-        .legal-link:hover {{
-            text-decoration: underline;
-        }}
-        
-        /* Mobile responsiveness */
-        @media only screen and (max-width: 600px) {{
-            .benefits {{
-                flex-direction: column;
-            }}
-            .benefit {{
-                margin: 5px 0;
-            }}
-            .steps {{
-                flex-direction: column;
-            }}
-            .step {{
-                margin: 5px 0;
-            }}
-            .content {{
-                padding: 20px 15px;
-            }}
+            margin-top: 10px;
         }}
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>🎯 Welcome to Twelvr!</h1>
-            <p class="tagline">You, Compounded.</p>
+            <h1><span class="highlight">₹500</span> for them. <span class="accent">₹500</span> for you.</h1>
         </div>
         
         <div class="content">
-            <h2>Hello {full_name},</h2>
-            <p>Adaptive CAT prep that compounds. Your referral rewards await! 🚀</p>
+            <p style="font-size: 18px; margin-bottom: 20px;">{full_name},</p>
+            
+            <p style="font-size: 16px; margin-bottom: 20px;">Your referral code:</p>
             
             <div class="referral-code">
                 {referral_code}
             </div>
-            <p style="text-align: center; margin-top: -10px; color: #666; font-size: 14px;">
-                <em>Your Exclusive Referral Code</em>
-            </p>
-            
-            <div class="benefits">
-                <div class="benefit">
-                    <h3>₹500</h3>
-                    <p>Your Friends Save</p>
-                </div>
-                <div class="benefit">
-                    <h3>₹500</h3>
-                    <p>You Earn Cashback</p>
-                </div>
-            </div>
             
             <div class="how-it-works">
-                <h3>🔥 How Your Referral Program Works:</h3>
-                <div class="steps">
-                    <div class="step">
-                        <div class="step-number">1</div>
-                        <strong>Share Code</strong><br>
-                        <small>Send {referral_code} to friends</small>
-                    </div>
-                    <div class="step">
-                        <div class="step-number">2</div>
-                        <strong>Friend Subscribes</strong><br>
-                        <small>They get ₹500 discount</small>
-                    </div>
-                    <div class="step">
-                        <div class="step-number">3</div>
-                        <strong>You Get Paid</strong><br>
-                        <small>₹500 cashback is processed after every successful use of your referral code</small>
-                    </div>
-                </div>
+                <p style="font-size: 16px; margin-bottom: 15px; font-weight: 600;">How it works:</p>
+                <p style="font-size: 16px; margin-bottom: 10px;">Share <strong>{referral_code}</strong> → They save <span class="highlight">₹500</span> → You earn <span class="accent">₹500 cashback</span></p>
             </div>
             
-            <h3>💡 Perfect for:</h3>
-            <ul style="line-height: 1.8;">
-                <li><strong>Pro Regular (₹1,495):</strong> Monthly subscription with pause/resume → <strong>₹995 after discount</strong></li>
-                <li><strong>Pro Exclusive (₹2,565):</strong> One-time till Dec 2025 + Ask Twelvr → <strong>₹2,065 after discount</strong></li>
-            </ul>
-            
-            <div class="terms">
-                <h4>📋 Important Terms:</h4>
-                <ul style="margin: 10px 0;">
-                    <li><strong>One-time usage:</strong> Each person can use only one referral code ever</li>
-                    <li><strong>No self-referral:</strong> Cannot use your own code</li>
-                    <li><strong>Successful payments only:</strong> Discount applied only on completed transactions</li>
-                    <li><strong>Cashback processing:</strong> Earn ₹500 cashback for each friend's successful subscription</li>
-                    <li><strong>Valid plans:</strong> Pro Regular and Pro Exclusive only</li>
-                </ul>
-                <p style="margin-top: 15px;">
-                    <a href="https://twelvr.com/terms" class="legal-link">T&Cs apply</a>
-                </p>
+            <div class="pricing">
+                <p style="font-size: 16px; margin-bottom: 10px;"><strong>Pro Regular</strong> ₹1,495 → <span class="highlight">₹995</span> with your code</p>
+                <p style="font-size: 16px; margin-bottom: 0;"><strong>Pro Exclusive</strong> ₹2,565 → <span class="highlight">₹2,065</span> with your code</p>
             </div>
             
-            <p style="text-align: center; margin: 30px 0;">
-                <a href="https://twelvr.com" class="cta-button">Start your 12 🎯</a>
+            <p style="font-size: 14px; margin-top: 30px; color: #666;">
+                One-time use per person. Unlimited shares for you.<br>
+                Cashback processed after successful subscriptions.<br><br>
+                <a href="https://twelvr.com/terms" style="color: #9ac026; text-decoration: none;">T&Cs apply</a>
             </p>
-            
-            <p><strong>Questions?</strong> Reply to this email or reach us at <a href="mailto:hello@twelvr.com" style="color: #9ac026;">hello@twelvr.com</a></p>
         </div>
         
         <div class="footer">
             <p><strong>The Twelvr Team</strong><br>
-            hello@twelvr.com<br>
-            <em>You, Compounded.</em></p>
+            hello@twelvr.com</p>
+            <p class="tagline">You, Compounded.</p>
         </div>
     </div>
 </body>
