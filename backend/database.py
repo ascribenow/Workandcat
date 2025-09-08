@@ -408,6 +408,7 @@ class ReferralUsage(Base):
     used_by_email = Column(String(255), nullable=False)  # Email of user who used the code
     discount_amount = Column(Integer, nullable=False, default=500)  # Discount amount in INR
     subscription_type = Column(String(50), nullable=False)  # pro_regular or pro_exclusive
+    payment_reference = Column(String(255), nullable=True)  # Payment ID that triggered the usage recording
     created_at = Column(DateTime, default=datetime.utcnow)
     
     # Relationships
