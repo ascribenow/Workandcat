@@ -4747,7 +4747,6 @@ async def upload_questions_csv(
                     image_url=image_url,
                     image_alt_text=image_alt_text,
                     # Metadata 
-                    tags=json.dumps(["csv_upload", "new_workflow"]),
                     source="Admin CSV Upload - New Workflow",
                     # Initially inactive until enrichment and validation
                     is_active=False
