@@ -5135,7 +5135,7 @@ async def upload_pyq_csv(file: UploadFile, db: AsyncSession, current_user: User)
         
         # Create single PYQ paper record (no year)
         paper = PYQPaper(
-            year=None,  # No year dependency
+            year=2025,  # Placeholder year for year-independent PYQ system
             slot="CSV",
             source_url=None,
             ingestion_id=str(ingestion.id)
