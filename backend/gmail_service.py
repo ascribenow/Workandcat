@@ -894,8 +894,26 @@ You, Compounded.
 </html>            
             """
             
+            # Send email using the same pattern as other email methods
+            msg = MIMEMultipart('alternative')
+            msg['to'] = to_email
+            msg['from'] = self.sender_email
+            msg['subject'] = subject
+            
+            # Create text and HTML parts
+            text_part = MIMEText(plain_text, 'plain')
+            html_part = MIMEText(html_content, 'html')
+            
+            msg.attach(text_part)
+            msg.attach(html_part)
+            
             # Send email
-            return self._send_html_email(to_email, subject, html_content, plain_text)
+            raw = base64.urlsafe_b64encode(msg.as_bytes()).decode()
+            message = {'raw': raw}
+            
+            self.service.users().messages().send(userId='me', body=message).execute()
+            print(f"✅ Referral welcome email sent successfully to {to_email} with code {referral_code}")
+            return True
             
         except Exception as e:
             print(f"Error sending referral code email: {e}")
