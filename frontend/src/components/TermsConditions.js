@@ -55,7 +55,7 @@ const TermsConditions = () => {
               <strong>Effective Date:</strong> 01 Aug 2025
             </p>
             <p className="text-gray-600 mb-6" style={{ fontFamily: 'Lato, sans-serif' }}>
-              <strong>Company:</strong> M/s Costo Digital
+              <strong>Company:</strong> Twelvr
             </p>
             <p className="text-lg" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
               Welcome to Twelvr, an adaptive exam preparation platform. By accessing or using our platform, you agree to these Terms.
