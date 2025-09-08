@@ -578,6 +578,204 @@ The Twelvr Team
         for email in expired_users:
             del self.pending_users[email]
 
+    def send_signup_confirmation_email(self, to_email: str, full_name: str) -> bool:
+        """Send basic signup confirmation email (separate from referral email)"""
+        if not self.service:
+            print("Gmail service not authenticated")
+            return False
+        
+        try:
+            # Create email content
+            subject = "🎯 Welcome to Twelvr! Your Account is Ready"
+            preheader = "Your CAT prep journey starts now. You, Compounded."
+            
+            plain_text = f"""
+{preheader}
+
+Hello {full_name},
+
+Welcome to Twelvr! Your account has been successfully created.
+
+🚀 WHAT'S NEXT:
+• Log in to start your personalized CAT preparation
+• Explore adaptive question sessions designed just for you
+• Track your progress with detailed analytics
+• Access your free trial sessions immediately
+
+🎯 YOUR JOURNEY BEGINS:
+Adaptive CAT prep that compounds. Every question, every session, every insight builds upon the last to accelerate your learning.
+
+Ready to start? Log in to your dashboard and begin your first session.
+
+Questions? Reply to this email or reach us at hello@twelvr.com
+
+Best regards,
+The Twelvr Team
+hello@twelvr.com
+You, Compounded.
+            """.strip()
+            
+            html_content = f"""
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Welcome to Twelvr - Account Created</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--[if !mso]><!-->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!--<![endif]-->
+    <!-- Preheader text for better deliverability -->
+    <div style="display: none; font-size: 1px; color: #fefefe; line-height: 1px; font-family: Arial, sans-serif; max-height: 0px; max-width: 0px; opacity: 0; overflow: hidden;">
+        {preheader}
+    </div>
+    <style>
+        body {{
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8f9fa;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }}
+        .container {{
+            background-color: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+        }}
+        .header {{
+            background: linear-gradient(135deg, #9ac026 0%, #667eea 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }}
+        .header h1 {{
+            margin: 0;
+            font-size: 28px;
+            font-weight: 700;
+        }}
+        .tagline {{
+            margin: 10px 0 0 0;
+            font-size: 16px;
+            opacity: 0.9;
+        }}
+        .content {{
+            padding: 35px 30px;
+        }}
+        .welcome-message {{
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 25px;
+            border-radius: 12px;
+            border-left: 5px solid #9ac026;
+            margin: 25px 0;
+        }}
+        .next-steps {{
+            background-color: #fff8e1;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #ffc107;
+            margin: 25px 0;
+        }}
+        .cta-button {{
+            display: inline-block;
+            background: linear-gradient(135deg, #9ac026 0%, #667eea 100%);
+            color: white;
+            padding: 15px 35px;
+            text-decoration: none;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 16px;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(154, 192, 38, 0.3);
+        }}
+        .footer {{
+            background-color: #f1f3f4;
+            padding: 25px;
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }}
+        
+        /* Mobile responsiveness */
+        @media only screen and (max-width: 600px) {{
+            .content {{
+                padding: 20px 15px;
+            }}
+        }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 Welcome to Twelvr!</h1>
+            <p class="tagline">You, Compounded.</p>
+        </div>
+        
+        <div class="content">
+            <h2>Hello {full_name},</h2>
+            
+            <div class="welcome-message">
+                <h3>🎉 Your Account is Ready!</h3>
+                <p>Welcome to Twelvr! Your account has been successfully created and you're ready to begin your CAT preparation journey.</p>
+                <p><strong>Adaptive CAT prep that compounds.</strong> Every question, every session, every insight builds upon the last to accelerate your learning.</p>
+            </div>
+            
+            <div class="next-steps">
+                <h3>🚀 What's Next:</h3>
+                <ul style="line-height: 1.8;">
+                    <li><strong>Log in</strong> to start your personalized CAT preparation</li>
+                    <li><strong>Explore</strong> adaptive question sessions designed just for you</li>
+                    <li><strong>Track</strong> your progress with detailed analytics</li>
+                    <li><strong>Access</strong> your free trial sessions immediately</li>
+                </ul>
+            </div>
+            
+            <p style="text-align: center; margin: 30px 0;">
+                <a href="https://twelvr.com" class="cta-button">Start your 12 🎯</a>
+            </p>
+            
+            <p><strong>Questions?</strong> Reply to this email or reach us at <a href="mailto:hello@twelvr.com" style="color: #9ac026;">hello@twelvr.com</a></p>
+        </div>
+        
+        <div class="footer">
+            <p><strong>The Twelvr Team</strong><br>
+            hello@twelvr.com<br>
+            <em>You, Compounded.</em></p>
+        </div>
+    </div>
+</body>
+</html>            
+            """
+            
+            # Send email using the same pattern as other email methods
+            msg = MIMEMultipart('alternative')
+            msg['to'] = to_email
+            msg['from'] = f'{self.sender_name} <{self.sender_email}>'  # Proper display name format
+            msg['subject'] = subject
+            
+            # Create text and HTML parts
+            text_part = MIMEText(plain_text, 'plain')
+            html_part = MIMEText(html_content, 'html')
+            
+            msg.attach(text_part)
+            msg.attach(html_part)
+            
+            # Send email
+            raw = base64.urlsafe_b64encode(msg.as_bytes()).decode()
+            message = {'raw': raw}
+            
+            self.service.users().messages().send(userId='me', body=message).execute()
+            print(f"✅ Signup confirmation email sent successfully to {to_email}")
+            return True
+            
+        except Exception as e:
+            print(f"Error sending signup confirmation email: {e}")
+            return False
+
     def send_referral_code_email(self, to_email: str, full_name: str, referral_code: str) -> bool:
         """Send referral code email to new user"""
         if not self.service:
