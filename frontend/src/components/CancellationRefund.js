@@ -55,7 +55,7 @@ const CancellationRefund = () => {
               <strong>Effective Date:</strong> 01 Aug 2025
             </p>
             <p className="text-gray-600 mb-6" style={{ fontFamily: 'Lato, sans-serif' }}>
-              <strong>Company:</strong> Twelvr
+              <strong>Company:</strong> M/s Costo Digital
             </p>
             <p className="text-lg" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
               At Twelvr, our services are subscription-based, delivering personalized sessions.
