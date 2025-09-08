@@ -84,7 +84,7 @@ class DynamicFrequencyCalculator:
             logger.error(f"❌ Error calculating true PYQ frequency: {e}")
             return self._create_default_frequency_result(error=str(e))
     
-    async def _get_active_pyq_questions(self, db: AsyncSession, years_window: int = None) -> List[PYQQuestion]:
+    async def _get_active_pyq_questions(self, db: AsyncSession) -> List[PYQQuestion]:
         """
         Get all active PYQ questions from the database (no year filtering as per user requirement)
         Frequency calculated based on overall populated entries of PYQ database
