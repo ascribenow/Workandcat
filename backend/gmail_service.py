@@ -762,7 +762,7 @@ You, Compounded.
         try:
             # Create email content with preheader for deliverability - Twelvr brand style
             subject = f"Your referral code: {referral_code}"
-            preheader = "Share. Save. Earn. You, Compounded."
+            preheader = "Help your friends discover better CAT prep."
             
             plain_text = f"""
 {preheader}
@@ -771,12 +771,12 @@ You, Compounded.
 
 Your referral code: {referral_code}
 
-Share your code → Your friend saves ₹500 → You earn ₹500
+If you find Twelvr helpful, share it with your friends.
 
-Pro Regular: ₹1,495 → ₹995
-Pro Exclusive: ₹2,565 → ₹2,065
+They'll get ₹500 off their subscription.
+You'll earn ₹500 cashback when they join.
 
-One-time use per person. Unlimited shares for you.
+One-time use per person.
 
 T&Cs: https://twelvr.com/terms
 
@@ -815,18 +815,18 @@ You, Compounded.
         .header {{
             background-color: #ffffff;
             color: #545454;
-            padding: 50px 40px 20px 40px;
+            padding: 40px 30px 15px 30px;
             text-align: center;
         }}
         .header h1 {{
             margin: 0;
-            font-size: 28px;
+            font-size: 26px;
             font-weight: 600;
             color: #545454;
             line-height: 1.3;
         }}
         .content {{
-            padding: 20px 40px 50px 40px;
+            padding: 15px 30px 35px 30px;
             text-align: center;
         }}
         .referral-code {{
@@ -834,10 +834,10 @@ You, Compounded.
             border: 2px solid #9ac026;
             color: #545454;
             text-align: center;
-            padding: 20px;
+            padding: 18px;
             border-radius: 12px;
-            margin: 30px 0;
-            font-size: 28px;
+            margin: 20px 0;
+            font-size: 24px;
             font-weight: 700;
             letter-spacing: 1px;
             box-shadow: 0 2px 8px rgba(154, 192, 38, 0.1);
@@ -850,34 +850,20 @@ You, Compounded.
             color: #ff6d4d;
             font-weight: 600;
         }}
-        .how-section {{
+        .help-section {{
             background-color: #f8f9fa;
-            padding: 25px;
+            padding: 20px;
             border-radius: 12px;
-            margin: 30px 0;
+            margin: 25px 0;
             border-left: 4px solid #9ac026;
-        }}
-        .pricing-section {{
-            margin: 30px 0;
-            padding: 0;
-        }}
-        .price-row {{
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid #e9ecef;
-        }}
-        .price-row:last-child {{
-            border-bottom: none;
         }}
         .logo-section {{
             text-align: center;
-            margin: 40px 0;
+            margin: 25px 0;
         }}
         .footer {{
             background-color: #f8f9fa;
-            padding: 30px 40px;
+            padding: 25px 30px;
             text-align: center;
             color: #545454;
             font-size: 14px;
@@ -887,13 +873,13 @@ You, Compounded.
             font-size: 14px;
             font-weight: 600;
             color: #9ac026;
-            margin-top: 10px;
+            margin-top: 8px;
         }}
         .terms {{
-            font-size: 14px;
+            font-size: 13px;
             color: #666;
-            margin-top: 30px;
-            padding-top: 20px;
+            margin-top: 25px;
+            padding-top: 15px;
             border-top: 1px solid #e9ecef;
         }}
     </style>
@@ -901,40 +887,34 @@ You, Compounded.
 <body>
     <div class="container">
         <div class="header">
-            <h1>Share. <span class="highlight">Save</span>. <span class="accent">Earn</span>.</h1>
+            <h1>Help your friends discover better CAT prep.</h1>
         </div>
         
         <div class="content">
-            <p style="font-size: 18px; margin-bottom: 25px;">{full_name},</p>
+            <p style="font-size: 16px; margin-bottom: 20px;">{full_name},</p>
             
-            <p style="font-size: 16px; margin-bottom: 15px;">Your referral code:</p>
+            <p style="font-size: 15px; margin-bottom: 10px;">Your referral code:</p>
             
             <div class="referral-code">
                 {referral_code}
             </div>
             
             <div class="logo-section">
-                <img src="https://twelvr.com/favicon.png" alt="Twelvr" style="width: 50px; height: 50px; opacity: 0.6;">
+                <img src="https://twelvr.com/favicon.png" alt="Twelvr" style="width: 45px; height: 45px; opacity: 0.6;">
             </div>
             
-            <div class="how-section">
-                <p style="font-size: 16px; margin: 0; font-weight: 500;">Share your code → Your friend saves <span class="highlight">₹500</span> → You earn <span class="accent">₹500</span></p>
+            <div class="help-section">
+                <p style="font-size: 15px; margin: 0; font-weight: 500;">If you find Twelvr helpful, share it with your friends.</p>
             </div>
             
-            <div class="pricing-section">
-                <div class="price-row">
-                    <span style="font-weight: 500;">Pro Regular</span>
-                    <span>₹1,495 → <span class="highlight">₹995</span></span>
-                </div>
-                <div class="price-row">
-                    <span style="font-weight: 500;">Pro Exclusive</span>
-                    <span>₹2,565 → <span class="highlight">₹2,065</span></span>
-                </div>
-            </div>
+            <p style="font-size: 14px; margin: 20px 0 0 0; color: #666;">
+                They'll get <span class="highlight">₹500 off</span> their subscription.<br>
+                You'll earn <span class="accent">₹500 cashback</span> when they join.
+            </p>
             
             <div class="terms">
                 <p style="margin: 0;">
-                    One-time use per person. Unlimited shares for you.<br>
+                    One-time use per person.<br>
                     <a href="https://twelvr.com/terms" style="color: #9ac026; text-decoration: none;">T&Cs apply</a>
                 </p>
             </div>
