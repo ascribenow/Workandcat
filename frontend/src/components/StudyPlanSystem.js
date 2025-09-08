@@ -106,7 +106,7 @@ export const StudyPlanSystem = () => {
               <h3 className="text-xl font-semibold text-green-900 mb-3">🟢 Beginner Track</h3>
               <ul className="text-sm text-green-800 space-y-2 mb-4">
                 <li>• Foundation building approach</li>
-                <li>• 45-60 minutes daily</li>
+                <li>• 45-60 minutes per session</li>
                 <li>• Concept clarity focus</li>
                 <li>• Gradual difficulty progression</li>
               </ul>
