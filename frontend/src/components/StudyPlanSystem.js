@@ -123,7 +123,7 @@ export const StudyPlanSystem = () => {
               <h3 className="text-xl font-semibold text-yellow-900 mb-3">🟡 Intermediate Track</h3>
               <ul className="text-sm text-yellow-800 space-y-2 mb-4">
                 <li>• Balanced approach</li>
-                <li>• 60-75 minutes daily</li>
+                <li>• 60-75 minutes per session</li>
                 <li>• Speed & accuracy focus</li>
                 <li>• Mixed difficulty levels</li>
               </ul>
