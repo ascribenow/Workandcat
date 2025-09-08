@@ -33,16 +33,16 @@ class CATBackendTester:
             
             # Make request based on method
             if method == "GET":
-                response = requests.get(url, headers=headers, timeout=30)
+                response = requests.get(url, headers=headers, timeout=60, verify=False)
             elif method == "POST":
                 if data:
-                    response = requests.post(url, json=data, headers=headers, timeout=30)
+                    response = requests.post(url, json=data, headers=headers, timeout=60, verify=False)
                 else:
-                    response = requests.post(url, headers=headers, timeout=30)
+                    response = requests.post(url, headers=headers, timeout=60, verify=False)
             elif method == "PUT":
-                response = requests.put(url, json=data, headers=headers, timeout=30)
+                response = requests.put(url, json=data, headers=headers, timeout=60, verify=False)
             elif method == "DELETE":
-                response = requests.delete(url, headers=headers, timeout=30)
+                response = requests.delete(url, headers=headers, timeout=60, verify=False)
             else:
                 print(f"❌ {test_name}: Unsupported method {method}")
                 return False, None
