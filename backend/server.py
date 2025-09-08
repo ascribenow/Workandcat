@@ -5062,8 +5062,6 @@ async def upload_pyq_document(
             slot=slot,
             source_url=source_url,
             pages_count=None,
-            ocr_required=False,
-            ocr_status="not_needed",
             parse_status="legacy_queued"
         )
         
