@@ -96,7 +96,25 @@ const TermsConditions = () => {
             </section>
 
             <section>
-              <h2 className="text-2xl font-bold mb-4" style={{ color: '#545454' }}>4. Acceptable Use</h2>
+              <h2 className="text-2xl font-bold mb-4" style={{ color: '#545454' }}>4. Referral Program</h2>
+              <p className="mb-3 text-gray-700" style={{ fontFamily: 'Lato, sans-serif' }}>
+                Twelvr offers a referral program where users can share their unique referral codes with others. The following terms apply:
+              </p>
+              <ul className="space-y-2 text-gray-700" style={{ fontFamily: 'Lato, sans-serif' }}>
+                <li><strong>Eligibility:</strong> Referral discounts apply only to Pro Regular and Pro Exclusive subscription plans.</li>
+                <li><strong>One-time usage:</strong> Each email address can use only one referral code during their entire platform lifetime.</li>
+                <li><strong>Self-referral prohibition:</strong> Users cannot use their own referral codes.</li>
+                <li><strong>Discount amount:</strong> Valid referral codes provide ₹500 discount on the original plan price.</li>
+                <li><strong>Successful payments only:</strong> Referral usage is recorded only after successful payment completion, not during order creation.</li>
+                <li><strong>Referrer rewards:</strong> The referral code owner earns ₹500 cashback for each successful use of their code, processed manually by our admin team.</li>
+                <li><strong>No stacking:</strong> Referral discounts cannot be combined with other promotions or offers.</li>
+                <li><strong>Modification rights:</strong> Twelvr reserves the right to modify or discontinue the referral program at any time with notice.</li>
+                <li><strong>Abuse prevention:</strong> Any fraudulent or abusive use of referral codes may result in account suspension and forfeiture of rewards.</li>
+              </ul>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-bold mb-4" style={{ color: '#545454' }}>5. Acceptable Use</h2>
               <p className="mb-3 text-gray-700" style={{ fontFamily: 'Lato, sans-serif' }}>You agree not to:</p>
               <ul className="space-y-2 text-gray-700" style={{ fontFamily: 'Lato, sans-serif' }}>
                 <li>Share your account with others.</li>
