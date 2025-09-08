@@ -914,7 +914,7 @@ You, Compounded.
             
             <div class="terms">
                 <p style="margin: 0;">
-                    One-time use per person.<br>
+                    Share with as many friends as you like.<br>
                     <a href="https://twelvr.com/terms" style="color: #9ac026; text-decoration: none;">T&Cs apply</a>
                 </p>
             </div>
