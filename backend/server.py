@@ -4394,24 +4394,13 @@ async def download_pyq_file(
         metadata = json.loads(file_record.file_metadata) if file_record.file_metadata else {}
         years_processed = metadata.get("years_processed", [])
         
-        # Query PYQ questions from these years (approximate recreation)
-        if years_processed:
-            questions_result = await db.execute(
-                select(PYQQuestion, PYQPaper)
-                .join(PYQPaper, PYQQuestion.paper_id == PYQPaper.id)
-                .where(PYQPaper.year.in_(years_processed))
-                .order_by(PYQPaper.year, PYQQuestion.created_at)
-            )
-            questions = questions_result.all()
-        else:
-            # If no year info, get recent questions
-            questions_result = await db.execute(
-                select(PYQQuestion, PYQPaper)
-                .join(PYQPaper, PYQQuestion.paper_id == PYQPaper.id)
-                .order_by(desc(PYQQuestion.created_at))
-                .limit(metadata.get("questions_created", 50))
-            )
-            questions = questions_result.all()
+        # Query PYQ questions (no year filtering needed)
+        questions_result = await db.execute(
+            select(PYQQuestion, PYQPaper)
+            .join(PYQPaper, PYQQuestion.paper_id == PYQPaper.id)
+            .order_by(PYQQuestion.created_at)
+        )
+        questions = questions_result.all()
         
         # Create CSV content
         output = io.StringIO()
