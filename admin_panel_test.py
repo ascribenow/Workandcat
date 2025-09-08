@@ -9,7 +9,7 @@ import json
 import sys
 
 class AdminPanelTester:
-    def __init__(self, base_url="https://payment-integrity.preview.emergentagent.com/api"):
+    def __init__(self, base_url="https://payment-system-fix-5.preview.emergentagent.com/api"):
         self.base_url = base_url
         self.admin_token = None
         self.admin_user = None

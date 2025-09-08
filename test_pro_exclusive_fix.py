@@ -9,7 +9,7 @@ import time
 
 def test_pro_exclusive_payment():
     """Test Pro Exclusive payment with authenticated user"""
-    base_url = "https://payment-integrity.preview.emergentagent.com/api"
+    base_url = "https://payment-system-fix-5.preview.emergentagent.com/api"
     
     print("🔍 TESTING PRO EXCLUSIVE PAYMENT WITH AUTHENTICATED USER")
     print("=" * 60)

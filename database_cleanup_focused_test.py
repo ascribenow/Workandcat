@@ -19,7 +19,7 @@ def test_database_cleanup_validation():
     print("ADMIN CREDENTIALS: sumedhprabhu18@gmail.com/admin2025")
     print("=" * 80)
     
-    base_url = "https://payment-integrity.preview.emergentagent.com/api"
+    base_url = "https://payment-system-fix-5.preview.emergentagent.com/api"
     
     # Step 1: Admin Authentication
     print("\n🔐 STEP 1: ADMIN AUTHENTICATION")
