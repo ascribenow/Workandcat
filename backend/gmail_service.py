@@ -325,7 +325,7 @@ The Twelvr Team
             # Create message
             message = MIMEMultipart('alternative')
             message['to'] = to_email
-            message['from'] = self.sender_email
+            message['from'] = f'{self.sender_name} <{self.sender_email}>'  # Proper display name format
             message['subject'] = subject
             
             # Add parts
