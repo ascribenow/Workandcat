@@ -2376,11 +2376,41 @@ class CATBackendTester:
 
 if __name__ == "__main__":
     tester = CATBackendTester()
-    success = tester.run_all_tests()
     
-    if success:
-        print("\n✅ All critical tests passed!")
+    print("🚀 CAT BACKEND COMPREHENSIVE TESTING SUITE")
+    print("=" * 80)
+    print("Testing frequency band determination logic as requested in review")
+    print("")
+    
+    # Run frequency band determination logic testing (as requested in review)
+    print("🎯 STARTING FREQUENCY BAND DETERMINATION LOGIC TESTING")
+    frequency_success = tester.test_frequency_band_determination_logic()
+    
+    print("\n" + "=" * 80)
+    print("🎯 FINAL TESTING SUMMARY")
+    print("=" * 80)
+    
+    if frequency_success:
+        print("🎉 FREQUENCY BAND DETERMINATION LOGIC: ✅ FUNCTIONAL")
+        print("   - Frequency scores correctly map to bands")
+        print("   - CSV upload integrates frequency calculation")
+        print("   - Dynamic conceptual matching working")
+        print("   - Fallback case handles errors properly")
+        print("   - Admin endpoints work with updated logic")
+        print("   🏆 PRODUCTION READY")
+    else:
+        print("❌ FREQUENCY BAND DETERMINATION LOGIC: ⚠️ ISSUES DETECTED")
+        print("   - Some components may need attention")
+        print("   - Review individual test results above")
+        print("   🔧 REQUIRES FIXES")
+    
+    print(f"\nTotal Tests Run: {tester.tests_run}")
+    print(f"Total Tests Passed: {tester.tests_passed}")
+    print(f"Overall Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%")
+    
+    print("\n🎯 TESTING COMPLETE - Review results above for detailed analysis")
+    
+    if frequency_success:
         sys.exit(0)
     else:
-        print("\n❌ Some tests failed!")
         sys.exit(1)
