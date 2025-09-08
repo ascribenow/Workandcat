@@ -640,12 +640,12 @@ You, Compounded.
         .header {{
             background-color: #ffffff;
             color: #545454;
-            padding: 50px 40px 30px 40px;
+            padding: 40px 30px 20px 30px;
             text-align: center;
         }}
         .header h1 {{
-            margin: 0 0 20px 0;
-            font-size: 34px;
+            margin: 0 0 15px 0;
+            font-size: 30px;
             font-weight: 700;
             color: #545454;
             line-height: 1.2;
@@ -654,23 +654,23 @@ You, Compounded.
             color: #9ac026;
         }}
         .content {{
-            padding: 20px 40px 50px 40px;
+            padding: 15px 30px 35px 30px;
             text-align: center;
         }}
         .logo-section {{
             text-align: center;
-            margin: 30px 0 40px 0;
+            margin: 20px 0 25px 0;
         }}
         .cta-button {{
             display: inline-block;
             background-color: #9ac026;
-            color: white;
+            color: #ffffff !important;
             padding: 12px 32px;
             text-decoration: none;
             border-radius: 25px;
             font-weight: 600;
             font-size: 16px;
-            margin: 30px 0 20px 0;
+            margin: 25px 0 15px 0;
             transition: background-color 0.3s;
             box-shadow: 0 4px 12px rgba(154, 192, 38, 0.25);
         }}
@@ -679,7 +679,7 @@ You, Compounded.
         }}
         .footer {{
             background-color: #f8f9fa;
-            padding: 30px 40px;
+            padding: 25px 30px;
             text-align: center;
             color: #545454;
             font-size: 14px;
@@ -689,7 +689,7 @@ You, Compounded.
             font-size: 14px;
             font-weight: 600;
             color: #9ac026;
-            margin-top: 10px;
+            margin-top: 8px;
         }}
     </style>
 </head>
@@ -700,22 +700,22 @@ You, Compounded.
         </div>
         
         <div class="content">
-            <p style="font-size: 18px; margin-bottom: 25px;">{full_name},</p>
+            <p style="font-size: 16px; margin-bottom: 20px;">{full_name},</p>
             
-            <p style="font-size: 16px; margin-bottom: 25px;">Your Twelvr account is ready.</p>
+            <p style="font-size: 15px; margin-bottom: 20px;">Your Twelvr account is ready.</p>
             
             <div class="logo-section">
-                <img src="https://twelvr.com/favicon.png" alt="Twelvr" style="width: 60px; height: 60px; opacity: 0.8;">
+                <img src="https://twelvr.com/favicon.png" alt="Twelvr" style="width: 50px; height: 50px; opacity: 0.8;">
             </div>
             
-            <p style="font-size: 16px; margin-bottom: 30px; font-weight: 500;">
+            <p style="font-size: 15px; margin-bottom: 25px; font-weight: 500;">
                 <strong>12Qs a session. Adaptive engine tuned on CAT.</strong><br>
                 Your prep, sharpened to you.
             </p>
             
             <a href="https://twelvr.com" class="cta-button">Start My 12</a>
             
-            <p style="font-size: 16px; margin-top: 40px; font-weight: 500; color: #9ac026;">Consistency, without the grind.</p>
+            <p style="font-size: 15px; margin-top: 25px; font-weight: 500; color: #9ac026;">Consistency, without the grind.</p>
         </div>
         
         <div class="footer">
