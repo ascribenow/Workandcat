@@ -934,7 +934,7 @@ ${response.data.errors > 0 ? '⚠️ Check the logs for error details.' : ''}`);
                     <div className="text-sm text-green-700">
                       <ul className="list-disc list-inside space-y-2">
                         <li><strong>stem</strong> - Question text (Required)</li>
-                        <li><strong>year</strong> - PYQ year (Required, e.g., 2024, 2023, 2022)</li>
+                        <li><strong>year</strong> - PYQ year (Optional, e.g., 2024, 2023, 2022)</li>
                         <li><strong>image_url</strong> - Google Drive share link (Optional)</li>
                       </ul>
                       <div className="mt-4 p-3 bg-white rounded border border-green-300">
