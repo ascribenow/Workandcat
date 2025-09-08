@@ -629,24 +629,23 @@ You, Compounded.
             color: #545454;
             max-width: 600px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 0;
             background-color: #ffffff;
         }}
         .container {{
             background-color: #ffffff;
             border-radius: 0;
             overflow: hidden;
-            border: 1px solid #e5e5e5;
         }}
         .header {{
             background-color: #ffffff;
             color: #545454;
-            padding: 40px 30px 20px 30px;
-            text-align: left;
+            padding: 50px 40px 30px 40px;
+            text-align: center;
         }}
         .header h1 {{
-            margin: 0;
-            font-size: 32px;
+            margin: 0 0 20px 0;
+            font-size: 34px;
             font-weight: 700;
             color: #545454;
             line-height: 1.2;
@@ -655,43 +654,36 @@ You, Compounded.
             color: #9ac026;
         }}
         .content {{
-            padding: 20px 30px 40px 30px;
+            padding: 20px 40px 50px 40px;
+            text-align: center;
         }}
-        .dots {{
-            display: flex;
-            justify-content: flex-start;
-            margin: 20px 0;
-        }}
-        .dot {{
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background-color: #9ac026;
-            margin-right: 4px;
-            opacity: 0.8;
+        .logo-section {{
+            text-align: center;
+            margin: 30px 0 40px 0;
         }}
         .cta-button {{
             display: inline-block;
             background-color: #9ac026;
             color: white;
-            padding: 14px 28px;
+            padding: 12px 32px;
             text-decoration: none;
             border-radius: 25px;
             font-weight: 600;
             font-size: 16px;
-            margin: 25px 0 20px 0;
+            margin: 30px 0 20px 0;
             transition: background-color 0.3s;
+            box-shadow: 0 4px 12px rgba(154, 192, 38, 0.25);
         }}
         .cta-button:hover {{
             background-color: #8bb024;
         }}
         .footer {{
-            background-color: #f8f8f8;
-            padding: 30px;
-            text-align: left;
+            background-color: #f8f9fa;
+            padding: 30px 40px;
+            text-align: center;
             color: #545454;
             font-size: 14px;
-            border-top: 1px solid #e5e5e5;
+            border-top: 1px solid #e9ecef;
         }}
         .tagline {{
             font-size: 14px;
@@ -708,27 +700,22 @@ You, Compounded.
         </div>
         
         <div class="content">
-            <p style="font-size: 18px; margin-bottom: 20px;">{full_name},</p>
+            <p style="font-size: 18px; margin-bottom: 25px;">{full_name},</p>
             
-            <p style="font-size: 16px; margin-bottom: 20px;">Your Twelvr account is ready.</p>
+            <p style="font-size: 16px; margin-bottom: 25px;">Your Twelvr account is ready.</p>
             
-            <p style="font-size: 16px; margin-bottom: 25px;">
+            <div class="logo-section">
+                <img src="https://twelvr.com/favicon.png" alt="Twelvr" style="width: 60px; height: 60px; opacity: 0.8;">
+            </div>
+            
+            <p style="font-size: 16px; margin-bottom: 30px; font-weight: 500;">
                 <strong>12Qs a session. Adaptive engine tuned on CAT.</strong><br>
                 Your prep, sharpened to you.
             </p>
             
-            <!-- 12 Dots Visual -->
-            <div class="dots">
-                <div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
-                <div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
-                <div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
-            </div>
-            
-            <p style="font-size: 16px; margin-bottom: 25px;">Ready to start? Log in to your dashboard.</p>
-            
             <a href="https://twelvr.com" class="cta-button">Start My 12</a>
             
-            <p style="font-size: 16px; margin-top: 30px; font-weight: 600;">Consistency, without the grind.</p>
+            <p style="font-size: 16px; margin-top: 40px; font-weight: 500; color: #9ac026;">Consistency, without the grind.</p>
         </div>
         
         <div class="footer">
