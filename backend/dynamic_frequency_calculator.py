@@ -48,8 +48,8 @@ class DynamicFrequencyCalculator:
             
             logger.info(f"📋 Extracted {len(regular_concepts['core_concepts'])} concepts from regular question")
             
-            # STEP 2: Get all active PYQ questions from analysis window
-            active_pyqs = await self._get_active_pyq_questions(db, self.total_years_window)
+            # STEP 2: Get all active PYQ questions from database
+            active_pyqs = await self._get_active_pyq_questions(db)
             
             if not active_pyqs:
                 logger.warning(f"⚠️ No active PYQ questions found for frequency analysis")
