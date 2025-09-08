@@ -63,7 +63,7 @@ const PrivacyPolicy = () => {
               <strong>Company:</strong> M/s Costo Digital ("we," "our," or "us")
             </p>
             <p className="text-lg" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
-              At Twelvr, we value your trust. This Privacy Policy explains how we collect, use, and protect your information when you use our platform.
+              At M/s Costo Digital, we value your trust. This Privacy Policy explains how we collect, use, and protect your information when you use our platform, Twelvr.
             </p>
           </div>
 
