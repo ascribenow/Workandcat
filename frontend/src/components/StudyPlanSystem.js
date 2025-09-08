@@ -140,7 +140,7 @@ export const StudyPlanSystem = () => {
               <h3 className="text-xl font-semibold text-red-900 mb-3">🔴 Advanced Track</h3>
               <ul className="text-sm text-red-800 space-y-2 mb-4">
                 <li>• Intensive preparation</li>
-                <li>• 75-90 minutes daily</li>
+                <li>• 75-90 minutes per session</li>
                 <li>• High difficulty focus</li>
                 <li>• Time optimization</li>
               </ul>
