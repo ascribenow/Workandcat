@@ -140,11 +140,11 @@ class ReferralService:
                 "can_use": False
             }
     
-    def apply_referral_discount(self, referral_code: str, user_id: str, user_email: str, 
-                              subscription_type: str, original_amount: int, db: Session) -> Dict[str, Any]:
+    def calculate_referral_discount(self, referral_code: str, user_email: str, 
+                                  subscription_type: str, original_amount: int, db: Session) -> Dict[str, Any]:
         """
-        Apply referral discount and record the usage
-        Returns the discounted amount and usage details
+        Calculate referral discount WITHOUT recording usage
+        Only validates and calculates - usage recorded after payment success
         """
         try:
             referral_code = referral_code.upper().strip()
@@ -166,26 +166,7 @@ class ReferralService:
             discounted_amount = max(original_amount - discount_amount_paise, 100)
             actual_discount = original_amount - discounted_amount
             
-            # Record referral usage
-            usage_id = self._generate_uuid()
-            db.execute(
-                text("""
-                    INSERT INTO referral_usage 
-                    (id, referral_code, used_by_user_id, used_by_email, discount_amount, subscription_type)
-                    VALUES (:id, :code, :user_id, :email, :discount, :sub_type)
-                """),
-                {
-                    "id": usage_id,
-                    "code": referral_code,
-                    "user_id": user_id,
-                    "email": user_email.lower(),
-                    "discount": actual_discount,
-                    "sub_type": subscription_type
-                }
-            )
-            db.commit()
-            
-            logger.info(f"Applied referral discount: {referral_code} used by {user_email}, discount: ₹{actual_discount/100:.2f} (original: ₹{original_amount/100:.2f} → final: ₹{discounted_amount/100:.2f})")
+            logger.info(f"Calculated referral discount: {referral_code} for {user_email}, discount: ₹{actual_discount/100:.2f} (original: ₹{original_amount/100:.2f} → final: ₹{discounted_amount/100:.2f}) - NOT YET RECORDED")
             
             return {
                 "success": True,
@@ -193,19 +174,92 @@ class ReferralService:
                 "discounted_amount": discounted_amount,
                 "discount_applied": actual_discount,
                 "referral_code": referral_code,
-                "usage_id": usage_id
+                "pending_usage": True  # Indicates usage not yet recorded
             }
             
         except Exception as e:
-            logger.error(f"Error applying referral discount {referral_code} for {user_email}: {e}")
-            db.rollback()
+            logger.error(f"Error calculating referral discount {referral_code} for {user_email}: {e}")
             return {
                 "success": False,
-                "error": "An error occurred while applying the discount",
+                "error": "An error occurred while calculating the discount",
                 "original_amount": original_amount,
                 "discounted_amount": original_amount,
                 "discount_applied": 0
             }
+    
+    def record_referral_usage(self, referral_code: str, user_id: str, user_email: str, 
+                            subscription_type: str, discount_amount: int, payment_id: str, db: Session) -> Dict[str, Any]:
+        """
+        Record referral usage ONLY after successful payment verification
+        This ensures users don't lose their one-time usage if payment fails/abandoned
+        """
+        try:
+            referral_code = referral_code.upper().strip()
+            
+            # Double-check that user hasn't already used a referral code
+            # (in case of race conditions or multiple payment attempts)
+            existing_usage = db.execute(
+                text("SELECT id FROM referral_usage WHERE used_by_email = :email"),
+                {"email": user_email.lower()}
+            ).fetchone()
+            
+            if existing_usage:
+                logger.warning(f"Attempted to record referral usage for {user_email} but usage already exists - preventing duplicate")
+                return {
+                    "success": False,
+                    "error": "Referral code already used by this email",
+                    "duplicate_prevented": True
+                }
+            
+            # Record referral usage with payment reference
+            usage_id = self._generate_uuid()
+            db.execute(
+                text("""
+                    INSERT INTO referral_usage 
+                    (id, referral_code, used_by_user_id, used_by_email, discount_amount, subscription_type, payment_reference)
+                    VALUES (:id, :code, :user_id, :email, :discount, :sub_type, :payment_ref)
+                """),
+                {
+                    "id": usage_id,
+                    "code": referral_code,
+                    "user_id": user_id,
+                    "email": user_email.lower(),
+                    "discount": discount_amount,
+                    "sub_type": subscription_type,
+                    "payment_ref": payment_id
+                }
+            )
+            db.commit()
+            
+            logger.info(f"✅ RECORDED referral usage: {referral_code} used by {user_email}, discount: ₹{discount_amount/100:.2f}, payment: {payment_id}")
+            
+            return {
+                "success": True,
+                "usage_id": usage_id,
+                "referral_code": referral_code,
+                "discount_amount": discount_amount,
+                "recorded_at": "payment_verification"
+            }
+            
+        except Exception as e:
+            logger.error(f"Error recording referral usage {referral_code} for {user_email}: {e}")
+            db.rollback()
+            return {
+                "success": False,
+                "error": "An error occurred while recording referral usage",
+                "critical": True
+            }
+
+    def apply_referral_discount(self, referral_code: str, user_id: str, user_email: str, 
+                              subscription_type: str, original_amount: int, db: Session) -> Dict[str, Any]:
+        """
+        DEPRECATED: Use calculate_referral_discount + record_referral_usage instead
+        This method is kept for backward compatibility but logs a warning
+        """
+        logger.warning(f"DEPRECATED: apply_referral_discount called for {user_email} - should use calculate_referral_discount + record_referral_usage")
+        
+        # For backward compatibility, use the new calculate method
+        return self.calculate_referral_discount(referral_code, user_email, subscription_type, original_amount, db)
     
     def get_referral_usage_stats(self, referral_code: str, db: Session) -> Dict[str, Any]:
         """
