@@ -100,11 +100,18 @@ class RazorpayService:
                 from referral_service import referral_service
                 db = SessionLocal()
                 try:
-                    referral_validation = referral_service.validate_referral_code(referral_code, user_email, db)
+                    # Use the new calculate-only method (doesn't record usage)
+                    referral_calculation = referral_service.calculate_referral_discount(
+                        referral_code=referral_code,
+                        user_email=user_email,
+                        subscription_type=plan_type,
+                        original_amount=base_amount,
+                        db=db
+                    )
                     
-                    if referral_validation["valid"] and referral_validation["can_use"]:
-                        discount_amount = referral_validation["discount_amount"]  # ₹500 in paise
-                        final_amount = max(base_amount - discount_amount, 100)  # Minimum ₹1
+                    if referral_calculation["success"]:
+                        final_amount = referral_calculation["discounted_amount"]
+                        discount_amount = referral_calculation["discount_applied"]
                         
                         calculation_result.update({
                             "referral_discount": discount_amount,
@@ -112,13 +119,14 @@ class RazorpayService:
                             "final_amount": final_amount,
                             "final_amount_inr": final_amount / 100,
                             "referral_applied": True,
-                            "referral_validation": referral_validation
+                            "referral_code": referral_calculation["referral_code"],
+                            "usage_will_be_recorded_after_payment": True
                         })
                         
-                        logger.info(f"✅ BACKEND CALCULATION: Referral discount applied - ₹{base_amount/100:.2f} → ₹{final_amount/100:.2f}")
+                        logger.info(f"✅ BACKEND CALCULATION: Referral discount calculated (NOT recorded) - ₹{base_amount/100:.2f} → ₹{final_amount/100:.2f}")
                     else:
-                        logger.info(f"⚠️ BACKEND CALCULATION: Referral code invalid - {referral_validation.get('error', 'Unknown error')}")
-                        calculation_result["referral_validation_error"] = referral_validation.get('error')
+                        logger.info(f"⚠️ BACKEND CALCULATION: Referral code invalid - {referral_calculation.get('error', 'Unknown error')}")
+                        calculation_result["referral_validation_error"] = referral_calculation.get('error')
                         
                 finally:
                     db.close()
