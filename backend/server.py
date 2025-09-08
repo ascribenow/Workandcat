@@ -4844,6 +4844,7 @@ async def upload_questions_csv(
                         logger.warning(f"⚠️ Dynamic frequency calculation failed, using fallback: {freq_error}")
                         # Fallback to neutral score instead of hardcoded categories
                         question.pyq_frequency_score = 0.5
+                        question.frequency_band = 'Medium'  # 0.5 maps to Medium band
                         question.frequency_analysis_method = 'fallback_neutral'
                     
                     # QUALITY CONTROL: Validate admin.answer vs LLM.right_answer
