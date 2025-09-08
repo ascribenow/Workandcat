@@ -4834,10 +4834,11 @@ async def upload_questions_csv(
                         
                         # Update question with real frequency data
                         question.pyq_frequency_score = frequency_result['frequency_score']
+                        question.frequency_band = frequency_result['frequency_band']
                         question.pyq_conceptual_matches = frequency_result['conceptual_matches_count']
                         question.frequency_analysis_method = 'dynamic_conceptual_matching'
                         
-                        logger.info(f"✅ Dynamic frequency calculated: {frequency_result['frequency_score']:.3f} (was hardcoded)")
+                        logger.info(f"✅ Dynamic frequency calculated: {frequency_result['frequency_score']:.3f} ({frequency_result['frequency_band']}) (was hardcoded)")
                         
                     except Exception as freq_error:
                         logger.warning(f"⚠️ Dynamic frequency calculation failed, using fallback: {freq_error}")
