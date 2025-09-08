@@ -5127,12 +5127,12 @@ async def upload_pyq_csv(file: UploadFile, db: AsyncSession, current_user: User)
         # Convert to list for processing
         csv_rows = list(csv_reader)
         
-        # Validate CSV format
+        # Validate CSV format - only stem is required
         if not csv_rows:
             raise HTTPException(status_code=400, detail="CSV file is empty")
         
         first_row = csv_rows[0]
-        required_columns = ['stem', 'year']
+        required_columns = ['stem']
         missing_columns = [col for col in required_columns if col not in first_row]
         if missing_columns:
             raise HTTPException(
