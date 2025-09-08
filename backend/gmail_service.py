@@ -172,7 +172,7 @@ class GmailService:
             
             # Create multipart message
             msg = MIMEMultipart('alternative')
-            msg['From'] = self.sender_email
+            msg['From'] = f'{self.sender_name} <{self.sender_email}>'  # Proper display name format
             msg['To'] = to_email
             msg['Subject'] = subject
             
