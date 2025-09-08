@@ -210,12 +210,36 @@ class DynamicFrequencyCalculator:
                 'concept_summary': []
             }
     
+    def determine_frequency_band(self, frequency_score: float) -> str:
+        """
+        Determine frequency band based on population-based frequency score
+        
+        Uses standardized thresholds consistent with year-independent frequency calculation:
+        - Score >= 0.8: Very High (appears in 80%+ of similar PYQ questions)
+        - Score >= 0.6: High (appears in 60-79% of similar PYQ questions)  
+        - Score >= 0.4: Medium (appears in 40-59% of similar PYQ questions)
+        - Score >= 0.2: Low (appears in 20-39% of similar PYQ questions)
+        - Score < 0.2: Very Low (appears in <20% of similar PYQ questions)
+        """
+        if frequency_score >= 0.8:
+            return 'Very High'
+        elif frequency_score >= 0.6:
+            return 'High'
+        elif frequency_score >= 0.4:
+            return 'Medium'
+        elif frequency_score >= 0.2:
+            return 'Low'
+        else:
+            return 'Very Low'
+    
     def _create_default_frequency_result(self, error: Optional[str] = None) -> Dict[str, Any]:
         """
         Create default frequency result for error cases or when no data available
         """
+        default_score = 0.5  # Neutral default
         return {
-            'frequency_score': 0.5,  # Neutral default
+            'frequency_score': default_score,
+            'frequency_band': self.determine_frequency_band(default_score),
             'conceptual_matches_count': 0,
             'total_pyq_analyzed': 0,
             'average_similarity': 0.0,
