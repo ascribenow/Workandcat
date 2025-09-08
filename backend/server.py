@@ -5546,59 +5546,62 @@ async def enhanced_pyq_enrichment_background(pyq_question_id: str):
     try:
         logger.info(f"🚀 Starting UNIFIED PYQ enrichment for question {pyq_question_id}")
         
-        # Get database session
-        db_gen = get_async_compatible_db()
-        db = await db_gen.__anext__()
-        
-        try:
-            # Get PYQ question
-            result = await db.execute(
-                select(PYQQuestion).where(PYQQuestion.id == pyq_question_id)
-            )
-            pyq_question = result.scalar_one_or_none()
-            
-            if not pyq_question:
-                logger.error(f"❌ PYQ question {pyq_question_id} not found")
+        # Get database session using proper async dependency
+        async for db in get_async_compatible_db():
+            try:
+                # Get PYQ question
+                result = await db.execute(
+                    select(PYQQuestion).where(PYQQuestion.id == pyq_question_id)
+                )
+                pyq_question = result.scalar_one_or_none()
+                
+                if not pyq_question:
+                    logger.error(f"❌ PYQ question {pyq_question_id} not found")
+                    return False
+                
+                # Use Advanced LLM Enrichment Service - 100% QUALITY STANDARDS (NO FALLBACKS)
+                advanced_enricher = AdvancedLLMEnrichmentService()
+                
+                # Perform comprehensive enrichment with strict quality standards
+                enrichment_result = await advanced_enricher.enrich_question_deeply(
+                    stem=pyq_question.stem,
+                    admin_answer=pyq_question.answer,
+                    question_type="pyq"
+                )
+                
+                if enrichment_result["success"]:
+                    enrichment_data = enrichment_result["enrichment_data"]
+                    
+                    # Update PYQ question with all unified fields
+                    pyq_question.difficulty_band = enrichment_data.get("difficulty_band")
+                    pyq_question.difficulty_score = enrichment_data.get("difficulty_score")
+                    pyq_question.core_concepts = enrichment_data.get("core_concepts")
+                    pyq_question.solution_method = enrichment_data.get("solution_method")
+                    pyq_question.concept_difficulty = enrichment_data.get("concept_difficulty")
+                    pyq_question.operations_required = enrichment_data.get("operations_required")
+                    pyq_question.problem_structure = enrichment_data.get("problem_structure")
+                    pyq_question.concept_keywords = enrichment_data.get("concept_keywords")
+                    pyq_question.quality_verified = enrichment_data.get("quality_verified", False)
+                    pyq_question.concept_extraction_status = enrichment_data.get("concept_extraction_status", "completed")
+                    pyq_question.is_active = True  # Activate after successful enrichment
+                    pyq_question.last_updated = datetime.utcnow()
+                    
+                    await db.commit()
+                    
+                    logger.info(f"✅ UNIFIED PYQ enrichment completed successfully for question {pyq_question_id}")
+                    return True
+                else:
+                    logger.error(f"❌ UNIFIED PYQ enrichment failed for question {pyq_question_id}: {enrichment_result.get('error')}")
+                    return False
+                    
+            except Exception as e:
+                logger.error(f"❌ Database error during PYQ enrichment for {pyq_question_id}: {e}")
+                await db.rollback()
                 return False
-            
-            # Use Advanced LLM Enrichment Service - 100% QUALITY STANDARDS (NO FALLBACKS)
-            advanced_enricher = AdvancedLLMEnrichmentService()
-            
-            # Perform comprehensive enrichment with strict quality standards
-            enrichment_result = await advanced_enricher.enrich_question_deeply(
-                stem=pyq_question.stem,
-                admin_answer=pyq_question.answer,
-                question_type="pyq"
-            )
-            
-            if enrichment_result["success"]:
-                enrichment_data = enrichment_result["enrichment_data"]
+            finally:
+                # Database session is automatically closed by the async generator
+                break  # Exit the async for loop after processing
                 
-                # Update PYQ question with all unified fields
-                pyq_question.difficulty_band = enrichment_data.get("difficulty_band")
-                pyq_question.difficulty_score = enrichment_data.get("difficulty_score")
-                pyq_question.core_concepts = enrichment_data.get("core_concepts")
-                pyq_question.solution_method = enrichment_data.get("solution_method")
-                pyq_question.concept_difficulty = enrichment_data.get("concept_difficulty")
-                pyq_question.operations_required = enrichment_data.get("operations_required")
-                pyq_question.problem_structure = enrichment_data.get("problem_structure")
-                pyq_question.concept_keywords = enrichment_data.get("concept_keywords")
-                pyq_question.quality_verified = enrichment_data.get("quality_verified", False)
-                pyq_question.concept_extraction_status = enrichment_data.get("concept_extraction_status", "completed")
-                pyq_question.is_active = True  # Activate after successful enrichment
-                pyq_question.last_updated = datetime.utcnow()
-                
-                await db.commit()
-                
-                logger.info(f"✅ UNIFIED PYQ enrichment completed successfully for question {pyq_question_id}")
-                return True
-            else:
-                logger.error(f"❌ UNIFIED PYQ enrichment failed for question {pyq_question_id}: {enrichment_result.get('error')}")
-                return False
-                
-        finally:
-            await db.close()
-            
     except Exception as e:
         logger.error(f"❌ UNIFIED PYQ enrichment exception for question {pyq_question_id}: {e}")
         return False
