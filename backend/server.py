@@ -25,6 +25,8 @@ import shutil
 import mimetypes
 from docx import Document
 import io
+import csv
+from io import StringIO
 from google_drive_utils import GoogleDriveImageFetcher
 
 from adaptive_session_logic import AdaptiveSessionLogic
