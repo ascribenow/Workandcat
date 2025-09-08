@@ -63,24 +63,16 @@ class DynamicFrequencyCalculator:
             # STEP 4: Calculate frequency metrics
             frequency_metrics = self._calculate_frequency_metrics(conceptual_matches, len(active_pyqs))
             
-            # STEP 5: Time-weighted analysis
-            time_weighted_metrics = self._calculate_time_weighted_metrics(conceptual_matches, len(active_pyqs))
-            
-            # STEP 6: Generate comprehensive frequency analysis
+            # STEP 5: Generate comprehensive frequency analysis
             frequency_result = {
                 'frequency_score': frequency_metrics['base_frequency'],
-                'time_weighted_frequency': time_weighted_metrics['recent_frequency'],
                 'conceptual_matches_count': len(conceptual_matches),
                 'total_pyq_analyzed': len(active_pyqs),
                 'average_similarity': frequency_metrics['average_similarity'],
                 'confidence_score': frequency_metrics['confidence_score'],
-                'top_matching_years': time_weighted_metrics['top_categories'],
                 'matching_concepts_summary': frequency_metrics['concept_summary'],
-                'frequency_trend': time_weighted_metrics['trend_analysis'],
                 'calculation_metadata': {
                     'similarity_threshold': self.similarity_threshold,
-                    'analysis_window_years': self.total_years_window,
-                    'recent_years_window': self.recent_years_window,
                     'calculation_timestamp': datetime.utcnow().isoformat()
                 }
             }
