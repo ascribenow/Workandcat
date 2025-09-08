@@ -124,28 +124,28 @@ const TermsConditions = () => {
             </section>
 
             <section>
-              <h2 className="text-2xl font-bold mb-4" style={{ color: '#545454' }}>5. Intellectual Property</h2>
+              <h2 className="text-2xl font-bold mb-4" style={{ color: '#545454' }}>6. Intellectual Property</h2>
               <p className="text-gray-700" style={{ fontFamily: 'Lato, sans-serif' }}>
                 All platform content, algorithms, and trademarks are owned by M/s Costo Digital. Users may not copy, distribute, or repurpose platform materials.
               </p>
             </section>
 
             <section>
-              <h2 className="text-2xl font-bold mb-4" style={{ color: '#545454' }}>6. Limitation of Liability</h2>
+              <h2 className="text-2xl font-bold mb-4" style={{ color: '#545454' }}>7. Limitation of Liability</h2>
               <p className="text-gray-700" style={{ fontFamily: 'Lato, sans-serif' }}>
                 Twelvr is an aid for exam preparation, not a guarantee of performance. We are not liable for indirect, incidental, or consequential damages.
               </p>
             </section>
 
             <section>
-              <h2 className="text-2xl font-bold mb-4" style={{ color: '#545454' }}>7. Termination</h2>
+              <h2 className="text-2xl font-bold mb-4" style={{ color: '#545454' }}>8. Termination</h2>
               <p className="text-gray-700" style={{ fontFamily: 'Lato, sans-serif' }}>
                 We may suspend or terminate accounts for violation of these terms.
               </p>
             </section>
 
             <section>
-              <h2 className="text-2xl font-bold mb-4" style={{ color: '#545454' }}>8. Governing Law</h2>
+              <h2 className="text-2xl font-bold mb-4" style={{ color: '#545454' }}>9. Governing Law</h2>
               <p className="text-gray-700" style={{ fontFamily: 'Lato, sans-serif' }}>
                 These Terms shall be governed by the laws of India.
               </p>
