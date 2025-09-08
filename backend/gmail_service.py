@@ -585,33 +585,29 @@ The Twelvr Team
             return False
         
         try:
-            # Create email content
-            subject = "🎯 Welcome to Twelvr! Your Account is Ready"
-            preheader = "Your CAT prep journey starts now. You, Compounded."
+            # Create email content - Twelvr brand style
+            subject = "Step into the 12. Your account is ready."
+            preheader = "You, Compounded. Your CAT prep starts now."
             
             plain_text = f"""
 {preheader}
 
-Hello {full_name},
+{full_name},
 
-Welcome to Twelvr! Your account has been successfully created.
+Your Twelvr account is ready.
 
-🚀 WHAT'S NEXT:
-• Log in to start your personalized CAT preparation
-• Explore adaptive question sessions designed just for you
-• Track your progress with detailed analytics
-• Access your free trial sessions immediately
+Step out of the noise. Step into the 12.
 
-🎯 YOUR JOURNEY BEGINS:
-Adaptive CAT prep that compounds. Every question, every session, every insight builds upon the last to accelerate your learning.
+12Qs a session. Adaptive engine tuned on CAT.
+Your prep, sharpened to you.
 
-Ready to start? Log in to your dashboard and begin your first session.
+Ready to start? Log in to your dashboard.
 
-Questions? Reply to this email or reach us at hello@twelvr.com
+Consistency, without the grind.
 
-Best regards,
 The Twelvr Team
 hello@twelvr.com
+
 You, Compounded.
             """.strip()
             
@@ -620,131 +616,125 @@ You, Compounded.
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Welcome to Twelvr - Account Created</title>
+    <title>Step into the 12 - Your account is ready</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!--[if !mso]><!-->
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <!--<![endif]-->
     <!-- Preheader text for better deliverability -->
-    <div style="display: none; font-size: 1px; color: #fefefe; line-height: 1px; font-family: Arial, sans-serif; max-height: 0px; max-width: 0px; opacity: 0; overflow: hidden;">
+    <div style="display: none; font-size: 1px; color: #fefefe; line-height: 1px; font-family: Lato, sans-serif; max-height: 0px; max-width: 0px; opacity: 0; overflow: hidden;">
         {preheader}
     </div>
     <style>
         body {{
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Lato', sans-serif;
             line-height: 1.6;
-            color: #333;
+            color: #545454;
             max-width: 600px;
             margin: 0 auto;
             padding: 20px;
-            background-color: #f8f9fa;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
+            background-color: #ffffff;
         }}
         .container {{
-            background-color: white;
-            border-radius: 12px;
+            background-color: #ffffff;
+            border-radius: 0;
             overflow: hidden;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e5e5;
         }}
         .header {{
-            background: linear-gradient(135deg, #9ac026 0%, #667eea 100%);
-            color: white;
-            padding: 30px 20px;
-            text-align: center;
+            background-color: #ffffff;
+            color: #545454;
+            padding: 40px 30px 20px 30px;
+            text-align: left;
         }}
         .header h1 {{
             margin: 0;
-            font-size: 28px;
+            font-size: 32px;
             font-weight: 700;
+            color: #545454;
+            line-height: 1.2;
         }}
-        .tagline {{
-            margin: 10px 0 0 0;
-            font-size: 16px;
-            opacity: 0.9;
+        .highlight {{
+            color: #9ac026;
         }}
         .content {{
-            padding: 35px 30px;
+            padding: 20px 30px 40px 30px;
         }}
-        .welcome-message {{
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            padding: 25px;
-            border-radius: 12px;
-            border-left: 5px solid #9ac026;
-            margin: 25px 0;
+        .dots {{
+            display: flex;
+            justify-content: flex-start;
+            margin: 20px 0;
         }}
-        .next-steps {{
-            background-color: #fff8e1;
-            padding: 20px;
-            border-radius: 8px;
-            border-left: 4px solid #ffc107;
-            margin: 25px 0;
+        .dot {{
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #9ac026;
+            margin-right: 4px;
+            opacity: 0.8;
         }}
         .cta-button {{
             display: inline-block;
-            background: linear-gradient(135deg, #9ac026 0%, #667eea 100%);
+            background-color: #9ac026;
             color: white;
-            padding: 15px 35px;
+            padding: 14px 28px;
             text-decoration: none;
-            border-radius: 30px;
-            font-weight: bold;
+            border-radius: 25px;
+            font-weight: 600;
             font-size: 16px;
-            margin: 20px 0;
-            box-shadow: 0 4px 15px rgba(154, 192, 38, 0.3);
+            margin: 25px 0 20px 0;
+            transition: background-color 0.3s;
+        }}
+        .cta-button:hover {{
+            background-color: #8bb024;
         }}
         .footer {{
-            background-color: #f1f3f4;
-            padding: 25px;
-            text-align: center;
-            color: #666;
+            background-color: #f8f8f8;
+            padding: 30px;
+            text-align: left;
+            color: #545454;
             font-size: 14px;
+            border-top: 1px solid #e5e5e5;
         }}
-        
-        /* Mobile responsiveness */
-        @media only screen and (max-width: 600px) {{
-            .content {{
-                padding: 20px 15px;
-            }}
+        .tagline {{
+            font-size: 14px;
+            font-weight: 600;
+            color: #9ac026;
+            margin-top: 10px;
         }}
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>🎯 Welcome to Twelvr!</h1>
-            <p class="tagline">You, Compounded.</p>
+            <h1>Step out of the noise.<br><span class="highlight">Step into the 12.</span></h1>
         </div>
         
         <div class="content">
-            <h2>Hello {full_name},</h2>
+            <p style="font-size: 18px; margin-bottom: 20px;">{full_name},</p>
             
-            <div class="welcome-message">
-                <h3>🎉 Your Account is Ready!</h3>
-                <p>Welcome to Twelvr! Your account has been successfully created and you're ready to begin your CAT preparation journey.</p>
-                <p><strong>Adaptive CAT prep that compounds.</strong> Every question, every session, every insight builds upon the last to accelerate your learning.</p>
-            </div>
+            <p style="font-size: 16px; margin-bottom: 20px;">Your Twelvr account is ready.</p>
             
-            <div class="next-steps">
-                <h3>🚀 What's Next:</h3>
-                <ul style="line-height: 1.8;">
-                    <li><strong>Log in</strong> to start your personalized CAT preparation</li>
-                    <li><strong>Explore</strong> adaptive question sessions designed just for you</li>
-                    <li><strong>Track</strong> your progress with detailed analytics</li>
-                    <li><strong>Access</strong> your free trial sessions immediately</li>
-                </ul>
-            </div>
-            
-            <p style="text-align: center; margin: 30px 0;">
-                <a href="https://twelvr.com" class="cta-button">Start your 12 🎯</a>
+            <p style="font-size: 16px; margin-bottom: 25px;">
+                <strong>12Qs a session. Adaptive engine tuned on CAT.</strong><br>
+                Your prep, sharpened to you.
             </p>
             
-            <p><strong>Questions?</strong> Reply to this email or reach us at <a href="mailto:hello@twelvr.com" style="color: #9ac026;">hello@twelvr.com</a></p>
+            <!-- 12 Dots Visual -->
+            <div class="dots">
+                <div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+                <div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+                <div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+            </div>
+            
+            <p style="font-size: 16px; margin-bottom: 25px;">Ready to start? Log in to your dashboard.</p>
+            
+            <a href="https://twelvr.com" class="cta-button">Start My 12</a>
+            
+            <p style="font-size: 16px; margin-top: 30px; font-weight: 600;">Consistency, without the grind.</p>
         </div>
         
         <div class="footer">
             <p><strong>The Twelvr Team</strong><br>
-            hello@twelvr.com<br>
-            <em>You, Compounded.</em></p>
+            hello@twelvr.com</p>
+            <p class="tagline">You, Compounded.</p>
         </div>
     </div>
 </body>
@@ -754,7 +744,7 @@ You, Compounded.
             # Send email using the same pattern as other email methods
             msg = MIMEMultipart('alternative')
             msg['to'] = to_email
-            msg['from'] = f'{self.sender_name} <{self.sender_email}>'  # Proper display name format
+            msg['from'] = f'{self.sender_name} <{self.sender_email}>'
             msg['subject'] = subject
             
             # Create text and HTML parts
