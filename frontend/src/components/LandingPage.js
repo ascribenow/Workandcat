@@ -230,8 +230,8 @@ const LandingPage = () => {
               </h1>
               
               <p className="text-lg lg:text-xl text-[#545454] mb-6 lg:mb-8" style={{ fontFamily: 'Lato, sans-serif' }}>
-                12Qs a session. Adaptive engine tuned on CAT.<br />
-                Your prep, sharpened to you.
+                12Qs a session. Adaptive engine tuned on CAT Quant.<br />
+                Your CAT 2025 prep, sharpened to you.
               </p>
 
               {/* 12 Dots Visual */}
