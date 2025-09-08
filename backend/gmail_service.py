@@ -923,7 +923,7 @@ You, compounded.
         <div class="footer">
             <p><strong>The Twelvr Team</strong><br>
             hello@twelvr.com</p>
-            <p class="tagline">You, Compounded.</p>
+            <p class="tagline">You, compounded.</p>
         </div>
     </div>
 </body>
