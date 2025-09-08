@@ -64,8 +64,10 @@ class DynamicFrequencyCalculator:
             frequency_metrics = self._calculate_frequency_metrics(conceptual_matches, len(active_pyqs))
             
             # STEP 5: Generate comprehensive frequency analysis
+            base_frequency = frequency_metrics['base_frequency']
             frequency_result = {
-                'frequency_score': frequency_metrics['base_frequency'],
+                'frequency_score': base_frequency,
+                'frequency_band': self.determine_frequency_band(base_frequency),
                 'conceptual_matches_count': len(conceptual_matches),
                 'total_pyq_analyzed': len(active_pyqs),
                 'average_similarity': frequency_metrics['average_similarity'],
