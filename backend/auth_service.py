@@ -110,7 +110,7 @@ class AuthService:
         await db.commit()
         await db.refresh(db_user)
         
-        # Generate referral code for the new user and send email
+        # Generate referral code for the new user and send welcome email
         try:
             from referral_service import referral_service
             from gmail_service import gmail_service
@@ -118,7 +118,7 @@ class AuthService:
             sync_db = db._session if hasattr(db, '_session') else db
             referral_code = referral_service.assign_referral_code_to_user(str(db_user.id), sync_db)
             
-            # Send referral code email
+            # Send referral code welcome email with duplicate prevention
             try:
                 email_sent = gmail_service.send_referral_code_email(
                     user_data.email, 
@@ -126,13 +126,13 @@ class AuthService:
                     referral_code
                 )
                 if email_sent:
-                    logger.info(f"Sent referral code email to {user_data.email}")
+                    logger.info(f"✅ Sent referral code welcome email to {user_data.email} with code {referral_code}")
                 else:
-                    logger.warning(f"Failed to send referral code email to {user_data.email}")
+                    logger.warning(f"❌ Failed to send referral code email to {user_data.email}")
             except Exception as email_error:
                 logger.warning(f"Error sending referral code email to {user_data.email}: {email_error}")
             
-            logger.info(f"Generated referral code {referral_code} for new user {user_data.email}")
+            logger.info(f"✅ Generated referral code {referral_code} for new user {user_data.email} on signup")
         except Exception as e:
             logger.warning(f"Failed to generate referral code for user {user_data.email}: {e}")
         
