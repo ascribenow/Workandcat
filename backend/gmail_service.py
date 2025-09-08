@@ -608,7 +608,7 @@ Consistency, without the grind.
 The Twelvr Team
 hello@twelvr.com
 
-You, Compounded.
+You, compounded.
             """.strip()
             
             html_content = f"""
