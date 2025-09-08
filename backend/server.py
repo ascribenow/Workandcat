@@ -5105,28 +5105,16 @@ async def upload_pyq_document(
 
 async def upload_pyq_csv(file: UploadFile, db: AsyncSession, current_user: User):
     """
-    NEW: CSV-based PYQ upload with automatic LLM enrichment
-    CSV columns: stem, image_url, year
+    FIXED: CSV-based PYQ upload with NO year dependency
+    CSV columns: stem, image_url (both optional except stem)
     """
     try:
-        # Import json module at the top
-        import csv
-        import io
-        import json
-        
-        # Read CSV content with BOM handling
+        # Read and validate CSV
         content = await file.read()
+        content_str = content.decode('utf-8')
         
-        # Handle UTF-8 BOM properly
-        try:
-            csv_data = content.decode('utf-8-sig')  # Automatically removes BOM
-        except UnicodeDecodeError:
-            # Fallback to regular UTF-8 if utf-8-sig fails
-            csv_data = content.decode('utf-8')
-            
-        csv_reader = csv.DictReader(io.StringIO(csv_data))
-        
-        # Convert to list for processing
+        # Parse CSV
+        csv_reader = csv.DictReader(StringIO(content_str))
         csv_rows = list(csv_reader)
         
         # Validate CSV format - only stem is required
@@ -5142,106 +5130,79 @@ async def upload_pyq_csv(file: UploadFile, db: AsyncSession, current_user: User)
                 detail=f"CSV must contain required columns: {', '.join(missing_columns)}. Found columns: {', '.join(first_row.keys())}"
             )
         
-        logger.info(f"Processing {len(csv_rows)} PYQ questions from CSV with LLM enrichment")
-        
         # Process images from Google Drive URLs (same as questions)
         processed_rows = GoogleDriveImageFetcher.process_csv_image_urls(csv_rows, UPLOAD_DIR)
         
-        # Group questions by year for paper organization (use current year if not provided)
-        questions_by_year = {}
-        current_year = datetime.utcnow().year
+        # Create single PYQ ingestion record (no year)
+        ingestion = PYQIngestion(
+            upload_filename=file.filename,
+            storage_key=f"pyq_csv_{uuid.uuid4()}.csv",
+            year=None,  # No year dependency
+            slot="CSV",
+            source_url=None,
+            pages_count=len(processed_rows),
+            ocr_required=False,
+            ocr_status="not_needed",
+            parse_status="completed"
+        )
+        db.add(ingestion)
+        await db.flush()
         
-        for row in processed_rows:
-            # Use provided year or default to current year
-            year_str = row.get('year', str(current_year))
-            try:
-                year = int(year_str) if year_str else current_year
-            except (ValueError, TypeError):
-                year = current_year
-                
-            if year not in questions_by_year:
-                questions_by_year[year] = []
-            questions_by_year[year].append(row)
+        # Create single PYQ paper record (no year)
+        paper = PYQPaper(
+            year=None,  # No year dependency
+            slot="CSV",
+            source_url=None,
+            ingestion_id=str(ingestion.id)
+        )
+        db.add(paper)
+        await db.flush()
         
         total_questions_created = 0
         total_images_processed = 0
-        papers_created = []
         
-        # Process each year separately
-        for year, questions in questions_by_year.items():
-            # Create PYQ ingestion record for this year
-            ingestion = PYQIngestion(
-                upload_filename=f"{file.filename}_year_{year}",
-                storage_key=f"pyq_csv_{year}_{uuid.uuid4()}.csv",
-                year=year,
-                slot="CSV",
-                source_url=None,
-                pages_count=len(questions),
-                ocr_required=False,
-                ocr_status="not_needed",
-                parse_status="completed"
-            )
-            db.add(ingestion)
-            await db.flush()
+        # Process all questions under single paper (no year grouping)
+        for i, row in enumerate(processed_rows):
+            stem = row.get('stem', '').strip()
+            if not stem:
+                logger.warning(f"Skipping row {i+1}: empty stem")
+                continue
             
-            # Create PYQ paper record for this year
-            paper = PYQPaper(
-                year=year,
-                slot="CSV",
-                source_url=None,
-                ingestion_id=str(ingestion.id)
-            )
-            db.add(paper)
-            await db.flush()
-            papers_created.append(str(paper.id))
+            if len(processed_rows) > 0 and 'image_url' in row and row['image_url']:
+                total_images_processed += 1
             
-            # Process questions for this year
-            for i, row in enumerate(questions):
-                stem = row.get('stem', '').strip()
-                if not stem:
-                    logger.warning(f"Skipping row {i+1} for year {year}: empty stem")
-                    continue
-                
-                # Image fields (processed by Google Drive utils)
-                has_image = row.get('has_image', False)
-                image_url = row.get('image_url', '').strip() if row.get('image_url') else None
-                image_alt_text = row.get('image_alt_text', '').strip() if row.get('image_alt_text') else None
-                
-                if has_image and image_url and image_url.startswith('/uploads/images/'):
-                    total_images_processed += 1
-                
-                # Find or create default topic (will be reclassified by LLM)
-                result = await db.execute(select(Topic).where(Topic.name == "General"))
-                topic = result.scalar_one_or_none()
-                
-                if not topic:
-                    topic = Topic(
-                        name="General",
-                        section="QA",
-                        slug="general",
-                        category="A"
-                    )
-                    db.add(topic)
-                    await db.flush()
-                
-                # Create PYQ question with minimal data - LLM will enrich everything
-                pyq_question = PYQQuestion(
-                    paper_id=str(paper.id),
-                    topic_id=str(topic.id),
-                    stem=stem,
-                    answer="To be generated by LLM",
-                    subcategory="To be classified by LLM",
-                    type_of_question="To be classified by LLM",
-                    tags=json.dumps(["pyq_csv_upload", "llm_pending", f"year_{year}"]),
-                    confirmed=False  # Will be confirmed after LLM enrichment
+            # Create a default topic for organization (will be updated by LLM)
+            topic_result = await db.execute(
+                select(Topic).where(Topic.name == "PYQ General")
+            )
+            topic = topic_result.scalar_one_or_none()
+            
+            if not topic:
+                topic = Topic(
+                    name="PYQ General",
+                    category="A"
                 )
-                
-                db.add(pyq_question)
-                total_questions_created += 1
+                db.add(topic)
+                await db.flush()
             
-            # Mark ingestion as completed
-            ingestion.parse_status = "completed"
-            ingestion.completed_at = datetime.utcnow()
+            # Create PYQ question with minimal data - LLM will enrich everything
+            pyq_question = PYQQuestion(
+                paper_id=str(paper.id),
+                topic_id=str(topic.id),
+                stem=stem,
+                answer="To be generated by LLM",
+                subcategory="To be classified by LLM",
+                type_of_question="To be classified by LLM",
+                tags=json.dumps(["pyq_csv_upload", "llm_pending"]),  # No year in tags
+                confirmed=False  # Will be confirmed after LLM enrichment
+            )
+            
+            db.add(pyq_question)
+            total_questions_created += 1
+        
+        # Mark ingestion as completed
+        ingestion.parse_status = "completed"
+        ingestion.completed_at = datetime.utcnow()
         
         await db.commit()
         
@@ -5250,34 +5211,27 @@ async def upload_pyq_csv(file: UploadFile, db: AsyncSession, current_user: User)
         
         # Get all PYQ questions created in this batch for enrichment
         recent_pyq_questions = await db.execute(
-            select(PYQQuestion).where(
-                PYQQuestion.paper_id.in_(papers_created),
-                PYQQuestion.confirmed == False  # Only unprocessed questions
-            ).order_by(desc(PYQQuestion.created_at)).limit(total_questions_created)
+            select(PYQQuestion).where(PYQQuestion.paper_id == str(paper.id))
         )
-        
-        # Queue ENHANCED background enrichment tasks for PYQ questions
-        logger.info("Starting ENHANCED background PYQ enrichment with full LLM pipeline...")
         
         for pyq_question in recent_pyq_questions.scalars():
             # Use the NEW enhanced enrichment pipeline instead of basic classification
             asyncio.create_task(enhanced_pyq_enrichment_background(str(pyq_question.id)))
         
-        # Store file metadata for tracking
+        # Store file metadata for tracking (no year references)
         from database import PYQFiles
         
         file_record = PYQFiles(
             filename=file.filename,
-            year=list(questions_by_year.keys())[0] if len(questions_by_year) == 1 else None,  # Single year or mixed
+            year=None,  # No year needed
             upload_date=datetime.utcnow(),
             processing_status="completed",
             file_size=len(content),
-            storage_path=f"pyq_uploads/{file.filename}",  # Virtual path for tracking
+            storage_path=f"pyq_uploads/{file.filename}",
             file_metadata=json.dumps({
                 "questions_created": total_questions_created,
                 "images_processed": total_images_processed,
-                "years_processed": list(questions_by_year.keys()),
-                "papers_created": len(papers_created),
+                "papers_created": 1,  # Always single paper
                 "csv_rows_processed": len(processed_rows),
                 "upload_timestamp": datetime.utcnow().isoformat(),
                 "uploaded_by": current_user.email
@@ -5287,14 +5241,13 @@ async def upload_pyq_csv(file: UploadFile, db: AsyncSession, current_user: User)
         db.add(file_record)
         await db.commit()
         
-        logger.info(f"PYQ CSV upload completed: {total_questions_created} questions created across {len(questions_by_year)} years")
+        logger.info(f"PYQ CSV upload completed: {total_questions_created} questions created in single paper")
         
         return {
             "message": f"Successfully uploaded {total_questions_created} PYQ questions from CSV",
             "questions_created": total_questions_created,
             "images_processed": total_images_processed,
-            "years_processed": list(questions_by_year.keys()),
-            "papers_created": len(papers_created),
+            "papers_created": 1,  # Always single paper
             "csv_rows_processed": len(processed_rows),
             "enrichment_status": "PYQ questions queued for automatic LLM processing (category classification, solution generation, type identification)",
             "note": "PYQ questions will be automatically enriched with categories, subcategories, question types, and solutions by the LLM system",
