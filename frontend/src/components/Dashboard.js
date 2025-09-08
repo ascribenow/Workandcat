@@ -960,7 +960,7 @@ ${response.data.errors > 0 ? '⚠️ Check the logs for error details.' : ''}`);
                       <div className="ml-3">
                         <h4 className="text-lg font-medium text-green-800">🤖 Automatic LLM Processing</h4>
                         <div className="text-sm text-green-700 mt-2">
-                          <p className="mb-3">Just provide question text and year - our AI automatically generates:</p>
+                          <p className="mb-3">Just provide question text - our AI automatically generates:</p>
                           <div className="grid md:grid-cols-2 gap-4">
                             <ul className="list-disc list-inside space-y-1">
                               <li><strong>Category & Subcategory</strong> - CAT taxonomy classification</li>
