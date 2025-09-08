@@ -898,7 +898,7 @@ You, Compounded.
             # Send email using the same pattern as other email methods
             msg = MIMEMultipart('alternative')
             msg['to'] = to_email
-            msg['from'] = self.sender_email
+            msg['from'] = f'{self.sender_name} <{self.sender_email}>'  # Proper display name format
             msg['subject'] = subject
             
             # Create text and HTML parts
