@@ -4561,7 +4561,6 @@ async def export_pyq_csv(
         result = await db.execute(
             select(
                 PYQQuestion,
-                PYQPaper.year,
                 PYQPaper.slot, 
                 PYQIngestion.upload_filename,
                 Topic.name.label('topic_name')
@@ -4569,7 +4568,7 @@ async def export_pyq_csv(
             .join(PYQPaper, PYQQuestion.paper_id == PYQPaper.id)
             .join(PYQIngestion, PYQPaper.ingestion_id == PYQIngestion.id)
             .join(Topic, PYQQuestion.topic_id == Topic.id)
-            .order_by(PYQPaper.year.desc(), PYQQuestion.created_at.desc())
+            .order_by(PYQQuestion.created_at.desc())
         )
         
         pyq_data = result.fetchall()
