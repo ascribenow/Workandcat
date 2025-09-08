@@ -97,7 +97,7 @@ const ContactUs = () => {
               Share Your Experience
             </h3>
             <p className="text-gray-600 mb-6 text-center" style={{ fontFamily: 'Lato, sans-serif' }}>
-              Your feedback shapes Twelvr! Tell us what's working, what isn't, and what you'd love to see. Every student voice helps us build better prep tools.
+              Your feedback shapes Twelvr! Tell us what's working, what isn't, and what you'd love to see. Every student voice helps us build better.
             </p>
             <div className="text-center">
               <button 
