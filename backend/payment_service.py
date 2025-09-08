@@ -532,6 +532,36 @@ class RazorpayService:
                 # User subscription status can be determined from active Subscription records
                 logger.info(f"Subscription created with verified payment data for user {user_id}")
                 
+                # Step 5.1: Record referral usage ONLY after successful payment verification
+                if referral_info["applied"] and referral_info["discount_amount"] > 0:
+                    try:
+                        referral_code = referral_info.get("referral_code")
+                        if referral_code:
+                            from referral_service import referral_service
+                            
+                            # Get user email from order or payment data
+                            user_email = order.user_email if order else payment_data.get("email", "unknown@example.com")
+                            
+                            usage_result = referral_service.record_referral_usage(
+                                referral_code=referral_code,
+                                user_id=user_id,
+                                user_email=user_email,
+                                subscription_type=detected_plan["plan_type"],
+                                discount_amount=referral_info["discount_amount"],
+                                payment_id=payment_id,
+                                db=db
+                            )
+                            
+                            if usage_result["success"]:
+                                logger.info(f"✅ REFERRAL USAGE RECORDED: {referral_code} for {user_email} after successful payment {payment_id}")
+                            else:
+                                logger.error(f"❌ Failed to record referral usage: {usage_result.get('error')}")
+                                # Don't fail payment verification due to referral recording error
+                                
+                    except Exception as referral_error:
+                        logger.error(f"Error recording referral usage after payment: {referral_error}")
+                        # Don't fail the payment verification due to referral recording error
+                
                 db.commit()
                 
                 # Step 6: Send payment confirmation email with ACCURATE data
