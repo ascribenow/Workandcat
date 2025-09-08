@@ -587,7 +587,7 @@ The Twelvr Team
         try:
             # Create email content - Twelvr brand style
             subject = "Step into the 12. Your account is ready."
-            preheader = "You, Compounded. Your CAT prep starts now."
+            preheader = "You, compounded. Your CAT prep starts now."
             
             plain_text = f"""
 {preheader}
