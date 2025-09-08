@@ -18,6 +18,7 @@ class GmailService:
         self.scopes = ['https://mail.google.com/']
         self.credentials_file = '/app/backend/gmail_credentials.json'
         self.sender_email = 'hello@twelvr.com'
+        self.sender_name = 'Twelvr'  # Display name for emails
         self.service = None
         # In production, use proper database
         self.verification_codes: Dict[str, Dict] = {}
