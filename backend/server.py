@@ -5130,8 +5130,6 @@ async def upload_pyq_csv(file: UploadFile, db: AsyncSession, current_user: User)
             slot="CSV",
             source_url=None,
             pages_count=len(processed_rows),
-            ocr_required=False,
-            ocr_status="not_needed",
             parse_status="completed"
         )
         db.add(ingestion)
