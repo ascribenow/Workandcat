@@ -60,7 +60,7 @@ const PrivacyPolicy = () => {
               <strong>Effective Date:</strong> 01 Aug 2025
             </p>
             <p className="text-gray-600 mb-6" style={{ fontFamily: 'Lato, sans-serif' }}>
-              <strong>Company:</strong> Twelvr ("we," "our," or "us")
+              <strong>Company:</strong> M/s Costo Digital ("we," "our," or "us")
             </p>
             <p className="text-lg" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
               At Twelvr, we value your trust. This Privacy Policy explains how we collect, use, and protect your information when you use our platform.
