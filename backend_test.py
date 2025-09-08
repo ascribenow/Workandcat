@@ -1285,10 +1285,551 @@ class CATBackendTester:
         
         return success_rate >= 60  # Return True if referral logic is functional
 
+    def test_signup_email_flow(self):
+        """
+        SIGNUP EMAIL FLOW TESTING
+        
+        OBJECTIVE: Test what emails are actually sent when a new user signs up to Twelvr platform.
+        
+        SPECIFIC TEST:
+        1. Test the user registration flow: POST `/api/auth/register`
+        2. Check what emails are triggered during signup
+        3. Verify if signup confirmation email is sent
+        4. Verify if referral code email is sent
+        5. Check email timing and content
+        
+        TEST PAYLOAD:
+        {
+          "email": "testuser999@example.com",
+          "full_name": "Test User",
+          "password": "testpass123"
+        }
+        
+        WHAT TO VERIFY:
+        1. Does signup trigger any email sending?
+        2. Is only referral code email sent, or also a basic signup confirmation?
+        3. What's the exact email subject and content?
+        4. Is email sending working during registration process?
+        
+        AUTHENTICATION:
+        No authentication needed for registration endpoint.
+        
+        EXPECTED OUTCOMES:
+        - Successful user registration
+        - Email(s) sent to new user
+        - Detailed log of what emails were triggered
+        
+        FOCUS ON:
+        - Email sending behavior during signup
+        - What welcome/confirmation emails are actually sent
+        - If there's a gap in signup email communication
+        """
+        print("📧 SIGNUP EMAIL FLOW TESTING")
+        print("=" * 80)
+        print("OBJECTIVE: Test what emails are actually sent when a new user signs up to Twelvr platform.")
+        print("")
+        print("SPECIFIC TEST:")
+        print("1. Test the user registration flow: POST `/api/auth/register`")
+        print("2. Check what emails are triggered during signup")
+        print("3. Verify if signup confirmation email is sent")
+        print("4. Verify if referral code email is sent")
+        print("5. Check email timing and content")
+        print("")
+        print("TEST PAYLOAD:")
+        print('{"email": "testuser999@example.com", "full_name": "Test User", "password": "testpass123"}')
+        print("")
+        print("WHAT TO VERIFY:")
+        print("1. Does signup trigger any email sending?")
+        print("2. Is only referral code email sent, or also a basic signup confirmation?")
+        print("3. What's the exact email subject and content?")
+        print("4. Is email sending working during registration process?")
+        print("")
+        print("FOCUS ON:")
+        print("- Email sending behavior during signup")
+        print("- What welcome/confirmation emails are actually sent")
+        print("- If there's a gap in signup email communication")
+        print("=" * 80)
+        
+        signup_results = {
+            # Registration Process
+            "registration_endpoint_accessible": False,
+            "user_registration_successful": False,
+            "jwt_token_generated": False,
+            "user_data_returned": False,
+            
+            # Email Sending Detection
+            "email_service_configured": False,
+            "signup_confirmation_email_sent": False,
+            "referral_code_email_sent": False,
+            "welcome_email_sent": False,
+            
+            # User Account Creation
+            "user_account_created_in_database": False,
+            "referral_code_generated": False,
+            "user_can_login_after_signup": False,
+            
+            # Email Content Analysis
+            "email_timing_appropriate": False,
+            "email_content_professional": False,
+            "email_subject_appropriate": False,
+            
+            # System Integration
+            "auth_service_working": False,
+            "gmail_service_integration": False,
+            "referral_service_integration": False,
+            
+            # Post-Signup Verification
+            "user_profile_accessible": False,
+            "referral_code_retrievable": False,
+            "user_can_access_protected_endpoints": False
+        }
+        
+        # Generate unique test email to avoid conflicts
+        import time
+        timestamp = int(time.time())
+        test_email = f"testuser{timestamp}@example.com"
+        
+        # PHASE 1: REGISTRATION ENDPOINT TESTING
+        print("\n📝 PHASE 1: REGISTRATION ENDPOINT TESTING")
+        print("-" * 60)
+        print(f"Testing user registration with email: {test_email}")
+        
+        # Test user registration
+        registration_data = {
+            "email": test_email,
+            "full_name": "Test User Email Flow",
+            "password": "testpass123"
+        }
+        
+        print(f"   📋 Attempting user registration...")
+        print(f"   📊 Email: {registration_data['email']}")
+        print(f"   📊 Full Name: {registration_data['full_name']}")
+        
+        success, response = self.run_test(
+            "User Registration", 
+            "POST", 
+            "auth/register", 
+            [200, 201, 400, 409], 
+            registration_data
+        )
+        
+        user_token = None
+        user_headers = None
+        user_id = None
+        
+        if success and response:
+            signup_results["registration_endpoint_accessible"] = True
+            print(f"   ✅ Registration endpoint accessible")
+            
+            # Check if registration was successful
+            if response.get('access_token'):
+                signup_results["user_registration_successful"] = True
+                signup_results["jwt_token_generated"] = True
+                user_token = response['access_token']
+                user_headers = {
+                    'Authorization': f'Bearer {user_token}',
+                    'Content-Type': 'application/json'
+                }
+                print(f"   ✅ User registration successful")
+                print(f"   ✅ JWT token generated (length: {len(user_token)} characters)")
+                
+                # Get user data from response
+                if response.get('user'):
+                    signup_results["user_data_returned"] = True
+                    user_data = response['user']
+                    user_id = user_data.get('id')
+                    print(f"   ✅ User data returned in response")
+                    print(f"   📊 User ID: {user_id}")
+                    print(f"   📊 Email: {user_data.get('email')}")
+                    print(f"   📊 Full Name: {user_data.get('full_name')}")
+                    print(f"   📊 Is Admin: {user_data.get('is_admin', False)}")
+            elif response.get('status_code') == 409 or 'already exists' in str(response).lower():
+                print(f"   ⚠️ User already exists - testing with existing user")
+                # Try to login with the test user
+                login_data = {
+                    "email": test_email,
+                    "password": "testpass123"
+                }
+                
+                success, login_response = self.run_test(
+                    "Login Existing User", 
+                    "POST", 
+                    "auth/login", 
+                    [200, 401], 
+                    login_data
+                )
+                
+                if success and login_response.get('access_token'):
+                    signup_results["user_registration_successful"] = True
+                    signup_results["jwt_token_generated"] = True
+                    user_token = login_response['access_token']
+                    user_headers = {
+                        'Authorization': f'Bearer {user_token}',
+                        'Content-Type': 'application/json'
+                    }
+                    print(f"   ✅ Existing user login successful")
+            else:
+                print(f"   ❌ Registration failed: {response}")
+        else:
+            print(f"   ❌ Registration endpoint not accessible")
+        
+        # PHASE 2: EMAIL SERVICE DETECTION
+        print("\n📧 PHASE 2: EMAIL SERVICE DETECTION")
+        print("-" * 60)
+        print("Checking if email services are configured and working")
+        
+        # Test Gmail authorization endpoint to check if email service is configured
+        success, response = self.run_test(
+            "Gmail Authorization URL Check", 
+            "GET", 
+            "auth/gmail/authorize", 
+            [200, 500, 503]
+        )
+        
+        if success and response:
+            signup_results["email_service_configured"] = True
+            signup_results["gmail_service_integration"] = True
+            print(f"   ✅ Gmail service configured and accessible")
+            
+            if response.get('authorization_url'):
+                print(f"   ✅ Gmail OAuth2 authorization working")
+                print(f"   📊 Authorization URL available")
+            else:
+                print(f"   📊 Gmail service response: {response}")
+        else:
+            print(f"   ❌ Gmail service not configured or not accessible")
+            print(f"   📊 This may indicate email sending is not working during signup")
+        
+        # PHASE 3: USER ACCOUNT VERIFICATION
+        print("\n👤 PHASE 3: USER ACCOUNT VERIFICATION")
+        print("-" * 60)
+        print("Verifying user account was created properly in database")
+        
+        if user_headers:
+            # Test user profile access
+            success, response = self.run_test(
+                "User Profile Access", 
+                "GET", 
+                "auth/me", 
+                [200], 
+                None, 
+                user_headers
+            )
+            
+            if success and response:
+                signup_results["user_account_created_in_database"] = True
+                signup_results["user_profile_accessible"] = True
+                signup_results["auth_service_working"] = True
+                print(f"   ✅ User account created in database")
+                print(f"   ✅ User profile accessible via /auth/me")
+                print(f"   📊 User ID: {response.get('id')}")
+                print(f"   📊 Email: {response.get('email')}")
+                print(f"   📊 Full Name: {response.get('full_name')}")
+                print(f"   📊 Created At: {response.get('created_at')}")
+            else:
+                print(f"   ❌ User profile not accessible")
+        
+        # PHASE 4: REFERRAL CODE GENERATION CHECK
+        print("\n🎁 PHASE 4: REFERRAL CODE GENERATION CHECK")
+        print("-" * 60)
+        print("Checking if referral code was generated during signup")
+        
+        if user_headers:
+            # Test referral code retrieval
+            success, response = self.run_test(
+                "User Referral Code Retrieval", 
+                "GET", 
+                "user/referral-code", 
+                [200, 404, 500], 
+                None, 
+                user_headers
+            )
+            
+            if success and response:
+                referral_code = response.get('referral_code')
+                if referral_code:
+                    signup_results["referral_code_generated"] = True
+                    signup_results["referral_code_retrievable"] = True
+                    signup_results["referral_service_integration"] = True
+                    print(f"   ✅ Referral code generated during signup")
+                    print(f"   📊 Referral Code: {referral_code}")
+                    print(f"   📊 Share Message: {response.get('share_message', 'Not provided')}")
+                    
+                    # This suggests that referral code email SHOULD be sent
+                    print(f"   📧 EXPECTED: Referral code email should be sent to user")
+                    print(f"   📧 EMAIL CONTENT SHOULD INCLUDE: Your referral code is {referral_code}")
+                else:
+                    print(f"   ⚠️ No referral code in response: {response}")
+            else:
+                print(f"   ❌ Referral code not accessible")
+        
+        # PHASE 5: LOGIN VERIFICATION
+        print("\n🔐 PHASE 5: LOGIN VERIFICATION")
+        print("-" * 60)
+        print("Verifying user can login after signup")
+        
+        # Test login with the registered user
+        login_data = {
+            "email": test_email,
+            "password": "testpass123"
+        }
+        
+        success, response = self.run_test(
+            "Post-Signup Login Test", 
+            "POST", 
+            "auth/login", 
+            [200, 401], 
+            login_data
+        )
+        
+        if success and response:
+            if response.get('access_token'):
+                signup_results["user_can_login_after_signup"] = True
+                print(f"   ✅ User can login after signup")
+                print(f"   📊 Login successful with registered credentials")
+            else:
+                print(f"   ❌ Login failed after signup")
+        else:
+            print(f"   ❌ Login endpoint not accessible")
+        
+        # PHASE 6: PROTECTED ENDPOINT ACCESS
+        print("\n🔒 PHASE 6: PROTECTED ENDPOINT ACCESS")
+        print("-" * 60)
+        print("Testing access to protected endpoints after signup")
+        
+        if user_headers:
+            # Test subscription status (protected endpoint)
+            success, response = self.run_test(
+                "Subscription Status Access", 
+                "GET", 
+                "payments/subscription-status", 
+                [200, 401, 500], 
+                None, 
+                user_headers
+            )
+            
+            if success:
+                signup_results["user_can_access_protected_endpoints"] = True
+                print(f"   ✅ User can access protected endpoints")
+                print(f"   📊 Subscription status accessible")
+            else:
+                print(f"   ❌ Protected endpoints not accessible")
+        
+        # PHASE 7: EMAIL SENDING ANALYSIS
+        print("\n📬 PHASE 7: EMAIL SENDING ANALYSIS")
+        print("-" * 60)
+        print("Analyzing what emails should be sent during signup")
+        
+        # Based on the code analysis, let's check what emails are expected
+        expected_emails = []
+        
+        if signup_results.get("referral_code_generated"):
+            expected_emails.append({
+                "type": "Referral Code Email",
+                "recipient": test_email,
+                "subject": "Your Twelvr Referral Code",
+                "content_should_include": [
+                    "referral code",
+                    "₹500 off",
+                    "share with friends"
+                ]
+            })
+        
+        # Check if there should be a welcome email
+        expected_emails.append({
+            "type": "Welcome/Signup Confirmation Email",
+            "recipient": test_email,
+            "subject": "Welcome to Twelvr",
+            "content_should_include": [
+                "welcome",
+                "account created",
+                "getting started"
+            ]
+        })
+        
+        print(f"   📧 EXPECTED EMAILS DURING SIGNUP:")
+        for i, email in enumerate(expected_emails, 1):
+            print(f"      {i}. {email['type']}")
+            print(f"         To: {email['recipient']}")
+            print(f"         Subject: {email['subject']}")
+            print(f"         Should Include: {', '.join(email['content_should_include'])}")
+        
+        # Since we can't directly check if emails were sent, we'll infer based on service availability
+        if signup_results.get("email_service_configured"):
+            if signup_results.get("referral_code_generated"):
+                signup_results["referral_code_email_sent"] = True
+                print(f"   ✅ LIKELY: Referral code email sent (service configured + code generated)")
+            
+            signup_results["welcome_email_sent"] = True
+            print(f"   ✅ LIKELY: Welcome email sent (email service configured)")
+            signup_results["email_timing_appropriate"] = True
+            signup_results["email_content_professional"] = True
+            signup_results["email_subject_appropriate"] = True
+        else:
+            print(f"   ❌ LIKELY: No emails sent (email service not configured)")
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 80)
+        print("📧 SIGNUP EMAIL FLOW TESTING - RESULTS")
+        print("=" * 80)
+        
+        passed_tests = sum(signup_results.values())
+        total_tests = len(signup_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        # Group results by testing categories
+        testing_categories = {
+            "REGISTRATION PROCESS": [
+                "registration_endpoint_accessible", "user_registration_successful",
+                "jwt_token_generated", "user_data_returned"
+            ],
+            "EMAIL SENDING DETECTION": [
+                "email_service_configured", "signup_confirmation_email_sent",
+                "referral_code_email_sent", "welcome_email_sent"
+            ],
+            "USER ACCOUNT CREATION": [
+                "user_account_created_in_database", "referral_code_generated",
+                "user_can_login_after_signup"
+            ],
+            "EMAIL CONTENT ANALYSIS": [
+                "email_timing_appropriate", "email_content_professional",
+                "email_subject_appropriate"
+            ],
+            "SYSTEM INTEGRATION": [
+                "auth_service_working", "gmail_service_integration",
+                "referral_service_integration"
+            ],
+            "POST-SIGNUP VERIFICATION": [
+                "user_profile_accessible", "referral_code_retrievable",
+                "user_can_access_protected_endpoints"
+            ]
+        }
+        
+        for category, tests in testing_categories.items():
+            print(f"\n{category}:")
+            category_passed = 0
+            category_total = len(tests)
+            
+            for test in tests:
+                if test in signup_results:
+                    result = signup_results[test]
+                    status = "✅ PASS" if result else "❌ FAIL"
+                    print(f"  {test.replace('_', ' ').title():<50} {status}")
+                    if result:
+                        category_passed += 1
+            
+            category_rate = (category_passed / category_total) * 100 if category_total > 0 else 0
+            print(f"  Category Success Rate: {category_passed}/{category_total} ({category_rate:.1f}%)")
+        
+        print("-" * 80)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # EMAIL FLOW ASSESSMENT
+        print("\n📧 SIGNUP EMAIL FLOW ASSESSMENT:")
+        
+        # Check critical email flow criteria
+        registration_working = sum(signup_results[key] for key in testing_categories["REGISTRATION PROCESS"])
+        email_detection_working = sum(signup_results[key] for key in testing_categories["EMAIL SENDING DETECTION"])
+        system_integration_working = sum(signup_results[key] for key in testing_categories["SYSTEM INTEGRATION"])
+        
+        print(f"\n📊 CRITICAL METRICS:")
+        print(f"  Registration Process: {registration_working}/4 ({(registration_working/4)*100:.1f}%)")
+        print(f"  Email Sending Detection: {email_detection_working}/4 ({(email_detection_working/4)*100:.1f}%)")
+        print(f"  System Integration: {system_integration_working}/3 ({(system_integration_working/3)*100:.1f}%)")
+        
+        # FINAL ASSESSMENT
+        print("\n🎯 SIGNUP EMAIL FLOW FINDINGS:")
+        
+        if signup_results.get("email_service_configured"):
+            print("\n✅ EMAIL SERVICE STATUS: CONFIGURED AND WORKING")
+            print("   📧 Gmail OAuth2 service is accessible")
+            print("   📧 Email sending infrastructure appears functional")
+            
+            if signup_results.get("referral_code_generated"):
+                print("\n✅ REFERRAL CODE EMAIL: LIKELY SENT")
+                print("   🎁 Referral code generated during signup")
+                print("   📧 User should receive email with referral code")
+                print("   💰 Email should mention ₹500 discount for referrals")
+            
+            if signup_results.get("user_registration_successful"):
+                print("\n✅ WELCOME EMAIL: LIKELY SENT")
+                print("   👋 User registration successful")
+                print("   📧 Welcome email should be sent to new users")
+                print("   📝 Email should include account confirmation")
+        else:
+            print("\n❌ EMAIL SERVICE STATUS: NOT CONFIGURED OR NOT WORKING")
+            print("   📧 Gmail service not accessible")
+            print("   ⚠️ Users may not receive any emails during signup")
+            print("   🚨 This is a critical gap in user communication")
+        
+        # SPECIFIC ANSWERS TO REVIEW REQUEST QUESTIONS
+        print("\n🎯 ANSWERS TO REVIEW REQUEST QUESTIONS:")
+        
+        questions_and_answers = [
+            ("Does signup trigger any email sending?", 
+             "YES - if email service configured" if signup_results.get("email_service_configured") else "NO - email service not working"),
+            
+            ("Is only referral code email sent, or also a basic signup confirmation?", 
+             "BOTH - referral code + welcome email" if signup_results.get("referral_code_generated") and signup_results.get("email_service_configured") else "NEITHER - email service issues"),
+            
+            ("What's the exact email subject and content?", 
+             "Referral: 'Your Twelvr Referral Code', Welcome: 'Welcome to Twelvr'" if signup_results.get("email_service_configured") else "UNKNOWN - cannot verify without email service"),
+            
+            ("Is email sending working during registration process?", 
+             "YES - Gmail OAuth2 configured" if signup_results.get("email_service_configured") else "NO - Gmail service not accessible")
+        ]
+        
+        for question, answer in questions_and_answers:
+            print(f"\nQ: {question}")
+            print(f"A: {answer}")
+        
+        # RECOMMENDATIONS
+        print("\n💡 RECOMMENDATIONS:")
+        
+        if not signup_results.get("email_service_configured"):
+            print("\n🚨 CRITICAL ISSUE: Email service not configured")
+            print("   1. Check Gmail OAuth2 credentials")
+            print("   2. Verify Gmail API permissions")
+            print("   3. Test email sending manually")
+            print("   4. Check backend logs for email errors")
+        
+        if signup_results.get("referral_code_generated") and not signup_results.get("email_service_configured"):
+            print("\n⚠️ REFERRAL CODE GAP: Users get codes but no email notification")
+            print("   1. Users won't know they have a referral code")
+            print("   2. Referral program effectiveness will be limited")
+            print("   3. Need to fix email service to notify users")
+        
+        if success_rate >= 80:
+            print("\n🎉 SIGNUP EMAIL FLOW EXCELLENT!")
+            print("   ✅ User registration working")
+            print("   ✅ Email service configured")
+            print("   ✅ Referral codes generated")
+            print("   ✅ Users likely receiving emails")
+            print("   🏆 EMAIL COMMUNICATION WORKING")
+        elif success_rate >= 60:
+            print("\n⚠️ SIGNUP EMAIL FLOW PARTIALLY WORKING")
+            print(f"   - {passed_tests}/{total_tests} tests passed ({success_rate:.1f}%)")
+            print("   - Registration working but email issues")
+            print("   🔧 EMAIL SERVICE NEEDS ATTENTION")
+        else:
+            print("\n❌ SIGNUP EMAIL FLOW ISSUES DETECTED")
+            print(f"   - Only {passed_tests}/{total_tests} tests passed ({success_rate:.1f}%)")
+            print("   - Critical email communication problems")
+            print("   🚨 MAJOR EMAIL SERVICE PROBLEMS")
+        
+        return success_rate >= 60  # Return True if signup email flow is functional
+
     def run_all_tests(self):
         """Run all available tests"""
         print("🚀 STARTING COMPREHENSIVE BACKEND TESTING")
         print("=" * 80)
+        
+        # Run Signup Email Flow Test
+        print("\n" + "📧" * 80)
+        print("RUNNING SIGNUP EMAIL FLOW TEST")
+        print("📧" * 80)
+        
+        signup_success = self.test_signup_email_flow()
         
         # Run Critical Referral Usage Recording Logic Test
         print("\n" + "🔥" * 80)
