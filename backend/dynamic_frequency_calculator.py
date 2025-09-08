@@ -369,6 +369,5 @@ if __name__ == "__main__":
         calculator = DynamicFrequencyCalculator()
         print("✅ Dynamic Frequency Calculator initialized successfully")
         print(f"🎯 Similarity threshold: {calculator.similarity_threshold}")
-        print(f"📊 Analysis window: {calculator.total_years_window} years")
     
     asyncio.run(test_calculator())
