@@ -30,8 +30,6 @@ class DynamicFrequencyCalculator:
         
         # Configuration
         self.similarity_threshold = 0.4  # Minimum similarity for meaningful match
-        self.recent_years_window = 5     # Years for time-weighted analysis  
-        self.total_years_window = 10     # Total historical analysis window
     
     async def calculate_true_pyq_frequency(self, regular_question: Question, db: AsyncSession) -> Dict[str, Any]:
         """
