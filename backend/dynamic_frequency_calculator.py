@@ -302,7 +302,7 @@ class DynamicFrequencyCalculator:
             questions = {str(q.id): q for q in questions_result.scalars()}
             
             # Get PYQ data once for all calculations
-            active_pyqs = await self._get_active_pyq_questions(db, self.total_years_window)
+            active_pyqs = await self._get_active_pyq_questions(db)
             
             if not active_pyqs:
                 logger.warning("⚠️ No active PYQ questions for batch calculation")
