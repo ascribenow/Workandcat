@@ -58,7 +58,7 @@ const CancellationRefund = () => {
               <strong>Company:</strong> M/s Costo Digital
             </p>
             <p className="text-lg" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
-              At Twelvr, our services are subscription-based, delivering personalized daily sessions.
+              At Twelvr, our services are subscription-based, delivering personalized sessions.
             </p>
           </div>
 
