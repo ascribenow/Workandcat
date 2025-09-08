@@ -81,7 +81,7 @@ const PrivacyPolicy = () => {
             <section>
               <h2 className="text-2xl font-bold mb-4" style={{ color: '#545454' }}>2. How We Use Your Information</h2>
               <ul className="space-y-2 text-gray-700" style={{ fontFamily: 'Lato, sans-serif' }}>
-                <li>To personalize your daily 12-question sessions.</li>
+                <li>To personalize your 12-question sessions.</li>
                 <li>To track progress, mastery, and learning outcomes.</li>
                 <li>To improve our algorithms and platform experience.</li>
                 <li>To communicate updates, features, or offers.</li>
