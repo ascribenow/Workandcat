@@ -362,6 +362,7 @@ async def update_all_question_frequencies(db: AsyncSession, batch_size: int = 50
                     
                     # Update question with new frequency data
                     question.pyq_frequency_score = frequency_data['frequency_score']
+                    question.frequency_band = frequency_data['frequency_band']
                     question.pyq_conceptual_matches = frequency_data['conceptual_matches_count']
                     question.frequency_analysis_method = 'dynamic_conceptual_matching'
                     
