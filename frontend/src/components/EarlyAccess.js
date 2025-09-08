@@ -47,7 +47,7 @@ const EarlyAccess = () => {
             Early Access
           </h1>
           <p className="text-xl" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
-            Be among the first to experience the Daily-12 revolution
+            Be among the first to experience the My 12 revolution
           </p>
         </div>
 
