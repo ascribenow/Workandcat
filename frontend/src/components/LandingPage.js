@@ -681,7 +681,7 @@ const LandingPage = () => {
             </div>
             
             <p className="text-lg mb-8" style={{ fontFamily: 'Lato, sans-serif' }}>
-              <em>You, Compounded.</em>
+              <em>You, compounded.</em>
             </p>
 
             <button 
