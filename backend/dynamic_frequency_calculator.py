@@ -77,7 +77,7 @@ class DynamicFrequencyCalculator:
                 }
             }
             
-            logger.info(f"✅ Frequency analysis complete: {frequency_result['frequency_score']:.3f} overall, {frequency_result['time_weighted_frequency']:.3f} recent")
+            logger.info(f"✅ Frequency analysis complete: {frequency_result['frequency_score']:.3f}")
             return frequency_result
             
         except Exception as e:
