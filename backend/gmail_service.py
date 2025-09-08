@@ -776,7 +776,7 @@ If you find Twelvr helpful, share it with your friends.
 They'll get ₹500 off their subscription.
 You'll earn ₹500 cashback when they join.
 
-One-time use per person.
+Share with as many friends as you like.
 
 T&Cs: https://twelvr.com/terms
 
