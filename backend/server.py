@@ -5165,6 +5165,7 @@ async def upload_pyq_csv(file: UploadFile, db: AsyncSession, current_user: User)
             if not topic:
                 topic = Topic(
                     name="PYQ General",
+                    slug="pyq-general",
                     category="A"
                 )
                 db.add(topic)
