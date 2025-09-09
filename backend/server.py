@@ -3081,6 +3081,46 @@ async def submit_session_answer(
                 session.ended_at = datetime.utcnow()
                 await db.commit()
                 logger.info(f"Session {session_id} marked as complete for user {current_user.id}")
+                
+                # UPDATE COVERAGE TRACKING for Phase A sessions
+                try:
+                    from adaptive_session_logic import AdaptiveSessionLogic
+                    
+                    # Get session questions for coverage tracking
+                    questions_result = await db.execute(
+                        select(Question)
+                        .where(Question.id.in_(question_ids))
+                    )
+                    session_questions = questions_result.scalars().all()
+                    
+                    # Get user's total completed sessions count for session number
+                    completed_sessions_result = await db.execute(
+                        select(func.count(Session.id))
+                        .where(
+                            Session.user_id == current_user.id,
+                            Session.ended_at.isnot(None)
+                        )
+                    )
+                    session_number = completed_sessions_result.scalar() or 0
+                    
+                    # Update coverage tracking (will only track if Phase A)
+                    adaptive_logic = AdaptiveSessionLogic()
+                    
+                    # Convert async session to sync for coverage tracking
+                    sync_db = SessionLocal()
+                    try:
+                        adaptive_logic.update_student_coverage_tracking(
+                            user_id=current_user.id,
+                            questions=session_questions,
+                            session_num=session_number,
+                            db=sync_db
+                        )
+                    finally:
+                        sync_db.close()
+                        
+                except Exception as coverage_error:
+                    logger.error(f"❌ Error updating coverage tracking: {coverage_error}")
+                    # Don't fail the session completion due to coverage tracking errors
         
         # Always return comprehensive feedback with solution
         return {
