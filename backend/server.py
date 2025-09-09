@@ -6620,13 +6620,14 @@ async def enrich_question_background(question_id: str, hint_category: str = None
             
             logger.info(f"Step 1: REVISED enrichment for question {question_id} - Protecting admin fields")
             
-            # REVISED FLOW: Use updated LLM enrichment pipeline that protects admin fields
-            from llm_enrichment import LLMEnrichmentService
+            # REVISED FLOW: Use updated LLM enrichment pipeline that protects admin fields - DISABLED
+            # from llm_enrichment import LLMEnrichmentService  # Removed - using new enhanced service
             
             try:
-                # Use the NEW enrichment service that protects admin fields
-                enrichment_service = LLMEnrichmentService()
-                enrichment_result = await enrichment_service.enrich_question_automatically(question, db)
+                # Use the NEW enrichment service that protects admin fields - DISABLED
+                # enrichment_service = LLMEnrichmentService()  # Removed - using new enhanced service
+                # enrichment_result = await enrichment_service.enrich_question_automatically(question, db)  # Removed
+                enrichment_result = {"success": False, "message": "LLM enrichment disabled"}
                 
                 if enrichment_result["success"]:
                     logger.info(f"✅ REVISED enrichment successful for question {question_id}")
