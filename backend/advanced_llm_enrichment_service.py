@@ -539,22 +539,11 @@ Be precise, insightful, and demonstrate superior mathematical intelligence."""
                 if not analysis_text:
                     raise Exception("OpenAI returned empty response")
                 
-                # Extract JSON from markdown code blocks if present
-                if "```json" in analysis_text:
-                    start_idx = analysis_text.find("```json") + 7
-                    end_idx = analysis_text.find("```", start_idx)
-                    if end_idx > start_idx:
-                        analysis_text = analysis_text[start_idx:end_idx].strip()
-                        logger.info(f"🔧 Extracted JSON from markdown: {analysis_text[:100]}...")
-                elif "```" in analysis_text:
-                    # Handle generic code blocks
-                    start_idx = analysis_text.find("```") + 3
-                    end_idx = analysis_text.find("```", start_idx)
-                    if end_idx > start_idx:
-                        analysis_text = analysis_text[start_idx:end_idx].strip()
-                        logger.info(f"🔧 Extracted from generic code block: {analysis_text[:100]}...")
+                # Extract JSON using helper function
+                clean_json = extract_json_from_response(analysis_text)
+                logger.info(f"🔧 Clean JSON preview: {clean_json[:100]}...")
                 
-                analysis_data = json.loads(analysis_text)
+                analysis_data = json.loads(clean_json)
                 
                 # CRITICAL: Verify quality standards regardless of model used
                 if not self._verify_response_quality(analysis_data, model_to_use):
