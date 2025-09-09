@@ -240,6 +240,196 @@ class CanonicalTaxonomyService:
             "question_types": total_types,
             "taxonomy": CANONICAL_TAXONOMY
         }
+    
+    async def _llm_semantic_category_match(self, llm_category: str) -> Optional[str]:
+        """Use LLM to find semantic match for category"""
+        try:
+            # Import here to avoid circular imports
+            from advanced_llm_enrichment_service import call_llm_with_fallback
+            
+            system_message = """You are a mathematical taxonomy expert. Your task is to find the most semantically appropriate canonical category match.
+
+Given a category classification, you must choose the BEST semantic match from the canonical categories.
+
+CANONICAL CATEGORIES:
+- Arithmetic
+- Algebra  
+- Geometry and Mensuration
+- Number System
+- Modern Math
+
+Rules:
+1. Choose based on mathematical MEANING, not just word similarity
+2. If no good semantic match exists, respond with "NO_MATCH"
+3. Respond with ONLY the canonical category name or "NO_MATCH"
+
+Examples:
+- "Basic Calculations" → "Arithmetic"
+- "Equation Solving" → "Algebra"
+- "Shape Problems" → "Geometry and Mensuration"
+- "Integer Properties" → "Number System"
+- "Probability Questions" → "Modern Math"
+- "Unrelated Topic" → "NO_MATCH" """
+
+            user_message = f"Find the best semantic match for this category: '{llm_category}'"
+            
+            # Create a dummy service instance for the call
+            class DummyService:
+                def __init__(self):
+                    self.openai_api_key = os.getenv('OPENAI_API_KEY')
+                    self.google_api_key = os.getenv('GOOGLE_API_KEY')
+                    self.primary_model = "gpt-4o"
+                    self.fallback_model = "gpt-4o-mini"
+                    self.gemini_model = "gemini-pro"
+                    self.primary_model_failures = 0
+                    self.max_failures_before_degradation = 3
+                    self.openai_consecutive_failures = 0
+                    self.max_openai_failures_before_gemini = 2
+                    self.timeout = 30
+            
+            dummy_service = DummyService()
+            response_text, model_used = await call_llm_with_fallback(
+                dummy_service, system_message, user_message, max_tokens=50, temperature=0.1
+            )
+            
+            response_text = response_text.strip()
+            if response_text == "NO_MATCH":
+                return None
+            elif response_text in self.categories:
+                return response_text
+            else:
+                logger.warning(f"⚠️ LLM returned invalid category: '{response_text}'")
+                return None
+                
+        except Exception as e:
+            logger.error(f"❌ LLM semantic category matching failed: {str(e)}")
+            return None
+    
+    async def _llm_semantic_subcategory_match(self, llm_subcategory: str, canonical_category: str) -> Optional[str]:
+        """Use LLM to find semantic match for subcategory within a category"""
+        try:
+            if canonical_category not in CANONICAL_TAXONOMY:
+                return None
+                
+            available_subcategories = list(CANONICAL_TAXONOMY[canonical_category].keys())
+            
+            # Import here to avoid circular imports
+            from advanced_llm_enrichment_service import call_llm_with_fallback
+            
+            system_message = f"""You are a mathematical taxonomy expert. Your task is to find the most semantically appropriate subcategory match within the {canonical_category} category.
+
+Given a subcategory classification, you must choose the BEST semantic match from the available subcategories.
+
+AVAILABLE SUBCATEGORIES IN {canonical_category.upper()}:
+{chr(10).join(f'- {sub}' for sub in available_subcategories)}
+
+Rules:
+1. Choose based on mathematical MEANING and conceptual similarity
+2. If no good semantic match exists, respond with "NO_MATCH"
+3. Respond with ONLY the exact subcategory name or "NO_MATCH"
+
+Example logic:
+- "Speed Problems" → "Time-Speed-Distance" 
+- "Interest Calculations" → "Simple and Compound Interest"
+- "Circle Properties" → "Circles"
+- "Average Constraints" → "Averages and Alligation" """
+
+            user_message = f"Find the best semantic match for this subcategory: '{llm_subcategory}' within the {canonical_category} category."
+            
+            # Create a dummy service instance for the call
+            class DummyService:
+                def __init__(self):
+                    self.openai_api_key = os.getenv('OPENAI_API_KEY')
+                    self.google_api_key = os.getenv('GOOGLE_API_KEY')
+                    self.primary_model = "gpt-4o"
+                    self.fallback_model = "gpt-4o-mini"
+                    self.gemini_model = "gemini-pro"
+                    self.primary_model_failures = 0
+                    self.max_failures_before_degradation = 3
+                    self.openai_consecutive_failures = 0
+                    self.max_openai_failures_before_gemini = 2
+                    self.timeout = 30
+            
+            dummy_service = DummyService()
+            response_text, model_used = await call_llm_with_fallback(
+                dummy_service, system_message, user_message, max_tokens=100, temperature=0.1
+            )
+            
+            response_text = response_text.strip()
+            if response_text == "NO_MATCH":
+                return None
+            elif response_text in available_subcategories:
+                return response_text
+            else:
+                logger.warning(f"⚠️ LLM returned invalid subcategory: '{response_text}'")
+                return None
+                
+        except Exception as e:
+            logger.error(f"❌ LLM semantic subcategory matching failed: {str(e)}")
+            return None
+    
+    async def _llm_semantic_question_type_match(self, llm_type: str, canonical_category: str, canonical_subcategory: str) -> Optional[str]:
+        """Use LLM to find semantic match for question type within subcategory"""
+        try:
+            if (canonical_category not in CANONICAL_TAXONOMY or 
+                canonical_subcategory not in CANONICAL_TAXONOMY[canonical_category]):
+                return None
+                
+            available_types = CANONICAL_TAXONOMY[canonical_category][canonical_subcategory]
+            
+            # Import here to avoid circular imports
+            from advanced_llm_enrichment_service import call_llm_with_fallback
+            
+            system_message = f"""You are a mathematical taxonomy expert. Your task is to find the most semantically appropriate question type match within {canonical_category} → {canonical_subcategory}.
+
+Given a question type classification, you must choose the BEST semantic match from the available question types.
+
+AVAILABLE QUESTION TYPES IN {canonical_category.upper()} → {canonical_subcategory.upper()}:
+{chr(10).join(f'- {qt}' for qt in available_types)}
+
+Rules:
+1. Choose based on mathematical MEANING and problem-solving approach similarity
+2. If no good semantic match exists, respond with "NO_MATCH"
+3. Respond with ONLY the exact question type name or "NO_MATCH"
+
+Example logic:
+- "Speed Calculation Problem" → "Basics" (if in Time-Speed-Distance)
+- "Relative Motion Analysis" → "Relative Speed" (if in Time-Speed-Distance)
+- "Interest Rate Problem" → "Basics" (if in Simple and Compound Interest) """
+
+            user_message = f"Find the best semantic match for this question type: '{llm_type}' within {canonical_category} → {canonical_subcategory}."
+            
+            # Create a dummy service instance for the call
+            class DummyService:
+                def __init__(self):
+                    self.openai_api_key = os.getenv('OPENAI_API_KEY')
+                    self.google_api_key = os.getenv('GOOGLE_API_KEY')
+                    self.primary_model = "gpt-4o"
+                    self.fallback_model = "gpt-4o-mini"
+                    self.gemini_model = "gemini-pro"
+                    self.primary_model_failures = 0
+                    self.max_failures_before_degradation = 3
+                    self.openai_consecutive_failures = 0
+                    self.max_openai_failures_before_gemini = 2
+                    self.timeout = 30
+            
+            dummy_service = DummyService()
+            response_text, model_used = await call_llm_with_fallback(
+                dummy_service, system_message, user_message, max_tokens=100, temperature=0.1
+            )
+            
+            response_text = response_text.strip()
+            if response_text == "NO_MATCH":
+                return None
+            elif response_text in available_types:
+                return response_text
+            else:
+                logger.warning(f"⚠️ LLM returned invalid question type: '{response_text}'")
+                return None
+                
+        except Exception as e:
+            logger.error(f"❌ LLM semantic question type matching failed: {str(e)}")
+            return None
 
 # Global instance
 canonical_taxonomy_service = CanonicalTaxonomyService()
