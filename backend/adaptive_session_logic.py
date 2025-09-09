@@ -197,6 +197,66 @@ class AdaptiveSessionLogic:
             logger.error(f"Error getting student seen combinations: {e}")
             return set()
     
+    def get_student_coverage_progress(self, user_id: str, db: Session) -> Dict[str, Any]:
+        """
+        Get coverage progress metrics for a student in Phase A
+        Returns coverage statistics and progress information
+        """
+        try:
+            # Get total unique combinations available
+            result = db.execute(
+                select(func.concat(Question.subcategory, '::', Question.type_of_question))
+                .where(Question.is_active == True)
+                .distinct()
+            )
+            all_combinations = set(row[0] for row in result.fetchall())
+            total_combinations = len(all_combinations)
+            
+            # Get combinations this student has seen
+            result = db.execute(
+                select(StudentCoverageTracking.subcategory_type_combination,
+                       StudentCoverageTracking.sessions_seen,
+                       StudentCoverageTracking.first_seen_session)
+                .where(StudentCoverageTracking.user_id == user_id)
+            )
+            coverage_records = result.fetchall()
+            
+            seen_combinations = set(record[0] for record in coverage_records)
+            coverage_count = len(seen_combinations)
+            
+            # Calculate progress percentage
+            coverage_percentage = (coverage_count / total_combinations * 100) if total_combinations > 0 else 0
+            
+            # Find uncovered combinations
+            uncovered_combinations = all_combinations - seen_combinations
+            
+            return {
+                "total_combinations_available": total_combinations,
+                "combinations_covered": coverage_count,
+                "coverage_percentage": round(coverage_percentage, 1),
+                "uncovered_combinations": list(uncovered_combinations)[:10],  # First 10 for display
+                "uncovered_count": len(uncovered_combinations),
+                "coverage_details": [
+                    {
+                        "combination": record[0],
+                        "sessions_seen": record[1], 
+                        "first_seen_session": record[2]
+                    }
+                    for record in coverage_records
+                ]
+            }
+            
+        except Exception as e:
+            logger.error(f"Error getting student coverage progress: {e}")
+            return {
+                "total_combinations_available": 0,
+                "combinations_covered": 0,
+                "coverage_percentage": 0.0,
+                "uncovered_combinations": [],
+                "uncovered_count": 0,
+                "coverage_details": []
+            }
+
     def update_student_coverage_tracking(self, user_id: str, questions: List[Question], session_num: int, db: Session):
         """
         Update coverage tracking after a session is completed
