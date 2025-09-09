@@ -339,7 +339,7 @@ Example logic:
                 canonical_subcategory not in CANONICAL_TAXONOMY[canonical_category]):
                 return None
                 
-            available_types = CANONICAL_TAXONOMY[canonical_category][canonical_subcategory]
+            available_types = list(CANONICAL_TAXONOMY[canonical_category][canonical_subcategory]['types'].keys())
             
             # Import here to avoid circular imports
             from advanced_llm_enrichment_service import call_llm_with_fallback
