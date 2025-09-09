@@ -77,8 +77,72 @@ class CanonicalTaxonomyService:
         logger.warning(f"⚠️ No subcategory match found for: '{llm_subcategory}' in category '{canonical_category}'. Quality verification will fail.")
         return None
     
+    async def match_subcategory_without_category(self, llm_subcategory: str) -> Optional[str]:
+        """Find best canonical subcategory match across ALL categories using Enhanced semantic matching"""
+        if not llm_subcategory:
+            return None
+        
+        # Build a comprehensive list of all subcategories across all categories
+        all_subcategories = []
+        for category_data in CANONICAL_TAXONOMY.values():
+            all_subcategories.extend(category_data.keys())
+        
+        # Enhanced LLM-assisted semantic analysis with descriptions (no direct matching)
+        logger.info(f"🧠 Attempting enhanced semantic analysis for subcategory: '{llm_subcategory}' across ALL categories")
+        semantic_match = await self._enhanced_semantic_subcategory_match_global(llm_subcategory)
+        if semantic_match:
+            logger.info(f"🎯 Enhanced semantic match found: '{llm_subcategory}' → '{semantic_match}'")
+            return semantic_match
+            
+        # Final failure - no semantic match found
+        logger.warning(f"⚠️ No subcategory match found for: '{llm_subcategory}' across all categories. Quality verification will fail.")
+        return None
+
+    async def match_question_type_within_subcategory(self, llm_type: str, canonical_subcategory: str) -> Optional[str]:
+        """Find best canonical question type match within the given subcategory (category-agnostic)"""
+        if not llm_type or not canonical_subcategory:
+            return None
+        
+        # Find which category contains this subcategory
+        containing_category = None
+        for category, subcategories in CANONICAL_TAXONOMY.items():
+            if canonical_subcategory in subcategories:
+                containing_category = category
+                break
+        
+        if not containing_category:
+            logger.warning(f"⚠️ Subcategory '{canonical_subcategory}' not found in canonical taxonomy")
+            return None
+        
+        # Enhanced LLM-assisted semantic analysis with descriptions (no direct matching)
+        logger.info(f"🧠 Attempting enhanced semantic analysis for question type: '{llm_type}' in subcategory '{canonical_subcategory}'")
+        semantic_match = await self._enhanced_semantic_question_type_match(llm_type, containing_category, canonical_subcategory)
+        if semantic_match:
+            logger.info(f"🎯 Enhanced semantic match found: '{llm_type}' → '{semantic_match}'")
+            return semantic_match
+            
+        # Final failure - no semantic match found
+        logger.warning(f"⚠️ No question type match found for: '{llm_type}' in subcategory '{canonical_subcategory}'. Quality verification will fail.")
+        return None
+
+    def lookup_category_by_combination(self, canonical_subcategory: str, canonical_type: str) -> Optional[str]:
+        """Code-based category lookup using subcategory + type combination (FAST)"""
+        if not canonical_subcategory or not canonical_type:
+            return None
+        
+        # Direct lookup - O(1) operation since combinations are unique
+        for category, subcategories in CANONICAL_TAXONOMY.items():
+            if canonical_subcategory in subcategories:
+                if canonical_type in subcategories[canonical_subcategory]['types']:
+                    logger.info(f"✅ Code-based category lookup: '{canonical_subcategory}' + '{canonical_type}' → '{category}'")
+                    return category
+        
+        # Final failure - combination not found
+        logger.warning(f"⚠️ No category found for combination: '{canonical_subcategory}' + '{canonical_type}'")
+        return None
+
     async def match_question_type(self, llm_type: str, canonical_category: str, canonical_subcategory: str) -> Optional[str]:
-        """Find best canonical question type match using Enhanced Semantic matching only"""
+        """Find best canonical question type match using Enhanced Semantic matching only (LEGACY - kept for compatibility)"""
         if not llm_type or not canonical_category or not canonical_subcategory:
             return None
             
