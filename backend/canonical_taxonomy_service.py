@@ -131,7 +131,7 @@ class CanonicalTaxonomyService:
             canonical_subcategory not in CANONICAL_TAXONOMY[canonical_category]):
             return None
             
-        available_types = CANONICAL_TAXONOMY[canonical_category][canonical_subcategory]
+        available_types = list(CANONICAL_TAXONOMY[canonical_category][canonical_subcategory]['types'].keys())
         
         # Direct match first
         if llm_type in available_types:
