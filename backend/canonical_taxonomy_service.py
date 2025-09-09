@@ -246,68 +246,92 @@ EXAMPLES OF SEMANTIC MATCHING:
         
         return None
     
-    async def _llm_semantic_subcategory_match(self, llm_subcategory: str, canonical_category: str) -> Optional[str]:
-        """Use LLM to find semantic match for subcategory within a category"""
-        try:
-            if canonical_category not in CANONICAL_TAXONOMY:
-                return None
-                
-            available_subcategories = list(CANONICAL_TAXONOMY[canonical_category].keys())
-            
-            # Import here to avoid circular imports
-            from advanced_llm_enrichment_service import call_llm_with_fallback
-            
-            system_message = f"""You are a mathematical taxonomy expert. Your task is to find the most semantically appropriate subcategory match within the {canonical_category} category.
-
-Given a subcategory classification, you must choose the BEST semantic match from the available subcategories.
-
-AVAILABLE SUBCATEGORIES IN {canonical_category.upper()}:
-{chr(10).join(f'- {sub}' for sub in available_subcategories)}
-
-Rules:
-1. Choose based on mathematical MEANING and conceptual similarity
-2. If no good semantic match exists, respond with "NO_MATCH"
-3. Respond with ONLY the exact subcategory name or "NO_MATCH"
-
-Example logic:
-- "Speed Problems" → "Time-Speed-Distance" 
-- "Interest Calculations" → "Simple and Compound Interest"
-- "Circle Properties" → "Circles"
-- "Average Constraints" → "Averages and Alligation" """
-
-            user_message = f"Find the best semantic match for this subcategory: '{llm_subcategory}' within the {canonical_category} category."
-            
-            # Create a dummy service instance for the call
-            class DummyService:
-                def __init__(self):
-                    self.openai_api_key = os.getenv('OPENAI_API_KEY')
-                    self.google_api_key = os.getenv('GOOGLE_API_KEY')
-                    self.primary_model = "gpt-4o"
-                    self.fallback_model = "gpt-4o-mini"
-                    self.gemini_model = "gemini-pro"
-                    self.primary_model_failures = 0
-                    self.max_failures_before_degradation = 3
-                    self.openai_consecutive_failures = 0
-                    self.max_openai_failures_before_gemini = 2
-                    self.timeout = 30
-            
-            dummy_service = DummyService()
-            response_text, model_used = await call_llm_with_fallback(
-                dummy_service, system_message, user_message, max_tokens=100, temperature=0.1
-            )
-            
-            response_text = response_text.strip()
-            if response_text == "NO_MATCH":
-                return None
-            elif response_text in available_subcategories:
-                return response_text
-            else:
-                logger.warning(f"⚠️ LLM returned invalid subcategory: '{response_text}'")
-                return None
-                
-        except Exception as e:
-            logger.error(f"❌ LLM semantic subcategory matching failed: {str(e)}")
+    async def _enhanced_semantic_subcategory_match(self, llm_subcategory: str, canonical_category: str) -> Optional[str]:
+        """Use enhanced LLM semantic matching for subcategory using descriptions with 2 retries"""
+        
+        if canonical_category not in CANONICAL_TAXONOMY:
             return None
+            
+        available_subcategories = list(CANONICAL_TAXONOMY[canonical_category].keys())
+        
+        # Retry logic: 2 attempts
+        for attempt in range(2):
+            try:
+                # Import here to avoid circular imports
+                from advanced_llm_enrichment_service import call_llm_with_fallback
+                
+                # Build comprehensive context with subcategory descriptions
+                subcategories_context = []
+                for subcategory in available_subcategories:
+                    description = CANONICAL_TAXONOMY[canonical_category][subcategory]['description']
+                    # Truncate description for context (first 150 chars)
+                    short_desc = description[:150] + "..." if len(description) > 150 else description
+                    subcategories_context.append(f"- {subcategory}: {short_desc}")
+                
+                system_message = f"""You are a mathematical taxonomy expert with deep understanding of CAT quantitative subcategories within {canonical_category}.
+
+Your task is to find the most semantically appropriate subcategory match using detailed descriptions.
+
+AVAILABLE SUBCATEGORIES IN {canonical_category.upper()} WITH DESCRIPTIONS:
+{chr(10).join(subcategories_context)}
+
+ENHANCED MATCHING RULES:
+1. Analyze the mathematical CONCEPTS and PROBLEM TYPES described in the input
+2. Match based on the MATHEMATICAL DOMAIN and PROBLEM-SOLVING APPROACH
+3. Consider the CONCEPTUAL SIMILARITY between input and subcategory descriptions
+4. Use the detailed descriptions to understand the true mathematical focus
+5. If no good semantic match exists, respond with "NO_MATCH"
+6. Respond with ONLY the exact subcategory name or "NO_MATCH"
+
+EXAMPLES OF SEMANTIC MATCHING:
+- "Speed Problems" → "Time-Speed-Distance" (motion and velocity focus)
+- "Interest Calculations" → "Simple and Compound Interest" (financial mathematics)
+- "Circle Properties" → "Circles" (circular geometry focus)
+- "Mixture Analysis" → "Averages and Alligation" (combination problems)"""
+
+                user_message = f"Find the best semantic match for this subcategory: '{llm_subcategory}' within the {canonical_category} category."
+                
+                # Create a dummy service instance for the call
+                class DummyService:
+                    def __init__(self):
+                        self.openai_api_key = os.getenv('OPENAI_API_KEY')
+                        self.google_api_key = os.getenv('GOOGLE_API_KEY')
+                        self.primary_model = "gpt-4o"
+                        self.fallback_model = "gpt-4o-mini"
+                        self.gemini_model = "gemini-pro"
+                        self.primary_model_failures = 0
+                        self.max_failures_before_degradation = 3
+                        self.openai_consecutive_failures = 0
+                        self.max_openai_failures_before_gemini = 2
+                        self.timeout = 30
+                
+                dummy_service = DummyService()
+                response_text, model_used = await call_llm_with_fallback(
+                    dummy_service, system_message, user_message, max_tokens=100, temperature=0.1
+                )
+                
+                response_text = response_text.strip()
+                if response_text == "NO_MATCH":
+                    logger.info(f"🤖 LLM semantic subcategory matching: NO_MATCH for '{llm_subcategory}' in {canonical_category} (attempt {attempt + 1})")
+                    if attempt == 1:  # Last attempt
+                        return None
+                    continue
+                elif response_text in available_subcategories:
+                    logger.info(f"✅ Enhanced semantic subcategory match: '{llm_subcategory}' → '{response_text}' (attempt {attempt + 1}, model: {model_used})")
+                    return response_text
+                else:
+                    logger.warning(f"⚠️ LLM returned invalid subcategory: '{response_text}' (attempt {attempt + 1})")
+                    if attempt == 1:  # Last attempt
+                        return None
+                    continue
+                    
+            except Exception as e:
+                logger.error(f"❌ Enhanced semantic subcategory matching failed (attempt {attempt + 1}): {str(e)}")
+                if attempt == 1:  # Last attempt
+                    return None
+                continue
+        
+        return None
     
     async def _llm_semantic_question_type_match(self, llm_type: str, canonical_category: str, canonical_subcategory: str) -> Optional[str]:
         """Use LLM to find semantic match for question type within subcategory"""
