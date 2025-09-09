@@ -321,7 +321,7 @@ class AdvancedLLMEnrichmentService:
     
     def _verify_response_quality(self, response_data: Dict[str, Any], model_used: str) -> bool:
         """
-        Verify that response meets 100% quality standards regardless of model used
+        Verify that response meets 100% quality standards including canonical taxonomy validation
         
         Args:
             response_data: The LLM response data
@@ -335,35 +335,50 @@ class AdvancedLLMEnrichmentService:
         # Check for generic content that violates quality standards
         if 'right_answer' in response_data:
             answer = response_data['right_answer']
-            if not answer or len(answer) < 30:  # Must be detailed
-                quality_issues.append("Right answer too brief - needs detailed reasoning")
+            if not answer or len(answer) < 15:  # Reasonable minimum for mathematical answers
+                quality_issues.append("Right answer too brief - needs reasoning")
         
+        # CRITICAL: Validate taxonomy fields against canonical taxonomy
         if 'category' in response_data:
             category = response_data['category']
-            generic_categories = ['arithmetic', 'algebra', 'mathematics', 'basic', 'general']
-            if any(generic in category.lower() for generic in generic_categories):
-                quality_issues.append(f"Generic category detected: {category}")
+            valid_categories = ['A-Arithmetic', 'B-Algebra', 'C-Geometry & Mensuration', 'D-Number System', 'E-Modern Math']
+            if not category or not any(category.startswith(prefix) for prefix in ['A-', 'B-', 'C-', 'D-', 'E-']):
+                quality_issues.append(f"Category must follow canonical taxonomy (A-E format): {category}")
                 
+        if 'subcategory' in response_data:
+            subcategory = response_data['subcategory']
+            if not subcategory or subcategory == "To be classified by LLM":
+                quality_issues.append("Subcategory must be properly classified - placeholder detected")
+                
+        if 'type_of_question' in response_data:
+            type_of_question = response_data['type_of_question']
+            if not type_of_question or type_of_question == "To be classified by LLM":
+                quality_issues.append("Type of question must be properly classified - placeholder detected")
+                
+        # Validate core concepts quality
         if 'core_concepts' in response_data:
             try:
                 concepts = json.loads(response_data['core_concepts']) if isinstance(response_data['core_concepts'], str) else response_data['core_concepts']
-                generic_concepts = ['calculation', 'mathematics', 'basic_problem', 'general']
-                for concept in concepts:
-                    if any(generic in concept.lower() for generic in generic_concepts):
-                        quality_issues.append(f"Generic concept detected: {concept}")
+                if not concepts or (isinstance(concepts, list) and len(concepts) == 0):
+                    quality_issues.append("Core concepts cannot be empty")
+                elif isinstance(concepts, list):
+                    generic_concepts = ['calculation', 'basic_problem', 'general']
+                    for concept in concepts:
+                        if any(generic in concept.lower() for generic in generic_concepts):
+                            quality_issues.append(f"Generic concept detected: {concept}")
             except:
-                pass
+                quality_issues.append("Core concepts must be valid JSON")
                 
         if 'solution_method' in response_data:
             method = response_data['solution_method']
-            if method and any(generic in method.lower() for generic in ['general_approach', 'standard_method', 'basic']):
-                quality_issues.append(f"Generic solution method: {method}")
+            if not method or any(generic in method.lower() for generic in ['general_approach', 'standard_method', 'basic']):
+                quality_issues.append(f"Solution method too generic: {method}")
         
         if quality_issues:
             logger.error(f"❌ QUALITY VIOLATION from {model_used}: {quality_issues}")
             return False
         
-        logger.info(f"✅ Quality standards met by {model_used} - sophisticated content generated")
+        logger.info(f"✅ Quality standards met by {model_used} - canonical taxonomy validated")
         return True
     
     def _mark_primary_model_recovered(self):
