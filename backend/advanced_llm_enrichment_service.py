@@ -321,132 +321,124 @@ class AdvancedLLMEnrichmentService:
         
         return False
     
-    def _verify_response_quality(self, response_data: Dict[str, Any], model_used: str) -> bool:
+    async def _verify_response_quality(self, response_data: Dict[str, Any], model_used: str, question_stem: str = "") -> Dict[str, Any]:
         """
-        Verify that response meets 100% quality standards including STRICT canonical taxonomy validation
+        Enhanced quality verification with Semantic + Binary validation
         
         Args:
             response_data: The LLM response data
             model_used: Which model generated the response
+            question_stem: Original question for semantic validation
             
         Returns:
-            bool: True if response meets quality standards
+            Dict with validation results
         """
-        quality_issues = []
+        logger.info("🔍 Starting enhanced quality verification (Semantic + Binary)")
         
-        # Import canonical taxonomy
+        # STEP 1: SEMANTIC VALIDATION (Anthropic)
+        logger.info("🧠 Step 1: Semantic validation with Anthropic...")
         try:
-            from llm_enrichment import CANONICAL_TAXONOMY
-        except ImportError:
-            logger.error("❌ Cannot import CANONICAL_TAXONOMY - validation will be basic")
-            CANONICAL_TAXONOMY = {}
-        
-        # Canonical categories and question types from the system
-        canonical_categories = ['A-Arithmetic', 'B-Algebra', 'C-Geometry & Mensuration', 'D-Number System', 'E-Modern Math']
-        
-        canonical_subcategories = {
-            "A-Arithmetic": [
-                "Time–Speed–Distance (TSD)", "Time & Work", "Ratio–Proportion–Variation",
-                "Percentages", "Averages & Alligation", "Profit–Loss–Discount (PLD)",
-                "Simple & Compound Interest (SI–CI)", "Mixtures & Solutions"
-            ],
-            "B-Algebra": [
-                "Linear Equations", "Quadratic Equations", "Inequalities", "Progressions",
-                "Functions & Graphs", "Logarithms & Exponents", "Special Algebraic Identities"
-            ],
-            "C-Geometry & Mensuration": [
-                "Triangles", "Circles", "Polygons", "Coordinate Geometry",
-                "Mensuration (2D & 3D)", "Trigonometry in Geometry"
-            ],
-            "D-Number System": [
-                "Divisibility", "HCF–LCM", "Remainders & Modular Arithmetic",
-                "Base Systems", "Digit Properties"
-            ],
-            "E-Modern Math": [
-                "Permutation–Combination (P&C)", "Probability", "Set Theory & Venn Diagrams"
-            ]
-        }
-        
-        canonical_question_types = {
-            "A-Arithmetic": [
-                "Speed-Distance-Time Problem", "Relative Motion Analysis", "Work Rate Problem",
-                "Collaborative Work Problem", "Ratio-Proportion Problem", "Percentage Application Problem",
-                "Percentage Change Problem", "Average Calculation Problem", "Weighted Average Problem",
-                "Profit-Loss Analysis Problem", "Discount Calculation Problem", "Simple Interest Problem",
-                "Compound Interest Problem", "Mixture-Alligation Problem"
-            ],
-            "B-Algebra": [
-                "Linear Equation Problem", "System of Linear Equations", "Quadratic Equation Problem",
-                "Inequality Problem", "Sequence-Series Problem", "Function Analysis Problem",
-                "Logarithmic Problem", "Exponential Problem"
-            ],
-            "C-Geometry & Mensuration": [
-                "Triangle Properties Problem", "Circle Properties Problem", "Polygon Analysis Problem",
-                "Coordinate Geometry Problem", "Area Calculation Problem", "Volume Calculation Problem",
-                "Trigonometric Problem"
-            ],
-            "D-Number System": [
-                "Divisibility Analysis Problem", "HCF-LCM Problem", "Remainder Theorem Problem",
-                "Modular Arithmetic Problem", "Base System Conversion Problem", "Digit Properties Problem",
-                "Prime Factorization Problem"
-            ],
-            "E-Modern Math": [
-                "Permutation Problem", "Combination Problem", "Probability Calculation Problem",
-                "Set Theory Problem", "Venn Diagram Problem"
-            ]
-        }
-        
-        # Note: right_answer validation removed - different steps generate different fields
-        # Focus on canonical taxonomy validation which is the main issue
-        
-        # STRICT: Validate category against canonical taxonomy
-        if 'category' in response_data:
-            category = response_data['category']
-            if category not in canonical_categories:
-                quality_issues.append(f"Category NOT in canonical taxonomy: '{category}'. Must be one of: {canonical_categories}")
-                
-        # STRICT: Validate subcategory against canonical taxonomy
-        if 'subcategory' in response_data:
-            subcategory = response_data['subcategory']
-            category = response_data.get('category', '')
+            semantic_result = await anthropic_semantic_validator.validate_semantic_quality(
+                question_stem, response_data
+            )
             
-            if not subcategory or subcategory == "To be classified by LLM":
-                quality_issues.append("Subcategory must be properly classified - placeholder detected")
-            elif category in canonical_subcategories:
-                if subcategory not in canonical_subcategories[category]:
-                    quality_issues.append(f"Subcategory '{subcategory}' NOT in canonical taxonomy for {category}. Valid: {canonical_subcategories[category]}")
+            if not semantic_result.get("semantic_valid", False):
+                logger.error(f"❌ SEMANTIC VALIDATION FAILED: {semantic_result.get('issues', [])}")
+                return {
+                    "quality_verified": False,
+                    "validation_stage": "semantic",
+                    "issues": semantic_result.get('issues', []),
+                    "detailed_feedback": semantic_result.get('detailed_feedback', {})
+                }
                 
-        # STRICT: Validate type_of_question against canonical taxonomy
-        if 'type_of_question' in response_data:
-            type_of_question = response_data['type_of_question']
-            category = response_data.get('category', '')
+            logger.info(f"✅ Semantic validation passed (confidence: {semantic_result.get('confidence_score', 0):.2f})")
             
-            if not type_of_question or type_of_question == "To be classified by LLM":
-                quality_issues.append("Type of question must be properly classified - placeholder detected")
-            elif category in canonical_question_types:
-                if type_of_question not in canonical_question_types[category]:
-                    quality_issues.append(f"Question type '{type_of_question}' NOT in canonical taxonomy for {category}. Valid: {canonical_question_types[category]}")
-                
-        # Validate core concepts quality
-        if 'core_concepts' in response_data:
+        except Exception as e:
+            logger.error(f"❌ Semantic validation service error: {e}")
+            return {
+                "quality_verified": False,
+                "validation_stage": "semantic_error",
+                "issues": [f"Semantic validation service failed: {str(e)}"],
+                "detailed_feedback": {}
+            }
+        
+        # STEP 2: BINARY/STRUCTURAL VALIDATION (Code)
+        logger.info("⚙️ Step 2: Binary/structural validation...")
+        binary_issues = []
+        
+        # Fuzzy match and validate taxonomy fields
+        if 'category' in response_data and 'subcategory' in response_data and 'type_of_question' in response_data:
             try:
-                concepts = json.loads(response_data['core_concepts']) if isinstance(response_data['core_concepts'], str) else response_data['core_concepts']
-                if not concepts or (isinstance(concepts, list) and len(concepts) == 0):
-                    quality_issues.append("Core concepts cannot be empty")
-            except:
-                quality_issues.append("Core concepts must be valid JSON")
+                # Get canonical taxonomy path using fuzzy matching
+                canonical_category, canonical_subcategory, canonical_type = canonical_taxonomy_service.get_canonical_taxonomy_path(
+                    response_data.get('category', ''),
+                    response_data.get('subcategory', ''),
+                    response_data.get('type_of_question', '')
+                )
                 
-        if 'solution_method' in response_data:
-            method = response_data['solution_method']
-            if not method or len(method.strip()) < 10:
-                quality_issues.append("Solution method too brief or empty")
+                # Update response data with canonical values
+                response_data['category'] = canonical_category
+                response_data['subcategory'] = canonical_subcategory  
+                response_data['type_of_question'] = canonical_type
+                
+                # Validate the canonical path
+                if not canonical_taxonomy_service.validate_taxonomy_path(
+                    canonical_category, canonical_subcategory, canonical_type
+                ):
+                    binary_issues.append("Canonical taxonomy path validation failed")
+                    
+            except Exception as e:
+                binary_issues.append(f"Taxonomy fuzzy matching failed: {str(e)}")
+        else:
+            binary_issues.append("Missing required taxonomy fields (category, subcategory, type_of_question)")
         
-        if quality_issues:
-            logger.error(f"❌ CANONICAL TAXONOMY VIOLATION from {model_used}: {quality_issues}")
-            return False
+        # Validate difficulty ranges
+        if 'difficulty_band' in response_data and 'difficulty_score' in response_data:
+            difficulty_band = response_data.get('difficulty_band', '').strip()
+            difficulty_score = response_data.get('difficulty_score', 0)
+            
+            try:
+                difficulty_score = float(difficulty_score)
+                
+                # Validate difficulty band ranges
+                if difficulty_band == 'Easy' and not (1.0 <= difficulty_score <= 2.0):
+                    binary_issues.append(f"Easy difficulty score {difficulty_score} outside valid range (1.0-2.0)")
+                elif difficulty_band == 'Medium' and not (2.1 <= difficulty_score <= 3.5):
+                    binary_issues.append(f"Medium difficulty score {difficulty_score} outside valid range (2.1-3.5)")
+                elif difficulty_band == 'Hard' and not (3.6 <= difficulty_score <= 5.0):
+                    binary_issues.append(f"Hard difficulty score {difficulty_score} outside valid range (3.6-5.0)")
+                elif difficulty_band not in ['Easy', 'Medium', 'Hard']:
+                    binary_issues.append(f"Invalid difficulty band: {difficulty_band}. Must be Easy, Medium, or Hard")
+                    
+            except (ValueError, TypeError):
+                binary_issues.append(f"Invalid difficulty score format: {difficulty_score}")
         
-        logger.info(f"✅ Quality standards met by {model_used} - STRICT canonical taxonomy validated")
-        return True
+        # Check required field presence
+        required_fields = ['core_concepts', 'solution_method', 'concept_difficulty', 'operations_required']
+        for field in required_fields:
+            if field not in response_data or not response_data[field]:
+                binary_issues.append(f"Required field missing or empty: {field}")
+        
+        if binary_issues:
+            logger.error(f"❌ BINARY VALIDATION FAILED: {binary_issues}")
+            return {
+                "quality_verified": False,
+                "validation_stage": "binary",
+                "issues": binary_issues,
+                "detailed_feedback": {}
+            }
+        
+        logger.info("✅ Binary validation passed - all structural requirements met")
+        
+        # BOTH VALIDATIONS PASSED
+        logger.info("🎉 Enhanced quality verification PASSED - Semantic + Binary validation successful")
+        return {
+            "quality_verified": True,
+            "validation_stage": "complete",
+            "issues": [],
+            "semantic_confidence": semantic_result.get('confidence_score', 0),
+            "detailed_feedback": semantic_result.get('detailed_feedback', {})
+        }
     
     def _mark_primary_model_recovered(self):
         """Mark that primary model is working again"""
