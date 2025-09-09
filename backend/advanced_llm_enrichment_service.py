@@ -651,7 +651,8 @@ Be precise, specific, and demonstrate deep mathematical understanding."""
                 
                 # Add JSON validation and error handling
                 try:
-                    classification_data = json.loads(classification_text)
+                    clean_json = extract_json_from_response(classification_text)
+                    classification_data = json.loads(clean_json)
                     
                     # Validate required fields
                     required_fields = ["category", "subcategory", "type_of_question"]
