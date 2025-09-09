@@ -163,69 +163,88 @@ class CanonicalTaxonomyService:
             "taxonomy": CANONICAL_TAXONOMY
         }
     
-    async def _llm_semantic_category_match(self, llm_category: str) -> Optional[str]:
-        """Use LLM to find semantic match for category"""
-        try:
-            # Import here to avoid circular imports
-            from advanced_llm_enrichment_service import call_llm_with_fallback
-            
-            system_message = """You are a mathematical taxonomy expert. Your task is to find the most semantically appropriate canonical category match.
-
-Given a category classification, you must choose the BEST semantic match from the canonical categories.
-
-CANONICAL CATEGORIES:
-- Arithmetic
-- Algebra  
-- Geometry and Mensuration
-- Number System
-- Modern Math
-
-Rules:
-1. Choose based on mathematical MEANING, not just word similarity
-2. If no good semantic match exists, respond with "NO_MATCH"
-3. Respond with ONLY the canonical category name or "NO_MATCH"
-
-Examples:
-- "Basic Calculations" → "Arithmetic"
-- "Equation Solving" → "Algebra"
-- "Shape Problems" → "Geometry and Mensuration"
-- "Integer Properties" → "Number System"
-- "Probability Questions" → "Modern Math"
-- "Unrelated Topic" → "NO_MATCH" """
-
-            user_message = f"Find the best semantic match for this category: '{llm_category}'"
-            
-            # Create a dummy service instance for the call
-            class DummyService:
-                def __init__(self):
-                    self.openai_api_key = os.getenv('OPENAI_API_KEY')
-                    self.google_api_key = os.getenv('GOOGLE_API_KEY')
-                    self.primary_model = "gpt-4o"
-                    self.fallback_model = "gpt-4o-mini"
-                    self.gemini_model = "gemini-pro"
-                    self.primary_model_failures = 0
-                    self.max_failures_before_degradation = 3
-                    self.openai_consecutive_failures = 0
-                    self.max_openai_failures_before_gemini = 2
-                    self.timeout = 30
-            
-            dummy_service = DummyService()
-            response_text, model_used = await call_llm_with_fallback(
-                dummy_service, system_message, user_message, max_tokens=50, temperature=0.1
-            )
-            
-            response_text = response_text.strip()
-            if response_text == "NO_MATCH":
-                return None
-            elif response_text in self.categories:
-                return response_text
-            else:
-                logger.warning(f"⚠️ LLM returned invalid category: '{response_text}'")
-                return None
+    async def _enhanced_semantic_category_match(self, llm_category: str) -> Optional[str]:
+        """Use enhanced LLM semantic matching for category with 2 retries"""
+        
+        # Retry logic: 2 attempts
+        for attempt in range(2):
+            try:
+                # Import here to avoid circular imports
+                from advanced_llm_enrichment_service import call_llm_with_fallback
                 
-        except Exception as e:
-            logger.error(f"❌ LLM semantic category matching failed: {str(e)}")
-            return None
+                # Build comprehensive context with all categories
+                categories_context = []
+                for category in self.categories:
+                    # Get sample subcategories to provide context
+                    sample_subcategories = list(CANONICAL_TAXONOMY[category].keys())[:3]
+                    categories_context.append(f"- {category}: {', '.join(sample_subcategories)}...")
+                
+                system_message = f"""You are a mathematical taxonomy expert with deep understanding of CAT quantitative reasoning categories.
+
+Your task is to find the most semantically appropriate canonical category match using detailed mathematical context.
+
+AVAILABLE CANONICAL CATEGORIES WITH CONTEXT:
+{chr(10).join(categories_context)}
+
+ENHANCED MATCHING RULES:
+1. Analyze the mathematical DOMAIN and CONCEPTUAL AREA of the input category
+2. Consider the underlying mathematical principles and problem-solving approaches
+3. Match based on MATHEMATICAL MEANING and CONCEPTUAL SIMILARITY
+4. If no good semantic match exists, respond with "NO_MATCH"
+5. Respond with ONLY the exact canonical category name or "NO_MATCH"
+
+EXAMPLES OF SEMANTIC MATCHING:
+- "Basic Calculations" → "Arithmetic" (computational focus)
+- "Equation Solving" → "Algebra" (algebraic manipulation)
+- "Shape Problems" → "Geometry and Mensuration" (spatial reasoning)
+- "Integer Properties" → "Number System" (number theory)
+- "Probability Questions" → "Modern Math" (advanced concepts)
+- "Data Analysis" → "Modern Math" (statistical concepts)
+- "Unrelated Physics Topic" → "NO_MATCH" (outside mathematical taxonomy)"""
+
+                user_message = f"Find the best semantic match for this category: '{llm_category}'"
+                
+                # Create a dummy service instance for the call
+                class DummyService:
+                    def __init__(self):
+                        self.openai_api_key = os.getenv('OPENAI_API_KEY')
+                        self.google_api_key = os.getenv('GOOGLE_API_KEY')
+                        self.primary_model = "gpt-4o"
+                        self.fallback_model = "gpt-4o-mini"
+                        self.gemini_model = "gemini-pro"
+                        self.primary_model_failures = 0
+                        self.max_failures_before_degradation = 3
+                        self.openai_consecutive_failures = 0
+                        self.max_openai_failures_before_gemini = 2
+                        self.timeout = 30
+                
+                dummy_service = DummyService()
+                response_text, model_used = await call_llm_with_fallback(
+                    dummy_service, system_message, user_message, max_tokens=50, temperature=0.1
+                )
+                
+                response_text = response_text.strip()
+                if response_text == "NO_MATCH":
+                    logger.info(f"🤖 LLM semantic category matching: NO_MATCH for '{llm_category}' (attempt {attempt + 1})")
+                    if attempt == 1:  # Last attempt
+                        return None
+                    continue
+                elif response_text in self.categories:
+                    logger.info(f"✅ Enhanced semantic category match: '{llm_category}' → '{response_text}' (attempt {attempt + 1}, model: {model_used})")
+                    return response_text
+                else:
+                    logger.warning(f"⚠️ LLM returned invalid category: '{response_text}' (attempt {attempt + 1})")
+                    if attempt == 1:  # Last attempt
+                        return None
+                    continue
+                    
+            except Exception as e:
+                logger.error(f"❌ Enhanced semantic category matching failed (attempt {attempt + 1}): {str(e)}")
+                if attempt == 1:  # Last attempt
+                    return None
+                continue
+        
+        return None
     
     async def _llm_semantic_subcategory_match(self, llm_subcategory: str, canonical_category: str) -> Optional[str]:
         """Use LLM to find semantic match for subcategory within a category"""
