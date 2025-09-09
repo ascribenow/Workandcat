@@ -6895,10 +6895,11 @@ async def create_initial_topics():
             if existing_topics.scalar_one_or_none():
                 break  # Topics already created
             
-            from llm_enrichment import CANONICAL_TAXONOMY
+            # from llm_enrichment import CANONICAL_TAXONOMY  # Removed - using new enhanced service
             
-            # Create main categories and subcategories
-            for category, subcategories in CANONICAL_TAXONOMY.items():
+            # Create main categories and subcategories - DISABLED
+            # for category, subcategories in CANONICAL_TAXONOMY.items():  # Removed
+            for category, subcategories in {}.items():  # Disabled - empty dict
                 # Create main category
                 main_topic = Topic(
                     name=category,
