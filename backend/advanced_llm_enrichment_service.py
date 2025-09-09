@@ -476,23 +476,32 @@ class AdvancedLLMEnrichmentService:
         # Fuzzy match and validate taxonomy fields
         if 'category' in response_data and 'subcategory' in response_data and 'type_of_question' in response_data:
             try:
-                # Get canonical taxonomy path using fuzzy matching
+                # Get canonical taxonomy path using STRICT fuzzy matching
                 canonical_category, canonical_subcategory, canonical_type = canonical_taxonomy_service.get_canonical_taxonomy_path(
                     response_data.get('category', ''),
                     response_data.get('subcategory', ''),
                     response_data.get('type_of_question', '')
                 )
                 
-                # Update response data with canonical values
-                response_data['category'] = canonical_category
-                response_data['subcategory'] = canonical_subcategory  
-                response_data['type_of_question'] = canonical_type
+                # Check if ANY canonical matching failed (returns None)
+                if canonical_category is None:
+                    binary_issues.append(f"No canonical category match found for: '{response_data.get('category', '')}'")
+                if canonical_subcategory is None:
+                    binary_issues.append(f"No canonical subcategory match found for: '{response_data.get('subcategory', '')}'")
+                if canonical_type is None:
+                    binary_issues.append(f"No canonical question type match found for: '{response_data.get('type_of_question', '')}'")
                 
-                # Validate the canonical path
-                if not canonical_taxonomy_service.validate_taxonomy_path(
-                    canonical_category, canonical_subcategory, canonical_type
-                ):
-                    binary_issues.append("Canonical taxonomy path validation failed")
+                # Only update response data if ALL matches succeeded
+                if canonical_category and canonical_subcategory and canonical_type:
+                    response_data['category'] = canonical_category
+                    response_data['subcategory'] = canonical_subcategory  
+                    response_data['type_of_question'] = canonical_type
+                    
+                    # Final validation of the complete canonical path
+                    if not canonical_taxonomy_service.validate_taxonomy_path(
+                        canonical_category, canonical_subcategory, canonical_type
+                    ):
+                        binary_issues.append("Canonical taxonomy path integrity validation failed")
                     
             except Exception as e:
                 binary_issues.append(f"Taxonomy fuzzy matching failed: {str(e)}")
