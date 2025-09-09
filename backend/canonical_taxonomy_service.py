@@ -140,8 +140,9 @@ class CanonicalTaxonomyService:
                     logger.info(f"📋 Fuzzy matched subcategory: '{llm_subcategory}' → '{sub}' (score: {difflib.SequenceMatcher(None, llm_subcategory.lower(), sub.lower()).ratio():.2f})")
                     return sub
         
-        logger.warning(f"⚠️ No subcategory match found for: '{llm_subcategory}' in category '{canonical_category}'. Using first available.")
-        return category_subcategories[0] if category_subcategories else None
+        # NO FALLBACK - If no good match found, return None to trigger quality failure
+        logger.warning(f"⚠️ No subcategory match found for: '{llm_subcategory}' in category '{canonical_category}'. Quality verification will fail.")
+        return None
     
     def fuzzy_match_question_type(self, llm_type: str, canonical_category: str, canonical_subcategory: str, threshold: float = 0.6) -> Optional[str]:
         """Find best canonical question type match within the given category and subcategory"""
