@@ -94,8 +94,8 @@ class CanonicalTaxonomyService:
         logger.warning(f"⚠️ No subcategory match found for: '{llm_subcategory}' in category '{canonical_category}'. Quality verification will fail.")
         return None
     
-    async def fuzzy_match_question_type(self, llm_type: str, canonical_category: str, canonical_subcategory: str, threshold: float = 0.8) -> Optional[str]:
-        """Find best canonical question type match within the given category and subcategory"""
+    async def match_question_type(self, llm_type: str, canonical_category: str, canonical_subcategory: str) -> Optional[str]:
+        """Find best canonical question type match using Direct + Enhanced Semantic matching"""
         if not llm_type or not canonical_category or not canonical_subcategory:
             return None
             
@@ -107,32 +107,18 @@ class CanonicalTaxonomyService:
         
         # Direct match first
         if llm_type in available_types:
+            logger.info(f"✅ Direct question type match: '{llm_type}'")
             return llm_type
-            
-        # Fuzzy matching within subcategory
-        matches = difflib.get_close_matches(
-            llm_type.lower(),
-            [qt.lower() for qt in available_types],
-            n=1,
-            cutoff=threshold
-        )
         
-        if matches:
-            # Find original case version
-            for qt in available_types:
-                if qt.lower() == matches[0]:
-                    logger.info(f"📝 Fuzzy matched question type: '{llm_type}' → '{qt}' (score: {difflib.SequenceMatcher(None, llm_type.lower(), qt.lower()).ratio():.2f})")
-                    return qt
-        
-        # LLM-assisted semantic analysis as final attempt
-        logger.info(f"🧠 Attempting LLM semantic analysis for question type: '{llm_type}' in {canonical_category} → {canonical_subcategory}")
-        semantic_match = await self._llm_semantic_question_type_match(llm_type, canonical_category, canonical_subcategory)
+        # Enhanced LLM-assisted semantic analysis with descriptions
+        logger.info(f"🧠 Attempting enhanced semantic analysis for question type: '{llm_type}' in {canonical_category} → {canonical_subcategory}")
+        semantic_match = await self._enhanced_semantic_question_type_match(llm_type, canonical_category, canonical_subcategory)
         if semantic_match:
-            logger.info(f"🎯 LLM semantic match found: '{llm_type}' → '{semantic_match}'")
+            logger.info(f"🎯 Enhanced semantic match found: '{llm_type}' → '{semantic_match}'")
             return semantic_match
             
         # Final failure - no semantic match found
-        logger.warning(f"⚠️ No question type match found (including semantic analysis) for: '{llm_type}' in {canonical_category} → {canonical_subcategory}. Quality verification will fail.")
+        logger.warning(f"⚠️ No question type match found for: '{llm_type}' in {canonical_category} → {canonical_subcategory}. Quality verification will fail.")
         return None
     
     async def get_canonical_taxonomy_path(self, llm_category: str, llm_subcategory: str, llm_type: str) -> Tuple[str, str, str]:
