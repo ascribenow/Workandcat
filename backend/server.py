@@ -6313,6 +6313,49 @@ async def test_time_weighted_frequency_analysis(
         logger.error(f"Error in time-weighted frequency test: {e}")
         raise HTTPException(status_code=500, detail=f"Test failed: {str(e)}")
 
+@api_router.get("/admin/student-coverage-progress/{user_id}")
+async def get_student_coverage_progress(
+    user_id: str,
+    current_user: User = Depends(require_admin),
+    db: Session = Depends(get_database)
+):
+    """
+    Get Phase A coverage progress for a specific student
+    Shows which subcategory::type combinations they have/haven't seen
+    """
+    try:
+        # Verify user exists
+        user_result = await db.execute(select(User).where(User.id == user_id))
+        user = user_result.scalar_one_or_none()
+        
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        # Get coverage progress
+        from adaptive_session_logic import AdaptiveSessionLogic
+        adaptive_logic = AdaptiveSessionLogic()
+        
+        # Convert async session to sync for coverage tracking
+        sync_db = SessionLocal()
+        try:
+            coverage_progress = adaptive_logic.get_student_coverage_progress(user_id, sync_db)
+        finally:
+            sync_db.close()
+        
+        return {
+            "user_id": user_id,
+            "user_email": user.email,
+            "coverage_progress": coverage_progress,
+            "message": f"Coverage progress for {user.email}"
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting student coverage progress: {e}")
+        raise HTTPException(status_code=500, detail="Failed to get coverage progress")
+
+
 @api_router.post("/admin/run-enhanced-nightly") 
 async def run_enhanced_nightly_processing(
     current_user: User = Depends(require_admin),
