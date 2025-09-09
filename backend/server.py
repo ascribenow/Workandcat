@@ -5704,34 +5704,36 @@ async def enrich_pyq_question_background(pyq_question_id: str):
         # Removed old LLM enrichment imports - using new enhanced service
         import os
         
-        try:
-            # Initialize LLM enrichment pipeline with API key
-            llm_api_key = os.getenv('OPENAI_API_KEY')
-            if not llm_api_key:
-                raise Exception("OPENAI_API_KEY not found in environment")
-                
-            enrichment_pipeline = LLMEnrichmentPipeline(llm_api_key=llm_api_key)
-            
-            # Get LLM-based taxonomy classification using existing categorize_question method
-            category, subcategory, question_type = await enrichment_pipeline.categorize_question(
-                stem=pyq_question.stem,
-                hint_category=None,  # Let LLM determine
-                hint_subcategory=None  # Let LLM determine
-            )
-            
-            logger.info(f"LLM classification successful: {category} -> {subcategory} -> {question_type}")
-            
-            # Find matching topic_id from database based on category
-            from sqlalchemy import select
-            from database import Topic
-            topic_result = await db.execute(
-                select(Topic).where(Topic.category.like(f"%{category}%"))
-            )
-            topic = topic_result.scalar_one_or_none()
-            suggested_topic_id = topic.id if topic else None
-                
-        except Exception as llm_error:
-            logger.warning(f"LLM enrichment failed for PYQ question {pyq_question_id}: {llm_error}")
+        # try:
+        #     # Initialize LLM enrichment pipeline with API key - REMOVED
+        #     llm_api_key = os.getenv('OPENAI_API_KEY')
+        #     if not llm_api_key:
+        #         raise Exception("OPENAI_API_KEY not found in environment")
+        #         
+        #     enrichment_pipeline = LLMEnrichmentPipeline(llm_api_key=llm_api_key)
+        #     
+        #     # Get LLM-based taxonomy classification using existing categorize_question method
+        #     category, subcategory, question_type = await enrichment_pipeline.categorize_question(
+        #         stem=pyq_question.stem,
+        #         hint_category=None,  # Let LLM determine
+        #         hint_subcategory=None  # Let LLM determine
+        #     )
+        #     
+        #     logger.info(f"LLM classification successful: {category} -> {subcategory} -> {question_type}")
+        #     
+        #     # Find matching topic_id from database based on category
+        #     from sqlalchemy import select
+        #     from database import Topic
+        #     topic_result = await db.execute(
+        #         select(Topic).where(Topic.category.like(f"%{category}%"))
+        #     )
+        #     topic = topic_result.scalar_one_or_none()
+        #     suggested_topic_id = topic.id if topic else None
+        #         
+        # except Exception as llm_error:
+        #     logger.warning(f"LLM enrichment failed for PYQ question {pyq_question_id}: {llm_error}")
+        
+        # Using fallback classification logic (was in except block)
             
             # Enhanced fallback with better keyword matching
             stem_lower = pyq_question.stem.lower()
