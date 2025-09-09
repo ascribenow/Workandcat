@@ -1300,7 +1300,7 @@ class CATBackendTester:
            works with the new enhanced semantic matching
         3. **Complete PYQ Enrichment Pipeline**: Test a small sample PYQ enrichment to ensure the 
            enhanced semantic matching works in the real enrichment flow
-        4. **API Endpoint Verification**: Test /api/admin/test-advanced-enrichment to ensure enhanced 
+        4. **API Endpoint Verification**: Test /api/admin/test/immediate-enrichment to ensure enhanced 
            semantic matching is working
         
         SPECIFIC VALIDATION POINTS:
