@@ -179,7 +179,9 @@ class Question(Base):
             
             if simplified_enricher is None:
                 # from llm_enrichment import SimplifiedEnrichmentService  # Removed - using new enhanced service
-                simplified_enricher = SimplifiedEnrichmentService()
+                # simplified_enricher = SimplifiedEnrichmentService()  # Removed - using new enhanced service
+                logger.warning("⚠️ Simplified enrichment service disabled - using new enhanced service")
+                return False  # Skip this for now
             
             try:
                 # Update attempt tracking
