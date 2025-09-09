@@ -554,17 +554,9 @@ class AdvancedLLMEnrichmentService:
             self.last_rate_limit_time = None
 
     async def _perform_deep_mathematical_analysis(self, stem: str, admin_answer: str = None) -> Dict[str, Any]:
-        """Perform deep mathematical analysis with sophisticated understanding"""
+        """Perform deep mathematical analysis with sophisticated understanding using OpenAI + Gemini fallback"""
         
-        for attempt in range(self.max_retries):
-            try:
-                client = openai.OpenAI(api_key=self.openai_api_key, timeout=self.timeout)
-                
-                # Intelligent model selection
-                model_to_use, selection_reason = self._should_use_fallback_model()
-                logger.info(f"🤖 Using model: {model_to_use} (reason: {selection_reason})")
-                
-                system_message = """You are a world-class mathematics professor and CAT expert with deep expertise in quantitative reasoning. 
+        system_message = """You are a world-class mathematics professor and CAT expert with deep expertise in quantitative reasoning. 
 
 Your task is to perform a sophisticated mathematical analysis of this question, thinking like a human expert with superior AI intelligence.
 
