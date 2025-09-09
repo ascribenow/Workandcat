@@ -11,7 +11,7 @@ from datetime import datetime
 import time
 
 class GoogleDriveIntegrationTester:
-    def __init__(self, base_url="https://payment-system-fix-5.preview.emergentagent.com/api"):
+    def __init__(self, base_url="https://learn-compounded.preview.emergentagent.com/api"):
         self.base_url = base_url
         self.admin_token = None
         self.tests_run = 0
