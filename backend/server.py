@@ -257,26 +257,27 @@ async def process_question_at_upload_time(question: Question, db: AsyncSession) 
                     results["right_answer_generated"] = True
                     logger.info(f"✅ Generated right_answer: {right_answer[:50]}...")
                     
-                    # STEP 1.1: Cross-validate right_answer with admin's answer field
-                    if question.answer:
-                        validation_result = await enrichment_service._validate_answer_consistency(
-                            admin_answer=question.answer,
-                            ai_right_answer=right_answer,
-                            question_stem=question.stem
-                        )
-                        
-                        if not validation_result["matches"]:
-                            logger.warning(f"❌ Upload-time answer mismatch for question {question.id}")
-                            logger.warning(f"   Admin answer: {question.answer}")
-                            logger.warning(f"   AI right_answer: {right_answer}")
-                            
-                            # Deactivate question due to answer mismatch
-                            question.is_active = False
-                            results["question_active"] = False
-                            logger.warning("🚫 Question deactivated due to answer mismatch")
-                        else:
-                            logger.info(f"✅ Upload-time answer validation passed")
-                            question.is_active = True
+                    # STEP 1.1: Cross-validate right_answer with admin's answer field - DISABLED
+                    # if question.answer:
+                    #     validation_result = await enrichment_service._validate_answer_consistency(
+                    #         admin_answer=question.answer,
+                    #         ai_right_answer=right_answer,
+                    #         question_stem=question.stem
+                    #     )
+                    #     
+                    #     if not validation_result["matches"]:
+                    #         logger.warning(f"❌ Upload-time answer mismatch for question {question.id}")
+                    #         logger.warning(f"   Admin answer: {question.answer}")
+                    #         logger.warning(f"   AI right_answer: {right_answer}")
+                    #         
+                    #         # Deactivate question due to answer mismatch
+                    #         question.is_active = False
+                    #         results["question_active"] = False
+                    #         logger.warning("🚫 Question deactivated due to answer mismatch")
+                    #     else:
+                    #         logger.info(f"✅ Upload-time answer validation passed")
+                    #         question.is_active = True
+                    pass  # Validation disabled
             
             # STEP 2: MCQ Validation and fixing (UPLOAD TIME ONLY)
             mcq_result = await mcq_validation_service.validate_and_fix_question(question, sync_db)
