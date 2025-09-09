@@ -44,7 +44,7 @@ class CanonicalTaxonomyService:
         question_types = []
         for category_data in CANONICAL_TAXONOMY.values():
             for subcategory_data in category_data.values():
-                question_types.extend(subcategory_data)
+                question_types.extend(subcategory_data['types'].keys())
         return question_types
     
     async def fuzzy_match_category(self, llm_category: str, threshold: float = 0.8) -> Optional[str]:
