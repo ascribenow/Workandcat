@@ -234,7 +234,7 @@ async def process_question_at_upload_time(question: Question, db: AsyncSession) 
     try:
         # Convert AsyncSession to sync session for processing
         from database import SessionLocal
-        from llm_enrichment import LLMEnrichmentService
+        # from llm_enrichment import LLMEnrichmentService  # Removed - using new enhanced service
         sync_db = SessionLocal()
         
         try:
@@ -244,12 +244,13 @@ async def process_question_at_upload_time(question: Question, db: AsyncSession) 
                 "question_active": True
             }
             
-            # STEP 1: Generate right_answer using OpenAI (UPLOAD TIME ONLY)
-            if not question.right_answer and question.stem:
+            # STEP 1: Generate right_answer using OpenAI (UPLOAD TIME ONLY) - DISABLED
+            if False:  # Disabled - was: not question.right_answer and question.stem:
                 logger.info(f"🧠 Upload-time: Generating right_answer for question {question.id}")
                 
-                enrichment_service = LLMEnrichmentService()
-                right_answer = await enrichment_service._generate_right_answer_with_openai(question.stem)
+                # enrichment_service = LLMEnrichmentService()  # Removed - using new enhanced service
+                # right_answer = await enrichment_service._generate_right_answer_with_openai(question.stem)  # Removed
+                right_answer = None
                 
                 if right_answer:
                     question.right_answer = right_answer
