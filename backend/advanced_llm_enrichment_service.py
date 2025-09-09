@@ -49,12 +49,21 @@ class AdvancedLLMEnrichmentService:
         from dotenv import load_dotenv
         load_dotenv()
         
+        # Initialize OpenAI client
         self.openai_api_key = os.getenv('OPENAI_API_KEY')
         if not self.openai_api_key:
-            logger.error("OpenAI API key not found for AdvancedLLMEnrichmentService")
-            logger.error(f"Environment variables: {list(os.environ.keys())[:10]}")
+            logger.error("❌ OpenAI API key not found")
+            raise ValueError("OPENAI_API_KEY environment variable required")
+        
+        # Initialize Google Gemini client (fallback)
+        self.google_api_key = os.getenv('GOOGLE_API_KEY')
+        if self.google_api_key:
+            genai.configure(api_key=self.google_api_key)
+            logger.info("✅ Google Gemini configured as fallback")
         else:
-            logger.info(f"✅ OpenAI API key loaded successfully ({len(self.openai_api_key)} chars)")
+            logger.warning("⚠️ Google API key not found - no Gemini fallback available")
+        
+        logger.info(f"✅ OpenAI API key loaded successfully ({len(self.openai_api_key)} chars)")
         
         self.max_retries = 4
         self.retry_delays = [3, 7, 15, 30]
