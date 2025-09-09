@@ -513,6 +513,12 @@ Be precise, insightful, and demonstrate superior mathematical intelligence."""
                 )
                 
                 analysis_text = response.choices[0].message.content.strip()
+                logger.info(f"🔍 OpenAI raw response length: {len(analysis_text)} chars")
+                logger.info(f"🔍 OpenAI raw response preview: {analysis_text[:200]}...")
+                
+                if not analysis_text:
+                    raise Exception("OpenAI returned empty response")
+                
                 analysis_data = json.loads(analysis_text)
                 
                 # CRITICAL: Verify quality standards regardless of model used
