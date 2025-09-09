@@ -321,7 +321,7 @@ class AdvancedLLMEnrichmentService:
     
     def _verify_response_quality(self, response_data: Dict[str, Any], model_used: str) -> bool:
         """
-        Verify that response meets 100% quality standards including canonical taxonomy validation
+        Verify that response meets 100% quality standards including STRICT canonical taxonomy validation
         
         Args:
             response_data: The LLM response data
@@ -332,28 +332,101 @@ class AdvancedLLMEnrichmentService:
         """
         quality_issues = []
         
+        # Import canonical taxonomy
+        try:
+            from llm_enrichment import CANONICAL_TAXONOMY
+        except ImportError:
+            logger.error("❌ Cannot import CANONICAL_TAXONOMY - validation will be basic")
+            CANONICAL_TAXONOMY = {}
+        
+        # Canonical categories and question types from the system
+        canonical_categories = ['A-Arithmetic', 'B-Algebra', 'C-Geometry & Mensuration', 'D-Number System', 'E-Modern Math']
+        
+        canonical_subcategories = {
+            "A-Arithmetic": [
+                "Time–Speed–Distance (TSD)", "Time & Work", "Ratio–Proportion–Variation",
+                "Percentages", "Averages & Alligation", "Profit–Loss–Discount (PLD)",
+                "Simple & Compound Interest (SI–CI)", "Mixtures & Solutions"
+            ],
+            "B-Algebra": [
+                "Linear Equations", "Quadratic Equations", "Inequalities", "Progressions",
+                "Functions & Graphs", "Logarithms & Exponents", "Special Algebraic Identities"
+            ],
+            "C-Geometry & Mensuration": [
+                "Triangles", "Circles", "Polygons", "Coordinate Geometry",
+                "Mensuration (2D & 3D)", "Trigonometry in Geometry"
+            ],
+            "D-Number System": [
+                "Divisibility", "HCF–LCM", "Remainders & Modular Arithmetic",
+                "Base Systems", "Digit Properties"
+            ],
+            "E-Modern Math": [
+                "Permutation–Combination (P&C)", "Probability", "Set Theory & Venn Diagrams"
+            ]
+        }
+        
+        canonical_question_types = {
+            "A-Arithmetic": [
+                "Speed-Distance-Time Problem", "Relative Motion Analysis", "Work Rate Problem",
+                "Collaborative Work Problem", "Ratio-Proportion Problem", "Percentage Application Problem",
+                "Percentage Change Problem", "Average Calculation Problem", "Weighted Average Problem",
+                "Profit-Loss Analysis Problem", "Discount Calculation Problem", "Simple Interest Problem",
+                "Compound Interest Problem", "Mixture-Alligation Problem"
+            ],
+            "B-Algebra": [
+                "Linear Equation Problem", "System of Linear Equations", "Quadratic Equation Problem",
+                "Inequality Problem", "Sequence-Series Problem", "Function Analysis Problem",
+                "Logarithmic Problem", "Exponential Problem"
+            ],
+            "C-Geometry & Mensuration": [
+                "Triangle Properties Problem", "Circle Properties Problem", "Polygon Analysis Problem",
+                "Coordinate Geometry Problem", "Area Calculation Problem", "Volume Calculation Problem",
+                "Trigonometric Problem"
+            ],
+            "D-Number System": [
+                "Divisibility Analysis Problem", "HCF-LCM Problem", "Remainder Theorem Problem",
+                "Modular Arithmetic Problem", "Base System Conversion Problem", "Digit Properties Problem",
+                "Prime Factorization Problem"
+            ],
+            "E-Modern Math": [
+                "Permutation Problem", "Combination Problem", "Probability Calculation Problem",
+                "Set Theory Problem", "Venn Diagram Problem"
+            ]
+        }
+        
         # Check for generic content that violates quality standards
         if 'right_answer' in response_data:
             answer = response_data['right_answer']
             if not answer or len(answer) < 15:  # Reasonable minimum for mathematical answers
                 quality_issues.append("Right answer too brief - needs reasoning")
         
-        # CRITICAL: Validate taxonomy fields against canonical taxonomy
+        # STRICT: Validate category against canonical taxonomy
         if 'category' in response_data:
             category = response_data['category']
-            valid_categories = ['A-Arithmetic', 'B-Algebra', 'C-Geometry & Mensuration', 'D-Number System', 'E-Modern Math']
-            if not category or not any(category.startswith(prefix) for prefix in ['A-', 'B-', 'C-', 'D-', 'E-']):
-                quality_issues.append(f"Category must follow canonical taxonomy (A-E format): {category}")
+            if category not in canonical_categories:
+                quality_issues.append(f"Category NOT in canonical taxonomy: '{category}'. Must be one of: {canonical_categories}")
                 
+        # STRICT: Validate subcategory against canonical taxonomy
         if 'subcategory' in response_data:
             subcategory = response_data['subcategory']
+            category = response_data.get('category', '')
+            
             if not subcategory or subcategory == "To be classified by LLM":
                 quality_issues.append("Subcategory must be properly classified - placeholder detected")
+            elif category in canonical_subcategories:
+                if subcategory not in canonical_subcategories[category]:
+                    quality_issues.append(f"Subcategory '{subcategory}' NOT in canonical taxonomy for {category}. Valid: {canonical_subcategories[category]}")
                 
+        # STRICT: Validate type_of_question against canonical taxonomy
         if 'type_of_question' in response_data:
             type_of_question = response_data['type_of_question']
+            category = response_data.get('category', '')
+            
             if not type_of_question or type_of_question == "To be classified by LLM":
                 quality_issues.append("Type of question must be properly classified - placeholder detected")
+            elif category in canonical_question_types:
+                if type_of_question not in canonical_question_types[category]:
+                    quality_issues.append(f"Question type '{type_of_question}' NOT in canonical taxonomy for {category}. Valid: {canonical_question_types[category]}")
                 
         # Validate core concepts quality
         if 'core_concepts' in response_data:
@@ -361,24 +434,19 @@ class AdvancedLLMEnrichmentService:
                 concepts = json.loads(response_data['core_concepts']) if isinstance(response_data['core_concepts'], str) else response_data['core_concepts']
                 if not concepts or (isinstance(concepts, list) and len(concepts) == 0):
                     quality_issues.append("Core concepts cannot be empty")
-                elif isinstance(concepts, list):
-                    generic_concepts = ['calculation', 'basic_problem', 'general']
-                    for concept in concepts:
-                        if any(generic in concept.lower() for generic in generic_concepts):
-                            quality_issues.append(f"Generic concept detected: {concept}")
             except:
                 quality_issues.append("Core concepts must be valid JSON")
                 
         if 'solution_method' in response_data:
             method = response_data['solution_method']
-            if not method or any(generic in method.lower() for generic in ['general_approach', 'standard_method', 'basic']):
-                quality_issues.append(f"Solution method too generic: {method}")
+            if not method or len(method.strip()) < 10:
+                quality_issues.append("Solution method too brief or empty")
         
         if quality_issues:
-            logger.error(f"❌ QUALITY VIOLATION from {model_used}: {quality_issues}")
+            logger.error(f"❌ CANONICAL TAXONOMY VIOLATION from {model_used}: {quality_issues}")
             return False
         
-        logger.info(f"✅ Quality standards met by {model_used} - canonical taxonomy validated")
+        logger.info(f"✅ Quality standards met by {model_used} - STRICT canonical taxonomy validated")
         return True
     
     def _mark_primary_model_recovered(self):
