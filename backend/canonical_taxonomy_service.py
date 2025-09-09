@@ -4,7 +4,6 @@ Canonical Taxonomy Service
 Single source of truth for all taxonomy classifications
 """
 
-import difflib
 import os
 from typing import Dict, List, Tuple, Optional
 import logging
