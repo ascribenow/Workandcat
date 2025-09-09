@@ -11,6 +11,8 @@ import logging
 from typing import Dict, Any, List
 import openai
 from datetime import datetime
+from canonical_taxonomy_service import canonical_taxonomy_service
+from anthropic_semantic_validator import anthropic_semantic_validator
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
