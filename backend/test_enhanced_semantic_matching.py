@@ -33,7 +33,7 @@ async def test_enhanced_semantic_matching():
     
     # Test question type matching within subcategory
     print("\n📝 Testing NEW: Question Type Matching Within Subcategory:")
-    print(f"\n🔍 Testing question type: 'Basic Speed Problem' within 'Time-Speed-Distance'")
+    print("\n🔍 Testing question type: 'Basic Speed Problem' within 'Time-Speed-Distance'")
     try:
         result = await canonical_taxonomy_service.match_question_type_within_subcategory(
             "Basic Speed Problem", "Time-Speed-Distance"
@@ -72,7 +72,7 @@ async def test_enhanced_semantic_matching():
             category, subcategory, question_type = await canonical_taxonomy_service.get_canonical_taxonomy_path(
                 llm_category, llm_subcategory, llm_type
             )
-            print(f"✅ NEW FLOW Complete mapping:")
+            print("✅ NEW FLOW Complete mapping:")
             print(f"   Input: ('{llm_category}', '{llm_subcategory}', '{llm_type}')")
             print(f"   Step 1 - Subcategory: '{llm_subcategory}' → '{subcategory}'")
             print(f"   Step 2 - Type: '{llm_type}' → '{question_type}'")
