@@ -15,10 +15,6 @@ try:
     from canonical_taxonomy_data import CANONICAL_TAXONOMY
 except ImportError:
     # Fallback - build from CSV if file doesn't exist
-    import csv
-    import json
-    from collections import defaultdict
-    from io import StringIO
     
     # This will be replaced by the full taxonomy - showing structure only
     CANONICAL_TAXONOMY = {}
@@ -113,7 +109,7 @@ class CanonicalTaxonomyService:
         # Step 3: Match question type using enhanced semantic matching
         canonical_type = await self.match_question_type(llm_type, canonical_category, canonical_subcategory)
         
-        logger.info(f"🎯 Complete taxonomy mapping:")
+        logger.info("🎯 Complete taxonomy mapping:")
         logger.info(f"   Category: '{llm_category}' → '{canonical_category}'")
         logger.info(f"   Subcategory: '{llm_subcategory}' → '{canonical_subcategory}'")
         logger.info(f"   Type: '{llm_type}' → '{canonical_type}'")
