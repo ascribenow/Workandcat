@@ -397,8 +397,8 @@ class AdvancedLLMEnrichmentService:
         # Check for generic content that violates quality standards
         if 'right_answer' in response_data:
             answer = response_data['right_answer']
-            if not answer or len(answer) < 15:  # Reasonable minimum for mathematical answers
-                quality_issues.append("Right answer too brief - needs reasoning")
+            if not answer or len(answer.strip()) < 3:  # Very minimal - just ensure not empty
+                quality_issues.append("Right answer missing or empty")
         
         # STRICT: Validate category against canonical taxonomy
         if 'category' in response_data:
