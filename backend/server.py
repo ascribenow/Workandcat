@@ -6316,38 +6316,37 @@ async def test_time_weighted_frequency_analysis(
 @api_router.get("/admin/student-coverage-progress/{user_id}")
 async def get_student_coverage_progress(
     user_id: str,
-    current_user: User = Depends(require_admin),
-    db: Session = Depends(get_database)
+    current_user: User = Depends(require_admin)
 ):
     """
     Get Phase A coverage progress for a specific student
     Shows which subcategory::type combinations they have/haven't seen
     """
     try:
-        # Verify user exists
-        user_result = await db.execute(select(User).where(User.id == user_id))
-        user = user_result.scalar_one_or_none()
-        
-        if not user:
-            raise HTTPException(status_code=404, detail="User not found")
-        
-        # Get coverage progress
-        from adaptive_session_logic import AdaptiveSessionLogic
-        adaptive_logic = AdaptiveSessionLogic()
-        
-        # Convert async session to sync for coverage tracking
+        # Use sync database operations for this endpoint
         sync_db = SessionLocal()
         try:
+            # Verify user exists
+            user_result = sync_db.execute(select(User).where(User.id == user_id))
+            user = user_result.scalar_one_or_none()
+            
+            if not user:
+                raise HTTPException(status_code=404, detail="User not found")
+            
+            # Get coverage progress
+            from adaptive_session_logic import AdaptiveSessionLogic
+            adaptive_logic = AdaptiveSessionLogic()
+            
             coverage_progress = adaptive_logic.get_student_coverage_progress(user_id, sync_db)
+            
+            return {
+                "user_id": user_id,
+                "user_email": user.email,
+                "coverage_progress": coverage_progress,
+                "message": f"Coverage progress for {user.email}"
+            }
         finally:
             sync_db.close()
-        
-        return {
-            "user_id": user_id,
-            "user_email": user.email,
-            "coverage_progress": coverage_progress,
-            "message": f"Coverage progress for {user.email}"
-        }
         
     except HTTPException:
         raise
