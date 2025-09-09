@@ -24,7 +24,7 @@ except ImportError:
     CANONICAL_TAXONOMY = {}
 
 class CanonicalTaxonomyService:
-    """Service for canonical taxonomy operations and fuzzy matching"""
+    """Service for canonical taxonomy operations with enhanced semantic matching"""
     
     def __init__(self):
         self.categories = list(CANONICAL_TAXONOMY.keys())
