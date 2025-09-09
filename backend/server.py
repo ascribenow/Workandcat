@@ -63,15 +63,16 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 # Initialize enrichment services
-llm_pipeline = LLMEnrichmentPipeline(OPENAI_API_KEY)
+# llm_pipeline = LLMEnrichmentPipeline(OPENAI_API_KEY)  # Removed - using new enhanced service
 auto_enrichment_service = None  # Will be initialized when needed
 
 def get_auto_enrichment_service():
     """Get or create the automatic enrichment service"""
     global auto_enrichment_service
     if auto_enrichment_service is None:
-        from llm_enrichment import LLMEnrichmentService
-        auto_enrichment_service = LLMEnrichmentService()
+        # from llm_enrichment import LLMEnrichmentService  # Removed - using new enhanced service
+        # auto_enrichment_service = LLMEnrichmentService()  # Removed - using new enhanced service
+        pass
     return auto_enrichment_service
 mcq_generator = MCQGenerator(OPENAI_API_KEY)
 # enhanced_question_processor = EnhancedQuestionProcessor(llm_pipeline)  # PHASE 1: Enhanced processing - REPLACED with mcq_validation_service
