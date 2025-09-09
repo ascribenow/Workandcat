@@ -174,8 +174,9 @@ class CanonicalTaxonomyService:
                     logger.info(f"📝 Fuzzy matched question type: '{llm_type}' → '{qt}' (score: {difflib.SequenceMatcher(None, llm_type.lower(), qt.lower()).ratio():.2f})")
                     return qt
         
-        logger.warning(f"⚠️ No question type match found for: '{llm_type}' in {canonical_category} → {canonical_subcategory}. Using first available.")
-        return available_types[0] if available_types else None
+        # NO FALLBACK - If no good match found, return None to trigger quality failure
+        logger.warning(f"⚠️ No question type match found for: '{llm_type}' in {canonical_category} → {canonical_subcategory}. Quality verification will fail.")
+        return None
     
     def get_canonical_taxonomy_path(self, llm_category: str, llm_subcategory: str, llm_type: str) -> Tuple[str, str, str]:
         """Get complete canonical taxonomy path with fuzzy matching"""
