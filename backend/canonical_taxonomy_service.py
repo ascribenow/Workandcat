@@ -333,68 +333,93 @@ EXAMPLES OF SEMANTIC MATCHING:
         
         return None
     
-    async def _llm_semantic_question_type_match(self, llm_type: str, canonical_category: str, canonical_subcategory: str) -> Optional[str]:
-        """Use LLM to find semantic match for question type within subcategory"""
-        try:
-            if (canonical_category not in CANONICAL_TAXONOMY or 
-                canonical_subcategory not in CANONICAL_TAXONOMY[canonical_category]):
-                return None
-                
-            available_types = list(CANONICAL_TAXONOMY[canonical_category][canonical_subcategory]['types'].keys())
-            
-            # Import here to avoid circular imports
-            from advanced_llm_enrichment_service import call_llm_with_fallback
-            
-            system_message = f"""You are a mathematical taxonomy expert. Your task is to find the most semantically appropriate question type match within {canonical_category} → {canonical_subcategory}.
-
-Given a question type classification, you must choose the BEST semantic match from the available question types.
-
-AVAILABLE QUESTION TYPES IN {canonical_category.upper()} → {canonical_subcategory.upper()}:
-{chr(10).join(f'- {qt}' for qt in available_types)}
-
-Rules:
-1. Choose based on mathematical MEANING and problem-solving approach similarity
-2. If no good semantic match exists, respond with "NO_MATCH"
-3. Respond with ONLY the exact question type name or "NO_MATCH"
-
-Example logic:
-- "Speed Calculation Problem" → "Basics" (if in Time-Speed-Distance)
-- "Relative Motion Analysis" → "Relative Speed" (if in Time-Speed-Distance)
-- "Interest Rate Problem" → "Basics" (if in Simple and Compound Interest) """
-
-            user_message = f"Find the best semantic match for this question type: '{llm_type}' within {canonical_category} → {canonical_subcategory}."
-            
-            # Create a dummy service instance for the call
-            class DummyService:
-                def __init__(self):
-                    self.openai_api_key = os.getenv('OPENAI_API_KEY')
-                    self.google_api_key = os.getenv('GOOGLE_API_KEY')
-                    self.primary_model = "gpt-4o"
-                    self.fallback_model = "gpt-4o-mini"
-                    self.gemini_model = "gemini-pro"
-                    self.primary_model_failures = 0
-                    self.max_failures_before_degradation = 3
-                    self.openai_consecutive_failures = 0
-                    self.max_openai_failures_before_gemini = 2
-                    self.timeout = 30
-            
-            dummy_service = DummyService()
-            response_text, model_used = await call_llm_with_fallback(
-                dummy_service, system_message, user_message, max_tokens=100, temperature=0.1
-            )
-            
-            response_text = response_text.strip()
-            if response_text == "NO_MATCH":
-                return None
-            elif response_text in available_types:
-                return response_text
-            else:
-                logger.warning(f"⚠️ LLM returned invalid question type: '{response_text}'")
-                return None
-                
-        except Exception as e:
-            logger.error(f"❌ LLM semantic question type matching failed: {str(e)}")
+    async def _enhanced_semantic_question_type_match(self, llm_type: str, canonical_category: str, canonical_subcategory: str) -> Optional[str]:
+        """Use enhanced LLM semantic matching for question type using descriptions with 2 retries"""
+        
+        if (canonical_category not in CANONICAL_TAXONOMY or 
+            canonical_subcategory not in CANONICAL_TAXONOMY[canonical_category]):
             return None
+            
+        available_types = list(CANONICAL_TAXONOMY[canonical_category][canonical_subcategory]['types'].keys())
+        
+        # Retry logic: 2 attempts
+        for attempt in range(2):
+            try:
+                # Import here to avoid circular imports
+                from advanced_llm_enrichment_service import call_llm_with_fallback
+                
+                # Build comprehensive context with question type descriptions
+                types_context = []
+                for question_type in available_types:
+                    description = CANONICAL_TAXONOMY[canonical_category][canonical_subcategory]['types'][question_type]
+                    # Truncate description for context (first 200 chars)
+                    short_desc = description[:200] + "..." if len(description) > 200 else description
+                    types_context.append(f"- {question_type}: {short_desc}")
+                
+                system_message = f"""You are a mathematical taxonomy expert with deep understanding of CAT question types within {canonical_category} → {canonical_subcategory}.
+
+Your task is to find the most semantically appropriate question type match using detailed Type of Question Descriptions.
+
+AVAILABLE QUESTION TYPES IN {canonical_category.upper()} → {canonical_subcategory.upper()} WITH DESCRIPTIONS:
+{chr(10).join(types_context)}
+
+ENHANCED MATCHING RULES:
+1. Analyze the PROBLEM-SOLVING APPROACH and MATHEMATICAL TECHNIQUES described in the input
+2. Match based on the QUESTION STRUCTURE and SOLUTION METHODOLOGY
+3. Consider the CONCEPTUAL COMPLEXITY and PROBLEM CHARACTERISTICS
+4. Use the detailed Type of Question Descriptions to understand the true problem focus
+5. If no good semantic match exists, respond with "NO_MATCH"
+6. Respond with ONLY the exact question type name or "NO_MATCH"
+
+EXAMPLES OF SEMANTIC MATCHING:
+- "Speed Calculation Problem" → "Basics" (fundamental applications)
+- "Relative Motion Analysis" → "Relative Speed" (multi-object movement)
+- "Complex Interest Problem" → "Compound Interest" (advanced interest calculations)
+- "Basic Ratio Comparison" → "Simple Ratios" (fundamental ratio operations)"""
+
+                user_message = f"Find the best semantic match for this question type: '{llm_type}' within {canonical_category} → {canonical_subcategory}."
+                
+                # Create a dummy service instance for the call
+                class DummyService:
+                    def __init__(self):
+                        self.openai_api_key = os.getenv('OPENAI_API_KEY')
+                        self.google_api_key = os.getenv('GOOGLE_API_KEY')
+                        self.primary_model = "gpt-4o"
+                        self.fallback_model = "gpt-4o-mini"
+                        self.gemini_model = "gemini-pro"
+                        self.primary_model_failures = 0
+                        self.max_failures_before_degradation = 3
+                        self.openai_consecutive_failures = 0
+                        self.max_openai_failures_before_gemini = 2
+                        self.timeout = 30
+                
+                dummy_service = DummyService()
+                response_text, model_used = await call_llm_with_fallback(
+                    dummy_service, system_message, user_message, max_tokens=100, temperature=0.1
+                )
+                
+                response_text = response_text.strip()
+                if response_text == "NO_MATCH":
+                    logger.info(f"🤖 LLM semantic question type matching: NO_MATCH for '{llm_type}' in {canonical_category} → {canonical_subcategory} (attempt {attempt + 1})")
+                    if attempt == 1:  # Last attempt
+                        return None
+                    continue
+                elif response_text in available_types:
+                    logger.info(f"✅ Enhanced semantic question type match: '{llm_type}' → '{response_text}' (attempt {attempt + 1}, model: {model_used})")
+                    return response_text
+                else:
+                    logger.warning(f"⚠️ LLM returned invalid question type: '{response_text}' (attempt {attempt + 1})")
+                    if attempt == 1:  # Last attempt
+                        return None
+                    continue
+                    
+            except Exception as e:
+                logger.error(f"❌ Enhanced semantic question type matching failed (attempt {attempt + 1}): {str(e)}")
+                if attempt == 1:  # Last attempt
+                    return None
+                continue
+        
+        return None
 
 # Global instance
 canonical_taxonomy_service = CanonicalTaxonomyService()
