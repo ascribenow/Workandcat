@@ -598,25 +598,22 @@ Return ONLY this JSON format:
 
 Be precise, insightful, and demonstrate superior mathematical intelligence."""
 
-                logger.info(f"🧠 Calling OpenAI for deep mathematical analysis (attempt {attempt + 1})...")
+        user_message = f"Question: {stem}\nAdmin provided answer (if any): {admin_answer or 'Not provided'}"
+        
+        for attempt in range(self.max_retries):
+            try:
+                logger.info(f"🧠 Calling LLM for deep mathematical analysis (attempt {attempt + 1})...")
                 
-                response = client.chat.completions.create(
-                    model=model_to_use,
-                    messages=[
-                        {"role": "system", "content": system_message},
-                        {"role": "user", "content": f"Question: {stem}\nAdmin provided answer (if any): {admin_answer or 'Not provided'}"}
-                    ],
-                    max_tokens=800,
-                    temperature=0.1,
-                    timeout=self.timeout
+                # Use new fallback system
+                analysis_text, model_used = await call_llm_with_fallback(
+                    self, system_message, user_message, max_tokens=800, temperature=0.1
                 )
                 
-                analysis_text = response.choices[0].message.content.strip()
-                logger.info(f"🔍 OpenAI raw response length: {len(analysis_text)} chars")
-                logger.info(f"🔍 OpenAI raw response preview: {analysis_text[:200]}...")
+                logger.info(f"🔍 LLM raw response length: {len(analysis_text)} chars")
+                logger.info(f"🔍 LLM raw response preview: {analysis_text[:200]}...")
                 
                 if not analysis_text:
-                    raise Exception("OpenAI returned empty response")
+                    raise Exception("LLM returned empty response")
                 
                 # Extract JSON using helper function
                 clean_json = extract_json_from_response(analysis_text)
@@ -624,15 +621,7 @@ Be precise, insightful, and demonstrate superior mathematical intelligence."""
                 
                 analysis_data = json.loads(clean_json)
                 
-                # CRITICAL: Verify quality standards regardless of model used
-                if not self._verify_response_quality(analysis_data, model_to_use):
-                    raise Exception(f"Quality standards not met by {model_to_use} - sophisticated content required")
-                
-                # If we successfully used primary model after recovery, mark it as recovered
-                if selection_reason == "testing_primary_recovery":
-                    self._mark_primary_model_recovered()
-                
-                logger.info(f"✅ Deep mathematical analysis completed with {model_to_use} - quality verified")
+                logger.info(f"✅ Deep mathematical analysis completed with {model_used}")
                 return analysis_data
                 
             except Exception as e:
