@@ -20,7 +20,7 @@ from database import (
 )
 from mastery_tracker import MasteryTracker
 from study_planner import StudyPlanner
-from llm_enrichment import LLMEnrichmentPipeline
+# from llm_enrichment import LLMEnrichmentPipeline  # Removed - using new enhanced service
 from enhanced_nightly_engine import EnhancedNightlyEngine
 
 logger = logging.getLogger(__name__)
