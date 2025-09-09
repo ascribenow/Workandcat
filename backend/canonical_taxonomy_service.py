@@ -187,7 +187,7 @@ class CanonicalTaxonomyService:
         return (
             category in CANONICAL_TAXONOMY and
             subcategory in CANONICAL_TAXONOMY[category] and
-            question_type in CANONICAL_TAXONOMY[category][subcategory]
+            question_type in CANONICAL_TAXONOMY[category][subcategory]['types']
         )
     
     def get_taxonomy_stats(self) -> Dict:
