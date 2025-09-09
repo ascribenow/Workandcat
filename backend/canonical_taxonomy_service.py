@@ -47,39 +47,25 @@ class CanonicalTaxonomyService:
                 question_types.extend(subcategory_data['types'].keys())
         return question_types
     
-    async def fuzzy_match_category(self, llm_category: str, threshold: float = 0.8) -> Optional[str]:
-        """Find best canonical category match for LLM output"""
+    async def match_category(self, llm_category: str) -> Optional[str]:
+        """Find best canonical category match using Direct + Enhanced Semantic matching"""
         if not llm_category:
             return None
             
         # Direct match first
         if llm_category in self.categories:
+            logger.info(f"✅ Direct category match: '{llm_category}'")
             return llm_category
-            
-        # Fuzzy matching
-        matches = difflib.get_close_matches(
-            llm_category.lower(), 
-            [cat.lower() for cat in self.categories], 
-            n=1, 
-            cutoff=threshold
-        )
         
-        if matches:
-            # Find original case version
-            for cat in self.categories:
-                if cat.lower() == matches[0]:
-                    logger.info(f"📂 Fuzzy matched category: '{llm_category}' → '{cat}' (score: {difflib.SequenceMatcher(None, llm_category.lower(), cat.lower()).ratio():.2f})")
-                    return cat
-        
-        # LLM-assisted semantic analysis as final attempt
-        logger.info(f"🧠 Attempting LLM semantic analysis for category: '{llm_category}'")
-        semantic_match = await self._llm_semantic_category_match(llm_category)
+        # Enhanced LLM-assisted semantic analysis with descriptions
+        logger.info(f"🧠 Attempting enhanced semantic analysis for category: '{llm_category}'")
+        semantic_match = await self._enhanced_semantic_category_match(llm_category)
         if semantic_match:
-            logger.info(f"🎯 LLM semantic match found: '{llm_category}' → '{semantic_match}'")
+            logger.info(f"🎯 Enhanced semantic match found: '{llm_category}' → '{semantic_match}'")
             return semantic_match
             
         # Final failure - no semantic match found
-        logger.warning(f"⚠️ No category match found (including semantic analysis) for: '{llm_category}'. Quality verification will fail.")
+        logger.warning(f"⚠️ No category match found for: '{llm_category}'. Quality verification will fail.")
         return None
     
     async def fuzzy_match_subcategory(self, llm_subcategory: str, canonical_category: str, threshold: float = 0.8) -> Optional[str]:
