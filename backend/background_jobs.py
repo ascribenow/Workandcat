@@ -33,8 +33,9 @@ class BackgroundJobProcessor:
         # self.llm_pipeline = LLMEnrichmentPipeline(llm_api_key)  # Removed - using new enhanced service
         self.llm_pipeline = None  # Disabled for now
         
-        # Initialize Enhanced Nightly Engine
-        self.enhanced_nightly_engine = EnhancedNightlyEngine(self.llm_pipeline)
+        # Initialize Enhanced Nightly Engine - DISABLED for now
+        # self.enhanced_nightly_engine = EnhancedNightlyEngine(self.llm_pipeline)  # Disabled - using new enhanced service
+        self.enhanced_nightly_engine = None
         logger.info("✅ Enhanced Nightly Engine initialized for comprehensive processing tasks")
         
     def start_scheduler(self):
