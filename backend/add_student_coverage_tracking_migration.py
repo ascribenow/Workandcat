@@ -58,19 +58,24 @@ def run_migration():
         
         # Verify table creation
         result = db.execute(text("""
-            SELECT name FROM sqlite_master 
-            WHERE type='table' AND name='student_coverage_tracking'
+            SELECT table_name FROM information_schema.tables 
+            WHERE table_schema = 'public' AND table_name = 'student_coverage_tracking'
         """))
         
         if result.fetchone():
             print("✅ Table verification successful")
             
             # Show table structure
-            result = db.execute(text("PRAGMA table_info(student_coverage_tracking)"))
+            result = db.execute(text("""
+                SELECT column_name, data_type, is_nullable 
+                FROM information_schema.columns 
+                WHERE table_name = 'student_coverage_tracking'
+                ORDER BY ordinal_position
+            """))
             columns = result.fetchall()
             print("📊 Table structure:")
             for col in columns:
-                print(f"   {col[1]} {col[2]} {'NOT NULL' if col[3] else 'NULL'}")
+                print(f"   {col[0]} {col[1]} {'NOT NULL' if col[2] == 'NO' else 'NULL'}")
         else:
             print("❌ Table verification failed")
             
