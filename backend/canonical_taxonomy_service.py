@@ -377,6 +377,97 @@ EXAMPLES OF SEMANTIC MATCHING:
                 continue
         
         return None
+
+    async def _enhanced_semantic_subcategory_match_global(self, llm_subcategory: str) -> Optional[str]:
+        """Use enhanced LLM semantic matching for subcategory across ALL categories with 2 retries"""
+        
+        # Build comprehensive context with ALL subcategories and their descriptions
+        all_subcategories_context = []
+        for category, subcategories in CANONICAL_TAXONOMY.items():
+            for subcategory, data in subcategories.items():
+                description = data['description']
+                # Truncate description for context (first 150 chars)
+                short_desc = description[:150] + "..." if len(description) > 150 else description
+                all_subcategories_context.append(f"- {subcategory} ({category}): {short_desc}")
+        
+        # Retry logic: 2 attempts
+        for attempt in range(2):
+            try:
+                # Import here to avoid circular imports
+                from advanced_llm_enrichment_service import call_llm_with_fallback
+                
+                system_message = f"""You are a mathematical taxonomy expert with deep understanding of CAT quantitative subcategories across ALL mathematical domains.
+
+Your task is to find the most semantically appropriate subcategory match using detailed descriptions from the COMPLETE taxonomy.
+
+AVAILABLE SUBCATEGORIES ACROSS ALL CATEGORIES WITH DESCRIPTIONS:
+{chr(10).join(all_subcategories_context)}
+
+ENHANCED MATCHING RULES:
+1. Analyze the mathematical CONCEPTS and PROBLEM TYPES described in the input
+2. Match based on the MATHEMATICAL DOMAIN and PROBLEM-SOLVING APPROACH
+3. Consider the CONCEPTUAL SIMILARITY between input and subcategory descriptions
+4. Use the detailed descriptions to understand the true mathematical focus
+5. Look across ALL categories - don't limit to one mathematical domain
+6. If no good semantic match exists, respond with "NO_MATCH"
+7. Respond with ONLY the exact subcategory name or "NO_MATCH"
+
+EXAMPLES OF SEMANTIC MATCHING:
+- "Speed Problems" → "Time-Speed-Distance" (motion and velocity focus)
+- "Interest Calculations" → "Simple and Compound Interest" (financial mathematics)
+- "Circle Properties" → "Circles" (circular geometry focus)
+- "Mixture Analysis" → "Averages and Alligation" (combination problems)
+- "Shape Area Problems" → "Areas and Volumes" (geometric measurement)"""
+
+                user_message = f"Find the best semantic match for this subcategory: '{llm_subcategory}' across ALL mathematical categories."
+                
+                # Create a dummy service instance for the call
+                class DummyService:
+                    def __init__(self):
+                        self.openai_api_key = os.getenv('OPENAI_API_KEY')
+                        self.google_api_key = os.getenv('GOOGLE_API_KEY')
+                        self.primary_model = "gpt-4o"
+                        self.fallback_model = "gpt-4o-mini"
+                        self.gemini_model = "gemini-pro"
+                        self.primary_model_failures = 0
+                        self.max_failures_before_degradation = 3
+                        self.openai_consecutive_failures = 0
+                        self.max_openai_failures_before_gemini = 2
+                        self.timeout = 30
+                
+                dummy_service = DummyService()
+                response_text, model_used = await call_llm_with_fallback(
+                    dummy_service, system_message, user_message, max_tokens=100, temperature=0.1
+                )
+                
+                response_text = response_text.strip()
+                if response_text == "NO_MATCH":
+                    logger.info(f"🤖 LLM global subcategory matching: NO_MATCH for '{llm_subcategory}' (attempt {attempt + 1})")
+                    if attempt == 1:  # Last attempt
+                        return None
+                    continue
+                
+                # Validate the response is a real subcategory
+                all_subcategories = []
+                for category_data in CANONICAL_TAXONOMY.values():
+                    all_subcategories.extend(category_data.keys())
+                
+                if response_text in all_subcategories:
+                    logger.info(f"✅ Enhanced global semantic subcategory match: '{llm_subcategory}' → '{response_text}' (attempt {attempt + 1}, model: {model_used})")
+                    return response_text
+                else:
+                    logger.warning(f"⚠️ LLM returned invalid subcategory: '{response_text}' (attempt {attempt + 1})")
+                    if attempt == 1:  # Last attempt
+                        return None
+                    continue
+                    
+            except Exception as e:
+                logger.error(f"❌ Enhanced global semantic subcategory matching failed (attempt {attempt + 1}): {str(e)}")
+                if attempt == 1:  # Last attempt
+                    return None
+                continue
+        
+        return None
     
     async def _enhanced_semantic_question_type_match(self, llm_type: str, canonical_category: str, canonical_subcategory: str) -> Optional[str]:
         """Use enhanced LLM semantic matching for question type using descriptions with 2 retries"""
