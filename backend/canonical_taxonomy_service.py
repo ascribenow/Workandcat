@@ -63,21 +63,14 @@ class CanonicalTaxonomyService:
         return None
     
     async def match_subcategory(self, llm_subcategory: str, canonical_category: str) -> Optional[str]:
-        """Find best canonical subcategory match using Direct + Enhanced Semantic matching"""
+        """Find best canonical subcategory match using Enhanced Semantic matching only"""
         if not llm_subcategory or not canonical_category:
             return None
             
         if canonical_category not in CANONICAL_TAXONOMY:
             return None
-            
-        category_subcategories = list(CANONICAL_TAXONOMY[canonical_category].keys())
         
-        # Direct match first
-        if llm_subcategory in category_subcategories:
-            logger.info(f"✅ Direct subcategory match: '{llm_subcategory}'")
-            return llm_subcategory
-        
-        # Enhanced LLM-assisted semantic analysis with descriptions
+        # Enhanced LLM-assisted semantic analysis with descriptions (no direct matching)
         logger.info(f"🧠 Attempting enhanced semantic analysis for subcategory: '{llm_subcategory}' in category '{canonical_category}'")
         semantic_match = await self._enhanced_semantic_subcategory_match(llm_subcategory, canonical_category)
         if semantic_match:
