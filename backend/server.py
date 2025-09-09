@@ -5638,7 +5638,13 @@ async def enhanced_pyq_enrichment_background(pyq_question_id: str):
                 
                 enrichment_data = enrichment_result["enrichment_data"]
                 
-                # Update PYQ question with all unified fields
+                # Update PYQ question with all unified fields INCLUDING TAXONOMY FIELDS
+                # Taxonomy fields (critical for replacing "To be classified by LLM")
+                pyq_question.category = enrichment_data.get("category")
+                pyq_question.subcategory = enrichment_data.get("subcategory") 
+                pyq_question.type_of_question = enrichment_data.get("type_of_question")
+                
+                # Other enrichment fields
                 pyq_question.difficulty_band = enrichment_data.get("difficulty_band")
                 pyq_question.difficulty_score = enrichment_data.get("difficulty_score")
                 pyq_question.core_concepts = enrichment_data.get("core_concepts")
