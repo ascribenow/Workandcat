@@ -1,0 +1,95 @@
+#!/usr/bin/env python3
+"""
+Migration: Add Student Coverage Tracking Table
+Creates table to track which subcategory::type combinations each student has seen in Phase A
+"""
+
+import sys
+import os
+from sqlalchemy import create_engine, text
+from sqlalchemy.orm import sessionmaker
+
+# Add backend directory to path
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
+def run_migration():
+    """Create student_coverage_tracking table"""
+    
+    # Import database configuration
+    from database import DATABASE_URL
+    
+    # Create engine and session
+    engine = create_engine(DATABASE_URL)
+    Session = sessionmaker(bind=engine)
+    db = Session()
+    
+    try:
+        print("🔧 Creating student_coverage_tracking table...")
+        
+        # Create the coverage tracking table
+        db.execute(text("""
+            CREATE TABLE IF NOT EXISTS student_coverage_tracking (
+                id VARCHAR(36) PRIMARY KEY DEFAULT (
+                    CASE 
+                        WHEN random() IS NOT NULL THEN 
+                            lower(hex(randomblob(4))) || '-' || 
+                            lower(hex(randomblob(2))) || '-' || 
+                            lower(hex(randomblob(2))) || '-' || 
+                            lower(hex(randomblob(2))) || '-' || 
+                            lower(hex(randomblob(6)))
+                        ELSE ''
+                    END
+                ),
+                user_id VARCHAR(36) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                subcategory_type_combination VARCHAR(300) NOT NULL,
+                sessions_seen INTEGER DEFAULT 1,
+                first_seen_session INTEGER NOT NULL,
+                last_seen_session INTEGER NOT NULL,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                
+                UNIQUE(user_id, subcategory_type_combination)
+            )
+        """))
+        
+        # Create indexes for performance
+        db.execute(text("""
+            CREATE INDEX IF NOT EXISTS idx_student_coverage_user_id 
+            ON student_coverage_tracking(user_id)
+        """))
+        
+        db.execute(text("""
+            CREATE INDEX IF NOT EXISTS idx_student_coverage_combination 
+            ON student_coverage_tracking(subcategory_type_combination)
+        """))
+        
+        db.commit()
+        print("✅ student_coverage_tracking table created successfully!")
+        
+        # Verify table creation
+        result = db.execute(text("""
+            SELECT name FROM sqlite_master 
+            WHERE type='table' AND name='student_coverage_tracking'
+        """))
+        
+        if result.fetchone():
+            print("✅ Table verification successful")
+            
+            # Show table structure
+            result = db.execute(text("PRAGMA table_info(student_coverage_tracking)"))
+            columns = result.fetchall()
+            print("📊 Table structure:")
+            for col in columns:
+                print(f"   {col[1]} {col[2]} {'NOT NULL' if col[3] else 'NULL'}")
+        else:
+            print("❌ Table verification failed")
+            
+    except Exception as e:
+        print(f"❌ Migration failed: {e}")
+        db.rollback()
+        raise
+    finally:
+        db.close()
+
+if __name__ == "__main__":
+    run_migration()
