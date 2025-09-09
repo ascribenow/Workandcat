@@ -77,10 +77,13 @@ class AdvancedLLMEnrichmentService:
         self.last_rate_limit_time = None
         self.rate_limit_recovery_interval = 1800  # 30 minutes before testing GPT-4o again
         
-        # CRITICAL: Both models MUST maintain 100% quality standards
-        # GPT-4o-mini uses IDENTICAL prompts and quality requirements as GPT-4o
+        # Model degradation tracking
+        self.primary_model_failures = 0
+        self.max_failures_before_degradation = 3
+        self.openai_consecutive_failures = 0
+        self.max_openai_failures_before_gemini = 2
         
-        logger.info("✅ AdvancedLLMEnrichmentService initialized with 100% quality standards")
+        logger.info("✅ AdvancedLLMEnrichmentService initialized with OpenAI + Gemini fallback")
     
     def _map_to_canonical_category(self, category: str) -> str:
         """Map any category to canonical A-E format"""
