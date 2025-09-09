@@ -178,7 +178,7 @@ class Question(Base):
             logger.info(f"🔄 Triggering LLM difficulty assessment for question {self.id}")
             
             if simplified_enricher is None:
-                from llm_enrichment import SimplifiedEnrichmentService
+                # from llm_enrichment import SimplifiedEnrichmentService  # Removed - using new enhanced service
                 simplified_enricher = SimplifiedEnrichmentService()
             
             try:
