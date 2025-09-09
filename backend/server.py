@@ -5546,12 +5546,10 @@ async def enhanced_pyq_enrichment_background(pyq_question_id: str):
     try:
         logger.info(f"🚀 Starting UNIFIED PYQ enrichment for question {pyq_question_id}")
         
-        # Get database session directly
-        db = AsyncSession(SessionLocal())
-        
+        # PHASE 1: Get question data (minimal DB session time)
+        db = SessionLocal()
         try:
-            # Get PYQ question
-            result = await db.execute(
+            result = db.execute(
                 select(PYQQuestion).where(PYQQuestion.id == pyq_question_id)
             )
             pyq_question = result.scalar_one_or_none()
@@ -5560,17 +5558,44 @@ async def enhanced_pyq_enrichment_background(pyq_question_id: str):
                 logger.error(f"❌ PYQ question {pyq_question_id} not found")
                 return False
             
-            # Use Advanced LLM Enrichment Service - 100% QUALITY STANDARDS (NO FALLBACKS)
+            # Extract data needed for LLM processing
+            question_stem = pyq_question.stem
+            question_answer = pyq_question.answer
+            
+        except Exception as e:
+            logger.error(f"❌ Error fetching question {pyq_question_id}: {e}")
+            return False
+        finally:
+            db.close()  # Close DB session immediately after data retrieval
+        
+        # PHASE 2: LLM Processing (no DB session held - safe for event loop)
+        try:
             advanced_enricher = AdvancedLLMEnrichmentService()
             
-            # Perform comprehensive enrichment with strict quality standards
+            # Long-running LLM call - no database connection held
             enrichment_result = await advanced_enricher.enrich_question_deeply(
-                stem=pyq_question.stem,
-                admin_answer=pyq_question.answer,
+                stem=question_stem,
+                admin_answer=question_answer,
                 question_type="pyq"
             )
-            
-            if enrichment_result["success"]:
+        except Exception as e:
+            logger.error(f"❌ LLM enrichment failed for question {pyq_question_id}: {e}")
+            return False
+        
+        # PHASE 3: Update question (minimal DB session time)
+        if enrichment_result["success"]:
+            db = SessionLocal()
+            try:
+                # Re-fetch question for update
+                result = db.execute(
+                    select(PYQQuestion).where(PYQQuestion.id == pyq_question_id)
+                )
+                pyq_question = result.scalar_one_or_none()
+                
+                if not pyq_question:
+                    logger.error(f"❌ PYQ question {pyq_question_id} not found for update")
+                    return False
+                
                 enrichment_data = enrichment_result["enrichment_data"]
                 
                 # Update PYQ question with all unified fields
@@ -5587,20 +5612,20 @@ async def enhanced_pyq_enrichment_background(pyq_question_id: str):
                 pyq_question.is_active = True  # Activate after successful enrichment
                 pyq_question.last_updated = datetime.utcnow()
                 
-                await db.commit()
+                db.commit()  # Synchronous commit - fast operation
                 
                 logger.info(f"✅ UNIFIED PYQ enrichment completed successfully for question {pyq_question_id}")
                 return True
-            else:
-                logger.error(f"❌ UNIFIED PYQ enrichment failed for question {pyq_question_id}: {enrichment_result.get('error')}")
-                return False
                 
-        except Exception as e:
-            logger.error(f"❌ Database error during PYQ enrichment for {pyq_question_id}: {e}")
-            await db.rollback()
+            except Exception as e:
+                logger.error(f"❌ Database update error for {pyq_question_id}: {e}")
+                db.rollback()  # Synchronous rollback
+                return False
+            finally:
+                db.close()  # Close DB session immediately after update
+        else:
+            logger.error(f"❌ UNIFIED PYQ enrichment failed for question {pyq_question_id}: {enrichment_result.get('error')}")
             return False
-        finally:
-            await db.close()
             
     except Exception as e:
         logger.error(f"❌ UNIFIED PYQ enrichment exception for question {pyq_question_id}: {e}")
