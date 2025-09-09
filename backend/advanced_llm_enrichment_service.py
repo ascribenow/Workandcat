@@ -10,6 +10,7 @@ import asyncio
 import logging
 from typing import Dict, Any, List
 import openai
+import google.generativeai as genai
 from datetime import datetime
 from canonical_taxonomy_service import canonical_taxonomy_service
 from anthropic_semantic_validator import anthropic_semantic_validator
