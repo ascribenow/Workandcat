@@ -111,7 +111,7 @@ class CanonicalTaxonomyService:
         logger.warning(f"⚠️ No category match found for: '{llm_category}'. Quality verification will fail.")
         return None
     
-    def fuzzy_match_subcategory(self, llm_subcategory: str, canonical_category: str, threshold: float = 0.6) -> Optional[str]:
+    def fuzzy_match_subcategory(self, llm_subcategory: str, canonical_category: str, threshold: float = 0.8) -> Optional[str]:
         """Find best canonical subcategory match within the given category"""
         if not llm_subcategory or not canonical_category:
             return None
