@@ -107,8 +107,15 @@ class CanonicalTaxonomyService:
                     logger.info(f"📂 Fuzzy matched category: '{llm_category}' → '{cat}' (score: {difflib.SequenceMatcher(None, llm_category.lower(), cat.lower()).ratio():.2f})")
                     return cat
         
-        # NO FALLBACK - If no good match found, return None to trigger quality failure
-        logger.warning(f"⚠️ No category match found for: '{llm_category}'. Quality verification will fail.")
+        # LLM-assisted semantic analysis as final attempt
+        logger.info(f"🧠 Attempting LLM semantic analysis for category: '{llm_category}'")
+        semantic_match = await self._llm_semantic_category_match(llm_category)
+        if semantic_match:
+            logger.info(f"🎯 LLM semantic match found: '{llm_category}' → '{semantic_match}'")
+            return semantic_match
+            
+        # Final failure - no semantic match found
+        logger.warning(f"⚠️ No category match found (including semantic analysis) for: '{llm_category}'. Quality verification will fail.")
         return None
     
     def fuzzy_match_subcategory(self, llm_subcategory: str, canonical_category: str, threshold: float = 0.8) -> Optional[str]:
