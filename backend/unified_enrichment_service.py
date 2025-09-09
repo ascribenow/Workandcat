@@ -14,7 +14,7 @@ import openai
 from datetime import datetime
 
 # Import taxonomy for classification
-from llm_enrichment import CANONICAL_TAXONOMY
+from canonical_taxonomy_service import CANONICAL_TAXONOMY
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
