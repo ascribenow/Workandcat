@@ -1009,81 +1009,45 @@ Return ONLY this JSON format with sophisticated, specific content."""
                     raise Exception("Advanced conceptual extraction failed after all retries - refusing to proceed with fallback data")
     
     async def _perform_comprehensive_quality_verification(self, stem: str, enrichment_data: Dict[str, Any]) -> Dict[str, Any]:
-        """Perform comprehensive quality verification with sophisticated criteria"""
+        """Perform enhanced quality verification with Semantic + Binary validation"""
         
         try:
-            quality_score = 0
-            quality_factors = []
+            logger.info("🔍 Step 5: Enhanced quality verification (Semantic + Binary)")
             
-            # Sophistication of right answer (25 points)
-            right_answer = enrichment_data.get('right_answer', '')
-            if len(right_answer) > 50 and 'calculated' in right_answer.lower():
-                quality_score += 25
-                quality_factors.append("detailed_answer_explanation")
-            elif len(right_answer) > 20:
-                quality_score += 15
-                quality_factors.append("adequate_answer_detail")
-            elif right_answer:
-                quality_score += 5
-                quality_factors.append("basic_answer_provided")
+            # Use new semantic + binary validation
+            validation_result = await self._verify_response_quality(
+                enrichment_data, "quality_verification", stem
+            )
             
-            # Classification sophistication (20 points)
-            category = enrichment_data.get('category', '')
-            subcategory = enrichment_data.get('subcategory', '')
-            if len(category) > 15 and len(subcategory) > 15:
-                quality_score += 20
-                quality_factors.append("sophisticated_classification")
-            elif len(category) > 10 and len(subcategory) > 10:
-                quality_score += 10
-                quality_factors.append("adequate_classification")
-            
-            # Concept depth (25 points)
-            try:
-                core_concepts = json.loads(enrichment_data.get('core_concepts', '[]'))
-                if len(core_concepts) >= 4 and all(len(c) > 15 for c in core_concepts):
-                    quality_score += 25
-                    quality_factors.append("deep_conceptual_analysis")
-                elif len(core_concepts) >= 2:
-                    quality_score += 15
-                    quality_factors.append("adequate_conceptual_coverage")
-            except:
-                pass
-            
-            # Solution method sophistication (15 points)
-            solution_method = enrichment_data.get('solution_method', '')
-            if len(solution_method) > 30:
-                quality_score += 15
-                quality_factors.append("sophisticated_solution_method")
-            elif len(solution_method) > 15:
-                quality_score += 8
-                quality_factors.append("adequate_solution_method")
-            
-            # Operations specificity (15 points)
-            try:
-                operations = json.loads(enrichment_data.get('operations_required', '[]'))
-                if len(operations) >= 3 and all(len(op) > 10 for op in operations):
-                    quality_score += 15
-                    quality_factors.append("specific_operations_identified")
-                elif len(operations) >= 2:
-                    quality_score += 8
-                    quality_factors.append("basic_operations_identified")
-            except:
-                pass
-            
-            quality_verified = quality_score >= 80
-            
-            logger.info(f"🔍 Quality verification: {quality_score}/100 - {'✅ High Quality' if quality_verified else '⚠️ Needs Enhancement'}")
-            
-            return {
-                'quality_verified': quality_verified,
-                'quality_score': quality_score,
-                'quality_factors': json.dumps(quality_factors)
-            }
+            if validation_result.get("quality_verified", False):
+                logger.info("✅ Enhanced quality verification passed")
+                return {
+                    'quality_verified': True,
+                    'quality_score': 100,  # Pass/fail system now
+                    'quality_factors': json.dumps([
+                        "semantic_validation_passed",
+                        "binary_validation_passed", 
+                        "canonical_taxonomy_matched"
+                    ]),
+                    'semantic_confidence': validation_result.get('semantic_confidence', 0),
+                    'validation_details': validation_result.get('detailed_feedback', {})
+                }
+            else:
+                logger.error(f"❌ Enhanced quality verification failed at {validation_result.get('validation_stage', 'unknown')} stage")
+                return {
+                    'quality_verified': False,
+                    'quality_score': 0,
+                    'quality_factors': json.dumps([
+                        f"failed_at_{validation_result.get('validation_stage', 'unknown')}_stage"
+                    ]),
+                    'validation_issues': validation_result.get('issues', [])
+                }
             
         except Exception as e:
-            logger.warning(f"⚠️ Quality verification failed: {e}")
+            logger.error(f"❌ Enhanced quality verification exception: {e}")
             return {
                 'quality_verified': False,
                 'quality_score': 0,
-                'quality_factors': json.dumps(["verification_failed"])
+                'quality_factors': json.dumps(["verification_service_failed"]),
+                'error': str(e)
             }
