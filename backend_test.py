@@ -1717,7 +1717,7 @@ class CATBackendTester:
                 success, response = self.run_test(
                     f"PYQ Enrichment Test {i+1}", 
                     "POST", 
-                    "admin/test-advanced-enrichment", 
+                    "admin/test/immediate-enrichment", 
                     [200, 500], 
                     test_data, 
                     admin_headers
