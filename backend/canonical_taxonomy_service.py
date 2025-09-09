@@ -122,16 +122,16 @@ class CanonicalTaxonomyService:
         return None
     
     async def get_canonical_taxonomy_path(self, llm_category: str, llm_subcategory: str, llm_type: str) -> Tuple[str, str, str]:
-        """Get complete canonical taxonomy path with fuzzy matching"""
+        """Get complete canonical taxonomy path with enhanced semantic matching"""
         
-        # Step 1: Match category
-        canonical_category = await self.fuzzy_match_category(llm_category)
+        # Step 1: Match category using enhanced semantic matching
+        canonical_category = await self.match_category(llm_category)
         
-        # Step 2: Match subcategory within canonical category
-        canonical_subcategory = await self.fuzzy_match_subcategory(llm_subcategory, canonical_category)
+        # Step 2: Match subcategory using enhanced semantic matching
+        canonical_subcategory = await self.match_subcategory(llm_subcategory, canonical_category)
         
-        # Step 3: Match question type within canonical subcategory
-        canonical_type = await self.fuzzy_match_question_type(llm_type, canonical_category, canonical_subcategory)
+        # Step 3: Match question type using enhanced semantic matching
+        canonical_type = await self.match_question_type(llm_type, canonical_category, canonical_subcategory)
         
         logger.info(f"🎯 Complete taxonomy mapping:")
         logger.info(f"   Category: '{llm_category}' → '{canonical_category}'")
