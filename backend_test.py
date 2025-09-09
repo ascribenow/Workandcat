@@ -1778,7 +1778,7 @@ class CATBackendTester:
             success, response = self.run_test(
                 "API Performance and Quality Test", 
                 "POST", 
-                "admin/test-advanced-enrichment", 
+                "admin/test/immediate-enrichment", 
                 [200, 500], 
                 performance_test_data, 
                 admin_headers
