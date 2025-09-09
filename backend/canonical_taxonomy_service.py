@@ -98,21 +98,26 @@ class CanonicalTaxonomyService:
         return None
     
     async def get_canonical_taxonomy_path(self, llm_category: str, llm_subcategory: str, llm_type: str) -> Tuple[str, str, str]:
-        """Get complete canonical taxonomy path with enhanced semantic matching"""
+        """Get complete canonical taxonomy path with NEW FLOW: Subcategory → Type → Category lookup"""
         
-        # Step 1: Match category using enhanced semantic matching
-        canonical_category = await self.match_category(llm_category)
+        # NEW FLOW: Subcategory → Type → Category
         
-        # Step 2: Match subcategory using enhanced semantic matching
-        canonical_subcategory = await self.match_subcategory(llm_subcategory, canonical_category)
+        # Step 1: Match subcategory using enhanced semantic matching
+        logger.info(f"🔍 Step 1: Enhanced semantic subcategory matching for: '{llm_subcategory}'")
+        canonical_subcategory = await self.match_subcategory_without_category(llm_subcategory)
         
-        # Step 3: Match question type using enhanced semantic matching
-        canonical_type = await self.match_question_type(llm_type, canonical_category, canonical_subcategory)
+        # Step 2: Match question type using enhanced semantic matching (within found subcategory)
+        logger.info(f"🔍 Step 2: Enhanced semantic question type matching for: '{llm_type}'")
+        canonical_type = await self.match_question_type_within_subcategory(llm_type, canonical_subcategory)
         
-        logger.info("🎯 Complete taxonomy mapping:")
-        logger.info(f"   Category: '{llm_category}' → '{canonical_category}'")
+        # Step 3: Lookup category using code-based matching (subcategory + type combination)
+        logger.info(f"🔍 Step 3: Code-based category lookup for combination: '{canonical_subcategory}' + '{canonical_type}'")
+        canonical_category = self.lookup_category_by_combination(canonical_subcategory, canonical_type)
+        
+        logger.info(f"🎯 Complete taxonomy mapping (NEW FLOW):")
         logger.info(f"   Subcategory: '{llm_subcategory}' → '{canonical_subcategory}'")
         logger.info(f"   Type: '{llm_type}' → '{canonical_type}'")
+        logger.info(f"   Category: LOOKUP({canonical_subcategory} + {canonical_type}) → '{canonical_category}'")
         
         return canonical_category, canonical_subcategory, canonical_type
     
