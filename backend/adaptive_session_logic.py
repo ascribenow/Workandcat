@@ -182,6 +182,54 @@ class AdaptiveSessionLogic:
             logger.error(f"Error creating three-phase adaptive session: {e}")
             return self.create_simple_fallback_session(user_id, db)
 
+    def get_student_seen_combinations(self, user_id: str, db: Session) -> set:
+        """
+        Get all subcategory::type combinations this student has already seen
+        Only used for Phase A (Sessions 1-30) to ensure coverage
+        """
+        try:
+            result = db.execute(
+                select(StudentCoverageTracking.subcategory_type_combination)
+                .where(StudentCoverageTracking.user_id == user_id)
+            )
+            return {row[0] for row in result.fetchall()}
+        except Exception as e:
+            logger.error(f"Error getting student seen combinations: {e}")
+            return set()
+    
+    def update_student_coverage_tracking(self, user_id: str, questions: List[Question], session_num: int, db: Session):
+        """
+        Update coverage tracking after a session is completed
+        Records which subcategory::type combinations were seen
+        """
+        try:
+            for question in questions:
+                # Create combination key
+                combination = f"{question.subcategory}::{question.type_of_question}"
+                
+                # Upsert coverage record using raw SQL for PostgreSQL compatibility
+                db.execute(text("""
+                    INSERT INTO student_coverage_tracking 
+                    (user_id, subcategory_type_combination, sessions_seen, first_seen_session, last_seen_session, created_at, updated_at)
+                    VALUES (:user_id, :combination, 1, :session_num, :session_num, NOW(), NOW())
+                    ON CONFLICT (user_id, subcategory_type_combination) 
+                    DO UPDATE SET 
+                        sessions_seen = student_coverage_tracking.sessions_seen + 1,
+                        last_seen_session = :session_num,
+                        updated_at = NOW()
+                """), {
+                    "user_id": user_id, 
+                    "combination": combination, 
+                    "session_num": session_num
+                })
+            
+            db.commit()
+            logger.info(f"✅ Updated coverage tracking for user {user_id}, session {session_num}")
+            
+        except Exception as e:
+            logger.error(f"❌ Error updating student coverage tracking: {e}")
+            db.rollback()
+
     def get_coverage_weighted_question_pool(self, user_id: str, user_profile: Dict[str, Any], phase_info: Dict[str, Any], db: Session) -> List[Question]:
         """Get question pool optimized for coverage phase - diverse subcategory-type combinations"""
         try:
