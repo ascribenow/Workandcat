@@ -69,9 +69,10 @@ class AdvancedLLMEnrichmentService:
         self.retry_delays = [3, 7, 15, 30]
         self.timeout = 60  # Reduced timeout for better reliability (1 minute)
         
-        # Intelligent model switching for rate limit handling
+        # Model configuration with fallback
         self.primary_model = "gpt-4o"
-        self.fallback_model = "gpt-4o-mini" 
+        self.fallback_model = "gpt-4o-mini"
+        self.gemini_model = "gemini-pro"
         self.current_model = self.primary_model
         self.last_rate_limit_time = None
         self.rate_limit_recovery_interval = 1800  # 30 minutes before testing GPT-4o again
