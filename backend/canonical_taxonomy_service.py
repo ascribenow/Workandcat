@@ -107,23 +107,9 @@ class CanonicalTaxonomyService:
                     logger.info(f"📂 Fuzzy matched category: '{llm_category}' → '{cat}' (score: {difflib.SequenceMatcher(None, llm_category.lower(), cat.lower()).ratio():.2f})")
                     return cat
         
-        # Keyword-based fallback
-        category_keywords = {
-            "Arithmetic": ["arithmetic", "speed", "distance", "time", "work", "ratio", "proportion", "percentage", "average", "profit", "loss", "interest", "mixture", "alligation"],
-            "Algebra": ["algebra", "equation", "inequality", "progression", "function", "graph", "logarithm", "exponent", "polynomial"],
-            "Geometry and Mensuration": ["geometry", "mensuration", "triangle", "circle", "polygon", "coordinate", "trigonometry", "area", "volume"],
-            "Number System": ["number", "divisibility", "hcf", "lcm", "remainder", "modular", "base", "digit", "factorial"],
-            "Modern Math": ["permutation", "combination", "probability", "set", "venn"]
-        }
-        
-        llm_lower = llm_category.lower()
-        for canonical_cat, keywords in category_keywords.items():
-            if any(keyword in llm_lower for keyword in keywords):
-                logger.info(f"📂 Keyword matched category: '{llm_category}' → '{canonical_cat}'")
-                return canonical_cat
-                
-        logger.warning(f"⚠️ No category match found for: '{llm_category}'. Using default: 'Arithmetic'")
-        return "Arithmetic"  # Default fallback
+        # NO FALLBACK - If no good match found, return None to trigger quality failure
+        logger.warning(f"⚠️ No category match found for: '{llm_category}'. Quality verification will fail.")
+        return None
     
     def fuzzy_match_subcategory(self, llm_subcategory: str, canonical_category: str, threshold: float = 0.6) -> Optional[str]:
         """Find best canonical subcategory match within the given category"""
