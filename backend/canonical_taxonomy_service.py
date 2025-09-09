@@ -47,16 +47,11 @@ class CanonicalTaxonomyService:
         return question_types
     
     async def match_category(self, llm_category: str) -> Optional[str]:
-        """Find best canonical category match using Direct + Enhanced Semantic matching"""
+        """Find best canonical category match using Enhanced Semantic matching only"""
         if not llm_category:
             return None
-            
-        # Direct match first
-        if llm_category in self.categories:
-            logger.info(f"✅ Direct category match: '{llm_category}'")
-            return llm_category
         
-        # Enhanced LLM-assisted semantic analysis with descriptions
+        # Enhanced LLM-assisted semantic analysis (no direct matching)
         logger.info(f"🧠 Attempting enhanced semantic analysis for category: '{llm_category}'")
         semantic_match = await self._enhanced_semantic_category_match(llm_category)
         if semantic_match:
