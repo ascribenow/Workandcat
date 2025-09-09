@@ -82,22 +82,15 @@ class CanonicalTaxonomyService:
         return None
     
     async def match_question_type(self, llm_type: str, canonical_category: str, canonical_subcategory: str) -> Optional[str]:
-        """Find best canonical question type match using Direct + Enhanced Semantic matching"""
+        """Find best canonical question type match using Enhanced Semantic matching only"""
         if not llm_type or not canonical_category or not canonical_subcategory:
             return None
             
         if (canonical_category not in CANONICAL_TAXONOMY or 
             canonical_subcategory not in CANONICAL_TAXONOMY[canonical_category]):
             return None
-            
-        available_types = list(CANONICAL_TAXONOMY[canonical_category][canonical_subcategory]['types'].keys())
         
-        # Direct match first
-        if llm_type in available_types:
-            logger.info(f"✅ Direct question type match: '{llm_type}'")
-            return llm_type
-        
-        # Enhanced LLM-assisted semantic analysis with descriptions
+        # Enhanced LLM-assisted semantic analysis with descriptions (no direct matching)
         logger.info(f"🧠 Attempting enhanced semantic analysis for question type: '{llm_type}' in {canonical_category} → {canonical_subcategory}")
         semantic_match = await self._enhanced_semantic_question_type_match(llm_type, canonical_category, canonical_subcategory)
         if semantic_match:
