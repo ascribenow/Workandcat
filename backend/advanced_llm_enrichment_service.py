@@ -476,8 +476,8 @@ class AdvancedLLMEnrichmentService:
         # Fuzzy match and validate taxonomy fields
         if 'category' in response_data and 'subcategory' in response_data and 'type_of_question' in response_data:
             try:
-                # Get canonical taxonomy path using STRICT fuzzy matching
-                canonical_category, canonical_subcategory, canonical_type = canonical_taxonomy_service.get_canonical_taxonomy_path(
+                # Get canonical taxonomy path using STRICT fuzzy matching + LLM semantic analysis
+                canonical_category, canonical_subcategory, canonical_type = await canonical_taxonomy_service.get_canonical_taxonomy_path(
                     response_data.get('category', ''),
                     response_data.get('subcategory', ''),
                     response_data.get('type_of_question', '')
