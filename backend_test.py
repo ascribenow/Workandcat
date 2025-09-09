@@ -3002,29 +3002,32 @@ if __name__ == "__main__":
     
     print("🚀 CAT BACKEND COMPREHENSIVE TESTING SUITE")
     print("=" * 80)
-    print("Testing frequency band determination logic as requested in review")
+    print("Testing Enhanced Semantic Matching Integration as requested in review")
     print("")
     
-    # Run frequency band determination logic testing (as requested in review)
-    print("🎯 STARTING FREQUENCY BAND DETERMINATION LOGIC TESTING")
-    frequency_success = tester.test_frequency_band_determination_logic()
+    # Run Enhanced Semantic Matching Integration Testing (PRIMARY FOCUS)
+    print("🎯 STARTING ENHANCED SEMANTIC MATCHING INTEGRATION TESTING")
+    semantic_success = tester.test_enhanced_semantic_matching_integration()
     
     print("\n" + "=" * 80)
     print("🎯 FINAL TESTING SUMMARY")
     print("=" * 80)
     
-    if frequency_success:
-        print("🎉 FREQUENCY BAND DETERMINATION LOGIC: ✅ FUNCTIONAL")
-        print("   - Frequency scores correctly map to bands")
-        print("   - CSV upload integrates frequency calculation")
-        print("   - Dynamic conceptual matching working")
-        print("   - Fallback case handles errors properly")
-        print("   - Admin endpoints work with updated logic")
+    if semantic_success:
+        print("🎉 ENHANCED SEMANTIC MATCHING INTEGRATION: ✅ FUNCTIONAL")
+        print("   - canonical_taxonomy_service uses enhanced semantic matching (no fuzzy matching)")
+        print("   - LLM-generated categories/subcategories/types properly matched using descriptions")
+        print("   - Enrichment quality verification works with new semantic matching")
+        print("   - Non-canonical terms properly mapped using enhanced semantic analysis")
+        print("   - /api/admin/test-advanced-enrichment endpoint working with enhanced semantic matching")
+        print("   - Complete PYQ enrichment pipeline working with enhanced semantic matching")
         print("   🏆 PRODUCTION READY")
     else:
-        print("❌ FREQUENCY BAND DETERMINATION LOGIC: ⚠️ ISSUES DETECTED")
-        print("   - Some components may need attention")
-        print("   - Review individual test results above")
+        print("❌ ENHANCED SEMANTIC MATCHING INTEGRATION: ⚠️ ISSUES DETECTED")
+        print("   - Check advanced_llm_enrichment_service.py integration")
+        print("   - Verify canonical_taxonomy_service.get_canonical_taxonomy_path() functionality")
+        print("   - Test /api/admin/test-advanced-enrichment endpoint accessibility")
+        print("   - Validate enhanced semantic analysis without fuzzy matching")
         print("   🔧 REQUIRES FIXES")
     
     print(f"\nTotal Tests Run: {tester.tests_run}")
@@ -3033,7 +3036,7 @@ if __name__ == "__main__":
     
     print("\n🎯 TESTING COMPLETE - Review results above for detailed analysis")
     
-    if frequency_success:
+    if semantic_success:
         sys.exit(0)
     else:
         sys.exit(1)
