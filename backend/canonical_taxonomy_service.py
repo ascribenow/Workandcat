@@ -203,13 +203,13 @@ class CanonicalTaxonomyService:
         """Get complete canonical taxonomy path with fuzzy matching"""
         
         # Step 1: Match category
-        canonical_category = self.fuzzy_match_category(llm_category)
+        canonical_category = await self.fuzzy_match_category(llm_category)
         
         # Step 2: Match subcategory within canonical category
-        canonical_subcategory = self.fuzzy_match_subcategory(llm_subcategory, canonical_category)
+        canonical_subcategory = await self.fuzzy_match_subcategory(llm_subcategory, canonical_category)
         
         # Step 3: Match question type within canonical subcategory
-        canonical_type = self.fuzzy_match_question_type(llm_type, canonical_category, canonical_subcategory)
+        canonical_type = await self.fuzzy_match_question_type(llm_type, canonical_category, canonical_subcategory)
         
         logger.info(f"🎯 Complete taxonomy mapping:")
         logger.info(f"   Category: '{llm_category}' → '{canonical_category}'")
