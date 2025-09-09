@@ -823,7 +823,8 @@ Return ONLY this JSON:
                 
                 # Add JSON validation and error handling
                 try:
-                    difficulty_data = json.loads(difficulty_text)
+                    clean_json = extract_json_from_response(difficulty_text)
+                    difficulty_data = json.loads(clean_json)
                 except json.JSONDecodeError as json_err:
                     logger.warning(f"⚠️ JSON parsing failed in difficulty assessment: {json_err}")
                     logger.warning(f"Raw response: {difficulty_text}")
