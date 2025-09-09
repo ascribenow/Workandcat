@@ -231,7 +231,7 @@ class AdaptiveSessionLogic:
             db.rollback()
 
     def get_coverage_weighted_question_pool(self, user_id: str, user_profile: Dict[str, Any], phase_info: Dict[str, Any], db: Session) -> List[Question]:
-        """Get question pool optimized for coverage phase - diverse subcategory-type combinations"""
+        """Get question pool optimized for coverage phase - prioritizes unseen subcategory-type combinations per student"""
         try:
             # Get all active questions
             result = db.execute(
@@ -252,15 +252,41 @@ class AdaptiveSessionLogic:
                     coverage_groups[coverage_key] = []
                 coverage_groups[coverage_key].append(question)
             
-            # For coverage phase, select 1-2 questions from each unique combination
-            coverage_pool = []
-            for coverage_key, questions in coverage_groups.items():
-                # Take top 2 questions from each combination (sorted by difficulty/frequency)
-                sorted_questions = sorted(questions, key=lambda q: (
-                    q.difficulty_score or 0.5,  # Medium difficulty preference
-                    q.pyq_frequency_score or 0.5
-                ))[:2]
-                coverage_pool.extend(sorted_questions)
+            # PHASE A ENHANCEMENT: Prioritize unseen combinations for this student
+            if phase_info.get('phase') == 'A':
+                seen_combinations = self.get_student_seen_combinations(user_id, db)
+                logger.info(f"User {user_id} has seen {len(seen_combinations)} combinations in Phase A")
+                
+                # Priority 1: Unseen combinations (NEW combinations for this student)
+                unseen_pool = []
+                # Priority 2: Seen combinations (fallback)
+                seen_pool = []
+                
+                for coverage_key, questions in coverage_groups.items():
+                    # Take top 2 questions from each combination
+                    sorted_questions = sorted(questions, key=lambda q: (
+                        q.difficulty_score or 0.5,  # Medium difficulty preference
+                        q.pyq_frequency_score or 0.5
+                    ))[:2]
+                    
+                    if coverage_key not in seen_combinations:
+                        unseen_pool.extend(sorted_questions)  # NEW combinations first
+                    else:
+                        seen_pool.extend(sorted_questions)    # Seen combinations as fallback
+                
+                # Combine with unseen combinations prioritized
+                coverage_pool = unseen_pool + seen_pool
+                logger.info(f"Phase A coverage: {len(unseen_pool)} from unseen combinations, {len(seen_pool)} from seen combinations")
+                
+            else:
+                # Phase B/C: Use existing logic (no per-student prioritization needed)
+                coverage_pool = []
+                for coverage_key, questions in coverage_groups.items():
+                    sorted_questions = sorted(questions, key=lambda q: (
+                        q.difficulty_score or 0.5,
+                        q.pyq_frequency_score or 0.5
+                    ))[:2]
+                    coverage_pool.extend(sorted_questions)
             
             logger.info(f"Coverage pool: {len(coverage_pool)} questions from {len(coverage_groups)} combinations")
             return coverage_pool
