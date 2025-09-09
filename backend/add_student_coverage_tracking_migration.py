@@ -29,8 +29,8 @@ def run_migration():
         # Create the coverage tracking table
         db.execute(text("""
             CREATE TABLE IF NOT EXISTS student_coverage_tracking (
-                id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-                user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                id VARCHAR(36) PRIMARY KEY DEFAULT gen_random_uuid()::text,
+                user_id VARCHAR(36) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
                 subcategory_type_combination VARCHAR(300) NOT NULL,
                 sessions_seen INTEGER DEFAULT 1,
                 first_seen_session INTEGER NOT NULL,
