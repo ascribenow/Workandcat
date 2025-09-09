@@ -1652,7 +1652,7 @@ class CATBackendTester:
             success, response = self.run_test(
                 "Non-Canonical Terms Mapping Test", 
                 "POST", 
-                "admin/test-advanced-enrichment", 
+                "admin/test/immediate-enrichment", 
                 [200, 500], 
                 test_data, 
                 admin_headers
