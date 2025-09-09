@@ -963,7 +963,8 @@ Return ONLY this JSON format with sophisticated, specific content."""
                 
                 # Add JSON validation and error handling
                 try:
-                    concept_data = json.loads(concept_text)
+                    clean_json = extract_json_from_response(concept_text)
+                    concept_data = json.loads(clean_json)
                     
                     # Validate required fields
                     required_fields = ["core_concepts", "solution_method", "operations_required"]
