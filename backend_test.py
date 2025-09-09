@@ -1327,7 +1327,7 @@ class CATBackendTester:
         print("2. Enrichment Service Integration: Test canonical_taxonomy_service.get_canonical_taxonomy_path()")
         print("   works with the new enhanced semantic matching")
         print("3. Complete PYQ Enrichment Pipeline: Test sample PYQ enrichment with enhanced semantic matching")
-        print("4. API Endpoint Verification: Test /api/admin/test-advanced-enrichment endpoint")
+        print("4. API Endpoint Verification: Test /api/admin/test/immediate-enrichment endpoint")
         print("")
         print("SPECIFIC VALIDATION POINTS:")
         print("- ✅ Verify canonical_taxonomy_service uses enhanced semantic matching (no fuzzy matching)")
