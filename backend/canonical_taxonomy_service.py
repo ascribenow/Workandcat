@@ -199,7 +199,7 @@ class CanonicalTaxonomyService:
         logger.warning(f"⚠️ No question type match found (including semantic analysis) for: '{llm_type}' in {canonical_category} → {canonical_subcategory}. Quality verification will fail.")
         return None
     
-    def get_canonical_taxonomy_path(self, llm_category: str, llm_subcategory: str, llm_type: str) -> Tuple[str, str, str]:
+    async def get_canonical_taxonomy_path(self, llm_category: str, llm_subcategory: str, llm_type: str) -> Tuple[str, str, str]:
         """Get complete canonical taxonomy path with fuzzy matching"""
         
         # Step 1: Match category
