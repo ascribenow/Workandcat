@@ -750,6 +750,28 @@ class PrivilegedEmail(Base):
     notes = Column(String, nullable=True)  # Optional notes about why this email is privileged
 
 
+class StudentCoverageTracking(Base):
+    """Student Coverage Tracking - tracks which subcategory::type combinations each student has seen"""
+    __tablename__ = "student_coverage_tracking"
+    
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = Column(String(36), ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
+    subcategory_type_combination = Column(String(300), nullable=False)  # e.g., "Time-Speed-Distance::Basics"
+    sessions_seen = Column(Integer, default=1)
+    first_seen_session = Column(Integer, nullable=False)
+    last_seen_session = Column(Integer, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow)
+    
+    # Relationships
+    user = relationship("User", back_populates="coverage_tracking")
+    
+    # Unique constraint
+    __table_args__ = (
+        UniqueConstraint('user_id', 'subcategory_type_combination', name='uq_user_coverage_combination'),
+    )
+
+
 # Database utility functions
 
 def get_db():
