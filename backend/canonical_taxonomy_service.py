@@ -83,7 +83,7 @@ class CanonicalTaxonomyService:
                 question_types.extend(subcategory_data)
         return question_types
     
-    def fuzzy_match_category(self, llm_category: str, threshold: float = 0.6) -> Optional[str]:
+    def fuzzy_match_category(self, llm_category: str, threshold: float = 0.8) -> Optional[str]:
         """Find best canonical category match for LLM output"""
         if not llm_category:
             return None
