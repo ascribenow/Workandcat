@@ -29,24 +29,14 @@ def run_migration():
         # Create the coverage tracking table
         db.execute(text("""
             CREATE TABLE IF NOT EXISTS student_coverage_tracking (
-                id VARCHAR(36) PRIMARY KEY DEFAULT (
-                    CASE 
-                        WHEN random() IS NOT NULL THEN 
-                            lower(hex(randomblob(4))) || '-' || 
-                            lower(hex(randomblob(2))) || '-' || 
-                            lower(hex(randomblob(2))) || '-' || 
-                            lower(hex(randomblob(2))) || '-' || 
-                            lower(hex(randomblob(6)))
-                        ELSE ''
-                    END
-                ),
-                user_id VARCHAR(36) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
                 subcategory_type_combination VARCHAR(300) NOT NULL,
                 sessions_seen INTEGER DEFAULT 1,
                 first_seen_session INTEGER NOT NULL,
                 last_seen_session INTEGER NOT NULL,
-                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                created_at TIMESTAMP DEFAULT NOW(),
+                updated_at TIMESTAMP DEFAULT NOW(),
                 
                 UNIQUE(user_id, subcategory_type_combination)
             )
