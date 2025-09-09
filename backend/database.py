@@ -396,6 +396,7 @@ class User(Base):
     mastery = relationship("Mastery", back_populates="user")
     plans = relationship("Plan", back_populates="user")
     sessions = relationship("Session", back_populates="user")
+    coverage_tracking = relationship("StudentCoverageTracking", back_populates="user")
 
 
 class ReferralUsage(Base):
