@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session
 import asyncio
 import re
 from database import Question, SessionLocal
-from standardized_enrichment_engine import StandardizedEnrichmentEngine
+# Removed old enrichment engine import
 
 logger = logging.getLogger(__name__)
 
