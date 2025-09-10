@@ -258,6 +258,28 @@ Analyze the ORIGINAL PROBLEM and find the best canonical taxonomy match based on
                     if canonical_type == "NO_MATCH":
                         canonical_type = None
                     
+                    # CRITICAL FIX: Validate and correct case mismatches
+                    from canonical_taxonomy_data import CANONICAL_TAXONOMY
+                    
+                    # Fix category case mismatch
+                    if canonical_category:
+                        for canon_cat in CANONICAL_TAXONOMY.keys():
+                            if canon_cat.lower() == canonical_category.lower():
+                                canonical_category = canon_cat
+                                break
+                    
+                    # Validate complete path exists
+                    if (canonical_category and canonical_subcategory and canonical_type and
+                        canonical_category in CANONICAL_TAXONOMY and
+                        canonical_subcategory in CANONICAL_TAXONOMY[canonical_category] and
+                        canonical_type in CANONICAL_TAXONOMY[canonical_category][canonical_subcategory]['types']):
+                        logger.info(f"✅ Taxonomy path validated: {canonical_category} → {canonical_subcategory} → {canonical_type}")
+                    else:
+                        logger.warning(f"⚠️ Taxonomy path validation failed, using None values")
+                        canonical_category = None
+                        canonical_subcategory = None
+                        canonical_type = None
+                    
                     logger.info(f"✅ Context-aware semantic matching completed with {model_used}")
                     return canonical_category, canonical_subcategory, canonical_type
                     
