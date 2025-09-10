@@ -2,7 +2,7 @@ import requests
 import json
 
 # Test the specific failing endpoints
-base_url = "https://semantic-taxonomy.preview.emergentagent.com/api"
+base_url = "https://llm-utils.preview.emergentagent.com/api"
 
 # Login as student first
 login_data = {
