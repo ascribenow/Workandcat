@@ -5963,8 +5963,57 @@ async def enrich_checker_regular(
         
         logger.info(f"🔍 Starting Enrich Checker for Regular Questions (limit: {limit})")
         
-        # Regular questions enrich checker functionality removed - use regular enrichment service instead
-        result = {"success": False, "error": "Old enrich checker service removed"}
+        # Use regular enrichment service for enrich checker functionality
+        try:
+            from regular_enrichment_service import regular_questions_enrichment_service
+            
+            # Get questions that need quality checking
+            db = SessionLocal()
+            try:
+                query = select(Question).where(
+                    or_(
+                        Question.quality_verified == False,
+                        Question.right_answer.like('%placeholder%'),
+                        Question.category.is_(None)
+                    )
+                )
+                if limit:
+                    query = query.limit(limit)
+                
+                result = db.execute(query)
+                questions_to_check = result.scalars().all()
+                
+                logger.info(f"📊 Found {len(questions_to_check)} regular questions for quality checking")
+                
+                # Process questions for quality improvement
+                processed_count = 0
+                for question in questions_to_check:
+                    try:
+                        # Trigger enrichment for questions with quality issues
+                        enrichment_result = await regular_questions_enrichment_service.enrich_regular_question(
+                            stem=question.stem,
+                            admin_answer=question.right_answer
+                        )
+                        
+                        if enrichment_result.get("success"):
+                            processed_count += 1
+                            
+                    except Exception as q_error:
+                        logger.error(f"Failed to process question {question.id}: {q_error}")
+                
+                result = {
+                    "success": True, 
+                    "message": f"Processed {processed_count} regular questions for quality improvement",
+                    "questions_processed": processed_count,
+                    "total_found": len(questions_to_check)
+                }
+                
+            finally:
+                db.close()
+                
+        except Exception as service_error:
+            logger.error(f"Regular enrichment service error: {service_error}")
+            result = {"success": False, "error": f"Enrichment service error: {str(service_error)}"}
         
         if result["success"]:
             check_results = result["check_results"]
