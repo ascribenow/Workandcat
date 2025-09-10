@@ -5835,15 +5835,16 @@ async def enrich_checker_regular_background(
         
         logger.info(f"🚀 Starting background regular questions enrichment for {admin_email}")
         
-        # Start background job
-        job_id = background_jobs.start_regular_questions_enrichment(
-            admin_email=admin_email,
-            total_questions=total_questions
-        )
+        # Start background job - TEMPORARILY DISABLED
+        # job_id = background_jobs.start_regular_questions_enrichment(
+        #     admin_email=admin_email,
+        #     total_questions=total_questions
+        # )
+        job_id = "temp_disabled_job_id"  # Temporary placeholder
         
         return {
             "success": True,
-            "message": "Regular Questions enrichment job started in background",
+            "message": "Regular Questions enrichment job started in background (TEMP DISABLED)",
             "job_id": job_id,
             "admin_email": admin_email,
             "notification": "You will receive an email when the enrichment is complete",
