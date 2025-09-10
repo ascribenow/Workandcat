@@ -1411,9 +1411,9 @@ class CATBackendTester:
             
             # Test admin questions endpoint
             success, response = self.run_test(
-                "Admin Questions Retrieval", 
+                "Regular Questions Retrieval", 
                 "GET", 
-                "admin/questions?limit=10", 
+                "questions?limit=10", 
                 [200, 404], 
                 None,
                 admin_headers
