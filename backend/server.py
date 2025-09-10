@@ -5933,7 +5933,8 @@ async def list_running_enrichment_jobs() -> Dict[str, Any]:
     List all currently running enrichment jobs
     """
     try:
-        running_jobs = background_jobs.list_running_jobs()
+        # running_jobs = background_jobs.list_running_jobs()  # TEMPORARILY DISABLED
+        running_jobs = []  # Placeholder - no running jobs since background jobs are disabled
         
         return {
             "success": True,
