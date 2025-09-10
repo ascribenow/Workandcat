@@ -11545,38 +11545,43 @@ class CATBackendTester:
 if __name__ == "__main__":
     tester = CATBackendTester()
     
-    print("🧪 CAT BACKEND COMPREHENSIVE TESTING SUITE")
-    print("=" * 80)
-    print("Testing all critical backend functionality with real API calls")
-    print("Base URL:", tester.base_url)
-    print("=" * 80)
+    print("🚀 CAT BACKEND PHASE 3B ADMIN TESTING SUITE")
+    print("=" * 60)
+    print("Testing Phase 3B Admin Endpoints to achieve 100% success rate")
+    print("Authentication: sumedhprabhu18@gmail.com/admin2025")
+    print("=" * 60)
     
-    # Run Manual PYQ Enrichment Trigger Testing as requested in review
-    print("\n" + "🎯" * 20 + " STARTING MANUAL PYQ ENRICHMENT TRIGGER TESTING " + "🎯" * 20)
-    
+    # Run Phase 3B comprehensive testing
     try:
-        # Test Manual PYQ Enrichment Trigger
-        pyq_trigger_success = tester.test_manual_pyq_enrichment_trigger()
+        print("\n" + "="*80)
+        print("STARTING PHASE 3B ADMIN ENDPOINTS COMPREHENSIVE TESTING")
+        print("="*80)
+        phase_3b_success = tester.test_phase_3b_admin_endpoints_comprehensive()
         
-        print("\n" + "=" * 80)
-        print("🏁 MANUAL PYQ ENRICHMENT TRIGGER TESTING COMPLETED")
-        print("=" * 80)
+        # Final summary
+        print("\n" + "="*80)
+        print("🎯 PHASE 3B ADMIN TESTING FINAL SUMMARY")
+        print("="*80)
         
-        if pyq_trigger_success:
-            print("🎉 MANUAL PYQ ENRICHMENT TRIGGER: FULLY FUNCTIONAL")
-            print("   ✅ Successfully checked current status of remaining questions")
-            print("   ✅ Manual trigger endpoint accessible and working")
-            print("   ✅ Enrichment process initiated for remaining questions")
-            print("   ✅ Queue status confirmed and questions being processed")
-            print("   🏆 OBJECTIVE ACHIEVED - Remaining ~8 questions queued for enrichment")
+        print(f"Phase 3B Admin Endpoints Testing: {'✅ PASS' if phase_3b_success else '❌ FAIL'}")
+        
+        if phase_3b_success:
+            print("\n🎉 PHASE 3B: 100% SUCCESS ACHIEVED!")
+            print("   ✅ All critical admin endpoint issues resolved")
+            print("   ✅ CSV upload mechanism working correctly")
+            print("   ✅ Database constraint issues fixed")
+            print("   ✅ Enrich checker problems resolved")
+            print("   ✅ Data retrieval issues fixed")
+            print("   🏆 ADMIN ENDPOINTS PRODUCTION-READY")
         else:
-            print("⚠️ MANUAL PYQ ENRICHMENT TRIGGER: ISSUES DETECTED")
-            print("   🔧 Some components need attention")
-            print("   📋 Review test results above for specific issues")
+            print("\n⚠️ PHASE 3B: ISSUES STILL PRESENT")
+            print("   Some critical admin endpoint issues remain")
+            print("   Review failed tests and apply fixes")
+            print("   🔧 ADDITIONAL DEBUGGING REQUIRED")
         
-        print(f"\nTotal Tests Run: {tester.tests_run}")
-        print(f"Total Tests Passed: {tester.tests_passed}")
-        print(f"Overall Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%")
+        print(f"\nTotal API calls made: {tester.tests_run}")
+        print(f"Successful API calls: {tester.tests_passed}")
+        print(f"API Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%")
         
     except KeyboardInterrupt:
         print("\n⚠️ Testing interrupted by user")
