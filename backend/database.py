@@ -302,7 +302,7 @@ class PYQQuestion(Base):
     
     # NEW: Concept storage fields for advanced matching
     core_concepts = Column(Text, nullable=True)  # JSON: extracted mathematical concepts
-    solution_method = Column(String(100), nullable=True)  # Primary solution approach
+    solution_method = Column(String(500), nullable=True)  # Primary solution approach (increased from 100)
     concept_difficulty = Column(Text, nullable=True)  # JSON: difficulty indicators
     operations_required = Column(Text, nullable=True)  # JSON: mathematical operations
     problem_structure = Column(String(50), nullable=True)  # Structure pattern type
