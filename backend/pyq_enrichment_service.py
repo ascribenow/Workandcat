@@ -159,6 +159,28 @@ class PYQEnrichmentService:
         
         logger.info("✅ PYQEnrichmentService initialized with OpenAI + Gemini fallback")
     
+    def _build_canonical_taxonomy_context(self) -> str:
+        """Build canonical taxonomy context for LLM prompt"""
+        from canonical_taxonomy_data import CANONICAL_TAXONOMY
+        
+        context_lines = []
+        for category, subcategories in CANONICAL_TAXONOMY.items():
+            context_lines.append(f"\n{category.upper()}:")
+            
+            for subcategory, data in subcategories.items():
+                # Add subcategory with description
+                description = data['description']
+                # Truncate for prompt efficiency
+                short_desc = description[:200] + "..." if len(description) > 200 else description
+                context_lines.append(f"  • {subcategory}: {short_desc}")
+                
+                # Add sample question types
+                question_types = list(data['types'].keys())[:3]  # Show first 3 types
+                if question_types:
+                    context_lines.append(f"    Types: {', '.join(question_types)}")
+        
+        return '\n'.join(context_lines)
+    
     async def enrich_pyq_question(self, stem: str, current_answer: str = None) -> Dict[str, Any]:
         """
         Generate sophisticated enrichment analysis for PYQ questions
