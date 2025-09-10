@@ -4906,7 +4906,7 @@ async def upload_questions_csv(
                     validation_message = "No admin answer to validate"
                     
                     if admin_answer and question.right_answer:
-                        validation_result = await unified_enricher._validate_answer_consistency(
+                        validation_result = await regular_questions_enrichment_service._validate_answer_consistency(
                             admin_answer=admin_answer,
                             ai_right_answer=question.right_answer,
                             question_stem=stem
