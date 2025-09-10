@@ -31,6 +31,7 @@ from google_drive_utils import GoogleDriveImageFetcher
 
 from adaptive_session_logic import AdaptiveSessionLogic
 from mcq_validation_service import mcq_validation_service
+from regular_enrichment_service import regular_questions_enrichment_service
 from database import (
     get_async_compatible_db, get_database, init_database, User, Question, Topic, Attempt, Mastery, Plan, PlanUnit, Session,
     PYQIngestion, PYQPaper, PYQQuestion, DoubtsConversation, PrivilegedEmail, AsyncSession, SessionLocal,
