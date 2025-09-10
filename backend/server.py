@@ -5880,11 +5880,12 @@ async def enrich_checker_pyq_background(
         
         logger.info(f"🚀 Starting background PYQ questions enrichment for {admin_email}")
         
-        # Start background job
-        job_id = background_jobs.start_pyq_questions_enrichment(
-            admin_email=admin_email,
-            total_questions=total_questions
-        )
+        # Start background job - TEMPORARILY DISABLED
+        # job_id = background_jobs.start_pyq_questions_enrichment(
+        #     admin_email=admin_email,
+        #     total_questions=total_questions
+        # )
+        job_id = "temp_disabled_pyq_job_id"  # Temporary placeholder
         
         return {
             "success": True,
