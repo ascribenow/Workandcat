@@ -5912,7 +5912,8 @@ async def get_enrichment_job_status(job_id: str) -> Dict[str, Any]:
     Get status of a background enrichment job
     """
     try:
-        job_status = background_jobs.get_job_status(job_id)
+        # job_status = background_jobs.get_job_status(job_id)  # TEMPORARILY DISABLED
+        job_status = {"status": "disabled", "message": "Background jobs temporarily disabled"}  # Placeholder
         
         if "error" in job_status:
             raise HTTPException(status_code=404, detail="Job not found")
