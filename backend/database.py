@@ -161,22 +161,7 @@ class Question(Base):
     # Removed is_active validator and ensure_llm_difficulty_assessment method as per requirements
 
 
-class QuestionOption(Base):
-    """Question options - cache of last MCQ set shown"""
-    __tablename__ = "question_options"
-    
-    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    question_id = Column(String(36), ForeignKey('questions.id'), nullable=False)
-    choice_a = Column(Text, nullable=True)
-    choice_b = Column(Text, nullable=True)
-    choice_c = Column(Text, nullable=True)
-    choice_d = Column(Text, nullable=True)
-    correct_label = Column(String(1), nullable=False)  # A|B|C|D
-    generated_at = Column(DateTime, default=datetime.utcnow)
-    
-    # Relationships
-    question = relationship("Question", back_populates="question_options")
-
+# QuestionOption model REMOVED as per requirements - no more relationships
 
 # PYQ (Previous Year Questions) Tables
 
