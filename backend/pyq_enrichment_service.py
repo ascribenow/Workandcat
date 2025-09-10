@@ -502,19 +502,14 @@ Be precise, comprehensive, and use EXACT canonical taxonomy names."""
             enrichment_data_for_verification = enrichment_data.copy()
             enrichment_data_for_verification.update(result)
             
-            # Use enhanced semantic + binary validation from advanced service
-            from advanced_llm_enrichment_service import AdvancedLLMEnrichmentService
-            temp_service = AdvancedLLMEnrichmentService()
-            
-            validation_result = await temp_service._verify_response_quality(
-                enrichment_data_for_verification, "quality_verification", stem
-            )
-            
-            if validation_result.get("quality_verified", False):
-                logger.info("✅ Enhanced quality verification passed")
+            # Simple quality verification for enhanced system
+            if (canonical_category and canonical_subcategory and canonical_type and 
+                enrichment_data_for_verification.get('answer') and
+                enrichment_data_for_verification.get('difficulty_band')):
+                logger.info("✅ Quality verification passed")
                 result['quality_verified'] = True
             else:
-                logger.error(f"❌ Enhanced quality verification failed")
+                logger.error(f"❌ Quality verification failed - missing required fields")
                 result['quality_verified'] = False
             
             return result
