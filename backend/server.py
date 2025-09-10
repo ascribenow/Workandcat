@@ -6005,11 +6005,8 @@ async def enrich_checker_pyq(
         
         logger.info(f"🔍 Starting Enrich Checker for PYQ Questions (limit: {limit})")
         
-        # Initialize Enrich Checker Service
-        enrich_checker = EnhancedEnrichmentCheckerService()
-        
-        # Run quality check and re-enrichment
-        result = await enrich_checker.check_and_enrich_pyq_questions(db, limit)
+        # PYQ questions enrich checker functionality removed - use PYQ enrichment service instead  
+        result = {"success": False, "error": "Old enrich checker service removed"}
         
         if result["success"]:
             check_results = result["check_results"]
