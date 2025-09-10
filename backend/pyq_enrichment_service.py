@@ -207,15 +207,22 @@ class PYQEnrichmentService:
     
     async def _perform_comprehensive_analysis(self, stem: str, current_answer: str = None) -> Dict[str, Any]:
         """
-        Stage 1-4 CONSOLIDATED: Single comprehensive LLM analysis
+        Stage 1-4 CONSOLIDATED: Single comprehensive LLM analysis with canonical taxonomy context
         FIELDS UPDATED: answer, category, subcategory, type_of_question, difficulty_band, difficulty_score, 
                        core_concepts, solution_method, concept_difficulty, operations_required, 
                        problem_structure, concept_keywords
         """
         
-        system_message = """You are a world-class CAT mathematics expert with deep expertise in quantitative reasoning and educational assessment.
+        # Build canonical taxonomy context for the LLM
+        canonical_context = self._build_canonical_taxonomy_context()
+        
+        system_message = f"""You are a world-class CAT mathematics expert with deep expertise in quantitative reasoning and educational assessment.
 
 Your task is to perform a COMPREHENSIVE analysis of this PYQ question in ONE complete response.
+
+CANONICAL TAXONOMY REFERENCE (USE EXACT NAMES):
+
+{canonical_context}
 
 COMPREHENSIVE ANALYSIS REQUIRED:
 
@@ -223,10 +230,12 @@ COMPREHENSIVE ANALYSIS REQUIRED:
    - Calculate the precise mathematical answer with step-by-step reasoning
    - Show clear mathematical logic and verify the answer
 
-2. CLASSIFY THE QUESTION:
-   - Category: Main mathematical domain
-   - Subcategory: Specific mathematical area  
-   - Type of Question: Very specific question archetype
+2. CLASSIFY THE QUESTION using CANONICAL TAXONOMY:
+   - Category: Choose from [Arithmetic, Algebra, Geometry and Mensuration, Number System, Modern Math]
+   - Subcategory: Use EXACT subcategory name from canonical reference above
+   - Type of Question: Use EXACT question type name from canonical reference above
+   
+   IMPORTANT: Analyze the TRUE MATHEMATICAL DOMAIN of the problem, not just surface terminology.
 
 3. SELF-ASSESS DIFFICULTY based on YOUR solving experience:
    - Conceptual Complexity: How many concepts did you integrate?
@@ -245,22 +254,22 @@ COMPREHENSIVE ANALYSIS REQUIRED:
    - Key mathematical keywords
 
 Return ONLY this JSON format:
-{
+{{
   "answer": "precise answer with mathematical reasoning",
-  "category": "mathematical domain",
-  "subcategory": "specific area", 
-  "type_of_question": "question archetype",
+  "category": "exact canonical category name",
+  "subcategory": "exact canonical subcategory name", 
+  "type_of_question": "exact canonical question type name",
   "difficulty_band": "Easy/Medium/Hard",
   "difficulty_score": 3.2,
   "core_concepts": ["concept1", "concept2", "concept3"],
   "solution_method": "methodological approach",
-  "concept_difficulty": {"prerequisites": ["req1"], "cognitive_barriers": ["barrier1"], "mastery_indicators": ["indicator1"]},
+  "concept_difficulty": {{"prerequisites": ["req1"], "cognitive_barriers": ["barrier1"], "mastery_indicators": ["indicator1"]}},
   "operations_required": ["operation1", "operation2"],
   "problem_structure": "structural_analysis_type",
   "concept_keywords": ["keyword1", "keyword2"]
-}
+}}
 
-Be precise, comprehensive, and demonstrate superior mathematical intelligence."""
+Be precise, comprehensive, and use EXACT canonical taxonomy names."""
 
         user_message = f"PYQ Question: {stem}\nCurrent answer (if any): {current_answer or 'Not provided'}"
         
