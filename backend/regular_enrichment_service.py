@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 """
 Regular Questions Enrichment Service
-Specialized enrichment service for Questions table (46 columns)
-Replicates the advanced LLM enrichment process for regular questions
+Specialized enrichment service for Questions table - using same logic as PYQ enrichment
 """
 
 import os
@@ -23,7 +22,7 @@ logger = logging.getLogger(__name__)
 class RegularQuestionsEnrichmentService:
     """
     Specialized enrichment service for regular questions table
-    Handles 46-column schema with comprehensive question enrichment
+    Uses SAME LOGIC as PYQ enrichment for consistency
     """
     
     def __init__(self):
@@ -67,64 +66,46 @@ class RegularQuestionsEnrichmentService:
         
         logger.info("✅ RegularQuestionsEnrichmentService initialized with OpenAI + Gemini fallback")
     
-    async def enrich_regular_question(self, stem: str, admin_answer: str = None, solution_approach: str = None, principle_to_remember: str = None) -> Dict[str, Any]:
+    async def enrich_regular_question(self, stem: str, current_answer: str = None) -> Dict[str, Any]:
         """
-        Generate sophisticated enrichment analysis for regular questions
+        Generate comprehensive enrichment analysis for regular questions
+        SAME LOGIC AS PYQ ENRICHMENT for consistency
         
         Args:
             stem: Question text
-            admin_answer: Admin-provided answer (existing)
-            solution_approach: Admin-provided solution approach (existing)
-            principle_to_remember: Admin-provided principle (existing)
+            current_answer: Current answer (from CSV)
             
         Returns:
-            Dict with enrichment data for questions table (46 columns)
+            Dict with enrichment data for questions table
         """
         try:
-            logger.info(f"🧠 Starting regular question enrichment analysis...")
+            logger.info(f"🧠 Starting CONSOLIDATED regular question enrichment analysis...")
             logger.info(f"📚 Question: {stem[:100]}...")
             
-            enrichment_data = {}
+            # CONSOLIDATED LLM CALL (same as PYQ)
+            logger.info("🎯 Performing consolidated LLM enrichment (stages 1-4)...")
+            enrichment_result = await self._consolidated_llm_enrichment(stem, current_answer)
             
-            # Step 1: Deep Mathematical Analysis
-            logger.info("🔬 Step 1: Deep mathematical analysis...")
-            deep_analysis = await self._perform_deep_mathematical_analysis(stem, admin_answer)
-            enrichment_data.update(deep_analysis)
+            if not enrichment_result["success"]:
+                logger.error(f"❌ Consolidated enrichment failed: {enrichment_result.get('error')}")
+                return enrichment_result
             
-            # Step 2: Sophisticated Classification  
-            logger.info("🏛️ Step 2: Sophisticated classification...")
-            classification = await self._perform_sophisticated_classification(stem, deep_analysis)
-            enrichment_data.update(classification)
+            enrichment_data = enrichment_result["enrichment_data"]
             
-            # Step 3: Nuanced Difficulty Assessment
-            logger.info("⚖️ Step 3: Nuanced difficulty assessment...")
-            difficulty = await self._perform_nuanced_difficulty_assessment(stem, deep_analysis, classification)
-            enrichment_data.update(difficulty)
-            
-            # Step 4: Advanced Conceptual Extraction
-            logger.info("🧬 Step 4: Advanced conceptual extraction...")
-            concepts = await self._perform_advanced_conceptual_extraction(stem, deep_analysis, classification)
-            enrichment_data.update(concepts)
-            
-            # Step 5: Frequency Analysis (Regular questions specific)
-            logger.info("📊 Step 5: Frequency analysis...")
-            frequency = await self._perform_frequency_analysis(stem, classification)
-            enrichment_data.update(frequency)
-            
-            # Step 6: Comprehensive Quality Verification
-            logger.info("🔍 Step 6: Comprehensive quality verification...")
-            quality = await self._perform_comprehensive_quality_verification(stem, enrichment_data)
-            enrichment_data.update(quality)
+            # QUALITY VERIFICATION (same as PYQ)
+            logger.info("🔍 Performing quality verification...")
+            quality_result = await self._perform_quality_verification(stem, enrichment_data)
+            enrichment_data.update(quality_result)
             
             enrichment_data['concept_extraction_status'] = 'completed'
             
-            logger.info("✨ Regular question enrichment completed")
-            logger.info(f"📊 Generated {len(enrichment_data)} detailed fields")
+            logger.info(f"✨ Regular question enrichment completed successfully")
+            logger.info(f"📊 Generated enrichment for all required fields")
             
             return {
                 "success": True,
                 "enrichment_data": enrichment_data,
-                "processing_time": "extended_analysis"
+                "processing_time": "consolidated_analysis"
             }
             
         except Exception as e:
@@ -135,328 +116,164 @@ class RegularQuestionsEnrichmentService:
                 "enrichment_data": {}
             }
     
-    async def _perform_deep_mathematical_analysis(self, stem: str, admin_answer: str = None) -> Dict[str, Any]:
+    async def _consolidated_llm_enrichment(self, stem: str, current_answer: str = None) -> Dict[str, Any]:
         """
-        Step 1: Perform deep mathematical analysis
-        FIELDS UPDATED: right_answer (enhanced analysis of existing answer)
+        Consolidated LLM enrichment call (stages 1-4 combined)
+        SAME LOGIC AS PYQ ENRICHMENT
         """
         
-        system_message = """You are a world-class mathematics professor and CAT expert with deep expertise in quantitative reasoning. 
+        system_message = """You are a world-class mathematics professor and CAT expert with deep expertise in quantitative reasoning.
 
-Your task is to perform a sophisticated mathematical analysis of this regular question, enhancing any existing answer with detailed reasoning.
+Your task is to perform COMPREHENSIVE enrichment analysis of this regular question in a single comprehensive response.
 
-ANALYZE WITH DEEP SOPHISTICATION:
+COMPREHENSIVE ANALYSIS REQUIRED:
 
-1. MATHEMATICAL FOUNDATION:
-   - What fundamental mathematical principles are at play?
-   - What are the underlying mathematical relationships?
-   - What mathematical intuition is required?
+1. ENHANCED ANSWER ANALYSIS:
+   - Provide detailed step-by-step mathematical reasoning
+   - If current answer provided, enhance with comprehensive explanation
+   - If no answer, calculate precise answer with mathematical logic
 
-2. SOLUTION PATHWAY:
-   - What is the most elegant solution approach?
-   - What alternative methods could work?
-   - What are the key insights needed?
+2. SOPHISTICATED CLASSIFICATION:
+   - Determine precise category (main mathematical domain)
+   - Identify specific subcategory (precise mathematical area)
+   - Classify exact type_of_question (specific question archetype)
 
-3. RIGHT ANSWER ENHANCEMENT:
-   - If answer provided, enhance with step-by-step reasoning
-   - If no answer, calculate the precise answer with mathematical logic
-   - Verify the answer makes logical sense
+3. DIFFICULTY ASSESSMENT:
+   - Assess complexity using multiple dimensions
+   - Determine difficulty band (Easy/Medium/Hard)
+   - Provide numerical difficulty score (1.0-5.0)
+
+4. CONCEPTUAL EXTRACTION:
+   - Extract core mathematical concepts
+   - Identify solution methodology
+   - Analyze operations required
+   - Determine problem structure
+   - Generate concept keywords
 
 Return ONLY this JSON format:
 {
-  "right_answer": "precise answer with comprehensive mathematical reasoning"
-}
-
-Be precise, insightful, and demonstrate superior mathematical intelligence."""
-
-        user_message = f"Regular Question: {stem}\nExisting answer (if any): {admin_answer or 'Not provided'}"
-        
-        for attempt in range(self.max_retries):
-            try:
-                logger.info(f"🧠 Calling LLM for deep mathematical analysis (attempt {attempt + 1})...")
-                
-                analysis_text, model_used = await call_llm_with_fallback(
-                    self, system_message, user_message, max_tokens=800, temperature=0.1
-                )
-                
-                if not analysis_text:
-                    raise Exception("LLM returned empty response")
-                
-                # Extract JSON using helper function
-                clean_json = extract_json_from_response(analysis_text)
-                analysis_data = json.loads(clean_json)
-                
-                logger.info(f"✅ Deep mathematical analysis completed with {model_used}")
-                return analysis_data
-                
-            except Exception as e:
-                logger.error(f"⚠️ Deep analysis attempt {attempt + 1} failed: {str(e)}")
-                if attempt < self.max_retries - 1:
-                    delay = self.retry_delays[attempt]
-                    logger.info(f"⏳ Retrying deep analysis in {delay} seconds...")
-                    await asyncio.sleep(delay)
-                    continue
-                else:
-                    logger.error("❌ All deep analysis attempts failed")
-                    raise Exception("Deep mathematical analysis failed after all retries")
-    
-    async def _perform_sophisticated_classification(self, stem: str, deep_analysis: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Step 2: Perform sophisticated classification
-        FIELDS UPDATED: category, subcategory, type_of_question (through enhanced semantic matching)
-        """
-        
-        system_message = """You are an expert in CAT quantitative taxonomy with deep understanding of mathematical classification.
-
-Your task is to provide sophisticated, nuanced classification that goes beyond superficial categorization.
-
-CLASSIFICATION DEPTH REQUIRED:
-
-1. CATEGORY: Main mathematical domain
-2. SUBCATEGORY: Precise mathematical area  
-3. TYPE_OF_QUESTION: Very specific question archetype
-
-Return ONLY this JSON:
-{
+  "right_answer": "enhanced detailed answer with step-by-step reasoning",
   "category": "main category",
-  "subcategory": "specific subcategory", 
-  "type_of_question": "specific question archetype"
-}
-
-Be precise, specific, and demonstrate deep mathematical understanding."""
-
-        user_message = f"Regular Question: {stem}\nMathematical Analysis: {deep_analysis.get('right_answer', '')}"
-        
-        for attempt in range(self.max_retries):
-            try:
-                logger.info(f"🏛️ Calling LLM for sophisticated classification (attempt {attempt + 1})...")
-                
-                classification_text, model_used = await call_llm_with_fallback(
-                    self, system_message, user_message, max_tokens=300, temperature=0.1
-                )
-                
-                if not classification_text:
-                    raise Exception("LLM returned empty response")
-                
-                clean_json = extract_json_from_response(classification_text)
-                classification_data = json.loads(clean_json)
-                
-                # Apply enhanced semantic matching here (NEW FLOW)
-                logger.info("🎯 Applying enhanced semantic matching...")
-                canonical_category, canonical_subcategory, canonical_type = await canonical_taxonomy_service.get_canonical_taxonomy_path(
-                    classification_data.get('category', ''),
-                    classification_data.get('subcategory', ''),
-                    classification_data.get('type_of_question', '')
-                )
-                
-                # Update with canonical values
-                classification_data['category'] = canonical_category
-                classification_data['subcategory'] = canonical_subcategory  
-                classification_data['type_of_question'] = canonical_type
-                
-                logger.info(f"✅ Sophisticated classification completed with {model_used}")
-                return classification_data
-                
-            except Exception as e:
-                logger.error(f"⚠️ Classification attempt {attempt + 1} failed: {str(e)}")
-                if attempt < self.max_retries - 1:
-                    delay = self.retry_delays[attempt]
-                    await asyncio.sleep(delay)
-                    continue
-                else:
-                    logger.error("❌ All classification attempts failed")
-                    raise Exception("Sophisticated classification failed after all retries")
-    
-    async def _perform_nuanced_difficulty_assessment(self, stem: str, deep_analysis: Dict[str, Any], classification: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Step 3: Perform nuanced difficulty assessment
-        FIELDS UPDATED: difficulty_band, difficulty_score
-        """
-        
-        system_message = """You are a CAT difficulty assessment expert with deep understanding of cognitive load and mathematical complexity.
-
-Assess difficulty with sophisticated reasoning considering multiple dimensions:
-
-NUANCED DIFFICULTY BANDS:
-
-EASY (1.0-2.0):
-- Single mathematical concept application
-- Straightforward computational steps
-- Can be solved in under 2 minutes
-
-MEDIUM (2.1-3.5):
-- Multiple concept integration required
-- Moderate computational complexity
-- Requires 2-4 minutes for average student
-
-HARD (3.6-5.0):
-- Complex concept synthesis
-- High computational demand or elegant insight required
-- Requires 4+ minutes and strong mathematical maturity
-
-Return ONLY this JSON:
-{
+  "subcategory": "specific subcategory",
+  "type_of_question": "specific question archetype",
   "difficulty_band": "Easy/Medium/Hard",
-  "difficulty_score": 3.2
-}"""
-
-        user_message = f"Regular Question: {stem}\nMathematical Foundation: {deep_analysis.get('right_answer', '')}\nCategory: {classification.get('category', '')}"
-        
-        for attempt in range(self.max_retries):
-            try:
-                logger.info(f"⚖️ Calling LLM for difficulty assessment (attempt {attempt + 1})...")
-                
-                difficulty_text, model_used = await call_llm_with_fallback(
-                    self, system_message, user_message, max_tokens=400, temperature=0.1
-                )
-                
-                if not difficulty_text:
-                    raise Exception("LLM returned empty response")
-                
-                clean_json = extract_json_from_response(difficulty_text)
-                difficulty_data = json.loads(clean_json)
-                
-                # Validate and clean data
-                band = difficulty_data.get('difficulty_band', 'Medium').capitalize()
-                if band not in ['Easy', 'Medium', 'Hard']:
-                    band = 'Medium'
-                
-                score = float(difficulty_data.get('difficulty_score', 2.5))
-                if not (1.0 <= score <= 5.0):
-                    score = 2.5
-                
-                result = {
-                    'difficulty_band': band,
-                    'difficulty_score': score
-                }
-                
-                logger.info(f"✅ Nuanced difficulty assessment: {band} ({score}) with {model_used}")
-                return result
-                
-            except Exception as e:
-                logger.error(f"⚠️ Difficulty assessment attempt {attempt + 1} failed: {str(e)}")
-                if attempt < self.max_retries - 1:
-                    delay = self.retry_delays[attempt]
-                    await asyncio.sleep(delay)
-                    continue
-                else:
-                    logger.error("❌ All difficulty assessment attempts failed")
-                    raise Exception("Nuanced difficulty assessment failed after all retries")
-    
-    async def _perform_advanced_conceptual_extraction(self, stem: str, deep_analysis: Dict[str, Any], classification: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Step 4: Perform advanced conceptual extraction
-        FIELDS UPDATED: core_concepts, solution_method, concept_difficulty, operations_required, problem_structure, concept_keywords
-        """
-        
-        system_message = """You are a mathematical concept extraction expert with deep insight into learning patterns and cognitive structures.
-
-Extract sophisticated conceptual information for adaptive learning systems.
-
-Return ONLY this JSON format:
-{
+  "difficulty_score": 3.2,
   "core_concepts": ["concept1", "concept2", "concept3"],
-  "solution_method": "Precise methodological approach",
+  "solution_method": "precise methodological approach",
   "concept_difficulty": {"prerequisites": ["req1"], "cognitive_barriers": ["barrier1"], "mastery_indicators": ["indicator1"]},
   "operations_required": ["operation1", "operation2"],
   "problem_structure": "structural_analysis_type",
   "concept_keywords": ["keyword1", "keyword2"]
-}"""
+}
 
-        user_message = f"Regular Question: {stem}\nMathematical Foundation: {deep_analysis.get('right_answer', '')}\nCategory: {classification.get('category', '')}\nSubcategory: {classification.get('subcategory', '')}"
+Be precise, comprehensive, and demonstrate superior mathematical intelligence."""
+
+        user_message = f"Regular Question: {stem}\nCurrent answer (if any): {current_answer or 'Not provided'}"
         
         for attempt in range(self.max_retries):
             try:
-                logger.info(f"🧬 Calling LLM for conceptual extraction (attempt {attempt + 1})...")
+                logger.info(f"🧠 Calling LLM for consolidated enrichment (attempt {attempt + 1})...")
                 
-                concept_text, model_used = await call_llm_with_fallback(
-                    self, system_message, user_message, max_tokens=600, temperature=0.1
+                enrichment_text, model_used = await call_llm_with_fallback(
+                    self, system_message, user_message, max_tokens=1200, temperature=0.1
                 )
                 
-                if not concept_text:
+                if not enrichment_text:
                     raise Exception("LLM returned empty response")
                 
-                clean_json = extract_json_from_response(concept_text)
-                concept_data = json.loads(clean_json)
+                # Extract JSON using helper function
+                clean_json = extract_json_from_response(enrichment_text)
+                enrichment_data = json.loads(clean_json)
                 
-                # Convert to database format (JSON strings)
-                result = {
-                    'core_concepts': json.dumps(concept_data.get('core_concepts', [])),
-                    'solution_method': concept_data.get('solution_method', 'Advanced Mathematical Analysis'),
-                    'concept_difficulty': json.dumps(concept_data.get('concept_difficulty', {})),
-                    'operations_required': json.dumps(concept_data.get('operations_required', [])),
-                    'problem_structure': concept_data.get('problem_structure', 'complex_analytical_structure'),
-                    'concept_keywords': json.dumps(concept_data.get('concept_keywords', []))
+                # Apply enhanced semantic matching (SAME AS PYQ)
+                logger.info("🎯 Applying enhanced semantic matching...")
+                canonical_category, canonical_subcategory, canonical_type = await canonical_taxonomy_service.get_canonical_taxonomy_path(
+                    enrichment_data.get('category', ''),
+                    enrichment_data.get('subcategory', ''),
+                    enrichment_data.get('type_of_question', '')
+                )
+                
+                # Update with canonical values
+                enrichment_data['category'] = canonical_category
+                enrichment_data['subcategory'] = canonical_subcategory  
+                enrichment_data['type_of_question'] = canonical_type
+                
+                # Convert complex fields to JSON strings for database storage
+                enrichment_data['core_concepts'] = json.dumps(enrichment_data.get('core_concepts', []))
+                enrichment_data['concept_difficulty'] = json.dumps(enrichment_data.get('concept_difficulty', {}))
+                enrichment_data['operations_required'] = json.dumps(enrichment_data.get('operations_required', []))
+                enrichment_data['concept_keywords'] = json.dumps(enrichment_data.get('concept_keywords', []))
+                
+                # Validate and clean difficulty data
+                difficulty_band = enrichment_data.get('difficulty_band', 'Medium').capitalize()
+                if difficulty_band not in ['Easy', 'Medium', 'Hard']:
+                    difficulty_band = 'Medium'
+                enrichment_data['difficulty_band'] = difficulty_band
+                
+                difficulty_score = float(enrichment_data.get('difficulty_score', 2.5))
+                if not (1.0 <= difficulty_score <= 5.0):
+                    difficulty_score = 2.5
+                enrichment_data['difficulty_score'] = difficulty_score
+                
+                logger.info(f"✅ Consolidated enrichment completed with {model_used}")
+                logger.info(f"🎯 Taxonomy: {canonical_category} → {canonical_subcategory} → {canonical_type}")
+                logger.info(f"⚖️ Difficulty: {difficulty_band} ({difficulty_score})")
+                
+                return {
+                    "success": True,
+                    "enrichment_data": enrichment_data
                 }
                 
-                logger.info(f"✅ Advanced conceptual extraction completed with {model_used}")
-                return result
-                
             except Exception as e:
-                logger.error(f"⚠️ Conceptual extraction attempt {attempt + 1} failed: {str(e)}")
+                logger.error(f"⚠️ Consolidated enrichment attempt {attempt + 1} failed: {str(e)}")
                 if attempt < self.max_retries - 1:
                     delay = self.retry_delays[attempt]
+                    logger.info(f"⏳ Retrying consolidated enrichment in {delay} seconds...")
                     await asyncio.sleep(delay)
                     continue
                 else:
-                    logger.error("❌ All conceptual extraction attempts failed")
-                    raise Exception("Advanced conceptual extraction failed after all retries")
+                    logger.error("❌ All consolidated enrichment attempts failed")
+                    return {
+                        "success": False,
+                        "error": "Consolidated enrichment failed after all retries",
+                        "enrichment_data": {}
+                    }
     
-    async def _perform_frequency_analysis(self, stem: str, classification: Dict[str, Any]) -> Dict[str, Any]:
+    async def _perform_quality_verification(self, stem: str, enrichment_data: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Step 5: Perform frequency analysis (specific to regular questions)
-        FIELDS UPDATED: frequency_score, frequency_band, pyq_frequency_score, pyq_conceptual_matches, frequency_analysis_method
+        Perform quality verification
+        SAME LOGIC AS PYQ ENRICHMENT
         """
         
         try:
-            logger.info("📊 Performing frequency analysis...")
+            logger.info("🔍 Enhanced quality verification (Semantic + Binary)")
             
-            # This would involve complex PYQ matching logic
-            # For now, providing default values
-            result = {
-                'frequency_score': 0.0,
-                'frequency_band': 'Low',  
-                'pyq_frequency_score': 0.5,
-                'pyq_conceptual_matches': 5,
-                'frequency_analysis_method': 'dynamic_conceptual_matching'
-            }
+            # Check required fields are present and meaningful
+            required_fields = [
+                'right_answer', 'category', 'subcategory', 'type_of_question', 
+                'difficulty_band', 'core_concepts', 'solution_method'
+            ]
             
-            logger.info("✅ Frequency analysis completed")
-            return result
+            missing_fields = []
+            for field in required_fields:
+                value = enrichment_data.get(field)
+                if not value or value in ['To be classified by LLM', 'N/A', '', 'null']:
+                    missing_fields.append(field)
             
-        except Exception as e:
-            logger.error(f"❌ Frequency analysis failed: {e}")
-            return {
-                'frequency_score': 0.0,
-                'frequency_band': 'Low',
-                'pyq_frequency_score': 0.0,
-                'pyq_conceptual_matches': 0,
-                'frequency_analysis_method': 'fallback'
-            }
-    
-    async def _perform_comprehensive_quality_verification(self, stem: str, enrichment_data: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Step 6: Perform comprehensive quality verification
-        FIELDS UPDATED: quality_verified
-        """
-        
-        try:
-            logger.info("🔍 Step 6: Enhanced quality verification (Semantic + Binary)")
-            
-            # Simple quality verification for enhanced system
-            if (enrichment_data.get('right_answer') and
-                enrichment_data.get('category') and
-                enrichment_data.get('subcategory') and
-                enrichment_data.get('type_of_question') and
-                enrichment_data.get('difficulty_band')):
-                logger.info("✅ Quality verification passed")
-                return {'quality_verified': True}
-            else:
-                logger.error(f"❌ Quality verification failed - missing required fields")
+            if missing_fields:
+                logger.error(f"❌ Quality verification failed - missing/invalid fields: {missing_fields}")
                 return {'quality_verified': False}
             
+            # Check for meaningful content (not just placeholders)
+            if len(enrichment_data.get('right_answer', '')) < 10:
+                logger.error(f"❌ Quality verification failed - answer too short")
+                return {'quality_verified': False}
+                
+            logger.info("✅ Quality verification passed - all required fields present with meaningful content")
+            return {'quality_verified': True}
+            
         except Exception as e:
-            logger.error(f"❌ Enhanced quality verification exception: {e}")
+            logger.error(f"❌ Quality verification exception: {e}")
             return {
                 'quality_verified': False
             }
