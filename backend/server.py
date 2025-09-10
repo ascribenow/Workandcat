@@ -5415,26 +5415,13 @@ async def get_frequency_analysis_report(
         
         frequency_stats = frequency_stats_query.first()
         
-        # Get frequency distribution by method
-        method_distribution_query = await db.execute(
-            select(
-                Question.frequency_analysis_method,
-                func.count(Question.id).label('count'),
-                func.avg(Question.pyq_frequency_score).label('avg_score')
-            ).where(
-                and_(
-                    Question.is_active == True,
-                    Question.frequency_analysis_method.isnot(None)
-                )
-            ).group_by(Question.frequency_analysis_method)
-        )
-        
-        method_distribution = {}
-        for row in method_distribution_query:
-            method_distribution[row.frequency_analysis_method] = {
-                "count": row.count,
-                "avg_score": round(float(row.avg_score), 4) if row.avg_score else 0
+        # Frequency analysis method distribution (field removed - using default)
+        method_distribution = {
+            "dynamic_conceptual_matching": {
+                "count": frequency_stats.total_questions if frequency_stats else 0,
+                "avg_score": round(float(frequency_stats.avg_frequency_score), 4) if frequency_stats and frequency_stats.avg_frequency_score else 0
             }
+        }
         
         # Get top categories by frequency
         category_frequency_query = await db.execute(
