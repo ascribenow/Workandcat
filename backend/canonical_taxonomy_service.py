@@ -303,7 +303,7 @@ EXAMPLES OF SEMANTIC MATCHING:
         for attempt in range(2):
             try:
                 # Import here to avoid circular imports
-                # call_llm_with_fallback functionality moved to pyq_enrichment_service
+                from llm_utils import call_llm_with_fallback
                 
                 # Build comprehensive context with subcategory descriptions
                 subcategories_context = []
