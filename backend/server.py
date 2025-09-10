@@ -6573,7 +6573,7 @@ async def test_enhanced_session_logic(
                 "difficulty": q.difficulty_band,
                 "pyq_frequency_score": float(q.pyq_frequency_score or 0.5),
                 "frequency_band": q.frequency_band,
-                "analysis_method": q.frequency_analysis_method
+                "analysis_method": "dynamic_conceptual_matching"
             })
         
         return {
@@ -6699,7 +6699,7 @@ async def enrich_question_background(question_id: str, hint_category: str = None
             
             # Update question with PYQ frequency data
             question.pyq_frequency_score = pyq_score
-            question.frequency_analysis_method = frequency_method
+            # question.frequency_analysis_method = frequency_method  # Field removed
             question.frequency_last_updated = datetime.utcnow()
             
             # Activate question after successful processing
@@ -6732,7 +6732,7 @@ async def enrich_question_background(question_id: str, hint_category: str = None
                 if question:
                     question.is_active = True
                     question.pyq_frequency_score = 0.5  # Default score
-                    question.frequency_analysis_method = 'emergency_fallback'
+                    # question.frequency_analysis_method = 'emergency_fallback'  # Field removed
                     # Don't try to set answer if it caused the issue
                     db.commit()
                     logger.info(f"🔧 Applied emergency fallback for question {question_id}")
