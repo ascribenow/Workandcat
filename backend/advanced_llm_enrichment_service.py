@@ -248,7 +248,7 @@ class AdvancedLLMEnrichmentService:
             else:
                 return "Speed-Distance-Time Problem"  # Default for arithmetic
                 
-        elif category == "B-Algebra":
+        elif category == "Algebra":
             if any(term in question_type_lower for term in ['system', 'variable']):
                 return "System of Linear Equations"
             elif any(term in question_type_lower for term in ['quadratic', 'roots']):
