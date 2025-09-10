@@ -21,7 +21,7 @@ class MCQValidationService:
     """
     
     def __init__(self):
-        self.standardized_enricher = StandardizedEnrichmentEngine()
+        # Removed old enrichment engine
         logger.info("🎯 MCQ Validation Service initialized")
     
     def validate_mcq_options(self, question: Question) -> Dict[str, Any]:
