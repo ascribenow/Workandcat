@@ -2453,8 +2453,10 @@ async def get_questions(
                 # NEW: Include LLM-generated fields for 100% success validation
                 "category": q.category,  # Main category field
                 "right_answer": q.right_answer,  # LLM-generated right answer
-                "frequency_analysis_method": q.frequency_analysis_method,  # Dynamic frequency method
                 "pyq_conceptual_matches": q.pyq_conceptual_matches,  # Conceptual matching count
+                # NEW: Include snap_read field as requested in review
+                "snap_read": q.snap_read,  # NEW: snap_read field from CSV upload
+                "principle_to_remember": q.principle_to_remember,  # NEW: principle_to_remember field from CSV upload
                 # Image support fields
                 "has_image": q.has_image,
                 "image_url": q.image_url,
