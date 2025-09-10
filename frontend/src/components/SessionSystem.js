@@ -591,6 +591,18 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
                   <div className="border rounded-lg p-4 mb-4" style={{ backgroundColor: '#f7fdf0', borderColor: '#9ac026' }}>
                     <h4 className="font-semibold mb-3" style={{ color: '#545454', fontFamily: 'Manrope, sans-serif' }}>Solution</h4>
                     
+                    {/* Snap Read - NEW: Display above solution_approach */}
+                    {result.solution_feedback.snap_read && (
+                      <div className="mb-6">
+                        <h5 className="font-semibold mb-3 text-lg" style={{ color: '#545454', fontFamily: 'Manrope, sans-serif' }}>⚡ Quick Read:</h5>
+                        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg border" style={{ borderColor: '#e0e7ff' }}>
+                          <div className="leading-relaxed text-base font-medium" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
+                            {result.solution_feedback.snap_read}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    
                     {/* Solution Approach */}
                     {result.solution_feedback.solution_approach && (
                       <div className="mb-6">
