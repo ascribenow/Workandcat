@@ -573,7 +573,7 @@ class PlanUnit(Base):
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     plan_id = Column(String(36), ForeignKey('plans.id'), nullable=False)
     planned_for = Column(Date, nullable=False)
-    topic_id = Column(String(36), ForeignKey('topics.id'), nullable=False)
+    topic_id = Column(String(36), nullable=False)  # Keep as string but remove FK relationship
     unit_kind = Column(String(20), nullable=False)  # read|examples|practice|review|mock
     target_count = Column(Integer, default=1)
     status = Column(String(20), default='pending')  # pending|in_progress|done|skipped
@@ -581,7 +581,7 @@ class PlanUnit(Base):
     
     # Relationships
     plan = relationship("Plan", back_populates="plan_units")
-    topic = relationship("Topic")
+    # topic relationship REMOVED as per requirements
 
 
 # Session Management
