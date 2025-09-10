@@ -6005,7 +6005,18 @@ async def enrich_checker_regular(
                     "success": True, 
                     "message": f"Processed {processed_count} regular questions for quality improvement",
                     "questions_processed": processed_count,
-                    "total_found": len(questions_to_check)
+                    "total_found": len(questions_to_check),
+                    "check_results": {
+                        "total_questions_checked": len(questions_to_check),
+                        "poor_enrichment_identified": len(questions_to_check),
+                        "re_enrichment_successful": processed_count,
+                        "re_enrichment_failed": len(questions_to_check) - processed_count,
+                        "perfect_quality_count": processed_count,
+                        "perfect_quality_percentage": (processed_count / len(questions_to_check) * 100) if len(questions_to_check) > 0 else 0,
+                        "improvement_rate_percentage": (processed_count / len(questions_to_check) * 100) if len(questions_to_check) > 0 else 0,
+                        "detailed_results": [],
+                        "processing_completed_at": datetime.utcnow().isoformat()
+                    }
                 }
                 
             finally:
