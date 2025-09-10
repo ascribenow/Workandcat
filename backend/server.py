@@ -5389,7 +5389,7 @@ async def get_pyq_enrichment_status(
         
         # Calculate enrichment completion rate
         total = stats.total_questions or 0
-        completed = stats.concept_extracted or 0
+        completed = stats.quality_verified or 0  # FIX: Use quality_verified instead of concept_extracted
         completion_rate = (completed / total * 100) if total > 0 else 0
         
         return {
