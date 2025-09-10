@@ -1084,10 +1084,11 @@ ${response.data.errors > 0 ? '⚠️ Check the logs for error details.' : ''}`);
                       </div>
 
                       <div className="text-sm text-[#545454] space-y-2" style={{ fontFamily: 'Lato, sans-serif' }}>
-                        <p>📋 <strong>CSV Format Required:</strong> stem, image_url, answer, solution_approach, principle_to_remember</p>
+                        <p>📋 <strong>CSV Format Required:</strong> stem, answer, solution_approach, detailed_solution, principle_to_remember, snap_read, image_url, mcq_options</p>
+                        <p>📝 <strong>Field Descriptions:</strong> stem=question text, answer=canonical answer, solution_approach=approach, detailed_solution=full solution, principle_to_remember=key principle, snap_read=quick overview, image_url=image link, mcq_options=JSON options</p>
                         <p>📊 <strong>File Size Limit:</strong> 10MB maximum</p>
                         <p>🎯 <strong>Processing:</strong> Questions are immediately enriched with LLM-generated fields (category, subcategory, type, difficulty, right_answer)</p>
-                        <p>🔒 <strong>Admin Fields Protected:</strong> Your uploaded content (stem, answer, solution_approach, principle_to_remember) is stored directly and not modified</p>
+                        <p>🔒 <strong>Admin Fields Protected:</strong> Your uploaded content (stem, answer, solution_approach, detailed_solution, principle_to_remember, snap_read, image_url, mcq_options) is stored directly and not modified</p>
                         <p>✅ <strong>Quality Control:</strong> Questions are activated only if admin answer matches LLM-generated answer</p>
                       </div>
                     </div>
