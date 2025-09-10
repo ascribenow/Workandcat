@@ -300,7 +300,7 @@ class AdvancedLLMEnrichmentService:
             else:
                 return "Divisibility Analysis Problem"  # Default for number system
                 
-        elif category == "E-Modern Math":
+        elif category == "Modern Math":
             if any(term in question_type_lower for term in ['permutation']):
                 return "Permutation Problem"
             elif any(term in question_type_lower for term in ['combination']):
