@@ -1285,6 +1285,449 @@ class CATBackendTester:
         
         return success_rate >= 60  # Return True if referral logic is functional
 
+    def test_pyq_database_status_investigation(self):
+        """
+        URGENT: PYQ DATABASE STATUS CHANGE INVESTIGATION
+        
+        OBJECTIVE: Investigate the critical discrepancy where previously almost all PYQ questions 
+        had quality_verified=true except for about 10 questions, but Phase 2 testing shows 
+        236 questions with quality_verified=false.
+        
+        INVESTIGATION REQUIRED:
+        1. DATABASE HISTORY CHECK:
+           - Query the current PYQ database status in detail
+           - Check if there was a database migration or reset that changed quality_verified values
+           - Look for any recent changes that might have affected this field
+        
+        2. RECENT CHANGES ANALYSIS:
+           - Check if any of our recent LLM utils changes affected the database
+           - Look for any migrations or scripts that might have reset quality_verified flags
+           - Verify if the background job disabling affected enrichment status
+        
+        3. DATA INTEGRITY VERIFICATION:
+           - Compare current database state with what it should be
+           - Check if questions that were previously enriched still have their enriched data
+           - Verify if only the quality_verified flag changed or if actual content was lost
+        
+        4. ROOT CAUSE ANALYSIS:
+           - Identify what specific action caused this change
+           - Determine if this is a data loss issue or just a flag reset
+           - Check if the enriched content (answers, categories, etc.) is still present
+        
+        CRITICAL QUESTIONS:
+        - Are the actual enriched answers still there, just marked as unverified?
+        - Or was enriched data actually lost/reset?
+        - What specific change caused this status flip?
+        
+        This is crucial since it affects our understanding of what needs to be processed.
+        """
+        print("🚨 URGENT: PYQ DATABASE STATUS CHANGE INVESTIGATION")
+        print("=" * 80)
+        print("OBJECTIVE: Investigate the critical discrepancy where previously almost all PYQ")
+        print("questions had quality_verified=true except for about 10 questions, but Phase 2")
+        print("testing shows 236 questions with quality_verified=false.")
+        print("")
+        print("INVESTIGATION REQUIRED:")
+        print("1. DATABASE HISTORY CHECK")
+        print("   - Query the current PYQ database status in detail")
+        print("   - Check if there was a database migration or reset")
+        print("   - Look for any recent changes that might have affected this field")
+        print("")
+        print("2. RECENT CHANGES ANALYSIS")
+        print("   - Check if any LLM utils changes affected the database")
+        print("   - Look for migrations or scripts that reset quality_verified flags")
+        print("   - Verify if background job disabling affected enrichment status")
+        print("")
+        print("3. DATA INTEGRITY VERIFICATION")
+        print("   - Compare current database state with what it should be")
+        print("   - Check if previously enriched questions still have enriched data")
+        print("   - Verify if only quality_verified flag changed or if content was lost")
+        print("")
+        print("CRITICAL QUESTIONS:")
+        print("- Are the actual enriched answers still there, just marked as unverified?")
+        print("- Or was enriched data actually lost/reset?")
+        print("- What specific change caused this status flip?")
+        print("=" * 80)
+        
+        investigation_results = {
+            # Authentication Setup
+            "admin_authentication_working": False,
+            "admin_token_valid": False,
+            
+            # Database Status Investigation
+            "pyq_database_accessible": False,
+            "pyq_questions_count_retrieved": False,
+            "quality_verified_status_analyzed": False,
+            "enrichment_status_endpoint_working": False,
+            
+            # Data Integrity Analysis
+            "enriched_content_still_present": False,
+            "placeholder_answers_identified": False,
+            "category_data_preserved": False,
+            "right_answer_data_preserved": False,
+            
+            # Historical Data Analysis
+            "database_migration_evidence_found": False,
+            "recent_changes_identified": False,
+            "background_job_impact_assessed": False,
+            "llm_utils_impact_assessed": False,
+            
+            # Root Cause Analysis
+            "data_loss_vs_flag_reset_determined": False,
+            "specific_change_cause_identified": False,
+            "enrichment_pipeline_status_verified": False,
+            "quality_verification_logic_analyzed": False,
+            
+            # Recovery Assessment
+            "recovery_strategy_identified": False,
+            "enrichment_system_functional": False,
+            "database_consistency_verified": False,
+            "production_impact_assessed": False
+        }
+        
+        # PHASE 1: AUTHENTICATION SETUP
+        print("\n🔐 PHASE 1: AUTHENTICATION SETUP")
+        print("-" * 60)
+        print("Setting up admin authentication for database investigation")
+        
+        # Test Admin Authentication
+        admin_login_data = {
+            "email": "sumedhprabhu18@gmail.com",
+            "password": "admin2025"
+        }
+        
+        success, response = self.run_test("Admin Authentication", "POST", "auth/login", [200, 401], admin_login_data)
+        
+        admin_headers = None
+        if success and response.get('access_token'):
+            admin_token = response['access_token']
+            admin_headers = {
+                'Authorization': f'Bearer {admin_token}',
+                'Content-Type': 'application/json'
+            }
+            investigation_results["admin_authentication_working"] = True
+            investigation_results["admin_token_valid"] = True
+            print(f"   ✅ Admin authentication successful")
+            print(f"   📊 JWT Token length: {len(admin_token)} characters")
+            
+            # Verify admin privileges
+            success, me_response = self.run_test("Admin Token Validation", "GET", "auth/me", 200, None, admin_headers)
+            if success and me_response.get('is_admin'):
+                print(f"   ✅ Admin privileges confirmed: {me_response.get('email')}")
+        else:
+            print("   ❌ Admin authentication failed - cannot investigate database")
+            return False
+        
+        # PHASE 2: PYQ DATABASE STATUS INVESTIGATION
+        print("\n🗄️ PHASE 2: PYQ DATABASE STATUS INVESTIGATION")
+        print("-" * 60)
+        print("Querying current PYQ database status in detail")
+        
+        if admin_headers:
+            # Test PYQ questions endpoint to get current database state
+            success, response = self.run_test(
+                "PYQ Questions Database Query", 
+                "GET", 
+                "admin/pyq/questions?limit=1000", 
+                [200], 
+                None, 
+                admin_headers
+            )
+            
+            if success and response:
+                investigation_results["pyq_database_accessible"] = True
+                print(f"   ✅ PYQ database accessible")
+                
+                questions = response.get('questions', [])
+                total_questions = len(questions)
+                investigation_results["pyq_questions_count_retrieved"] = True
+                print(f"   📊 Total PYQ questions retrieved: {total_questions}")
+                
+                if total_questions > 0:
+                    # Analyze quality_verified status
+                    quality_verified_true = sum(1 for q in questions if q.get('quality_verified') == True)
+                    quality_verified_false = sum(1 for q in questions if q.get('quality_verified') == False)
+                    quality_verified_null = sum(1 for q in questions if q.get('quality_verified') is None)
+                    
+                    investigation_results["quality_verified_status_analyzed"] = True
+                    print(f"   📊 CRITICAL FINDINGS:")
+                    print(f"      Quality Verified = True:  {quality_verified_true}")
+                    print(f"      Quality Verified = False: {quality_verified_false}")
+                    print(f"      Quality Verified = NULL:  {quality_verified_null}")
+                    
+                    # This is the key finding - if we have 236 questions with quality_verified=false
+                    if quality_verified_false >= 200:
+                        print(f"   🚨 CRITICAL ISSUE CONFIRMED: {quality_verified_false} questions with quality_verified=false")
+                        print(f"   📊 This matches the reported 236 questions issue")
+                    
+                    # Analyze enriched content presence
+                    questions_with_right_answer = sum(1 for q in questions if q.get('right_answer') and q.get('right_answer') != 'To be generated by LLM')
+                    questions_with_category = sum(1 for q in questions if q.get('category') and q.get('category') != 'General')
+                    questions_with_placeholder = sum(1 for q in questions if q.get('right_answer') == 'To be generated by LLM')
+                    
+                    print(f"   📊 ENRICHMENT CONTENT ANALYSIS:")
+                    print(f"      Questions with real right_answer: {questions_with_right_answer}")
+                    print(f"      Questions with category data:    {questions_with_category}")
+                    print(f"      Questions with placeholder:      {questions_with_placeholder}")
+                    
+                    if questions_with_right_answer > 0:
+                        investigation_results["right_answer_data_preserved"] = True
+                        print(f"   ✅ Some enriched right_answer data is preserved")
+                    
+                    if questions_with_category > 0:
+                        investigation_results["category_data_preserved"] = True
+                        print(f"   ✅ Some category data is preserved")
+                    
+                    if questions_with_placeholder > 0:
+                        investigation_results["placeholder_answers_identified"] = True
+                        print(f"   ⚠️ {questions_with_placeholder} questions have placeholder answers")
+                    
+                    # Sample a few questions to analyze their state
+                    print(f"   📊 SAMPLE QUESTION ANALYSIS:")
+                    for i, question in enumerate(questions[:5]):
+                        print(f"      Question {i+1}:")
+                        print(f"         ID: {question.get('id', 'N/A')}")
+                        print(f"         Quality Verified: {question.get('quality_verified', 'N/A')}")
+                        print(f"         Right Answer: {str(question.get('right_answer', 'N/A'))[:50]}...")
+                        print(f"         Category: {question.get('category', 'N/A')}")
+                        print(f"         Subcategory: {question.get('subcategory', 'N/A')}")
+                        print(f"         Difficulty: {question.get('difficulty_band', 'N/A')}")
+                        print(f"         Year: {question.get('year', 'N/A')}")
+                else:
+                    print(f"   ❌ No PYQ questions found in database")
+            else:
+                print(f"   ❌ Cannot access PYQ database")
+        
+        # PHASE 3: ENRICHMENT STATUS ENDPOINT ANALYSIS
+        print("\n📊 PHASE 3: ENRICHMENT STATUS ENDPOINT ANALYSIS")
+        print("-" * 60)
+        print("Checking enrichment status endpoint for detailed statistics")
+        
+        if admin_headers:
+            success, response = self.run_test(
+                "PYQ Enrichment Status Check", 
+                "GET", 
+                "admin/pyq/enrichment-status", 
+                [200], 
+                None, 
+                admin_headers
+            )
+            
+            if success and response:
+                investigation_results["enrichment_status_endpoint_working"] = True
+                print(f"   ✅ Enrichment status endpoint accessible")
+                
+                # Analyze enrichment statistics
+                enrichment_stats = response.get('enrichment_statistics', {})
+                if enrichment_stats:
+                    total_questions = enrichment_stats.get('total_questions', 0)
+                    enriched_questions = enrichment_stats.get('enriched_questions', 0)
+                    pending_questions = enrichment_stats.get('pending_enrichment', 0)
+                    quality_verified = enrichment_stats.get('quality_verified', 0)
+                    
+                    print(f"   📊 ENRICHMENT STATISTICS:")
+                    print(f"      Total Questions: {total_questions}")
+                    print(f"      Enriched Questions: {enriched_questions}")
+                    print(f"      Pending Enrichment: {pending_questions}")
+                    print(f"      Quality Verified: {quality_verified}")
+                    
+                    # This is critical - if quality_verified is much lower than expected
+                    if total_questions > 0:
+                        quality_percentage = (quality_verified / total_questions) * 100
+                        print(f"   📊 Quality Verification Rate: {quality_percentage:.1f}%")
+                        
+                        if quality_percentage < 50:
+                            print(f"   🚨 CRITICAL: Quality verification rate is very low!")
+                            print(f"   📊 Expected: ~90%+ verified, Actual: {quality_percentage:.1f}%")
+                        
+                # Check recent activity
+                recent_activity = response.get('recent_activity', [])
+                if recent_activity:
+                    print(f"   📊 RECENT ENRICHMENT ACTIVITY:")
+                    for activity in recent_activity[:5]:
+                        print(f"      {activity.get('timestamp', 'N/A')}: {activity.get('action', 'N/A')}")
+                else:
+                    print(f"   ⚠️ No recent enrichment activity found")
+            else:
+                print(f"   ❌ Enrichment status endpoint not accessible")
+        
+        # PHASE 4: DATA INTEGRITY DEEP DIVE
+        print("\n🔍 PHASE 4: DATA INTEGRITY DEEP DIVE")
+        print("-" * 60)
+        print("Analyzing if this is data loss or just flag reset")
+        
+        if admin_headers:
+            # Try to get frequency analysis report to understand data state
+            success, response = self.run_test(
+                "Frequency Analysis Report", 
+                "GET", 
+                "admin/frequency-analysis-report", 
+                [200], 
+                None, 
+                admin_headers
+            )
+            
+            if success and response:
+                print(f"   ✅ Frequency analysis report accessible")
+                
+                system_overview = response.get('system_overview', {})
+                if system_overview:
+                    total_pyq = system_overview.get('total_pyq_questions', 0)
+                    processed_pyq = system_overview.get('processed_pyq_questions', 0)
+                    
+                    print(f"   📊 SYSTEM OVERVIEW:")
+                    print(f"      Total PYQ Questions: {total_pyq}")
+                    print(f"      Processed PYQ Questions: {processed_pyq}")
+                    
+                    if total_pyq > 0:
+                        processing_rate = (processed_pyq / total_pyq) * 100
+                        print(f"   📊 Processing Rate: {processing_rate:.1f}%")
+                        
+                        if processing_rate < 50:
+                            print(f"   🚨 CRITICAL: Processing rate is very low!")
+                            investigation_results["data_loss_vs_flag_reset_determined"] = True
+                
+                # Check recommendations
+                recommendations = response.get('recommendations', [])
+                if recommendations:
+                    print(f"   📊 SYSTEM RECOMMENDATIONS:")
+                    for rec in recommendations[:3]:
+                        print(f"      - {rec}")
+            else:
+                print(f"   ❌ Frequency analysis report not accessible")
+        
+        # PHASE 5: ROOT CAUSE ANALYSIS
+        print("\n🔬 PHASE 5: ROOT CAUSE ANALYSIS")
+        print("-" * 60)
+        print("Attempting to identify what caused the quality_verified flag changes")
+        
+        # Check if we can trigger enrichment to see current system state
+        if admin_headers:
+            success, response = self.run_test(
+                "Test Enrichment Trigger", 
+                "POST", 
+                "admin/pyq/trigger-enrichment", 
+                [200, 400, 500], 
+                {"question_ids": []}, 
+                admin_headers
+            )
+            
+            if success:
+                investigation_results["enrichment_system_functional"] = True
+                print(f"   ✅ Enrichment system is functional")
+                
+                if response.get('message'):
+                    print(f"   📊 Enrichment response: {response.get('message')}")
+                    
+                    # Look for clues about system state
+                    if 'processing' in str(response.get('message', '')).lower():
+                        investigation_results["enrichment_pipeline_status_verified"] = True
+                        print(f"   ✅ Enrichment pipeline appears to be working")
+            else:
+                print(f"   ❌ Enrichment system may not be functional")
+        
+        # PHASE 6: RECOVERY ASSESSMENT
+        print("\n🔧 PHASE 6: RECOVERY ASSESSMENT")
+        print("-" * 60)
+        print("Assessing what needs to be done to recover from this issue")
+        
+        # Based on our findings, determine recovery strategy
+        if investigation_results.get("right_answer_data_preserved") and investigation_results.get("category_data_preserved"):
+            investigation_results["recovery_strategy_identified"] = True
+            print(f"   ✅ RECOVERY STRATEGY: Data appears preserved, likely just flag reset")
+            print(f"   📋 RECOMMENDED ACTIONS:")
+            print(f"      1. Run quality verification script to reset quality_verified flags")
+            print(f"      2. Check for any recent database migrations that affected this field")
+            print(f"      3. Verify enrichment pipeline is processing correctly")
+            print(f"      4. Consider running batch quality verification")
+        elif investigation_results.get("placeholder_answers_identified"):
+            print(f"   ⚠️ RECOVERY STRATEGY: Mixed state - some data lost, some preserved")
+            print(f"   📋 RECOMMENDED ACTIONS:")
+            print(f"      1. Identify which questions lost their enriched data")
+            print(f"      2. Re-run enrichment on questions with placeholder answers")
+            print(f"      3. Investigate what caused the data loss")
+            print(f"      4. Implement safeguards to prevent future data loss")
+        else:
+            print(f"   🚨 RECOVERY STRATEGY: Significant data loss detected")
+            print(f"   📋 URGENT ACTIONS REQUIRED:")
+            print(f"      1. Stop any processes that might be causing data loss")
+            print(f"      2. Restore from backup if available")
+            print(f"      3. Re-run complete enrichment pipeline")
+            print(f"      4. Investigate root cause immediately")
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 80)
+        print("🚨 PYQ DATABASE STATUS CHANGE INVESTIGATION - RESULTS")
+        print("=" * 80)
+        
+        passed_tests = sum(investigation_results.values())
+        total_tests = len(investigation_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        # Group results by investigation phases
+        investigation_phases = {
+            "AUTHENTICATION SETUP": [
+                "admin_authentication_working", "admin_token_valid"
+            ],
+            "DATABASE STATUS INVESTIGATION": [
+                "pyq_database_accessible", "pyq_questions_count_retrieved",
+                "quality_verified_status_analyzed", "enrichment_status_endpoint_working"
+            ],
+            "DATA INTEGRITY ANALYSIS": [
+                "enriched_content_still_present", "placeholder_answers_identified",
+                "category_data_preserved", "right_answer_data_preserved"
+            ],
+            "HISTORICAL DATA ANALYSIS": [
+                "database_migration_evidence_found", "recent_changes_identified",
+                "background_job_impact_assessed", "llm_utils_impact_assessed"
+            ],
+            "ROOT CAUSE ANALYSIS": [
+                "data_loss_vs_flag_reset_determined", "specific_change_cause_identified",
+                "enrichment_pipeline_status_verified", "quality_verification_logic_analyzed"
+            ],
+            "RECOVERY ASSESSMENT": [
+                "recovery_strategy_identified", "enrichment_system_functional",
+                "database_consistency_verified", "production_impact_assessed"
+            ]
+        }
+        
+        for phase, tests in investigation_phases.items():
+            print(f"\n{phase}:")
+            phase_passed = 0
+            phase_total = len(tests)
+            
+            for test in tests:
+                if test in investigation_results:
+                    result = investigation_results[test]
+                    status = "✅ PASS" if result else "❌ FAIL"
+                    print(f"  {test.replace('_', ' ').title():<50} {status}")
+                    if result:
+                        phase_passed += 1
+            
+            phase_rate = (phase_passed / phase_total) * 100 if phase_total > 0 else 0
+            print(f"  Phase Success Rate: {phase_passed}/{phase_total} ({phase_rate:.1f}%)")
+        
+        print("-" * 80)
+        print(f"Investigation Completion Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # CRITICAL FINDINGS SUMMARY
+        print("\n🎯 CRITICAL FINDINGS SUMMARY:")
+        
+        critical_findings = [
+            ("Is PYQ database accessible?", investigation_results.get("pyq_database_accessible", False)),
+            ("Are quality_verified flags analyzed?", investigation_results.get("quality_verified_status_analyzed", False)),
+            ("Is enriched content still present?", investigation_results.get("right_answer_data_preserved", False)),
+            ("Are placeholder answers identified?", investigation_results.get("placeholder_answers_identified", False)),
+            ("Is enrichment system functional?", investigation_results.get("enrichment_system_functional", False)),
+            ("Is recovery strategy identified?", investigation_results.get("recovery_strategy_identified", False))
+        ]
+        
+        for finding, result in critical_findings:
+            status = "✅ YES" if result else "❌ NO"
+            print(f"  {finding:<50} {status}")
+        
+        return success_rate >= 50  # Return True if investigation was successful
+
     def test_pyq_enrichment_system_validation(self):
         """
         PYQ ENRICHMENT SYSTEM VALIDATION - PHASE 2 TESTING
