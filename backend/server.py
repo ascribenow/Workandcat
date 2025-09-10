@@ -4797,13 +4797,12 @@ async def upload_questions_csv(
                 await db.flush()  # Get the question ID
                 questions_created += 1
                 
-                # IMMEDIATE LLM ENRICHMENT (not background) - Generate 5 fields only
+                # IMMEDIATE LLM ENRICHMENT (same logic as PYQ)
                 logger.info(f"🎯 Question {questions_created}: Starting immediate LLM enrichment")
                 
-                enrichment_result = await unified_enricher.enrich_question_comprehensive(
+                enrichment_result = await regular_questions_enrichment_service.enrich_regular_question(
                     stem=stem,
-                    admin_answer=admin_answer,
-                    question_type="regular"
+                    current_answer=admin_answer
                 )
                 
                 logger.info(f"🤖 Enrichment result for question {questions_created}: {enrichment_result}")
@@ -4813,40 +4812,55 @@ async def upload_questions_csv(
                     
                     logger.info(f"📊 Enrichment data: {enrichment_data}")
                     
-                    # Log each field being set
-                    category = enrichment_data["category"]
-                    right_answer = enrichment_data["right_answer"]
-                    subcategory = enrichment_data["subcategory"]
-                    type_of_question = enrichment_data["type_of_question"]
-                    difficulty_band = enrichment_data["difficulty_band"]  # Fixed field name
+                    # Update question with all enrichment fields (SAME AS PYQ)
+                    question.right_answer = enrichment_data.get("right_answer")
+                    question.category = enrichment_data.get("category")
+                    question.subcategory = enrichment_data.get("subcategory") or "To be classified by LLM"
+                    question.type_of_question = enrichment_data.get("type_of_question") or "To be classified by LLM"
+                    question.difficulty_band = enrichment_data.get("difficulty_band")
+                    question.difficulty_score = enrichment_data.get("difficulty_score")
+                    question.quality_verified = enrichment_data.get("quality_verified", False)
                     
-                    logger.info(f"🏷️ Setting category: '{category}'")
-                    logger.info(f"✅ Setting right_answer: '{right_answer}'")
-                    logger.info(f"📂 Setting subcategory: '{subcategory}'")
-                    logger.info(f"🔢 Setting type_of_question: '{type_of_question}'")
-                    logger.info(f"⚖️ Setting difficulty_band: '{difficulty_band}'")
-                    
-                    # Update question with all unified enrichment fields
-                    # Basic fields
-                    question.category = category  # NEW: Store main category
-                    question.right_answer = right_answer
-                    question.subcategory = subcategory
-                    question.type_of_question = type_of_question
-                    question.difficulty_band = enrichment_data["difficulty_band"]  # Fixed field name
-                    
-                    # Enhanced unified fields
+                    # Advanced enrichment fields (SAME AS PYQ)
                     question.core_concepts = enrichment_data.get("core_concepts")
                     question.solution_method = enrichment_data.get("solution_method")
                     question.concept_difficulty = enrichment_data.get("concept_difficulty")
                     question.operations_required = enrichment_data.get("operations_required")
                     question.problem_structure = enrichment_data.get("problem_structure")
                     question.concept_keywords = enrichment_data.get("concept_keywords")
-                    question.quality_verified = enrichment_data.get("quality_verified", False)
                     question.concept_extraction_status = enrichment_data.get("concept_extraction_status", "completed")
                     
-                    # Set difficulty score if available
-                    if enrichment_data.get("difficulty_score"):
-                        question.difficulty_score = enrichment_data["difficulty_score"]
+                    logger.info(f"✅ Question enriched successfully")
+                    logger.info(f"🏷️ Taxonomy: {question.category} → {question.subcategory} → {question.type_of_question}")
+                    logger.info(f"⚖️ Difficulty: {question.difficulty_band} ({question.difficulty_score})")
+                    logger.info(f"🔍 Quality Verified: {question.quality_verified}")
+                    
+                    # Activate question if quality verified
+                    if question.quality_verified and question.difficulty_band:
+                        question.is_active = True
+                        questions_activated += 1
+                        logger.info(f"🟢 Question {questions_created} activated")
+                    else:
+                        questions_deactivated += 1
+                        logger.info(f"🔴 Question {questions_created} remains inactive - quality verification failed")
+                    
+                    enrichment_results.append({
+                        "question_id": str(question.id),
+                        "success": True,
+                        "category": question.category,
+                        "subcategory": question.subcategory,
+                        "type_of_question": question.type_of_question,
+                        "difficulty_band": question.difficulty_band,
+                        "quality_verified": question.quality_verified
+                    })
+                else:
+                    logger.error(f"❌ Enrichment failed for question {questions_created}: {enrichment_result.get('error')}")
+                    questions_deactivated += 1
+                    enrichment_results.append({
+                        "question_id": str(question.id),
+                        "success": False,
+                        "error": enrichment_result.get('error')
+                    })
                     
                     # NEW: Mark as LLM verified with constraints
                     question.llm_difficulty_assessment_method = 'llm_verified'
