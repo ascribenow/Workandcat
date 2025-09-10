@@ -5641,9 +5641,10 @@ async def enhanced_pyq_enrichment_background(pyq_question_id: str):
                 
                 # Update PYQ question with all unified fields INCLUDING TAXONOMY FIELDS
                 # Taxonomy fields (critical for replacing "To be classified by LLM")
-                pyq_question.category = enrichment_data.get("category")
-                pyq_question.subcategory = enrichment_data.get("subcategory") 
-                pyq_question.type_of_question = enrichment_data.get("type_of_question")
+                # Add fallback values to prevent NULL constraint violations
+                pyq_question.category = enrichment_data.get("category") or "To be classified by LLM"
+                pyq_question.subcategory = enrichment_data.get("subcategory") or "To be classified by LLM" 
+                pyq_question.type_of_question = enrichment_data.get("type_of_question") or "To be classified by LLM"
                 
                 # Other enrichment fields
                 pyq_question.difficulty_band = enrichment_data.get("difficulty_band")
