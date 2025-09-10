@@ -191,29 +191,29 @@ class AdvancedLLMEnrichmentService:
         
         # Canonical question types by category
         canonical_types = {
-            "A-Arithmetic": [
+            "Arithmetic": [
                 "Speed-Distance-Time Problem", "Relative Motion Analysis", "Work Rate Problem",
                 "Collaborative Work Problem", "Ratio-Proportion Problem", "Percentage Application Problem",
                 "Percentage Change Problem", "Average Calculation Problem", "Weighted Average Problem",
                 "Profit-Loss Analysis Problem", "Discount Calculation Problem", "Simple Interest Problem",
                 "Compound Interest Problem", "Mixture-Alligation Problem"
             ],
-            "B-Algebra": [
+            "Algebra": [
                 "Linear Equation Problem", "System of Linear Equations", "Quadratic Equation Problem",
                 "Inequality Problem", "Sequence-Series Problem", "Function Analysis Problem",
                 "Logarithmic Problem", "Exponential Problem"
             ],
-            "C-Geometry & Mensuration": [
+            "Geometry and Mensuration": [
                 "Triangle Properties Problem", "Circle Properties Problem", "Polygon Analysis Problem",
                 "Coordinate Geometry Problem", "Area Calculation Problem", "Volume Calculation Problem",
                 "Trigonometric Problem"
             ],
-            "D-Number System": [
+            "Number System": [
                 "Divisibility Analysis Problem", "HCF-LCM Problem", "Remainder Theorem Problem",
                 "Modular Arithmetic Problem", "Base System Conversion Problem", "Digit Properties Problem",
                 "Prime Factorization Problem"
             ],
-            "E-Modern Math": [
+            "Modern Math": [
                 "Permutation Problem", "Combination Problem", "Probability Calculation Problem",
                 "Set Theory Problem", "Venn Diagram Problem"
             ]
