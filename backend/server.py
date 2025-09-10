@@ -5619,8 +5619,7 @@ async def enhanced_pyq_enrichment_background(pyq_question_id: str):
             # Long-running LLM call - no database connection held
             enrichment_result = await pyq_enrichment_service.enrich_pyq_question(
                 stem=question_stem,
-                admin_answer=question_answer,
-                question_type="pyq"
+                current_answer=question_answer
             )
         except Exception as e:
             logger.error(f"❌ LLM enrichment failed for question {pyq_question_id}: {e}")
