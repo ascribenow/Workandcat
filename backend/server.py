@@ -6052,15 +6052,10 @@ async def test_advanced_enrichment(
         
         logger.info(f"🧠 Testing Advanced LLM Enrichment on: {question_stem[:50]}...")
         
-        # Initialize the Advanced LLM Enrichment Service (NO FALLBACKS)
-        advanced_enricher = AdvancedLLMEnrichmentService()
-        
-        # Perform deep, sophisticated enrichment
-        # ADVANCED LLM ENRICHMENT - 100% QUALITY STANDARDS (NO FALLBACKS)
-        enrichment_result = await advanced_enricher.enrich_question_deeply(
+        # Use the new Regular Questions Enrichment Service
+        enrichment_result = await regular_questions_enrichment_service.enrich_regular_question(
             stem=question_stem,
-            admin_answer=admin_answer,
-            question_type="regular"
+            admin_answer=admin_answer
         )
         
         if enrichment_result["success"]:
