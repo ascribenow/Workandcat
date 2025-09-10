@@ -9196,37 +9196,39 @@ if __name__ == "__main__":
 if __name__ == "__main__":
     tester = CATBackendTester()
     
-    print("🚀 CAT BACKEND COMPREHENSIVE TESTING SUITE")
+    print("🚀 CAT BACKEND SINGLE QUESTION ENRICHMENT END-TO-END TESTING")
     print("=" * 80)
-    print("Testing PYQ Questions Enrichment Status as requested in review")
+    print("Testing single question enrichment pipeline as requested in review")
     print("=" * 80)
     
-    # Run PYQ enrichment status check as requested
+    # Run single question enrichment end-to-end test
     try:
-        # Test PYQ enrichment status comprehensive check
-        pyq_status_success = tester.test_pyq_enrichment_status_comprehensive_check()
+        enrichment_success = tester.test_single_question_enrichment_end_to_end()
         
         print("\n" + "=" * 80)
-        print("🎯 PYQ ENRICHMENT STATUS CHECK - FINAL RESULTS")
+        print("🏁 SINGLE QUESTION ENRICHMENT TESTING COMPLETE")
         print("=" * 80)
         
-        print(f"PYQ Enrichment Status Check: {'✅ PASS' if pyq_status_success else '❌ FAIL'}")
-        
-        print("-" * 80)
-        if pyq_status_success:
-            print("🎉 PYQ ENRICHMENT STATUS CHECK SUCCESSFUL!")
-            print("   ✅ Database connection healthy")
-            print("   ✅ Enrichment statistics retrieved")
-            print("   ✅ Content quality analyzed")
-            print("   ✅ Database health validated")
+        if enrichment_success:
+            print("✅ Single Question Enrichment Pipeline: FUNCTIONAL")
+            print("🎉 End-to-end enrichment testing completed successfully!")
+            print("📋 The enrichment pipeline can:")
+            print("   - Find enriched questions with quality_verified=true")
+            print("   - Clear enrichment fields for targeted testing")
+            print("   - Trigger enrichment for specific questions")
+            print("   - Verify re-enrichment with meaningful data")
         else:
-            print("⚠️ PYQ ENRICHMENT STATUS CHECK NEEDS ATTENTION")
-            print("   🔧 Some validation points failed")
-            print("   📊 Review detailed results above")
+            print("❌ Single Question Enrichment Pipeline: ISSUES DETECTED")
+            print("🚨 End-to-end enrichment testing revealed problems!")
+            print("📋 Issues may include:")
+            print("   - Cannot find enriched questions")
+            print("   - Cannot trigger enrichment for specific questions")
+            print("   - Re-enrichment not working properly")
+            print("   - Quality verification not functioning")
         
-        print(f"Total Tests Run: {tester.tests_run}")
+        print(f"\nTotal Tests Run: {tester.tests_run}")
         print(f"Total Tests Passed: {tester.tests_passed}")
-        print(f"Overall Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%")
+        print(f"Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%")
         
     except Exception as e:
         print(f"❌ Testing suite failed with error: {e}")
