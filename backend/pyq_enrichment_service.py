@@ -181,6 +181,107 @@ class PYQEnrichmentService:
         
         return '\n'.join(context_lines)
     
+    async def _get_canonical_taxonomy_path_with_context(self, original_question: str, llm_category: str, llm_subcategory: str, llm_type: str) -> tuple[str, str, str]:
+        """
+        Enhanced semantic matching with original question context
+        Returns: (canonical_category, canonical_subcategory, canonical_type)
+        """
+        
+        try:
+            logger.info("🧠 Performing context-aware semantic matching...")
+            
+            # Build canonical taxonomy context
+            canonical_context = self._build_canonical_taxonomy_context()
+            
+            # Create context-aware semantic matching prompt
+            system_message = f"""You are a mathematical taxonomy expert with deep understanding of CAT quantitative problems.
+
+Your task is to find the most appropriate canonical taxonomy classification by analyzing the ORIGINAL PROBLEM, not just the generated terms.
+
+CANONICAL TAXONOMY REFERENCE:
+{canonical_context}
+
+CONTEXT-AWARE MATCHING PROCESS:
+1. Analyze the ORIGINAL PROBLEM's mathematical domain and concepts
+2. Consider the generated classifications as hints, but prioritize the actual problem content
+3. Match to the canonical taxonomy based on the problem's TRUE mathematical nature
+
+MATCHING RULES:
+- Focus on the mathematical DOMAIN and PROBLEM TYPE of the original question
+- Use the detailed canonical descriptions to understand the true classification
+- If the generated terms don't fit the problem's actual domain, override them
+- Choose the classification that best represents the problem's mathematical essence
+
+Return ONLY this JSON:
+{{
+  "category": "exact canonical category name",
+  "subcategory": "exact canonical subcategory name",
+  "type_of_question": "exact canonical question type name"
+}}
+
+If no good match exists, return "NO_MATCH" for that field."""
+            
+            user_message = f"""ORIGINAL PROBLEM: {original_question}
+
+GENERATED CLASSIFICATIONS:
+- Category: {llm_category}
+- Subcategory: {llm_subcategory}  
+- Type of Question: {llm_type}
+
+Analyze the ORIGINAL PROBLEM and find the best canonical taxonomy match based on the problem's true mathematical domain."""
+            
+            for attempt in range(self.max_retries):
+                try:
+                    logger.info(f"🎯 Context-aware semantic matching (attempt {attempt + 1})...")
+                    
+                    matching_text, model_used = await call_llm_with_fallback(
+                        self, system_message, user_message, max_tokens=300, temperature=0.1
+                    )
+                    
+                    if not matching_text:
+                        raise Exception("LLM returned empty response")
+                    
+                    # Extract JSON using helper function
+                    clean_json = extract_json_from_response(matching_text)
+                    matching_data = json.loads(clean_json)
+                    
+                    # Extract results
+                    canonical_category = matching_data.get('category')
+                    canonical_subcategory = matching_data.get('subcategory')
+                    canonical_type = matching_data.get('type_of_question')
+                    
+                    # Handle NO_MATCH cases
+                    if canonical_category == "NO_MATCH":
+                        canonical_category = None
+                    if canonical_subcategory == "NO_MATCH":
+                        canonical_subcategory = None
+                    if canonical_type == "NO_MATCH":
+                        canonical_type = None
+                    
+                    logger.info(f"✅ Context-aware semantic matching completed with {model_used}")
+                    return canonical_category, canonical_subcategory, canonical_type
+                    
+                except Exception as e:
+                    logger.error(f"⚠️ Context-aware matching attempt {attempt + 1} failed: {str(e)}")
+                    if attempt < self.max_retries - 1:
+                        delay = self.retry_delays[attempt]
+                        await asyncio.sleep(delay)
+                        continue
+                    else:
+                        logger.error("❌ All context-aware matching attempts failed")
+                        break
+            
+            # Fallback to original semantic matching if context-aware fails
+            logger.warning("🔄 Falling back to original semantic matching...")
+            return await canonical_taxonomy_service.get_canonical_taxonomy_path(
+                llm_category, llm_subcategory, llm_type
+            )
+            
+        except Exception as e:
+            logger.error(f"❌ Context-aware semantic matching failed: {e}")
+            # Return original values as last resort
+            return llm_category, llm_subcategory, llm_type
+    
     async def enrich_pyq_question(self, stem: str, current_answer: str = None) -> Dict[str, Any]:
         """
         Generate sophisticated enrichment analysis for PYQ questions
