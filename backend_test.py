@@ -10179,39 +10179,42 @@ if __name__ == "__main__":
 if __name__ == "__main__":
     tester = CATBackendTester()
     
-    print("🚀 CAT BACKEND SINGLE QUESTION ENRICHMENT END-TO-END TESTING")
+    print("🚀 CAT BACKEND TESTING SUITE - DATA INCONSISTENCY FIX VALIDATION")
     print("=" * 80)
-    print("Testing single question enrichment pipeline as requested in review")
-    print("=" * 80)
+    print("Starting focused testing for data inconsistency fix...")
+    print("")
     
-    # Run single question enrichment end-to-end test
+    # Run specific test for data inconsistency fix
+    print("🔧 STARTING DATA INCONSISTENCY FIX TESTING...")
     try:
-        enrichment_success = tester.test_single_question_enrichment_end_to_end()
+        data_consistency_success = tester.test_data_inconsistency_fix()
         
         print("\n" + "=" * 80)
-        print("🏁 SINGLE QUESTION ENRICHMENT TESTING COMPLETE")
+        print("🎯 FINAL TESTING SUMMARY")
         print("=" * 80)
         
-        if enrichment_success:
-            print("✅ Single Question Enrichment Pipeline: FUNCTIONAL")
-            print("🎉 End-to-end enrichment testing completed successfully!")
-            print("📋 The enrichment pipeline can:")
-            print("   - Find enriched questions with quality_verified=true")
-            print("   - Clear enrichment fields for targeted testing")
-            print("   - Trigger enrichment for specific questions")
-            print("   - Verify re-enrichment with meaningful data")
+        if data_consistency_success:
+            print("🎉 DATA INCONSISTENCY FIX: ✅ SUCCESSFUL")
+            print("   - Enrichment status endpoint working correctly")
+            print("   - Questions endpoint working correctly")
+            print("   - Both endpoints show consistent data")
+            print("   - Response field names updated correctly")
+            print("   - Quality_verified calculation now used")
+            print("   - Serious data inconsistency bug resolved")
+            print("   🏆 PRODUCTION READY")
         else:
-            print("❌ Single Question Enrichment Pipeline: ISSUES DETECTED")
-            print("🚨 End-to-end enrichment testing revealed problems!")
-            print("📋 Issues may include:")
-            print("   - Cannot find enriched questions")
-            print("   - Cannot trigger enrichment for specific questions")
-            print("   - Re-enrichment not working properly")
-            print("   - Quality verification not functioning")
+            print("❌ DATA INCONSISTENCY FIX: ❌ ISSUES DETECTED")
+            print("   - Data consistency issues may still exist")
+            print("   - Critical functionality may be broken")
+            print("   🚨 NEEDS ATTENTION")
         
-        print(f"\nTotal Tests Run: {tester.tests_run}")
-        print(f"Total Tests Passed: {tester.tests_passed}")
-        print(f"Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%")
+        print(f"\nTotal tests run: {tester.tests_run}")
+        print(f"Total tests passed: {tester.tests_passed}")
+        print(f"Overall success rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%")
+        
+        print("\n" + "=" * 80)
+        print("🏁 TESTING COMPLETE")
+        print("=" * 80)
         
     except Exception as e:
         print(f"❌ Testing suite failed with error: {e}")
