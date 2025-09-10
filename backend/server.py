@@ -4862,68 +4862,6 @@ async def upload_questions_csv(
                         "error": enrichment_result.get('error')
                     })
                     
-                    # NEW: Calculate Dynamic PYQ Frequency (replaces hardcoded values)
-                    logger.info(f"🧮 Calculating dynamic PYQ frequency for question {questions_created}")
-                    try:
-                        from dynamic_frequency_calculator import DynamicFrequencyCalculator
-                        frequency_calculator = DynamicFrequencyCalculator()
-                        
-                        frequency_result = await frequency_calculator.calculate_true_pyq_frequency(question, db)
-                        
-                        # Update question with real frequency data
-                        question.pyq_frequency_score = frequency_result['frequency_score']
-                        question.frequency_band = frequency_result['frequency_band']
-                        question.pyq_conceptual_matches = frequency_result['conceptual_matches_count']
-                        question.frequency_analysis_method = 'dynamic_conceptual_matching'
-                        
-                        logger.info(f"✅ Dynamic frequency calculated: {frequency_result['frequency_score']:.3f} ({frequency_result['frequency_band']}) (was hardcoded)")
-                        
-                    except Exception as freq_error:
-                        logger.warning(f"⚠️ Dynamic frequency calculation failed, using fallback: {freq_error}")
-                        # Fallback to neutral score instead of hardcoded categories
-                        question.pyq_frequency_score = 0.5
-                        question.frequency_band = 'Medium'  # 0.5 maps to Medium band
-                        question.frequency_analysis_method = 'fallback_neutral'
-                    
-                    # QUALITY CONTROL: Validate admin.answer vs LLM.right_answer
-                    question_activated = True
-                    validation_message = "No admin answer to validate"
-                    
-                    if admin_answer and question.right_answer:
-                        validation_result = await regular_questions_enrichment_service._validate_answer_consistency(
-                            admin_answer=admin_answer,
-                            ai_right_answer=question.right_answer,
-                            question_stem=stem
-                        )
-                        
-                        if validation_result["matches"]:
-                            # Question can be activated due to LLM verification + validation
-                            question.is_active = True
-                            questions_activated += 1
-                            validation_message = f"✅ Validation passed: {validation_result['explanation']}"
-                            logger.info(f"✅ Question {questions_created} activated - LLM verified + answers match")
-                        else:
-                            # LLM verified but validation failed - keep inactive
-                            question.is_active = False
-                            questions_deactivated += 1
-                            validation_message = f"❌ Validation failed: {validation_result['explanation']}"
-                            logger.warning(f"❌ Question {questions_created} deactivated - answer mismatch")
-                            question_activated = False
-                    else:
-                        # No admin answer provided, activate by default
-                        question.is_active = True
-                        questions_activated += 1
-                    
-                    enrichment_results.append({
-                        "question_number": questions_created,
-                        "enrichment_success": True,
-                        "question_activated": question_activated,
-                        "validation_message": validation_message,
-                        "llm_fields": enrichment_data
-                    })
-                    
-                    logger.info(f"✅ Question {questions_created}: Immediate enrichment completed")
-                    
                 else:
                     # LLM Enrichment failed - record failure with constraints
                     question.llm_difficulty_assessment_method = 'failed'
