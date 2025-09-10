@@ -911,6 +911,58 @@ async def get_type_mastery_breakdown(
         logger.error(f"Error getting type mastery breakdown: {e}")
         raise HTTPException(status_code=500, detail="Error retrieving type mastery data")
 
+@api_router.get("/admin/questions")
+async def get_admin_questions(
+    limit: int = 10,
+    offset: int = 0,
+    current_user: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_async_compatible_db)
+):
+    """Get questions for admin review with snap_read field"""
+    try:
+        # Get questions with all fields including snap_read
+        result = await db.execute(
+            select(Question)
+            .where(Question.is_active == True)
+            .order_by(desc(Question.created_at))
+            .limit(limit)
+            .offset(offset)
+        )
+        questions = result.scalars().all()
+        
+        # Format questions with all fields
+        formatted_questions = []
+        for q in questions:
+            formatted_questions.append({
+                "id": str(q.id),
+                "stem": q.stem,
+                "answer": q.answer,
+                "solution_approach": q.solution_approach,
+                "detailed_solution": q.detailed_solution,
+                "principle_to_remember": q.principle_to_remember,
+                "snap_read": q.snap_read,  # NEW: Include snap_read field
+                "image_url": q.image_url,
+                "category": q.category,
+                "subcategory": q.subcategory,
+                "type_of_question": q.type_of_question,
+                "difficulty_band": q.difficulty_band,
+                "right_answer": q.right_answer,
+                "quality_verified": q.quality_verified,
+                "created_at": q.created_at.isoformat() if q.created_at else None,
+                "is_active": q.is_active
+            })
+        
+        return {
+            "questions": formatted_questions,
+            "total": len(formatted_questions),
+            "limit": limit,
+            "offset": offset
+        }
+        
+    except Exception as e:
+        logger.error(f"Error getting admin questions: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @api_router.post("/admin/init-topics")
 async def init_basic_topics(
     current_user: User = Depends(require_admin),
