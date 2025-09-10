@@ -11,6 +11,26 @@ import google.generativeai as genai
 
 logger = logging.getLogger(__name__)
 
+def extract_json_from_response(response_text: str) -> str:
+    """Extract JSON from LLM response, handling markdown code blocks"""
+    response_text = response_text.strip()
+    
+    # Handle JSON wrapped in markdown code blocks
+    if "```json" in response_text:
+        start_idx = response_text.find("```json") + 7
+        end_idx = response_text.find("```", start_idx)
+        if end_idx > start_idx:
+            return response_text[start_idx:end_idx].strip()
+    elif "```" in response_text:
+        # Handle generic code blocks
+        start_idx = response_text.find("```") + 3
+        end_idx = response_text.find("```", start_idx)
+        if end_idx > start_idx:
+            return response_text[start_idx:end_idx].strip()
+    
+    # Return as-is if no code blocks found
+    return response_text
+
 async def call_llm_with_fallback(service_instance, system_message: str, user_message: str, max_tokens: int = 800, temperature: float = 0.1) -> tuple[str, str]:
     """
     Call LLM with fallback logic: OpenAI → Gemini
