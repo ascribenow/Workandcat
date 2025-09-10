@@ -176,40 +176,25 @@ class PYQEnrichmentService:
             
             enrichment_data = {}
             
-            # Step 1: Deep Mathematical Analysis
-            logger.info("🔬 Step 1: Deep mathematical analysis...")
-            deep_analysis = await self._perform_deep_mathematical_analysis(stem, current_answer)
-            enrichment_data.update(deep_analysis)
+            # Stage 1-4: Single Comprehensive Analysis (CONSOLIDATED)
+            logger.info("🚀 Stage 1-4: Comprehensive analysis (single LLM call)...")
+            comprehensive_analysis = await self._perform_comprehensive_analysis(stem, current_answer)
+            enrichment_data.update(comprehensive_analysis)
             
-            # Step 2: Sophisticated Classification
-            logger.info("🏛️ Step 2: Sophisticated classification...")
-            classification = await self._perform_sophisticated_classification(stem, deep_analysis)
-            enrichment_data.update(classification)
-            
-            # Step 3: Nuanced Difficulty Assessment
-            logger.info("⚖️ Step 3: Nuanced difficulty assessment...")
-            difficulty = await self._perform_nuanced_difficulty_assessment(stem, deep_analysis, classification)
-            enrichment_data.update(difficulty)
-            
-            # Step 4: Advanced Conceptual Extraction
-            logger.info("🧬 Step 4: Advanced conceptual extraction...")
-            concepts = await self._perform_advanced_conceptual_extraction(stem, deep_analysis, classification)
-            enrichment_data.update(concepts)
-            
-            # Step 5: Comprehensive Quality Verification
-            logger.info("🔍 Step 5: Comprehensive quality verification...")
-            quality = await self._perform_comprehensive_quality_verification(stem, enrichment_data)
-            enrichment_data.update(quality)
+            # Stage 5: Semantic Matching + Quality Verification (SEPARATE)
+            logger.info("🔍 Stage 5: Semantic matching + quality verification...")
+            verification_result = await self._perform_semantic_matching_and_verification(stem, enrichment_data)
+            enrichment_data.update(verification_result)
             
             enrichment_data['concept_extraction_status'] = 'completed'
             
-            logger.info("✨ PYQ enrichment completed")
+            logger.info("✨ PYQ enrichment completed (EFFICIENT)")
             logger.info(f"📊 Generated {len(enrichment_data)} detailed fields")
             
             return {
                 "success": True,
                 "enrichment_data": enrichment_data,
-                "processing_time": "extended_analysis"
+                "processing_time": "efficient_analysis"
             }
             
         except Exception as e:
