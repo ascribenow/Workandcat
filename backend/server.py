@@ -39,8 +39,7 @@ from database import (
 from datetime import datetime
 from auth_service import AuthService, UserCreate, UserLogin, TokenResponse, require_auth, require_admin, ADMIN_EMAIL
 # Removed old LLM enrichment imports - using new enhanced service
-from advanced_llm_enrichment_service import AdvancedLLMEnrichmentService
-from enhanced_enrichment_checker_service import EnhancedEnrichmentCheckerService
+# Removed old enrichment service imports
 from background_enrichment_jobs import background_jobs
 from gmail_service import gmail_service
 from payment_service import (
