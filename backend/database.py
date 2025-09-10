@@ -500,7 +500,7 @@ class Mastery(Base):
     __tablename__ = "mastery"
     
     user_id = Column(String(36), ForeignKey('users.id'), primary_key=True)
-    topic_id = Column(String(36), ForeignKey('topics.id'), primary_key=True)
+    topic_id = Column(String(36), primary_key=True)  # Keep as string but remove FK relationship
     exposure_score = Column(Numeric(5, 2), default=0)
     accuracy_easy = Column(Numeric(3, 2), default=0)
     accuracy_med = Column(Numeric(3, 2), default=0)
@@ -511,7 +511,7 @@ class Mastery(Base):
     
     # Relationships
     user = relationship("User", back_populates="mastery")
-    topic = relationship("Topic")
+    # topic relationship REMOVED as per requirements
 
 
 class TypeMastery(Base):
