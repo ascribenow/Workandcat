@@ -166,7 +166,7 @@ class AdvancedLLMEnrichmentService:
         category_lower = category.lower()
         
         # Direct canonical format check
-        if category.startswith(('A-', 'B-', 'C-', 'D-', 'E-')):
+        if category in ['Arithmetic', 'Algebra', 'Geometry and Mensuration', 'Number System', 'Modern Math']:
             return category
         
         # Map to canonical categories
