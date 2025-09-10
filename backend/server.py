@@ -2460,7 +2460,6 @@ async def get_questions(
                 # Image support fields
                 "has_image": q.has_image,
                 "image_url": q.image_url,
-                "image_alt_text": q.image_alt_text,
                 "created_at": q.created_at.isoformat()
             })
         
