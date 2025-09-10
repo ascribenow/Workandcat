@@ -173,13 +173,13 @@ class AdvancedLLMEnrichmentService:
         if any(term in category_lower for term in ['arithmetic', 'speed', 'distance', 'time', 'work', 'ratio', 'proportion', 'percentage', 'average', 'profit', 'loss', 'interest', 'mixture', 'kinematic', 'fundamental']):
             return "Arithmetic"
         elif any(term in category_lower for term in ['algebra', 'equation', 'inequality', 'progression', 'function', 'graph', 'logarithm', 'exponent']):
-            return "B-Algebra"
+            return "Algebra"
         elif any(term in category_lower for term in ['geometry', 'mensuration', 'triangle', 'circle', 'polygon', 'coordinate', 'trigonometry']):
-            return "C-Geometry & Mensuration"
+            return "Geometry and Mensuration"
         elif any(term in category_lower for term in ['number', 'divisibility', 'hcf', 'lcm', 'remainder', 'modular', 'base', 'digit']):
-            return "D-Number System"
+            return "Number System"
         elif any(term in category_lower for term in ['permutation', 'combination', 'probability', 'set', 'venn', 'modern']):
-            return "E-Modern Math"
+            return "Modern Math"
         else:
             # Default mapping
             return "Arithmetic"
