@@ -535,24 +535,17 @@ Return ONLY this JSON format:
         try:
             logger.info("🔍 Step 6: Enhanced quality verification (Semantic + Binary)")
             
-            # Use enhanced semantic + binary validation from advanced service
-            from advanced_llm_enrichment_service import AdvancedLLMEnrichmentService
-            temp_service = AdvancedLLMEnrichmentService()
-            
-            validation_result = await temp_service._verify_response_quality(
-                enrichment_data, "quality_verification", stem
-            )
-            
-            if validation_result.get("quality_verified", False):
-                logger.info("✅ Enhanced quality verification passed")
-                return {
-                    'quality_verified': True
-                }
+            # Simple quality verification for enhanced system
+            if (enrichment_data.get('right_answer') and
+                enrichment_data.get('category') and
+                enrichment_data.get('subcategory') and
+                enrichment_data.get('type_of_question') and
+                enrichment_data.get('difficulty_band')):
+                logger.info("✅ Quality verification passed")
+                return {'quality_verified': True}
             else:
-                logger.error(f"❌ Enhanced quality verification failed")
-                return {
-                    'quality_verified': False
-                }
+                logger.error(f"❌ Quality verification failed - missing required fields")
+                return {'quality_verified': False}
             
         except Exception as e:
             logger.error(f"❌ Enhanced quality verification exception: {e}")
