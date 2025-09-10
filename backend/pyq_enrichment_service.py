@@ -205,48 +205,71 @@ class PYQEnrichmentService:
                 "enrichment_data": {}
             }
     
-    async def _perform_deep_mathematical_analysis(self, stem: str, current_answer: str = None) -> Dict[str, Any]:
+    async def _perform_comprehensive_analysis(self, stem: str, current_answer: str = None) -> Dict[str, Any]:
         """
-        Step 1: Perform deep mathematical analysis
-        FIELDS UPDATED: answer (right_answer equivalent for PYQ)
+        Stage 1-4 CONSOLIDATED: Single comprehensive LLM analysis
+        FIELDS UPDATED: answer, category, subcategory, type_of_question, difficulty_band, difficulty_score, 
+                       core_concepts, solution_method, concept_difficulty, operations_required, 
+                       problem_structure, concept_keywords
         """
         
-        system_message = """You are a world-class mathematics professor and CAT expert with deep expertise in quantitative reasoning. 
+        system_message = """You are a world-class CAT mathematics expert with deep expertise in quantitative reasoning and educational assessment.
 
-Your task is to perform a sophisticated mathematical analysis of this PYQ question, thinking like a human expert with superior AI intelligence.
+Your task is to perform a COMPREHENSIVE analysis of this PYQ question in ONE complete response.
 
-ANALYZE WITH DEEP SOPHISTICATION:
+COMPREHENSIVE ANALYSIS REQUIRED:
 
-1. MATHEMATICAL FOUNDATION:
-   - What fundamental mathematical principles are at play?
-   - What are the underlying mathematical relationships?
-   - What mathematical intuition is required?
+1. SOLVE THE PROBLEM:
+   - Calculate the precise mathematical answer with step-by-step reasoning
+   - Show clear mathematical logic and verify the answer
 
-2. SOLUTION PATHWAY:
-   - What is the most elegant solution approach?
-   - What alternative methods could work?
-   - What are the key insights needed?
+2. CLASSIFY THE QUESTION:
+   - Category: Main mathematical domain
+   - Subcategory: Specific mathematical area  
+   - Type of Question: Very specific question archetype
 
-3. RIGHT ANSWER GENERATION:
-   - Calculate the precise answer with step-by-step reasoning
-   - Show the mathematical logic
-   - Verify the answer makes logical sense
+3. SELF-ASSESS DIFFICULTY based on YOUR solving experience:
+   - Conceptual Complexity: How many concepts did you integrate?
+   - Computational Intensity: What algebra/transformations did you need?
+   - Reasoning Depth: How many inference steps/branches did you use?
+   
+   Rate 1.0-5.0 using these anchors:
+   • Easy (1.0–2.0): single concept, ≤2 clean steps, light arithmetic
+   • Medium (2.1–3.5): 2 concepts OR 1 concept with nontrivial manipulation, 3–5 steps
+   • Hard (3.6–5.0): synthesis of concepts OR non-obvious insight, ≥6 steps OR tricky algebra
+
+4. EXTRACT CONCEPTS:
+   - Core mathematical concepts involved
+   - Solution methodology used
+   - Required operations and problem structure
+   - Key mathematical keywords
 
 Return ONLY this JSON format:
 {
-  "answer": "precise answer with mathematical reasoning"
+  "answer": "precise answer with mathematical reasoning",
+  "category": "mathematical domain",
+  "subcategory": "specific area", 
+  "type_of_question": "question archetype",
+  "difficulty_band": "Easy/Medium/Hard",
+  "difficulty_score": 3.2,
+  "core_concepts": ["concept1", "concept2", "concept3"],
+  "solution_method": "methodological approach",
+  "concept_difficulty": {"prerequisites": ["req1"], "cognitive_barriers": ["barrier1"], "mastery_indicators": ["indicator1"]},
+  "operations_required": ["operation1", "operation2"],
+  "problem_structure": "structural_analysis_type",
+  "concept_keywords": ["keyword1", "keyword2"]
 }
 
-Be precise, insightful, and demonstrate superior mathematical intelligence."""
+Be precise, comprehensive, and demonstrate superior mathematical intelligence."""
 
         user_message = f"PYQ Question: {stem}\nCurrent answer (if any): {current_answer or 'Not provided'}"
         
         for attempt in range(self.max_retries):
             try:
-                logger.info(f"🧠 Calling LLM for deep mathematical analysis (attempt {attempt + 1})...")
+                logger.info(f"🚀 Calling LLM for comprehensive analysis (attempt {attempt + 1})...")
                 
                 analysis_text, model_used = await call_llm_with_fallback(
-                    self, system_message, user_message, max_tokens=800, temperature=0.1
+                    self, system_message, user_message, max_tokens=1200, temperature=0.1
                 )
                 
                 if not analysis_text:
@@ -256,19 +279,39 @@ Be precise, insightful, and demonstrate superior mathematical intelligence."""
                 clean_json = extract_json_from_response(analysis_text)
                 analysis_data = json.loads(clean_json)
                 
-                logger.info(f"✅ Deep mathematical analysis completed with {model_used}")
+                # Validate and clean difficulty data
+                band = analysis_data.get('difficulty_band', 'Medium').capitalize()
+                if band not in ['Easy', 'Medium', 'Hard']:
+                    band = 'Medium'
+                
+                score = float(analysis_data.get('difficulty_score', 2.5))
+                if not (1.0 <= score <= 5.0):
+                    score = 2.5
+                
+                analysis_data['difficulty_band'] = band
+                analysis_data['difficulty_score'] = score
+                
+                # Convert complex fields to JSON strings for database storage
+                analysis_data['core_concepts'] = json.dumps(analysis_data.get('core_concepts', []))
+                analysis_data['concept_difficulty'] = json.dumps(analysis_data.get('concept_difficulty', {}))
+                analysis_data['operations_required'] = json.dumps(analysis_data.get('operations_required', []))
+                analysis_data['concept_keywords'] = json.dumps(analysis_data.get('concept_keywords', []))
+                
+                logger.info(f"✅ Comprehensive analysis completed with {model_used}")
+                logger.info(f"📊 Difficulty: {band} ({score})")
+                
                 return analysis_data
                 
             except Exception as e:
-                logger.error(f"⚠️ Deep analysis attempt {attempt + 1} failed: {str(e)}")
+                logger.error(f"⚠️ Comprehensive analysis attempt {attempt + 1} failed: {str(e)}")
                 if attempt < self.max_retries - 1:
                     delay = self.retry_delays[attempt]
-                    logger.info(f"⏳ Retrying deep analysis in {delay} seconds...")
+                    logger.info(f"⏳ Retrying comprehensive analysis in {delay} seconds...")
                     await asyncio.sleep(delay)
                     continue
                 else:
-                    logger.error("❌ All deep analysis attempts failed")
-                    raise Exception("Deep mathematical analysis failed after all retries")
+                    logger.error("❌ All comprehensive analysis attempts failed")
+                    raise Exception("Comprehensive analysis failed after all retries")
     
     async def _perform_sophisticated_classification(self, stem: str, deep_analysis: Dict[str, Any]) -> Dict[str, Any]:
         """
