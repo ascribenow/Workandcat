@@ -1529,7 +1529,7 @@ class CATBackendTester:
                 enrichment_stats = response.get('enrichment_statistics', {})
                 recent_activity = response.get('recent_activity', [])
                 
-                if recent_activity:
+                if recent_activity and isinstance(recent_activity, list):
                     enrichment_results["enrichment_initiation_confirmed"] = True
                     print(f"   ✅ Recent enrichment activity detected")
                     print(f"   📊 Recent Activity Count: {len(recent_activity)}")
@@ -1538,6 +1538,10 @@ class CATBackendTester:
                     if len(recent_activity) > 0:
                         latest = recent_activity[0]
                         print(f"   📊 Latest Activity: {latest}")
+                elif recent_activity:
+                    enrichment_results["enrichment_initiation_confirmed"] = True
+                    print(f"   ✅ Recent enrichment activity detected")
+                    print(f"   📊 Recent Activity: {recent_activity}")
                 else:
                     print(f"   📊 No recent activity detected yet (may take time to show)")
                 
