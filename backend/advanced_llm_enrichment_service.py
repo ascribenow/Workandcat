@@ -171,7 +171,7 @@ class AdvancedLLMEnrichmentService:
         
         # Map to canonical categories
         if any(term in category_lower for term in ['arithmetic', 'speed', 'distance', 'time', 'work', 'ratio', 'proportion', 'percentage', 'average', 'profit', 'loss', 'interest', 'mixture', 'kinematic', 'fundamental']):
-            return "A-Arithmetic"
+            return "Arithmetic"
         elif any(term in category_lower for term in ['algebra', 'equation', 'inequality', 'progression', 'function', 'graph', 'logarithm', 'exponent']):
             return "B-Algebra"
         elif any(term in category_lower for term in ['geometry', 'mensuration', 'triangle', 'circle', 'polygon', 'coordinate', 'trigonometry']):
