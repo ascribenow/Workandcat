@@ -226,7 +226,7 @@ class AdvancedLLMEnrichmentService:
         question_type_lower = question_type.lower()
         
         # Map based on category and keywords
-        if category == "A-Arithmetic":
+        if category == "Arithmetic":
             if any(term in question_type_lower for term in ['speed', 'distance', 'time', 'train', 'motion']):
                 return "Speed-Distance-Time Problem"
             elif any(term in question_type_lower for term in ['work', 'rate', 'efficiency']):
