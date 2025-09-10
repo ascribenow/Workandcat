@@ -266,7 +266,7 @@ class AdvancedLLMEnrichmentService:
             else:
                 return "Linear Equation Problem"  # Default for algebra
                 
-        elif category == "C-Geometry & Mensuration":
+        elif category == "Geometry and Mensuration":
             if any(term in question_type_lower for term in ['triangle']):
                 return "Triangle Properties Problem"
             elif any(term in question_type_lower for term in ['circle']):
