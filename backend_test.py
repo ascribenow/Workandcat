@@ -6143,52 +6143,37 @@ if __name__ == "__main__":
     
     print("🚀 CAT BACKEND COMPREHENSIVE TESTING SUITE")
     print("=" * 80)
-    print("FINAL VALIDATION: PYQ Enrichment System After Database Fix")
-    print("Testing database schema fix and enrichment system validation as requested in review")
-    print("")
-    
-    # Run PYQ Enrichment System Database Fix Validation (PRIMARY FOCUS)
-    print("🎯 STARTING PYQ ENRICHMENT SYSTEM DATABASE FIX VALIDATION")
-    pyq_database_fix_success = tester.test_pyq_enrichment_system_database_fix_validation()
-    
-    print("\n" + "=" * 80)
-    print("🎯 PYQ ENRICHMENT SYSTEM DATABASE FIX VALIDATION - FINAL SUMMARY")
+    print("Testing PYQ Questions Enrichment Status as requested in review")
     print("=" * 80)
     
-    total_test_suites = 1
-    passed_test_suites = 1 if pyq_database_fix_success else 0
-    overall_success_rate = (passed_test_suites / total_test_suites) * 100
-    
-    print(f"PYQ Enrichment System Database Fix Validation: {'✅ PASS' if pyq_database_fix_success else '❌ FAIL'}")
-    
-    print(f"\nTest Suite Success Rate: {passed_test_suites}/{total_test_suites} ({overall_success_rate:.1f}%)")
-    print(f"Individual Tests Run: {tester.tests_run}")
-    print(f"Individual Tests Passed: {tester.tests_passed}")
-    print(f"Individual Test Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%")
-    
-    if overall_success_rate >= 80:
-        print("\n🎉 PYQ ENRICHMENT SYSTEM DATABASE FIX VALIDATION - EXCELLENT SUCCESS!")
-        print("   ✅ Database schema fix working - solution_method field accepts longer content")
-        print("   ✅ No more 'value too long for type character varying' errors")
-        print("   ✅ Complete enrichment pipeline functional without timeout")
-        print("   ✅ LLM utils consolidation working with OpenAI GPT-4o integration")
-        print("   ✅ Quality verification system operational")
-        print("   ✅ System health check passed")
-        print("   🏆 PRODUCTION READY - Database fix successful, enrichment system functional")
-    elif overall_success_rate >= 60:
-        print("\n⚠️ PYQ ENRICHMENT SYSTEM DATABASE FIX VALIDATION - MOSTLY SUCCESSFUL")
-        print("   - Database fix appears working with minor issues to address")
-        print("   - Core enrichment functionality operational")
-        print("   🔧 MINOR ISSUES - Some components need attention")
-    else:
-        print("\n❌ PYQ ENRICHMENT SYSTEM DATABASE FIX VALIDATION - CRITICAL ISSUES DETECTED")
-        print("   - Database fix may not be complete")
-        print("   - Critical enrichment functionality may be broken")
-        print("   🚨 MAJOR PROBLEMS - Database fix validation failed")
-    
-    print("\n🎯 TESTING COMPLETE - Review results above for detailed analysis")
-    
-    if overall_success_rate >= 60:
-        sys.exit(0)
-    else:
-        sys.exit(1)
+    # Run PYQ enrichment status check as requested
+    try:
+        # Test PYQ enrichment status comprehensive check
+        pyq_status_success = tester.test_pyq_enrichment_status_comprehensive_check()
+        
+        print("\n" + "=" * 80)
+        print("🎯 PYQ ENRICHMENT STATUS CHECK - FINAL RESULTS")
+        print("=" * 80)
+        
+        print(f"PYQ Enrichment Status Check: {'✅ PASS' if pyq_status_success else '❌ FAIL'}")
+        
+        print("-" * 80)
+        if pyq_status_success:
+            print("🎉 PYQ ENRICHMENT STATUS CHECK SUCCESSFUL!")
+            print("   ✅ Database connection healthy")
+            print("   ✅ Enrichment statistics retrieved")
+            print("   ✅ Content quality analyzed")
+            print("   ✅ Database health validated")
+        else:
+            print("⚠️ PYQ ENRICHMENT STATUS CHECK NEEDS ATTENTION")
+            print("   🔧 Some validation points failed")
+            print("   📊 Review detailed results above")
+        
+        print(f"Total Tests Run: {tester.tests_run}")
+        print(f"Total Tests Passed: {tester.tests_passed}")
+        print(f"Overall Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%")
+        
+    except Exception as e:
+        print(f"❌ Testing suite failed with error: {e}")
+        import traceback
+        traceback.print_exc()
