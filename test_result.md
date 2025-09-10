@@ -3057,6 +3057,18 @@ test_plan:
   refactoring_objectives_achieved: false
 
 backend:
+  - task: "Phase 3B Admin Endpoints Critical Issues Resolution"
+    implemented: true
+    working: false
+    file: "/app/backend/server.py, /app/backend/database.py"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: false
+    status_history:
+        -working: false
+        -agent: "testing"
+        -comment: "🎯 PHASE 3B ADMIN ENDPOINTS COMPREHENSIVE TESTING COMPLETED - CRITICAL ISSUES IDENTIFIED FOR 100% SUCCESS! Comprehensive testing of Phase 3B admin endpoints reveals 66.7% success rate (18/27 tests passed) with specific issues preventing 100% achievement as requested in the review. DETAILED FINDINGS BY CATEGORY: 1) ✅ AUTHENTICATION SETUP (100%): Admin authentication working perfectly with sumedhprabhu18@gmail.com/admin2025 credentials, JWT token generation successful (289 characters), admin privileges confirmed, 2) ⚠️ CSV UPLOAD ISSUES (60%): CSV upload endpoint accessible and multipart/form-data handling working, but CRITICAL ISSUES: new field mappings not processed correctly (questions being deactivated 0/3 instead of activated), enrichment triggering problems (quality_verified=False for all questions), LLM fields showing 'To be classified by LLM' instead of real values, 3) ✅ DATABASE CONSTRAINT ISSUES (100%): No foreign key constraint errors, no field length constraint errors, field validations working, database schema integrity confirmed - this area is completely resolved, 4) ⚠️ ENRICH CHECKER PROBLEMS (75%): Regular enrichment service import working, LLM integration functional, enrich checker endpoint accessible, but response format consistency issues detected, 5) ⚠️ DATA RETRIEVAL ISSUES (50%): Database queries working with new schema, admin questions endpoint working, but CRITICAL ISSUES: snap_read field NOT present in endpoints responses, field serialization problems detected, 6) ⚠️ ADDITIONAL ADMIN ENDPOINTS (75%): Admin PYQ endpoints working (2/3), admin enrichment status working, admin trigger enrichment working, but CRITICAL ISSUE: frequency analysis failing with 'type object Question has no attribute frequency_analysis_method' error. ROOT CAUSE ANALYSIS: The main blockers for 100% success are: 1) CSV upload quality control deactivating questions instead of activating them, 2) Missing frequency_analysis_method attribute in Question database model, 3) snap_read field not being serialized in admin endpoint responses, 4) LLM enrichment not generating real values during upload. URGENT ACTION REQUIRED: 1) Fix CSV upload workflow to properly activate questions after enrichment, 2) Add frequency_analysis_method attribute to Question model, 3) Ensure snap_read field is included in admin endpoint serialization, 4) Debug LLM enrichment to generate real values instead of placeholder text, 5) Fix response format consistency in enrich checker. SUCCESS RATE: 66.7% - Specific issues identified, clear roadmap for achieving 100% success established."
+
   - task: "PYQ Enrichment System Database Fix Validation"
     implemented: true
     working: true
