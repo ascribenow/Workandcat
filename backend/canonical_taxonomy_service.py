@@ -482,7 +482,7 @@ EXAMPLES OF SEMANTIC MATCHING:
         for attempt in range(2):
             try:
                 # Import here to avoid circular imports
-                from advanced_llm_enrichment_service import call_llm_with_fallback
+                # call_llm_with_fallback functionality moved to pyq_enrichment_service
                 
                 # Build comprehensive context with question type descriptions
                 types_context = []
