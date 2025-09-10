@@ -608,7 +608,7 @@ class DoubtsConversation(Base):
     
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     user_id = Column(String(36), ForeignKey('users.id'), nullable=False)
-    question_id = Column(String(36), ForeignKey('questions.id'), nullable=False)
+    question_id = Column(String(36), nullable=False)  # Removed FK relationship as per requirements
     session_id = Column(String(36), ForeignKey('sessions.id'), nullable=True)  # Link to session if available
     message_count = Column(Integer, default=0)  # Track number of messages in conversation
     conversation_transcript = Column(Text, default='[]')  # JSON array of conversation messages
@@ -619,7 +619,7 @@ class DoubtsConversation(Base):
     
     # Relationships
     user = relationship("User")
-    question = relationship("Question")
+    # question relationship REMOVED as per requirements
     session = relationship("Session")
     
     # Indexes for efficient queries
