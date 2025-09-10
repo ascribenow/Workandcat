@@ -472,7 +472,7 @@ class Attempt(Base):
     
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     user_id = Column(String(36), ForeignKey('users.id'), nullable=False)
-    question_id = Column(String(36), ForeignKey('questions.id'), nullable=False)
+    question_id = Column(String(36), nullable=False)  # Removed ForeignKey relationship as per requirements
     attempt_no = Column(Integer, nullable=False)  # 1, 2, 3
     context = Column(String(20), nullable=False)  # diagnostic|daily|sandbox
     options = Column(JSON, default=dict)  # the 4 choices shown
@@ -486,7 +486,7 @@ class Attempt(Base):
     
     # Relationships
     user = relationship("User", back_populates="attempts")
-    question = relationship("Question", back_populates="attempts")
+    # question relationship REMOVED as per requirements
     
     # Indexes for performance
     __table_args__ = (
