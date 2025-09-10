@@ -11100,46 +11100,40 @@ if __name__ == "__main__":
         return total_success
 
 if __name__ == "__main__":
-    tester = CATBackendTester()
-    
-    print("🚀 CAT BACKEND TESTING SUITE - DATA INCONSISTENCY FIX VALIDATION")
+    print("🚀 CAT BACKEND TESTING - ADMIN ENDPOINTS FOR REGULAR QUESTIONS")
     print("=" * 80)
-    print("Starting focused testing for data inconsistency fix...")
+    print("Starting comprehensive testing of admin endpoints for regular questions")
+    print("as requested in Phase 3B review.")
     print("")
     
-    # Run specific test for data inconsistency fix
-    print("🔧 STARTING DATA INCONSISTENCY FIX TESTING...")
+    tester = CATBackendTester()
+    
     try:
-        data_consistency_success = tester.test_data_inconsistency_fix()
+        # Run the specific test for admin endpoints for regular questions
+        success = tester.test_admin_endpoints_regular_questions()
         
         print("\n" + "=" * 80)
-        print("🎯 FINAL TESTING SUMMARY")
+        print("🎯 FINAL TEST SUMMARY")
         print("=" * 80)
         
-        if data_consistency_success:
-            print("🎉 DATA INCONSISTENCY FIX: ✅ SUCCESSFUL")
-            print("   - Enrichment status endpoint working correctly")
-            print("   - Questions endpoint working correctly")
-            print("   - Both endpoints show consistent data")
-            print("   - Response field names updated correctly")
-            print("   - Quality_verified calculation now used")
-            print("   - Serious data inconsistency bug resolved")
+        if success:
+            print("✅ ADMIN ENDPOINTS FOR REGULAR QUESTIONS TESTING SUCCESSFUL!")
+            print("   All critical admin endpoints are working correctly")
+            print("   New field mappings are functional")
+            print("   Database schema changes are working")
+            print("   Refactoring objectives achieved")
             print("   🏆 PRODUCTION READY")
         else:
-            print("❌ DATA INCONSISTENCY FIX: ❌ ISSUES DETECTED")
-            print("   - Data consistency issues may still exist")
-            print("   - Critical functionality may be broken")
-            print("   🚨 NEEDS ATTENTION")
+            print("❌ ADMIN ENDPOINTS TESTING REVEALED ISSUES")
+            print("   Some critical functionality may not be working")
+            print("   Review the detailed results above")
+            print("   🔧 FIXES NEEDED")
         
-        print(f"\nTotal tests run: {tester.tests_run}")
-        print(f"Total tests passed: {tester.tests_passed}")
-        print(f"Overall success rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%")
-        
-        print("\n" + "=" * 80)
-        print("🏁 TESTING COMPLETE")
-        print("=" * 80)
+        print(f"\nTotal Tests Run: {tester.tests_run}")
+        print(f"Total Tests Passed: {tester.tests_passed}")
+        print(f"Overall Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%")
         
     except Exception as e:
-        print(f"❌ Testing suite failed with error: {e}")
+        print(f"\n❌ TESTING FAILED WITH EXCEPTION: {e}")
         import traceback
         traceback.print_exc()
