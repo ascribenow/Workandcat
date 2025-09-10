@@ -84,69 +84,72 @@ class Question(Base):
     __tablename__ = "questions"
     
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    topic_id = Column(String(36), ForeignKey('topics.id'), nullable=False)
-    category = Column(String(100), nullable=True)  # NEW: Main category (Arithmetic, Algebra, etc.)
+    # topic_id REMOVED as per requirements
+    category = Column(String(100), nullable=True)  # Main category (Arithmetic, Algebra, etc.)
     subcategory = Column(Text, nullable=False)
     type_of_question = Column(String(150))  # Specific question type within subcategory
     
     # Core question content
     stem = Column(Text, nullable=False)
-    answer = Column(Text, nullable=False)  # canonical answer
-    right_answer = Column(Text, nullable=True)  # NEW: right answer column for additional answer tracking
-    solution_approach = Column(Text, nullable=True)
-    detailed_solution = Column(Text, nullable=True)
-    principle_to_remember = Column(Text, nullable=True)  # NEW: Locked pedagogy field from user uploads
+    answer = Column(Text, nullable=False)  # canonical answer from CSV
+    right_answer = Column(Text, nullable=True)  # Enhanced answer from LLM enrichment
+    solution_approach = Column(Text, nullable=True)  # From CSV upload
+    detailed_solution = Column(Text, nullable=True)  # From CSV upload
+    principle_to_remember = Column(Text, nullable=True)  # From CSV upload
+    snap_read = Column(Text, nullable=True)  # NEW: From CSV upload, display above solution_approach
     
     # Image support
     has_image = Column(Boolean, default=False)
-    image_url = Column(Text, nullable=True)
-    image_alt_text = Column(Text, nullable=True)
+    image_url = Column(Text, nullable=True)  # From CSV upload
+    # image_alt_text REMOVED as per requirements
     
-    # LLM-computed scores with CONSTRAINTS
-    difficulty_score = Column(Numeric(3, 2), nullable=True)  # 1-5
-    difficulty_band = Column(String(20), nullable=True)  # Easy|Medium|Hard - REQUIRED for activation
-    llm_difficulty_assessment_method = Column(String(50), default='pending')  # pending|llm_verified|failed
-    llm_assessment_attempts = Column(Integer, default=0)  # Track retry attempts
-    last_llm_assessment_date = Column(DateTime, nullable=True)  # Track when last attempted
-    llm_assessment_error = Column(Text, nullable=True)  # Store last error if failed
+    # LLM-computed difficulty scores
+    difficulty_score = Column(Numeric(3, 2), nullable=True)  # 1-5, populated by LLM enrichment
+    difficulty_band = Column(String(20), nullable=True)  # Easy|Medium|Hard, populated by LLM enrichment
+    # llm_difficulty_assessment_method REMOVED as per requirements
+    # llm_assessment_attempts REMOVED as per requirements
+    # last_llm_assessment_date REMOVED as per requirements
+    # llm_assessment_error REMOVED as per requirements
+    
+    # Frequency & Impact scores
     frequency_band = Column(String(20), nullable=True)  # High|Medium|Low
     learning_impact = Column(Numeric(5, 2), nullable=True)  # 0-100
     learning_impact_band = Column(String(20), nullable=True)
     importance_index = Column(Numeric(5, 2), nullable=True)  # 0-100
     importance_band = Column(String(20), nullable=True)
     
-    # Enhanced conceptual frequency analysis fields
-    frequency_score = Column(Numeric(5, 4), default=0.0)  # New enhanced frequency score
-    pyq_frequency_score = Column(Numeric(5, 4), default=0.0)  # NEW: Integrated PYQ frequency score for selection weighting
+    # Enhanced frequency analysis fields
+    frequency_score = Column(Numeric(5, 4), default=0.0)  # Enhanced frequency score
+    pyq_frequency_score = Column(Numeric(5, 4), default=0.0)  # PYQ frequency score
     pyq_conceptual_matches = Column(Integer, default=0)
-    total_pyq_analyzed = Column(Integer, default=0)
+    # total_pyq_analyzed REMOVED as per requirements
     top_matching_concepts = Column(Text, default='[]')  # JSON string for SQLite
-    frequency_analysis_method = Column(String(50), default='subcategory')
-    frequency_last_updated = Column(DateTime, nullable=True)
-    pyq_occurrences_last_10_years = Column(Integer, default=0)
-    total_pyq_count = Column(Integer, default=0)
+    # frequency_analysis_method REMOVED as per requirements
+    # frequency_last_updated REMOVED as per requirements
+    # pyq_occurrences_last_10_years REMOVED as per requirements
+    # total_pyq_count REMOVED as per requirements
     
-    # MCQ Options (stored during enrichment)
-    mcq_options = Column(Text, nullable=True)  # JSON string of MCQ options
+    # MCQ Options (from CSV upload)
+    mcq_options = Column(Text, nullable=True)  # From CSV upload
     
-    # NEW: Advanced LLM enrichment fields for Enhanced Checker
-    quality_verified = Column(Boolean, default=False)  # Quality gate for Enhanced Checker
+    # LLM enrichment fields (same logic as PYQ questions)
+    quality_verified = Column(Boolean, default=False)  # Quality gate from LLM enrichment
     core_concepts = Column(Text, nullable=True)  # JSON: extracted mathematical concepts
-    solution_method = Column(String(200), nullable=True)  # Primary solution approach
-    concept_difficulty = Column(Text, nullable=True)  # JSON: difficulty indicators
-    operations_required = Column(Text, nullable=True)  # JSON: mathematical operations
-    problem_structure = Column(String(100), nullable=True)  # Structure pattern type
-    concept_keywords = Column(Text, nullable=True)  # JSON: searchable keywords
+    solution_method = Column(String(200), nullable=True)  # Primary solution approach from LLM
+    concept_difficulty = Column(Text, nullable=True)  # JSON: difficulty indicators from LLM
+    operations_required = Column(Text, nullable=True)  # JSON: mathematical operations from LLM
+    problem_structure = Column(String(100), nullable=True)  # Structure pattern type from LLM
+    concept_keywords = Column(Text, nullable=True)  # JSON: searchable keywords from LLM
     
     # Metadata
     source = Column(String(20), default='Admin')  # Admin|PYQ|Mock|AI_GEN
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     
-    # Relationships
-    topic = relationship("Topic", back_populates="questions")
-    question_options = relationship("QuestionOption", back_populates="question")
-    attempts = relationship("Attempt", back_populates="question")
+    # Relationships REMOVED as per requirements
+    # topic = relationship("Topic", back_populates="questions") - REMOVED
+    # question_options = relationship("QuestionOption", back_populates="question") - REMOVED  
+    # attempts = relationship("Attempt", back_populates="question") - REMOVED
 
     @validates('difficulty_band')
     def validate_difficulty_band(self, key, difficulty_band):
@@ -155,72 +158,7 @@ class Question(Base):
             raise ValueError("Difficulty band must be Easy, Medium, or Hard")
         return difficulty_band
 
-    @validates('is_active')
-    def validate_active_status(self, key, is_active):
-        """Validate that questions can only become active if LLM assessment is complete"""
-        if is_active and (not self.difficulty_band or self.llm_difficulty_assessment_method != 'llm_verified'):
-            # Don't raise error here, just set to False and log for reprocessing
-            logger.warning(f"Question {self.id} cannot be activated - missing LLM difficulty assessment")
-            return False
-        return is_active
-
-    async def ensure_llm_difficulty_assessment(self, db_session, simplified_enricher=None):
-        """
-        Ensure this question has valid LLM difficulty assessment
-        If not, trigger Enhanced LLM Assessment with Retry Logic
-        """
-        from datetime import datetime
-        
-        # Check if LLM assessment is needed
-        if (self.difficulty_band is None or 
-            self.llm_difficulty_assessment_method != 'llm_verified'):
-            
-            logger.info(f"🔄 Triggering LLM difficulty assessment for question {self.id}")
-            
-            if simplified_enricher is None:
-                # from llm_enrichment import SimplifiedEnrichmentService  # Removed - using new enhanced service
-                # simplified_enricher = SimplifiedEnrichmentService()  # Removed - using new enhanced service
-                logger.warning("⚠️ Simplified enrichment service disabled - using new enhanced service")
-                return False  # Skip this for now
-            
-            try:
-                # Update attempt tracking
-                self.llm_assessment_attempts = (self.llm_assessment_attempts or 0) + 1
-                self.last_llm_assessment_date = datetime.utcnow()
-                self.llm_difficulty_assessment_method = 'processing'
-                
-                # Trigger Enhanced LLM Assessment with Retry Logic
-                difficulty_result = await simplified_enricher._determine_difficulty_level(
-                    self.stem, 
-                    self.right_answer or self.answer or "No answer provided"
-                )
-                
-                # Success - update fields
-                self.difficulty_band = difficulty_result
-                self.llm_difficulty_assessment_method = 'llm_verified'
-                self.llm_assessment_error = None
-                
-                logger.info(f"✅ LLM difficulty assessment successful: {difficulty_result}")
-                
-                # Now question can be activated
-                if not self.is_active:
-                    self.is_active = True
-                    logger.info(f"✅ Question {self.id} activated after successful LLM assessment")
-                
-                await db_session.commit()
-                return True
-                
-            except Exception as e:
-                # Failed - record error but don't activate
-                self.llm_difficulty_assessment_method = 'failed'
-                self.llm_assessment_error = str(e)
-                self.is_active = False
-                
-                logger.error(f"❌ LLM difficulty assessment failed for question {self.id}: {e}")
-                await db_session.commit()
-                return False
-        
-        return True  # Already has valid assessment
+    # Removed is_active validator and ensure_llm_difficulty_assessment method as per requirements
 
 
 class QuestionOption(Base):
