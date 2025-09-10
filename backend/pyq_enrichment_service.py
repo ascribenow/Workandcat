@@ -351,10 +351,11 @@ Be precise, comprehensive, and use EXACT canonical taxonomy names."""
         """
         
         try:
-            logger.info("🎯 Stage 5a: Enhanced semantic matching...")
+            logger.info("🎯 Stage 5a: Context-aware semantic matching...")
             
-            # Apply enhanced semantic matching using NEW FLOW
-            canonical_category, canonical_subcategory, canonical_type = await canonical_taxonomy_service.get_canonical_taxonomy_path(
+            # Apply enhanced semantic matching with ORIGINAL QUESTION CONTEXT
+            canonical_category, canonical_subcategory, canonical_type = await self._get_canonical_taxonomy_path_with_context(
+                stem,  # Include original question
                 enrichment_data.get('category', ''),
                 enrichment_data.get('subcategory', ''),
                 enrichment_data.get('type_of_question', '')
@@ -367,9 +368,9 @@ Be precise, comprehensive, and use EXACT canonical taxonomy names."""
                 'type_of_question': canonical_type
             }
             
-            logger.info(f"✅ Semantic matching: {enrichment_data.get('category')} → {canonical_category}")
-            logger.info(f"✅ Semantic matching: {enrichment_data.get('subcategory')} → {canonical_subcategory}")
-            logger.info(f"✅ Semantic matching: {enrichment_data.get('type_of_question')} → {canonical_type}")
+            logger.info(f"✅ Context-aware matching: {enrichment_data.get('category')} → {canonical_category}")
+            logger.info(f"✅ Context-aware matching: {enrichment_data.get('subcategory')} → {canonical_subcategory}")
+            logger.info(f"✅ Context-aware matching: {enrichment_data.get('type_of_question')} → {canonical_type}")
             
             # Stage 5b: Enhanced quality verification
             logger.info("🔍 Stage 5b: Enhanced quality verification (Semantic + Binary)")
@@ -396,7 +397,7 @@ Be precise, comprehensive, and use EXACT canonical taxonomy names."""
             return result
             
         except Exception as e:
-            logger.error(f"❌ Semantic matching and verification failed: {e}")
+            logger.error(f"❌ Context-aware semantic matching and verification failed: {e}")
             return {
                 'category': enrichment_data.get('category'),
                 'subcategory': enrichment_data.get('subcategory'), 
