@@ -284,7 +284,7 @@ class AdvancedLLMEnrichmentService:
             else:
                 return "Area Calculation Problem"  # Default for geometry
                 
-        elif category == "D-Number System":
+        elif category == "Number System":
             if any(term in question_type_lower for term in ['divisibility', 'divisible']):
                 return "Divisibility Analysis Problem"
             elif any(term in question_type_lower for term in ['hcf', 'lcm', 'gcd']):
