@@ -394,7 +394,7 @@ EXAMPLES OF SEMANTIC MATCHING:
         for attempt in range(2):
             try:
                 # Import here to avoid circular imports
-                from advanced_llm_enrichment_service import call_llm_with_fallback
+                # call_llm_with_fallback functionality moved to pyq_enrichment_service
                 
                 system_message = f"""You are a mathematical taxonomy expert with deep understanding of CAT quantitative subcategories across ALL mathematical domains.
 
