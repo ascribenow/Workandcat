@@ -182,7 +182,7 @@ class AdvancedLLMEnrichmentService:
             return "E-Modern Math"
         else:
             # Default mapping
-            return "A-Arithmetic"
+            return "Arithmetic"
     
     def _map_to_canonical_question_type(self, question_type: str, category: str) -> str:
         """Map any question type to canonical type based on category"""
