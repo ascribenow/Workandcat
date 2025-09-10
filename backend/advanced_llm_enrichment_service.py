@@ -161,7 +161,7 @@ class AdvancedLLMEnrichmentService:
     def _map_to_canonical_category(self, category: str) -> str:
         """Map any category to canonical A-E format"""
         if not category:
-            return "A-Arithmetic"
+            return "Arithmetic"
         
         category_lower = category.lower()
         
