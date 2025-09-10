@@ -439,12 +439,12 @@ class DiagnosticSetQuestion(Base):
     __tablename__ = "diagnostic_set_questions"
     
     set_id = Column(String(36), ForeignKey('diagnostic_sets.id'), primary_key=True)
-    question_id = Column(String(36), ForeignKey('questions.id'), primary_key=True)
+    question_id = Column(String(36), primary_key=True)  # Removed FK relationship as per requirements
     seq = Column(Integer, nullable=False)  # question sequence in diagnostic
     
     # Relationships
     diagnostic_set = relationship("DiagnosticSet", back_populates="questions")
-    question = relationship("Question")
+    # question relationship REMOVED as per requirements
 
 
 class Diagnostic(Base):
