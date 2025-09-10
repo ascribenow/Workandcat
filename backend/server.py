@@ -4861,23 +4861,6 @@ async def upload_questions_csv(
                         "success": False,
                         "error": enrichment_result.get('error')
                     })
-                    
-                else:
-                    # LLM Enrichment failed - record failure with constraints
-                    question.llm_difficulty_assessment_method = 'failed'
-                    question.llm_assessment_attempts = 1
-                    question.last_llm_assessment_date = datetime.utcnow()
-                    question.llm_assessment_error = enrichment_result.get("error", "Unknown error")
-                    question.is_active = False  # Cannot activate without LLM assessment
-                    
-                    enrichment_results.append({
-                        "question_number": questions_created,
-                        "enrichment_success": False,
-                        "question_activated": False,
-                        "error": enrichment_result.get("error", "Unknown error"),
-                        "llm_constraint": "Question cannot be activated without LLM difficulty assessment"
-                    })
-                    logger.error(f"❌ Question {questions_created}: LLM enrichment failed - marked for retry")
                 
                 # Commit each question individually to avoid rollback issues
                 await db.commit()
