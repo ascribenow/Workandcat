@@ -40,7 +40,7 @@ from datetime import datetime
 from auth_service import AuthService, UserCreate, UserLogin, TokenResponse, require_auth, require_admin, ADMIN_EMAIL
 # Removed old LLM enrichment imports - using new enhanced service
 # Removed old enrichment service imports
-from background_enrichment_jobs import background_jobs
+# from background_enrichment_jobs import background_jobs  # TEMPORARY REMOVAL - needs implementation
 from gmail_service import gmail_service
 from payment_service import (
     razorpay_service,
