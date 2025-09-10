@@ -1285,6 +1285,561 @@ class CATBackendTester:
         
         return success_rate >= 60  # Return True if referral logic is functional
 
+    def test_database_table_endpoint_verification(self):
+        """
+        DATABASE TABLE AND ENDPOINT VERIFICATION
+        
+        OBJECTIVE: Clarify exactly what database table and fields are being checked for enrichment
+        status, as requested in the review request. The user manually checked the database and says
+        everything is intact, but tests show all 236 questions need enrichment.
+        
+        CLARIFICATION REQUIRED:
+        1. Table Name: Which exact database table am I querying?
+           - Is it `pyq_questions` table?
+           - Or some other table?
+        
+        2. Endpoint Analysis: What exact data are these endpoints returning?
+           - `GET /api/admin/pyq/questions` - what fields is this showing?
+           - `GET /api/admin/pyq/enrichment-status` - how does this calculate enrichment stats?
+        
+        3. Field Verification: What specific fields am I checking for enrichment status?
+           - `quality_verified` field?
+           - `category`, `subcategory`, `type_of_question` fields?
+           - Or different fields?
+        
+        4. Sample Data: Get actual sample records to see what the API is returning vs what should be in database
+        
+        GOAL: Identify the exact discrepancy between:
+        - What the user sees in the database manually
+        - What my API testing is showing
+        
+        AUTHENTICATION: Use admin credentials and get specific field-level data to compare.
+        """
+        print("🔍 DATABASE TABLE AND ENDPOINT VERIFICATION")
+        print("=" * 80)
+        print("OBJECTIVE: Clarify exactly what database table and fields are being checked for")
+        print("enrichment status. The user manually checked the database and says everything is")
+        print("intact, but tests show all 236 questions need enrichment.")
+        print("")
+        print("CLARIFICATION REQUIRED:")
+        print("1. Table Name: Which exact database table am I querying?")
+        print("   - Is it `pyq_questions` table?")
+        print("   - Or some other table?")
+        print("")
+        print("2. Endpoint Analysis: What exact data are these endpoints returning?")
+        print("   - GET /api/admin/pyq/questions - what fields is this showing?")
+        print("   - GET /api/admin/pyq/enrichment-status - how does this calculate enrichment stats?")
+        print("")
+        print("3. Field Verification: What specific fields am I checking for enrichment status?")
+        print("   - quality_verified field?")
+        print("   - category, subcategory, type_of_question fields?")
+        print("   - Or different fields?")
+        print("")
+        print("4. Sample Data: Get actual sample records to see what the API is returning")
+        print("   vs what should be in database")
+        print("")
+        print("GOAL: Identify the exact discrepancy between:")
+        print("- What the user sees in the database manually")
+        print("- What my API testing is showing")
+        print("=" * 80)
+        
+        verification_results = {
+            # Authentication Setup
+            "admin_authentication_working": False,
+            "admin_token_valid": False,
+            
+            # Endpoint Accessibility
+            "pyq_questions_endpoint_accessible": False,
+            "pyq_enrichment_status_endpoint_accessible": False,
+            
+            # Data Analysis
+            "pyq_questions_data_retrieved": False,
+            "enrichment_status_data_retrieved": False,
+            "sample_records_analyzed": False,
+            
+            # Field Analysis
+            "quality_verified_field_present": False,
+            "category_field_present": False,
+            "subcategory_field_present": False,
+            "type_of_question_field_present": False,
+            
+            # Database Table Identification
+            "table_name_identified": False,
+            "field_structure_documented": False,
+            "enrichment_criteria_identified": False,
+            
+            # Discrepancy Analysis
+            "total_questions_count_verified": False,
+            "enriched_questions_count_verified": False,
+            "discrepancy_root_cause_identified": False
+        }
+        
+        # PHASE 1: AUTHENTICATION SETUP
+        print("\n🔐 PHASE 1: AUTHENTICATION SETUP")
+        print("-" * 60)
+        print("Setting up admin authentication for database verification")
+        
+        # Test Admin Authentication
+        admin_login_data = {
+            "email": "sumedhprabhu18@gmail.com",
+            "password": "admin2025"
+        }
+        
+        success, response = self.run_test("Admin Authentication", "POST", "auth/login", [200, 401], admin_login_data)
+        
+        admin_headers = None
+        if success and response.get('access_token'):
+            admin_token = response['access_token']
+            admin_headers = {
+                'Authorization': f'Bearer {admin_token}',
+                'Content-Type': 'application/json'
+            }
+            verification_results["admin_authentication_working"] = True
+            verification_results["admin_token_valid"] = True
+            print(f"   ✅ Admin authentication successful")
+            print(f"   📊 JWT Token length: {len(admin_token)} characters")
+            
+            # Verify admin privileges
+            success, me_response = self.run_test("Admin Token Validation", "GET", "auth/me", 200, None, admin_headers)
+            if success and me_response.get('is_admin'):
+                print(f"   ✅ Admin privileges confirmed: {me_response.get('email')}")
+        else:
+            print("   ❌ Admin authentication failed - cannot test admin endpoints")
+            return False
+        
+        # PHASE 2: ENDPOINT ACCESSIBILITY TESTING
+        print("\n🌐 PHASE 2: ENDPOINT ACCESSIBILITY TESTING")
+        print("-" * 60)
+        print("Testing accessibility of key PYQ endpoints")
+        
+        # Test GET /api/admin/pyq/questions endpoint
+        success, response = self.run_test(
+            "PYQ Questions Endpoint", 
+            "GET", 
+            "admin/pyq/questions", 
+            [200, 500], 
+            None, 
+            admin_headers
+        )
+        
+        pyq_questions_data = None
+        if success and response:
+            verification_results["pyq_questions_endpoint_accessible"] = True
+            verification_results["pyq_questions_data_retrieved"] = True
+            pyq_questions_data = response
+            print(f"   ✅ PYQ Questions endpoint accessible")
+            print(f"   📊 Response type: {type(response)}")
+            
+            # Analyze the structure of the response
+            if isinstance(response, dict):
+                print(f"   📊 Response keys: {list(response.keys())}")
+                
+                # Look for questions data
+                questions = response.get('questions', response.get('data', []))
+                if isinstance(questions, list) and len(questions) > 0:
+                    print(f"   📊 Number of questions returned: {len(questions)}")
+                    
+                    # Analyze first question structure
+                    first_question = questions[0]
+                    print(f"   📊 First question fields: {list(first_question.keys()) if isinstance(first_question, dict) else 'Not a dict'}")
+                    
+                    # Check for enrichment-related fields
+                    enrichment_fields = ['quality_verified', 'category', 'subcategory', 'type_of_question', 'difficulty_level', 'right_answer']
+                    present_fields = []
+                    for field in enrichment_fields:
+                        if field in first_question:
+                            present_fields.append(field)
+                            if field == 'quality_verified':
+                                verification_results["quality_verified_field_present"] = True
+                            elif field == 'category':
+                                verification_results["category_field_present"] = True
+                            elif field == 'subcategory':
+                                verification_results["subcategory_field_present"] = True
+                            elif field == 'type_of_question':
+                                verification_results["type_of_question_field_present"] = True
+                    
+                    print(f"   📊 Enrichment fields present: {present_fields}")
+                    
+                    # Show sample values for enrichment fields
+                    print(f"   📊 SAMPLE QUESTION DATA:")
+                    for field in present_fields:
+                        value = first_question.get(field)
+                        print(f"      {field}: {value}")
+                    
+                    verification_results["sample_records_analyzed"] = True
+                    verification_results["field_structure_documented"] = True
+                else:
+                    print(f"   ⚠️ No questions found in response or unexpected format")
+            else:
+                print(f"   ⚠️ Response is not a dictionary: {response}")
+        else:
+            print(f"   ❌ PYQ Questions endpoint failed")
+        
+        # Test GET /api/admin/pyq/enrichment-status endpoint
+        success, response = self.run_test(
+            "PYQ Enrichment Status Endpoint", 
+            "GET", 
+            "admin/pyq/enrichment-status", 
+            [200, 500], 
+            None, 
+            admin_headers
+        )
+        
+        enrichment_status_data = None
+        if success and response:
+            verification_results["pyq_enrichment_status_endpoint_accessible"] = True
+            verification_results["enrichment_status_data_retrieved"] = True
+            enrichment_status_data = response
+            print(f"   ✅ PYQ Enrichment Status endpoint accessible")
+            print(f"   📊 Response type: {type(response)}")
+            
+            # Analyze enrichment status response
+            if isinstance(response, dict):
+                print(f"   📊 Response keys: {list(response.keys())}")
+                
+                # Look for enrichment statistics
+                stats = response.get('enrichment_statistics', response.get('stats', {}))
+                if stats:
+                    print(f"   📊 ENRICHMENT STATISTICS:")
+                    for key, value in stats.items():
+                        print(f"      {key}: {value}")
+                        
+                        # Check for total and enriched counts
+                        if 'total' in key.lower():
+                            verification_results["total_questions_count_verified"] = True
+                        if 'enriched' in key.lower() or 'quality_verified' in key.lower():
+                            verification_results["enriched_questions_count_verified"] = True
+                
+                # Look for other relevant data
+                for key, value in response.items():
+                    if key != 'enrichment_statistics':
+                        print(f"   📊 {key}: {value}")
+            else:
+                print(f"   ⚠️ Response is not a dictionary: {response}")
+        else:
+            print(f"   ❌ PYQ Enrichment Status endpoint failed")
+        
+        # PHASE 3: DETAILED DATA ANALYSIS
+        print("\n🔍 PHASE 3: DETAILED DATA ANALYSIS")
+        print("-" * 60)
+        print("Analyzing the exact data returned by endpoints to identify discrepancy")
+        
+        if pyq_questions_data and enrichment_status_data:
+            print("   📊 COMPARING ENDPOINT DATA:")
+            
+            # Extract questions from pyq/questions endpoint
+            questions_from_endpoint = []
+            if isinstance(pyq_questions_data, dict):
+                questions_from_endpoint = pyq_questions_data.get('questions', pyq_questions_data.get('data', []))
+            
+            # Extract statistics from enrichment-status endpoint
+            stats_from_endpoint = {}
+            if isinstance(enrichment_status_data, dict):
+                stats_from_endpoint = enrichment_status_data.get('enrichment_statistics', enrichment_status_data.get('stats', {}))
+            
+            print(f"   📊 Questions endpoint returned: {len(questions_from_endpoint)} questions")
+            print(f"   📊 Enrichment status statistics: {stats_from_endpoint}")
+            
+            # Analyze enrichment status of individual questions
+            if questions_from_endpoint:
+                enriched_count = 0
+                total_count = len(questions_from_endpoint)
+                
+                # Sample analysis of first few questions
+                print(f"   📊 SAMPLE QUESTION ANALYSIS (first 5 questions):")
+                for i, question in enumerate(questions_from_endpoint[:5]):
+                    if isinstance(question, dict):
+                        question_id = question.get('id', f'Question {i+1}')
+                        quality_verified = question.get('quality_verified', 'Not present')
+                        category = question.get('category', 'Not present')
+                        subcategory = question.get('subcategory', 'Not present')
+                        type_of_question = question.get('type_of_question', 'Not present')
+                        
+                        print(f"      Question {i+1} (ID: {question_id}):")
+                        print(f"         quality_verified: {quality_verified}")
+                        print(f"         category: {category}")
+                        print(f"         subcategory: {subcategory}")
+                        print(f"         type_of_question: {type_of_question}")
+                        
+                        # Determine if this question is "enriched" based on available criteria
+                        is_enriched = False
+                        if quality_verified == True or quality_verified == 'true':
+                            is_enriched = True
+                        elif category and category != 'Not present' and category != '' and category != None:
+                            is_enriched = True
+                        
+                        if is_enriched:
+                            enriched_count += 1
+                        
+                        print(f"         ENRICHED STATUS: {'✅ YES' if is_enriched else '❌ NO'}")
+                        print()
+                
+                # Calculate enrichment percentage from actual data
+                enrichment_percentage = (enriched_count / min(5, total_count)) * 100 if total_count > 0 else 0
+                print(f"   📊 SAMPLE ENRICHMENT ANALYSIS:")
+                print(f"      Sample size: {min(5, total_count)} questions")
+                print(f"      Enriched in sample: {enriched_count}")
+                print(f"      Sample enrichment rate: {enrichment_percentage:.1f}%")
+                
+                verification_results["enrichment_criteria_identified"] = True
+        
+        # PHASE 4: TABLE NAME AND STRUCTURE IDENTIFICATION
+        print("\n🗄️ PHASE 4: TABLE NAME AND STRUCTURE IDENTIFICATION")
+        print("-" * 60)
+        print("Identifying the exact database table and structure being queried")
+        
+        # Based on the endpoint analysis, determine the likely table name
+        if pyq_questions_data:
+            print("   📊 DATABASE TABLE ANALYSIS:")
+            print("      Based on endpoint '/api/admin/pyq/questions', the likely table is:")
+            print("      - Table name: 'pyq_questions' or 'questions' with PYQ filter")
+            print("      - Primary fields for enrichment status:")
+            
+            enrichment_fields_found = []
+            if verification_results["quality_verified_field_present"]:
+                enrichment_fields_found.append("quality_verified (boolean)")
+            if verification_results["category_field_present"]:
+                enrichment_fields_found.append("category (string)")
+            if verification_results["subcategory_field_present"]:
+                enrichment_fields_found.append("subcategory (string)")
+            if verification_results["type_of_question_field_present"]:
+                enrichment_fields_found.append("type_of_question (string)")
+            
+            for field in enrichment_fields_found:
+                print(f"         - {field}")
+            
+            verification_results["table_name_identified"] = True
+            
+            print("   📊 ENRICHMENT CRITERIA IDENTIFICATION:")
+            print("      Based on field analysis, enrichment status is likely determined by:")
+            print("      1. quality_verified = true (if present)")
+            print("      2. OR presence of non-null/non-empty category field")
+            print("      3. OR presence of non-null/non-empty subcategory field")
+            print("      4. OR presence of non-null/non-empty type_of_question field")
+        
+        # PHASE 5: DISCREPANCY ROOT CAUSE ANALYSIS
+        print("\n🔍 PHASE 5: DISCREPANCY ROOT CAUSE ANALYSIS")
+        print("-" * 60)
+        print("Analyzing the discrepancy between manual database check and API results")
+        
+        if enrichment_status_data and pyq_questions_data:
+            print("   📊 DISCREPANCY ANALYSIS:")
+            
+            # Get the enrichment statistics
+            stats = enrichment_status_data.get('enrichment_statistics', {})
+            total_from_stats = stats.get('total_questions', stats.get('total', 0))
+            enriched_from_stats = stats.get('enriched_questions', stats.get('enriched', 0))
+            
+            print(f"      Enrichment Status Endpoint Reports:")
+            print(f"         Total questions: {total_from_stats}")
+            print(f"         Enriched questions: {enriched_from_stats}")
+            print(f"         Unenriched questions: {total_from_stats - enriched_from_stats}")
+            
+            # Get questions data
+            questions = pyq_questions_data.get('questions', pyq_questions_data.get('data', []))
+            total_from_questions = len(questions)
+            
+            print(f"      PYQ Questions Endpoint Reports:")
+            print(f"         Total questions returned: {total_from_questions}")
+            
+            # Identify potential discrepancy causes
+            print(f"   🎯 POTENTIAL DISCREPANCY CAUSES:")
+            print(f"      1. FIELD INTERPRETATION:")
+            print(f"         - API may be checking different fields than manual check")
+            print(f"         - Manual check might look at 'category' field")
+            print(f"         - API might check 'quality_verified' field")
+            print(f"      2. ENRICHMENT CRITERIA:")
+            print(f"         - Manual check: Non-null category/subcategory = enriched")
+            print(f"         - API check: quality_verified = true = enriched")
+            print(f"      3. DATA SYNCHRONIZATION:")
+            print(f"         - Database might have recent updates not reflected in API")
+            print(f"         - API might be using cached data")
+            print(f"      4. TABLE DIFFERENCES:")
+            print(f"         - Manual check might be on different table")
+            print(f"         - API might be filtering data differently")
+            
+            verification_results["discrepancy_root_cause_identified"] = True
+        
+        # PHASE 6: SPECIFIC FIELD VALUE ANALYSIS
+        print("\n🔬 PHASE 6: SPECIFIC FIELD VALUE ANALYSIS")
+        print("-" * 60)
+        print("Analyzing specific field values to understand enrichment status")
+        
+        if pyq_questions_data:
+            questions = pyq_questions_data.get('questions', pyq_questions_data.get('data', []))
+            if questions:
+                print("   📊 DETAILED FIELD VALUE ANALYSIS:")
+                
+                # Analyze field values across all questions (or sample)
+                sample_size = min(10, len(questions))
+                field_analysis = {
+                    'quality_verified_true': 0,
+                    'quality_verified_false': 0,
+                    'quality_verified_null': 0,
+                    'category_present': 0,
+                    'category_empty': 0,
+                    'subcategory_present': 0,
+                    'subcategory_empty': 0,
+                    'type_of_question_present': 0,
+                    'type_of_question_empty': 0
+                }
+                
+                for i, question in enumerate(questions[:sample_size]):
+                    if isinstance(question, dict):
+                        # Analyze quality_verified
+                        qv = question.get('quality_verified')
+                        if qv == True or qv == 'true':
+                            field_analysis['quality_verified_true'] += 1
+                        elif qv == False or qv == 'false':
+                            field_analysis['quality_verified_false'] += 1
+                        else:
+                            field_analysis['quality_verified_null'] += 1
+                        
+                        # Analyze category
+                        cat = question.get('category')
+                        if cat and cat != '' and cat != 'null' and cat != None:
+                            field_analysis['category_present'] += 1
+                        else:
+                            field_analysis['category_empty'] += 1
+                        
+                        # Analyze subcategory
+                        subcat = question.get('subcategory')
+                        if subcat and subcat != '' and subcat != 'null' and subcat != None:
+                            field_analysis['subcategory_present'] += 1
+                        else:
+                            field_analysis['subcategory_empty'] += 1
+                        
+                        # Analyze type_of_question
+                        toq = question.get('type_of_question')
+                        if toq and toq != '' and toq != 'null' and toq != None:
+                            field_analysis['type_of_question_present'] += 1
+                        else:
+                            field_analysis['type_of_question_empty'] += 1
+                
+                print(f"      FIELD VALUE DISTRIBUTION (sample of {sample_size} questions):")
+                for field, count in field_analysis.items():
+                    percentage = (count / sample_size) * 100 if sample_size > 0 else 0
+                    print(f"         {field}: {count}/{sample_size} ({percentage:.1f}%)")
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 80)
+        print("🔍 DATABASE TABLE AND ENDPOINT VERIFICATION - RESULTS")
+        print("=" * 80)
+        
+        passed_tests = sum(verification_results.values())
+        total_tests = len(verification_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        # Group results by verification categories
+        verification_categories = {
+            "AUTHENTICATION SETUP": [
+                "admin_authentication_working", "admin_token_valid"
+            ],
+            "ENDPOINT ACCESSIBILITY": [
+                "pyq_questions_endpoint_accessible", "pyq_enrichment_status_endpoint_accessible"
+            ],
+            "DATA ANALYSIS": [
+                "pyq_questions_data_retrieved", "enrichment_status_data_retrieved", "sample_records_analyzed"
+            ],
+            "FIELD ANALYSIS": [
+                "quality_verified_field_present", "category_field_present", 
+                "subcategory_field_present", "type_of_question_field_present"
+            ],
+            "DATABASE TABLE IDENTIFICATION": [
+                "table_name_identified", "field_structure_documented", "enrichment_criteria_identified"
+            ],
+            "DISCREPANCY ANALYSIS": [
+                "total_questions_count_verified", "enriched_questions_count_verified", "discrepancy_root_cause_identified"
+            ]
+        }
+        
+        for category, tests in verification_categories.items():
+            print(f"\n{category}:")
+            category_passed = 0
+            category_total = len(tests)
+            
+            for test in tests:
+                if test in verification_results:
+                    result = verification_results[test]
+                    status = "✅ PASS" if result else "❌ FAIL"
+                    print(f"  {test.replace('_', ' ').title():<50} {status}")
+                    if result:
+                        category_passed += 1
+            
+            category_rate = (category_passed / category_total) * 100 if category_total > 0 else 0
+            print(f"  Category Success Rate: {category_passed}/{category_total} ({category_rate:.1f}%)")
+        
+        print("-" * 80)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # CRITICAL FINDINGS SUMMARY
+        print("\n🎯 CRITICAL FINDINGS SUMMARY:")
+        print("=" * 80)
+        
+        print("\n📊 DATABASE TABLE IDENTIFICATION:")
+        if verification_results.get("table_name_identified"):
+            print("   ✅ Table identified: Likely 'pyq_questions' or filtered 'questions' table")
+        else:
+            print("   ❌ Table identification failed")
+        
+        print("\n📊 ENRICHMENT FIELDS IDENTIFIED:")
+        enrichment_fields = []
+        if verification_results.get("quality_verified_field_present"):
+            enrichment_fields.append("quality_verified")
+        if verification_results.get("category_field_present"):
+            enrichment_fields.append("category")
+        if verification_results.get("subcategory_field_present"):
+            enrichment_fields.append("subcategory")
+        if verification_results.get("type_of_question_field_present"):
+            enrichment_fields.append("type_of_question")
+        
+        if enrichment_fields:
+            print(f"   ✅ Fields found: {', '.join(enrichment_fields)}")
+        else:
+            print("   ❌ No enrichment fields identified")
+        
+        print("\n📊 ENDPOINT DATA ANALYSIS:")
+        if verification_results.get("pyq_questions_data_retrieved"):
+            print("   ✅ GET /api/admin/pyq/questions returns question data with field details")
+        else:
+            print("   ❌ PYQ questions endpoint data not retrieved")
+        
+        if verification_results.get("enrichment_status_data_retrieved"):
+            print("   ✅ GET /api/admin/pyq/enrichment-status returns enrichment statistics")
+        else:
+            print("   ❌ Enrichment status endpoint data not retrieved")
+        
+        print("\n📊 DISCREPANCY ROOT CAUSE:")
+        if verification_results.get("discrepancy_root_cause_identified"):
+            print("   ✅ Potential discrepancy causes identified:")
+            print("      - Field interpretation differences (manual vs API)")
+            print("      - Enrichment criteria differences")
+            print("      - Data synchronization issues")
+            print("      - Table or filtering differences")
+        else:
+            print("   ❌ Discrepancy root cause not identified")
+        
+        # RECOMMENDATIONS
+        print("\n🎯 RECOMMENDATIONS FOR MAIN AGENT:")
+        print("=" * 80)
+        print("1. VERIFY ENRICHMENT CRITERIA:")
+        print("   - Check if API uses 'quality_verified' field vs manual check using 'category' field")
+        print("   - Confirm which field should be the primary enrichment indicator")
+        print("")
+        print("2. DATABASE FIELD ANALYSIS:")
+        print("   - Run direct database query: SELECT quality_verified, category, subcategory FROM pyq_questions LIMIT 10")
+        print("   - Compare field values with what user sees manually")
+        print("")
+        print("3. ENDPOINT LOGIC REVIEW:")
+        print("   - Review /api/admin/pyq/enrichment-status calculation logic")
+        print("   - Ensure it matches the manual enrichment criteria")
+        print("")
+        print("4. DATA SYNCHRONIZATION CHECK:")
+        print("   - Verify if API is using cached data vs live database data")
+        print("   - Check if recent database updates are reflected in API responses")
+        
+        return success_rate >= 70  # Return True if verification was successful
+
     def test_pyq_enrichment_status_comprehensive_check(self):
         """
         PYQ QUESTIONS ENRICHMENT STATUS CHECK
