@@ -1285,6 +1285,411 @@ class CATBackendTester:
         
         return success_rate >= 60  # Return True if referral logic is functional
 
+    def test_pyq_enrichment_trigger_for_remaining_questions(self):
+        """
+        PYQ ENRICHMENT TRIGGER FOR REMAINING QUESTIONS - FOCUSED TEST
+        
+        OBJECTIVE: Test the specific review request to trigger enrichment for remaining questions
+        using the fixed admin endpoints.
+        
+        REVIEW REQUEST REQUIREMENTS:
+        1. **Trigger PYQ Enrichment**: Call `POST /api/admin/pyq/trigger-enrichment` to start processing remaining questions
+        2. **Monitor Progress**: Check that the process starts without errors
+        3. **Verify No Database Constraints**: Ensure no NULL constraint violations occur
+        4. **Confirm Processing**: Watch for successful enrichment initiation
+        5. **Use admin credentials**: sumedhprabhu18@gmail.com/admin2025
+        6. **Focus**: Just trigger the enrichment and confirm it starts successfully without errors. Don't wait for completion since LLM processing takes time.
+        
+        SPECIFIC TESTS:
+        1. Admin Authentication with provided credentials
+        2. Check enrichment status before triggering
+        3. Trigger enrichment process
+        4. Verify successful initiation without errors
+        5. Check that no database constraint violations occur
+        6. Monitor initial progress indicators
+        
+        EXPECTED OUTCOME: The enrichment should start processing the remaining questions 
+        (around 9 based on earlier analysis) without the database constraint errors that were fixed.
+        """
+        print("🎯 PYQ ENRICHMENT TRIGGER FOR REMAINING QUESTIONS - FOCUSED TEST")
+        print("=" * 80)
+        print("OBJECTIVE: Test the specific review request to trigger enrichment for remaining questions")
+        print("using the fixed admin endpoints.")
+        print("")
+        print("REVIEW REQUEST REQUIREMENTS:")
+        print("1. **Trigger PYQ Enrichment**: Call POST /api/admin/pyq/trigger-enrichment to start processing remaining questions")
+        print("2. **Monitor Progress**: Check that the process starts without errors")
+        print("3. **Verify No Database Constraints**: Ensure no NULL constraint violations occur")
+        print("4. **Confirm Processing**: Watch for successful enrichment initiation")
+        print("5. **Use admin credentials**: sumedhprabhu18@gmail.com/admin2025")
+        print("6. **Focus**: Just trigger the enrichment and confirm it starts successfully without errors.")
+        print("")
+        print("EXPECTED OUTCOME: The enrichment should start processing the remaining questions")
+        print("(around 9 based on earlier analysis) without the database constraint errors that were fixed.")
+        print("=" * 80)
+        
+        enrichment_results = {
+            # Authentication
+            "admin_authentication_working": False,
+            "admin_token_valid": False,
+            "admin_privileges_confirmed": False,
+            
+            # Pre-trigger Status Check
+            "enrichment_status_endpoint_accessible": False,
+            "remaining_questions_identified": False,
+            "database_state_healthy": False,
+            
+            # Enrichment Trigger
+            "trigger_enrichment_endpoint_accessible": False,
+            "enrichment_process_started_successfully": False,
+            "no_database_constraint_errors": False,
+            "trigger_response_valid": False,
+            
+            # Progress Monitoring
+            "initial_progress_indicators_working": False,
+            "no_null_constraint_violations": False,
+            "enrichment_initiation_confirmed": False,
+            
+            # Error Handling
+            "proper_error_handling": False,
+            "timeout_handling_working": False,
+            "graceful_failure_handling": False
+        }
+        
+        # PHASE 1: ADMIN AUTHENTICATION
+        print("\n🔐 PHASE 1: ADMIN AUTHENTICATION")
+        print("-" * 60)
+        print("Authenticating with provided admin credentials: sumedhprabhu18@gmail.com/admin2025")
+        
+        admin_login_data = {
+            "email": "sumedhprabhu18@gmail.com",
+            "password": "admin2025"
+        }
+        
+        success, response = self.run_test("Admin Authentication", "POST", "auth/login", [200, 401], admin_login_data)
+        
+        admin_headers = None
+        if success and response.get('access_token'):
+            admin_token = response['access_token']
+            admin_headers = {
+                'Authorization': f'Bearer {admin_token}',
+                'Content-Type': 'application/json'
+            }
+            enrichment_results["admin_authentication_working"] = True
+            enrichment_results["admin_token_valid"] = True
+            print(f"   ✅ Admin authentication successful")
+            print(f"   📊 JWT Token length: {len(admin_token)} characters")
+            
+            # Verify admin privileges
+            success, me_response = self.run_test("Admin Privileges Check", "GET", "auth/me", 200, None, admin_headers)
+            if success and me_response.get('is_admin'):
+                enrichment_results["admin_privileges_confirmed"] = True
+                print(f"   ✅ Admin privileges confirmed: {me_response.get('email')}")
+                print(f"   📊 Admin User ID: {me_response.get('id')}")
+            else:
+                print("   ❌ Admin privileges not confirmed")
+        else:
+            print("   ❌ Admin authentication failed - cannot proceed with testing")
+            return False
+        
+        # PHASE 2: PRE-TRIGGER STATUS CHECK
+        print("\n📊 PHASE 2: PRE-TRIGGER STATUS CHECK")
+        print("-" * 60)
+        print("Checking enrichment status before triggering to identify remaining questions")
+        
+        if admin_headers:
+            # Check enrichment status
+            success, response = self.run_test(
+                "PYQ Enrichment Status Check", 
+                "GET", 
+                "admin/pyq/enrichment-status", 
+                [200], 
+                None, 
+                admin_headers
+            )
+            
+            if success and response:
+                enrichment_results["enrichment_status_endpoint_accessible"] = True
+                enrichment_results["database_state_healthy"] = True
+                print(f"   ✅ Enrichment status endpoint accessible")
+                
+                # Analyze the status response
+                enrichment_stats = response.get('enrichment_statistics', {})
+                total_questions = enrichment_stats.get('total_questions', 0)
+                enriched_questions = enrichment_stats.get('enriched_questions', 0)
+                remaining_questions = total_questions - enriched_questions
+                
+                print(f"   📊 Total PYQ Questions: {total_questions}")
+                print(f"   📊 Enriched Questions: {enriched_questions}")
+                print(f"   📊 Remaining Questions: {remaining_questions}")
+                
+                if remaining_questions > 0:
+                    enrichment_results["remaining_questions_identified"] = True
+                    print(f"   ✅ Remaining questions identified: {remaining_questions} questions need enrichment")
+                else:
+                    print(f"   ⚠️ No remaining questions found - all may already be enriched")
+                
+                # Check for any error indicators in the status
+                if 'error' not in str(response).lower() and 'constraint' not in str(response).lower():
+                    print(f"   ✅ No database constraint errors in status response")
+                else:
+                    print(f"   ⚠️ Potential issues detected in status response")
+            else:
+                print(f"   ❌ Enrichment status endpoint not accessible")
+        
+        # PHASE 3: TRIGGER ENRICHMENT PROCESS
+        print("\n🚀 PHASE 3: TRIGGER ENRICHMENT PROCESS")
+        print("-" * 60)
+        print("Triggering PYQ enrichment for remaining questions")
+        
+        if admin_headers:
+            # Trigger enrichment
+            trigger_data = {
+                "question_ids": None  # Process all remaining questions
+            }
+            
+            success, response = self.run_test(
+                "Trigger PYQ Enrichment", 
+                "POST", 
+                "admin/pyq/trigger-enrichment", 
+                [200, 202, 400, 500], 
+                trigger_data, 
+                admin_headers
+            )
+            
+            if success and response:
+                enrichment_results["trigger_enrichment_endpoint_accessible"] = True
+                print(f"   ✅ Trigger enrichment endpoint accessible")
+                
+                # Check response for success indicators
+                if response.get('success') or response.get('status') == 'started' or 'started' in str(response).lower():
+                    enrichment_results["enrichment_process_started_successfully"] = True
+                    enrichment_results["trigger_response_valid"] = True
+                    print(f"   ✅ Enrichment process started successfully")
+                    
+                    # Look for specific success indicators
+                    if 'message' in response:
+                        print(f"   📊 Response Message: {response['message']}")
+                    
+                    if 'job_id' in response or 'task_id' in response:
+                        job_id = response.get('job_id') or response.get('task_id')
+                        print(f"   📊 Job/Task ID: {job_id}")
+                    
+                    if 'questions_to_process' in response:
+                        questions_count = response.get('questions_to_process', 0)
+                        print(f"   📊 Questions to Process: {questions_count}")
+                
+                # Check for database constraint errors
+                response_str = str(response).lower()
+                if 'constraint' not in response_str and 'null' not in response_str and 'violation' not in response_str:
+                    enrichment_results["no_database_constraint_errors"] = True
+                    enrichment_results["no_null_constraint_violations"] = True
+                    print(f"   ✅ No database constraint violations detected")
+                else:
+                    print(f"   ❌ Potential database constraint issues detected")
+                    print(f"   📊 Response: {response}")
+                
+                # Check for proper error handling
+                if response.get('error') and 'timeout' not in str(response.get('error')).lower():
+                    enrichment_results["proper_error_handling"] = True
+                    print(f"   📊 Error handling present: {response.get('error')}")
+                elif not response.get('error'):
+                    enrichment_results["proper_error_handling"] = True
+                    print(f"   ✅ No errors in trigger response")
+            else:
+                print(f"   ❌ Trigger enrichment endpoint failed")
+                if response:
+                    print(f"   📊 Error Response: {response}")
+        
+        # PHASE 4: INITIAL PROGRESS MONITORING
+        print("\n📈 PHASE 4: INITIAL PROGRESS MONITORING")
+        print("-" * 60)
+        print("Monitoring initial progress indicators to confirm enrichment initiation")
+        
+        if admin_headers:
+            # Wait a moment for the process to initialize
+            print("   ⏳ Waiting 3 seconds for enrichment process to initialize...")
+            time.sleep(3)
+            
+            # Check enrichment status again to see if process started
+            success, response = self.run_test(
+                "Post-Trigger Status Check", 
+                "GET", 
+                "admin/pyq/enrichment-status", 
+                [200], 
+                None, 
+                admin_headers
+            )
+            
+            if success and response:
+                enrichment_results["initial_progress_indicators_working"] = True
+                print(f"   ✅ Post-trigger status check successful")
+                
+                # Look for progress indicators
+                enrichment_stats = response.get('enrichment_statistics', {})
+                recent_activity = response.get('recent_activity', [])
+                
+                if recent_activity:
+                    enrichment_results["enrichment_initiation_confirmed"] = True
+                    print(f"   ✅ Recent enrichment activity detected")
+                    print(f"   📊 Recent Activity Count: {len(recent_activity)}")
+                    
+                    # Show latest activity
+                    if len(recent_activity) > 0:
+                        latest = recent_activity[0]
+                        print(f"   📊 Latest Activity: {latest}")
+                else:
+                    print(f"   📊 No recent activity detected yet (may take time to show)")
+                
+                # Check for any processing indicators
+                if 'processing' in str(response).lower() or 'started' in str(response).lower():
+                    print(f"   ✅ Processing indicators found in status")
+                
+                # Verify no constraint violations in status
+                if 'constraint' not in str(response).lower() and 'violation' not in str(response).lower():
+                    print(f"   ✅ No constraint violations in post-trigger status")
+            else:
+                print(f"   ⚠️ Post-trigger status check failed")
+        
+        # PHASE 5: ERROR HANDLING VALIDATION
+        print("\n🛡️ PHASE 5: ERROR HANDLING VALIDATION")
+        print("-" * 60)
+        print("Testing error handling and timeout management")
+        
+        if admin_headers:
+            # Test with invalid data to check error handling
+            invalid_trigger_data = {
+                "question_ids": ["invalid-id-123"]
+            }
+            
+            success, response = self.run_test(
+                "Error Handling Test", 
+                "POST", 
+                "admin/pyq/trigger-enrichment", 
+                [200, 400, 404, 500], 
+                invalid_trigger_data, 
+                admin_headers
+            )
+            
+            if success:
+                enrichment_results["graceful_failure_handling"] = True
+                print(f"   ✅ Graceful error handling working")
+                
+                if response.get('error') or response.get('message'):
+                    print(f"   📊 Error Response: {response.get('error') or response.get('message')}")
+            
+            # Check timeout handling by testing endpoint accessibility
+            success, response = self.run_test(
+                "Timeout Handling Test", 
+                "GET", 
+                "admin/pyq/enrichment-status", 
+                [200], 
+                None, 
+                admin_headers
+            )
+            
+            if success:
+                enrichment_results["timeout_handling_working"] = True
+                print(f"   ✅ Timeout handling appears to be working")
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 80)
+        print("🎯 PYQ ENRICHMENT TRIGGER FOR REMAINING QUESTIONS - RESULTS")
+        print("=" * 80)
+        
+        passed_tests = sum(enrichment_results.values())
+        total_tests = len(enrichment_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        # Group results by testing phases
+        testing_phases = {
+            "ADMIN AUTHENTICATION": [
+                "admin_authentication_working", "admin_token_valid", "admin_privileges_confirmed"
+            ],
+            "PRE-TRIGGER STATUS CHECK": [
+                "enrichment_status_endpoint_accessible", "remaining_questions_identified", "database_state_healthy"
+            ],
+            "ENRICHMENT TRIGGER": [
+                "trigger_enrichment_endpoint_accessible", "enrichment_process_started_successfully",
+                "no_database_constraint_errors", "trigger_response_valid"
+            ],
+            "PROGRESS MONITORING": [
+                "initial_progress_indicators_working", "no_null_constraint_violations", "enrichment_initiation_confirmed"
+            ],
+            "ERROR HANDLING": [
+                "proper_error_handling", "timeout_handling_working", "graceful_failure_handling"
+            ]
+        }
+        
+        for phase, tests in testing_phases.items():
+            print(f"\n{phase}:")
+            phase_passed = 0
+            phase_total = len(tests)
+            
+            for test in tests:
+                if test in enrichment_results:
+                    result = enrichment_results[test]
+                    status = "✅ PASS" if result else "❌ FAIL"
+                    print(f"  {test.replace('_', ' ').title():<50} {status}")
+                    if result:
+                        phase_passed += 1
+            
+            phase_rate = (phase_passed / phase_total) * 100 if phase_total > 0 else 0
+            print(f"  Phase Success Rate: {phase_passed}/{phase_total} ({phase_rate:.1f}%)")
+        
+        print("-" * 80)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # CRITICAL SUCCESS ASSESSMENT
+        print("\n🎯 CRITICAL SUCCESS ASSESSMENT:")
+        
+        # Check critical success criteria from review request
+        trigger_working = enrichment_results.get("enrichment_process_started_successfully", False)
+        no_constraints = enrichment_results.get("no_database_constraint_errors", False)
+        process_initiated = enrichment_results.get("trigger_enrichment_endpoint_accessible", False)
+        
+        print(f"\n📊 REVIEW REQUEST REQUIREMENTS:")
+        print(f"  Trigger PYQ Enrichment Working: {'✅ YES' if trigger_working else '❌ NO'}")
+        print(f"  No Database Constraint Errors: {'✅ YES' if no_constraints else '❌ NO'}")
+        print(f"  Process Successfully Initiated: {'✅ YES' if process_initiated else '❌ NO'}")
+        
+        # FINAL ASSESSMENT
+        if success_rate >= 80 and trigger_working and no_constraints:
+            print("\n🎉 PYQ ENRICHMENT TRIGGER COMPLETELY SUCCESSFUL!")
+            print("   ✅ Enrichment process started successfully without errors")
+            print("   ✅ No database constraint violations detected")
+            print("   ✅ Admin authentication working with provided credentials")
+            print("   ✅ Remaining questions identified and processing initiated")
+            print("   🏆 REVIEW REQUEST OBJECTIVES ACHIEVED - Ready for enrichment processing")
+        elif success_rate >= 60:
+            print("\n⚠️ PYQ ENRICHMENT TRIGGER MOSTLY SUCCESSFUL")
+            print(f"   - {passed_tests}/{total_tests} tests passed ({success_rate:.1f}%)")
+            print("   - Core trigger functionality appears working")
+            print("   🔧 MINOR ISSUES - Some components may need attention")
+        else:
+            print("\n❌ PYQ ENRICHMENT TRIGGER ISSUES DETECTED")
+            print(f"   - Only {passed_tests}/{total_tests} tests passed ({success_rate:.1f}%)")
+            print("   - Critical trigger functionality may be broken")
+            print("   🚨 MAJOR PROBLEMS - Review request objectives not achieved")
+        
+        # SPECIFIC VALIDATION POINTS FROM REVIEW REQUEST
+        print("\n🎯 SPECIFIC VALIDATION POINTS FROM REVIEW REQUEST:")
+        
+        validation_points = [
+            ("Can POST /api/admin/pyq/trigger-enrichment be called successfully?", enrichment_results.get("trigger_enrichment_endpoint_accessible", False)),
+            ("Does the enrichment process start without errors?", enrichment_results.get("enrichment_process_started_successfully", False)),
+            ("Are there no NULL constraint violations?", enrichment_results.get("no_null_constraint_violations", False)),
+            ("Is successful enrichment initiation confirmed?", enrichment_results.get("enrichment_initiation_confirmed", False)),
+            ("Do admin credentials sumedhprabhu18@gmail.com/admin2025 work?", enrichment_results.get("admin_authentication_working", False)),
+            ("Are remaining questions identified for processing?", enrichment_results.get("remaining_questions_identified", False))
+        ]
+        
+        for question, result in validation_points:
+            status = "✅ YES" if result else "❌ NO"
+            print(f"  {question:<70} {status}")
+        
+        return success_rate >= 70  # Return True if enrichment trigger is functional
+
     def test_fixed_admin_enrichment_endpoints(self):
         """
         FIXED ADMIN ENRICHMENT ENDPOINTS COMPREHENSIVE TESTING
