@@ -5396,8 +5396,9 @@ async def get_pyq_enrichment_status(
             "enrichment_statistics": {
                 "total_questions": total,
                 "active_questions": stats.active_questions or 0,
-                "quality_verified": stats.quality_verified or 0,
-                "concept_extracted": completed,
+                "quality_verified_questions": stats.quality_verified or 0,  # FIX: Renamed for clarity
+                "enriched_questions": stats.quality_verified or 0,  # FIX: Use quality_verified as enriched count
+                "concept_extracted": stats.concept_extracted or 0,
                 "pending_enrichment": stats.pending_enrichment or 0,
                 "failed_enrichment": stats.failed_enrichment or 0,
                 "completion_rate": round(completion_rate, 2),
