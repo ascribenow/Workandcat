@@ -1542,7 +1542,7 @@ class CATBackendTester:
                         
                 # Check recent activity
                 recent_activity = response.get('recent_activity', [])
-                if recent_activity:
+                if recent_activity and isinstance(recent_activity, list):
                     print(f"   📊 RECENT ENRICHMENT ACTIVITY:")
                     for activity in recent_activity[:5]:
                         print(f"      {activity.get('timestamp', 'N/A')}: {activity.get('action', 'N/A')}")
