@@ -40,9 +40,9 @@ class CATBackendTester:
                 else:
                     response = requests.post(url, headers=headers, timeout=30, verify=False)
             elif method == "PUT":
-                response = requests.put(url, json=data, headers=headers, timeout=60, verify=False)
+                response = requests.put(url, json=data, headers=headers, timeout=30, verify=False)
             elif method == "DELETE":
-                response = requests.delete(url, headers=headers, timeout=60, verify=False)
+                response = requests.delete(url, headers=headers, timeout=30, verify=False)
             else:
                 print(f"❌ {test_name}: Unsupported method {method}")
                 return False, None
