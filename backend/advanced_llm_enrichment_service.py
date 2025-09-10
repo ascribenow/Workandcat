@@ -473,38 +473,45 @@ class AdvancedLLMEnrichmentService:
         logger.info("⚙️ Step 2: Binary/structural validation...")
         binary_issues = []
         
-        # Fuzzy match and validate taxonomy fields
+        # Validate taxonomy fields (skip redundant matching if already canonical)
         if 'category' in response_data and 'subcategory' in response_data and 'type_of_question' in response_data:
             try:
-                # Get canonical taxonomy path using STRICT fuzzy matching + LLM semantic analysis
-                canonical_category, canonical_subcategory, canonical_type = await canonical_taxonomy_service.get_canonical_taxonomy_path(
-                    response_data.get('category', ''),
-                    response_data.get('subcategory', ''),
-                    response_data.get('type_of_question', '')
-                )
+                category = response_data.get('category', '')
+                subcategory = response_data.get('subcategory', '')
+                question_type = response_data.get('type_of_question', '')
                 
-                # Check if ANY canonical matching failed (returns None)
-                if canonical_category is None:
-                    binary_issues.append(f"No canonical category match found for: '{response_data.get('category', '')}'")
-                if canonical_subcategory is None:
-                    binary_issues.append(f"No canonical subcategory match found for: '{response_data.get('subcategory', '')}'")
-                if canonical_type is None:
-                    binary_issues.append(f"No canonical question type match found for: '{response_data.get('type_of_question', '')}'")
-                
-                # Only update response data if ALL matches succeeded
-                if canonical_category and canonical_subcategory and canonical_type:
-                    response_data['category'] = canonical_category
-                    response_data['subcategory'] = canonical_subcategory  
-                    response_data['type_of_question'] = canonical_type
+                # First check if the taxonomy path is already valid (pre-processed by enhanced semantic matching)
+                if canonical_taxonomy_service.validate_taxonomy_path(category, subcategory, question_type):
+                    logger.info("✅ Taxonomy path already valid - skipping redundant semantic matching")
+                else:
+                    # If not valid, try to get canonical taxonomy path
+                    logger.info("🔄 Attempting canonical taxonomy path matching...")
+                    canonical_category, canonical_subcategory, canonical_type = await canonical_taxonomy_service.get_canonical_taxonomy_path(
+                        category, subcategory, question_type
+                    )
                     
-                    # Final validation of the complete canonical path
-                    if not canonical_taxonomy_service.validate_taxonomy_path(
-                        canonical_category, canonical_subcategory, canonical_type
-                    ):
-                        binary_issues.append("Canonical taxonomy path integrity validation failed")
+                    # Check if ANY canonical matching failed (returns None)
+                    if canonical_category is None:
+                        binary_issues.append(f"No canonical category match found for: '{category}'")
+                    if canonical_subcategory is None:
+                        binary_issues.append(f"No canonical subcategory match found for: '{subcategory}'")
+                    if canonical_type is None:
+                        binary_issues.append(f"No canonical question type match found for: '{question_type}'")
+                    
+                    # Only update response data if ALL matches succeeded
+                    if canonical_category and canonical_subcategory and canonical_type:
+                        response_data['category'] = canonical_category
+                        response_data['subcategory'] = canonical_subcategory  
+                        response_data['type_of_question'] = canonical_type
+                        
+                        # Final validation of the complete canonical path
+                        if not canonical_taxonomy_service.validate_taxonomy_path(
+                            canonical_category, canonical_subcategory, canonical_type
+                        ):
+                            binary_issues.append("Canonical taxonomy path integrity validation failed")
                     
             except Exception as e:
-                binary_issues.append(f"Taxonomy fuzzy matching failed: {str(e)}")
+                binary_issues.append(f"Taxonomy validation failed: {str(e)}")
         else:
             binary_issues.append("Missing required taxonomy fields (category, subcategory, type_of_question)")
         
