@@ -4727,9 +4727,8 @@ async def upload_questions_csv(
         images_processed = 0
         enrichment_results = []
         
-        # Initialize the new Unified Enrichment Service
-        from unified_enrichment_service import UnifiedEnrichmentService
-        unified_enricher = UnifiedEnrichmentService()
+        # Initialize the new Regular Questions Enrichment Service
+        from regular_enrichment_service import regular_questions_enrichment_service
         
         for i, row in enumerate(processed_rows):
             try:
