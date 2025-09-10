@@ -207,15 +207,15 @@ class PYQQuestion(Base):
     
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     paper_id = Column(String(36), ForeignKey('pyq_papers.id'), nullable=False)
-    topic_id = Column(String(36), ForeignKey('topics.id'), nullable=False)
-    category = Column(String(100), nullable=True)  # NEW: Main category (Arithmetic, Algebra, etc.)
+    # topic_id REMOVED - PYQ questions don't need topic relationships
+    category = Column(String(100), nullable=True)  # Main category (Arithmetic, Algebra, etc.)
     subcategory = Column(Text, nullable=False)
     type_of_question = Column(String(150))  # Specific question type within subcategory
     stem = Column(Text, nullable=False)
     answer = Column(Text, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
     
-    # NEW: Enhanced PYQ fields for LLM enrichment and conceptual analysis
+    # Enhanced PYQ fields for LLM enrichment and conceptual analysis
     is_active = Column(Boolean, default=False)  # Enable/disable for analysis
     difficulty_band = Column(String(20), nullable=True)  # Easy|Medium|Hard (LLM-assessed)
     difficulty_score = Column(Numeric(3, 2), nullable=True)  # 1-5 numeric scale
@@ -223,7 +223,7 @@ class PYQQuestion(Base):
     last_updated = Column(DateTime, nullable=True)  # Track processing dates
     concept_extraction_status = Column(String(50), default='pending')  # pending|completed|failed
     
-    # NEW: Concept storage fields for advanced matching
+    # Concept storage fields for advanced matching
     core_concepts = Column(Text, nullable=True)  # JSON: extracted mathematical concepts
     solution_method = Column(String(500), nullable=True)  # Primary solution approach (increased from 100)
     concept_difficulty = Column(Text, nullable=True)  # JSON: difficulty indicators
@@ -233,7 +233,7 @@ class PYQQuestion(Base):
     
     # Relationships
     paper = relationship("PYQPaper", back_populates="questions")
-    topic = relationship("Topic")
+    # topic relationship REMOVED as per requirements
 
     @validates('difficulty_band')
     def validate_difficulty_band(self, key, difficulty_band):
