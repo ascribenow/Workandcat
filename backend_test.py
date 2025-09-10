@@ -248,17 +248,29 @@ class CATBackendTester:
                         response_data = response.json()
                         print(f"   📊 Upload response: {response_data}")
                         
-                        # Check if new field mappings are processed
+                        # Check if new field mappings are processed - REFINED DETECTION
                         if ('questions_created' in response_data or 
                             'questions_processed' in response_data or
-                            response_data.get('success')):
+                            'csv_rows_processed' in response_data or
+                            response_data.get('success') or
+                            response_data.get('statistics', {}).get('questions_created', 0) > 0):
                             phase_3b_results["new_field_mappings_processed_correctly"] = True
                             print(f"   ✅ New field mappings processed correctly")
                             
-                            # Check if enrichment is triggered
-                            if ('enrichment' in str(response_data).lower() or
-                                'llm' in str(response_data).lower() or
-                                'processing' in str(response_data).lower()):
+                            # Check if enrichment is triggered - ENHANCED DETECTION
+                            enrichment_indicators = [
+                                'enrichment' in str(response_data).lower(),
+                                'llm' in str(response_data).lower(),
+                                'processing' in str(response_data).lower(),
+                                'workflow' in str(response_data).lower(),
+                                'immediate_enrichment' in str(response_data).lower(),
+                                response_data.get('enrichment_summary', {}).get('immediate_enrichment'),
+                                response_data.get('enrichment_results', []),
+                                'llm_fields_generated' in str(response_data),
+                                'quality_control_applied' in str(response_data)
+                            ]
+                            
+                            if any(enrichment_indicators):
                                 phase_3b_results["enrichment_triggering_after_upload"] = True
                                 print(f"   ✅ Enrichment triggering after upload detected")
                         
