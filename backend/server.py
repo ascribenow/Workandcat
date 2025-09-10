@@ -4862,22 +4862,6 @@ async def upload_questions_csv(
                         "error": enrichment_result.get('error')
                     })
                     
-                    # NEW: Mark as LLM verified with constraints
-                    question.llm_difficulty_assessment_method = 'llm_verified'
-                    question.llm_assessment_attempts = 1
-                    question.last_llm_assessment_date = datetime.utcnow()
-                    question.llm_assessment_error = None
-                    
-                    # Update topic based on LLM classification
-                    category = enrichment_data["category"]
-                    topic_result = await db.execute(
-                        select(Topic).where(Topic.name == category)
-                    )
-                    classified_topic = topic_result.scalar_one_or_none()
-                    
-                    if classified_topic:
-                        question.topic_id = classified_topic.id
-                    
                     # NEW: Calculate Dynamic PYQ Frequency (replaces hardcoded values)
                     logger.info(f"🧮 Calculating dynamic PYQ frequency for question {questions_created}")
                     try:
