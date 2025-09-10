@@ -5611,12 +5611,13 @@ async def enhanced_pyq_enrichment_background(pyq_question_id: str):
         finally:
             db.close()  # Close DB session immediately after data retrieval
         
-        # PHASE 2: LLM Processing (no DB session held - safe for event loop)
+        # PHASE 2: LLM Processing (no DB session held - safe for event loop)  
         try:
-            advanced_enricher = AdvancedLLMEnrichmentService()
+            # Use the new enhanced PYQ enrichment service
+            from pyq_enrichment_service import pyq_enrichment_service
             
             # Long-running LLM call - no database connection held
-            enrichment_result = await advanced_enricher.enrich_question_deeply(
+            enrichment_result = await pyq_enrichment_service.enrich_pyq_question(
                 stem=question_stem,
                 admin_answer=question_answer,
                 question_type="pyq"
