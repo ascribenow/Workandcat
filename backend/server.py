@@ -3134,6 +3134,7 @@ async def submit_session_answer(
             "correct_answer": question.answer,
             "user_answer": attempt_data.user_answer,
             "solution_feedback": {
+                "snap_read": clean_solution_text(question.snap_read) or None,  # NEW: Display above solution_approach
                 "solution_approach": clean_solution_text(question.solution_approach) or "Solution approach not available",
                 "detailed_solution": clean_solution_text(question.detailed_solution) or "Detailed solution not available",
                 "principle_to_remember": clean_solution_text(question.principle_to_remember) or "Principle not available"
