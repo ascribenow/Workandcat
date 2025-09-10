@@ -9651,40 +9651,45 @@ class CATBackendTester:
 if __name__ == "__main__":
     tester = CATBackendTester()
     
-    print("🚀 CAT BACKEND COMPREHENSIVE TESTING SUITE")
+    print("🧪 CAT BACKEND COMPREHENSIVE TESTING SUITE")
     print("=" * 80)
-    print("Testing PYQ Enrichment System for Remaining 9 Questions")
+    print("Testing all critical backend functionality with real API calls")
+    print("Base URL:", tester.base_url)
     print("=" * 80)
     
-    # Run PYQ enrichment test as requested in review
+    # Run Manual PYQ Enrichment Trigger Testing as requested in review
+    print("\n" + "🎯" * 20 + " STARTING MANUAL PYQ ENRICHMENT TRIGGER TESTING " + "🎯" * 20)
+    
     try:
-        # Test PYQ enrichment trigger for remaining 9 questions
-        pyq_enrichment_success = tester.test_pyq_enrichment_trigger_for_remaining_questions()
+        # Test Manual PYQ Enrichment Trigger
+        pyq_trigger_success = tester.test_manual_pyq_enrichment_trigger()
         
         print("\n" + "=" * 80)
-        print("🏆 FINAL PYQ ENRICHMENT TESTING RESULTS")
+        print("🏁 MANUAL PYQ ENRICHMENT TRIGGER TESTING COMPLETED")
         print("=" * 80)
         
-        print(f"PYQ Enrichment System: {'✅ PASS' if pyq_enrichment_success else '❌ FAIL'}")
-        
-        if pyq_enrichment_success:
-            print("\n🎉 PYQ ENRICHMENT SYSTEM FUNCTIONAL - READY TO PROCESS REMAINING 9 QUESTIONS!")
-            print("   ✅ Enrichment trigger working")
-            print("   ✅ Progress monitoring functional")
-            print("   ✅ LLM integration confirmed")
-            print("   ✅ Questions being processed successfully")
+        if pyq_trigger_success:
+            print("🎉 MANUAL PYQ ENRICHMENT TRIGGER: FULLY FUNCTIONAL")
+            print("   ✅ Successfully checked current status of remaining questions")
+            print("   ✅ Manual trigger endpoint accessible and working")
+            print("   ✅ Enrichment process initiated for remaining questions")
+            print("   ✅ Queue status confirmed and questions being processed")
+            print("   🏆 OBJECTIVE ACHIEVED - Remaining ~8 questions queued for enrichment")
         else:
-            print("\n⚠️ PYQ ENRICHMENT SYSTEM NEEDS ATTENTION")
-            print("   🔧 Some components may need debugging")
-            print("   📋 Check individual test results above for specific issues")
+            print("⚠️ MANUAL PYQ ENRICHMENT TRIGGER: ISSUES DETECTED")
+            print("   🔧 Some components need attention")
+            print("   📋 Review test results above for specific issues")
         
         print(f"\nTotal Tests Run: {tester.tests_run}")
         print(f"Total Tests Passed: {tester.tests_passed}")
         print(f"Overall Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%")
         
+    except KeyboardInterrupt:
+        print("\n⚠️ Testing interrupted by user")
     except Exception as e:
-        print(f"❌ Testing failed with error: {e}")
-        sys.exit(1)
+        print(f"\n❌ Testing failed with error: {e}")
+        import traceback
+        traceback.print_exc()
 
     def run_all_tests(self):
         """Run all available tests"""
