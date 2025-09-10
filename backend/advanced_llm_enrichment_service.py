@@ -790,7 +790,7 @@ Be precise, specific, and demonstrate deep mathematical understanding."""
                         # Final fallback: create default classification
                         logger.warning("⚠️ Creating default classification due to JSON parsing failure")
                         classification_data = {
-                            "category": "A-Arithmetic",  # Use canonical format
+                            "category": "Arithmetic",  # Use canonical format
                             "subcategory": "Quantitative Reasoning",
                             "type_of_question": "Standard CAT Problem"
                         }
