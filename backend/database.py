@@ -76,7 +76,7 @@ class Topic(Base):
     # Relationships
     parent = relationship("Topic", remote_side=[id])
     children = relationship("Topic", back_populates="parent")
-    questions = relationship("Question", back_populates="topic")
+    # questions relationship REMOVED as per requirements
 
 
 class Question(Base):
