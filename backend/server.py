@@ -946,6 +946,8 @@ async def get_admin_questions(
                 "subcategory": q.subcategory,
                 "type_of_question": q.type_of_question,
                 "difficulty_band": q.difficulty_band,
+                "difficulty_score": float(q.difficulty_score) if q.difficulty_score else None,
+                "pyq_frequency_score": float(q.pyq_frequency_score) if q.pyq_frequency_score else None,
                 "right_answer": q.right_answer,
                 "quality_verified": q.quality_verified,
                 "created_at": q.created_at.isoformat() if q.created_at else None,
