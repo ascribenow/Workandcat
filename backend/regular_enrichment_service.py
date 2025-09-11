@@ -461,7 +461,7 @@ Be precise, comprehensive, and use EXACT canonical taxonomy names."""
                 
                 logger.info(f"📊 Found {len(qualifying_pyqs)} category x subcategory filtered PYQ questions")
                 
-                # Prepare regular question data (now includes category×subcategory)
+                # Prepare regular question data (now includes category x subcategory)
                 regular_question_data = {
                     'stem': stem,
                     'category': category,
