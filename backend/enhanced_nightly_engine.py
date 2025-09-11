@@ -296,20 +296,7 @@ class EnhancedNightlyEngine:
                 'total_pyq_per_year': {}
             }
     
-    def determine_frequency_band(self, frequency_score: float) -> str:
-        """
-        Determine frequency band based on score
-        """
-        if frequency_score >= 0.8:
-            return 'Very High'
-        elif frequency_score >= 0.6:
-            return 'High'
-        elif frequency_score >= 0.4:
-            return 'Medium'
-        elif frequency_score >= 0.2:
-            return 'Low'
-        else:
-            return 'Very Low'
+    # determine_frequency_band method removed as frequency_band field was deleted
     
     async def cleanup_inactive_questions(self, db: AsyncSession) -> Dict[str, Any]:
         """
