@@ -11,7 +11,7 @@ import sys
 def test_pyq_enrichment_system():
     """Quick test of PYQ enrichment system after database fix"""
     
-    base_url = "https://llm-utils.preview.emergentagent.com/api"
+    base_url = "https://taxonomy-repair.preview.emergentagent.com/api"
     
     print("🎯 QUICK PYQ ENRICHMENT SYSTEM DATABASE FIX VALIDATION")
     print("=" * 70)

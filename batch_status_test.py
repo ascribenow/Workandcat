@@ -11,7 +11,7 @@ from datetime import datetime
 
 class BatchStatusChecker:
     def __init__(self):
-        self.base_url = "https://llm-utils.preview.emergentagent.com/api"
+        self.base_url = "https://taxonomy-repair.preview.emergentagent.com/api"
         self.admin_token = None
         
     def authenticate_admin(self):

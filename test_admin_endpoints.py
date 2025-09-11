@@ -21,7 +21,7 @@ import json
 import sys
 
 class AdminEndpointsTester:
-    def __init__(self, base_url="https://llm-utils.preview.emergentagent.com/api"):
+    def __init__(self, base_url="https://taxonomy-repair.preview.emergentagent.com/api"):
         self.base_url = base_url
         self.admin_token = None
         self.admin_headers = None
