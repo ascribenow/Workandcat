@@ -4872,7 +4872,12 @@ async def upload_questions_csv(
                 
                 enrichment_result = await regular_questions_enrichment_service.enrich_regular_question(
                     stem=stem,
-                    current_answer=admin_answer
+                    current_answer=admin_answer,
+                    snap_read=snap_read,
+                    solution_approach=solution_approach,
+                    detailed_solution=detailed_solution,
+                    principle_to_remember=principle_to_remember,
+                    mcq_options=mcq_options
                 )
                 
                 logger.info(f"🤖 Enrichment result for question {questions_created}: {enrichment_result}")
