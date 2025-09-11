@@ -4559,6 +4559,88 @@ async def get_regular_enrichment_status(
         logger.error(f"Error getting regular enrichment status: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to get enrichment status: {str(e)}")
 
+@api_router.get("/admin/regular/questions")
+async def get_regular_questions(
+    limit: int = 100,
+    offset: int = 0,
+    current_user: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_async_compatible_db)
+):
+    """
+    Retrieve regular questions with pagination (same as PYQ questions endpoint)
+    Shows all admin fields + enrichment status for management
+    """
+    try:
+        # Build query with pagination and ordering
+        query = select(Question).offset(offset).limit(limit).order_by(desc(Question.created_at))
+        
+        result = await db.execute(query)
+        questions = result.scalars().all()
+        
+        # Get total count for pagination
+        count_result = await db.execute(select(func.count()).select_from(Question))
+        total_count = count_result.scalar()
+        
+        # Format questions for response
+        questions_data = []
+        for q in questions:
+            questions_data.append({
+                "id": str(q.id),
+                "stem": q.stem,
+                "answer": q.answer,  # CSV field
+                "right_answer": q.right_answer,  # LLM generated
+                "answer_match": q.answer_match,  # Semantic match result
+                "solution_approach": q.solution_approach,
+                "detailed_solution": q.detailed_solution,
+                "principle_to_remember": q.principle_to_remember,
+                "snap_read": q.snap_read,
+                "mcq_options": q.mcq_options,
+                "category": q.category,
+                "subcategory": q.subcategory,
+                "type_of_question": q.type_of_question,
+                "difficulty_band": q.difficulty_band,
+                "difficulty_score": float(q.difficulty_score) if q.difficulty_score else None,
+                "pyq_frequency_score": float(q.pyq_frequency_score) if q.pyq_frequency_score else None,
+                "quality_verified": q.quality_verified,
+                "core_concepts": q.core_concepts,
+                "solution_method": q.solution_method,
+                "concept_difficulty": q.concept_difficulty,
+                "operations_required": q.operations_required,
+                "problem_structure": q.problem_structure,
+                "concept_keywords": q.concept_keywords,
+                "has_image": q.has_image,
+                "image_url": q.image_url,
+                "source": q.source,
+                "is_active": q.is_active,
+                "created_at": q.created_at.isoformat() if q.created_at else None
+            })
+        
+        # Calculate pagination info
+        has_more = (offset + limit) < total_count
+        next_offset = offset + limit if has_more else None
+        
+        return {
+            "success": True,
+            "questions": questions_data,
+            "pagination": {
+                "total_count": total_count,
+                "current_offset": offset,
+                "limit": limit,
+                "returned_count": len(questions_data),
+                "has_more": has_more,
+                "next_offset": next_offset
+            },
+            "endpoint_info": {
+                "description": "Regular questions with full admin visibility",
+                "csv_fields": ["stem", "answer", "solution_approach", "detailed_solution", "principle_to_remember", "snap_read", "mcq_options", "image_url"],
+                "llm_fields": ["right_answer", "category", "subcategory", "type_of_question", "difficulty_band", "difficulty_score", "pyq_frequency_score", "quality_verified", "answer_match", "core_concepts", "solution_method", "concept_difficulty", "operations_required", "problem_structure", "concept_keywords"]
+            }
+        }
+        
+    except Exception as e:
+        logger.error(f"Error retrieving regular questions: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to retrieve regular questions: {str(e)}")
+
 @api_router.post("/admin/regular/trigger-enrichment")
 async def trigger_regular_enrichment(
     request: TriggerEnrichmentRequest = TriggerEnrichmentRequest(),
