@@ -14,7 +14,7 @@ import google.generativeai as genai
 from datetime import datetime
 from canonical_taxonomy_service import canonical_taxonomy_service
 from anthropic_semantic_validator import anthropic_semantic_validator
-from llm_utils import call_llm_with_fallback, extract_json_from_response
+from llm_utils import call_llm_with_fallback, extract_json_from_response, calculate_pyq_frequency_score_llm
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
