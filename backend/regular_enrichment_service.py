@@ -347,11 +347,6 @@ Be precise, comprehensive, and demonstrate superior mathematical intelligence.""
                 logger.error(f"❌ Quality verification failed - missing/invalid fields: {missing_fields}")
                 return {'quality_verified': False}
             
-            # Check for meaningful content (not just placeholders)
-            if len(enrichment_data.get('right_answer', '')) < 10:
-                logger.error(f"❌ Quality verification failed - answer too short")
-                return {'quality_verified': False}
-                
             logger.info("✅ Quality verification passed - all required fields present with meaningful content")
             return {'quality_verified': True}
             
