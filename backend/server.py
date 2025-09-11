@@ -6263,7 +6263,7 @@ async def test_immediate_enrichment(
         # Test question data (using remaining fields only)
         test_question.learning_impact = 75.0
         # importance_index removed as per requirements
-        test_question.frequency_band = "High"
+        # frequency_band removed as per requirements
         test_question.tags = ["test_enriched", "immediate_processing"]
         test_question.source = "LLM Test Generated"
         test_question.is_active = True
