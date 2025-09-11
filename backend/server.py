@@ -4364,11 +4364,9 @@ async def export_questions_csv(
             'subcategory',
             'difficulty_score',
             'difficulty_band',
-            'frequency_band',
-            'frequency_notes',
             'learning_impact',
-            'learning_impact_band',
-            'importance_index',
+            # Removed unused frequency & impact fields as per requirements
+            'pyq_frequency_score',
             'importance_band',
             'video_url',
             'tags',
