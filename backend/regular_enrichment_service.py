@@ -262,13 +262,8 @@ Be precise, comprehensive, and demonstrate superior mathematical intelligence.""
             logger.info(f"🔍 Getting qualifying PYQ questions for category='{category}', subcategory='{subcategory}'")
             
             # Get async database session  
-            db_session = None
-            async def get_db_session():
-                db_gen = get_async_compatible_db()
-                return next(db_gen)
-            
-            db_session = get_db_session()
-            db = await db_session
+            db_gen = get_async_compatible_db()
+            db = await db_gen.__anext__()
             try:
                 # Get qualifying PYQ questions from database with improved filtering
                 result = await db.execute(
