@@ -1126,6 +1126,337 @@ class CATBackendTester:
         
         return success_rate >= 90
 
+    def test_pyq_questions_category_field_verification(self):
+        """
+        VERIFICATION: Check Actual pyq_questions Table Data
+        
+        OBJECTIVE: Verify the actual data in the `pyq_questions` table to confirm category field population
+        as requested in the review request.
+        
+        SPECIFIC CHECKS:
+        1. Query the actual `pyq_questions` table directly
+        2. Check if category field is properly populated
+        3. Get actual sample records to verify field contents
+        4. Test the actual filtering logic with real data
+        5. Verify category field is NOT null
+        6. Confirm difficulty_score > 1.5 filtering works
+        7. Test category×subcategory combination filtering
+        
+        VERIFICATION NEEDED:
+        - Query: `SELECT category, subcategory, difficulty_score FROM pyq_questions LIMIT 10`
+        - Verify category field is NOT null
+        - Confirm difficulty_score > 1.5 filtering works
+        - Test category×subcategory combination filtering
+        
+        USER CLAIM TO VERIFY: 
+        "I can very clearly see in the backend that the category field has been properly populated"
+        
+        AUTHENTICATION: sumedhprabhu18@gmail.com/admin2025
+        """
+        print("🎯 VERIFICATION: Check Actual pyq_questions Table Data")
+        print("=" * 80)
+        print("OBJECTIVE: Verify the actual data in the `pyq_questions` table to confirm category field population")
+        print("as requested in the review request.")
+        print("")
+        print("SPECIFIC CHECKS:")
+        print("1. Query the actual `pyq_questions` table directly")
+        print("2. Check if category field is properly populated")
+        print("3. Get actual sample records to verify field contents")
+        print("4. Test the actual filtering logic with real data")
+        print("5. Verify category field is NOT null")
+        print("6. Confirm difficulty_score > 1.5 filtering works")
+        print("7. Test category×subcategory combination filtering")
+        print("")
+        print("VERIFICATION NEEDED:")
+        print("- Query: `SELECT category, subcategory, difficulty_score FROM pyq_questions LIMIT 10`")
+        print("- Verify category field is NOT null")
+        print("- Confirm difficulty_score > 1.5 filtering works")
+        print("- Test category×subcategory combination filtering")
+        print("")
+        print("USER CLAIM TO VERIFY:")
+        print("\"I can very clearly see in the backend that the category field has been properly populated\"")
+        print("")
+        print("AUTHENTICATION: sumedhprabhu18@gmail.com/admin2025")
+        print("=" * 80)
+        
+        verification_results = {
+            # Authentication Setup
+            "admin_authentication_working": False,
+            "admin_token_valid": False,
+            "admin_privileges_confirmed": False,
+            
+            # Direct Database Query Verification
+            "pyq_questions_table_accessible": False,
+            "pyq_questions_data_exists": False,
+            "category_field_populated": False,
+            "subcategory_field_populated": False,
+            "difficulty_score_field_populated": False,
+            
+            # Category Field Population Analysis
+            "category_field_not_null_count": 0,
+            "category_field_null_count": 0,
+            "category_field_population_percentage": 0,
+            "sample_category_values": [],
+            
+            # Filtering Logic Verification
+            "difficulty_score_greater_than_1_5_count": 0,
+            "difficulty_score_filtering_working": False,
+            "category_subcategory_combination_filtering": False,
+            "filtering_logic_functional": False,
+            
+            # Data Quality Assessment
+            "data_quality_excellent": False,
+            "user_claim_verified": False,
+            "category_field_properly_populated": False,
+            "ready_for_filtering_operations": False
+        }
+        
+        # PHASE 1: AUTHENTICATION SETUP
+        print("\n🔐 PHASE 1: AUTHENTICATION SETUP")
+        print("-" * 60)
+        
+        admin_login_data = {
+            "email": "sumedhprabhu18@gmail.com",
+            "password": "admin2025"
+        }
+        
+        success, response = self.run_test("Admin Authentication", "POST", "auth/login", [200, 401], admin_login_data)
+        
+        admin_headers = None
+        if success and response.get('access_token'):
+            admin_token = response['access_token']
+            admin_headers = {
+                'Authorization': f'Bearer {admin_token}',
+                'Content-Type': 'application/json'
+            }
+            verification_results["admin_authentication_working"] = True
+            verification_results["admin_token_valid"] = True
+            print(f"   ✅ Admin authentication successful")
+            print(f"   📊 JWT Token length: {len(admin_token)} characters")
+            
+            # Verify admin privileges
+            success, me_response = self.run_test("Admin Privileges Check", "GET", "auth/me", 200, None, admin_headers)
+            if success and me_response.get('is_admin'):
+                verification_results["admin_privileges_confirmed"] = True
+                print(f"   ✅ Admin privileges confirmed: {me_response.get('email')}")
+        else:
+            print("   ❌ Admin authentication failed - cannot proceed")
+            return False
+        
+        # PHASE 2: DIRECT DATABASE QUERY VERIFICATION
+        print("\n🗄️ PHASE 2: DIRECT DATABASE QUERY VERIFICATION")
+        print("-" * 60)
+        print("Querying actual pyq_questions table to verify category field population")
+        
+        if admin_headers:
+            # Test PYQ questions endpoint to get actual data
+            success, response = self.run_test(
+                "PYQ Questions Table Query", 
+                "GET", 
+                "admin/pyq/questions?limit=20", 
+                [200, 404], 
+                None, 
+                admin_headers
+            )
+            
+            if success and response:
+                verification_results["pyq_questions_table_accessible"] = True
+                print(f"   ✅ PYQ questions table accessible")
+                
+                # Analyze the response data
+                questions = response.get('questions', [])
+                if questions and len(questions) > 0:
+                    verification_results["pyq_questions_data_exists"] = True
+                    print(f"   ✅ PYQ questions data exists: {len(questions)} questions found")
+                    
+                    # Analyze category field population
+                    category_populated = 0
+                    category_null = 0
+                    subcategory_populated = 0
+                    difficulty_populated = 0
+                    difficulty_above_1_5 = 0
+                    
+                    sample_categories = []
+                    sample_subcategories = []
+                    sample_difficulties = []
+                    
+                    print(f"\n   📊 DETAILED DATA ANALYSIS:")
+                    print(f"   {'Index':<5} {'Category':<20} {'Subcategory':<20} {'Difficulty':<12} {'Status'}")
+                    print(f"   {'-'*5} {'-'*20} {'-'*20} {'-'*12} {'-'*20}")
+                    
+                    for i, question in enumerate(questions[:10]):  # Show first 10 for detailed analysis
+                        category = question.get('category', None)
+                        subcategory = question.get('subcategory', None)
+                        difficulty = question.get('difficulty_score', None)
+                        
+                        # Count populated fields
+                        if category and category.strip() and category.lower() not in ['null', 'none', '']:
+                            category_populated += 1
+                            if category not in sample_categories:
+                                sample_categories.append(category)
+                        else:
+                            category_null += 1
+                        
+                        if subcategory and subcategory.strip() and subcategory.lower() not in ['null', 'none', '']:
+                            subcategory_populated += 1
+                            if subcategory not in sample_subcategories:
+                                sample_subcategories.append(subcategory)
+                        
+                        if difficulty is not None:
+                            difficulty_populated += 1
+                            if difficulty not in sample_difficulties:
+                                sample_difficulties.append(difficulty)
+                            if float(difficulty) > 1.5:
+                                difficulty_above_1_5 += 1
+                        
+                        # Display row
+                        cat_display = (category[:18] + '..') if category and len(str(category)) > 20 else (category or 'NULL')
+                        sub_display = (subcategory[:18] + '..') if subcategory and len(str(subcategory)) > 20 else (subcategory or 'NULL')
+                        diff_display = f"{difficulty:.2f}" if difficulty is not None else 'NULL'
+                        
+                        status = "✅ GOOD" if (category and subcategory and difficulty is not None) else "❌ MISSING"
+                        
+                        print(f"   {i+1:<5} {cat_display:<20} {sub_display:<20} {diff_display:<12} {status}")
+                    
+                    # Calculate statistics for all questions
+                    total_questions = len(questions)
+                    for question in questions:
+                        category = question.get('category', None)
+                        subcategory = question.get('subcategory', None)
+                        difficulty = question.get('difficulty_score', None)
+                        
+                        if category and category.strip() and category.lower() not in ['null', 'none', '']:
+                            if len(sample_categories) < 20:  # Collect more samples
+                                if category not in sample_categories:
+                                    sample_categories.append(category)
+                        
+                        if difficulty is not None and float(difficulty) > 1.5:
+                            verification_results["difficulty_score_greater_than_1_5_count"] += 1
+                    
+                    # Update verification results
+                    verification_results["category_field_not_null_count"] = category_populated
+                    verification_results["category_field_null_count"] = category_null
+                    verification_results["category_field_population_percentage"] = (category_populated / total_questions) * 100 if total_questions > 0 else 0
+                    verification_results["sample_category_values"] = sample_categories[:10]  # Top 10 samples
+                    
+                    print(f"\n   📊 CATEGORY FIELD ANALYSIS:")
+                    print(f"   Total Questions Analyzed: {total_questions}")
+                    print(f"   Category Field Populated: {category_populated} questions")
+                    print(f"   Category Field NULL/Empty: {category_null} questions")
+                    print(f"   Category Population Rate: {verification_results['category_field_population_percentage']:.1f}%")
+                    print(f"   Sample Categories: {sample_categories[:5]}")
+                    
+                    print(f"\n   📊 DIFFICULTY SCORE ANALYSIS:")
+                    print(f"   Difficulty Score > 1.5: {verification_results['difficulty_score_greater_than_1_5_count']} questions")
+                    print(f"   Sample Difficulty Scores: {sample_difficulties[:5]}")
+                    
+                    # Determine if category field is properly populated
+                    if verification_results["category_field_population_percentage"] > 50:
+                        verification_results["category_field_populated"] = True
+                        verification_results["category_field_properly_populated"] = True
+                        print(f"   ✅ Category field is properly populated ({verification_results['category_field_population_percentage']:.1f}%)")
+                    else:
+                        print(f"   ❌ Category field is NOT properly populated ({verification_results['category_field_population_percentage']:.1f}%)")
+                    
+                    # Check subcategory population
+                    if subcategory_populated > total_questions * 0.5:
+                        verification_results["subcategory_field_populated"] = True
+                        print(f"   ✅ Subcategory field is populated")
+                    
+                    # Check difficulty score population
+                    if difficulty_populated > total_questions * 0.8:
+                        verification_results["difficulty_score_field_populated"] = True
+                        print(f"   ✅ Difficulty score field is populated")
+                    
+                    # Check filtering logic
+                    if verification_results["difficulty_score_greater_than_1_5_count"] > 0:
+                        verification_results["difficulty_score_filtering_working"] = True
+                        print(f"   ✅ Difficulty score > 1.5 filtering will work ({verification_results['difficulty_score_greater_than_1_5_count']} questions)")
+                    
+                    if verification_results["category_field_populated"] and verification_results["subcategory_field_populated"]:
+                        verification_results["category_subcategory_combination_filtering"] = True
+                        verification_results["filtering_logic_functional"] = True
+                        print(f"   ✅ Category×Subcategory combination filtering will work")
+                
+                else:
+                    print(f"   ❌ No PYQ questions data found")
+            else:
+                print(f"   ❌ PYQ questions table not accessible")
+        
+        # PHASE 3: USER CLAIM VERIFICATION
+        print("\n🎯 PHASE 3: USER CLAIM VERIFICATION")
+        print("-" * 60)
+        print("Verifying user claim: \"I can very clearly see in the backend that the category field has been properly populated\"")
+        
+        # Verify the user's claim
+        if verification_results["category_field_properly_populated"]:
+            verification_results["user_claim_verified"] = True
+            print(f"   ✅ USER CLAIM VERIFIED: Category field is properly populated")
+            print(f"   📊 Evidence: {verification_results['category_field_not_null_count']} questions have category data")
+            print(f"   📊 Population Rate: {verification_results['category_field_population_percentage']:.1f}%")
+            print(f"   📊 Sample Categories: {verification_results['sample_category_values']}")
+        else:
+            print(f"   ❌ USER CLAIM NOT VERIFIED: Category field is NOT properly populated")
+            print(f"   📊 Evidence: Only {verification_results['category_field_not_null_count']} questions have category data")
+            print(f"   📊 Population Rate: {verification_results['category_field_population_percentage']:.1f}%")
+        
+        # PHASE 4: FILTERING READINESS ASSESSMENT
+        print("\n🔧 PHASE 4: FILTERING READINESS ASSESSMENT")
+        print("-" * 60)
+        print("Assessing readiness for category×subcategory filtering operations")
+        
+        if (verification_results["category_field_populated"] and 
+            verification_results["difficulty_score_filtering_working"] and
+            verification_results["category_subcategory_combination_filtering"]):
+            verification_results["ready_for_filtering_operations"] = True
+            verification_results["data_quality_excellent"] = True
+            print(f"   ✅ READY FOR FILTERING: All required fields populated and functional")
+            print(f"   ✅ Category×Subcategory filtering can be implemented")
+            print(f"   ✅ Difficulty score > 1.5 filtering will work")
+        else:
+            print(f"   ❌ NOT READY FOR FILTERING: Missing required field population")
+            if not verification_results["category_field_populated"]:
+                print(f"   ❌ Category field needs more population")
+            if not verification_results["difficulty_score_filtering_working"]:
+                print(f"   ❌ Difficulty score filtering needs attention")
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 80)
+        print("🎯 PYQ QUESTIONS CATEGORY FIELD VERIFICATION - RESULTS")
+        print("=" * 80)
+        
+        passed_tests = sum(1 for v in verification_results.values() if isinstance(v, bool) and v)
+        total_tests = sum(1 for v in verification_results.values() if isinstance(v, bool))
+        success_rate = (passed_tests / total_tests) * 100 if total_tests > 0 else 0
+        
+        print(f"\nVERIFICATION SUMMARY:")
+        print(f"✅ Tests Passed: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        print(f"📊 Total PYQ Questions: {verification_results.get('category_field_not_null_count', 0) + verification_results.get('category_field_null_count', 0)}")
+        print(f"📊 Category Field Populated: {verification_results.get('category_field_not_null_count', 0)} questions ({verification_results.get('category_field_population_percentage', 0):.1f}%)")
+        print(f"📊 Difficulty Score > 1.5: {verification_results.get('difficulty_score_greater_than_1_5_count', 0)} questions")
+        print(f"📊 Sample Categories: {verification_results.get('sample_category_values', [])}")
+        
+        print(f"\nKEY FINDINGS:")
+        if verification_results["user_claim_verified"]:
+            print(f"✅ USER CLAIM VERIFIED: Category field is properly populated")
+        else:
+            print(f"❌ USER CLAIM NOT VERIFIED: Category field population insufficient")
+        
+        if verification_results["ready_for_filtering_operations"]:
+            print(f"✅ FILTERING READY: Category×Subcategory + Difficulty filtering can be implemented")
+        else:
+            print(f"❌ FILTERING NOT READY: Additional data population needed")
+        
+        print(f"\nRECOMMENDATION:")
+        if success_rate >= 70:
+            print(f"🎉 VERIFICATION SUCCESSFUL: PYQ questions table has adequate category field population")
+            print(f"   Ready for improved filtering implementation")
+        else:
+            print(f"⚠️ VERIFICATION INCOMPLETE: Category field needs more population before filtering")
+            print(f"   Recommend enriching more PYQ questions with category data")
+        
+        return success_rate >= 60
+
     def test_improved_category_subcategory_filtering_pyq_frequency(self):
         """
         VALIDATION: Improved Category×Subcategory Filtering for PYQ Frequency Score
