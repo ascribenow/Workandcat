@@ -106,26 +106,11 @@ class Question(Base):
     # LLM-computed difficulty scores
     difficulty_score = Column(Numeric(3, 2), nullable=True)  # 1-5, populated by LLM enrichment
     difficulty_band = Column(String(20), nullable=True)  # Easy|Medium|Hard, populated by LLM enrichment
-    # llm_difficulty_assessment_method REMOVED as per requirements
-    # llm_assessment_attempts REMOVED as per requirements
-    # last_llm_assessment_date REMOVED as per requirements
-    # llm_assessment_error REMOVED as per requirements
     
-    # Frequency & Impact scores (keeping essential ones only)
-    learning_impact = Column(Numeric(5, 2), nullable=True)  # 0-100
-    # learning_impact_band REMOVED as per requirements
-    # importance_index REMOVED as per requirements
-    
-    # Enhanced PYQ frequency analysis fields (keeping essential ones only)  
-    # frequency_score REMOVED as per requirements
-    pyq_frequency_score = Column(Numeric(5, 4), default=0.0)  # PYQ frequency score
-    pyq_conceptual_matches = Column(Integer, default=0)
-    # top_matching_concepts REMOVED as per requirements
-    # frequency_band REMOVED as per requirements
-    # frequency_analysis_method REMOVED as per requirements
-    # frequency_last_updated REMOVED as per requirements
-    # pyq_occurrences_last_10_years REMOVED as per requirements
-    # total_pyq_count REMOVED as per requirements
+    # PYQ frequency analysis (single essential field only)
+    pyq_frequency_score = Column(Numeric(5, 4), default=0.0)  # LLM-calculated: 0.5, 1.0, or 1.5
+    # learning_impact REMOVED as per requirements
+    # pyq_conceptual_matches REMOVED as per requirements
     
     # MCQ Options (from CSV upload)
     mcq_options = Column(Text, nullable=True)  # From CSV upload
