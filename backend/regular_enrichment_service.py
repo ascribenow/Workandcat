@@ -261,61 +261,62 @@ Be precise, comprehensive, and demonstrate superior mathematical intelligence.""
             
             logger.info(f"🔍 Getting qualifying PYQ questions for category='{category}', subcategory='{subcategory}'")
             
-            # Get async database session
-            async for db in get_async_compatible_db():
-                try:
-                    # Get qualifying PYQ questions from database with improved filtering
-                    result = await db.execute(
-                        select(PYQQuestion).where(
-                            and_(
-                                PYQQuestion.difficulty_score > 1.5,
-                                PYQQuestion.category == category,              # NEW: Category match
-                                PYQQuestion.subcategory == subcategory,        # NEW: Subcategory match
-                                PYQQuestion.is_active == True,
-                                PYQQuestion.quality_verified == True,
-                                PYQQuestion.problem_structure.isnot(None),
-                                PYQQuestion.concept_keywords.isnot(None)
-                            )
+            # Get async database session  
+            db_generator = get_async_compatible_db()
+            db = await db_generator.__anext__()
+            try:
+                # Get qualifying PYQ questions from database with improved filtering
+                result = await db.execute(
+                    select(PYQQuestion).where(
+                        and_(
+                            PYQQuestion.difficulty_score > 1.5,
+                            PYQQuestion.category == category,              # NEW: Category match
+                            PYQQuestion.subcategory == subcategory,        # NEW: Subcategory match
+                            PYQQuestion.is_active == True,
+                            PYQQuestion.quality_verified == True,
+                            PYQQuestion.problem_structure.isnot(None),
+                            PYQQuestion.concept_keywords.isnot(None)
                         )
                     )
-                    qualifying_pyqs = result.scalars().all()
-                    
-                    if not qualifying_pyqs:
-                        logger.warning(f"⚠️ No qualifying PYQ questions found for category='{category}', subcategory='{subcategory}' with difficulty_score > 1.5")
-                        return 0.5  # Default to LOW
-                    
-                    logger.info(f"📊 Found {len(qualifying_pyqs)} category×subcategory filtered PYQ questions")
-                    
-                    # Prepare regular question data (now includes category×subcategory)
-                    regular_question_data = {
-                        'stem': stem,
-                        'category': category,
-                        'subcategory': subcategory,
-                        'problem_structure': enrichment_data.get('problem_structure', ''),
-                        'concept_keywords': enrichment_data.get('concept_keywords', '[]')
+                )
+                qualifying_pyqs = result.scalars().all()
+                
+                if not qualifying_pyqs:
+                    logger.warning(f"⚠️ No qualifying PYQ questions found for category='{category}', subcategory='{subcategory}' with difficulty_score > 1.5")
+                    return 0.5  # Default to LOW
+                
+                logger.info(f"📊 Found {len(qualifying_pyqs)} category×subcategory filtered PYQ questions")
+                
+                # Prepare regular question data (now includes category×subcategory)
+                regular_question_data = {
+                    'stem': stem,
+                    'category': category,
+                    'subcategory': subcategory,
+                    'problem_structure': enrichment_data.get('problem_structure', ''),
+                    'concept_keywords': enrichment_data.get('concept_keywords', '[]')
+                }
+                
+                # Prepare PYQ questions data
+                pyq_questions_data = []
+                for pyq in qualifying_pyqs:
+                    pyq_data = {
+                        'stem': pyq.stem,
+                        'problem_structure': pyq.problem_structure or '',
+                        'concept_keywords': pyq.concept_keywords or '[]'
                     }
-                    
-                    # Prepare PYQ questions data
-                    pyq_questions_data = []
-                    for pyq in qualifying_pyqs:
-                        pyq_data = {
-                            'stem': pyq.stem,
-                            'problem_structure': pyq.problem_structure or '',
-                            'concept_keywords': pyq.concept_keywords or '[]'
-                        }
-                        pyq_questions_data.append(pyq_data)
-                    
-                    # Call LLM-based calculation with ALL filtered questions (no scaling)
-                    pyq_frequency_score = await calculate_pyq_frequency_score_llm(
-                        self, regular_question_data, pyq_questions_data
-                    )
-                    
-                    logger.info(f"✅ PYQ frequency score calculated: {pyq_frequency_score}")
-                    logger.info(f"🎯 Processed {len(qualifying_pyqs)} questions with raw matching (no scaling)")
-                    return pyq_frequency_score
-                    
-                finally:
-                    break  # Exit the async generator after first iteration
+                    pyq_questions_data.append(pyq_data)
+                
+                # Call LLM-based calculation with ALL filtered questions (no scaling)
+                pyq_frequency_score = await calculate_pyq_frequency_score_llm(
+                    self, regular_question_data, pyq_questions_data
+                )
+                
+                logger.info(f"✅ PYQ frequency score calculated: {pyq_frequency_score}")
+                logger.info(f"🎯 Processed {len(qualifying_pyqs)} questions with raw matching (no scaling)")
+                return pyq_frequency_score
+                
+            finally:
+                await db_generator.aclose()
                 
         except Exception as e:
             logger.error(f"❌ PYQ frequency calculation failed: {e}")
