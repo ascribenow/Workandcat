@@ -6720,8 +6720,8 @@ async def enrich_question_background(question_id: str, hint_category: str = None
                     question.difficulty_band = "Medium"
                 if not question.frequency_band:
                     question.frequency_band = "Medium"
-            question.importance_index = 70.0
-            question.frequency_band = "High"
+            # Test question metadata (frequency_band and importance_index removed)
+            question.learning_impact = 65.0
             question.tags = json.dumps(["enhanced_processing", "option_2_test"])
             question.source = "OPTION 2 Enhanced Processing"
             
