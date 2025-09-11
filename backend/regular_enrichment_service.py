@@ -605,8 +605,14 @@ Are these two answers semantically equivalent?"""
                 'solution_method', 'pyq_frequency_score'
             ]
             
-            # Add stem to enrichment_data for verification (since it's not LLM generated)
+            # Add all CSV fields to enrichment_data for verification  
             enrichment_data['stem'] = stem
+            enrichment_data['answer'] = csv_answer or ''
+            enrichment_data['snap_read'] = snap_read or ''
+            enrichment_data['solution_approach'] = solution_approach or ''
+            enrichment_data['detailed_solution'] = detailed_solution or ''
+            enrichment_data['principle_to_remember'] = principle_to_remember or ''
+            enrichment_data['mcq_options'] = mcq_options or ''
             
             missing_or_invalid_fields = []
             for field in required_fields:
