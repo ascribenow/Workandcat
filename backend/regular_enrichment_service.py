@@ -575,31 +575,59 @@ Are these two answers semantically equivalent?"""
 
     async def _perform_quality_verification(self, stem: str, enrichment_data: Dict[str, Any], csv_answer: str = None) -> Dict[str, Any]:
         """
-        Perform quality verification
-        SAME LOGIC AS PYQ ENRICHMENT
+        Perform comprehensive quality verification
+        Checks 20 fields + answer_match = 21 total criteria
         """
         
         try:
-            logger.info("🔍 Enhanced quality verification (Semantic + Binary)")
+            logger.info("🔍 Comprehensive quality verification (21 criteria)")
             
-            # Check required fields are present and meaningful
+            # STEP 1: Semantic Answer Matching
+            logger.info("🧠 Step 1: Semantic answer matching...")
+            llm_right_answer = enrichment_data.get('right_answer', '')
+            answer_match = await self._perform_semantic_answer_matching(llm_right_answer, csv_answer or '')
+            enrichment_data['answer_match'] = answer_match
+            
+            # STEP 2: Check all 20 required fields are present and meaningful
+            logger.info("📋 Step 2: Checking 20 required fields...")
             required_fields = [
-                'right_answer', 'category', 'subcategory', 'type_of_question', 
-                'difficulty_band', 'core_concepts', 'solution_method'
+                # CSV Upload Fields (8 fields)
+                'stem', 'snap_read', 'solution_approach', 'detailed_solution', 
+                'principle_to_remember', 'answer', 'mcq_options',
+                
+                # LLM Generated Fields (12 fields)  
+                'right_answer', 'category', 'subcategory', 'type_of_question',
+                'difficulty_score', 'difficulty_band', 'core_concepts', 'concept_difficulty',
+                'operations_required', 'problem_structure', 'concept_keywords', 
+                'solution_method', 'pyq_frequency_score'
             ]
             
-            missing_fields = []
+            # Add stem to enrichment_data for verification (since it's not LLM generated)
+            enrichment_data['stem'] = stem
+            
+            missing_or_invalid_fields = []
             for field in required_fields:
                 value = enrichment_data.get(field)
-                if not value or value in ['To be classified by LLM', 'N/A', '', 'null']:
-                    missing_fields.append(field)
+                
+                # Check: Not Null AND Not Empty String AND Not Placeholder
+                if (value is None or 
+                    value == '' or 
+                    value in ['To be classified by LLM', 'N/A', 'null', 'None']):
+                    missing_or_invalid_fields.append(field)
             
-            if missing_fields:
-                logger.error(f"❌ Quality verification failed - missing/invalid fields: {missing_fields}")
-                return {'quality_verified': False}
+            # STEP 3: Check answer_match = True
+            logger.info("🎯 Step 3: Checking answer_match = True...")
+            if not answer_match:
+                logger.error("❌ Quality verification failed - answer_match is False")
+                return {'quality_verified': False, 'answer_match': False}
             
-            logger.info("✅ Quality verification passed - all required fields present with meaningful content")
-            return {'quality_verified': True}
+            # STEP 4: Final verification
+            if missing_or_invalid_fields:
+                logger.error(f"❌ Quality verification failed - missing/invalid fields: {missing_or_invalid_fields}")
+                return {'quality_verified': False, 'answer_match': answer_match}
+            
+            logger.info("✅ Quality verification passed - all 21 criteria met")
+            return {'quality_verified': True, 'answer_match': True}
             
         except Exception as e:
             logger.error(f"❌ Quality verification exception: {e}")
