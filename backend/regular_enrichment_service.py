@@ -261,12 +261,12 @@ Be precise, comprehensive, and demonstrate superior mathematical intelligence.""
             
             logger.info(f"🔍 Getting qualifying PYQ questions for category='{category}', subcategory='{subcategory}'")
             
-            # Get async database session  
-            db_gen = get_async_compatible_db()
-            db = await db_gen.__anext__()
+            # Get database session using SessionLocal directly (synchronous approach)
+            from database import SessionLocal
+            db = SessionLocal()
             try:
                 # Get qualifying PYQ questions from database with improved filtering
-                result = await db.execute(
+                result = db.execute(
                     select(PYQQuestion).where(
                         and_(
                             PYQQuestion.difficulty_score > 1.5,
@@ -316,7 +316,7 @@ Be precise, comprehensive, and demonstrate superior mathematical intelligence.""
                 return pyq_frequency_score
                 
             finally:
-                await db_gen.aclose()
+                db.close()
                 
         except Exception as e:
             logger.error(f"❌ PYQ frequency calculation failed: {e}")
