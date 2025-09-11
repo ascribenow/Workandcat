@@ -2498,7 +2498,6 @@ async def get_questions(
                 "type_of_question": q.type_of_question,  # Add Type field for taxonomy triple
                 "difficulty_band": q.difficulty_band,
                 "difficulty_score": float(q.difficulty_score) if q.difficulty_score else None,
-                "importance_index": float(q.importance_index) if q.importance_index else None,
                 "learning_impact": float(q.learning_impact) if q.learning_impact else None,
                 "pyq_frequency_score": float(q.pyq_frequency_score) if q.pyq_frequency_score else None,
                 "is_active": q.is_active,
