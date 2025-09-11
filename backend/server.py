@@ -191,6 +191,7 @@ class DoubtConversationHistory(BaseModel):
 
 class TriggerEnrichmentRequest(BaseModel):
     question_ids: Optional[List[str]] = None
+    limit: Optional[int] = None
 
 class FeedbackSubmission(BaseModel):
     feedback: str = Field(..., min_length=1, max_length=1000)
