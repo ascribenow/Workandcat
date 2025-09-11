@@ -496,7 +496,84 @@ Be precise, comprehensive, and use EXACT canonical taxonomy names."""
             logger.error(f"❌ PYQ frequency calculation failed: {e}")
             return 0.5  # Default to LOW on error
 
-    async def _perform_quality_verification(self, stem: str, enrichment_data: Dict[str, Any]) -> Dict[str, Any]:
+    async def _perform_semantic_answer_matching(self, llm_right_answer: str, csv_answer: str) -> bool:
+        """
+        Perform semantic matching between LLM right_answer and CSV answer
+        Returns True if semantic match found, False otherwise
+        """
+        try:
+            logger.info("🧠 Performing semantic answer matching...")
+            
+            if not llm_right_answer or not csv_answer:
+                logger.warning("⚠️ Missing answer data for semantic matching")
+                return False
+            
+            system_message = """You are a mathematical answer verification expert.
+
+Your task is to determine if two mathematical answers are semantically equivalent, even if they differ in format or presentation.
+
+SEMANTIC MATCHING CRITERIA:
+- Same mathematical value/result
+- Equivalent mathematical expressions
+- Same units (if applicable)
+- Different formats but same meaning (e.g., "2.5" vs "5/2" vs "2½")
+- Different presentation but same solution (e.g., detailed vs concise)
+
+EXAMPLES OF MATCHES:
+- "48 km/h" ↔ "48 kilometers per hour"
+- "2.5 hours" ↔ "2 hours 30 minutes"  
+- "₹2,490" ↔ "Rs. 2490"
+- "12.5%" ↔ "12.5 percent"
+- "30" ↔ "30 units"
+
+Return ONLY:
+- "MATCH" if the answers are semantically equivalent
+- "NO_MATCH" if the answers are different or incompatible"""
+
+            user_message = f"""CSV Answer: {csv_answer}
+LLM Answer: {llm_right_answer}
+
+Are these two answers semantically equivalent?"""
+
+            for attempt in range(self.max_retries):
+                try:
+                    logger.info(f"🧠 Semantic matching attempt {attempt + 1}...")
+                    
+                    matching_text, model_used = await call_llm_with_fallback(
+                        self, system_message, user_message, max_tokens=50, temperature=0.1
+                    )
+                    
+                    if not matching_text:
+                        raise Exception("LLM returned empty response")
+                    
+                    response = matching_text.strip().upper()
+                    
+                    if response == "MATCH":
+                        logger.info(f"✅ Semantic match found: '{csv_answer}' ↔ '{llm_right_answer}' ({model_used})")
+                        return True
+                    elif response == "NO_MATCH":
+                        logger.info(f"❌ No semantic match: '{csv_answer}' ≠ '{llm_right_answer}' ({model_used})")
+                        return False
+                    else:
+                        logger.warning(f"⚠️ Invalid LLM response: '{response}' (attempt {attempt + 1})")
+                        if attempt == self.max_retries - 1:
+                            return False
+                        continue
+                        
+                except Exception as e:
+                    logger.error(f"⚠️ Semantic matching attempt {attempt + 1} failed: {str(e)}")
+                    if attempt == self.max_retries - 1:
+                        logger.error("❌ All semantic matching attempts failed")
+                        return False
+                    continue
+            
+            return False
+            
+        except Exception as e:
+            logger.error(f"❌ Semantic answer matching failed: {e}")
+            return False
+
+    async def _perform_quality_verification(self, stem: str, enrichment_data: Dict[str, Any], csv_answer: str = None) -> Dict[str, Any]:
         """
         Perform quality verification
         SAME LOGIC AS PYQ ENRICHMENT
