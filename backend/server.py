@@ -6294,8 +6294,9 @@ async def test_conceptual_frequency_analysis(
     try:
         from conceptual_frequency_analyzer import ConceptualFrequencyAnalyzer
         
-        # Initialize analyzer
-        frequency_analyzer = ConceptualFrequencyAnalyzer(llm_pipeline)
+        # Initialize analyzer - DISABLED
+        # frequency_analyzer = ConceptualFrequencyAnalyzer(llm_pipeline)
+        frequency_analyzer = None  # Disabled - llm_pipeline not available
         
         # Get a sample question
         result = await db.execute(
