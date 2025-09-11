@@ -245,6 +245,72 @@ Be precise, comprehensive, and demonstrate superior mathematical intelligence.""
                         "enrichment_data": {}
                     }
     
+    async def _calculate_pyq_frequency_score_llm(self, stem: str, enrichment_data: Dict[str, Any]) -> float:
+        """
+        Calculate PYQ frequency score using LLM-based semantic comparison
+        Only compares against PYQ questions with difficulty_score > 1.5
+        """
+        try:
+            from database import SessionLocal, PYQQuestion
+            from sqlalchemy import select
+            import json
+            
+            logger.info("🔍 Getting qualifying PYQ questions (difficulty_score > 1.5)...")
+            
+            # Get qualifying PYQ questions from database
+            db = SessionLocal()
+            try:
+                result = await db.execute(
+                    select(PYQQuestion).where(
+                        and_(
+                            PYQQuestion.difficulty_score > 1.5,
+                            PYQQuestion.is_active == True,
+                            PYQQuestion.quality_verified == True,
+                            PYQQuestion.problem_structure.isnot(None),
+                            PYQQuestion.concept_keywords.isnot(None)
+                        )
+                    )
+                )
+                qualifying_pyqs = result.scalars().all()
+                
+                if not qualifying_pyqs:
+                    logger.warning("⚠️ No qualifying PYQ questions found (difficulty_score > 1.5)")
+                    return 0.5  # Default to LOW
+                
+                logger.info(f"📊 Found {len(qualifying_pyqs)} qualifying PYQ questions")
+                
+                # Prepare regular question data
+                regular_question_data = {
+                    'stem': stem,
+                    'problem_structure': enrichment_data.get('problem_structure', ''),
+                    'concept_keywords': enrichment_data.get('concept_keywords', '[]')
+                }
+                
+                # Prepare PYQ questions data
+                pyq_questions_data = []
+                for pyq in qualifying_pyqs:
+                    pyq_data = {
+                        'stem': pyq.stem,
+                        'problem_structure': pyq.problem_structure or '',
+                        'concept_keywords': pyq.concept_keywords or '[]'
+                    }
+                    pyq_questions_data.append(pyq_data)
+                
+                # Call LLM-based calculation
+                pyq_frequency_score = await calculate_pyq_frequency_score_llm(
+                    self, regular_question_data, pyq_questions_data
+                )
+                
+                logger.info(f"✅ PYQ frequency score calculated: {pyq_frequency_score}")
+                return pyq_frequency_score
+                
+            finally:
+                db.close()
+                
+        except Exception as e:
+            logger.error(f"❌ PYQ frequency calculation failed: {e}")
+            return 0.5  # Default to LOW on error
+
     async def _perform_quality_verification(self, stem: str, enrichment_data: Dict[str, Any]) -> Dict[str, Any]:
         """
         Perform quality verification
