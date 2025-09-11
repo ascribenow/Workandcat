@@ -207,12 +207,9 @@ class EnhancedNightlyEngine:
                             pyq_data['total_pyq_per_year']
                         )
                         
-                        # Update question with frequency data
-                        question.frequency_score = frequency_result.get('weighted_frequency', 0.0)
-                        question.frequency_band = self.determine_frequency_band(
-                            frequency_result.get('weighted_frequency', 0.0)
-                        )
-                        question.frequency_notes = f"Time-weighted analysis: {frequency_result.get('trend', 'stable')}"
+                        # Update question with PYQ frequency data only (other frequency fields removed)
+                        question.pyq_frequency_score = frequency_result.get('weighted_frequency', 0.0)
+                        # frequency_score, frequency_band, frequency_notes removed as per requirements
                         question.last_frequency_update = datetime.utcnow()
                         
                         # Track distribution
