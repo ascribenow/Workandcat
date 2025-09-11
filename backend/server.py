@@ -2481,7 +2481,7 @@ async def get_questions(
         if difficulty:
             query = query.where(Question.difficulty_band == difficulty)
         
-        query = query.limit(limit).order_by(desc(Question.importance_index))
+        query = query.limit(limit).order_by(desc(Question.created_at))  # Order by creation date instead
         
         result = await db.execute(query)
         questions = result.scalars().all()
