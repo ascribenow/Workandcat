@@ -248,22 +248,28 @@ Be precise, comprehensive, and demonstrate superior mathematical intelligence.""
     async def _calculate_pyq_frequency_score_llm(self, stem: str, enrichment_data: Dict[str, Any]) -> float:
         """
         Calculate PYQ frequency score using LLM-based semantic comparison
-        Only compares against PYQ questions with difficulty_score > 1.5
+        Filters PYQ questions by: difficulty_score > 1.5 AND category×subcategory match
         """
         try:
             from database import SessionLocal, PYQQuestion
             from sqlalchemy import select
             import json
             
-            logger.info("🔍 Getting qualifying PYQ questions (difficulty_score > 1.5)...")
+            # Get category and subcategory from enrichment data
+            category = enrichment_data.get('category', '')
+            subcategory = enrichment_data.get('subcategory', '')
             
-            # Get qualifying PYQ questions from database
+            logger.info(f"🔍 Getting qualifying PYQ questions for category='{category}', subcategory='{subcategory}'")
+            
+            # Get qualifying PYQ questions from database with improved filtering
             db = SessionLocal()
             try:
                 result = await db.execute(
                     select(PYQQuestion).where(
                         and_(
                             PYQQuestion.difficulty_score > 1.5,
+                            PYQQuestion.category == category,              # NEW: Category match
+                            PYQQuestion.subcategory == subcategory,        # NEW: Subcategory match
                             PYQQuestion.is_active == True,
                             PYQQuestion.quality_verified == True,
                             PYQQuestion.problem_structure.isnot(None),
@@ -274,14 +280,16 @@ Be precise, comprehensive, and demonstrate superior mathematical intelligence.""
                 qualifying_pyqs = result.scalars().all()
                 
                 if not qualifying_pyqs:
-                    logger.warning("⚠️ No qualifying PYQ questions found (difficulty_score > 1.5)")
+                    logger.warning(f"⚠️ No qualifying PYQ questions found for category='{category}', subcategory='{subcategory}' with difficulty_score > 1.5")
                     return 0.5  # Default to LOW
                 
-                logger.info(f"📊 Found {len(qualifying_pyqs)} qualifying PYQ questions")
+                logger.info(f"📊 Found {len(qualifying_pyqs)} category×subcategory filtered PYQ questions")
                 
-                # Prepare regular question data
+                # Prepare regular question data (now includes category×subcategory)
                 regular_question_data = {
                     'stem': stem,
+                    'category': category,
+                    'subcategory': subcategory,
                     'problem_structure': enrichment_data.get('problem_structure', ''),
                     'concept_keywords': enrichment_data.get('concept_keywords', '[]')
                 }
@@ -296,12 +304,13 @@ Be precise, comprehensive, and demonstrate superior mathematical intelligence.""
                     }
                     pyq_questions_data.append(pyq_data)
                 
-                # Call LLM-based calculation
+                # Call LLM-based calculation with ALL filtered questions (no scaling)
                 pyq_frequency_score = await calculate_pyq_frequency_score_llm(
                     self, regular_question_data, pyq_questions_data
                 )
                 
                 logger.info(f"✅ PYQ frequency score calculated: {pyq_frequency_score}")
+                logger.info(f"🎯 Processed {len(qualifying_pyqs)} questions with raw matching (no scaling)")
                 return pyq_frequency_score
                 
             finally:
