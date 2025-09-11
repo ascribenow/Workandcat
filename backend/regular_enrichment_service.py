@@ -459,7 +459,7 @@ Be precise, comprehensive, and use EXACT canonical taxonomy names."""
                     logger.warning(f"⚠️ No qualifying PYQ questions found for category='{category}', subcategory='{subcategory}' with difficulty_score > 1.5")
                     return 0.5  # Default to LOW
                 
-                logger.info(f"📊 Found {len(qualifying_pyqs)} category×subcategory filtered PYQ questions")
+                logger.info(f"📊 Found {len(qualifying_pyqs)} category x subcategory filtered PYQ questions")
                 
                 # Prepare regular question data (now includes category×subcategory)
                 regular_question_data = {
