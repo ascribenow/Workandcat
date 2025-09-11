@@ -5068,11 +5068,11 @@ async def upload_questions_csv(
                     image_url=image_url, # CSV FIELD
                     has_image=has_image,
                     
-                    # LLM fields - SET TO NULL/PLACEHOLDER (to be enriched later)
+                    # LLM fields - SET TO PLACEHOLDER (to be enriched later)
                     right_answer=None,  # To be enriched
                     category=None, # To be enriched
-                    subcategory=None,  # To be enriched
-                    type_of_question=None, # To be enriched
+                    subcategory="To be enriched",  # To be enriched (NOT NULL field)
+                    type_of_question="To be enriched", # To be enriched
                     difficulty_band=None, # To be enriched
                     difficulty_score=None, # To be enriched
                     quality_verified=False, # To be set by enrichment
