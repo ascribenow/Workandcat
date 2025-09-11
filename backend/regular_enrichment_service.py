@@ -336,13 +336,42 @@ Be precise, comprehensive, and demonstrate superior mathematical intelligence.""
                 clean_json = extract_json_from_response(enrichment_text)
                 enrichment_data = json.loads(clean_json)
                 
-                # Apply enhanced semantic matching (SAME AS PYQ)
-                logger.info("🎯 Applying enhanced semantic matching...")
-                canonical_category, canonical_subcategory, canonical_type = await canonical_taxonomy_service.get_canonical_taxonomy_path(
+                # Apply 3-STEP CATEGORY POPULATION LOGIC (SAME AS PYQ)
+                logger.info("🎯 Applying 3-step category population logic...")
+                
+                # Step 1: Context-aware semantic matching for all fields
+                canonical_category, canonical_subcategory, canonical_type = await self._get_canonical_taxonomy_path_with_context(
+                    stem,  # Include original question context
                     enrichment_data.get('category', ''),
                     enrichment_data.get('subcategory', ''),
                     enrichment_data.get('type_of_question', '')
                 )
+                
+                # Step 2: If context-aware matching succeeded, use results directly
+                if canonical_category and canonical_subcategory and canonical_type:
+                    logger.info(f"✅ Context-aware matching successful: {canonical_category} → {canonical_subcategory} → {canonical_type}")
+                else:
+                    # Step 3: Fallback to subcategory → type → category lookup logic
+                    logger.info("🔄 Using fallback subcategory → type → category lookup...")
+                    
+                    # Match subcategory without category constraint
+                    canonical_subcategory = await canonical_taxonomy_service.match_subcategory_without_category(
+                        enrichment_data.get('subcategory', '')
+                    )
+                    
+                    # Match question type within found subcategory  
+                    canonical_type = await canonical_taxonomy_service.match_question_type_within_subcategory(
+                        enrichment_data.get('type_of_question', ''), 
+                        canonical_subcategory
+                    )
+                    
+                    # Code-based category lookup using subcategory + type combination
+                    canonical_category = canonical_taxonomy_service.lookup_category_by_combination(
+                        canonical_subcategory, 
+                        canonical_type
+                    )
+                    
+                    logger.info(f"✅ 3-step lookup: Subcategory({canonical_subcategory}) + Type({canonical_type}) → Category({canonical_category})")
                 
                 # Update with canonical values
                 enrichment_data['category'] = canonical_category
