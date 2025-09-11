@@ -4386,26 +4386,36 @@ async def export_questions_csv(
         ]
         writer.writerow(header)
         
-        # Write question data
-        for question, topic_name in questions_data:
+        # Write question data with current schema
+        for question in questions_data:
             row = [
                 str(question.id),
                 question.stem or '',
                 question.answer or '',
+                question.right_answer or '',
                 question.solution_approach or '',
                 question.detailed_solution or '',
-                topic_name or '',
+                question.principle_to_remember or '',
+                question.snap_read or '',
+                question.category or '',
                 question.subcategory or '',
+                question.type_of_question or '',
                 float(question.difficulty_score) if question.difficulty_score else '',
                 question.difficulty_band or '',
                 float(question.learning_impact) if question.learning_impact else '',
-                # Removed unused frequency & impact field values as per requirements
                 float(question.pyq_frequency_score) if question.pyq_frequency_score else '',
-                question.importance_band or '',
-                question.video_url or '',
-                ','.join(question.tags) if question.tags else '',
+                question.pyq_conceptual_matches if question.pyq_conceptual_matches else '',
+                str(question.has_image) if question.has_image else 'False',
+                question.image_url or '',
+                question.mcq_options or '',
+                str(question.quality_verified) if question.quality_verified else 'False',
+                question.core_concepts or '',
+                question.solution_method or '',
+                question.concept_difficulty or '',
+                question.operations_required or '',
+                question.problem_structure or '',
+                question.concept_keywords or '',
                 question.source or '',
-                question.version or 1,
                 str(question.is_active),
                 question.created_at.isoformat() if question.created_at else ''
             ]
