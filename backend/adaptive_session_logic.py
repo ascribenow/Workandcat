@@ -16,8 +16,9 @@ import logging
 from datetime import datetime, timedelta
 from typing import List, Dict, Any, Optional
 from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, and_, or_, desc, case, text
-from database import Question, Attempt, Mastery, Topic, User, AsyncSession, StudentCoverageTracking
+from database import Question, Attempt, Mastery, Topic, User, StudentCoverageTracking
 
 logger = logging.getLogger(__name__)
 
