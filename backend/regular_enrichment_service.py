@@ -422,7 +422,7 @@ Be precise, comprehensive, and use EXACT canonical taxonomy names."""
     async def _calculate_pyq_frequency_score_llm(self, stem: str, enrichment_data: Dict[str, Any]) -> float:
         """
         Calculate PYQ frequency score using LLM-based semantic comparison
-        Filters PYQ questions by: difficulty_score > 1.5 AND category×subcategory match
+        Filters PYQ questions by: difficulty_score > 1.5 AND category x subcategory match
         """
         try:
             from database import get_async_compatible_db, PYQQuestion
