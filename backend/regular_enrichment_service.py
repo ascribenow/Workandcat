@@ -267,6 +267,9 @@ Analyze the ORIGINAL PROBLEM and find the best canonical taxonomy match based on
             )
             enrichment_data.update(quality_result)
             
+            # Set concept extraction status (SAME AS PYQ)
+            enrichment_data['concept_extraction_status'] = 'completed'
+            
             logger.info(f"✨ Regular question enrichment completed successfully")
             logger.info(f"📊 Generated enrichment for all required fields")
             
