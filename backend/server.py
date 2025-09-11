@@ -4340,10 +4340,9 @@ async def export_questions_csv(
         import io
         from datetime import datetime
         
-        # Get all questions with topic information
+        # Get all questions (topic relationship removed as per requirements)
         result = await db.execute(
-            select(Question, Topic.name.label('topic_name'))
-            .join(Topic, Question.topic_id == Topic.id)
+            select(Question)
             .order_by(Question.created_at.desc())
         )
         
