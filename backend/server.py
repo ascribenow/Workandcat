@@ -6624,7 +6624,7 @@ async def test_enhanced_session_logic(
                 "subcategory": q.subcategory,
                 "difficulty": q.difficulty_band,
                 "pyq_frequency_score": float(q.pyq_frequency_score or 0.5),
-                "frequency_band": q.frequency_band,
+                # frequency_band removed as per requirements
                 "analysis_method": "dynamic_conceptual_matching"
             })
         
