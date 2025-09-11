@@ -37,14 +37,20 @@ async def calculate_pyq_frequency_score_llm(service_instance, regular_question_d
     
     Args:
         service_instance: Enrichment service instance with LLM configuration
-        regular_question_data: Dict with stem, problem_structure, concept_keywords
-        qualifying_pyq_questions: List of PYQ questions with difficulty_score > 1.5
+        regular_question_data: Dict with stem, problem_structure, concept_keywords, category, subcategory
+        qualifying_pyq_questions: List of PYQ questions filtered by difficulty_score > 1.5 AND category×subcategory match
         
     Returns:
         float: 0.5 (0 matches), 1.0 (1-3 matches), or 1.5 (>3 matches)
     """
     try:
-        logger.info(f"🧠 Starting LLM-based PYQ frequency calculation for {len(qualifying_pyq_questions)} qualifying PYQs")
+        logger.info(f"🧠 Starting LLM-based PYQ frequency calculation for {len(qualifying_pyq_questions)} category-filtered PYQs")
+        logger.info(f"🎯 Category: {regular_question_data.get('category')}, Subcategory: {regular_question_data.get('subcategory')}")
+        
+        # Handle case where no qualifying PYQ questions found
+        if not qualifying_pyq_questions or len(qualifying_pyq_questions) == 0:
+            logger.warning("⚠️ No qualifying PYQ questions found for category×subcategory combination")
+            return 0.5  # Default to LOW
         
         # Prepare system prompt for LLM
         system_message = """You are a mathematical concept similarity expert. Your task is to compare a regular question against PYQ questions and count semantic matches.
@@ -53,6 +59,7 @@ COMPARISON CRITERIA:
 - Evaluate >50% semantic similarity of (problem_structure × concept_keywords)
 - Focus on mathematical concepts, solution approaches, and problem patterns
 - Count only questions that have substantial conceptual overlap
+- All PYQ questions are already filtered to same category×subcategory as the regular question
 
 For each PYQ question, respond with "MATCH" or "NO_MATCH" based on whether there is >50% semantic similarity.
 
@@ -68,15 +75,16 @@ Return your analysis in JSON format:
         # Prepare user message with question data
         user_message = f"""REGULAR QUESTION TO COMPARE:
 Stem: {regular_question_data.get('stem', '')}
+Category: {regular_question_data.get('category', '')}
+Subcategory: {regular_question_data.get('subcategory', '')}
 Problem Structure: {regular_question_data.get('problem_structure', '')}
 Concept Keywords: {regular_question_data.get('concept_keywords', '')}
 
-PYQ QUESTIONS TO COMPARE AGAINST (difficulty_score > 1.5):
+PYQ QUESTIONS TO COMPARE AGAINST (difficulty_score > 1.5, same category×subcategory):
 """
 
-        # Add PYQ questions to comparison (limit to first 20 for token efficiency)
-        pyq_subset = qualifying_pyq_questions[:20]  # Limit for LLM context
-        for i, pyq in enumerate(pyq_subset, 1):
+        # Add ALL qualifying PYQ questions to comparison (no limit, no scaling)
+        for i, pyq in enumerate(qualifying_pyq_questions, 1):
             user_message += f"""
 PYQ {i}:
 Stem: {pyq.get('stem', '')}
@@ -84,11 +92,11 @@ Problem Structure: {pyq.get('problem_structure', '')}
 Concept Keywords: {pyq.get('concept_keywords', '')}
 """
 
-        user_message += f"\nAnalyze semantic similarity between the regular question and each of the {len(pyq_subset)} PYQ questions. Count total matches where similarity >50%."
+        user_message += f"\nAnalyze semantic similarity between the regular question and each of the {len(qualifying_pyq_questions)} PYQ questions. Count total matches where similarity >50%."
 
         # Call LLM using existing fallback mechanism
         response_text, model_used = await call_llm_with_fallback(
-            service_instance, system_message, user_message, max_tokens=1500, temperature=0.1
+            service_instance, system_message, user_message, max_tokens=2000, temperature=0.1
         )
         
         if not response_text:
@@ -100,13 +108,8 @@ Concept Keywords: {pyq.get('concept_keywords', '')}
         clean_json = extract_json_from_response(response_text)
         llm_analysis = json.loads(clean_json)
         
+        # Use raw matches (no scaling)
         total_matches = int(llm_analysis.get('total_matches', 0))
-        
-        # Scale matches if we used subset
-        if len(qualifying_pyq_questions) > 20:
-            # Proportionally scale matches based on full dataset
-            scaling_factor = len(qualifying_pyq_questions) / 20
-            total_matches = int(total_matches * scaling_factor)
         
         # Convert to categorical score
         if total_matches == 0:
@@ -117,7 +120,8 @@ Concept Keywords: {pyq.get('concept_keywords', '')}
             pyq_frequency_score = 1.5  # HIGH
         
         logger.info(f"✅ LLM PYQ frequency calculation completed with {model_used}")
-        logger.info(f"🎯 Found {total_matches} matches → Score: {pyq_frequency_score}")
+        logger.info(f"🎯 Found {total_matches} raw matches (no scaling) → Score: {pyq_frequency_score}")
+        logger.info(f"📊 Processed {len(qualifying_pyq_questions)} category-filtered PYQ questions")
         
         return pyq_frequency_score
         
