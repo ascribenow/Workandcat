@@ -441,20 +441,29 @@ class EnhancedNightlyEngine:
         Get summary of enhanced frequency analysis
         """
         try:
-            # Get frequency band distribution
-            freq_dist = await db.execute(
+            # Detailed analysis by frequency band using pyq_frequency_score ranges
+            detailed_analysis = await db.execute(
                 select(
-                    Question.frequency_band,
+                    case(
+                        (Question.pyq_frequency_score >= 0.7, 'High'),
+                        (Question.pyq_frequency_score >= 0.4, 'Medium'),
+                        else_='Low'
+                    ).label('freq_band'),
                     func.count(Question.id).label('count'),
-                    func.avg(Question.frequency_score).label('avg_score')
+                    func.avg(Question.pyq_frequency_score).label('avg_score')
+                ).where(Question.is_active == True)
+                .group_by(
+                    case(
+                        (Question.pyq_frequency_score >= 0.7, 'High'),
+                        (Question.pyq_frequency_score >= 0.4, 'Medium'),
+                        else_='Low'
+                    )
                 )
-                .where(Question.is_active == True)
-                .group_by(Question.frequency_band)
             )
             
             distribution = {}
-            for row in freq_dist:
-                band = row.frequency_band or 'Unanalyzed'
+            for row in detailed_analysis:
+                band = row.freq_band or 'Unanalyzed'
                 distribution[band] = {
                     'count': row.count,
                     'avg_score': round(row.avg_score or 0.0, 3)
