@@ -4627,12 +4627,12 @@ async def trigger_regular_enrichment(
                 if enrichment_result["success"]:
                     enrichment_data = enrichment_result["enrichment_data"]
                     
-                    # Update question with enrichment data
+                    # Update question with enrichment data (handle None values for required fields)
                     question.right_answer = enrichment_data.get("right_answer")
                     question.answer_match = enrichment_data.get("answer_match", False)
                     question.category = enrichment_data.get("category")
-                    question.subcategory = enrichment_data.get("subcategory")
-                    question.type_of_question = enrichment_data.get("type_of_question")
+                    question.subcategory = enrichment_data.get("subcategory") or "To be enriched"  # Handle None
+                    question.type_of_question = enrichment_data.get("type_of_question") or "To be enriched"  # Handle None
                     question.difficulty_band = enrichment_data.get("difficulty_band")
                     question.difficulty_score = enrichment_data.get("difficulty_score")
                     question.quality_verified = enrichment_data.get("quality_verified", False)
