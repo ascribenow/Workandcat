@@ -373,14 +373,23 @@ class EnhancedNightlyEngine:
             
             stats = stats_query.first()
             
-            # Get frequency distribution
+            # Get frequency distribution using pyq_frequency_score ranges  
             freq_dist = await db.execute(
                 select(
-                    Question.frequency_band,
+                    case(
+                        (Question.pyq_frequency_score >= 0.7, 'High'),
+                        (Question.pyq_frequency_score >= 0.4, 'Medium'),
+                        else_='Low'
+                    ).label('freq_band'),
                     func.count(Question.id).label('count')
+                ).where(Question.is_active == True)
+                .group_by(
+                    case(
+                        (Question.pyq_frequency_score >= 0.7, 'High'),
+                        (Question.pyq_frequency_score >= 0.4, 'Medium'),
+                        else_='Low'
+                    )
                 )
-                .where(Question.is_active == True)
-                .group_by(Question.frequency_band)
             )
             
             frequency_distribution = {}
