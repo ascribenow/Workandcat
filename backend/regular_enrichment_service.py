@@ -316,7 +316,7 @@ Be precise, comprehensive, and demonstrate superior mathematical intelligence.""
                 return pyq_frequency_score
                 
             finally:
-                await db.aclose()
+                await db_gen.aclose()
                 
         except Exception as e:
             logger.error(f"❌ PYQ frequency calculation failed: {e}")
