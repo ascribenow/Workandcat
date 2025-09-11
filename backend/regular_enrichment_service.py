@@ -12,6 +12,7 @@ from typing import Dict, Any, List
 import openai
 import google.generativeai as genai
 from datetime import datetime
+from sqlalchemy import and_
 from canonical_taxonomy_service import canonical_taxonomy_service
 from anthropic_semantic_validator import anthropic_semantic_validator
 from llm_utils import call_llm_with_fallback, extract_json_from_response, calculate_pyq_frequency_score_llm
