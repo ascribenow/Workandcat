@@ -4596,12 +4596,13 @@ async def re_enrich_all_questions(
                 topic = topic_result.scalar_one_or_none()
                 hint_category = topic.name if topic else "Arithmetic"
                 
-                # Use the global LLM pipeline with retry logic
-                enrichment_result = await llm_pipeline.complete_auto_generation(
-                    stem=question.stem,
-                    hint_category=hint_category,
-                    hint_subcategory=question.subcategory
-                )
+                # Use the global LLM pipeline with retry logic - DISABLED
+                # enrichment_result = await llm_pipeline.complete_auto_generation(
+                #     stem=question.stem,
+                #     hint_category=hint_category,
+                #     hint_subcategory=question.subcategory
+                # )
+                enrichment_result = None  # Disabled - llm_pipeline not available
                 
                 # Update question with proper solutions
                 question.answer = enrichment_result.get('answer', question.answer)
