@@ -117,6 +117,7 @@ class Question(Base):
     
     # LLM enrichment fields (same logic as PYQ questions)
     quality_verified = Column(Boolean, default=False)  # Quality gate from LLM enrichment
+    answer_match = Column(Boolean, default=False)  # Semantic match between right_answer and answer
     core_concepts = Column(Text, nullable=True)  # JSON: extracted mathematical concepts
     solution_method = Column(String(200), nullable=True)  # Primary solution approach from LLM
     concept_difficulty = Column(Text, nullable=True)  # JSON: difficulty indicators from LLM
