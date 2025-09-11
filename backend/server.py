@@ -4725,6 +4725,7 @@ async def trigger_regular_enrichment(
                     question.problem_structure = enrichment_data.get("problem_structure")
                     question.concept_keywords = enrichment_data.get("concept_keywords")
                     question.pyq_frequency_score = enrichment_data.get("pyq_frequency_score", 0.0)
+                    question.concept_extraction_status = enrichment_data.get("concept_extraction_status", "pending")
                     
                     # Activate if quality verified
                     question.is_active = question.quality_verified
