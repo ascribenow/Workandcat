@@ -11,7 +11,7 @@ import sys
 
 class AdminEnrichmentTester:
     def __init__(self):
-        self.base_url = "https://taxonomy-repair.preview.emergentagent.com/api"
+        self.base_url = "https://twelvr-mcq.preview.emergentagent.com/api"
         self.admin_token = None
         self.admin_headers = None
         
