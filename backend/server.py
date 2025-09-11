@@ -6260,7 +6260,9 @@ async def test_immediate_enrichment(
         test_question.difficulty_score = 0.3  # Easy
         test_question.difficulty_band = "Easy"
         test_question.learning_impact = 60.0
-        test_question.importance_index = 70.0
+        # Test question data (using remaining fields only)
+        test_question.learning_impact = 75.0
+        # importance_index removed as per requirements
         test_question.frequency_band = "High"
         test_question.tags = ["test_enriched", "immediate_processing"]
         test_question.source = "LLM Test Generated"
