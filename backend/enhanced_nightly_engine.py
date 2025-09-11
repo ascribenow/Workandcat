@@ -394,7 +394,7 @@ class EnhancedNightlyEngine:
             
             frequency_distribution = {}
             for row in freq_dist:
-                band = row.frequency_band or 'None'
+                band = row.freq_band or 'None'
                 frequency_distribution[band] = row.count
             
             logger.info(f"Question statistics updated:")
