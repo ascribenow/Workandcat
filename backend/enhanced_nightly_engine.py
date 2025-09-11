@@ -212,8 +212,14 @@ class EnhancedNightlyEngine:
                         # frequency_score, frequency_band, frequency_notes removed as per requirements
                         question.last_frequency_update = datetime.utcnow()
                         
-                        # Track distribution
-                        band = question.frequency_band
+                        # Track frequency distribution using pyq_frequency_score ranges
+                        pyq_score = question.pyq_frequency_score or 0.0
+                        if pyq_score >= 0.7:
+                            band = "High"
+                        elif pyq_score >= 0.4:
+                            band = "Medium"
+                        else:
+                            band = "Low"
                         frequency_distribution[band] = frequency_distribution.get(band, 0) + 1
                         updated_count += 1
                     
