@@ -111,19 +111,17 @@ class Question(Base):
     # last_llm_assessment_date REMOVED as per requirements
     # llm_assessment_error REMOVED as per requirements
     
-    # Frequency & Impact scores
-    frequency_band = Column(String(20), nullable=True)  # High|Medium|Low
+    # Frequency & Impact scores (keeping essential ones only)
     learning_impact = Column(Numeric(5, 2), nullable=True)  # 0-100
-    learning_impact_band = Column(String(20), nullable=True)
-    importance_index = Column(Numeric(5, 2), nullable=True)  # 0-100
-    importance_band = Column(String(20), nullable=True)
+    # learning_impact_band REMOVED as per requirements
+    # importance_index REMOVED as per requirements
     
-    # Enhanced frequency analysis fields
-    frequency_score = Column(Numeric(5, 4), default=0.0)  # Enhanced frequency score
+    # Enhanced PYQ frequency analysis fields (keeping essential ones only)  
+    # frequency_score REMOVED as per requirements
     pyq_frequency_score = Column(Numeric(5, 4), default=0.0)  # PYQ frequency score
     pyq_conceptual_matches = Column(Integer, default=0)
-    # total_pyq_analyzed REMOVED as per requirements
-    top_matching_concepts = Column(Text, default='[]')  # JSON string for SQLite
+    # top_matching_concepts REMOVED as per requirements
+    # frequency_band REMOVED as per requirements
     # frequency_analysis_method REMOVED as per requirements
     # frequency_last_updated REMOVED as per requirements
     # pyq_occurrences_last_10_years REMOVED as per requirements
