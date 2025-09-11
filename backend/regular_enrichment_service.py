@@ -212,7 +212,7 @@ Analyze the ORIGINAL PROBLEM and find the best canonical taxonomy match based on
             # Return original values as last resort
             return llm_category, llm_subcategory, llm_type
     
-    async def enrich_regular_question(self, stem: str, current_answer: str = None) -> Dict[str, Any]:
+    async def enrich_regular_question(self, stem: str, current_answer: str = None, snap_read: str = None, solution_approach: str = None, detailed_solution: str = None, principle_to_remember: str = None, mcq_options: str = None) -> Dict[str, Any]:
         """
         Generate comprehensive enrichment analysis for regular questions
         SAME LOGIC AS PYQ ENRICHMENT for consistency
