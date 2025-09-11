@@ -97,6 +97,11 @@ class RegularQuestionsEnrichmentService:
             quality_result = await self._perform_quality_verification(stem, enrichment_data)
             enrichment_data.update(quality_result)
             
+            # NEW: LLM-BASED PYQ FREQUENCY CALCULATION
+            logger.info("📊 Calculating PYQ frequency score using LLM...")
+            pyq_frequency_result = await self._calculate_pyq_frequency_score_llm(stem, enrichment_data)
+            enrichment_data['pyq_frequency_score'] = pyq_frequency_result
+            
             enrichment_data['concept_extraction_status'] = 'completed'
             
             logger.info(f"✨ Regular question enrichment completed successfully")
