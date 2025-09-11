@@ -4478,6 +4478,234 @@ async def get_uploaded_pyq_files(
         logger.error(f"Error retrieving uploaded files: {e}")
         raise HTTPException(status_code=500, detail="Failed to retrieve file list")
 
+# ================== REGULAR QUESTIONS ENRICHMENT ENDPOINTS (SIMILAR TO PYQ) ==================
+
+@api_router.get("/admin/regular/enrichment-status")
+async def get_regular_enrichment_status(
+    current_user: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_async_compatible_db)
+):
+    """
+    Get enrichment status for regular questions (Similar to PYQ)
+    Shows how many questions need enrichment vs completed
+    """
+    try:
+        # Get total regular questions count
+        total_result = await db.execute(select(func.count()).select_from(Question))
+        total_questions = total_result.scalar()
+        
+        # Get enriched questions (quality_verified = True)
+        enriched_result = await db.execute(
+            select(func.count()).select_from(Question).where(Question.quality_verified == True)
+        )
+        enriched_questions = enriched_result.scalar()
+        
+        # Get pending enrichment (quality_verified = False OR category is NULL)
+        pending_result = await db.execute(
+            select(func.count()).select_from(Question).where(
+                or_(
+                    Question.quality_verified == False,
+                    Question.category.is_(None)
+                )
+            )
+        )
+        pending_questions = pending_result.scalar()
+        
+        # Get activated questions
+        active_result = await db.execute(
+            select(func.count()).select_from(Question).where(Question.is_active == True)
+        )
+        active_questions = active_result.scalar()
+        
+        # Sample pending questions
+        sample_pending_result = await db.execute(
+            select(Question).where(
+                or_(
+                    Question.quality_verified == False,
+                    Question.category.is_(None)
+                )
+            ).limit(5)
+        )
+        sample_pending = sample_pending_result.scalars().all()
+        
+        pending_samples = []
+        for q in sample_pending:
+            pending_samples.append({
+                "id": str(q.id),
+                "stem": q.stem[:100] + "..." if len(q.stem) > 100 else q.stem,
+                "category": q.category,
+                "quality_verified": q.quality_verified,
+                "is_active": q.is_active
+            })
+        
+        enrichment_percentage = (enriched_questions / total_questions * 100) if total_questions > 0 else 0
+        
+        return {
+            "success": True,
+            "regular_questions_enrichment_status": {
+                "total_questions": total_questions,
+                "enriched_questions": enriched_questions,
+                "pending_enrichment": pending_questions,
+                "active_questions": active_questions,
+                "enrichment_percentage": round(enrichment_percentage, 1),
+                "status": "Complete" if pending_questions == 0 else "In Progress"
+            },
+            "sample_pending_questions": pending_samples,
+            "enrichment_endpoint": "/api/admin/regular/trigger-enrichment"
+        }
+        
+    except Exception as e:
+        logger.error(f"Error getting regular enrichment status: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to get enrichment status: {str(e)}")
+
+@api_router.post("/admin/regular/trigger-enrichment")
+async def trigger_regular_enrichment(
+    request: TriggerEnrichmentRequest = TriggerEnrichmentRequest(),
+    current_user: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_async_compatible_db)
+):
+    """
+    Trigger enrichment for regular questions (Similar to PYQ process)
+    Processes questions that need enrichment
+    """
+    try:
+        logger.info("🚀 Starting regular questions enrichment process...")
+        
+        # Get questions that need enrichment
+        questions_query = select(Question).where(
+            or_(
+                Question.quality_verified == False,
+                Question.category.is_(None),
+                Question.right_answer.is_(None)
+            )
+        )
+        
+        if request.limit and request.limit > 0:
+            questions_query = questions_query.limit(request.limit)
+            
+        result = await db.execute(questions_query)
+        questions_to_enrich = result.scalars().all()
+        
+        if not questions_to_enrich:
+            return {
+                "success": True,
+                "message": "No regular questions need enrichment",
+                "total_questions": 0,
+                "processed": 0,
+                "enriched": 0,
+                "failed": 0
+            }
+        
+        logger.info(f"📊 Found {len(questions_to_enrich)} regular questions needing enrichment")
+        
+        # Initialize enrichment service
+        from regular_enrichment_service import regular_questions_enrichment_service
+        
+        processed = 0
+        enriched = 0
+        failed = 0
+        results = []
+        
+        for question in questions_to_enrich:
+            try:
+                logger.info(f"🎯 Processing question {processed + 1}/{len(questions_to_enrich)}: {question.id}")
+                
+                # Perform enrichment
+                enrichment_result = await regular_questions_enrichment_service.enrich_regular_question(
+                    stem=question.stem,
+                    current_answer=question.answer,
+                    snap_read=question.snap_read,
+                    solution_approach=question.solution_approach,
+                    detailed_solution=question.detailed_solution,
+                    principle_to_remember=question.principle_to_remember,
+                    mcq_options=question.mcq_options
+                )
+                
+                processed += 1
+                
+                if enrichment_result["success"]:
+                    enrichment_data = enrichment_result["enrichment_data"]
+                    
+                    # Update question with enrichment data
+                    question.right_answer = enrichment_data.get("right_answer")
+                    question.answer_match = enrichment_data.get("answer_match", False)
+                    question.category = enrichment_data.get("category")
+                    question.subcategory = enrichment_data.get("subcategory")
+                    question.type_of_question = enrichment_data.get("type_of_question")
+                    question.difficulty_band = enrichment_data.get("difficulty_band")
+                    question.difficulty_score = enrichment_data.get("difficulty_score")
+                    question.quality_verified = enrichment_data.get("quality_verified", False)
+                    question.core_concepts = enrichment_data.get("core_concepts")
+                    question.solution_method = enrichment_data.get("solution_method")
+                    question.concept_difficulty = enrichment_data.get("concept_difficulty")
+                    question.operations_required = enrichment_data.get("operations_required")
+                    question.problem_structure = enrichment_data.get("problem_structure")
+                    question.concept_keywords = enrichment_data.get("concept_keywords")
+                    question.pyq_frequency_score = enrichment_data.get("pyq_frequency_score", 0.0)
+                    question.concept_extraction_status = enrichment_data.get("concept_extraction_status", "completed")
+                    
+                    # Activate if quality verified
+                    question.is_active = question.quality_verified
+                    
+                    enriched += 1
+                    
+                    results.append({
+                        "question_id": str(question.id),
+                        "success": True,
+                        "category": question.category,
+                        "quality_verified": question.quality_verified,
+                        "answer_match": question.answer_match,
+                        "is_active": question.is_active
+                    })
+                    
+                    logger.info(f"✅ Question enriched: {question.category} → {question.subcategory}")
+                    
+                else:
+                    failed += 1
+                    results.append({
+                        "question_id": str(question.id),
+                        "success": False,
+                        "error": enrichment_result.get("error", "Unknown error")
+                    })
+                    
+                    logger.error(f"❌ Enrichment failed: {enrichment_result.get('error')}")
+                
+                # Commit each question individually
+                await db.commit()
+                
+            except Exception as question_error:
+                failed += 1
+                logger.error(f"❌ Error processing question {question.id}: {question_error}")
+                await db.rollback()
+                
+                results.append({
+                    "question_id": str(question.id),
+                    "success": False,
+                    "error": str(question_error)
+                })
+        
+        success_rate = (enriched / processed * 100) if processed > 0 else 0
+        
+        logger.info(f"🎉 Regular questions enrichment completed!")
+        logger.info(f"📊 Processed: {processed}, Enriched: {enriched}, Failed: {failed}")
+        logger.info(f"📈 Success rate: {success_rate:.1f}%")
+        
+        return {
+            "success": True,
+            "message": f"Regular questions enrichment completed",
+            "total_questions": len(questions_to_enrich),
+            "processed": processed,
+            "enriched": enriched,
+            "failed": failed,
+            "success_rate": round(success_rate, 1),
+            "results": results[:10],  # Show first 10 results
+            "process": "Similar to PYQ enrichment - database records processed"
+        }
+        
+    except Exception as e:
+        logger.error(f"Error in regular questions enrichment: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to trigger enrichment: {str(e)}")
+
 
 @api_router.get("/admin/pyq/download-file/{file_id}")
 async def download_pyq_file(
