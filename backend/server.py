@@ -4905,15 +4905,17 @@ async def upload_questions_csv(
                     logger.info(f"🏷️ Taxonomy: {question.category} → {question.subcategory} → {question.type_of_question}")
                     logger.info(f"⚖️ Difficulty: {question.difficulty_band} ({question.difficulty_score})")
                     logger.info(f"🔍 Quality Verified: {question.quality_verified}")
+                    logger.info(f"🧠 Answer Match: {question.answer_match}")
                     
-                    # Activate question if quality verified
-                    if question.quality_verified and question.difficulty_band:
+                    # NEW ACTIVATION LOGIC: is_active = True ONLY if quality_verified = True
+                    if question.quality_verified:
                         question.is_active = True
                         questions_activated += 1
-                        logger.info(f"🟢 Question {questions_created} activated")
+                        logger.info(f"🟢 Question {questions_created} activated (quality_verified=True)")
                     else:
+                        question.is_active = False
                         questions_deactivated += 1
-                        logger.info(f"🔴 Question {questions_created} remains inactive - quality verification failed")
+                        logger.info(f"🔴 Question {questions_created} remains inactive (quality_verified=False)")
                     
                     enrichment_results.append({
                         "question_id": str(question.id),
