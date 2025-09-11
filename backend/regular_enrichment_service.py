@@ -576,7 +576,7 @@ Are these two answers semantically equivalent?"""
             logger.error(f"❌ Semantic answer matching failed: {e}")
             return False
 
-    async def _perform_quality_verification(self, stem: str, enrichment_data: Dict[str, Any], csv_answer: str = None) -> Dict[str, Any]:
+    async def _perform_quality_verification(self, stem: str, enrichment_data: Dict[str, Any], csv_answer: str = None, snap_read: str = None, solution_approach: str = None, detailed_solution: str = None, principle_to_remember: str = None, mcq_options: str = None) -> Dict[str, Any]:
         """
         Perform comprehensive quality verification
         Checks 20 fields + answer_match = 21 total criteria
