@@ -4924,7 +4924,8 @@ async def upload_questions_csv(
                         "subcategory": question.subcategory,
                         "type_of_question": question.type_of_question,
                         "difficulty_band": question.difficulty_band,
-                        "quality_verified": question.quality_verified
+                        "quality_verified": question.quality_verified,
+                        "answer_match": question.answer_match
                     })
                 else:
                     logger.error(f"❌ Enrichment failed for question {questions_created}: {enrichment_result.get('error')}")
