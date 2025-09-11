@@ -4884,6 +4884,7 @@ async def upload_questions_csv(
                     
                     # Update question with all enrichment fields (SAME AS PYQ)
                     question.right_answer = enrichment_data.get("right_answer")
+                    question.answer_match = enrichment_data.get("answer_match", False)  # NEW FIELD
                     question.category = enrichment_data.get("category")
                     question.subcategory = enrichment_data.get("subcategory") or "To be classified by LLM"
                     question.type_of_question = enrichment_data.get("type_of_question") or "To be classified by LLM"
