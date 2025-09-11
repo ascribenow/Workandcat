@@ -238,20 +238,19 @@ Analyze the ORIGINAL PROBLEM and find the best canonical taxonomy match based on
             
             enrichment_data = enrichment_result["enrichment_data"]
             
-            # QUALITY VERIFICATION (same as PYQ)
+            # Calculate PYQ frequency score (NEW FEATURE)
+            logger.info("📊 Calculating PYQ frequency score using LLM...")
+            pyq_frequency_result = await self._calculate_pyq_frequency_score_llm(stem, enrichment_data)
+            enrichment_data['pyq_frequency_score'] = pyq_frequency_result
+            enrichment_data['concept_extraction_status'] = 'completed'
+            
+            # QUALITY VERIFICATION (same as PYQ) - MOVED TO AFTER ALL ENRICHMENT
             logger.info("🔍 Performing quality verification...")
             quality_result = await self._perform_quality_verification(
                 stem, enrichment_data, current_answer, snap_read, solution_approach, 
                 detailed_solution, principle_to_remember, mcq_options
             )
             enrichment_data.update(quality_result)
-            
-            # NEW: LLM-BASED PYQ FREQUENCY CALCULATION
-            logger.info("📊 Calculating PYQ frequency score using LLM...")
-            pyq_frequency_result = await self._calculate_pyq_frequency_score_llm(stem, enrichment_data)
-            enrichment_data['pyq_frequency_score'] = pyq_frequency_result
-            
-            enrichment_data['concept_extraction_status'] = 'completed'
             
             logger.info(f"✨ Regular question enrichment completed successfully")
             logger.info(f"📊 Generated enrichment for all required fields")
