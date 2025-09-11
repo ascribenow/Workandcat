@@ -13972,34 +13972,31 @@ class CATBackendTester:
         return success_rate >= 60  # Return True if signup email flow is functional
 
 if __name__ == "__main__":
-    print("🎯 FINAL 100% SUCCESS VALIDATION - COMPLETE FIELD DELETION SUCCESS")
+    print("🎯 PYQ QUESTIONS CATEGORY FIELD VERIFICATION")
     print("=" * 80)
-    print("Starting comprehensive backend testing for field deletion validation...")
+    print("Starting verification of actual pyq_questions table data...")
     print("")
     
     tester = CATBackendTester()
     
     try:
-        # Run the final 100% success validation test
-        success = tester.test_final_100_percent_success_validation()
+        # Run the PYQ questions category field verification test
+        success = tester.test_pyq_questions_category_field_verification()
         
         print("\n" + "=" * 80)
-        print("🎯 FINAL TESTING SUMMARY")
+        print("🎯 PYQ VERIFICATION TESTING SUMMARY")
         print("=" * 80)
         
         if success:
-            print("🎉 FINAL 100% SUCCESS VALIDATION COMPLETED SUCCESSFULLY!")
-            print("   ✅ All field deletion objectives achieved")
-            print("   ✅ Database schema perfect with deleted fields removed")
-            print("   ✅ Admin endpoints working flawlessly")
-            print("   ✅ Session logic functional with remaining fields")
-            print("   ✅ Background processing operational")
-            print("   🏆 PRODUCTION READY - Complete field deletion success!")
+            print("🎉 PYQ QUESTIONS CATEGORY FIELD VERIFICATION COMPLETED SUCCESSFULLY!")
+            print("   ✅ Category field population verified")
+            print("   ✅ Database filtering logic validated")
+            print("   ✅ User claim assessment completed")
+            print("   🏆 READY FOR FILTERING OPERATIONS!")
         else:
-            print("⚠️ FIELD DELETION VALIDATION INCOMPLETE")
-            print("   - Some tests failed or need attention")
-            print("   - Review the detailed results above")
-            print("   🔧 FIXES NEEDED - Address failing tests")
+            print("❌ PYQ QUESTIONS CATEGORY FIELD VERIFICATION INCOMPLETE")
+            print("   🚨 Category field population insufficient")
+            print("   🔧 Additional data enrichment needed")
         
         print(f"\nTotal Tests Run: {tester.tests_run}")
         print(f"Tests Passed: {tester.tests_passed}")
