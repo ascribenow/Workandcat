@@ -240,7 +240,10 @@ Analyze the ORIGINAL PROBLEM and find the best canonical taxonomy match based on
             
             # QUALITY VERIFICATION (same as PYQ)
             logger.info("🔍 Performing quality verification...")
-            quality_result = await self._perform_quality_verification(stem, enrichment_data, current_answer)
+            quality_result = await self._perform_quality_verification(
+                stem, enrichment_data, current_answer, snap_read, solution_approach, 
+                detailed_solution, principle_to_remember, mcq_options
+            )
             enrichment_data.update(quality_result)
             
             # NEW: LLM-BASED PYQ FREQUENCY CALCULATION
