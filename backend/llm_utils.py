@@ -31,6 +31,100 @@ def extract_json_from_response(response_text: str) -> str:
     # Return as-is if no code blocks found
     return response_text
 
+async def calculate_pyq_frequency_score_llm(service_instance, regular_question_data: dict, qualifying_pyq_questions: list) -> float:
+    """
+    Calculate PYQ frequency score using LLM-based semantic comparison
+    
+    Args:
+        service_instance: Enrichment service instance with LLM configuration
+        regular_question_data: Dict with stem, problem_structure, concept_keywords
+        qualifying_pyq_questions: List of PYQ questions with difficulty_score > 1.5
+        
+    Returns:
+        float: 0.5 (0 matches), 1.0 (1-3 matches), or 1.5 (>3 matches)
+    """
+    try:
+        logger.info(f"🧠 Starting LLM-based PYQ frequency calculation for {len(qualifying_pyq_questions)} qualifying PYQs")
+        
+        # Prepare system prompt for LLM
+        system_message = """You are a mathematical concept similarity expert. Your task is to compare a regular question against PYQ questions and count semantic matches.
+
+COMPARISON CRITERIA:
+- Evaluate >50% semantic similarity of (problem_structure × concept_keywords)
+- Focus on mathematical concepts, solution approaches, and problem patterns
+- Count only questions that have substantial conceptual overlap
+
+For each PYQ question, respond with "MATCH" or "NO_MATCH" based on whether there is >50% semantic similarity.
+
+Return your analysis in JSON format:
+{
+  "total_matches": <number>,
+  "pyq_analysis": [
+    {"pyq_index": 1, "result": "MATCH/NO_MATCH", "reasoning": "brief explanation"},
+    {"pyq_index": 2, "result": "MATCH/NO_MATCH", "reasoning": "brief explanation"}
+  ]
+}"""
+
+        # Prepare user message with question data
+        user_message = f"""REGULAR QUESTION TO COMPARE:
+Stem: {regular_question_data.get('stem', '')}
+Problem Structure: {regular_question_data.get('problem_structure', '')}
+Concept Keywords: {regular_question_data.get('concept_keywords', '')}
+
+PYQ QUESTIONS TO COMPARE AGAINST (difficulty_score > 1.5):
+"""
+
+        # Add PYQ questions to comparison (limit to first 20 for token efficiency)
+        pyq_subset = qualifying_pyq_questions[:20]  # Limit for LLM context
+        for i, pyq in enumerate(pyq_subset, 1):
+            user_message += f"""
+PYQ {i}:
+Stem: {pyq.get('stem', '')}
+Problem Structure: {pyq.get('problem_structure', '')}
+Concept Keywords: {pyq.get('concept_keywords', '')}
+"""
+
+        user_message += f"\nAnalyze semantic similarity between the regular question and each of the {len(pyq_subset)} PYQ questions. Count total matches where similarity >50%."
+
+        # Call LLM using existing fallback mechanism
+        response_text, model_used = await call_llm_with_fallback(
+            service_instance, system_message, user_message, max_tokens=1500, temperature=0.1
+        )
+        
+        if not response_text:
+            logger.error("❌ LLM returned empty response for PYQ frequency calculation")
+            return 0.5  # Default to LOW
+        
+        # Parse LLM response
+        import json
+        clean_json = extract_json_from_response(response_text)
+        llm_analysis = json.loads(clean_json)
+        
+        total_matches = int(llm_analysis.get('total_matches', 0))
+        
+        # Scale matches if we used subset
+        if len(qualifying_pyq_questions) > 20:
+            # Proportionally scale matches based on full dataset
+            scaling_factor = len(qualifying_pyq_questions) / 20
+            total_matches = int(total_matches * scaling_factor)
+        
+        # Convert to categorical score
+        if total_matches == 0:
+            pyq_frequency_score = 0.5  # LOW
+        elif total_matches <= 3:
+            pyq_frequency_score = 1.0  # MEDIUM
+        else:
+            pyq_frequency_score = 1.5  # HIGH
+        
+        logger.info(f"✅ LLM PYQ frequency calculation completed with {model_used}")
+        logger.info(f"🎯 Found {total_matches} matches → Score: {pyq_frequency_score}")
+        
+        return pyq_frequency_score
+        
+    except Exception as e:
+        logger.error(f"❌ LLM PYQ frequency calculation failed: {e}")
+        return 0.5  # Default to LOW on error
+
 async def call_llm_with_fallback(service_instance, system_message: str, user_message: str, max_tokens: int = 800, temperature: float = 0.1) -> tuple[str, str]:
     """
     Call LLM with fallback logic: OpenAI → Gemini
