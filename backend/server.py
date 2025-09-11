@@ -4352,25 +4352,35 @@ async def export_questions_csv(
         output = io.StringIO()
         writer = csv.writer(output)
         
-        # Write header with all actual columns from the database
+        # Write header with current database schema fields only
         header = [
             'id',
             'stem',
             'answer',
+            'right_answer',
             'solution_approach',
-            'detailed_solution', 
+            'detailed_solution',
+            'principle_to_remember',
+            'snap_read',
             'category',
             'subcategory',
+            'type_of_question',
             'difficulty_score',
             'difficulty_band',
             'learning_impact',
-            # Removed unused frequency & impact fields as per requirements
             'pyq_frequency_score',
-            'importance_band',
-            'video_url',
-            'tags',
+            'pyq_conceptual_matches',
+            'has_image',
+            'image_url',
+            'mcq_options',
+            'quality_verified',
+            'core_concepts',
+            'solution_method',
+            'concept_difficulty',
+            'operations_required',
+            'problem_structure',
+            'concept_keywords',
             'source',
-            'version',
             'is_active',
             'created_at'
         ]
