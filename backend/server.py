@@ -5085,7 +5085,6 @@ async def upload_questions_csv(
                     problem_structure=None, # To be enriched
                     concept_keywords=None, # To be enriched
                     pyq_frequency_score=0.0, # To be enriched
-                    concept_extraction_status='pending', # To be enriched
                     
                     # Metadata 
                     source="Admin CSV Upload - Raw Data",
