@@ -9,7 +9,7 @@ import asyncio
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Any
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, and_, or_, text, desc
+from sqlalchemy import select, func, and_, or_, text, desc, case
 from database import (
     Question, User, Attempt, Mastery, Topic, Session,
     PYQQuestion, PYQPaper, PYQIngestion
