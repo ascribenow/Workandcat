@@ -4892,23 +4892,28 @@ async def upload_questions_csv(
         logger.info(f"🎉 NEW Workflow CSV upload completed: {questions_created} questions, {questions_activated} activated")
         
         return {
-            "message": f"Successfully processed {questions_created} questions with NEW Question Upload & Enrichment Workflow",
-            "workflow": "Question Upload & Enrichment Workflow - Immediate Processing",
+            "success": True,
+            "message": f"Successfully uploaded {questions_created} questions with Raw CSV Data Storage",
+            "workflow": "CSV Upload - Raw Data Storage (Enrichment Separate)",
             "statistics": {
                 "questions_created": questions_created,
-                "questions_activated": questions_activated,
-                "questions_deactivated": questions_deactivated,
+                "questions_stored": questions_created,
+                "questions_pending_enrichment": questions_created,
                 "images_processed": images_processed,
                 "csv_rows_processed": len(processed_rows)
             },
-            "enrichment_summary": {
-                "immediate_enrichment": True,
-                "llm_fields_generated": ["right_answer", "category", "subcategory", "type_of_question", "difficulty_level"],
-                "quality_control_applied": True,
-                "admin_fields_protected": ["stem", "answer", "solution_approach", "principle_to_remember", "image_url"]
+            "csv_fields_stored": [
+                "stem", "answer", "solution_approach", "detailed_solution", 
+                "principle_to_remember", "snap_read", "mcq_options", "image_url"
+            ],
+            "enrichment_status": {
+                "immediate_enrichment": False,
+                "enrichment_required": True,
+                "enrichment_endpoint": "/api/admin/regular/enrich-questions",
+                "process": "Similar to PYQ questions - trigger enrichment separately"
             },
-            "enrichment_results": enrichment_results[:5] if len(enrichment_results) > 5 else enrichment_results,  # Show first 5 for brevity
-            "activation_notes": f"{questions_activated}/{questions_created} questions activated after quality control validation"
+            "enrichment_results": enrichment_results,
+            "next_steps": f"Use enrichment endpoint to process {questions_created} pending questions"
         }
         
     except Exception as e:
