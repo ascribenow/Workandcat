@@ -238,11 +238,26 @@ Analyze the ORIGINAL PROBLEM and find the best canonical taxonomy match based on
             
             enrichment_data = enrichment_result["enrichment_data"]
             
+            # APPLY SEMANTIC TAXONOMY MATCHING (SAME AS PYQ)
+            logger.info("🎯 Applying context-aware semantic matching (same as PYQ)...")
+            canonical_category, canonical_subcategory, canonical_type = await self._get_canonical_taxonomy_path_with_context(
+                stem,  # Include original question
+                enrichment_data.get('category', ''),
+                enrichment_data.get('subcategory', ''),
+                enrichment_data.get('type_of_question', '')
+            )
+            
+            # Update with canonical values (same as PYQ)
+            enrichment_data['category'] = canonical_category
+            enrichment_data['subcategory'] = canonical_subcategory
+            enrichment_data['type_of_question'] = canonical_type
+            
+            logger.info(f"✅ Semantic matching: {canonical_category} → {canonical_subcategory} → {canonical_type}")
+            
             # Calculate PYQ frequency score (NEW FEATURE)
             logger.info("📊 Calculating PYQ frequency score using LLM...")
             pyq_frequency_result = await self._calculate_pyq_frequency_score_llm(stem, enrichment_data)
             enrichment_data['pyq_frequency_score'] = pyq_frequency_result
-            enrichment_data['concept_extraction_status'] = 'completed'
             
             # QUALITY VERIFICATION (same as PYQ) - MOVED TO AFTER ALL ENRICHMENT
             logger.info("🔍 Performing quality verification...")
