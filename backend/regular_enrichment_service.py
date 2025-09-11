@@ -303,21 +303,21 @@ COMPREHENSIVE ANALYSIS REQUIRED:
 
 Return ONLY this JSON format:
 {
-  "right_answer": "enhanced detailed answer with step-by-step reasoning",
-  "category": "main category",
-  "subcategory": "specific subcategory",
-  "type_of_question": "specific question archetype",
+  "right_answer": "precise answer with mathematical reasoning",
+  "category": "exact canonical category name",
+  "subcategory": "exact canonical subcategory name",
+  "type_of_question": "exact canonical question type name",
   "difficulty_band": "Easy/Medium/Hard",
   "difficulty_score": 3.2,
   "core_concepts": ["concept1", "concept2", "concept3"],
-  "solution_method": "precise methodological approach",
+  "solution_method": "methodological approach",
   "concept_difficulty": {"prerequisites": ["req1"], "cognitive_barriers": ["barrier1"], "mastery_indicators": ["indicator1"]},
   "operations_required": ["operation1", "operation2"],
   "problem_structure": "structural_analysis_type",
   "concept_keywords": ["keyword1", "keyword2"]
 }
 
-Be precise, comprehensive, and demonstrate superior mathematical intelligence."""
+Be precise, comprehensive, and use EXACT canonical taxonomy names."""
 
         user_message = f"Regular Question: {stem}\nCurrent answer (if any): {current_answer or 'Not provided'}"
         
