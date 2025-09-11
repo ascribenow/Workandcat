@@ -452,11 +452,14 @@ EXAMPLES OF SEMANTIC MATCHING:
                 for category_data in CANONICAL_TAXONOMY.values():
                     all_subcategories.extend(category_data.keys())
                 
-                if response_text in all_subcategories:
-                    logger.info(f"✅ Enhanced global semantic subcategory match: '{llm_subcategory}' → '{response_text}' (attempt {attempt + 1}, model: {model_used})")
-                    return response_text
+                # Handle responses that include parent category in parentheses (e.g., "Percentages (Arithmetic)")
+                clean_response = response_text.split(' (')[0].strip() if ' (' in response_text else response_text.strip()
+                
+                if clean_response in all_subcategories:
+                    logger.info(f"✅ Enhanced global semantic subcategory match: '{llm_subcategory}' → '{clean_response}' (attempt {attempt + 1}, model: {model_used})")
+                    return clean_response
                 else:
-                    logger.warning(f"⚠️ LLM returned invalid subcategory: '{response_text}' (attempt {attempt + 1})")
+                    logger.warning(f"⚠️ LLM returned invalid subcategory: '{response_text}' (cleaned: '{clean_response}') (attempt {attempt + 1})")
                     if attempt == 1:  # Last attempt
                         return None
                     continue
