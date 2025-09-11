@@ -4346,7 +4346,7 @@ async def export_questions_csv(
             .order_by(Question.created_at.desc())
         )
         
-        questions_data = result.fetchall()
+        questions_data = result.scalars().all()
         
         # Create CSV in memory
         output = io.StringIO()
