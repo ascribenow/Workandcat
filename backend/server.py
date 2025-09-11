@@ -4389,11 +4389,9 @@ async def export_questions_csv(
                 question.subcategory or '',
                 float(question.difficulty_score) if question.difficulty_score else '',
                 question.difficulty_band or '',
-                question.frequency_band or '',
-                question.frequency_notes or '',
                 float(question.learning_impact) if question.learning_impact else '',
-                question.learning_impact_band or '',
-                float(question.importance_index) if question.importance_index else '',
+                # Removed unused frequency & impact field values as per requirements
+                float(question.pyq_frequency_score) if question.pyq_frequency_score else '',
                 question.importance_band or '',
                 question.video_url or '',
                 ','.join(question.tags) if question.tags else '',
