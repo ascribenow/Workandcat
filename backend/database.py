@@ -420,22 +420,7 @@ class PaymentTransaction(Base):
 # DELETED TABLE: Plan model removed as part of database cleanup
 
 
-class PlanUnit(Base):
-    """Plan units - atomic day items"""
-    __tablename__ = "plan_units"
-    
-    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    plan_id = Column(String(36), ForeignKey('plans.id'), nullable=False)
-    planned_for = Column(Date, nullable=False)
-    topic_id = Column(String(36), nullable=False)  # Keep as string but remove FK relationship
-    unit_kind = Column(String(20), nullable=False)  # read|examples|practice|review|mock
-    target_count = Column(Integer, default=1)
-    status = Column(String(20), default='pending')  # pending|in_progress|done|skipped
-    created_at = Column(DateTime, default=datetime.utcnow)
-    
-    # Relationships
-    plan = relationship("Plan", back_populates="plan_units")
-    # topic relationship REMOVED as per requirements
+# DELETED TABLE: PlanUnit model removed as part of database cleanup
 
 
 # Session Management
