@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { useAuth, API } from './AuthProvider';
+import MathRenderer from './MathRenderer';
 
 export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSessionEnd }) => {
   const { user } = useAuth();
