@@ -10,6 +10,7 @@ import ContactUs from "./components/ContactUs";
 import PrivacyPolicy from "./components/PrivacyPolicy";
 import TermsConditions from "./components/TermsConditions";
 import CancellationRefund from "./components/CancellationRefund";
+import MathTestComponent from "./components/MathTestComponent";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
