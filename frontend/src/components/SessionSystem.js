@@ -583,11 +583,19 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <p className="text-sm font-medium mb-1" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>Your Answer:</p>
-                      <p className="text-lg" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>{result.user_answer}</p>
+                      <MathRenderer 
+                        content={result.user_answer}
+                        className="text-lg"
+                        style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}
+                      />
                     </div>
                     <div>
                       <p className="text-sm font-medium mb-1" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>Correct Answer:</p>
-                      <p className="text-lg font-semibold" style={{ color: '#9ac026', fontFamily: 'Lato, sans-serif' }}>{result.correct_answer}</p>
+                      <MathRenderer 
+                        content={result.correct_answer}
+                        className="text-lg font-semibold"
+                        style={{ color: '#9ac026', fontFamily: 'Lato, sans-serif' }}
+                      />
                     </div>
                   </div>
                 </div>
