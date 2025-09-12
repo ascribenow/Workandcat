@@ -783,22 +783,18 @@ Are these two answers semantically equivalent?"""
             )
             completed_questions = completed_result.scalar()
             
-            # Untouched questions
-            untouched_result = db.execute(
+            # Questions needing enrichment (correct criteria)
+            needing_enrichment_result = db.execute(
                 select(func.count(Question.id)).where(
-                    and_(
-                        Question.is_active == True,
-                        Question.quality_verified != True,
-                        or_(
-                            Question.category.is_(None),
-                            Question.category == '',
-                            Question.right_answer.is_(None),
-                            Question.right_answer == ''
-                        )
+                    or_(
+                        Question.subcategory == 'To be enriched',
+                        Question.subcategory == 'null',
+                        Question.subcategory == '',
+                        Question.subcategory.is_(None)
                     )
                 )
             )
-            untouched_questions = untouched_result.scalar()
+            needing_enrichment = needing_enrichment_result.scalar()
             
             return {
                 "status": "success",
@@ -806,7 +802,7 @@ Are these two answers semantically equivalent?"""
                     "total_questions": total_questions,
                     "quality_verified": verified_questions,
                     "concept_completed": completed_questions,
-                    "untouched": untouched_questions,
+                    "untouched": needing_enrichment,
                     "verification_rate": f"{(verified_questions/total_questions)*100:.1f}%" if total_questions > 0 else "0%",
                     "completion_rate": f"{(completed_questions/total_questions)*100:.1f}%" if total_questions > 0 else "0%"
                 }
