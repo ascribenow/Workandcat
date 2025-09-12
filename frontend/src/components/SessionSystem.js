@@ -460,9 +460,11 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
 
             {/* Question Stem */}
             <div className="prose max-w-none mb-6">
-              <p className="text-lg leading-relaxed" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
-                {currentQuestion.stem}
-              </p>
+              <MathRenderer 
+                content={currentQuestion.stem}
+                className="text-lg leading-relaxed"
+                style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}
+              />
             </div>
 
             {/* MCQ Options */}
