@@ -417,22 +417,7 @@ class PaymentTransaction(Base):
 
 # Study Planning Tables
 
-class Plan(Base):
-    """Plans - 90-day engine plan"""
-    __tablename__ = "plans"
-    
-    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    user_id = Column(String(36), ForeignKey('users.id'), nullable=False)
-    track = Column(String(20), nullable=False)  # Beginner|Intermediate|Good
-    daily_minutes_weekday = Column(Integer, default=30)
-    daily_minutes_weekend = Column(Integer, default=60)
-    start_date = Column(Date, nullable=False)
-    status = Column(String(20), default='active')  # active|paused|completed
-    created_at = Column(DateTime, default=datetime.utcnow)
-    
-    # Relationships
-    user = relationship("User", back_populates="plans")
-    plan_units = relationship("PlanUnit", back_populates="plan")
+# DELETED TABLE: Plan model removed as part of database cleanup
 
 
 class PlanUnit(Base):
