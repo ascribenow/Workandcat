@@ -713,7 +713,8 @@ Are these two answers semantically equivalent?"""
                         snap_read=question.snap_read,
                         solution_approach=question.solution_approach,
                         detailed_solution=question.detailed_solution,
-                        principle_to_remember=question.principle_to_remember
+                        principle_to_remember=question.principle_to_remember,
+                        mcq_options=question.mcq_options  # Add missing mcq_options parameter
                     )
                     
                     if enrichment_result.get('quality_verified'):
