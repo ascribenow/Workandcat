@@ -120,12 +120,15 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
         raise HTTPException(status_code=401, detail="Invalid token")
 
 async def get_current_admin_user(user_id: str = Depends(get_current_user)):
-    async for db in get_database():
-        result = await db.execute(select(User).where(User.id == user_id))
+    db = SessionLocal()
+    try:
+        result = db.execute(select(User).where(User.id == user_id))
         user = result.scalar_one_or_none()
         if not user or not user.is_admin:
             raise HTTPException(status_code=403, detail="Admin access required")
         return user
+    finally:
+        db.close()
 
 # Health check
 @app.get("/health")
