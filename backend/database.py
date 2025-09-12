@@ -403,11 +403,6 @@ class PaymentTransaction(Base):
 
 
 # DELETED TABLE: TypeMastery model removed as part of database cleanup
-    __table_args__ = (
-        Index('idx_user_category_subcategory_type', 'user_id', 'category', 'subcategory', 'type_of_question'),
-        Index('idx_user_mastery_score', 'user_id', 'mastery_score'),
-        Index('idx_category_subcategory_type', 'category', 'subcategory', 'type_of_question'),
-    )
 
 
 # Study Planning Tables
