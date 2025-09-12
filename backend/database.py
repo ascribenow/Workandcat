@@ -286,13 +286,8 @@ class User(Base):
     # Referral system
     referral_code = Column(String(6), unique=True, nullable=True)  # 6-character alphanumeric referral code
     
-    # Relationships
-    diagnostics = relationship("Diagnostic", back_populates="user")
-    attempts = relationship("Attempt", back_populates="user")
-    mastery = relationship("Mastery", back_populates="user")
-    plans = relationship("Plan", back_populates="user")
-    sessions = relationship("Session", back_populates="user")
-    coverage_tracking = relationship("StudentCoverageTracking", back_populates="user")
+    # Relationships - updated after database cleanup
+    # diagnostics, attempts, mastery, plans, sessions, coverage_tracking relationships removed (tables deleted)
 
 
 class ReferralUsage(Base):
