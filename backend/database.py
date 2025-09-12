@@ -430,7 +430,7 @@ class DoubtsConversation(Base):
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     user_id = Column(String(36), ForeignKey('users.id'), nullable=False)
     question_id = Column(String(36), nullable=False)  # Removed FK relationship as per requirements
-    session_id = Column(String(36), ForeignKey('sessions.id'), nullable=True)  # Link to session if available
+    session_id = Column(String(36), nullable=True)  # Removed FK - sessions table deleted
     message_count = Column(Integer, default=0)  # Track number of messages in conversation
     conversation_transcript = Column(Text, default='[]')  # JSON array of conversation messages
     gemini_token_usage = Column(Integer, default=0)  # Total tokens used by Gemini for this conversation
@@ -441,12 +441,12 @@ class DoubtsConversation(Base):
     # Relationships
     user = relationship("User")
     # question relationship REMOVED as per requirements
-    session = relationship("Session")
+    # session relationship REMOVED - sessions table deleted
     
     # Indexes for efficient queries
     __table_args__ = (
         Index('idx_doubts_user_question', 'user_id', 'question_id'),
-        Index('idx_doubts_session', 'session_id'),
+        Index('idx_doubts_session', 'session_id'),  # Keep index for historical data
     )
 
 
