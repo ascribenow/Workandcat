@@ -265,7 +265,9 @@ class BackgroundJobProcessor:
                     correct_attempts = sum(1 for attempt in recent_attempts if attempt.correct)
                     
                     # Update mastery percentage with new calculation
-                    new_mastery_pct = self.mastery_tracker.calculate_overall_mastery(mastery)
+                    # new_mastery_pct = self.mastery_tracker.calculate_overall_mastery(mastery)  # DISABLED - dependency deleted
+                    # Use simple calculation as fallback
+                    new_mastery_pct = (correct_attempts / total_attempts) * 100 if total_attempts > 0 else 0
                     mastery.mastery_pct = new_mastery_pct
                     mastery.last_updated = datetime.utcnow()
             
