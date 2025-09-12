@@ -6,6 +6,7 @@
  * Performance: detect-then-render; lazy-load KaTeX bundle when math is present
  */
 
+import React from 'react';
 import { InlineMath, BlockMath } from 'react-katex';
 import DOMPurify from 'dompurify';
 import 'katex/dist/katex.min.css';
