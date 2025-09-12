@@ -1270,3 +1270,6 @@ class RazorpayService:
 
 # Global instance
 razorpay_service = RazorpayService()
+
+# Alias for backward compatibility
+PaymentService = RazorpayService
