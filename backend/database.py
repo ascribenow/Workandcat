@@ -452,30 +452,6 @@ class Diagnostic(Base):
 # Attempt and Progress Tracking
 
 # DELETED TABLE: Attempt model removed as part of database cleanup
-    
-    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    user_id = Column(String(36), ForeignKey('users.id'), nullable=False)
-    question_id = Column(String(36), nullable=False)  # Removed ForeignKey relationship as per requirements
-    attempt_no = Column(Integer, nullable=False)  # 1, 2, 3
-    context = Column(String(20), nullable=False)  # diagnostic|daily|sandbox
-    options = Column(JSON, default=dict)  # the 4 choices shown
-    user_answer = Column(Text, nullable=False)
-    correct = Column(Boolean, nullable=False)
-    time_sec = Column(Integer, nullable=False)
-    hint_used = Column(Boolean, default=False)
-    model_feedback = Column(Text, nullable=True)
-    misconception_tag = Column(String(100), nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    
-    # Relationships
-    user = relationship("User", back_populates="attempts")
-    # question relationship REMOVED as per requirements
-    
-    # Indexes for performance
-    __table_args__ = (
-        Index('idx_attempts_user_question', 'user_id', 'question_id'),
-        Index('idx_attempts_created_at', 'created_at'),
-    )
 
 
 class Mastery(Base):
