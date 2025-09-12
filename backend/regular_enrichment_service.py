@@ -691,7 +691,7 @@ Are these two answers semantically equivalent?"""
             if untouched_count == 0:
                 return {
                     "status": "success",
-                    "message": "No untouched questions found to enrich",
+                    "message": "No questions found needing enrichment (subcategory criteria)",
                     "details": {
                         "questions_found": 0,
                         "questions_processed": 0
