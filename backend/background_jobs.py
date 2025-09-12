@@ -22,7 +22,7 @@ from database import (
 # from mastery_tracker import MasteryTracker  # DELETED
 # from study_planner import StudyPlanner  # DELETED
 # from llm_enrichment import LLMEnrichmentPipeline  # Removed - using new enhanced service
-from enhanced_nightly_engine import EnhancedNightlyEngine
+# from enhanced_nightly_engine import EnhancedNightlyEngine  # DELETED - file removed due to deleted table dependencies
 
 logger = logging.getLogger(__name__)
 
