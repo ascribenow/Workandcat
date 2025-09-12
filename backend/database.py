@@ -396,21 +396,7 @@ class PaymentTransaction(Base):
 # DELETED TABLE: DiagnosticSetQuestion model removed as part of database cleanup
 
 
-class Diagnostic(Base):
-    """Diagnostics - one per user per attempt"""
-    __tablename__ = "diagnostics"
-    
-    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    user_id = Column(String(36), ForeignKey('users.id'), nullable=False)
-    set_id = Column(String(36), ForeignKey('diagnostic_sets.id'), nullable=False)
-    started_at = Column(DateTime, default=datetime.utcnow)
-    completed_at = Column(DateTime, nullable=True)
-    result = Column(JSON, default=dict)  # per-topic accuracy/time; readiness band
-    initial_capability = Column(JSON, default=dict)  # per sub-category & difficulty
-    
-    # Relationships
-    user = relationship("User", back_populates="diagnostics")
-    diagnostic_set = relationship("DiagnosticSet", back_populates="diagnostics")
+# DELETED TABLE: Diagnostic model removed as part of database cleanup
 
 
 # Attempt and Progress Tracking
