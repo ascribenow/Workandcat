@@ -745,9 +745,7 @@ Are these two answers semantically equivalent?"""
                     failed_count += 1
                     logger.error(f"❌ Error processing question {question.id[:8]}: {e}")
             
-            # Commit all changes
-            db.commit()
-            
+            # Final summary (no final commit needed - already committed incrementally)
             logger.info(f"🎉 Manual enrichment completed: {processed_count} processed, {failed_count} failed")
             
             return {
