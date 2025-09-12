@@ -418,18 +418,18 @@ async def upload_questions_csv(
         result = await regular_questions_enrichment_service.process_csv_upload(db, file_path, admin_user.id)
         return result
 
-# Enrichment checker endpoints
-@app.post("/api/admin/enrich-checker/regular-questions")
-async def admin_enrich_checker_regular(admin_user: User = Depends(get_current_admin_user)):
-    async for db in get_database():
-        result = await enhanced_enrichment_checker_service.check_and_improve_regular_questions(db)
-        return result
+# Enrichment checker endpoints - DISABLED (service deleted during cleanup)
+# @app.post("/api/admin/enrich-checker/regular-questions")
+# async def admin_enrich_checker_regular(admin_user: User = Depends(get_current_admin_user)):
+#     async for db in get_database():
+#         result = await enhanced_enrichment_checker_service.check_and_improve_regular_questions(db)
+#         return result
 
-@app.post("/api/admin/enrich-checker/pyq-questions")
-async def admin_enrich_checker_pyq(admin_user: User = Depends(get_current_admin_user)):
-    async for db in get_database():
-        result = await enhanced_enrichment_checker_service.check_and_improve_pyq_questions(db)
-        return result
+# @app.post("/api/admin/enrich-checker/pyq-questions")
+# async def admin_enrich_checker_pyq(admin_user: User = Depends(get_current_admin_user)):
+#     async for db in get_database():
+#         result = await enhanced_enrichment_checker_service.check_and_improve_pyq_questions(db)
+#         return result
 
 # Image upload endpoints
 @app.post("/api/admin/image/upload")
