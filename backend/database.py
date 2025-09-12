@@ -451,9 +451,7 @@ class Diagnostic(Base):
 
 # Attempt and Progress Tracking
 
-class Attempt(Base):
-    """Attempts - every user × question interaction"""
-    __tablename__ = "attempts"
+# DELETED TABLE: Attempt model removed as part of database cleanup
     
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     user_id = Column(String(36), ForeignKey('users.id'), nullable=False)
