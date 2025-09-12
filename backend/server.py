@@ -394,15 +394,21 @@ async def admin_trigger_pyq_enrichment(admin_user: User = Depends(get_current_ad
 # Regular questions admin endpoints
 @app.get("/api/admin/regular/enrichment-status")
 async def admin_get_regular_enrichment_status(admin_user: User = Depends(get_current_admin_user)):
-    async for db in get_database():
+    db = SessionLocal()
+    try:
         result = await regular_questions_enrichment_service.get_enrichment_status(db)
         return result
+    finally:
+        db.close()
 
 @app.post("/api/admin/regular/trigger-enrichment")
 async def admin_trigger_regular_enrichment(admin_user: User = Depends(get_current_admin_user)):
-    async for db in get_database():
+    db = SessionLocal()
+    try:
         result = await regular_questions_enrichment_service.trigger_manual_enrichment(db)
         return result
+    finally:
+        db.close()
 
 # CSV Upload endpoints
 @app.post("/api/admin/upload-questions-csv")
