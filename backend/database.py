@@ -505,20 +505,7 @@ class PlanUnit(Base):
 
 # Session Management
 
-class Session(Base):
-    """Sessions - study session tracking"""
-    __tablename__ = "sessions"
-    
-    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    user_id = Column(String(36), ForeignKey('users.id'), nullable=False)
-    started_at = Column(DateTime, default=datetime.utcnow)
-    ended_at = Column(DateTime, nullable=True)
-    duration_sec = Column(Integer, nullable=True)
-    units = Column(Text, default='[]')  # JSON string for SQLite compatibility
-    notes = Column(Text, nullable=True)
-    
-    # Relationships
-    user = relationship("User", back_populates="sessions")
+# DELETED TABLE: Session model removed as part of database cleanup
 
 
 class DoubtsConversation(Base):
