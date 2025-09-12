@@ -40,8 +40,8 @@ from subscription_access_service import SubscriptionAccessService
 from gmail_service import gmail_service
 
 # Import enrichment services
-from pyq_enrichment_service import pyq_questions_enrichment_service
-from enhanced_enrichment_checker_service import enhanced_enrichment_checker_service
+from pyq_enrichment_service import pyq_enrichment_service
+# from enhanced_enrichment_checker_service import enhanced_enrichment_checker_service  # File deleted during cleanup
 
 # Initialize logging
 logging.basicConfig(level=logging.INFO)
@@ -376,13 +376,13 @@ async def admin_get_pyq_questions(
 @app.get("/api/admin/pyq/enrichment-status")
 async def admin_get_pyq_enrichment_status(admin_user: User = Depends(get_current_admin_user)):
     async for db in get_database():
-        result = await pyq_questions_enrichment_service.get_enrichment_status(db)
+        result = await pyq_enrichment_service.get_enrichment_status(db)
         return result
 
 @app.post("/api/admin/pyq/trigger-enrichment")
 async def admin_trigger_pyq_enrichment(admin_user: User = Depends(get_current_admin_user)):
     async for db in get_database():
-        result = await pyq_questions_enrichment_service.trigger_manual_enrichment(db)
+        result = await pyq_enrichment_service.trigger_manual_enrichment(db)
         return result
 
 # Regular questions admin endpoints
