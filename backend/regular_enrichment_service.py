@@ -717,21 +717,29 @@ Are these two answers semantically equivalent?"""
                         mcq_options=question.mcq_options  # Add missing mcq_options parameter
                     )
                     
+                    # Always update enrichment data from LLM (regardless of quality verification)
+                    for field, value in enrichment_result.get('enrichment_data', {}).items():
+                        if hasattr(question, field) and field not in ['quality_verified', 'concept_extraction_status']:
+                            setattr(question, field, value)
+                    
+                    # Commit enrichment data immediately (incremental commits)
+                    db.commit()
+                    logger.info(f"✅ Committed enrichment data for question {question.id[:8]}")
+                    
                     if enrichment_result.get('quality_verified'):
-                        # Update the question with enrichment data
-                        for field, value in enrichment_result.items():
-                            if hasattr(question, field) and field not in ['quality_verified', 'concept_extraction_status']:
-                                setattr(question, field, value)
-                        
-                        # Set enrichment status fields
+                        # Only set quality flags if verification passed
                         question.quality_verified = True
-                        question.concept_extraction_status = 'completed'  # Fix the bug!
+                        question.concept_extraction_status = 'completed'
+                        question.is_active = True  # Activate the question
                         
+                        # Commit quality verification flags
+                        db.commit()
+                        logger.info(f"✅ Successfully enriched and activated question {question.id[:8]}")
                         processed_count += 1
-                        logger.info(f"✅ Successfully enriched question {question.id[:8]}")
                     else:
+                        # Enrichment data is saved, but quality verification failed
+                        logger.warning(f"⚠️ Question {question.id[:8]} enriched but failed quality verification")
                         failed_count += 1
-                        logger.warning(f"❌ Failed to enrich question {question.id[:8]} - quality verification failed")
                 
                 except Exception as e:
                     failed_count += 1
