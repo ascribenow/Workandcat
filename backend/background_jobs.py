@@ -205,7 +205,8 @@ class BackgroundJobProcessor:
                 
                 # Extend each plan by 3-5 days
                 for plan in active_plans:
-                    await self.study_planner.extend_plan_units(db, str(plan.id), 5)
+                    # await self.study_planner.extend_plan_units(db, str(plan.id), 5)  # DISABLED - dependency deleted
+                    logger.warning(f"Plan extension disabled for plan {plan.id} - StudyPlanner dependency removed")
                 
                 logger.info(f"Extended {len(active_plans)} active study plans")
                 break
