@@ -502,7 +502,10 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
                         <span className="font-medium text-sm mr-3" style={{ color: '#9ac026', fontFamily: 'Lato, sans-serif' }}>
                           {key.toUpperCase()})
                         </span>
-                        <span style={{ fontFamily: 'Lato, sans-serif' }}>{value}</span>
+                        <MathRenderer 
+                          content={value}
+                          style={{ fontFamily: 'Lato, sans-serif' }}
+                        />
                       </button>
                     );
                   })
