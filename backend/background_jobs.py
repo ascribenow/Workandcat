@@ -28,8 +28,10 @@ logger = logging.getLogger(__name__)
 class BackgroundJobProcessor:
     def __init__(self, llm_api_key: str):
         self.scheduler = AsyncIOScheduler()
-        self.mastery_tracker = MasteryTracker()
-        self.study_planner = StudyPlanner()
+        # self.mastery_tracker = MasteryTracker()  # DISABLED - dependency deleted
+        # self.study_planner = StudyPlanner()  # DISABLED - dependency deleted
+        self.mastery_tracker = None  # Disabled for now
+        self.study_planner = None  # Disabled for now
         # self.llm_pipeline = LLMEnrichmentPipeline(llm_api_key)  # Removed - using new enhanced service
         self.llm_pipeline = None  # Disabled for now
         
