@@ -135,9 +135,10 @@ async def health_check():
 # Authentication endpoints
 @app.post("/api/auth/signup")
 async def signup(signup_data: SignupRequest):
-    async for db in get_database():
+    db = SessionLocal()
+    try:
         # Check if user exists
-        result = await db.execute(select(User).where(User.email == signup_data.email))
+        result = db.execute(select(User).where(User.email == signup_data.email))
         if result.scalar_one_or_none():
             raise HTTPException(status_code=400, detail="Email already registered")
         
@@ -145,7 +146,7 @@ async def signup(signup_data: SignupRequest):
         password_hash = bcrypt.hashpw(signup_data.password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
         
         # Generate referral code
-        referral_code = await referral_service.generate_referral_code(db)
+        referral_code = referral_service.generate_referral_code(db)  # Remove await
         
         # Create user
         user = User(
@@ -157,7 +158,7 @@ async def signup(signup_data: SignupRequest):
         )
         
         db.add(user)
-        await db.commit()
+        db.commit()  # Remove await
         
         # Create access token
         access_token = create_access_token(data={"sub": user.id})
@@ -172,6 +173,8 @@ async def signup(signup_data: SignupRequest):
                 "is_admin": user.is_admin
             }
         }
+    finally:
+        db.close()
 
 @app.post("/api/auth/login")
 async def login(login_data: LoginRequest):
