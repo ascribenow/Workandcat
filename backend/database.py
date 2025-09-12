@@ -393,17 +393,7 @@ class PaymentTransaction(Base):
 # DELETED TABLE: DiagnosticSet model removed as part of database cleanup
 
 
-class DiagnosticSetQuestion(Base):
-    """Diagnostic set questions - fixed question order"""
-    __tablename__ = "diagnostic_set_questions"
-    
-    set_id = Column(String(36), ForeignKey('diagnostic_sets.id'), primary_key=True)
-    question_id = Column(String(36), primary_key=True)  # Removed FK relationship as per requirements
-    seq = Column(Integer, nullable=False)  # question sequence in diagnostic
-    
-    # Relationships
-    diagnostic_set = relationship("DiagnosticSet", back_populates="questions")
-    # question relationship REMOVED as per requirements
+# DELETED TABLE: DiagnosticSetQuestion model removed as part of database cleanup
 
 
 class Diagnostic(Base):
