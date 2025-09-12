@@ -535,22 +535,7 @@ class DoubtsConversation(Base):
     )
 
 
-class MasteryHistory(Base):
-    """Store daily mastery history per user per subcategory (v1.3 requirement)"""
-    __tablename__ = "mastery_history"
-    
-    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    user_id = Column(String(36), ForeignKey("users.id"), nullable=False)
-    subcategory = Column(String(100), nullable=False)
-    mastery_score = Column(Numeric(3, 2))
-    recorded_date = Column(Date, nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    
-    # Indexes for efficient queries
-    __table_args__ = (
-        Index('idx_mastery_history_user_date', 'user_id', 'recorded_date'),
-        Index('idx_mastery_history_subcategory', 'subcategory'),
-    )
+# DELETED TABLE: MasteryHistory model removed as part of database cleanup
 
 
 class PYQFiles(Base):
