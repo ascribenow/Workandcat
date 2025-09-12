@@ -18,8 +18,9 @@ from database import (
     get_database, User, Mastery, Plan, Question, Attempt, 
     Topic, Session, PlanUnit
 )
-from mastery_tracker import MasteryTracker
-from study_planner import StudyPlanner
+# Removed deleted dependencies:
+# from mastery_tracker import MasteryTracker  # DELETED
+# from study_planner import StudyPlanner  # DELETED
 # from llm_enrichment import LLMEnrichmentPipeline  # Removed - using new enhanced service
 from enhanced_nightly_engine import EnhancedNightlyEngine
 
