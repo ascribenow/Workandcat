@@ -182,7 +182,8 @@ class BackgroundJobProcessor:
                     if last_activity:
                         days_inactive = (datetime.utcnow() - last_activity).days
                         if days_inactive > 0:
-                            await self.mastery_tracker.apply_time_decay(db, user_id, days_inactive)
+                            # await self.mastery_tracker.apply_time_decay(db, user_id, days_inactive)  # DISABLED - dependency deleted
+                            logger.warning(f"Mastery decay disabled for user {user_id} - MasteryTracker dependency removed")
                 
                 logger.info(f"Applied mastery decay to {len(inactive_user_ids)} inactive users")
                 break
