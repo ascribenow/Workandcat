@@ -175,8 +175,9 @@ async def signup(signup_data: SignupRequest):
 
 @app.post("/api/auth/login")
 async def login(login_data: LoginRequest):
-    async for db in get_database():
-        result = await db.execute(select(User).where(User.email == login_data.email))
+    db = SessionLocal()
+    try:
+        result = db.execute(select(User).where(User.email == login_data.email))
         user = result.scalar_one_or_none()
         
         if not user or not bcrypt.checkpw(login_data.password.encode('utf-8'), user.password_hash.encode('utf-8')):
@@ -194,6 +195,8 @@ async def login(login_data: LoginRequest):
                 "is_admin": user.is_admin
             }
         }
+    finally:
+        db.close()
 
 @app.get("/api/auth/me")
 async def get_me(user_id: str = Depends(get_current_user)):
