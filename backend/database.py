@@ -568,8 +568,7 @@ class PrivilegedEmail(Base):
     notes = Column(String, nullable=True)  # Optional notes about why this email is privileged
 
 
-class StudentCoverageTracking(Base):
-    """Student Coverage Tracking - tracks which subcategory::type combinations each student has seen"""
+# DELETED TABLE: StudentCoverageTracking model removed as part of database cleanup
     __tablename__ = "student_coverage_tracking"
     
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
