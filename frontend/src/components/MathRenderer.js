@@ -90,146 +90,17 @@ const MathRenderer = ({ content, className = '', style = {} }) => {
   };
 
   /**
-   * Parse and render mathematical content with fallback
-   */
-  const renderWithMath = (text) => {
-    try {
-      // First, apply auto-enhancement
-      let processedText = autoEnhanceMath(text);
-      
-      // Split text into segments for processing
-      const segments = [];
-      let currentIndex = 0;
-      
-      // Process display math blocks ($$...$$)
-      const displayMathPattern = /\$\$([^$]+)\$\$/g;
-      let displayMatch;
-      
-      while ((displayMatch = displayMathPattern.exec(processedText)) !== null) {
-        // Add text before math block
-        if (displayMatch.index > currentIndex) {
-          segments.push({
-            type: 'text',
-            content: processedText.slice(currentIndex, displayMatch.index)
-          });
-        }
-        
-        // Add display math block
-        segments.push({
-          type: 'displayMath',
-          content: displayMatch[1]
-        });
-        
-        currentIndex = displayMatch.index + displayMatch[0].length;
-      }
-      
-      // Add remaining text
-      if (currentIndex < processedText.length) {
-        segments.push({
-          type: 'text',
-          content: processedText.slice(currentIndex)
-        });
-      }
-      
-      // If no display math found, treat entire text as one segment
-      if (segments.length === 0) {
-        segments.push({
-          type: 'text',
-          content: processedText
-        });
-      }
-      
-      // Process each segment
-      return segments.map((segment, index) => {
-        if (segment.type === 'displayMath') {
-          return (
-            <div key={index} style={{ margin: '10px 0', textAlign: 'center' }}>
-              <BlockMathRenderer content={segment.content} />
-            </div>
-          );
-        } else {
-          // Process inline math in text segments
-          return <InlineMathRenderer key={index} content={segment.content} />;
-        }
-      });
-      
-    } catch (error) {
-      console.warn('MathRenderer: Error processing mathematical content:', error);
-      // Fallback to sanitized plain text
-      return (
-        <span
-          dangerouslySetInnerHTML={{
-            __html: DOMPurify.sanitize(text, { ALLOWED_TAGS: [] })
-          }}
-        />
-      );
-    }
-  };
-
-  /**
-   * Render inline math expressions within text
-   */
-  const InlineMathRenderer = ({ content }) => {
-    const inlineMathPattern = /\\?\(([^)]+)\\?\)/g;
-    const segments = [];
-    let lastIndex = 0;
-    let match;
-
-    while ((match = inlineMathPattern.exec(content)) !== null) {
-      // Add text before math
-      if (match.index > lastIndex) {
-        segments.push({
-          type: 'text',
-          content: content.slice(lastIndex, match.index)
-        });
-      }
-
-      // Add inline math
-      segments.push({
-        type: 'inlineMath',
-        content: match[1]
-      });
-
-      lastIndex = match.index + match[0].length;
-    }
-
-    // Add remaining text
-    if (lastIndex < content.length) {
-      segments.push({
-        type: 'text',
-        content: content.slice(lastIndex)
-      });
-    }
-
-    // If no inline math found, return as plain text
-    if (segments.length === 0) {
-      return <span>{content}</span>;
-    }
-
-    return (
-      <>
-        {segments.map((segment, index) => {
-          if (segment.type === 'inlineMath') {
-            return <InlineMathComponent key={index} math={segment.content} />;
-          } else {
-            return <span key={index}>{segment.content}</span>;
-          }
-        })}
-      </>
-    );
-  };
-
-  /**
    * Safe inline math component with expression-level fallback
    */
-  const InlineMathComponent = ({ math }) => {
+  const renderInlineMath = (math) => {
     try {
-      return <InlineMath math={math} />;
+      return <InlineMath key={`inline-${math}`} math={math} />;
     } catch (error) {
       console.warn(`MathRenderer: KaTeX failed for inline expression "${math}":`, error);
       // Expression-level fallback to sanitized plain text
       return (
         <span
+          key={`fallback-${math}`}
           style={{ color: '#666', fontStyle: 'italic' }}
           title="Mathematical expression (display limited)"
         >
@@ -242,14 +113,15 @@ const MathRenderer = ({ content, className = '', style = {} }) => {
   /**
    * Safe block math component with expression-level fallback
    */
-  const BlockMathRenderer = ({ content }) => {
+  const renderBlockMath = (content) => {
     try {
-      return <BlockMath math={content} />;
+      return <BlockMath key={`block-${content}`} math={content} />;
     } catch (error) {
       console.warn(`MathRenderer: KaTeX failed for display expression "${content}":`, error);
       // Expression-level fallback to sanitized plain text
       return (
         <div
+          key={`block-fallback-${content}`}
           style={{ 
             color: '#666', 
             fontStyle: 'italic',
@@ -263,6 +135,115 @@ const MathRenderer = ({ content, className = '', style = {} }) => {
         >
           {DOMPurify.sanitize(content, { ALLOWED_TAGS: [] })}
         </div>
+      );
+    }
+  };
+
+  /**
+   * Parse and render mathematical content with fallback
+   */
+  const renderWithMath = (text) => {
+    try {
+      // First, apply auto-enhancement
+      let processedText = autoEnhanceMath(text);
+      
+      // Process display math blocks ($$...$$) first
+      const displayMathPattern = /\$\$([^$]+)\$\$/g;
+      const displayMathSegments = [];
+      let lastIndex = 0;
+      let match;
+
+      while ((match = displayMathPattern.exec(processedText)) !== null) {
+        // Add text before display math
+        if (match.index > lastIndex) {
+          const textContent = processedText.slice(lastIndex, match.index);
+          displayMathSegments.push({ type: 'text', content: textContent });
+        }
+        
+        // Add display math
+        displayMathSegments.push({ type: 'displayMath', content: match[1] });
+        lastIndex = match.index + match[0].length;
+      }
+
+      // Add remaining text
+      if (lastIndex < processedText.length) {
+        displayMathSegments.push({ type: 'text', content: processedText.slice(lastIndex) });
+      }
+
+      // If no display math, treat as single text segment
+      if (displayMathSegments.length === 0) {
+        displayMathSegments.push({ type: 'text', content: processedText });
+      }
+
+      // Process each segment
+      return displayMathSegments.map((segment, segIndex) => {
+        if (segment.type === 'displayMath') {
+          return (
+            <div key={segIndex} style={{ margin: '10px 0', textAlign: 'center' }}>
+              {renderBlockMath(segment.content)}
+            </div>
+          );
+        } else {
+          // Process inline math in text segments
+          const inlinePattern = /\\?\(([^)]+)\\?\)/g;
+          const inlineSegments = [];
+          let inlineLastIndex = 0;
+          let inlineMatch;
+
+          while ((inlineMatch = inlinePattern.exec(segment.content)) !== null) {
+            // Add text before inline math
+            if (inlineMatch.index > inlineLastIndex) {
+              inlineSegments.push({
+                type: 'text',
+                content: segment.content.slice(inlineLastIndex, inlineMatch.index)
+              });
+            }
+
+            // Add inline math
+            inlineSegments.push({
+              type: 'inlineMath',
+              content: inlineMatch[1]
+            });
+
+            inlineLastIndex = inlineMatch.index + inlineMatch[0].length;
+          }
+
+          // Add remaining text
+          if (inlineLastIndex < segment.content.length) {
+            inlineSegments.push({
+              type: 'text',
+              content: segment.content.slice(inlineLastIndex)
+            });
+          }
+
+          // If no inline math, return as plain text
+          if (inlineSegments.length === 0) {
+            return <span key={segIndex}>{segment.content}</span>;
+          }
+
+          return (
+            <span key={segIndex}>
+              {inlineSegments.map((inlineSeg, inlineIndex) => {
+                if (inlineSeg.type === 'inlineMath') {
+                  return renderInlineMath(inlineSeg.content);
+                } else {
+                  return <span key={inlineIndex}>{inlineSeg.content}</span>;
+                }
+              })}
+            </span>
+          );
+        }
+      });
+      
+    } catch (error) {
+      console.warn('MathRenderer: Error processing mathematical content:', error);
+      // Fallback to sanitized plain text
+      return (
+        <span
+          dangerouslySetInnerHTML={{
+            __html: DOMPurify.sanitize(text, { ALLOWED_TAGS: [] })
+          }}
+        />
       );
     }
   };
