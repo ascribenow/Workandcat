@@ -390,18 +390,7 @@ class PaymentTransaction(Base):
 
 # Diagnostic System Tables
 
-class DiagnosticSet(Base):
-    """Diagnostic sets - fixed 25-Q Day-0 test"""
-    __tablename__ = "diagnostic_sets"
-    
-    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    name = Column(String(255), nullable=False)
-    meta = Column(JSON, default=dict)
-    is_active = Column(Boolean, default=True)
-    
-    # Relationships
-    questions = relationship("DiagnosticSetQuestion", back_populates="diagnostic_set")
-    diagnostics = relationship("Diagnostic", back_populates="diagnostic_set")
+# DELETED TABLE: DiagnosticSet model removed as part of database cleanup
 
 
 class DiagnosticSetQuestion(Base):
