@@ -642,8 +642,10 @@ async def enhanced_nightly_processing_job():
                 result = await job_processor.enhanced_nightly_engine.run_nightly_processing(db)
             else:
                 # Fallback: create temporary instance (should not happen in production)
-                temp_engine = EnhancedNightlyEngine()
-                result = await temp_engine.run_nightly_processing(db)
+                # temp_engine = EnhancedNightlyEngine()  # DISABLED - EnhancedNightlyEngine deleted
+                # result = await temp_engine.run_nightly_processing(db)
+                logger.error("❌ Enhanced nightly engine not available - dependency removed")
+                result = {"status": "error", "error": "EnhancedNightlyEngine dependency removed"}
             
             if result.get("status") == "completed":
                 logger.info(f"✅ Simplified nightly processing completed successfully")
