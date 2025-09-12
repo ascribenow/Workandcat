@@ -686,7 +686,7 @@ Are these two answers semantically equivalent?"""
             untouched_questions = result.scalars().all()
             untouched_count = len(untouched_questions)
             
-            logger.info(f"📊 Found {untouched_count} untouched questions ready for enrichment")
+            logger.info(f"📊 Found {untouched_count} questions needing enrichment (subcategory = 'To be enriched')")
             
             if untouched_count == 0:
                 return {
