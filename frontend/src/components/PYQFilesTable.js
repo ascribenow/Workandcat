@@ -12,7 +12,7 @@ const getBackendURL = () => {
   if (currentDomain === 'localhost' || currentDomain === '127.0.0.1') {
     return 'http://localhost:8001';
   } else if (currentDomain === 'twelvr.com' || currentDomain.includes('twelvr')) {
-    return 'https://adaptive-quant.emergent.host';
+    return process.env.REACT_APP_BACKEND_URL || '';
   } else if (currentDomain.includes('preview.emergentagent.com')) {
     return '';
   } else {
