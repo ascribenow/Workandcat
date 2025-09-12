@@ -11,7 +11,7 @@ from datetime import datetime
 import time
 
 class GoogleDriveIntegrationTester:
-    def __init__(self, base_url="https://twelvr-mcq.preview.emergentagent.com/api"):
+    def __init__(self, base_url="https://adaptive-study-prep.preview.emergentagent.com/api"):
         self.base_url = base_url
         self.admin_token = None
         self.tests_run = 0

@@ -10,7 +10,7 @@ import time
 
 class FocusedValidationTester:
     def __init__(self):
-        self.base_url = "https://twelvr-mcq.preview.emergentagent.com/api"
+        self.base_url = "https://adaptive-study-prep.preview.emergentagent.com/api"
         self.admin_token = None
         self.student_token = None
         

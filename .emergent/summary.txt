@@ -1,51 +1,61 @@
 <analysis>
-The previous AI engineer successfully consolidated LLM utilities into , refactored enrichment services (, ), and streamlined  by removing outdated dependencies. A significant database schema refactoring for the  table occurred, adding  and removing 12 fields and all relationships. This also involved fixing multiple admin endpoint issues and test detection logic, achieving 100% success. Most recently, the engineer implemented a new LLM-based  calculation for regular questions, which critically failed due to  fields being null in the  table, despite being essential for the new filtering logic. The engineer meticulously debugged and confirmed the data inconsistency, presenting options for resolution to the user.
+The previous AI engineer successfully initiated and is managing the LLM enrichment of regular questions (75.2% complete). Critical issues were identified:  incorrectly filters PYQ questions by their difficulty instead of the regular question's, and  isn't correctly updated in the regular enrichment service, leading to data inconsistencies. A fix plan for the  has been committed to memory with a specific trigger phrase. Additionally, comprehensive mathematical rendering using KaTeX, , and  was successfully implemented in the frontend. Significant database cleanup was performed, deleting 13 redundant tables to prepare for a new session and adaptivity architecture. The system is currently in a session forked state, awaiting user instruction to proceed with either new session logic or the queued  fix.
 </analysis>
+
 <product_requirements>
-The Twelvr application is an adaptive CAT preparation platform with LLM-assisted features. Key requirements include high-quality LLM enrichment for PYQs and regular questions, using a unified Enrich Checker and single Canonical Taxonomy. This involves OpenAI, Google Gemini, and Anthropic for semantic validation. The enrichment flow was consolidated into a single LLM call for initial stages, with detailed descriptions for semantic matching and difficulty assessment using specific criteria. Quality validation is a two-step LLM and code-based process. The application features robust Razorpay payment integration, a student referral system, and adaptive session logic with per-student coverage tracking, exclusively using PostgreSQL. Recent updates introduced a  field (CSV-populated, displayed above  in UI) and a new LLM-based  calculation for regular questions, replacing previous complex frequency analysis.
+The Twelvr application is an adaptive CAT preparation platform that uses LLM-assisted features for high-quality enrichment of PYQs and regular questions, leveraging OpenAI, Google Gemini, and Anthropic. It integrates Razorpay payments, a referral system, and adaptive session logic backed by PostgreSQL. Key enhancements include a  field for CSV-populated content and a new LLM-based  calculation for regular questions. The platform standardized LLM enrichment across question types, removed arbitrary answer length validation, and implemented an LLM-semantic-match  field. A crucial architectural change decoupled CSV upload from LLM enrichment, now triggered separately via admin endpoints, similar to PYQ. All LLM-generated fields and 8 CSV fields undergo a strict 21-criteria quality verification. Recent work included mathematical display (KaTeX) and database cleanup for a new session/adaptivity structure.
 </product_requirements>
+
 <key_technical_concepts>
--   **Full-stack Architecture**: React (frontend), FastAPI (backend), PostgreSQL (database).
--   **LLM Integration**: OpenAI (GPT-4o, GPT-4o-mini), Anthropic (Claude-3-Haiku), Google Gemini.
--   **Database Management**: SQLAlchemy ORM, Alembic migrations.
--   **API Communication**: RESTful APIs with  prefix.
--   **Canonical Taxonomy**: Standardized hierarchical classification.
--   **Asynchronous Programming**: FastAPI's async/await.
+- **Full-stack Architecture**: React (frontend), FastAPI (backend), PostgreSQL (database).
+- **LLM Integration**: OpenAI (GPT-4o, GPT-4o-mini), Anthropic (Claude-3-Haiku), Google Gemini.
+- **Database Management**: SQLAlchemy ORM.
+- **API Communication**: RESTful APIs, FastAPI background tasks.
+- **Canonical Taxonomy**: Standardized classification.
+- **Asynchronous Programming**: FastAPI async/await.
+- **Mathematical Rendering**: KaTeX, react-katex, DOMPurify.
 </key_technical_concepts>
+
 <code_architecture>
 
--   ****: Defines the PostgreSQL database schema using SQLAlchemy.
-    -   **Importance**: Critical for defining data structure and relationships for all application entities.
-    -   **Changes**:  length increased to .  model was extensively refactored: added  (Text); removed , , LLM assessment fields, specific frequency analysis fields, and all previous relationships (Topic, QuestionOption, Attempt).  and  were also removed from the  model.
--   ****: The core FastAPI application, handling API endpoints and background tasks.
-    -   **Importance**: Manages all client-server communication, orchestrates enrichment processes, and serves as the backend entry point.
-    -   **Changes**: Updated enrichment endpoint logic to use new services and ensure graceful handling of NULL taxonomy fields. Fixed  to correctly use  and ensure data consistency. CSV upload logic was updated for new/deleted fields. All code references to the recently deleted frequency and impact fields were removed.
--   ****: Handles PYQ question enrichment.
-    -   **Importance**: Contains the LLM enrichment logic specifically for PYQ questions.
-    -   **Changes**: Refactored to use  and  from . No other significant changes in the recent task.
--   ****: Handles regular question enrichment.
-    -   **Importance**: Manages the LLM enrichment process for non-PYQ questions.
-    -   **Changes**: Updated to use  and  from . Integrated the new LLM-based  function, which now filters PYQ questions by  and a matching  x  combo.
--   ****: A new module for shared LLM utility functions.
-    -   **Importance**: Centralizes common LLM operations like  and JSON extraction, promoting code reuse.
-    -   **Changes**: Created to house  and . Added the  function to implement the new LLM-based  calculation logic. This function now includes filtering and direct LLM comparison logic without scaling.
--   ****: Frontend component for displaying session information.
-    -   **Importance**: Essential for rendering question details and solutions to students during study sessions.
-    -   **Changes**: Modified to display the newly added  field above the  for enhanced user experience.
-</code_architecture>
-<pending_tasks>
--   Thorough end-to-end testing of all admin endpoints (audit, cleanup, reconciliation, monitoring).
--   Confirming referral discounts are correctly applied across all payment flows.
--   Ensuring robust payment idempotency protection is active and verified.
--   Evaluate the quality of LLM enrichment after current processing is 100% complete.
--   Implement semantic validation for LLM enrichment (Option 2) after 100% completion and user approval.
--   Resolve the critical issue of  for PYQ questions, which currently blocks the new  calculation.
-</pending_tasks>
-<current_work>
-The AI engineer has just completed a major refactoring phase for the regular questions enrichment system. This involved updating the database schema by deleting  and  fields from the  table and applying the necessary migration. A new LLM-based  calculation logic was implemented in  via the  function, and integrated into . This new logic compares a regular question against PYQ questions where  and  x  match the regular question. The LLM then semantically matches  x  (>50% similarity), returning 0.5 (for 0 matches), 1.0 (for 1-3 matches), or 1.5 (for >3 matches) as the score.
 
-However, during validation, a critical issue was discovered: all PYQ questions in the  table have . This directly impedes the new  calculation, which relies on matching the  and  of the regular question with PYQ questions. The  and  fields in PYQ questions are correctly populated, but the missing  data prevents the required filtering from yielding any results. The AI engineer re-verified the database to confirm this  status.
+-   ****: Defines PostgreSQL schema, with  and  models central to the application.
+    -   **Changes**:  was added to .  model was refactored previously. A significant number of tables were deleted (13 tables, including , , , , , ,  related tables) to streamline the database for a new session/adaptivity architecture.
+-   ****: FastAPI application, API endpoints. Handles all API requests, including admin endpoints for question upload and enrichment.
+    -   **Changes**: Introduced admin endpoints (, , ) for regular questions, mirroring PYQ. The  endpoint is a synchronous, manual trigger.
+-   ****: Contains the core LLM enrichment logic for non-PYQ questions.
+    -   **Changes**: Fixed synchronous database calls. Ported advanced semantic matching from PYQ service. Implemented a 3-step category population logic. Standardized LLM prompts. Implemented  semantic comparison. Updated quality verification (21 criteria).
+    -   **Critical Flaw**: Still missing explicit setting of  after successful enrichment and the quality verification does not check this field. Also, the  filter for  is incorrectly applied to  instead of the .
+-   ****: Centralizes LLM operations, including fallback logic and  calculation.
+    -   **Changes**: Contains  for LLM-based frequency score. Implements multi-level LLM fallback (OpenAI GPT-4o -> GPT-4o-mini -> Gemini-pro).
+-   ****: Frontend component for displaying question details and solutions.
+    -   **Changes**: Modified to integrate  component for mathematical content in , MCQ options, , , , and .
+-   ** (CREATED)**: New React component responsible for rendering mathematical content.
+    -   **Importance**: Handles KaTeX integration with  and . Implements dual detection (LaTeX delimiters + safe auto-enhancement for Unicode math), expression-level fallback to sanitized plain text on KaTeX parse errors, and detect-then-render performance optimization.
+</code_architecture>
+
+<pending_tasks>
+- Fix the  logic (difficulty filter, one-time recalculation, update main enrichment flow). This is a known plan, ready to be triggered by Execute PYQ Frequency Fix Plan - Phase 2 Ready.
+- Fix the  inconsistency (missing update in regular enrichment service, missing check in quality verification).
+- Design and implement a new session and adaptivity structure following the database cleanup.
+</pending_tasks>
+
+<current_work>
+The AI engineer has just completed two major tasks:
+1.  **Mathematical Rendering Implementation**: Implemented KaTeX-based mathematical rendering in the frontend using  and . This involved creating a  component with dual detection for LaTeX delimiters and safe auto-enhancement of Unicode math symbols, expression-level fallback, and performance optimizations. This has been fully integrated into  to display all mathematical content (stems, solutions, options) beautifully and has been successfully verified.
+2.  **Database Cleanup**: Performed a significant database refactoring by deleting 13 tables from the public schema (including , , , , , , , , , , ). This cleanup removed approximately 480 rows of legacy data and reduced the total table count from 25 to 12, preparing the database for a new session and adaptivity structure. This operation also explicitly deleted all existing session and mastery tracking data.
+
+In parallel, the **LLM enrichment process for regular questions is ongoing**:
+-   **Current Status**: 340 out of 452 questions are enriched, marking 75.2% completion.
+-   **Processing**: The system is processing questions sequentially in batches, with the current batch actively enriching Time-Work efficiency problems.
+-   **Performance**: The enrichment is proceeding with a 100% success rate for quality verification (21 criteria checks), utilizing OpenAI GPT-4o, with a configured fallback to Gemini.
+-   **Known Issues**: Two critical flaws have been identified but not yet fixed:
+    1.  ** logic**: The  filter is incorrectly applied to PYQ questions instead of the regular question being enriched. A detailed 4-phase fix plan has been memorized.
+    2.  ****: Regular questions are marked  but their  remains  because the enrichment service does not explicitly set it to , and the quality verification doesn't check this status.
+
+The current work context is a session forked state, preserving this comprehensive context.
 </current_work>
+
 <optional_next_step>
-The next step is to address the  issue for PYQ questions to enable the new  calculation to work. The user is being asked whether to apply a quick fix (modify filtering to exclude ) or a complete fix (populate PYQ categories). Ask the user for approval or alternatives before proceeding.
+Monitor the ongoing LLM enrichment process until 100% completion.
 </optional_next_step>
