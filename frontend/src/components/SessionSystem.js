@@ -652,9 +652,11 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
                       <div>
                         <h5 className="font-semibold mb-3 text-lg" style={{ color: '#545454', fontFamily: 'Manrope, sans-serif' }}>💡 Principle to remember:</h5>
                         <div className="bg-white p-4 rounded-lg border" style={{ borderColor: '#e8f5e8' }}>
-                          <div className="leading-relaxed" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
-                            {result.solution_feedback.principle_to_remember}
-                          </div>
+                          <MathRenderer 
+                            content={result.solution_feedback.principle_to_remember}
+                            className="leading-relaxed"
+                            style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}
+                          />
                         </div>
                       </div>
                     )}
