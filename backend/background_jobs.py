@@ -622,7 +622,7 @@ class BackgroundJobProcessor:
 # Global instance
 job_processor = None
 
-from enhanced_nightly_engine import EnhancedNightlyEngine
+# from enhanced_nightly_engine import EnhancedNightlyEngine  # DELETED - file removed due to deleted table dependencies
 
 # Note: Enhanced nightly engine initialized in main function with LLM pipeline
 
