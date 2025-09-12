@@ -668,21 +668,17 @@ Are these two answers semantically equivalent?"""
         try:
             logger.info("🚀 Starting manual enrichment trigger for regular questions...")
             
-            # Get untouched questions (no category, no answer, not quality verified, active)
+            # Get questions that need enrichment (correct criteria!)
             from sqlalchemy import select, and_, or_
             from database import Question
             
             result = db.execute(
                 select(Question).where(
-                    and_(
-                        Question.is_active == True,
-                        Question.quality_verified != True,
-                        or_(
-                            Question.category.is_(None),
-                            Question.category == '',
-                            Question.right_answer.is_(None), 
-                            Question.right_answer == ''
-                        )
+                    or_(
+                        Question.subcategory == 'To be enriched',
+                        Question.subcategory == 'null',
+                        Question.subcategory == '',
+                        Question.subcategory.is_(None)
                     )
                 )
             )
