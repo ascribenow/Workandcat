@@ -423,31 +423,7 @@ class PaymentTransaction(Base):
 # DELETED TABLE: Session model removed as part of database cleanup
 
 
-class DoubtsConversation(Base):
-    """Store doubt conversations between users and Twelvr AI for each question"""
-    __tablename__ = "doubts_conversations"
-    
-    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    user_id = Column(String(36), ForeignKey('users.id'), nullable=False)
-    question_id = Column(String(36), nullable=False)  # Removed FK relationship as per requirements
-    session_id = Column(String(36), nullable=True)  # Removed FK - sessions table deleted
-    message_count = Column(Integer, default=0)  # Track number of messages in conversation
-    conversation_transcript = Column(Text, default='[]')  # JSON array of conversation messages
-    gemini_token_usage = Column(Integer, default=0)  # Total tokens used by Gemini for this conversation
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    is_locked = Column(Boolean, default=False)  # Lock conversation after 10 messages
-    
-    # Relationships
-    user = relationship("User")
-    # question relationship REMOVED as per requirements
-    # session relationship REMOVED - sessions table deleted
-    
-    # Indexes for efficient queries
-    __table_args__ = (
-        Index('idx_doubts_user_question', 'user_id', 'question_id'),
-        Index('idx_doubts_session', 'session_id'),  # Keep index for historical data
-    )
+# DELETED TABLE: DoubtsConversation model removed - will be redesigned with new session logic
 
 
 # DELETED TABLE: MasteryHistory model removed as part of database cleanup
