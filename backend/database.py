@@ -61,22 +61,7 @@ Base = declarative_base()
 
 # Database Models adapted for SQLite
 
-class Topic(Base):
-    """Topics table - canonical taxonomy structure"""
-    __tablename__ = "topics"
-    
-    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    section = Column(String(10), default='QA', nullable=False)
-    name = Column(Text, nullable=False)
-    parent_id = Column(String(36), ForeignKey('topics.id'), nullable=True)
-    slug = Column(String(255), unique=True, nullable=False)
-    centrality = Column(Numeric(3, 2), default=0.5)  # 0-1 for Learning Impact static
-    category = Column(String(50))  # A, B, C, D, E for canonical taxonomy
-    
-    # Relationships
-    parent = relationship("Topic", remote_side=[id])
-    children = relationship("Topic", back_populates="parent")
-    # questions relationship REMOVED as per requirements
+# DELETED TABLE: Topic model removed as part of database cleanup
 
 
 class Question(Base):
