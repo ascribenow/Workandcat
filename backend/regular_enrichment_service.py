@@ -661,5 +661,167 @@ Are these two answers semantically equivalent?"""
                 'quality_verified': False
             }
 
+    async def trigger_manual_enrichment(self, db) -> Dict[str, Any]:
+        """
+        Trigger manual enrichment process for untouched regular questions
+        """
+        try:
+            logger.info("🚀 Starting manual enrichment trigger for regular questions...")
+            
+            # Get untouched questions (no category, no answer, not quality verified, active)
+            from sqlalchemy import select, and_, or_
+            from database import Question
+            
+            result = db.execute(
+                select(Question).where(
+                    and_(
+                        Question.is_active == True,
+                        Question.quality_verified != True,
+                        or_(
+                            Question.category.is_(None),
+                            Question.category == '',
+                            Question.right_answer.is_(None), 
+                            Question.right_answer == ''
+                        )
+                    )
+                )
+            )
+            
+            untouched_questions = result.scalars().all()
+            untouched_count = len(untouched_questions)
+            
+            logger.info(f"📊 Found {untouched_count} untouched questions ready for enrichment")
+            
+            if untouched_count == 0:
+                return {
+                    "status": "success",
+                    "message": "No untouched questions found to enrich",
+                    "details": {
+                        "questions_found": 0,
+                        "questions_processed": 0
+                    }
+                }
+            
+            # Process each question
+            processed_count = 0
+            failed_count = 0
+            
+            for question in untouched_questions:
+                try:
+                    logger.info(f"🔄 Processing question ID: {question.id[:8]}...")
+                    
+                    # Enrich the question
+                    enrichment_result = await self.enrich_regular_question(
+                        stem=question.stem,
+                        current_answer=question.right_answer,
+                        snap_read=question.snap_read,
+                        solution_approach=question.solution_approach,
+                        detailed_solution=question.detailed_solution,
+                        principle_to_remember=question.principle_to_remember
+                    )
+                    
+                    if enrichment_result.get('quality_verified'):
+                        # Update the question with enrichment data
+                        for field, value in enrichment_result.items():
+                            if hasattr(question, field) and field not in ['quality_verified', 'concept_extraction_status']:
+                                setattr(question, field, value)
+                        
+                        # Set enrichment status fields
+                        question.quality_verified = True
+                        question.concept_extraction_status = 'completed'  # Fix the bug!
+                        
+                        processed_count += 1
+                        logger.info(f"✅ Successfully enriched question {question.id[:8]}")
+                    else:
+                        failed_count += 1
+                        logger.warning(f"❌ Failed to enrich question {question.id[:8]} - quality verification failed")
+                
+                except Exception as e:
+                    failed_count += 1
+                    logger.error(f"❌ Error processing question {question.id[:8]}: {e}")
+            
+            # Commit all changes
+            db.commit()
+            
+            logger.info(f"🎉 Manual enrichment completed: {processed_count} processed, {failed_count} failed")
+            
+            return {
+                "status": "success", 
+                "message": f"Manual enrichment completed successfully",
+                "details": {
+                    "questions_found": untouched_count,
+                    "questions_processed": processed_count,
+                    "questions_failed": failed_count,
+                    "success_rate": f"{(processed_count/untouched_count)*100:.1f}%" if untouched_count > 0 else "0%"
+                }
+            }
+            
+        except Exception as e:
+            logger.error(f"❌ Manual enrichment trigger failed: {e}")
+            return {
+                "status": "error",
+                "message": f"Manual enrichment failed: {str(e)}"
+            }
+
+    async def get_enrichment_status(self, db) -> Dict[str, Any]:
+        """
+        Get current enrichment status for regular questions
+        """
+        try:
+            from sqlalchemy import select, func
+            from database import Question
+            
+            # Total questions
+            total_result = db.execute(select(func.count(Question.id)))
+            total_questions = total_result.scalar()
+            
+            # Quality verified questions
+            verified_result = db.execute(
+                select(func.count(Question.id)).where(Question.quality_verified == True)
+            )
+            verified_questions = verified_result.scalar()
+            
+            # Completed questions
+            completed_result = db.execute(
+                select(func.count(Question.id)).where(Question.concept_extraction_status == 'completed')
+            )
+            completed_questions = completed_result.scalar()
+            
+            # Untouched questions
+            untouched_result = db.execute(
+                select(func.count(Question.id)).where(
+                    and_(
+                        Question.is_active == True,
+                        Question.quality_verified != True,
+                        or_(
+                            Question.category.is_(None),
+                            Question.category == '',
+                            Question.right_answer.is_(None),
+                            Question.right_answer == ''
+                        )
+                    )
+                )
+            )
+            untouched_questions = untouched_result.scalar()
+            
+            return {
+                "status": "success",
+                "data": {
+                    "total_questions": total_questions,
+                    "quality_verified": verified_questions,
+                    "concept_completed": completed_questions,
+                    "untouched": untouched_questions,
+                    "verification_rate": f"{(verified_questions/total_questions)*100:.1f}%" if total_questions > 0 else "0%",
+                    "completion_rate": f"{(completed_questions/total_questions)*100:.1f}%" if total_questions > 0 else "0%"
+                }
+            }
+            
+        except Exception as e:
+            logger.error(f"❌ Error getting enrichment status: {e}")
+            return {
+                "status": "error",
+                "message": f"Failed to get enrichment status: {str(e)}"
+            }
+
 # Global instance
 regular_questions_enrichment_service = RegularQuestionsEnrichmentService()
