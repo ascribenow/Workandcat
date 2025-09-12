@@ -667,7 +667,6 @@ function App() {
             <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/terms" element={<TermsConditions />} />
             <Route path="/refund" element={<CancellationRefund />} />
-            <Route path="/math-test" element={<MathTestComponent />} />
           </Routes>
         </AuthProvider>
       </BrowserRouter>
