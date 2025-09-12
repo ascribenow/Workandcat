@@ -709,7 +709,7 @@ Are these two answers semantically equivalent?"""
                     # Enrich the question
                     enrichment_result = await self.enrich_regular_question(
                         stem=question.stem,
-                        current_answer=question.right_answer,
+                        current_answer=question.answer,  # Use CSV answer field, not right_answer
                         snap_read=question.snap_read,
                         solution_approach=question.solution_approach,
                         detailed_solution=question.detailed_solution,
