@@ -454,23 +454,7 @@ class Diagnostic(Base):
 # DELETED TABLE: Attempt model removed as part of database cleanup
 
 
-class Mastery(Base):
-    """Mastery - user × topic snapshots"""
-    __tablename__ = "mastery"
-    
-    user_id = Column(String(36), ForeignKey('users.id'), primary_key=True)
-    topic_id = Column(String(36), primary_key=True)  # Keep as string but remove FK relationship
-    exposure_score = Column(Numeric(5, 2), default=0)
-    accuracy_easy = Column(Numeric(3, 2), default=0)
-    accuracy_med = Column(Numeric(3, 2), default=0)
-    accuracy_hard = Column(Numeric(3, 2), default=0)
-    efficiency_score = Column(Numeric(5, 2), default=0)
-    mastery_pct = Column(Numeric(3, 2), default=0)  # 0-1
-    last_updated = Column(DateTime, default=datetime.utcnow)
-    
-    # Relationships
-    user = relationship("User", back_populates="mastery")
-    # topic relationship REMOVED as per requirements
+# DELETED TABLE: Mastery model removed as part of database cleanup
 
 
 class TypeMastery(Base):
