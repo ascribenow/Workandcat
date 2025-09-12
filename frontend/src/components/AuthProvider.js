@@ -15,8 +15,8 @@ const getBackendURL = () => {
     // Local development - use direct backend URL
     return 'http://localhost:8001';
   } else if (currentDomain === 'twelvr.com' || currentDomain.includes('twelvr')) {
-    // Custom domain - use correct emergent.host backend URL
-    return 'https://adaptive-quant.emergent.host';
+    // Custom domain - use environment variable or relative path
+    return process.env.REACT_APP_BACKEND_URL || '';
   } else if (currentDomain.includes('preview.emergentagent.com')) {
     // Preview domain - use relative URLs
     return '';
