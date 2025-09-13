@@ -108,7 +108,7 @@ class CandidateProvider:
                         difficulty_band=q.difficulty_band or 'Medium',
                         subcategory=q.subcategory or 'Unknown',
                         type_of_question=q.type_of_question or 'Unknown',
-                        core_concepts=concepts,
+                        core_concepts=tuple(concepts),  # Convert to tuple
                         pyq_frequency_score=float(q.pyq_frequency_score) if q.pyq_frequency_score else 0.5,
                         pair=f"{q.subcategory}:{q.type_of_question}" if q.subcategory and q.type_of_question else "Unknown:Unknown"
                     )
