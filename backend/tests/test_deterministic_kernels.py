@@ -435,8 +435,9 @@ class TestValidatePack:
     def test_wrong_difficulty_distribution(self):
         """Test validation failure for wrong difficulty distribution"""
         pack = self.create_valid_pack()
-        # Change one Easy to Medium
-        pack[0].difficulty_band = "Medium"
+        # Change one Easy to Medium using dataclasses.replace
+        from dataclasses import replace
+        pack[0] = replace(pack[0], difficulty_band="Medium")
         
         result = validate_pack(pack, pack, set(), set())
         
