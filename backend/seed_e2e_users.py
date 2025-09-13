@@ -58,7 +58,7 @@ def seed_e2e_users():
         # Get some real question IDs from the database for attempt events
         real_questions = db.execute(text("""
             SELECT id, difficulty_band, subcategory, type_of_question, core_concepts, pyq_frequency_score
-            FROM questions_rows 
+            FROM questions 
             WHERE is_active = true 
             LIMIT 3
         """)).fetchall()
