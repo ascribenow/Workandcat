@@ -125,6 +125,118 @@ def get_next_session_sequence(user_id: str) -> int:
     finally:
         db.close()
 
+def _group_candidates_by_band(candidates) -> Dict[str, List]:
+    """Group question candidates by difficulty band"""
+    grouped = {"Easy": [], "Medium": [], "Hard": []}
+    
+    for candidate in candidates:
+        band = getattr(candidate, 'difficulty_band', 'Medium')
+        if band in grouped:
+            grouped[band].append({
+                "question_id": getattr(candidate, 'question_id', ''),
+                "difficulty_band": band,
+                "pair": getattr(candidate, 'pair', ''),
+                "core_concepts": getattr(candidate, 'core_concepts', []),
+                "pyq_frequency_score": getattr(candidate, 'pyq_frequency_score', 0.5)
+            })
+    
+    return grouped
+
+def _convert_dominance_to_weights(dominance_by_item: Dict[str, Any]) -> Dict[str, Dict[str, float]]:
+    """Convert LLM dominance labels to deterministic weights"""
+    weights_by_item = {}
+    
+    for item_id, dominance_info in dominance_by_item.items():
+        dominant_concepts = dominance_info.get("dominant", [])
+        secondary_concepts = dominance_info.get("secondary", [])
+        confidence = dominance_info.get("dominance_confidence", "med")
+        
+        # Apply dominance rules from spec
+        total_concepts = len(dominant_concepts) + len(secondary_concepts)
+        if total_concepts == 0:
+            continue
+            
+        weights = {}
+        
+        if confidence == "high" and len(dominant_concepts) == 1:
+            # High confidence + 1 dominant → 0.7/0.3 split
+            weights[dominant_concepts[0]] = 0.7
+            remaining_weight = 0.3
+            for concept in secondary_concepts:
+                weights[concept] = remaining_weight / len(secondary_concepts) if secondary_concepts else 0
+        elif confidence == "high" and len(dominant_concepts) == 2:
+            # High confidence + 2 dominants → 0.5/0.5 split
+            for concept in dominant_concepts:
+                weights[concept] = 0.5
+            for concept in secondary_concepts:
+                weights[concept] = 0.0  # No weight for secondary if 2 dominants
+        else:
+            # Equal split 1/k
+            weight_per_concept = 1.0 / total_concepts
+            for concept in dominant_concepts + secondary_concepts:
+                weights[concept] = weight_per_concept
+        
+        weights_by_item[item_id] = weights
+    
+    return weights_by_item
+
+def _load_user_attempts(user_id: str, session_limit: int = 5) -> List[AttemptEvent]:
+    """Load user's recent attempt events for deterministic processing"""
+    db = SessionLocal()
+    try:
+        attempts = db.execute(text("""
+            SELECT question_id, was_correct, skipped, response_time_ms,
+                   sess_seq_at_serve, difficulty_band, subcategory, 
+                   type_of_question, core_concepts, pyq_frequency_score
+            FROM attempt_events ae
+            JOIN sessions s ON ae.session_id = s.session_id
+            WHERE ae.user_id = :user_id
+            AND s.sess_seq > (
+                SELECT COALESCE(MAX(sess_seq), 0) - :session_limit
+                FROM sessions
+                WHERE user_id = :user_id
+            )
+            ORDER BY ae.sess_seq_at_serve, ae.created_at
+        """), {
+            "user_id": user_id,
+            "session_limit": session_limit
+        }).fetchall()
+        
+        attempt_events = []
+        for attempt in attempts:
+            try:
+                # Parse core concepts
+                if isinstance(attempt.core_concepts, list):
+                    concepts = attempt.core_concepts
+                elif isinstance(attempt.core_concepts, str):
+                    import json
+                    concepts = json.loads(attempt.core_concepts)
+                else:
+                    concepts = []
+                
+                event = AttemptEvent(
+                    question_id=attempt.question_id,
+                    was_correct=attempt.was_correct,
+                    skipped=attempt.skipped,
+                    response_time_ms=attempt.response_time_ms,
+                    sess_seq_at_serve=attempt.sess_seq_at_serve,
+                    difficulty_band=attempt.difficulty_band,
+                    subcategory=attempt.subcategory,
+                    type_of_question=attempt.type_of_question,
+                    core_concepts=concepts,
+                    pyq_frequency_score=float(attempt.pyq_frequency_score) if attempt.pyq_frequency_score else 0.5
+                )
+                attempt_events.append(event)
+                
+            except Exception as e:
+                logger.warning(f"Error parsing attempt: {e}")
+                continue
+        
+        return attempt_events
+        
+    finally:
+        db.close()
+
 async def plan_next_session(user_id: str, force_cold_start: bool = False) -> Dict[str, Any]:
     """
     Main pipeline function - plans the next session for a user
