@@ -18,9 +18,13 @@
   },
   "scripts": {
     "start": "craco start",
-    "build": "craco build",
+    "build": "craco build", 
     "test": "craco test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "test:e2e:install": "npx playwright install --with-deps",
+    "test:e2e": "cross-env $(cat .env.playwright | xargs) npx playwright test -c tests/playwright",
+    "test:e2e:headed": "cross-env $(cat .env.playwright | xargs) npx playwright test -c tests/playwright --headed",
+    "test:e2e:ui": "cross-env $(cat .env.playwright | xargs) npx playwright test -c tests/playwright --ui"
   },
   "browserslist": {
     "production": [
