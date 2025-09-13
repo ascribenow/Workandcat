@@ -72,6 +72,9 @@ subscription_service = SubscriptionAccessService()
 os.makedirs("/app/backend/uploads/images", exist_ok=True)
 app.mount("/uploads", StaticFiles(directory="/app/backend/uploads"), name="uploads")
 
+# Include routers
+app.include_router(stages_router)
+
 # In-memory logging store (for MVP - replace with database in production)
 question_action_logs = []
 
