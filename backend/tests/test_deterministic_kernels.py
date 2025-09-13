@@ -400,7 +400,7 @@ class TestValidatePack:
                 difficulty_band="Hard",
                 subcategory="Algebra",
                 type_of_question="Equations",
-                core_concepts=["Equations"],
+                core_concepts=("Equations",),  # Tuple
                 pyq_frequency_score=1.8,
                 pair="Algebra:Equations"
             ))
