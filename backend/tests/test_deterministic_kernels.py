@@ -388,7 +388,7 @@ class TestValidatePack:
                 difficulty_band="Medium",
                 subcategory="Geometry",
                 type_of_question="Triangles",
-                core_concepts=["Triangles"],
+                core_concepts=("Triangles",),  # Tuple
                 pyq_frequency_score=1.2 if i < 2 else 1.6,  # Ensure PYQ minima
                 pair="Geometry:Triangles"
             ))
