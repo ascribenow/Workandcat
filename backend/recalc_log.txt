@@ -1884,3 +1884,9 @@ INFO:llm_utils:📊 Processed 22 category-filtered PYQ questions
 INFO:regular_enrichment_service:✅ PYQ frequency score calculated: 1.0
 INFO:regular_enrichment_service:🎯 Processed 22 questions with raw matching (no scaling)
    = No change: 1.0
+🔄 Processing 147/370: 07495772...
+INFO:regular_enrichment_service:🔍 Getting qualifying PYQ questions for category='Arithmetic', subcategory='Averages and Alligation'
+INFO:regular_enrichment_service:🎯 Regular question difficulty: 3.0 > 1.5 ✅
+INFO:regular_enrichment_service:📊 Found 27 category x subcategory filtered PYQ questions
+INFO:llm_utils:🧠 Starting LLM-based PYQ frequency calculation for 27 category-filtered PYQs
+INFO:llm_utils:🎯 Category: Arithmetic, Subcategory: Averages and Alligation
