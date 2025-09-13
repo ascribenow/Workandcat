@@ -1,0 +1,41 @@
+category,metric,value,description
+Database,total_questions,452,Total questions in the questions table
+Database,total_pyq_questions,236,Total PYQ questions in the pyq_questions table
+Database,total_users,Not disclosed,Total registered users
+Difficulty Distribution - Questions,easy,30,Questions with Easy difficulty band (6.6%)
+Difficulty Distribution - Questions,medium,346,Questions with Medium difficulty band (76.5%)
+Difficulty Distribution - Questions,hard,76,Questions with Hard difficulty band (16.8%)
+Difficulty Distribution - PYQ,easy,7,PYQ questions with Easy difficulty band (3.0%)
+Difficulty Distribution - PYQ,medium,196,PYQ questions with Medium difficulty band (83.1%)
+Difficulty Distribution - PYQ,hard,33,PYQ questions with Hard difficulty band (14.0%)
+Quality Verification - Questions,verified,370,Questions that passed quality verification (81.9%)
+Quality Verification - Questions,unverified,82,Questions that failed quality verification (18.1%)
+Quality Verification - PYQ,verified,229,PYQ questions that passed quality verification (97.0%)
+Quality Verification - PYQ,unverified,7,PYQ questions that failed quality verification (3.0%)
+PYQ Frequency Score,low_0.5,45,Questions with LOW PYQ frequency score (10.0%)
+PYQ Frequency Score,medium_1.0,389,Questions with MEDIUM PYQ frequency score (86.1%)
+PYQ Frequency Score,high_1.5,18,Questions with HIGH PYQ frequency score (4.0%)
+Concept Extraction - Questions,completed,370,Questions with completed concept extraction (81.9%)
+Concept Extraction - Questions,pending,82,Questions with pending concept extraction (18.1%)
+Concept Extraction - PYQ,completed,235,PYQ questions with completed concept extraction (99.6%)
+Concept Extraction - PYQ,pending,1,PYQ questions with pending concept extraction (0.4%)
+Answer Match - Questions,matched,388,Questions with semantic answer match (85.8%)
+Answer Match - Questions,unmatched,64,Questions without semantic answer match (14.2%)
+Difficulty Score Range - Questions,min,1.75,Minimum difficulty score observed
+Difficulty Score Range - Questions,max,4.25,Maximum difficulty score observed
+Difficulty Score Range - PYQ,min,1.50,Minimum PYQ difficulty score observed
+Difficulty Score Range - PYQ,max,4.00,Maximum PYQ difficulty score observed
+Combined Statistics,easy_percentage,5.4,Percentage of all questions (452+236) that are Easy
+Combined Statistics,medium_percentage,78.8,Percentage of all questions (452+236) that are Medium
+Combined Statistics,hard_percentage,15.8,Percentage of all questions (452+236) that are Hard
+Combined Statistics,total_enriched,599,Total questions that have passed quality verification
+Combined Statistics,overall_quality_rate,87.1,Overall quality verification success rate ((370+229)/(452+236))
+LLM Pipeline,primary_model,GPT-4o,Primary model used for enrichment
+LLM Pipeline,fallback_model,GPT-4o-mini,Fallback model when primary fails
+LLM Pipeline,gemini_fallback,gemini-1.0-pro,Final fallback model for enrichment
+Formula Constants,concept_weight,0.25,Weight of core_concepts in difficulty calculation
+Formula Constants,steps_weight,0.50,Weight of solution steps in difficulty calculation
+Formula Constants,operations_weight,0.25,Weight of operations_required in difficulty calculation
+Band Thresholds,easy_threshold,2.00,Difficulty score threshold for Easy band (≤ 2.00)
+Band Thresholds,medium_threshold,2.50,Difficulty score threshold for Medium band (2.00 < score ≤ 2.50)
+Band Thresholds,hard_threshold,2.50,Difficulty score threshold for Hard band (> 2.50)

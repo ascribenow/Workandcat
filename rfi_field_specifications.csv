@@ -1,0 +1,29 @@
+field_name,table,data_type,nullable,default_value,description,computation_method,validation_rules
+difficulty_score,questions,NUMERIC(3,2),TRUE,NULL,Programmatically calculated numerical difficulty,0.25×Concepts + 0.50×Steps + 0.25×Operations,Range 1.75-4.25 observed
+difficulty_score,pyq_questions,NUMERIC(3,2),TRUE,NULL,Programmatically calculated numerical difficulty,0.25×Concepts + 0.50×Steps + 0.25×Operations,Range 1.50-4.00 observed
+difficulty_band,questions,VARCHAR(20),TRUE,NULL,Categorical difficulty derived from score,Programmatic mapping from difficulty_score,Must be Easy|Medium|Hard
+difficulty_band,pyq_questions,VARCHAR(20),TRUE,NULL,Categorical difficulty derived from score,Programmatic mapping from difficulty_score,Must be Easy|Medium|Hard
+core_concepts,questions,TEXT,TRUE,NULL,LLM-extracted mathematical concepts,LLM enrichment via comprehensive prompts,JSON array format required
+core_concepts,pyq_questions,TEXT,TRUE,NULL,LLM-extracted mathematical concepts,LLM enrichment via comprehensive prompts,JSON array format required
+operations_required,questions,TEXT,TRUE,NULL,LLM-extracted mathematical operations,LLM enrichment via comprehensive prompts,JSON array format required
+operations_required,pyq_questions,TEXT,TRUE,NULL,LLM-extracted mathematical operations,LLM enrichment via comprehensive prompts,JSON array format required
+solution_method,questions,VARCHAR(200),TRUE,NULL,LLM-generated solution approach,LLM enrichment via comprehensive prompts,Non-empty for difficulty calculation
+solution_method,pyq_questions,VARCHAR(500),TRUE,NULL,LLM-generated solution approach,LLM enrichment via comprehensive prompts,Non-empty for difficulty calculation
+problem_structure,questions,VARCHAR(100),TRUE,NULL,LLM-identified structural pattern,LLM enrichment via comprehensive prompts,Max 200 characters
+problem_structure,pyq_questions,VARCHAR(50),TRUE,NULL,LLM-identified structural pattern,LLM enrichment via comprehensive prompts,Max 200 characters
+concept_difficulty,questions,TEXT,TRUE,NULL,LLM-generated complexity analysis,LLM enrichment via comprehensive prompts,JSON object with prerequisites/barriers
+concept_difficulty,pyq_questions,TEXT,TRUE,NULL,LLM-generated complexity analysis,LLM enrichment via comprehensive prompts,JSON object with prerequisites/barriers
+concept_extraction_status,questions,VARCHAR(50),TRUE,pending,Status based on core_concepts population,Set to completed when core_concepts non-empty,Must be pending|completed
+concept_extraction_status,pyq_questions,VARCHAR(100),TRUE,pending,Status based on core_concepts population,Set to completed when core_concepts non-empty,Must be pending|completed
+quality_verified,questions,BOOLEAN,TRUE,FALSE,Comprehensive 22-criteria quality gate,22-point checklist during enrichment,Required for adaptive selection
+quality_verified,pyq_questions,BOOLEAN,TRUE,FALSE,Comprehensive 22-criteria quality gate,22-point checklist during enrichment,Required for adaptive selection
+answer_match,questions,BOOLEAN,TRUE,FALSE,LLM semantic answer validation,Semantic comparison via LLM,Questions only - impacts quality_verified
+pyq_frequency_score,questions,NUMERIC(5,4),TRUE,NULL,LLM-calculated PYQ similarity score,LLM semantic comparison against category×subcategory PYQs,Discrete values: 0.5|1.0|1.5 only
+category,questions,VARCHAR(100),TRUE,NULL,Main mathematical domain,LLM classification via canonical taxonomy,Must match canonical categories
+category,pyq_questions,VARCHAR(100),TRUE,NULL,Main mathematical domain,LLM classification via canonical taxonomy,Must match canonical categories
+subcategory,questions,TEXT,FALSE,NULL,Specific mathematical area,LLM classification via canonical taxonomy,Must match canonical subcategories
+subcategory,pyq_questions,TEXT,FALSE,NULL,Specific mathematical area,LLM classification via canonical taxonomy,Must match canonical subcategories
+type_of_question,questions,VARCHAR(150),TRUE,NULL,Specific question archetype,LLM classification via canonical taxonomy,Must match canonical question types
+type_of_question,pyq_questions,VARCHAR(150),TRUE,NULL,Specific question archetype,LLM classification via canonical taxonomy,Must match canonical question types
+concept_keywords,questions,TEXT,TRUE,NULL,LLM-extracted searchable keywords,LLM enrichment via comprehensive prompts,JSON array format required
+concept_keywords,pyq_questions,TEXT,TRUE,NULL,LLM-extracted searchable keywords,LLM enrichment via comprehensive prompts,JSON array format required

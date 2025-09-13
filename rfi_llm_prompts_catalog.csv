@@ -1,0 +1,9 @@
+service,prompt_type,model,max_tokens,temperature,purpose
+regular_enrichment,comprehensive_analysis,GPT-4o,1200,0.1,Core concepts extraction and answer validation for regular questions
+regular_enrichment,comprehensive_analysis,GPT-4o-mini,1200,0.1,Fallback model for regular question enrichment
+pyq_enrichment,comprehensive_analysis,GPT-4o,1000,0.1,Canonical taxonomy classification for PYQ questions
+pyq_enrichment,comprehensive_analysis,GPT-4o-mini,1000,0.1,Fallback model for PYQ question enrichment
+pyq_frequency,semantic_similarity,GPT-4o,2000,0.1,Semantic comparison for PYQ frequency score calculation
+pyq_frequency,semantic_similarity,GPT-4o-mini,2000,0.1,Fallback model for PYQ frequency calculation
+llm_utils,json_extraction,N/A,N/A,N/A,Extract JSON from markdown code blocks in LLM responses
+llm_utils,fallback_handler,N/A,N/A,N/A,Handle OpenAI to Gemini fallback logic
