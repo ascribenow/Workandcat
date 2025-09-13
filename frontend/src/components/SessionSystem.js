@@ -246,17 +246,41 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
     try {
       console.log('🎯 Session completed, triggering adaptive planning...');
       
-      // Plan the next session
+      // End-of-session handshake: plan next session
       if (adaptiveEnabled) {
-        await planNextAdaptiveSession(sessionId);
+        const lastSessionId = sessionId;
+        const cached = loadNext(user.id);
+        const nextSessionId = cached?.nextSessionId || generateSessionId();
+        
+        try {
+          await axios.post(`${API}/adapt/plan-next`, {
+            user_id: user.id,
+            last_session_id: lastSessionId,
+            next_session_id: nextSessionId
+          }, {
+            headers: {
+              'Idempotency-Key': `${user.id}:${lastSessionId}:${nextSessionId}`
+            }
+          });
+          
+          // Persist for next session start
+          persistNext(user.id, lastSessionId, nextSessionId);
+          setNextSessionId(nextSessionId);
+          
+          console.log('✅ Adaptive session planned and persisted:', nextSessionId);
+          
+        } catch (error) {
+          console.error('❌ End-of-session planning failed:', error);
+          // Continue with session end even if planning fails
+        }
       }
       
       // Call original session end handler
       if (onSessionEnd) {
         onSessionEnd({
           completed: true,
-          questionsCompleted: currentPack.length,
-          totalQuestions: currentPack.length
+          questionsCompleted: currentPack.length || 12,
+          totalQuestions: currentPack.length || 12
         });
       }
       
@@ -266,8 +290,8 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
       if (onSessionEnd) {
         onSessionEnd({
           completed: true,
-          questionsCompleted: currentPack.length,
-          totalQuestions: currentPack.length
+          questionsCompleted: currentPack.length || 12,
+          totalQuestions: currentPack.length || 12
         });
       }
     }
