@@ -38,7 +38,7 @@ async def calculate_pyq_frequency_score_llm(service_instance, regular_question_d
     Args:
         service_instance: Enrichment service instance with LLM configuration
         regular_question_data: Dict with stem, problem_structure, concept_keywords, category, subcategory
-        qualifying_pyq_questions: List of PYQ questions filtered by difficulty_score > 1.5 AND category×subcategory match
+        qualifying_pyq_questions: List of PYQ questions filtered by category×subcategory match (regular question difficulty > 1.5 already checked)
         
     Returns:
         float: 0.5 (0 matches), 1.0 (1-3 matches), or 1.5 (>3 matches)
