@@ -538,13 +538,7 @@ class BackgroundJobProcessor:
                 
                 question.importance_index = round(importance, 2)
                 
-                # Update importance band
-                if importance >= 70:
-                    question.importance_band = "High"
-                elif importance >= 45:
-                    question.importance_band = "Medium"
-                else:
-                    question.importance_band = "Low"
+                # importance_band field removed - no longer needed
                 
                 updated_count += 1
             
