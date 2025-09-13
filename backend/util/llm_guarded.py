@@ -4,9 +4,50 @@ Wraps LLM calls with automatic JSON parsing, validation, and repair attempts.
 """
 
 import json
+import os
+import openai
 from typing import Dict, Any
-from llm_utils import call_llm_with_fallback
 from .json_guard import parse_and_validate, build_repair_message
+
+def call_llm_with_fallback(system_prompt: str, user_json: Dict[str, Any], 
+                          model_primary: str, model_fallback: str, 
+                          response_format: str = "json") -> str:
+    """
+    Simple synchronous LLM call with fallback for the guarded wrapper
+    """
+    # Set up OpenAI client
+    client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+    
+    # Convert user_json to string for the prompt
+    user_content = json.dumps(user_json, indent=2)
+    
+    try:
+        # Try primary model
+        response = client.chat.completions.create(
+            model=model_primary,
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_content}
+            ],
+            temperature=0.1,
+            max_tokens=2000
+        )
+        return response.choices[0].message.content
+    except Exception as e:
+        # Try fallback model (simplified - just return a basic response)
+        try:
+            response = client.chat.completions.create(
+                model="gpt-3.5-turbo",
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_content}
+                ],
+                temperature=0.1,
+                max_tokens=2000
+            )
+            return response.choices[0].message.content
+        except Exception as e2:
+            raise Exception(f"Both primary ({model_primary}) and fallback models failed: {e}, {e2}")
 
 def call_llm_json_with_retry(system_prompt: str, user_payload: Dict[str, Any],
                              schema: Dict[str, Any], model_primary: str, model_fallback: str,
