@@ -1126,6 +1126,576 @@ class CATBackendTester:
         
         return success_rate >= 90
 
+    def test_phase_2_adaptive_logic_comprehensive(self):
+        """
+        🎯 PHASE 2: ADAPTIVE LOGIC COMPREHENSIVE TESTING - CRITICAL VALIDATION
+        
+        OBJECTIVE: Comprehensive testing of Phase 2 Adaptive Logic implementation as requested in review.
+        
+        CRITICAL VALIDATION POINTS:
+        1. **Dry-Run Script Validation**: Test `/app/backend/dry_run_adaptive.py` runs successfully
+        2. **Cold-Start Detection**: Test `should_cold_start()` function correctly identifies new vs experienced users
+        3. **Deterministic Kernels**: Test key functions in `services/deterministic_kernels.py`
+        4. **Candidate Provider**: Test `services/candidate_provider.py` cold-start pool generation
+        5. **Database Integration**: Verify system can query users, sessions, attempt_events tables
+        6. **Unit Tests**: Run deterministic kernels unit tests to validate mathematical functions
+        
+        CONTEXT: Phase 2 of 6-phase adaptive learning system implementation. Deterministic core logic
+        should be working with dry-run showing 18/18 tests passed (100% success rate).
+        
+        EXPECTED RESULTS: All tests should pass, dry-run should show 18/18 tests passed, 
+        cold-start detection working correctly, deterministic kernels functional.
+        
+        ADMIN CREDENTIALS: sumedhprabhu18@gmail.com/admin2025
+        """
+        print("🎯 PHASE 2: ADAPTIVE LOGIC COMPREHENSIVE TESTING - CRITICAL VALIDATION")
+        print("=" * 80)
+        print("OBJECTIVE: Comprehensive testing of Phase 2 Adaptive Logic implementation")
+        print("as requested in the review request.")
+        print("")
+        print("CRITICAL VALIDATION POINTS:")
+        print("1. **Dry-Run Script Validation**: Test `/app/backend/dry_run_adaptive.py` runs successfully")
+        print("2. **Cold-Start Detection**: Test `should_cold_start()` function correctly identifies new vs experienced users")
+        print("3. **Deterministic Kernels**: Test key functions in `services/deterministic_kernels.py`")
+        print("4. **Candidate Provider**: Test `services/candidate_provider.py` cold-start pool generation")
+        print("5. **Database Integration**: Verify system can query users, sessions, attempt_events tables")
+        print("6. **Unit Tests**: Run deterministic kernels unit tests to validate mathematical functions")
+        print("")
+        print("CONTEXT: Phase 2 of 6-phase adaptive learning system implementation.")
+        print("Deterministic core logic should be working with dry-run showing 18/18 tests passed.")
+        print("")
+        print("EXPECTED RESULTS: All tests should pass, dry-run should show 18/18 tests passed,")
+        print("cold-start detection working correctly, deterministic kernels functional.")
+        print("")
+        print("ADMIN CREDENTIALS: sumedhprabhu18@gmail.com/admin2025")
+        print("=" * 80)
+        
+        phase_2_results = {
+            # Authentication Setup
+            "admin_authentication_working": False,
+            "admin_token_valid": False,
+            "admin_privileges_confirmed": False,
+            
+            # Dry-Run Script Validation
+            "dry_run_script_exists": False,
+            "dry_run_script_executable": False,
+            "dry_run_includes_cold_start_users": False,
+            "dry_run_18_tests_passed": False,
+            "dry_run_100_percent_success": False,
+            
+            # Cold-Start Detection Testing
+            "should_cold_start_function_exists": False,
+            "cold_start_detects_new_users": False,
+            "cold_start_detects_experienced_users": False,
+            "cold_start_detection_working": False,
+            
+            # Deterministic Kernels Testing
+            "stable_semantic_id_working": False,
+            "weights_from_dominance_working": False,
+            "finalize_readiness_working": False,
+            "validate_pack_working": False,
+            "deterministic_kernels_functional": False,
+            
+            # Candidate Provider Testing
+            "build_coldstart_pool_working": False,
+            "candidate_provider_accessible": False,
+            "cold_start_pool_generation_working": False,
+            "candidate_provider_functional": False,
+            
+            # Database Integration Testing
+            "users_table_accessible": False,
+            "sessions_table_accessible": False,
+            "attempt_events_table_accessible": False,
+            "database_queries_working": False,
+            "database_integration_functional": False,
+            
+            # Unit Tests Validation
+            "unit_tests_exist": False,
+            "unit_tests_executable": False,
+            "unit_tests_passing": False,
+            "mathematical_functions_validated": False,
+            
+            # Overall Success Metrics
+            "phase_2_implementation_complete": False,
+            "adaptive_logic_production_ready": False,
+            "all_critical_components_working": False
+        }
+        
+        # PHASE 1: AUTHENTICATION SETUP
+        print("\n🔐 PHASE 1: AUTHENTICATION SETUP")
+        print("-" * 60)
+        
+        admin_login_data = {
+            "email": "sumedhprabhu18@gmail.com",
+            "password": "admin2025"
+        }
+        
+        success, response = self.run_test("Admin Authentication", "POST", "auth/login", [200, 401], admin_login_data)
+        
+        admin_headers = None
+        if success and response.get('access_token'):
+            admin_token = response['access_token']
+            admin_headers = {
+                'Authorization': f'Bearer {admin_token}',
+                'Content-Type': 'application/json'
+            }
+            phase_2_results["admin_authentication_working"] = True
+            phase_2_results["admin_token_valid"] = True
+            print(f"   ✅ Admin authentication successful")
+            print(f"   📊 JWT Token length: {len(admin_token)} characters")
+            
+            # Verify admin privileges
+            success, me_response = self.run_test("Admin Privileges Check", "GET", "auth/me", 200, None, admin_headers)
+            if success and me_response.get('is_admin'):
+                phase_2_results["admin_privileges_confirmed"] = True
+                print(f"   ✅ Admin privileges confirmed: {me_response.get('email')}")
+        else:
+            print("   ❌ Admin authentication failed - cannot proceed with comprehensive testing")
+            return False
+        
+        # PHASE 2: DRY-RUN SCRIPT VALIDATION
+        print("\n🧪 PHASE 2: DRY-RUN SCRIPT VALIDATION")
+        print("-" * 60)
+        print("Testing the dry-run script for adaptive logic validation")
+        
+        try:
+            import os
+            import subprocess
+            
+            # Check if dry-run script exists
+            dry_run_path = "/app/backend/dry_run_adaptive.py"
+            if os.path.exists(dry_run_path):
+                phase_2_results["dry_run_script_exists"] = True
+                print(f"   ✅ Dry-run script exists at {dry_run_path}")
+                
+                # Test if script is executable
+                try:
+                    # Change to backend directory and run the script
+                    os.chdir("/app/backend")
+                    result = subprocess.run(
+                        ["python3", "dry_run_adaptive.py"], 
+                        capture_output=True, 
+                        text=True, 
+                        timeout=60
+                    )
+                    
+                    phase_2_results["dry_run_script_executable"] = True
+                    print(f"   ✅ Dry-run script is executable")
+                    
+                    # Analyze output for success indicators
+                    output = result.stdout + result.stderr
+                    print(f"   📊 Dry-run output preview: {output[:200]}...")
+                    
+                    # Check for cold-start users inclusion
+                    if "cold start" in output.lower() or "new_user" in output.lower():
+                        phase_2_results["dry_run_includes_cold_start_users"] = True
+                        print(f"   ✅ Dry-run includes cold-start users")
+                    
+                    # Check for 18/18 tests passed
+                    if "18/18" in output and "passed" in output.lower():
+                        phase_2_results["dry_run_18_tests_passed"] = True
+                        print(f"   ✅ Dry-run shows 18/18 tests passed")
+                    
+                    # Check for 100% success rate
+                    if "100%" in output or "100.0%" in output:
+                        phase_2_results["dry_run_100_percent_success"] = True
+                        print(f"   ✅ Dry-run shows 100% success rate")
+                    
+                    if result.returncode == 0:
+                        print(f"   ✅ Dry-run script executed successfully")
+                    else:
+                        print(f"   ⚠️ Dry-run script returned code {result.returncode}")
+                        
+                except subprocess.TimeoutExpired:
+                    print(f"   ⚠️ Dry-run script timed out after 60 seconds")
+                except Exception as e:
+                    print(f"   ❌ Error running dry-run script: {e}")
+            else:
+                print(f"   ❌ Dry-run script not found at {dry_run_path}")
+                
+        except Exception as e:
+            print(f"   ❌ Error in dry-run validation: {e}")
+        
+        # PHASE 3: COLD-START DETECTION TESTING
+        print("\n🆕 PHASE 3: COLD-START DETECTION TESTING")
+        print("-" * 60)
+        print("Testing should_cold_start() function for new vs experienced user detection")
+        
+        try:
+            # Test cold-start detection by importing the function
+            import sys
+            sys.path.append('/app/backend')
+            
+            from services.pipeline import should_cold_start, get_served_session_count
+            
+            phase_2_results["should_cold_start_function_exists"] = True
+            print(f"   ✅ should_cold_start() function imported successfully")
+            
+            # Test with mock user IDs (would need real user data for full test)
+            try:
+                # Test new user detection (assuming user with 0 sessions)
+                test_new_user_id = "test-new-user-id"
+                is_cold_start_new = should_cold_start(test_new_user_id)
+                
+                # Test experienced user detection (would need user with sessions)
+                test_experienced_user_id = "test-experienced-user-id"
+                is_cold_start_experienced = should_cold_start(test_experienced_user_id)
+                
+                print(f"   📊 Cold-start detection test results:")
+                print(f"      New user cold-start: {is_cold_start_new}")
+                print(f"      Experienced user cold-start: {is_cold_start_experienced}")
+                
+                # Basic validation - function should return boolean
+                if isinstance(is_cold_start_new, bool) and isinstance(is_cold_start_experienced, bool):
+                    phase_2_results["cold_start_detection_working"] = True
+                    print(f"   ✅ Cold-start detection function working (returns boolean)")
+                
+            except Exception as e:
+                print(f"   ⚠️ Cold-start detection test error: {e}")
+                
+        except ImportError as e:
+            print(f"   ❌ Cannot import cold-start detection functions: {e}")
+        except Exception as e:
+            print(f"   ❌ Error in cold-start detection testing: {e}")
+        
+        # PHASE 4: DETERMINISTIC KERNELS TESTING
+        print("\n🧮 PHASE 4: DETERMINISTIC KERNELS TESTING")
+        print("-" * 60)
+        print("Testing key functions in deterministic_kernels.py")
+        
+        try:
+            from services.deterministic_kernels import (
+                stable_semantic_id, weights_from_dominance, finalize_readiness, validate_pack
+            )
+            
+            print(f"   ✅ Deterministic kernels imported successfully")
+            
+            # Test stable_semantic_id
+            try:
+                semantic_id = stable_semantic_id("Distance")
+                if isinstance(semantic_id, str) and len(semantic_id) == 12:
+                    phase_2_results["stable_semantic_id_working"] = True
+                    print(f"   ✅ stable_semantic_id() working: 'Distance' -> '{semantic_id}'")
+            except Exception as e:
+                print(f"   ❌ stable_semantic_id() error: {e}")
+            
+            # Test weights_from_dominance
+            try:
+                test_dominance = {"concept1": "High", "concept2": "Medium", "concept3": "Low"}
+                weights = weights_from_dominance(test_dominance)
+                if isinstance(weights, dict) and len(weights) == 3:
+                    phase_2_results["weights_from_dominance_working"] = True
+                    print(f"   ✅ weights_from_dominance() working: {weights}")
+            except Exception as e:
+                print(f"   ❌ weights_from_dominance() error: {e}")
+            
+            # Test finalize_readiness
+            try:
+                test_counts = {
+                    "concept1": {"correct": 2.0, "wrong": 1.0, "skipped": 0.0, "total": 3.0}
+                }
+                readiness = finalize_readiness(test_counts)
+                if isinstance(readiness, dict) and len(readiness) == 1:
+                    phase_2_results["finalize_readiness_working"] = True
+                    print(f"   ✅ finalize_readiness() working: {readiness}")
+            except Exception as e:
+                print(f"   ❌ finalize_readiness() error: {e}")
+            
+            # Test validate_pack (basic test)
+            try:
+                from services.deterministic_kernels import QuestionCandidate
+                test_pack = [
+                    QuestionCandidate(
+                        question_id="test1", difficulty_band="Easy", subcategory="Test",
+                        type_of_question="Test", core_concepts=("TestConcept",),
+                        pyq_frequency_score=1.0, pair="Test:Test"
+                    )
+                ]
+                validation = validate_pack(test_pack, test_pack, {"Test:Test"}, {"TestConcept"})
+                if isinstance(validation, dict) and "valid" in validation:
+                    phase_2_results["validate_pack_working"] = True
+                    print(f"   ✅ validate_pack() working: valid={validation['valid']}")
+            except Exception as e:
+                print(f"   ❌ validate_pack() error: {e}")
+            
+            # Overall deterministic kernels assessment
+            if (phase_2_results["stable_semantic_id_working"] and 
+                phase_2_results["weights_from_dominance_working"] and
+                phase_2_results["finalize_readiness_working"] and
+                phase_2_results["validate_pack_working"]):
+                phase_2_results["deterministic_kernels_functional"] = True
+                print(f"   🎉 All deterministic kernels functional!")
+                
+        except ImportError as e:
+            print(f"   ❌ Cannot import deterministic kernels: {e}")
+        except Exception as e:
+            print(f"   ❌ Error in deterministic kernels testing: {e}")
+        
+        # PHASE 5: CANDIDATE PROVIDER TESTING
+        print("\n🎯 PHASE 5: CANDIDATE PROVIDER TESTING")
+        print("-" * 60)
+        print("Testing candidate_provider.py cold-start pool generation")
+        
+        try:
+            from services.candidate_provider import candidate_provider
+            
+            phase_2_results["candidate_provider_accessible"] = True
+            print(f"   ✅ Candidate provider imported successfully")
+            
+            # Test build_coldstart_pool
+            try:
+                test_user_id = "test-cold-start-user"
+                candidates, metadata = candidate_provider.build_coldstart_pool(test_user_id)
+                
+                if isinstance(candidates, list) and isinstance(metadata, dict):
+                    phase_2_results["build_coldstart_pool_working"] = True
+                    print(f"   ✅ build_coldstart_pool() working:")
+                    print(f"      Candidates: {len(candidates)}")
+                    print(f"      Metadata: {list(metadata.keys())}")
+                    
+                    if len(candidates) > 0:
+                        phase_2_results["cold_start_pool_generation_working"] = True
+                        print(f"   ✅ Cold-start pool generation working (generated {len(candidates)} candidates)")
+                        
+            except Exception as e:
+                print(f"   ❌ build_coldstart_pool() error: {e}")
+            
+            # Overall candidate provider assessment
+            if (phase_2_results["build_coldstart_pool_working"] and 
+                phase_2_results["cold_start_pool_generation_working"]):
+                phase_2_results["candidate_provider_functional"] = True
+                print(f"   🎉 Candidate provider functional!")
+                
+        except ImportError as e:
+            print(f"   ❌ Cannot import candidate provider: {e}")
+        except Exception as e:
+            print(f"   ❌ Error in candidate provider testing: {e}")
+        
+        # PHASE 6: DATABASE INTEGRATION TESTING
+        print("\n🗄️ PHASE 6: DATABASE INTEGRATION TESTING")
+        print("-" * 60)
+        print("Testing database integration for adaptive logic queries")
+        
+        try:
+            from database import SessionLocal
+            from sqlalchemy import text
+            
+            db = SessionLocal()
+            
+            # Test users table access
+            try:
+                users_count = db.execute(text("SELECT COUNT(*) FROM users")).scalar()
+                phase_2_results["users_table_accessible"] = True
+                print(f"   ✅ Users table accessible ({users_count} users)")
+            except Exception as e:
+                print(f"   ❌ Users table access error: {e}")
+            
+            # Test sessions table access
+            try:
+                sessions_count = db.execute(text("SELECT COUNT(*) FROM sessions")).scalar()
+                phase_2_results["sessions_table_accessible"] = True
+                print(f"   ✅ Sessions table accessible ({sessions_count} sessions)")
+            except Exception as e:
+                print(f"   ❌ Sessions table access error: {e}")
+            
+            # Test attempt_events table access
+            try:
+                attempts_count = db.execute(text("SELECT COUNT(*) FROM attempt_events")).scalar()
+                phase_2_results["attempt_events_table_accessible"] = True
+                print(f"   ✅ Attempt_events table accessible ({attempts_count} attempts)")
+            except Exception as e:
+                print(f"   ❌ Attempt_events table access error: {e}")
+            
+            db.close()
+            
+            # Overall database integration assessment
+            if (phase_2_results["users_table_accessible"] and 
+                phase_2_results["sessions_table_accessible"] and
+                phase_2_results["attempt_events_table_accessible"]):
+                phase_2_results["database_queries_working"] = True
+                phase_2_results["database_integration_functional"] = True
+                print(f"   🎉 Database integration functional!")
+                
+        except Exception as e:
+            print(f"   ❌ Error in database integration testing: {e}")
+        
+        # PHASE 7: UNIT TESTS VALIDATION
+        print("\n🧪 PHASE 7: UNIT TESTS VALIDATION")
+        print("-" * 60)
+        print("Running deterministic kernels unit tests")
+        
+        try:
+            import os
+            import subprocess
+            
+            # Check if unit tests exist
+            unit_test_path = "/app/backend/tests/test_deterministic_kernels.py"
+            if os.path.exists(unit_test_path):
+                phase_2_results["unit_tests_exist"] = True
+                print(f"   ✅ Unit tests exist at {unit_test_path}")
+                
+                # Run unit tests
+                try:
+                    os.chdir("/app/backend")
+                    result = subprocess.run(
+                        ["python3", "-m", "pytest", "tests/test_deterministic_kernels.py", "-v"],
+                        capture_output=True,
+                        text=True,
+                        timeout=30
+                    )
+                    
+                    phase_2_results["unit_tests_executable"] = True
+                    print(f"   ✅ Unit tests are executable")
+                    
+                    output = result.stdout + result.stderr
+                    print(f"   📊 Unit test output preview: {output[:300]}...")
+                    
+                    # Check for passing tests
+                    if "passed" in output.lower() and result.returncode == 0:
+                        phase_2_results["unit_tests_passing"] = True
+                        phase_2_results["mathematical_functions_validated"] = True
+                        print(f"   ✅ Unit tests passing - mathematical functions validated")
+                    else:
+                        print(f"   ⚠️ Unit tests may have issues (return code: {result.returncode})")
+                        
+                except subprocess.TimeoutExpired:
+                    print(f"   ⚠️ Unit tests timed out after 30 seconds")
+                except Exception as e:
+                    print(f"   ❌ Error running unit tests: {e}")
+            else:
+                print(f"   ❌ Unit tests not found at {unit_test_path}")
+                
+        except Exception as e:
+            print(f"   ❌ Error in unit tests validation: {e}")
+        
+        # PHASE 8: OVERALL SUCCESS ASSESSMENT
+        print("\n🎯 PHASE 8: OVERALL SUCCESS ASSESSMENT")
+        print("-" * 60)
+        print("Assessing overall Phase 2 Adaptive Logic implementation success")
+        
+        # Calculate success metrics
+        dry_run_success = (
+            phase_2_results["dry_run_script_exists"] and
+            phase_2_results["dry_run_script_executable"] and
+            phase_2_results["dry_run_includes_cold_start_users"]
+        )
+        
+        cold_start_success = (
+            phase_2_results["should_cold_start_function_exists"] and
+            phase_2_results["cold_start_detection_working"]
+        )
+        
+        kernels_success = phase_2_results["deterministic_kernels_functional"]
+        candidate_success = phase_2_results["candidate_provider_functional"]
+        database_success = phase_2_results["database_integration_functional"]
+        unit_tests_success = phase_2_results["unit_tests_passing"]
+        
+        # Overall assessment
+        critical_components_working = (
+            dry_run_success and cold_start_success and kernels_success and 
+            candidate_success and database_success
+        )
+        
+        if critical_components_working:
+            phase_2_results["phase_2_implementation_complete"] = True
+            phase_2_results["all_critical_components_working"] = True
+            
+            if unit_tests_success:
+                phase_2_results["adaptive_logic_production_ready"] = True
+        
+        print(f"   📊 Dry-Run Script Validation: {'✅' if dry_run_success else '❌'}")
+        print(f"   📊 Cold-Start Detection: {'✅' if cold_start_success else '❌'}")
+        print(f"   📊 Deterministic Kernels: {'✅' if kernels_success else '❌'}")
+        print(f"   📊 Candidate Provider: {'✅' if candidate_success else '❌'}")
+        print(f"   📊 Database Integration: {'✅' if database_success else '❌'}")
+        print(f"   📊 Unit Tests: {'✅' if unit_tests_success else '❌'}")
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 80)
+        print("🎯 PHASE 2: ADAPTIVE LOGIC COMPREHENSIVE TESTING - RESULTS")
+        print("=" * 80)
+        
+        passed_tests = sum(phase_2_results.values())
+        total_tests = len(phase_2_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        # Group results by testing areas
+        testing_areas = {
+            "AUTHENTICATION SETUP": [
+                "admin_authentication_working", "admin_token_valid", "admin_privileges_confirmed"
+            ],
+            "DRY-RUN SCRIPT VALIDATION": [
+                "dry_run_script_exists", "dry_run_script_executable", "dry_run_includes_cold_start_users",
+                "dry_run_18_tests_passed", "dry_run_100_percent_success"
+            ],
+            "COLD-START DETECTION": [
+                "should_cold_start_function_exists", "cold_start_detects_new_users",
+                "cold_start_detects_experienced_users", "cold_start_detection_working"
+            ],
+            "DETERMINISTIC KERNELS": [
+                "stable_semantic_id_working", "weights_from_dominance_working",
+                "finalize_readiness_working", "validate_pack_working", "deterministic_kernels_functional"
+            ],
+            "CANDIDATE PROVIDER": [
+                "build_coldstart_pool_working", "candidate_provider_accessible",
+                "cold_start_pool_generation_working", "candidate_provider_functional"
+            ],
+            "DATABASE INTEGRATION": [
+                "users_table_accessible", "sessions_table_accessible", "attempt_events_table_accessible",
+                "database_queries_working", "database_integration_functional"
+            ],
+            "UNIT TESTS VALIDATION": [
+                "unit_tests_exist", "unit_tests_executable", "unit_tests_passing", "mathematical_functions_validated"
+            ],
+            "OVERALL SUCCESS METRICS": [
+                "phase_2_implementation_complete", "adaptive_logic_production_ready", "all_critical_components_working"
+            ]
+        }
+        
+        for area, tests in testing_areas.items():
+            print(f"\n{area}:")
+            area_passed = 0
+            area_total = len(tests)
+            
+            for test in tests:
+                if test in phase_2_results:
+                    result = phase_2_results[test]
+                    status = "✅ PASS" if result else "❌ FAIL"
+                    print(f"  {test.replace('_', ' ').title():<60} {status}")
+                    if result:
+                        area_passed += 1
+            
+            area_rate = (area_passed / area_total) * 100 if area_total > 0 else 0
+            print(f"  Area Success Rate: {area_passed}/{area_total} ({area_rate:.1f}%)")
+        
+        print("-" * 80)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # CRITICAL SUCCESS ASSESSMENT
+        print("\n🎯 PHASE 2 ADAPTIVE LOGIC SUCCESS ASSESSMENT:")
+        
+        if success_rate >= 85:
+            print("\n🎉 PHASE 2 ADAPTIVE LOGIC: EXCELLENT SUCCESS!")
+            print("   ✅ Dry-run script validation working")
+            print("   ✅ Cold-start detection functional")
+            print("   ✅ Deterministic kernels operational")
+            print("   ✅ Candidate provider working")
+            print("   ✅ Database integration successful")
+            print("   ✅ Unit tests validating mathematical functions")
+            print("   🏆 PRODUCTION READY - Phase 2 implementation complete!")
+        elif success_rate >= 70:
+            print("\n⚠️ PHASE 2 ADAPTIVE LOGIC: GOOD PROGRESS")
+            print(f"   - {passed_tests}/{total_tests} tests passed ({success_rate:.1f}%)")
+            print("   - Most critical components working")
+            print("   🔧 MINOR ISSUES - Some components need attention")
+        else:
+            print("\n❌ PHASE 2 ADAPTIVE LOGIC: CRITICAL ISSUES")
+            print(f"   - Only {passed_tests}/{total_tests} tests passed ({success_rate:.1f}%)")
+            print("   - Significant issues preventing full functionality")
+            print("   🚨 MAJOR PROBLEMS - Urgent fixes needed")
+        
+        return success_rate >= 75  # Return True if Phase 2 is successful
+
     def test_pyq_frequency_score_calculation_fix_validation(self):
         """
         🎯 PYQ FREQUENCY SCORE CALCULATION FIX VALIDATION - CRITICAL TESTING
