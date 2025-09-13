@@ -342,16 +342,17 @@ Be precise, comprehensive, and use EXACT canonical taxonomy names."""
                 analysis_data = json.loads(clean_json)
                 
                 # Validate and clean difficulty data
-                band = analysis_data.get('difficulty_band', 'Medium').capitalize()
-                if band not in ['Easy', 'Medium', 'Hard']:
-                    band = 'Medium'
+                # NEW: Calculate difficulty programmatically using new formula
+                steps_count = parse_solution_steps(analysis_data.get('solution_method', ''))
+                difficulty_score, difficulty_band = calculate_difficulty_score_and_band(
+                    analysis_data.get('core_concepts', []),
+                    analysis_data.get('operations_required', []),
+                    steps_count
+                )
                 
-                score = float(analysis_data.get('difficulty_score', 2.5))
-                if not (1.0 <= score <= 5.0):
-                    score = 2.5
-                
-                analysis_data['difficulty_band'] = band
-                analysis_data['difficulty_score'] = score
+                # Set calculated values
+                analysis_data['difficulty_score'] = difficulty_score
+                analysis_data['difficulty_band'] = difficulty_band
                 
                 # Convert complex fields to JSON strings for database storage
                 analysis_data['core_concepts'] = json.dumps(analysis_data.get('core_concepts', []))
@@ -360,7 +361,7 @@ Be precise, comprehensive, and use EXACT canonical taxonomy names."""
                 analysis_data['concept_keywords'] = json.dumps(analysis_data.get('concept_keywords', []))
                 
                 logger.info(f"✅ Comprehensive analysis completed with {model_used}")
-                logger.info(f"📊 Difficulty: {band} ({score})")
+                logger.info(f"📊 Calculated Difficulty: {difficulty_band} ({difficulty_score}) [Concepts:{len(analysis_data.get('core_concepts', []))}, Steps:{steps_count}, Ops:{len(analysis_data.get('operations_required', []))}]")
                 
                 return analysis_data
                 
