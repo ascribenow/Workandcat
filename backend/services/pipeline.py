@@ -2,12 +2,20 @@
 """
 Adaptive Logic Pipeline Service
 Orchestrates session planning with cold start detection and dual-path logic
+Now includes full LLM integration (Summarizer + Planner)
 """
 
 import logging
 from typing import Dict, Any, Optional
 from database import SessionLocal
 from sqlalchemy import text, select
+from services.deterministic_kernels import (
+    weights_from_dominance, compute_weighted_counts, finalize_readiness,
+    coverage_debt_by_sessions, AttemptEvent
+)
+from services.candidate_provider import candidate_provider
+from services.summarizer import summarizer_service
+from services.planner import planner_service
 
 logger = logging.getLogger(__name__)
 
