@@ -104,6 +104,8 @@ Return ONLY valid JSON matching the required schema."""
             }
         
         # Call LLM with schema validation and retry
+        start_time = time.time()
+        
         try:
             data = call_llm_json_with_retry(
                 system_prompt=self.system_prompt,
@@ -114,7 +116,20 @@ Return ONLY valid JSON matching the required schema."""
                 max_retries=1
             )
             
-            logger.info(f"✅ Planner completed for user {user_id[:8]}")
+            # Calculate telemetry
+            elapsed_time = time.time() - start_time
+            tokens_used = len(json.dumps(payload)) // 4  # Rough token estimate
+            
+            # Add telemetry to constraint report
+            if "constraint_report" in data:
+                data["constraint_report"].setdefault("meta", {}).update({
+                    "processing_time_ms": int(elapsed_time * 1000),
+                    "estimated_tokens": tokens_used,
+                    "relaxation_count": len(data["constraint_report"].get("relaxed", [])),
+                    "cold_start_mode": cold_start_mode
+                })
+            
+            logger.info(f"✅ Planner completed for user {user_id[:8]} ({elapsed_time:.2f}s, ~{tokens_used} tokens)")
             return data
             
         except Exception as e:
