@@ -5,6 +5,7 @@ Analyzes user attempt history to extract concept dominance and readiness pattern
 
 import json
 import logging
+import time
 from typing import Dict, Any, List
 from database import SessionLocal
 from sqlalchemy import text
