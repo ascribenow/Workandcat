@@ -228,6 +228,22 @@ Return ONLY valid JSON matching the required schema."""
             "notes": "No attempt history available for analysis"
         }
     
+    def _calculate_alias_reuse_rate(self, data: Dict[str, Any]) -> float:
+        """Calculate the rate of alias reuse vs new concept creation"""
+        concept_map = data.get("concept_alias_map_updated", [])
+        if not concept_map:
+            return 0.0
+        
+        reused_count = sum(1 for concept in concept_map if not concept.get("provisional", False))
+        total_count = len(concept_map)
+        
+        return reused_count / total_count if total_count > 0 else 0.0
+    
+    def _count_provisional_concepts(self, data: Dict[str, Any]) -> int:
+        """Count the number of provisional (new) concepts created"""
+        concept_map = data.get("concept_alias_map_updated", [])
+        return sum(1 for concept in concept_map if concept.get("provisional", False))
+    
     def save_session_summary(self, user_id: str, session_id: str, summary_data: Dict[str, Any]) -> None:
         """Save summarizer results to database"""
         db = SessionLocal()
