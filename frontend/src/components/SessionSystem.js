@@ -575,12 +575,14 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
     );
   }
 
-  if (loading && !currentQuestion) {
+  if (loading && !currentQuestion || isPlanning) {
     return (
       <div className="flex items-center justify-center min-h-screen" style={{ fontFamily: 'Manrope, sans-serif' }}>
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-2 mx-auto" style={{ borderColor: '#9ac026' }}></div>
-          <p className="mt-4" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>Loading your session...</p>
+          <p className="mt-4" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
+            {isPlanning ? 'Preparing next session...' : 'Loading your session...'}
+          </p>
         </div>
       </div>
     );
