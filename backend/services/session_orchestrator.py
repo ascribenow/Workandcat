@@ -10,7 +10,7 @@ import json
 import uuid
 from typing import Dict, Any, Optional, Tuple
 from database import SessionLocal, text
-from services.pipeline import plan_next_session as pipeline_plan_next_session
+from services.pipeline import plan_next_session
 from datetime import datetime
 
 logger = logging.getLogger(__name__)
@@ -215,7 +215,7 @@ def plan_next(user_id: str, last_session_id: str, next_session_id: str, idem_key
         logger.info(f"🧠 Running pipeline planning for user {user_id[:8]}")
         
         # Call the existing pipeline function
-        pipeline_result = pipeline_plan_next_session(user_id, force_cold_start=False)
+        pipeline_result = plan_next_session(user_id, force_cold_start=False)
         
         if not pipeline_result.get('success'):
             raise Exception(f"Pipeline planning failed: {pipeline_result.get('error')}")
