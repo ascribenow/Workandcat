@@ -49,7 +49,7 @@ class AdaptiveDryRun:
             WHERE u.email LIKE '%_user_%@test.com'
             GROUP BY u.id, u.email
             ORDER BY cohort, u.email
-            LIMIT 6
+            LIMIT 12
         """)).fetchall()
         
         return [
