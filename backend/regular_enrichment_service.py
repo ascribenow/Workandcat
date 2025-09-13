@@ -659,11 +659,14 @@ Are these two answers semantically equivalent?"""
                 logger.error(f"❌ Quality verification failed - missing/invalid fields: {missing_or_invalid_fields}")
                 return {'quality_verified': False, 'answer_match': answer_match}
             
-            # NEW: Ensure concept_extraction_status is set to 'completed' for quality verified questions
-            enrichment_data['concept_extraction_status'] = 'completed'
+            # NEW: Check that concept_extraction_status is 'completed' (don't set it, just verify)
+            concept_status = enrichment_data.get('concept_extraction_status', '')
+            if concept_status != 'completed':
+                logger.error(f"❌ Quality verification failed - concept_extraction_status is '{concept_status}', expected 'completed'")
+                return {'quality_verified': False, 'answer_match': answer_match}
             
-            logger.info("✅ Quality verification passed - all 21 criteria met + concept_extraction_status set")
-            return {'quality_verified': True, 'answer_match': True, 'concept_extraction_status': 'completed'}
+            logger.info("✅ Quality verification passed - all 21 criteria met + concept_extraction_status verified")
+            return {'quality_verified': True, 'answer_match': True}
             
         except Exception as e:
             logger.error(f"❌ Quality verification exception: {e}")
