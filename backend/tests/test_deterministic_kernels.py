@@ -376,7 +376,7 @@ class TestValidatePack:
                 difficulty_band="Easy",
                 subcategory="Arithmetic",
                 type_of_question="Addition",
-                core_concepts=["Addition"],
+                core_concepts=("Addition",),  # Tuple
                 pyq_frequency_score=1.0,
                 pair="Arithmetic:Addition"
             ))
