@@ -9,7 +9,8 @@ import logging
 import json
 import uuid
 from typing import Dict, Any, Optional, Tuple
-from database import SessionLocal, text
+from database import SessionLocal
+from sqlalchemy import text
 from services.pipeline import plan_next_session
 from datetime import datetime
 
