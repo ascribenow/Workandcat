@@ -442,30 +442,37 @@ Be precise, comprehensive, and use EXACT canonical taxonomy names."""
     async def _calculate_pyq_frequency_score_llm(self, stem: str, enrichment_data: Dict[str, Any]) -> float:
         """
         Calculate PYQ frequency score using LLM-based semantic comparison
-        Filters PYQ questions by: difficulty_score > 1.5 AND category x subcategory match
+        Filters PYQ questions by: category x subcategory match (only compares if regular question difficulty_score > 1.5)
         """
         try:
             from database import get_async_compatible_db, PYQQuestion
             from sqlalchemy import select
             import json
             
-            # Get category and subcategory from enrichment data
+            # Get category, subcategory, and difficulty from enrichment data
             category = enrichment_data.get('category', '')
             subcategory = enrichment_data.get('subcategory', '')
+            regular_difficulty = enrichment_data.get('difficulty_score', 0)
+            
+            # CRITICAL FIX: Apply difficulty filter to REGULAR question, not PYQ questions
+            if regular_difficulty <= 1.5:
+                logger.info(f"🎯 Regular question difficulty ({regular_difficulty}) ≤ 1.5, skipping PYQ frequency calculation")
+                return 0.5  # Return default LOW frequency for easy questions
             
             logger.info(f"🔍 Getting qualifying PYQ questions for category='{category}', subcategory='{subcategory}'")
+            logger.info(f"🎯 Regular question difficulty: {regular_difficulty} > 1.5 ✅")
             
             # Get database session using SessionLocal directly (synchronous approach)
             from database import SessionLocal
             db = SessionLocal()
             try:
-                # Get qualifying PYQ questions from database with improved filtering
+                # Get qualifying PYQ questions from database - REMOVED difficulty filter on PYQ questions
                 result = db.execute(
                     select(PYQQuestion).where(
                         and_(
-                            PYQQuestion.difficulty_score > 1.5,
-                            PYQQuestion.category == category,              # NEW: Category match
-                            PYQQuestion.subcategory == subcategory,        # NEW: Subcategory match
+                            # REMOVED: PYQQuestion.difficulty_score > 1.5,  # This was the bug!
+                            PYQQuestion.category == category,              # Category match
+                            PYQQuestion.subcategory == subcategory,        # Subcategory match
                             PYQQuestion.is_active == True,
                             PYQQuestion.quality_verified == True,
                             PYQQuestion.problem_structure.isnot(None),
@@ -476,7 +483,7 @@ Be precise, comprehensive, and use EXACT canonical taxonomy names."""
                 qualifying_pyqs = result.scalars().all()
                 
                 if not qualifying_pyqs:
-                    logger.warning(f"⚠️ No qualifying PYQ questions found for category='{category}', subcategory='{subcategory}' with difficulty_score > 1.5")
+                    logger.warning(f"⚠️ No qualifying PYQ questions found for category='{category}', subcategory='{subcategory}'")
                     return 0.5  # Default to LOW
                 
                 logger.info(f"📊 Found {len(qualifying_pyqs)} category x subcategory filtered PYQ questions")
