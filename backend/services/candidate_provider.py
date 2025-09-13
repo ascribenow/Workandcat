@@ -470,6 +470,11 @@ class CandidateProvider:
         # Check feasibility
         feasible, feasibility_details = self.preflight_feasible(diverse_candidates)
         
+        # TELEMETRY: Log cold start selection results
+        selected_pyq_15 = sum(1 for c in diverse_candidates if c.pyq_frequency_score >= 1.5)
+        selected_pyq_10 = sum(1 for c in diverse_candidates if c.pyq_frequency_score >= 1.0)
+        logger.info(f"📊 TELEMETRY COLDSTART: selected_pyq15_in_pool={selected_pyq_15} selected_pyq10_in_pool={selected_pyq_10} pool_feasible={feasible}")
+        
         if not feasible:
             logger.warning("Cold start pool not feasible, expanding")
             # For cold start, expand aggressively
