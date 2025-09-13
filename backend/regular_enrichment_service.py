@@ -409,20 +409,21 @@ Be precise, comprehensive, and use EXACT canonical taxonomy names."""
                 enrichment_data['operations_required'] = json.dumps(enrichment_data.get('operations_required', []))
                 enrichment_data['concept_keywords'] = json.dumps(enrichment_data.get('concept_keywords', []))
                 
-                # Validate and clean difficulty data
-                difficulty_band = enrichment_data.get('difficulty_band', 'Medium').capitalize()
-                if difficulty_band not in ['Easy', 'Medium', 'Hard']:
-                    difficulty_band = 'Medium'
-                enrichment_data['difficulty_band'] = difficulty_band
+                # NEW: Calculate difficulty programmatically using new formula
+                steps_count = parse_solution_steps(enrichment_data.get('solution_method', ''))
+                difficulty_score, difficulty_band = calculate_difficulty_score_and_band(
+                    enrichment_data.get('core_concepts', []),
+                    enrichment_data.get('operations_required', []),
+                    steps_count
+                )
                 
-                difficulty_score = float(enrichment_data.get('difficulty_score', 2.5))
-                if not (1.0 <= difficulty_score <= 5.0):
-                    difficulty_score = 2.5
+                # Set calculated values
                 enrichment_data['difficulty_score'] = difficulty_score
+                enrichment_data['difficulty_band'] = difficulty_band
                 
                 logger.info(f"✅ Consolidated enrichment completed with {model_used}")
                 logger.info(f"🎯 Taxonomy: {canonical_category} → {canonical_subcategory} → {canonical_type}")
-                logger.info(f"⚖️ Difficulty: {difficulty_band} ({difficulty_score})")
+                logger.info(f"⚖️ Calculated Difficulty: {difficulty_band} ({difficulty_score}) [Concepts:{len(enrichment_data.get('core_concepts', []))}, Steps:{steps_count}, Ops:{len(enrichment_data.get('operations_required', []))}]")
                 
                 return {
                     "success": True,

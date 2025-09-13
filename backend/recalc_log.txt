@@ -4420,3 +4420,32 @@ INFO:regular_enrichment_service:🎯 Regular question difficulty: 3.2 > 1.5 ✅
 INFO:regular_enrichment_service:📊 Found 35 category x subcategory filtered PYQ questions
 INFO:llm_utils:🧠 Starting LLM-based PYQ frequency calculation for 35 category-filtered PYQs
 INFO:llm_utils:🎯 Category: Arithmetic, Subcategory: Time-Speed-Distance
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:llm_utils:✅ LLM PYQ frequency calculation completed with openai-gpt-4o
+INFO:llm_utils:🎯 Found 2 raw matches (no scaling) → Score: 1.0
+INFO:llm_utils:📊 Processed 35 category-filtered PYQ questions
+INFO:regular_enrichment_service:✅ PYQ frequency score calculated: 1.0
+INFO:regular_enrichment_service:🎯 Processed 35 questions with raw matching (no scaling)
+   = No change: 1.0
+🔄 Processing 370/370: 07b2ab94...
+INFO:regular_enrichment_service:🔍 Getting qualifying PYQ questions for category='Arithmetic', subcategory='Simple and Compound Interest'
+INFO:regular_enrichment_service:🎯 Regular question difficulty: 3.0 > 1.5 ✅
+INFO:regular_enrichment_service:📊 Found 13 category x subcategory filtered PYQ questions
+INFO:llm_utils:🧠 Starting LLM-based PYQ frequency calculation for 13 category-filtered PYQs
+INFO:llm_utils:🎯 Category: Arithmetic, Subcategory: Simple and Compound Interest
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:llm_utils:✅ LLM PYQ frequency calculation completed with openai-gpt-4o
+INFO:llm_utils:🎯 Found 1 raw matches (no scaling) → Score: 1.0
+INFO:llm_utils:📊 Processed 13 category-filtered PYQ questions
+INFO:regular_enrichment_service:✅ PYQ frequency score calculated: 1.0
+INFO:regular_enrichment_service:🎯 Processed 13 questions with raw matching (no scaling)
+   = No change: 1.0
+   💾 Committed batch (processed: 370)
+
+🎉 RECALCULATION COMPLETE!
+===================================
+📊 Total processed: 370/370
+📊 Questions updated: 6
+📊 Easy questions (≤1.5): 40
+📊 Hard questions (>1.5): 330
+📊 Success rate: 100.0%
