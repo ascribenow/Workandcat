@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/adapt", tags=["adaptive_sessions"])
 
 @router.post("/plan-next")
-async def plan_next_controller(body: dict, request: Request, user_id: str = Depends(get_current_user)):
+async def plan_next_controller(body: dict, request: Request, user_id: str = Depends(ensure_adaptive_enabled)):
     """
     Plan the next session after current session completion
     
