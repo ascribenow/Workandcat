@@ -10,7 +10,7 @@ import time
 
 class FocusedValidationTester:
     def __init__(self):
-        self.base_url = "https://question-tracker-2.preview.emergentagent.com/api"
+        self.base_url = "https://adaptiq-cat.preview.emergentagent.com/api"
         self.admin_token = None
         self.student_token = None
         

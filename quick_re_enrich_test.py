@@ -7,7 +7,7 @@ import json
 import time
 
 def test_re_enrichment():
-    base_url = "https://question-tracker-2.preview.emergentagent.com/api"
+    base_url = "https://adaptiq-cat.preview.emergentagent.com/api"
     
     print("🚨 CRITICAL RE-ENRICHMENT TEST")
     print("=" * 50)

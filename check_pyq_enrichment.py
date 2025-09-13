@@ -7,7 +7,7 @@ import requests
 import json
 
 def check_pyq_enrichment():
-    base_url = "https://question-tracker-2.preview.emergentagent.com/api"
+    base_url = "https://adaptiq-cat.preview.emergentagent.com/api"
     
     # Login as admin
     login_data = {

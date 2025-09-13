@@ -13,7 +13,7 @@ import time
 from datetime import datetime
 
 class Test12QuestionSessionFix:
-    def __init__(self, base_url="https://question-tracker-2.preview.emergentagent.com/api"):
+    def __init__(self, base_url="https://adaptiq-cat.preview.emergentagent.com/api"):
         self.base_url = base_url
         self.admin_token = None
         self.session_id = None

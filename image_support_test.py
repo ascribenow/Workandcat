@@ -16,7 +16,7 @@ from datetime import datetime
 import time
 
 class ImageSupportTester:
-    def __init__(self, base_url="https://question-tracker-2.preview.emergentagent.com/api"):
+    def __init__(self, base_url="https://adaptiq-cat.preview.emergentagent.com/api"):
         self.base_url = base_url
         self.admin_token = None
         self.student_token = None
