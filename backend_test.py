@@ -17059,32 +17059,34 @@ class CATBackendTester:
         return success_rate >= 60  # Return True if signup email flow is functional
 
 if __name__ == "__main__":
-    print("🎯 PHASE 4: FULL PIPELINE ORCHESTRATION COMPREHENSIVE TESTING")
+    print("🎯 PHASE B: ADAPTIVE SYSTEM v1.1 COMPLIANCE TESTING")
     print("=" * 80)
-    print("Starting comprehensive testing of Phase 4 adaptive session endpoints...")
+    print("Starting comprehensive testing of Phase B adaptive system v1.1 compliance...")
     print("")
     
     tester = CATBackendTester()
     
     try:
-        # Run the Phase 4 comprehensive testing
-        success = tester.test_phase_4_adaptive_session_endpoints_comprehensive()
+        # Run the Phase B v1.1 compliance testing
+        success = tester.test_phase_b_adaptive_v11_compliance()
         
         print("\n" + "=" * 80)
-        print("🎯 PHASE 4 TESTING SUMMARY")
+        print("🎯 PHASE B v1.1 COMPLIANCE TESTING SUMMARY")
         print("=" * 80)
         
         if success:
-            print("🎉 PHASE 4: FULL PIPELINE ORCHESTRATION TESTING COMPLETED SUCCESSFULLY!")
-            print("   ✅ All 5 adaptive session endpoints functional")
-            print("   ✅ Authentication and security working")
-            print("   ✅ 12-question packs with 3-6-3 difficulty distribution")
-            print("   ✅ State management and database integration")
-            print("   🏆 PRODUCTION READY!")
+            print("🎉 PHASE B: ADAPTIVE SYSTEM v1.1 COMPLIANCE ACHIEVED!")
+            print("   ✅ Adaptive gate middleware working with proper flag enforcement")
+            print("   ✅ API contract hardening with Idempotency-Key requirement enforced")
+            print("   ✅ Database indexes created for performance optimization")
+            print("   ✅ Constraint enforcement blocking forbidden relaxations")
+            print("   ✅ Complete adaptive flow functional with 12-question packs")
+            print("   ✅ 3-6-3 difficulty distribution maintained")
+            print("   🏆 PRODUCTION READY - All Phase B v1.1 objectives achieved!")
         else:
-            print("❌ PHASE 4: FULL PIPELINE ORCHESTRATION TESTING INCOMPLETE")
-            print("   🚨 Some endpoints or functionality issues detected")
-            print("   🔧 Additional fixes needed")
+            print("❌ PHASE B: ADAPTIVE SYSTEM v1.1 COMPLIANCE INCOMPLETE")
+            print("   🚨 Some v1.1 requirements not met")
+            print("   🔧 Additional fixes needed for full compliance")
         
         print(f"\nTotal Tests Run: {tester.tests_run}")
         print(f"Tests Passed: {tester.tests_passed}")
