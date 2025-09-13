@@ -671,7 +671,7 @@ Are these two answers semantically equivalent?"""
                 logger.error(f"❌ Quality verification failed - concept_extraction_status is '{concept_status}', expected 'completed'")
                 return {'quality_verified': False, 'answer_match': answer_match}
             
-            logger.info("✅ Quality verification passed - all 21 criteria met + concept_extraction_status verified")
+            logger.info("✅ Quality verification passed - all 22 criteria met (21 fields + concept_extraction_status = 'completed')")
             return {'quality_verified': True, 'answer_match': True}
             
         except Exception as e:
