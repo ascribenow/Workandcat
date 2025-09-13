@@ -10,7 +10,7 @@ import sys
 from datetime import datetime
 
 class TwelvrComprehensiveTester:
-    def __init__(self, base_url="https://adapt-twelvr.preview.emergentagent.com/api"):
+    def __init__(self, base_url="https://smart-study-21.preview.emergentagent.com/api"):
         self.base_url = base_url
         self.student_token = None
         self.admin_token = None

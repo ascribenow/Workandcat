@@ -2,7 +2,7 @@ import requests
 import json
 
 # Test the specific failing endpoints
-base_url = "https://adapt-twelvr.preview.emergentagent.com/api"
+base_url = "https://smart-study-21.preview.emergentagent.com/api"
 
 # Login as student first
 login_data = {
