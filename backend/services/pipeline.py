@@ -255,7 +255,8 @@ class AdaptiveConfig:
     COLD_START_THRESHOLD = 0  # Sessions before full adaptive mode (0 = only new users)
     
     # Question pool parameters  
-    K_POOL_PER_BAND = 50      # Question pool size per difficulty band
+    K_POOL_PER_BAND = 80       # Question pool size per difficulty band (base)
+    K_POOL_EXPANSION = [80, 160, 320]  # Adaptive expansion ladder: K→2K→4K
     DIVERSITY_POOL_SIZE = 100  # Cold start candidate pool size
     
     # Recency and coverage parameters
