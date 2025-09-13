@@ -105,7 +105,7 @@ async def get_pack_controller(user_id: str, session_id: str, auth_user_id: str =
         raise HTTPException(status_code=500, detail="Failed to get session pack")
 
 @router.post("/mark-served")
-async def mark_served_controller(body: dict, user_id: str = Depends(get_current_user)):
+async def mark_served_controller(body: dict, user_id: str = Depends(ensure_adaptive_enabled)):
     """
     Mark a planned pack as served (transition planned -> served)
     
