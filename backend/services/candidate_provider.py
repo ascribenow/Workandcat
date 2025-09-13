@@ -223,6 +223,11 @@ class CandidateProvider:
         # Fetch all available candidates
         all_candidates = self._fetch_active_questions(excluded_questions)
         
+        # TELEMETRY: Log data source and PYQ availability  
+        pyq_15_available = sum(1 for c in all_candidates if c.pyq_frequency_score >= 1.5)
+        pyq_10_available = sum(1 for c in all_candidates if c.pyq_frequency_score >= 1.0)
+        logger.info(f"📊 TELEMETRY: provider_source=questions available_pyq15_in_pool={pyq_15_available} available_pyq10_in_pool={pyq_10_available} total_active={len(all_candidates)}")
+        
         if not all_candidates:
             logger.warning("No active questions available")
             return [], {"error": "no_active_questions"}
