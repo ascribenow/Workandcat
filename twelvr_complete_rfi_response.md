@@ -885,7 +885,7 @@ curl -X POST $REACT_APP_BACKEND_URL/api/admin/recalculate-frequency-background
 
 ---
 
-## Supporting Data Files
+## I) Supporting Data Files
 
 This RFI package includes comprehensive supporting CSV files with real production data:
 
