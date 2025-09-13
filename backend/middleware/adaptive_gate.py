@@ -7,10 +7,6 @@ import os
 from fastapi import Request, HTTPException, Depends
 from database import SessionLocal, User
 from sqlalchemy import select
-
-# Import get_current_user directly from the module where it's defined
-import sys
-sys.path.append('/app/backend')
 from auth import get_current_user
 
 # Global adaptive feature flag
