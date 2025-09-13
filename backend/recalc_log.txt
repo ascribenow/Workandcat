@@ -2943,3 +2943,6 @@ INFO:regular_enrichment_service:🎯 Processed 14 questions with raw matching (n
 🔄 Processing 236/370: b744bfdd...
 INFO:regular_enrichment_service:🔍 Getting qualifying PYQ questions for category='Arithmetic', subcategory='Profit-Loss-Discount'
 INFO:regular_enrichment_service:🎯 Regular question difficulty: 3.2 > 1.5 ✅
+INFO:regular_enrichment_service:📊 Found 16 category x subcategory filtered PYQ questions
+INFO:llm_utils:🧠 Starting LLM-based PYQ frequency calculation for 16 category-filtered PYQs
+INFO:llm_utils:🎯 Category: Arithmetic, Subcategory: Profit-Loss-Discount
