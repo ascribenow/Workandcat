@@ -191,7 +191,8 @@ async def signup(signup_data: SignupRequest):
                 "id": user.id,
                 "email": user.email,
                 "full_name": user.full_name,
-                "is_admin": user.is_admin
+                "is_admin": user.is_admin,
+                "adaptive_enabled": bool(user.adaptive_enabled)
             }
         }
     finally:
