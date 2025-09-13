@@ -143,7 +143,7 @@ async def mark_served_controller(body: dict, user_id: str = Depends(ensure_adapt
         raise HTTPException(status_code=500, detail="Failed to mark pack as served")
 
 @router.post("/start-first")
-async def start_first_controller(body: dict, user_id: str = Depends(get_current_user)):
+async def start_first_controller(body: dict, user_id: str = Depends(ensure_adaptive_enabled)):
     """
     Optional convenience endpoint for cold-start users
     Equivalent to POST /adapt/plan-next with cold_start_mode
