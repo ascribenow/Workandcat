@@ -10,7 +10,7 @@ from datetime import datetime
 import time
 
 class TwelveQuestionSessionTester:
-    def __init__(self, base_url="https://adaptiq-cat.preview.emergentagent.com/api"):
+    def __init__(self, base_url="https://adapt-twelvr.preview.emergentagent.com/api"):
         self.base_url = base_url
         self.student_token = None
         self.admin_token = None
@@ -355,7 +355,7 @@ class TwelveQuestionSessionTester:
 
 if __name__ == "__main__":
     print("🚀 CAT Backend Testing Suite - 12-Question Session System Focus")
-    print("Testing URL: https://adaptiq-cat.preview.emergentagent.com/api")
+    print("Testing URL: https://adapt-twelvr.preview.emergentagent.com/api")
     print("Admin Credentials: sumedhprabhu18@gmail.com / admin2025")
     print("=" * 70)
     
