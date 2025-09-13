@@ -241,9 +241,9 @@ async def plan_next_session(user_id: str, force_cold_start: bool = False) -> Dic
     """
     Main pipeline function - plans the next session for a user
     
-    Implements dual-path logic:
-    - Cold start path: Skip summarizer, use diversity-first selection
-    - Normal path: Full LLM analysis + adaptive selection
+    Implements dual-path logic with full LLM integration:
+    - Cold start path: Skip summarizer, use diversity-first selection via Planner
+    - Normal path: Full LLM analysis (Summarizer + Planner) + adaptive selection
     
     Args:
         user_id: User identifier
@@ -261,13 +261,32 @@ async def plan_next_session(user_id: str, force_cold_start: bool = False) -> Dic
     logger.info(f"📊 Next session sequence: {next_sess_seq}")
     
     if is_cold_start:
-        # COLD START PATH
+        # COLD START PATH - Skip Summarizer, use diversity-first Planner
         logger.info("🔥 Using COLD START pipeline...")
         
-        # TODO: Implement cold start logic
-        # - Skip LLM Summarizer (no history)
-        # - Use build_coldstart_pool() for diversity-first selection
-        # - Simple constraint validation
+        # Build cold start candidate pool
+        candidates, metadata = candidate_provider.build_coldstart_pool(user_id)
+        
+        if not candidates:
+            return {
+                'success': False,
+                'error': 'No candidates available for cold start',
+                'user_id': user_id,
+                'session_sequence': next_sess_seq
+            }
+        
+        # Group candidates by difficulty band for Planner
+        candidate_pool_by_band = _group_candidates_by_band(candidates)
+        
+        # Run Planner in cold start mode (no Summarizer needed)
+        plan_result = planner_service.run_planner(
+            user_id=user_id,
+            candidate_pool_by_band=candidate_pool_by_band,
+            final_readiness=[],  # Empty for cold start
+            concept_weights_by_item={},  # Empty for cold start
+            pair_coverage_final=[],  # Empty for cold start
+            cold_start_mode=True
+        )
         
         return {
             'success': True,
@@ -275,26 +294,86 @@ async def plan_next_session(user_id: str, force_cold_start: bool = False) -> Dic
             'session_sequence': next_sess_seq,
             'cold_start_mode': True,
             'pipeline_path': 'cold_start',
-            'message': 'Cold start pipeline - diversity-first question selection',
-            'pack': [],  # TODO: Implement
+            'plan': plan_result,
             'metadata': {
                 'served_sessions': 0,
-                'planning_strategy': 'cold_start_diversity'
+                'planning_strategy': 'cold_start_diversity',
+                'candidate_pool_size': len(candidates),
+                'pool_metadata': metadata
             }
         }
         
     else:
-        # NORMAL ADAPTIVE PATH
+        # NORMAL ADAPTIVE PATH - Full LLM pipeline
         logger.info("🧠 Using NORMAL ADAPTIVE pipeline...")
         
-        # Get session history for analysis
-        history = get_user_session_history(user_id, limit=5)
+        # Step 1: Run Summarizer for qualitative analysis
+        summary_result = summarizer_service.run_summarizer(user_id)
         
-        # TODO: Implement full adaptive logic
-        # - LLM Summarizer for concept analysis
-        # - Deterministic kernels for weights/readiness/coverage
-        # - LLM Planner for optimal question selection
-        # - Strict constraint validation
+        # Step 2: Convert LLM dominance to deterministic weights
+        concept_weights_by_item = _convert_dominance_to_weights(
+            summary_result.get("dominance_by_item", {})
+        )
+        
+        # Step 3: Load user attempt history for deterministic processing
+        attempt_events = _load_user_attempts(user_id)
+        
+        # Step 4: Run deterministic kernels with LLM weights
+        weighted_counts = compute_weighted_counts(
+            attempt_events, concept_weights_by_item, {}  # TODO: semantic_id_map from summarizer
+        )
+        readiness_map = finalize_readiness(weighted_counts)
+        coverage_debt = coverage_debt_by_sessions(attempt_events)
+        
+        # Step 5: Build adaptive candidate pool
+        candidates, metadata = candidate_provider.build_candidate_pool(
+            user_id, 
+            {k: v.value for k, v in readiness_map.items()},  # Convert enum to string
+            coverage_debt
+        )
+        
+        if not candidates:
+            return {
+                'success': False,
+                'error': 'No candidates available for adaptive session',
+                'user_id': user_id,
+                'session_sequence': next_sess_seq
+            }
+        
+        # Step 6: Group candidates and prepare data for Planner
+        candidate_pool_by_band = _group_candidates_by_band(candidates)
+        
+        final_readiness = [
+            {
+                "semantic_id": semantic_id,
+                "readiness_level": level.value,
+                "pair": "unknown:unknown"  # TODO: Extract from summarizer
+            }
+            for semantic_id, level in readiness_map.items()
+        ]
+        
+        pair_coverage_final = [
+            {
+                "pair": pair,
+                "coverage_debt": "high" if debt > 0.7 else "med" if debt > 0.3 else "low"
+            }
+            for pair, debt in coverage_debt.items()
+        ]
+        
+        # Step 7: Run Planner with full adaptive data
+        plan_result = planner_service.run_planner(
+            user_id=user_id,
+            candidate_pool_by_band=candidate_pool_by_band,
+            final_readiness=final_readiness,
+            concept_weights_by_item=concept_weights_by_item,
+            pair_coverage_final=pair_coverage_final,
+            cold_start_mode=False
+        )
+        
+        # Step 8: Save summarizer results for future sessions
+        # TODO: Get actual session_id
+        temp_session_id = f"session_{next_sess_seq}_{user_id[:8]}"
+        summarizer_service.save_session_summary(user_id, temp_session_id, summary_result)
         
         return {
             'success': True,
@@ -302,12 +381,15 @@ async def plan_next_session(user_id: str, force_cold_start: bool = False) -> Dic
             'session_sequence': next_sess_seq,
             'cold_start_mode': False,
             'pipeline_path': 'adaptive',
-            'message': 'Full adaptive pipeline - readiness-based question selection',
-            'pack': [],  # TODO: Implement
+            'plan': plan_result,
+            'summary': summary_result,
             'metadata': {
-                'served_sessions': history['total_sessions'],
+                'served_sessions': len(attempt_events),
                 'planning_strategy': 'adaptive_readiness',
-                'history_analyzed': len(history['sessions'])
+                'candidate_pool_size': len(candidates),
+                'pool_metadata': metadata,
+                'concepts_analyzed': len(readiness_map),
+                'coverage_pairs': len(coverage_debt)
             }
         }
 
