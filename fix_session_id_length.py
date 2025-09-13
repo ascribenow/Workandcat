@@ -4,12 +4,18 @@ Fix session_id column length in session_pack_plan table
 """
 
 import os
+import sys
+sys.path.append('/app/backend')
+
 from sqlalchemy import create_engine, text
 from dotenv import load_dotenv
 
-load_dotenv()
+# Load environment variables from backend directory
+load_dotenv('/app/backend/.env')
 
 DATABASE_URL = os.getenv("DATABASE_URL")
+print(f"Database URL: {DATABASE_URL[:50]}...")
+
 engine = create_engine(DATABASE_URL)
 
 try:
