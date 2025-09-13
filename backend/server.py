@@ -42,6 +42,7 @@ from gmail_service import gmail_service
 # Import enrichment services
 from pyq_enrichment_service import pyq_enrichment_service
 # from enhanced_enrichment_checker_service import enhanced_enrichment_checker_service  # File deleted during cleanup
+from individual_enrichment_stages import stages_router
 
 # Initialize logging
 logging.basicConfig(level=logging.INFO)
