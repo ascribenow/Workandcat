@@ -2493,3 +2493,9 @@ INFO:llm_utils:📊 Processed 35 category-filtered PYQ questions
 INFO:regular_enrichment_service:✅ PYQ frequency score calculated: 1.0
 INFO:regular_enrichment_service:🎯 Processed 35 questions with raw matching (no scaling)
    = No change: 1.0
+🔄 Processing 195/370: 58297d11...
+INFO:regular_enrichment_service:🔍 Getting qualifying PYQ questions for category='Arithmetic', subcategory='Time-Work'
+INFO:regular_enrichment_service:🎯 Regular question difficulty: 3.0 > 1.5 ✅
+INFO:regular_enrichment_service:📊 Found 22 category x subcategory filtered PYQ questions
+INFO:llm_utils:🧠 Starting LLM-based PYQ frequency calculation for 22 category-filtered PYQs
+INFO:llm_utils:🎯 Category: Arithmetic, Subcategory: Time-Work
