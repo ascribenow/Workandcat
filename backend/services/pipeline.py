@@ -396,6 +396,13 @@ async def plan_next_session(user_id: str, force_cold_start: bool = False) -> Dic
             cold_start_mode=False
         )
         
+        # Add metadata about pool expansion and retry usage
+        if "constraint_report" in plan_result:
+            plan_result["constraint_report"].setdefault("meta", {}).update({
+                "pool_expanded": pool_expanded,
+                "expansion_attempts": expansion_attempts
+            })
+        
         # Step 8: Save summarizer results for future sessions
         # TODO: Get actual session_id
         temp_session_id = f"session_{next_sess_seq}_{user_id[:8]}"
