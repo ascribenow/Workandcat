@@ -480,7 +480,7 @@ class CandidateProvider:
         db = SessionLocal()
         try:
             recent_questions = db.execute(text("""
-                SELECT DISTINCT ae.question_id
+                SELECT DISTINCT ON (ae.question_id) ae.question_id
                 FROM attempt_events ae
                 JOIN sessions s ON ae.session_id = s.session_id
                 WHERE ae.user_id = :user_id
@@ -489,7 +489,7 @@ class CandidateProvider:
                     FROM sessions
                     WHERE user_id = :user_id
                 )
-                ORDER BY ae.created_at DESC
+                ORDER BY ae.question_id, ae.created_at DESC
             """), {
                 "user_id": user_id,
                 "lookback": sessions_lookback
