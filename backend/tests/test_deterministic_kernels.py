@@ -448,9 +448,10 @@ class TestValidatePack:
     def test_insufficient_pyq_scores(self):
         """Test validation failure for insufficient PYQ scores"""
         pack = self.create_valid_pack()
-        # Set all PYQ scores to 0.5 (below minimum)
-        for question in pack:
-            question.pyq_frequency_score = 0.5
+        # Set all PYQ scores to 0.5 (below minimum) using dataclasses.replace
+        from dataclasses import replace
+        for i, question in enumerate(pack):
+            pack[i] = replace(question, pyq_frequency_score=0.5)
             
         result = validate_pack(pack, pack, set(), set())
         
