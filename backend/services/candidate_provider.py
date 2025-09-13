@@ -142,51 +142,56 @@ class CandidateProvider:
         """
         Check if candidate pool can satisfy basic constraints
         
+        Args:
+            candidates: List of question candidates
+            
         Returns:
-            (feasible, details) where feasible is boolean and details contains diagnostic info
+            (is_feasible, feasibility_details)
         """
-        grouped = self._group_by_difficulty(candidates)
+        # Group by difficulty band
+        by_band = {"Easy": [], "Medium": [], "Hard": []}
+        for candidate in candidates:
+            band = candidate.difficulty_band
+            if band in by_band:
+                by_band[band].append(candidate)
         
         # Check difficulty distribution feasibility
-        required_distribution = {"Easy": 3, "Medium": 6, "Hard": 3}
-        difficulty_feasible = True
-        difficulty_details = {}
+        target_distribution = {"Easy": 3, "Medium": 6, "Hard": 3}
+        feasible = True
+        issues = []
         
-        for band, required in required_distribution.items():
-            available = len(grouped[band])
-            feasible = available >= required
-            
-            difficulty_details[band] = {
-                "required": required,
-                "available": available,
-                "feasible": feasible
-            }
-            
-            if not feasible:
-                difficulty_feasible = False
+        for band, target_count in target_distribution.items():
+            available = len(by_band[band])
+            if available < target_count:
+                feasible = False
+                issues.append(f"Insufficient {band} questions: need {target_count}, have {available}")
         
-        # Check PYQ score feasibility
+        # Check PYQ score requirements
         pyq_1_0_count = sum(1 for c in candidates if c.pyq_frequency_score >= 1.0)
         pyq_1_5_count = sum(1 for c in candidates if c.pyq_frequency_score >= 1.5)
         
-        pyq_feasible = pyq_1_0_count >= 2 and pyq_1_5_count >= 2
+        if pyq_1_0_count < 2:
+            feasible = False
+            issues.append(f"Insufficient PYQ ≥1.0 questions: need 2, have {pyq_1_0_count}")
         
-        pyq_details = {
-            "pyq_1_0": {"required": 2, "available": pyq_1_0_count, "feasible": pyq_1_0_count >= 2},
-            "pyq_1_5": {"required": 2, "available": pyq_1_5_count, "feasible": pyq_1_5_count >= 2}
-        }
-        
-        overall_feasible = difficulty_feasible and pyq_feasible
+        if pyq_1_5_count < 2:
+            feasible = False
+            issues.append(f"Insufficient PYQ ≥1.5 questions: need 2, have {pyq_1_5_count}")
         
         details = {
-            "total_candidates": len(candidates),
-            "difficulty": difficulty_details,
-            "pyq_scores": pyq_details,
-            "overall_feasible": overall_feasible
+            "feasible": feasible,
+            "issues": issues,
+            "band_counts": {band: len(questions) for band, questions in by_band.items()},
+            "pyq_counts": {">=1.0": pyq_1_0_count, ">=1.5": pyq_1_5_count},
+            "total_candidates": len(candidates)
         }
         
-        logger.debug(f"Preflight feasibility: {overall_feasible} (candidates: {len(candidates)})")
-        return overall_feasible, details
+        if feasible:
+            logger.debug(f"Preflight feasible: {len(candidates)} candidates")
+        else:
+            logger.warning(f"Preflight infeasible: {issues}")
+        
+        return feasible, details
     
     def build_candidate_pool(self, 
                            user_id: str,
