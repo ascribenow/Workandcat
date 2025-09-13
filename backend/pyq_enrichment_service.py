@@ -298,19 +298,13 @@ COMPREHENSIVE ANALYSIS REQUIRED:
    
    IMPORTANT: Analyze the TRUE MATHEMATICAL DOMAIN of the problem, not just surface terminology.
 
-3. SELF-ASSESS DIFFICULTY based on YOUR solving experience:
-   - Conceptual Complexity: How many concepts did you integrate?
-   - Computational Intensity: What algebra/transformations did you need?
-   - Reasoning Depth: How many inference steps/branches did you use?
-   
-   Rate 1.0-5.0 using these anchors:
-   • Easy (1.0–2.0): single concept, ≤2 clean steps, light arithmetic
-   • Medium (2.1–3.5): 2 concepts OR 1 concept with nontrivial manipulation, 3–5 steps
-   • Hard (3.6–5.0): synthesis of concepts OR non-obvious insight, ≥6 steps OR tricky algebra
+3. ASSESS COMPLEXITY for concept analysis:
+   - Analyze conceptual complexity and cognitive barriers
+   - Note: Numerical difficulty will be calculated programmatically
 
 4. EXTRACT CONCEPTS:
    - Core mathematical concepts involved
-   - Solution methodology used
+   - Solution methodology used with clear steps
    - Required operations and problem structure
    - Key mathematical keywords
 
@@ -320,10 +314,8 @@ Return ONLY this JSON format:
   "category": "exact canonical category name",
   "subcategory": "exact canonical subcategory name", 
   "type_of_question": "exact canonical question type name",
-  "difficulty_band": "Easy/Medium/Hard",
-  "difficulty_score": 3.2,
   "core_concepts": ["concept1", "concept2", "concept3"],
-  "solution_method": "methodological approach",
+  "solution_method": "detailed step-by-step methodological approach",
   "concept_difficulty": {{"prerequisites": ["req1"], "cognitive_barriers": ["barrier1"], "mastery_indicators": ["indicator1"]}},
   "operations_required": ["operation1", "operation2"],
   "problem_structure": "structural_analysis_type",
