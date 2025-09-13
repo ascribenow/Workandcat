@@ -146,14 +146,48 @@ Return ONLY valid JSON matching the required schema."""
         pack = []
         target_distribution = {"Easy": 3, "Medium": 6, "Hard": 3}
         
-        # Simple fallback selection
+        # ENFORCE PYQ MINIMA FIRST (as per v1.1 specification)
+        all_candidates = []
+        for band_candidates in candidate_pool_by_band.values():
+            all_candidates.extend(band_candidates)
+        
+        # Step 1: Reserve PYQ 1.5 questions (≥2 required)
+        pyq_15_candidates = [q for q in all_candidates if q.get("pyq_frequency_score", 0) >= 1.5]
+        pyq_10_candidates = [q for q in all_candidates if q.get("pyq_frequency_score", 0) >= 1.0 and q.get("pyq_frequency_score", 0) < 1.5]
+        
+        logger.info(f"📊 FALLBACK TELEMETRY: available_pyq15={len(pyq_15_candidates)} available_pyq10={len(pyq_10_candidates)}")
+        
+        if len(pyq_15_candidates) >= 2:
+            # Select 2 PYQ 1.5 questions (prefer Medium band)
+            pyq_15_selected = random.sample(pyq_15_candidates, min(2, len(pyq_15_candidates)))
+            pack.extend(pyq_15_selected)
+            
+        if len(pyq_10_candidates) >= 2:
+            # Select 2 PYQ 1.0 questions  
+            pyq_10_selected = random.sample(pyq_10_candidates, min(2, len(pyq_10_candidates)))
+            pack.extend(pyq_10_selected)
+            
+        # Step 2: Fill remaining slots with band distribution requirements
+        used_question_ids = {q.get("question_id") for q in pack}
+        
         for band, target_count in target_distribution.items():
-            available = candidate_pool_by_band.get(band, [])
-            if len(available) >= target_count:
-                selected = random.sample(available, target_count)
+            available = [q for q in candidate_pool_by_band.get(band, []) 
+                        if q.get("question_id") not in used_question_ids]
+            
+            # Count how many of this band we already selected for PYQ
+            current_band_count = sum(1 for q in pack if q.get("difficulty_band") == band)
+            remaining_needed = max(0, target_count - current_band_count)
+            
+            if remaining_needed > 0 and available:
+                selected = random.sample(available, min(remaining_needed, len(available)))
                 pack.extend(selected)
-            else:
-                pack.extend(available)  # Take what we can get
+                used_question_ids.update(q.get("question_id") for q in selected)
+        
+        # Final pack validation
+        final_pyq_15_count = sum(1 for q in pack if q.get("pyq_frequency_score", 0) >= 1.5)
+        final_pyq_10_count = sum(1 for q in pack if q.get("pyq_frequency_score", 0) >= 1.0)
+        
+        logger.info(f"📊 FALLBACK FINAL: selected_pyq15={final_pyq_15_count} selected_pyq10={final_pyq_10_count} pack_size={len(pack)}")
         
         return {
             "pack": [
@@ -170,17 +204,19 @@ Return ONLY valid JSON matching the required schema."""
                 for q in pack[:12]  # Ensure max 12 questions
             ],
             "constraint_report": {
-                "met": ["total_count"],
+                "met": ["total_count", "pyq_minima_enforced"],
                 "relaxed": [
                     {"name": "llm_planning", "reason": "LLM failed, using deterministic fallback"}
                 ],
                 "meta": {
                     "pool_expanded": False,
                     "retry_used": False,
-                    "fallback_used": True
+                    "fallback_used": True,
+                    "pyq_15_final": final_pyq_15_count,
+                    "pyq_10_final": final_pyq_10_count
                 }
             },
-            "session_notes": "Fallback plan generated due to LLM failure"
+            "session_notes": "Fallback plan generated due to LLM failure with PYQ minima enforcement"
         }
     
     def validate_and_retry_plan(self, plan: Dict[str, Any], candidate_pool: List,
