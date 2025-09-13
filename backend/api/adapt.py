@@ -47,11 +47,29 @@ async def plan_next_controller(body: dict, request: Request, user_id: str = Depe
         if req_user_id != user_id:
             raise HTTPException(status_code=403, detail="Cannot plan sessions for other users")
         
-        # Get idempotency key from headers
+        # Get idempotency key from headers (REQUIRED)
         idem_key = request.headers.get("Idempotency-Key")
+        if not idem_key:
+            raise HTTPException(status_code=400, detail={"code": "IDEMPOTENCY_KEY_REQUIRED"})
+        
+        # Optional strict format: user:last:next
+        parts = idem_key.split(":")
+        if len(parts) != 3:
+            raise HTTPException(status_code=400, detail={"code": "IDEMPOTENCY_KEY_BAD_FORMAT"})
         
         # Plan the session
         plan = plan_next(req_user_id, last_session_id, next_session_id, idem_key=idem_key)
+        
+        # Final hard shape assertion - get the actual pack to validate
+        pack_data = load_pack(req_user_id, next_session_id)
+        if pack_data and pack_data.get("pack_json"):
+            pack = pack_data["pack_json"]
+            easy_count = sum(1 for item in pack if item.get("bucket") == "Easy")
+            medium_count = sum(1 for item in pack if item.get("bucket") == "Medium")
+            hard_count = sum(1 for item in pack if item.get("bucket") == "Hard")
+            
+            if len(pack) != 12 or easy_count != 3 or medium_count != 6 or hard_count != 3:
+                raise HTTPException(status_code=500, detail={"code": "PACK_SHAPE_INVALID"})
         
         return {
             "user_id": req_user_id, 
