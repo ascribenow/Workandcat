@@ -37,13 +37,37 @@ class CandidateProvider:
             self.valid_pairs = {pair[0] for pair in pairs}
             logger.info(f"Loaded {len(self.valid_pairs)} valid taxonomy pairs")
             
-            # Load known concepts
-            concepts = db.execute(text("""
-                SELECT DISTINCT jsonb_array_elements_text(core_concepts) as concept
-                FROM questions
-                WHERE is_active = true 
-                AND core_concepts IS NOT NULL
-            """)).fetchall()
+            # Load known concepts - handle both JSONB and TEXT core_concepts
+            try:
+                # Try JSONB first
+                concepts = db.execute(text("""
+                    SELECT DISTINCT jsonb_array_elements_text(core_concepts::jsonb) as concept
+                    FROM questions
+                    WHERE is_active = true 
+                    AND core_concepts IS NOT NULL
+                """)).fetchall()
+            except:
+                # Fallback: parse JSON strings manually
+                concept_rows = db.execute(text("""
+                    SELECT DISTINCT core_concepts
+                    FROM questions
+                    WHERE is_active = true 
+                    AND core_concepts IS NOT NULL
+                """)).fetchall()
+                
+                concepts = []
+                for row in concept_rows:
+                    try:
+                        import json
+                        if isinstance(row[0], str):
+                            concept_list = json.loads(row[0])
+                        else:
+                            concept_list = row[0]
+                        
+                        for concept in concept_list:
+                            concepts.append((concept,))
+                    except:
+                        continue
             
             self.known_concepts = {concept[0] for concept in concepts}
             logger.info(f"Loaded {len(self.known_concepts)} known concepts")
