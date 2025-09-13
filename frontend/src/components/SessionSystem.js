@@ -235,8 +235,14 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
       
       // Log the submit action
       await logQuestionAction('submit', {
-        correct: response.data.correct,
         user_answer: userAnswer
+      });
+      
+      // Log correct/incorrect action based on result
+      const resultAction = response.data.correct ? 'correct' : 'incorrect';
+      await logQuestionAction(resultAction, {
+        user_answer: userAnswer,
+        correct_answer: response.data.correct_answer
       });
       
     } catch (err) {
