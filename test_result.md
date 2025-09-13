@@ -91,8 +91,7 @@
   test_sequence: 1
 
 ## test_plan:
-  current_focus:
-    - "Skip Question Functionality Testing"
+  current_focus: []
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
