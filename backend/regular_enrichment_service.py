@@ -267,8 +267,14 @@ Analyze the ORIGINAL PROBLEM and find the best canonical taxonomy match based on
             )
             enrichment_data.update(quality_result)
             
-            # Set concept extraction status (SAME AS PYQ)
-            enrichment_data['concept_extraction_status'] = 'completed'
+            # Set concept extraction status based on core_concepts field (CORRECT LOGIC)
+            core_concepts = enrichment_data.get('core_concepts', [])
+            if core_concepts and len(core_concepts) > 0:
+                enrichment_data['concept_extraction_status'] = 'completed'
+                logger.info(f"✅ Concept extraction completed - found {len(core_concepts)} core concepts")
+            else:
+                enrichment_data['concept_extraction_status'] = 'pending'
+                logger.warning(f"⚠️ Concept extraction incomplete - no core concepts found")
             
             logger.info(f"✨ Regular question enrichment completed successfully")
             logger.info(f"📊 Generated enrichment for all required fields")
