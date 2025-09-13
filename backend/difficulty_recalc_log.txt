@@ -35,3 +35,28 @@ INFO:__main__:   📊 Processed 75/236 PYQ questions...
 INFO:__main__:   📊 Processed 100/236 PYQ questions...
 INFO:__main__:   📊 Processed 125/236 PYQ questions...
 INFO:__main__:   📊 Processed 150/236 PYQ questions...
+INFO:__main__:   📊 Processed 175/236 PYQ questions...
+INFO:__main__:   📊 Processed 200/236 PYQ questions...
+INFO:__main__:   📊 Processed 225/236 PYQ questions...
+INFO:__main__:✅ PYQ questions complete: 236 updated, 0 errors
+INFO:__main__:   Distribution: Easy=1, Medium=227, Hard=8
+INFO:__main__:
+============================================================
+INFO:__main__:🎉 DIFFICULTY RECALCULATION COMPLETE!
+INFO:__main__:============================================================
+INFO:__main__:📊 TOTALS:
+INFO:__main__:   • Total Updated: 688
+INFO:__main__:   • Total Errors: 0
+INFO:__main__:   • Success Rate: 100.0%
+INFO:__main__:
+📊 FINAL DISTRIBUTIONS:
+INFO:__main__:   Regular Questions:
+INFO:__main__:     Easy: 2 (0.4%)
+INFO:__main__:     Medium: 445 (98.5%)
+INFO:__main__:     Hard: 5 (1.1%)
+INFO:__main__:   PYQ Questions:
+INFO:__main__:     Easy: 1 (0.4%)
+INFO:__main__:     Medium: 227 (96.2%)
+INFO:__main__:     Hard: 8 (3.4%)
+
+🎉 SUCCESS: Updated 688 questions total
