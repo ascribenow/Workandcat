@@ -188,3 +188,84 @@ async def start_first_controller(body: dict, user_id: str = Depends(get_current_
     except Exception as e:
         logger.error(f"❌ Start first session error: {e}")
         raise HTTPException(status_code=500, detail="Failed to start first session")
+
+@router.get("/admin/dashboard")
+async def admin_dashboard(user_id: str = Depends(get_current_user)):
+    """
+    Admin dashboard for monitoring adaptive session orchestration
+    
+    Response:
+        Basic metrics and statistics for monitoring
+    """
+    try:
+        # TODO: Add admin permission check
+        
+        from database import SessionLocal
+        from sqlalchemy import text
+        
+        db = SessionLocal()
+        try:
+            # Get basic statistics
+            stats = {}
+            
+            # Session pack statistics
+            pack_stats = db.execute(text("""
+                SELECT status, COUNT(*) as count,
+                       AVG(processing_time_ms) as avg_processing_time
+                FROM session_pack_plan 
+                GROUP BY status
+            """)).fetchall()
+            
+            stats["pack_status"] = {row.status: {"count": row.count, "avg_processing_time": row.avg_processing_time} for row in pack_stats}
+            
+            # Planning strategy distribution
+            strategy_stats = db.execute(text("""
+                SELECT planning_strategy, COUNT(*) as count
+                FROM session_pack_plan
+                WHERE created_at >= NOW() - INTERVAL '24 hours'
+                GROUP BY planning_strategy
+            """)).fetchall()
+            
+            stats["strategy_distribution"] = {row.planning_strategy: row.count for row in strategy_stats}
+            
+            # Cold start vs adaptive
+            mode_stats = db.execute(text("""
+                SELECT cold_start_mode, COUNT(*) as count
+                FROM session_pack_plan
+                WHERE created_at >= NOW() - INTERVAL '24 hours' 
+                GROUP BY cold_start_mode
+            """)).fetchall()
+            
+            stats["mode_distribution"] = {("cold_start" if row.cold_start_mode else "adaptive"): row.count for row in mode_stats}
+            
+            # Recent activity
+            recent_activity = db.execute(text("""
+                SELECT user_id, session_id, status, created_at, planning_strategy
+                FROM session_pack_plan
+                ORDER BY created_at DESC
+                LIMIT 10
+            """)).fetchall()
+            
+            stats["recent_activity"] = [
+                {
+                    "user_id": row.user_id[:8] + "...",
+                    "session_id": row.session_id[:8] + "...",
+                    "status": row.status,
+                    "created_at": row.created_at.isoformat() if row.created_at else None,
+                    "strategy": row.planning_strategy
+                }
+                for row in recent_activity
+            ]
+            
+            return {
+                "dashboard_title": "Adaptive Session Orchestration Dashboard",
+                "generated_at": datetime.utcnow().isoformat(),
+                "statistics": stats
+            }
+            
+        finally:
+            db.close()
+            
+    except Exception as e:
+        logger.error(f"❌ Admin dashboard error: {e}")
+        raise HTTPException(status_code=500, detail="Failed to get dashboard data")
