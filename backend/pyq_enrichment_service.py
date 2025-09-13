@@ -239,7 +239,14 @@ Analyze the ORIGINAL PROBLEM and find the best canonical taxonomy match based on
             verification_result = await self._perform_semantic_matching_and_verification(stem, enrichment_data)
             enrichment_data.update(verification_result)
             
-            enrichment_data['concept_extraction_status'] = 'completed'
+            # Set concept extraction status based on core_concepts field (CORRECT LOGIC)
+            core_concepts = enrichment_data.get('core_concepts', [])
+            if core_concepts and len(core_concepts) > 0:
+                enrichment_data['concept_extraction_status'] = 'completed'
+                logger.info(f"✅ PYQ concept extraction completed - found {len(core_concepts)} core concepts")
+            else:
+                enrichment_data['concept_extraction_status'] = 'pending'
+                logger.warning(f"⚠️ PYQ concept extraction incomplete - no core concepts found")
             
             logger.info("✨ PYQ enrichment completed (EFFICIENT)")
             logger.info(f"📊 Generated {len(enrichment_data)} detailed fields")
