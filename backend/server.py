@@ -104,6 +104,13 @@ class QuestionResponse(BaseModel):
     detailed_solution: Optional[str]
     principle_to_remember: Optional[str]
 
+class QuestionActionLog(BaseModel):
+    session_id: str
+    question_id: str
+    action: str  # skip, submit, correct, incorrect
+    data: Dict[str, Any] = {}
+    timestamp: str
+
 # Authentication helpers
 def create_access_token(data: dict):
     to_encode = data.copy()
