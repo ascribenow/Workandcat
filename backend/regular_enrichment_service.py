@@ -317,13 +317,13 @@ COMPREHENSIVE ANALYSIS REQUIRED:
    - Classify exact type_of_question (specific question archetype)
 
 3. DIFFICULTY ASSESSMENT:
-   - Assess complexity using multiple dimensions
-   - Determine difficulty band (Easy/Medium/Hard)
-   - Provide numerical difficulty score (1.0-5.0)
+   - Assess complexity using multiple dimensions for concept analysis
+   - Analyze cognitive barriers and prerequisites
+   - Note: Numerical difficulty will be calculated programmatically
 
 4. CONCEPTUAL EXTRACTION:
    - Extract core mathematical concepts
-   - Identify solution methodology
+   - Identify solution methodology with clear steps
    - Analyze operations required
    - Determine problem structure
    - Generate concept keywords
@@ -334,10 +334,8 @@ Return ONLY this JSON format:
   "category": "exact canonical category name",
   "subcategory": "exact canonical subcategory name",
   "type_of_question": "exact canonical question type name",
-  "difficulty_band": "Easy/Medium/Hard",
-  "difficulty_score": 3.2,
   "core_concepts": ["concept1", "concept2", "concept3"],
-  "solution_method": "methodological approach",
+  "solution_method": "detailed step-by-step methodological approach",
   "concept_difficulty": {"prerequisites": ["req1"], "cognitive_barriers": ["barrier1"], "mastery_indicators": ["indicator1"]},
   "operations_required": ["operation1", "operation2"],
   "problem_structure": "structural_analysis_type",
