@@ -190,24 +190,106 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
       serveQuestionFromPack(currentQuestionIndex);
     } else if (nextSessionId) {
       // Fetch planned pack and start serving
-      try {
-        const pack = await fetchAdaptivePack(nextSessionId);
-        setCurrentPack(pack);
-        setCurrentQuestionIndex(0);
-        setSessionId(nextSessionId);
-        
-        // Mark as served after we start rendering
-        await markPackServed(nextSessionId);
-        
-        serveQuestionFromPack(0);
-      } catch (error) {
-        console.warn('Adaptive pack failed, falling back to legacy:', error);
-        await handleLegacyQuestionFlow();
-      }
+      await startNextAdaptiveSession(nextSessionId);
     } else {
-      // No pack or planned session, fall back to legacy
-      console.log('No adaptive pack available, falling back to legacy flow');
+      // No pack or planned session - trigger auto-plan guard
+      await startNextAdaptiveSessionWithAutoPlanning();
+    }
+  };
+
+  const startNextAdaptiveSession = async (sessionId) => {
+    try {
+      const pack = await fetchAdaptivePack(sessionId);
+      setCurrentPack(pack);
+      setCurrentQuestionIndex(0);
+      setSessionId(sessionId);
+      
+      // Mark as served after we start rendering
+      await markPackServed(sessionId);
+      
+      serveQuestionFromPack(0);
+    } catch (error) {
+      console.warn('Adaptive pack failed, falling back to legacy:', error);
       await handleLegacyQuestionFlow();
+    }
+  };
+
+  const startNextAdaptiveSessionWithAutoPlanning = async () => {
+    try {
+      setIsPlanning(true);
+      console.log('🎯 Auto-planning session (no pre-planned pack available)...');
+      
+      // Get last completed session
+      const lastSessionId = await getLastCompletedSessionId(user.id);
+      const cached = loadNext(user.id);
+      const nextSessionId = cached?.nextSessionId || generateSessionId();
+      
+      // Pre-session auto-plan guard with retry
+      let pack = await tryFetchPack(user.id, nextSessionId);
+      
+      if (!pack) {
+        const headers = { 'Idempotency-Key': `${user.id}:${lastSessionId}:${nextSessionId}` };
+        
+        try {
+          // First attempt
+          await axios.post(`${API}/adapt/plan-next`, {
+            user_id: user.id,
+            last_session_id: lastSessionId,
+            next_session_id: nextSessionId
+          }, { headers });
+          
+        } catch (error) {
+          console.log('First planning attempt failed, retrying...');
+          
+          // Silent retry with jitter
+          await new Promise(r => setTimeout(r, 400 + Math.random() * 400));
+          
+          try {
+            await axios.post(`${API}/adapt/plan-next`, {
+              user_id: user.id,
+              last_session_id: lastSessionId,
+              next_session_id: nextSessionId
+            }, { headers });
+            
+          } catch (retryError) {
+            console.error('❌ Auto-plan guard failed after retry, falling back to legacy');
+            setError('Adaptive planning unavailable. Continuing with standard session.');
+            await handleLegacyQuestionFlow();
+            return;
+          }
+        }
+        
+        // Fetch pack after planning
+        pack = await tryFetchPack(user.id, nextSessionId);
+        
+        if (!pack) {
+          console.error('❌ Pack still not available after planning, falling back to legacy');
+          setError('Adaptive pack not ready. Continuing with standard session.');
+          await handleLegacyQuestionFlow();
+          return;
+        }
+      }
+      
+      // Success - serve adaptive pack
+      setCurrentPack(pack);
+      setCurrentQuestionIndex(0);
+      setSessionId(nextSessionId);
+      setNextSessionId(nextSessionId);
+      
+      // Clear localStorage and mark served
+      clearNext(user.id);
+      await markPackServed(nextSessionId);
+      
+      serveQuestionFromPack(0);
+      
+      console.log('✅ Auto-plan guard successful, serving adaptive pack');
+      
+    } catch (error) {
+      console.error('❌ Auto-plan guard failed:', error);
+      setError('Failed to start adaptive session. Continuing with standard session.');
+      await handleLegacyQuestionFlow();
+    } finally {
+      setIsPlanning(false);
     }
   };
 
