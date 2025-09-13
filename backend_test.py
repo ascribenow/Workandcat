@@ -16485,31 +16485,32 @@ class CATBackendTester:
         return success_rate >= 60  # Return True if signup email flow is functional
 
 if __name__ == "__main__":
-    print("🎯 PYQ QUESTIONS CATEGORY FIELD VERIFICATION")
+    print("🎯 PHASE 4: FULL PIPELINE ORCHESTRATION COMPREHENSIVE TESTING")
     print("=" * 80)
-    print("Starting verification of actual pyq_questions table data...")
+    print("Starting comprehensive testing of Phase 4 adaptive session endpoints...")
     print("")
     
     tester = CATBackendTester()
     
     try:
-        # Run the PYQ questions category field verification test
-        success = tester.test_pyq_questions_category_field_verification()
+        # Run the Phase 4 comprehensive testing
+        success = tester.test_phase_4_adaptive_session_endpoints_comprehensive()
         
         print("\n" + "=" * 80)
-        print("🎯 PYQ VERIFICATION TESTING SUMMARY")
+        print("🎯 PHASE 4 TESTING SUMMARY")
         print("=" * 80)
         
         if success:
-            print("🎉 PYQ QUESTIONS CATEGORY FIELD VERIFICATION COMPLETED SUCCESSFULLY!")
-            print("   ✅ Category field population verified")
-            print("   ✅ Database filtering logic validated")
-            print("   ✅ User claim assessment completed")
-            print("   🏆 READY FOR FILTERING OPERATIONS!")
+            print("🎉 PHASE 4: FULL PIPELINE ORCHESTRATION TESTING COMPLETED SUCCESSFULLY!")
+            print("   ✅ All 5 adaptive session endpoints functional")
+            print("   ✅ Authentication and security working")
+            print("   ✅ 12-question packs with 3-6-3 difficulty distribution")
+            print("   ✅ State management and database integration")
+            print("   🏆 PRODUCTION READY!")
         else:
-            print("❌ PYQ QUESTIONS CATEGORY FIELD VERIFICATION INCOMPLETE")
-            print("   🚨 Category field population insufficient")
-            print("   🔧 Additional data enrichment needed")
+            print("❌ PHASE 4: FULL PIPELINE ORCHESTRATION TESTING INCOMPLETE")
+            print("   🚨 Some endpoints or functionality issues detected")
+            print("   🔧 Additional fixes needed")
         
         print(f"\nTotal Tests Run: {tester.tests_run}")
         print(f"Tests Passed: {tester.tests_passed}")
