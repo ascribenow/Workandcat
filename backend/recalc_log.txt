@@ -1,1 +1,10 @@
 🐘 Using PostgreSQL database (Production)
+INFO:regular_enrichment_service:✅ Google Gemini configured as fallback
+INFO:regular_enrichment_service:✅ OpenAI API key loaded successfully (164 chars)
+INFO:regular_enrichment_service:✅ RegularQuestionsEnrichmentService initialized with OpenAI + Gemini fallback
+🚀 RECALCULATING PYQ FREQUENCY FOR ALL QUESTIONS
+=======================================================
+Using CORRECTED method that:
+  ✅ Easy questions (≤1.5): Returns 0.5 immediately
+  ✅ Hard questions (>1.5): Compares against ALL category-matched PYQs
+
