@@ -12,6 +12,7 @@ from typing import Dict, Any, Optional, Tuple
 from database import SessionLocal
 from sqlalchemy import text
 from services.pipeline import plan_next_session
+from services.telemetry import telemetry_service
 from datetime import datetime
 
 logger = logging.getLogger(__name__)
