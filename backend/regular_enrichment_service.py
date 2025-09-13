@@ -654,13 +654,16 @@ Are these two answers semantically equivalent?"""
                 logger.error("❌ Quality verification failed - answer_match is False")
                 return {'quality_verified': False, 'answer_match': False}
             
-            # STEP 4: Final verification
+            # STEP 4: Final verification + concept_extraction_status check
             if missing_or_invalid_fields:
                 logger.error(f"❌ Quality verification failed - missing/invalid fields: {missing_or_invalid_fields}")
                 return {'quality_verified': False, 'answer_match': answer_match}
             
-            logger.info("✅ Quality verification passed - all 21 criteria met")
-            return {'quality_verified': True, 'answer_match': True}
+            # NEW: Ensure concept_extraction_status is set to 'completed' for quality verified questions
+            enrichment_data['concept_extraction_status'] = 'completed'
+            
+            logger.info("✅ Quality verification passed - all 21 criteria met + concept_extraction_status set")
+            return {'quality_verified': True, 'answer_match': True, 'concept_extraction_status': 'completed'}
             
         except Exception as e:
             logger.error(f"❌ Quality verification exception: {e}")
