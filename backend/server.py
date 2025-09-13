@@ -235,7 +235,8 @@ async def get_me(user_id: str = Depends(get_current_user)):
             "id": user.id,
             "email": user.email,
             "full_name": user.full_name,
-            "is_admin": user.is_admin
+            "is_admin": user.is_admin,
+            "adaptive_enabled": bool(user.adaptive_enabled)
         }
     finally:
         db.close()
