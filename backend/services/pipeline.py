@@ -6,7 +6,7 @@ Now includes full LLM integration (Summarizer + Planner)
 """
 
 import logging
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 from database import SessionLocal
 from sqlalchemy import text, select
 from services.deterministic_kernels import (
