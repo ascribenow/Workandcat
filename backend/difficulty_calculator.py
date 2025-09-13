@@ -122,10 +122,10 @@ def calculate_difficulty_score_and_band(core_concepts: Union[str, List, None],
         # Calculate composite score using specified weights
         difficulty_score = (0.25 * concept_score) + (0.50 * steps_score) + (0.25 * ops_score)
         
-        # Determine band based on specified ranges
-        if difficulty_score <= 1.9:
+        # Determine band based on NEW specified ranges
+        if difficulty_score <= 2.00:
             band = "Easy"
-        elif difficulty_score <= 3.0:
+        elif difficulty_score <= 2.50:
             band = "Medium"
         else:
             band = "Hard"
