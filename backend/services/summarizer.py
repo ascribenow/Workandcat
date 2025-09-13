@@ -73,6 +73,9 @@ Return ONLY valid JSON matching the required schema."""
             return self._generate_empty_summary()
         
         # Call LLM with schema validation and retry
+        start_time = time.time()
+        tokens_used = 0
+        
         try:
             data = call_llm_json_with_retry(
                 system_prompt=self.system_prompt,
@@ -83,7 +86,19 @@ Return ONLY valid JSON matching the required schema."""
                 max_retries=1
             )
             
-            logger.info(f"✅ Summarizer completed for user {user_id[:8]}")
+            # Calculate telemetry
+            elapsed_time = time.time() - start_time
+            tokens_used = len(json.dumps(payload)) // 4  # Rough token estimate
+            
+            # Add telemetry to response
+            data.setdefault("telemetry", {}).update({
+                "processing_time_ms": int(elapsed_time * 1000),
+                "estimated_tokens": tokens_used,
+                "alias_reuse_rate": self._calculate_alias_reuse_rate(data),
+                "provisional_new_count": self._count_provisional_concepts(data)
+            })
+            
+            logger.info(f"✅ Summarizer completed for user {user_id[:8]} ({elapsed_time:.2f}s, ~{tokens_used} tokens)")
             return data
             
         except Exception as e:
