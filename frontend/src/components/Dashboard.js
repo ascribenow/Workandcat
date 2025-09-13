@@ -635,8 +635,8 @@ ${response.data.duplicate_questions > 0 ? 'ℹ️ Duplicate questions were autom
     }
   };
 
-  const handleEnrichRegularQuestions = async () => {
-    if (!window.confirm('🔍 Start Background Enrichment for Regular Questions?\n\nThis will:\n• Start enrichment job in background (no waiting/timeouts)\n• Process questions in batches with automatic retries\n• Send email notification when complete\n• Use intelligent GPT-4o/GPT-4o-mini switching\n\nProceed?')) {
+  const handleRecalculateFrequency = async () => {
+    if (!window.confirm('🔢 Start PYQ Frequency Recalculation?\n\nThis will:\n• Recalculate pyq_frequency_score for ALL quality-verified questions\n• Use corrected logic (Easy ≤1.5 gets 0.5, Hard >1.5 uses LLM comparison)\n• Process in background with batch processing\n• Send email notification when complete\n• Estimated time: 15-30 minutes for ~370 questions\n\nProceed?')) {
       return;
     }
 
@@ -644,41 +644,38 @@ ${response.data.duplicate_questions > 0 ? 'ℹ️ Duplicate questions were autom
       setEnriching(true);
       setEnrichResults(null);
 
-      const response = await axios.post(`${API}/admin/enrich-checker/regular-questions-background`, {
-        total_questions: null // Process all questions
-      });
+      const response = await axios.post(`${API}/admin/recalculate-frequency-background`);
 
       if (response.data.success) {
         const jobId = response.data.job_id;
         const adminEmail = response.data.admin_email;
         
-        alert(`✅ Regular Questions Enrichment Job Started!
+        alert(`✅ PYQ Frequency Recalculation Job Started!
 
 🚀 JOB DETAILS:
 • Job ID: ${jobId}
-• Processing: Background (no timeouts)
-• Batch Size: 10 questions per batch
-• Retries: Automatic for failed batches
-• Model: Intelligent GPT-4o/GPT-4o-mini switching
+• Processing: All quality-verified questions
+• Method: Corrected difficulty filtering logic
+• Background processing with batch commits
+• No browser timeouts or blocking
 
 📧 EMAIL NOTIFICATION:
-You will receive a detailed email at ${adminEmail} when the enrichment is complete.
+You will receive a detailed email at ${adminEmail} when complete.
 
-⏱️ ESTIMATED TIME: 10-30 minutes
-(depending on question count and LLM processing)
+⏱️ ESTIMATED TIME: ${response.data.estimated_time}
 
 🎯 BENEFITS:
-• No browser timeouts
-• Automatic retries
-• 100% quality standards maintained
-• Background processing with progress tracking
+• Accurate frequency scores using corrected logic
+• Easy questions (≤1.5) get 0.5 immediately
+• Hard questions (>1.5) use LLM comparison with category-matched PYQs
+• Batch processing with progress tracking
 
-You can continue using the dashboard while the job runs in background!`);
+You can continue using the dashboard while the job runs!`);
       }
     } catch (error) {
-      console.error('Background Regular Questions Enrichment error:', error);
+      console.error('Background Frequency Recalculation error:', error);
       const errorMessage = error.response?.data?.detail || error.message || 'Unknown error occurred';
-      alert(`❌ Failed to start background enrichment: ${errorMessage}`);
+      alert(`❌ Failed to start frequency recalculation: ${errorMessage}`);
     } finally {
       setEnriching(false);
     }
