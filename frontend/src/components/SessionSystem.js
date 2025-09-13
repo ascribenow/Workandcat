@@ -439,8 +439,53 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
 
   // Adaptive session helper functions
   const generateSessionId = () => {
-    // Generate UUID (simple version for client-side)
+    // Generate UUID (simple version for client-side) 
+    if (crypto?.randomUUID) {
+      return crypto.randomUUID();
+    }
     return 'session_' + Math.random().toString(36).substring(2) + Date.now().toString(36);
+  };
+
+  const getLastCompletedSessionId = async (userId) => {
+    try {
+      const response = await axios.get(`${API}/sessions/last-completed-id`, {
+        params: { user_id: userId }
+      });
+      return response.data?.session_id ?? 'S0';
+    } catch (error) {
+      console.log('No completed sessions found, using S0 for cold-start');
+      return 'S0';
+    }
+  };
+
+  const persistNext = (userId, lastSessionId, nextSessionId) => {
+    localStorage.setItem(`twelvr:adapt:next:${userId}`, JSON.stringify({
+      lastSessionId,
+      nextSessionId, 
+      at: Date.now()
+    }));
+  };
+
+  const loadNext = (userId) => {
+    try {
+      const stored = localStorage.getItem(`twelvr:adapt:next:${userId}`);
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      return null;
+    }
+  };
+
+  const clearNext = (userId) => {
+    localStorage.removeItem(`twelvr:adapt:next:${userId}`);
+  };
+
+  const tryFetchPack = async (userId, sessionId) => {
+    try {
+      return await fetchAdaptivePack(sessionId);
+    } catch (error) {
+      console.log('Pack fetch failed:', error);
+      return null;
+    }
   };
 
   const planNextAdaptiveSession = async (currentSessionId) => {
