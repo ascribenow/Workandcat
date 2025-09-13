@@ -80,18 +80,16 @@
 ##         -comment: "Detailed comment about status"
 ##
 ## metadata:
-##   created_by: "main_agent"
-##   version: "1.0"
-##   test_sequence: 0
-##   run_ui: false
-##
+  created_by: "main_agent"
+  version: "1.0"
+  test_sequence: 1
+
 ## test_plan:
-##   current_focus:
-##     - "Database Cleanup - Delete Irrelevant Fields"
-##     - "PYQ & Conceptual Matching Implementation"
-##   stuck_tasks: []
-##   test_all: false
-##   test_priority: "high_first"
+  current_focus:
+    - "Skip Question Functionality Testing"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
 ##
 ## agent_communication:
 ##     -agent: "main"
