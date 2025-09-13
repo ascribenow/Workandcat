@@ -324,11 +324,11 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
     console.log('🎯 Adaptive question served:', question.id, `(${questionIndex + 1}/${currentPack.length})`);
   };
 
-  const handleAdaptiveSessionCompletion = async () => {
+  const handleSessionCompletionWithHandshake = async (completionData) => {
     try {
-      console.log('🎯 Session completed, triggering adaptive planning...');
+      console.log('🎯 Session completed, triggering end-of-session handshake...');
       
-      // End-of-session handshake: plan next session
+      // End-of-session handshake: plan next session if adaptive enabled
       if (adaptiveEnabled) {
         const lastSessionId = sessionId;
         const cached = loadNext(user.id);
@@ -349,7 +349,7 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
           persistNext(user.id, lastSessionId, nextSessionId);
           setNextSessionId(nextSessionId);
           
-          console.log('✅ Adaptive session planned and persisted:', nextSessionId);
+          console.log('✅ End-of-session handshake successful:', nextSessionId);
           
         } catch (error) {
           console.error('❌ End-of-session planning failed:', error);
@@ -359,24 +359,24 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
       
       // Call original session end handler
       if (onSessionEnd) {
-        onSessionEnd({
-          completed: true,
-          questionsCompleted: currentPack.length || 12,
-          totalQuestions: currentPack.length || 12
-        });
+        onSessionEnd(completionData);
       }
       
     } catch (error) {
-      console.error('❌ Adaptive session completion failed:', error);
-      // Still call session end even if planning fails
+      console.error('❌ Session completion handshake failed:', error);
+      // Still call session end
       if (onSessionEnd) {
-        onSessionEnd({
-          completed: true,
-          questionsCompleted: currentPack.length || 12,
-          totalQuestions: currentPack.length || 12
-        });
+        onSessionEnd(completionData);
       }
     }
+  };
+
+  const handleAdaptiveSessionCompletion = async () => {
+    await handleSessionCompletionWithHandshake({
+      completed: true,
+      questionsCompleted: currentPack.length || 12,
+      totalQuestions: currentPack.length || 12
+    });
   };
 
   const handleLegacyQuestionFlow = async () => {
