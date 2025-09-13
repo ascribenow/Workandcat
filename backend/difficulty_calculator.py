@@ -172,9 +172,9 @@ def get_difficulty_statistics(core_concepts: Union[str, List, None],
     
     difficulty_score = (0.25 * concept_score) + (0.50 * steps_score) + (0.25 * ops_score)
     
-    if difficulty_score <= 1.9:
+    if difficulty_score <= 2.00:
         band = "Easy"
-    elif difficulty_score <= 3.0:
+    elif difficulty_score <= 2.50:
         band = "Medium"
     else:
         band = "Hard"
@@ -203,9 +203,9 @@ def get_difficulty_statistics(core_concepts: Union[str, List, None],
         "total_score": round(difficulty_score, 2),
         "difficulty_band": band,
         "band_ranges": {
-            "Easy": "1.5 - 1.9",
-            "Medium": "2.0 - 3.0", 
-            "Hard": "3.1 - 5.0"
+            "Easy": "≤ 2.00",
+            "Medium": "2.00 < score ≤ 2.50", 
+            "Hard": "> 2.50"
         }
     }
 
