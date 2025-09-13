@@ -322,6 +322,75 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
     }
   };
 
+  // Adaptive session helper functions
+  const generateSessionId = () => {
+    // Generate UUID (simple version for client-side)
+    return 'session_' + Math.random().toString(36).substring(2) + Date.now().toString(36);
+  };
+
+  const planNextAdaptiveSession = async (currentSessionId) => {
+    try {
+      setIsPlanning(true);
+      console.log('🎯 Planning next adaptive session...');
+      
+      const nextSessId = generateSessionId();
+      
+      const response = await axios.post(`${API}/adapt/plan-next`, {
+        user_id: user.id,
+        last_session_id: currentSessionId,
+        next_session_id: nextSessId
+      }, {
+        headers: {
+          'Idempotency-Key': generateSessionId() // Use for idempotency
+        }
+      });
+      
+      setNextSessionId(nextSessId);
+      console.log('✅ Adaptive session planned:', nextSessId);
+      return response.data;
+      
+    } catch (error) {
+      console.error('❌ Adaptive planning failed:', error);
+      throw error;
+    } finally {
+      setIsPlanning(false);
+    }
+  };
+
+  const fetchAdaptivePack = async (sessionId) => {
+    try {
+      console.log('📦 Fetching adaptive pack for session:', sessionId);
+      
+      const response = await axios.get(`${API}/adapt/pack`, {
+        params: {
+          user_id: user.id,
+          session_id: sessionId
+        }
+      });
+      
+      const pack = response.data.pack || [];
+      console.log('✅ Adaptive pack fetched:', pack.length, 'questions');
+      return pack;
+      
+    } catch (error) {
+      console.error('❌ Adaptive pack fetch failed:', error);
+      throw error;
+    }
+  };
+
+  const markPackServed = async (sessionId) => {
+    try {
+      await axios.post(`${API}/adapt/mark-served`, {
+        user_id: user.id,
+        session_id: sessionId
+      });
+      console.log('✅ Pack marked as served:', sessionId);
+    } catch (error) {
+      console.error('❌ Mark served failed:', error);
+      // Don't throw - this shouldn't break the flow
+    }
+  };
+
   // Doubt conversation functions - Twelvr New Version
   const handleAskDoubt = async () => {
     if (!doubtMessage.trim() || conversationLocked) return;
