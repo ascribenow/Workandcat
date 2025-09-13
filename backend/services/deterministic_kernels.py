@@ -33,14 +33,14 @@ class AttemptEvent:
     core_concepts: List[str]
     pyq_frequency_score: float
 
-@dataclass
+@dataclass(frozen=True)
 class QuestionCandidate:
     """Question candidate for session planning"""
     question_id: str
     difficulty_band: str
     subcategory: str
     type_of_question: str
-    core_concepts: List[str]
+    core_concepts: tuple  # Changed to tuple for hashability
     pyq_frequency_score: float
     pair: str  # subcategory:type_of_question
 
