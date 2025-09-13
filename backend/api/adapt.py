@@ -9,7 +9,7 @@ from typing import Dict, Any
 import logging
 
 from services.session_orchestrator import plan_next, load_pack, transition_pack_to_served, ConflictError
-from server import get_current_user
+from auth import get_current_user
 
 logger = logging.getLogger(__name__)
 
