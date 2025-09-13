@@ -35,8 +35,17 @@ export async function planNext(
   next_session_id: string,
   idemKey?: string
 ) {
+  // Use different auth tokens for different users
+  const token = user_id === 'U_COLD_01' ? 
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJVX0NPTERfMDEiLCJleHAiOjE3NTc5Njg0MDd9.qTb2VuSk6DBnDZTNGejwbz0oOXg8d-jdJNyyu2xsEYU' :
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJVX0FEQVBUXzAxIiwiZXhwIjoxNzU3OTY4MjcwfQ.px3DsPhUIZ9JsIynQcT5IBG565M6V_Z8bq424sS1EDQ';
+  
   const res = await request.post('/api/adapt/plan-next', {
-    headers: { 'Idempotency-Key': idemKey ?? newIdemKey() },
+    headers: { 
+      'Idempotency-Key': idemKey ?? newIdemKey(),
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    },
     data: { user_id, last_session_id, next_session_id }
   });
   const body = await res.json();
@@ -44,13 +53,35 @@ export async function planNext(
 }
 
 export async function getPack(request: APIRequestContext, user_id: string, session_id: string) {
-  const res = await request.get('/api/adapt/pack', { params: { user_id, session_id }});
+  // Use different auth tokens for different users
+  const token = user_id === 'U_COLD_01' ? 
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJVX0NPTERfMDEiLCJleHAiOjE3NTc5Njg0MDd9.qTb2VuSk6DBnDZTNGejwbz0oOXg8d-jdJNyyu2xsEYU' :
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJVX0FEQVBUXzAxIiwiZXhwIjoxNzU3OTY4MjcwfQ.px3DsPhUIZ9JsIynQcT5IBG565M6V_Z8bq424sS1EDQ';
+    
+  const res = await request.get('/api/adapt/pack', { 
+    params: { user_id, session_id },
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    }
+  });
   const body = await res.json();
   return { res, body };
 }
 
 export async function markServed(request: APIRequestContext, user_id: string, session_id: string) {
-  const res = await request.post('/api/adapt/mark-served', { data: { user_id, session_id }});
+  // Use different auth tokens for different users
+  const token = user_id === 'U_COLD_01' ? 
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJVX0NPTERfMDEiLCJleHAiOjE3NTc5Njg0MDd9.qTb2VuSk6DBnDZTNGejwbz0oOXg8d-jdJNyyu2xsEYU' :
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJVX0FEQVBUXzAxIiwiZXhwIjoxNzU3OTY4MjcwfQ.px3DsPhUIZ9JsIynQcT5IBG565M6V_Z8bq424sS1EDQ';
+    
+  const res = await request.post('/api/adapt/mark-served', { 
+    data: { user_id, session_id },
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    }
+  });
   return res;
 }
 
