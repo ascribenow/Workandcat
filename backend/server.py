@@ -836,11 +836,26 @@ async def submit_session_answer(
         raise HTTPException(status_code=500, detail="Failed to submit answer")
 
 @app.post("/api/sessions/start")
-async def start_session(user_id: str = Depends(get_current_user)):
+async def start_session(request: dict, user_id: str = Depends(get_current_user)):
     """Temporary endpoint to start a new session"""
     try:
-        # Generate a mock session ID
+        # Generate session ID
         session_id = f"session_{uuid.uuid4()}"
+        
+        # Store basic session info in memory (replace with database in production)
+        session_data = {
+            "session_id": session_id,
+            "user_id": user_id,
+            "started_at": datetime.utcnow().isoformat(),
+            "status": "active",
+            "total_questions": 12,
+            "current_question": 0
+        }
+        
+        # For now, we'll use a simple in-memory store
+        if not hasattr(start_session, 'active_sessions'):
+            start_session.active_sessions = {}
+        start_session.active_sessions[session_id] = session_data
         
         return {
             "success": True,
@@ -849,7 +864,10 @@ async def start_session(user_id: str = Depends(get_current_user)):
             "session_metadata": {
                 "total_questions": 12,
                 "current_question": 0,
-                "session_type": "practice"
+                "session_type": "practice",
+                "phase_info": {
+                    "current_session": 1
+                }
             }
         }
         
