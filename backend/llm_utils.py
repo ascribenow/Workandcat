@@ -80,7 +80,7 @@ Subcategory: {regular_question_data.get('subcategory', '')}
 Problem Structure: {regular_question_data.get('problem_structure', '')}
 Concept Keywords: {regular_question_data.get('concept_keywords', '')}
 
-PYQ QUESTIONS TO COMPARE AGAINST (difficulty_score > 1.5, same category×subcategory):
+PYQ QUESTIONS TO COMPARE AGAINST (same category×subcategory, regular question difficulty > 1.5):
 """
 
         # Add ALL qualifying PYQ questions to comparison (no limit, no scaling)
