@@ -894,6 +894,26 @@ async def get_subscription_management(user_id: str = Depends(get_current_user)):
         "can_access_premium": False
     }
 
+@app.get("/api/sessions/current-status")
+async def get_current_session_status(user_id: str = Depends(get_current_user)):
+    """Temporary endpoint for current session status"""
+    return {
+        "has_active_session": False,
+        "session_id": None,
+        "message": "No active session found"
+    }
+
+@app.get("/api/dashboard/progress")
+async def get_dashboard_progress(user_id: str = Depends(get_current_user)):
+    """Temporary endpoint for dashboard progress"""
+    return {
+        "total_questions_attempted": 0,
+        "questions_correct": 0,
+        "questions_incorrect": 0,
+        "accuracy_percentage": 0.0,
+        "progress_data": []
+    }
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8001)
