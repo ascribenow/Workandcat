@@ -6,14 +6,24 @@ test('concurrency guard: only one planning job per user at a time', async ({ req
   const user = process.env.E2E_USER_ADAPTIVE!;
   const lastSession = process.env.E2E_LAST_SESSION_ID!;
   const nextSession = randomUUID() + '_CONC'; // Unique session for concurrency test
+  
+  const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJVX0FEQVBUXzAxIiwiZXhwIjoxNzU3OTY4MjcwfQ.px3DsPhUIZ9JsIynQcT5IBG565M6V_Z8bq424sS1EDQ';
 
   // Fire two plan-next calls concurrently WITHOUT the same idempotency key
   const p1 = request.post('/api/adapt/plan-next', {
-    headers: { 'Idempotency-Key': newIdemKey() },
+    headers: { 
+      'Idempotency-Key': newIdemKey(),
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    },
     data: { user_id: user, last_session_id: lastSession, next_session_id: nextSession }
   });
   const p2 = request.post('/api/adapt/plan-next', {
-    headers: { 'Idempotency-Key': newIdemKey() },
+    headers: { 
+      'Idempotency-Key': newIdemKey(),
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    },
     data: { user_id: user, last_session_id: lastSession, next_session_id: nextSession }
   });
 
