@@ -38,18 +38,18 @@ class AdaptiveDryRun:
         """Get test users for dry-run testing"""
         users = self.db.execute(text("""
             SELECT u.id, u.email,
-                   COUNT(s.session_id) as session_count,
+                   COUNT(CASE WHEN s.status = 'completed' THEN s.session_id END) as session_count,
                    CASE 
                        WHEN u.email LIKE 'new_%' THEN 'new'
                        WHEN u.email LIKE 'early_%' THEN 'early'
                        WHEN u.email LIKE 'experienced_%' THEN 'experienced'
                    END as cohort
             FROM users u
-            LEFT JOIN sessions s ON u.id = s.user_id AND s.status = 'completed'
+            LEFT JOIN sessions s ON u.id = s.user_id
             WHERE u.email LIKE '%_user_%@test.com'
             GROUP BY u.id, u.email
             ORDER BY cohort, u.email
-            LIMIT 12
+            LIMIT 18
         """)).fetchall()
         
         return [
