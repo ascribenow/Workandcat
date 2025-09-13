@@ -16,6 +16,7 @@ from datetime import datetime
 from canonical_taxonomy_service import canonical_taxonomy_service
 from anthropic_semantic_validator import anthropic_semantic_validator
 from llm_utils import call_llm_with_fallback, extract_json_from_response
+from difficulty_calculator import calculate_difficulty_score_and_band, parse_solution_steps
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
