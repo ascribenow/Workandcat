@@ -436,6 +436,160 @@ async def upload_questions_csv(
         result = await regular_questions_enrichment_service.process_csv_upload(db, file_path, admin_user.id)
         return result
 
+# NEW: PYQ Frequency Recalculation Endpoint
+@app.post("/api/admin/recalculate-frequency-background")
+async def recalculate_frequency_background(
+    background_tasks: BackgroundTasks,
+    admin_user: User = Depends(get_current_admin_user)
+):
+    """
+    Background PYQ frequency recalculation for all quality-verified questions
+    Uses the corrected logic that properly handles difficulty filtering
+    """
+    job_id = str(uuid.uuid4())
+    
+    # Add background task
+    background_tasks.add_task(
+        run_frequency_recalculation_job,
+        job_id,
+        admin_user.email
+    )
+    
+    return {
+        "success": True,
+        "job_id": job_id,
+        "message": "PYQ frequency recalculation started in background",
+        "admin_email": admin_user.email,
+        "estimated_time": "15-30 minutes for all questions"
+    }
+
+async def run_frequency_recalculation_job(job_id: str, admin_email: str):
+    """
+    Background job to recalculate PYQ frequency for all questions
+    Uses batch processing with proper error handling
+    """
+    try:
+        logger.info(f"🚀 Starting frequency recalculation job {job_id}")
+        
+        db = SessionLocal()
+        total_questions = 0
+        processed_count = 0
+        updated_count = 0
+        easy_count = 0
+        hard_count = 0
+        
+        try:
+            # Get all quality verified questions
+            result = db.execute(
+                select(Question).where(Question.quality_verified == True)
+            )
+            all_questions = result.scalars().all()
+            total_questions = len(all_questions)
+            
+            logger.info(f"📊 Found {total_questions} quality verified questions to process")
+            
+            for i, question in enumerate(all_questions, 1):
+                try:
+                    logger.info(f"🔄 Processing {i}/{total_questions}: {question.id[:8]}...")
+                    
+                    # Prepare enrichment data for the corrected method
+                    enrichment_data = {
+                        'category': question.category,
+                        'subcategory': question.subcategory,
+                        'difficulty_score': float(question.difficulty_score or 0),
+                        'core_concepts': question.core_concepts or [],
+                        'problem_structure': question.problem_structure or [],
+                        'concept_keywords': question.concept_keywords or []
+                    }
+                    
+                    # Get current PYQ frequency
+                    old_frequency = float(question.pyq_frequency_score or 0)
+                    
+                    # Run corrected PYQ frequency calculation
+                    new_frequency = await regular_questions_enrichment_service._calculate_pyq_frequency_score_llm(
+                        question.stem, enrichment_data
+                    )
+                    
+                    # Track difficulty categories
+                    if enrichment_data['difficulty_score'] <= 1.5:
+                        easy_count += 1
+                    else:
+                        hard_count += 1
+                    
+                    # Update if different
+                    if abs(new_frequency - old_frequency) > 0.01:  # Account for floating point precision
+                        question.pyq_frequency_score = new_frequency
+                        updated_count += 1
+                        logger.info(f"   ✅ Updated: {old_frequency} → {new_frequency}")
+                    else:
+                        logger.info(f"   = No change: {old_frequency}")
+                    
+                    processed_count += 1
+                    
+                    # Commit every 10 questions to avoid losing progress
+                    if processed_count % 10 == 0:
+                        db.commit()
+                        logger.info(f"   💾 Committed batch (processed: {processed_count})")
+                        
+                except Exception as e:
+                    logger.error(f"❌ Error processing question {question.id[:8]}: {e}")
+                    continue
+            
+            # Final commit
+            db.commit()
+            
+            # Success notification
+            success_message = f"""
+🎉 FREQUENCY RECALCULATION COMPLETE!
+
+📊 Summary:
+• Total processed: {processed_count}/{total_questions}
+• Questions updated: {updated_count}
+• Easy questions (≤1.5): {easy_count}
+• Hard questions (>1.5): {hard_count}
+• Success rate: {(processed_count/total_questions)*100:.1f}%
+
+Job ID: {job_id}
+"""
+            
+            logger.info(success_message)
+            
+            # Send email notification
+            await send_job_completion_email(admin_email, "PYQ Frequency Recalculation", success_message, True)
+            
+        except Exception as e:
+            logger.error(f"❌ Frequency recalculation job failed: {e}")
+            
+            # Send failure email
+            failure_message = f"""
+❌ FREQUENCY RECALCULATION FAILED
+
+Error: {str(e)}
+Job ID: {job_id}
+Processed: {processed_count}/{total_questions} questions
+
+Please check the server logs for more details.
+"""
+            await send_job_completion_email(admin_email, "PYQ Frequency Recalculation Failed", failure_message, False)
+            
+        finally:
+            db.close()
+            
+    except Exception as e:
+        logger.error(f"❌ Critical error in frequency recalculation job {job_id}: {e}")
+
+async def send_job_completion_email(admin_email: str, subject: str, message: str, success: bool):
+    """Send email notification for job completion"""
+    try:
+        await gmail_service.send_email(
+            to_email=admin_email,
+            subject=f"Twelvr Admin - {subject}",
+            body=message
+        )
+        logger.info(f"✅ Job completion email sent to {admin_email}")
+    except Exception as e:
+        logger.error(f"❌ Failed to send completion email: {e}")
+
 # Enrichment checker endpoints - DISABLED (service deleted during cleanup)
 # @app.post("/api/admin/enrich-checker/regular-questions")
 # async def admin_enrich_checker_regular(admin_user: User = Depends(get_current_admin_user)):
