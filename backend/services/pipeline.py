@@ -325,12 +325,38 @@ async def plan_next_session(user_id: str, force_cold_start: bool = False) -> Dic
         readiness_map = finalize_readiness(weighted_counts)
         coverage_debt = coverage_debt_by_sessions(attempt_events)
         
-        # Step 5: Build adaptive candidate pool
+        # Step 5: Build adaptive candidate pool with expansion logic
+        readiness_levels_str = {k: v.value for k, v in readiness_map.items()}  # Convert enum to string
+        
+        # Try with base pool size first
         candidates, metadata = candidate_provider.build_candidate_pool(
-            user_id, 
-            {k: v.value for k, v in readiness_map.items()},  # Convert enum to string
-            coverage_debt
+            user_id, readiness_levels_str, coverage_debt
         )
+        
+        # Check feasibility and expand if needed
+        pool_expanded = False
+        expansion_attempts = 0
+        max_expansions = len(AdaptiveConfig.K_POOL_EXPANSION)
+        
+        while expansion_attempts < max_expansions:
+            feasible, feasibility_details = candidate_provider.preflight_feasible(candidates)
+            
+            if feasible:
+                break  # Pool is feasible, proceed
+            
+            # Expand pool size and retry
+            expansion_attempts += 1
+            if expansion_attempts < max_expansions:
+                expanded_k = AdaptiveConfig.K_POOL_EXPANSION[expansion_attempts]
+                logger.info(f"🔄 Expanding pool to K={expanded_k} (attempt {expansion_attempts})")
+                
+                candidates, metadata = candidate_provider.build_candidate_pool(
+                    user_id, readiness_levels_str, coverage_debt, k_pool_per_band=expanded_k
+                )
+                pool_expanded = True
+            else:
+                logger.warning(f"⚠️ Pool expansion exhausted, proceeding with infeasible pool")
+                break
         
         if not candidates:
             return {
