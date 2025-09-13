@@ -463,7 +463,9 @@ class AdaptiveConfig:
     
     # Recency and coverage parameters
     R_RECENCY_SESSIONS = 3     # Recency lookback window
-    COVERAGE_K = 5             # Coverage calculation window
+    COVERAGE_K = 6             # Coverage calculation window
+    COVERAGE_S_HIGH = 4        # Sessions since last for high debt
+    COVERAGE_S_MED = 2         # Sessions since last for med debt
     
     # PYQ score requirements
     PYQ_MIN_1_0 = 2           # Min questions with PYQ score 1.0
