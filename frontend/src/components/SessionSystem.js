@@ -233,12 +233,56 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
       setResult(response.data);
       setShowResult(true);
       
+      // Log the submit action
+      await logQuestionAction('submit', {
+        correct: response.data.correct,
+        user_answer: userAnswer
+      });
+      
     } catch (err) {
       setError('Failed to submit answer');
       console.error('Error submitting answer:', err);
       setAnswerSubmitted(false);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const skipQuestion = async () => {
+    if (!sessionId || !currentQuestion) {
+      setError('No active session or question found.');
+      return;
+    }
+
+    setLoading(true);
+    
+    try {
+      // Log the skip action
+      await logQuestionAction('skip', {});
+      
+      // Move to next question
+      fetchNextQuestion();
+      
+    } catch (err) {
+      setError('Failed to skip question');
+      console.error('Error skipping question:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const logQuestionAction = async (action, data = {}) => {
+    try {
+      await axios.post(`${API}/log/question-action`, {
+        session_id: sessionId,
+        question_id: currentQuestion.id,
+        action: action,
+        data: data,
+        timestamp: new Date().toISOString()
+      });
+    } catch (err) {
+      console.error('Failed to log question action:', err);
+      // Don't throw error - logging should not break the flow
     }
   };
 
