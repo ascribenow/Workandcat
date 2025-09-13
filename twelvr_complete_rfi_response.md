@@ -8,6 +8,21 @@
 
 ---
 
+## 📋 Table of Contents
+
+**A) System Map** - Pipeline overview and component mapping  
+**B) Field-by-Field Specifications** - Complete database field documentation  
+**C) Verbatim LLM Prompt Pack** - Production prompts for all enrichment services  
+**D) Difficulty System (Code-True)** - Programmatic calculation formulas and constants  
+**E) PYQ Frequency Score Pipeline** - LLM-based similarity scoring logic  
+**F) Quality Verification (22-Criteria Checklist)** - Complete validation requirements  
+**G) Fallbacks & Robustness** - Error handling and recovery mechanisms  
+**H) Sample Processing Examples** - Real-world enrichment examples  
+**I) Supporting Data Files** - CSV files with production data samples  
+**J) Change Log & Ownership** - Recent updates and team responsibilities  
+
+---
+
 ## A) System Map
 
 ### Block Diagram (ASCII)
