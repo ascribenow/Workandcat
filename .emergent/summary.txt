@@ -1,76 +1,74 @@
 <analysis>
-The trajectory chronicles a complex debugging and refactoring process. Initially, the AI engineer misunderstood the scope of database cleanup, leading to confusion about deleted tables versus fields. A critical recurring issue was the non-persistence of database cleanup, later identified as a Supabase infrastructure problem. Significant work involved fixing deployment blockers: resolving a PostgreSQL vs. MongoDB mismatch (confirming Supabase PostgreSQL), rectifying backend startup crashes by aligning synchronous SQLAlchemy calls with FastAPI, and replacing hardcoded frontend URLs.
+The trajectory details an AI engineer's extensive work on the Twelvr application, involving critical fixes, refactoring, and feature implementation. Initially, the focus was on resolving persistent database issues, specifically the re-emergence of 13 deleted tables in Supabase, which required a systematic removal of code dependencies and a careful, ordered database drop. Concurrently, a major  bug was addressed, culminating in a one-time recalculation across all questions. A new admin UI button was added to trigger this recalculation.
 
-The core of the work focused on the LLM enrichment pipeline for regular questions. Key bugs addressed were the incorrect  filter, the  not being properly set or checked, and logical errors in database commits during enrichment. The AI engineer meticulously re-ordered pipeline stages, corrected field mappings, ensured all necessary parameters were passed, and implemented incremental database commits. The most recent task involves re-running the corrected  calculation across all questions. The process highlighted the iterative nature of debugging and the importance of precise user feedback.
+A significant portion of the work involved completely overhauling the  and  calculation. This transitioned from an LLM-generated approach to a precise programmatic formula (), with user-defined band thresholds. This change necessitated updating LLM prompts, enrichment services, and running a full data recalculation twice to incorporate revised band definitions, resulting in a significantly more balanced difficulty distribution. The immediate task involves compiling a comprehensive RFI documentation package detailing all logic and LLM prompts.
 </analysis>
 
 <product_requirements>
-The Twelvr application is an adaptive CAT preparation platform that uses LLM-assisted features for high-quality enrichment of PYQs (Previous Year Questions) and regular questions. It integrates various LLMs (OpenAI, Google Gemini, Anthropic), Razorpay payments, a referral system, and adaptive session logic backed by PostgreSQL. Key features include a  field for CSV-populated content and an LLM-based  calculation for regular questions. The platform standardizes LLM enrichment across question types, implements an LLM-semantic-match  field, and decouples CSV upload from LLM enrichment, now triggered via admin endpoints. All LLM-generated fields and 8 CSV fields undergo a strict 21-criteria quality verification (later updated to 22 criteria). Recent work focused on mathematical display (KaTeX) and preparing the database for a new session/adaptivity structure by removing legacy tables and cleaning up related code.
+The Twelvr application is an adaptive CAT preparation platform that leverages LLM-assisted features for high-quality enrichment of PYQs (Previous Year Questions) and regular questions. It integrates various LLMs (OpenAI, Google Gemini, Anthropic), Razorpay payments, a referral system, and adaptive session logic backed by PostgreSQL (Supabase). Key functionalities include a  field for CSV content and an LLM-based  calculation for regular questions. The platform aims to standardize LLM enrichment, implement an LLM-semantic-match  field, and decouple CSV upload from LLM enrichment, now triggered via admin endpoints. All LLM-generated fields and 8 CSV fields undergo a strict 22-criteria quality verification. Recent work included mathematical display (KaTeX), preparing the database for a new session/adaptivity structure by removing legacy tables and cleaning up related code, and most recently, revamping the difficulty scoring mechanism for all questions to be programmatic and user-defined.
 </product_requirements>
 
 <key_technical_concepts>
--   **Full-stack Architecture**: React (frontend), FastAPI (backend), PostgreSQL (database, specifically Supabase).
--   **LLM Integration**: OpenAI (GPT-4o, GPT-4o-mini), Anthropic (Claude-3-Haiku), Google Gemini for question enrichment.
--   **Database Management**: SQLAlchemy ORM for PostgreSQL.
--   **API Communication**: RESTful APIs, FastAPI (with synchronous database calls).
--   **Canonical Taxonomy**: Standardized classification for question categories.
--   **Mathematical Rendering**: KaTeX, react-katex, DOMPurify for complex equations.
--   **Deployment**: Kubernetes container environment, Emergent Deployments for CI/CD.
+- Full-stack Architecture: React (frontend), FastAPI (backend), PostgreSQL (Supabase)
+- LLM Integration: OpenAI (GPT-4o, GPT-4o-mini), Anthropic, Google Gemini
+- Database Management: SQLAlchemy ORM, direct SQL queries
+- API Communication: RESTful APIs, FastAPI (synchronous DB calls)
+- Canonical Taxonomy: Standardized classification
+- Mathematical Rendering: KaTeX, react-katex, DOMPurify
+- Deployment: Kubernetes container environment, background jobs
 </key_technical_concepts>
 
 <code_architecture>
 
-
 -   ****: Defines PostgreSQL schema.
     -   **Importance**: Central to application data models.
-    -   **Changes**: Initially, 13 legacy tables (, , , , , , , etc.) were repeatedly deleted (and recreated by Supabase). Their SQLAlchemy model definitions and associated relationships (, ) were removed from this file. Orphaned  from deleted tables were also removed.
+    -   **Changes**: Legacy tables (, , , , , , , etc.) and their SQLAlchemy model definitions were removed to address Supabase re-creation issues. The  column was also removed.
 -   ****: FastAPI application handling API requests.
-    -   **Importance**: The main entry point for backend API.
-    -   **Changes**: Underwent a complete rewrite. All session, mastery, diagnostic-related endpoints and functionality were removed. Imports were cleaned, and all database calls within auth and admin endpoints were converted from async to synchronous SQLAlchemy to fix  generator issues.
+    -   **Importance**: Main entry point for backend API.
+    -   **Changes**: Rewritten to remove session/mastery/diagnostic functionality. Database calls were converted to synchronous SQLAlchemy. A new endpoint  was added to trigger PYQ frequency recalculation.
 -   ****: Core LLM enrichment logic for non-PYQ questions.
-    -   **Importance**: Orchestrates the multi-stage LLM enrichment process.
-    -   **Changes**:  method was added. The logic for setting  was refined to depend on the  field being non-empty. Quality verification criteria were internally updated to 22 (from 21, including ). Field mapping for semantic answer comparison ( instead of ) and passing  parameter were fixed. Crucially, incremental database commits were implemented after each major enrichment stage instead of an all-or-nothing approach. The pipeline order for  was corrected to occur before quality verification.
+    -   **Importance**: Orchestrates multi-stage LLM enrichment.
+    -   **Changes**: Logic for  refined. LLM prompt was updated to *remove* direct generation of  and , retaining assess complexity for  context. Programmatic calculation of  and  was integrated.
+-   ****: LLM enrichment logic for PYQ questions.
+    -   **Importance**: Handles PYQ enrichment.
+    -   **Changes**: Similar to , LLM prompt was updated to remove direct generation of  and , retaining assess complexity for  context. Programmatic calculation of  and  was integrated.
 -   ****: Centralizes LLM operations.
     -   **Importance**: Provides LLM-based utility functions like  calculation.
-    -   **Changes**: The logic within  was confirmed to be correct for multi-level LLM fallback and  calculation. The *call* to this function from  was fixed to filter based on regular question difficulty, not PYQ difficulty.
--   ****: LLM enrichment logic for PYQ questions.
-    -   **Importance**: Handles the enrichment for PYQ questions.
-    -   **Changes**: The logic for setting  was refined to depend on the  field being non-empty, mirroring the change in the regular enrichment service.
--   ****: Handles Razorpay payment integration.
-    -   **Importance**: Manages payment orders and transactions.
-    -   **Changes**: A class aliasing issue was fixed where  was defined but  was expected by an import in .
+    -   **Changes**:  logic for multi-level LLM fallback was confirmed, and its call from  was fixed to filter based on regular question difficulty.
 -   ****: Manages background processing tasks.
     -   **Importance**: Runs tasks that don't block the main API.
-    -   **Changes**: Imports and references to deleted modules (, , ) were commented out or removed.
--   ****: Lists Python dependencies.
-    -   **Importance**: Ensures all necessary Python libraries are installed.
-    -   **Changes**:  was added to support features in the cleaned .
+    -   **Changes**: Imports and references to deleted modules/tables were commented out or removed, eventually being completely disabled to resolve database dependency issues.
+-   ****: Contains various formulas.
+    -   **Importance**: Logic for calculations like importance score.
+    -   **Changes**: Removed references to the  field.
 -   ** (CREATED)**:
-    -   **Importance**: A temporary script created to re-run PYQ frequency calculation across all quality-verified questions.
-    -   **Changes**: Contains logic to iterate through all questions and trigger the corrected PYQ frequency calculation.
--   ****: Frontend component for user authentication.
-    -   **Importance**: Manages user login state and API calls.
-    -   **Changes**: Replaced hardcoded backend URLs with .
--   ****: Frontend component for displaying PYQ file uploads.
-    -   **Importance**: Displays uploaded PYQ files and potentially their enrichment status.
-    -   **Changes**: Replaced hardcoded backend URLs with .
--   ****: Frontend environment variables.
-    -   **Importance**: Stores configuration like the backend URL.
-    -   **Changes**:  was updated to match the correct deployment URL.
--   **Deleted Backend Files**: A large number of files (~18, including , , , , various migration scripts, utility, and backup files) were explicitly deleted as their functionality was tied to the removed database tables.
--   **Deleted Frontend Files**: Components like , , ,  (and others implicitly) were likely removed due to their backend dependencies being deleted.
+    -   **Importance**: Temporary script to re-run PYQ frequency calculation across all quality-verified questions after a bug fix.
+    -   **Changes**: Iterates through questions and triggers corrected frequency calculation. This script has completed its run.
+-   ** (CREATED)**:
+    -   **Importance**: Script to systematically drop 13 legacy database tables in the correct dependency order to resolve the Supabase re-creation issue.
+    -   **Changes**: Contains direct SQL commands to drop tables like , , , , , etc., in a transaction-aware manner.
+-   ** (CREATED)**:
+    -   **Importance**: Centralizes the new programmatic difficulty calculation and band mapping logic.
+    -   **Changes**: Contains  function (to extract steps from ) and  (implementing the formula  and the user-defined band thresholds).
+-   ** (CREATED)**:
+    -   **Importance**: Script to apply the new programmatic  and  calculation to all existing  and  data.
+    -   **Changes**: Iterates through both tables, uses  to recompute and update only  and . This script was run twice with updated band definitions.
+-   ****: Frontend component for the admin dashboard.
+    -   **Importance**: Displays admin controls and data.
+    -   **Changes**: Replaced the Enrich Regular button with a new 🔢 Recalculate Frequency button, linked to the new background job.
+-   **Deleted Backend Files**: Numerous files related to sessions, mastery, plans, and various migrations were deleted.
+-   **Deleted Frontend Files**: Components related to deleted backend functionality were removed.
 </code_architecture>
 
 <pending_tasks>
 - Design and implement a new session and adaptivity structure based on the current clean database.
-- Fix the  logic: the one-time recalculation for all questions (regardless of difficulty) has been triggered and is in progress.
-- Address the ongoing issue of deleted tables (13 tables, including ) repeatedly resurfacing in the Supabase production database, which is identified as a Supabase infrastructure issue, not a code issue.
+- Address the data quality issue of missing Coordinate Geometry PYQs, and investigate the PYQ upload/enrichment process for this category.
 </pending_tasks>
 
 <current_work>
-The AI engineer is currently in the process of **recalculating the  for all quality-verified questions** (452 questions total). This task was triggered by the user with the request to run the process on all questions, irrespective of difficulty, leveraging the recently fixed  logic in . A temporary script, , has been created to orchestrate this recalculation. This re-run will ensure all questions have accurate frequency scores based on the corrected logic, which now compares hard questions against *all* category-matched PYQs without an artificial difficulty filter, and applies a default low score (0.5) to easy questions (difficulty <= 1.5). This is the final step in resolving the  bug.
+The AI engineer is currently compiling a comprehensive RFI (Request for Information) documentation package for the user, detailing all logic, formulas, thresholds, verbatim LLM prompts, and fallbacks used in Twelvr’s data pipelines and adaptive signals. This package is being generated as a single, comprehensive markdown file named  along with supporting CSV files. This task was initiated by the user's detailed RFI prompt, which requested an end-to-end description of the enrichment processes for both regular and PYQ questions, the new difficulty calculator, frequency scoring, quality verification, fallbacks, and a change log. The AI engineer has just finished collecting the necessary LLM prompts (regular enrichment, PYQ enrichment, PYQ frequency scoring) and is proceeding with the final compilation of the document.
 </current_work>
 
 <optional_next_step>
-Monitor the progress and completion of the  recalculation for all questions.
+Complete the compilation of the  file and any associated CSVs.
 </optional_next_step>

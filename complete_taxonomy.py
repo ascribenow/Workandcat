@@ -17,7 +17,7 @@ def complete_canonical_taxonomy():
         'password': 'admin2025'
     }
 
-    base_url = 'https://pyq-enrichment-hub.preview.emergentagent.com/api'
+    base_url = 'https://adaptive-cat-prep.preview.emergentagent.com/api'
     
     print("🔐 Logging in as admin...")
     response = requests.post(f'{base_url}/auth/login', json=admin_login)
