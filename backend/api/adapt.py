@@ -61,22 +61,21 @@ async def plan_next_controller(body: dict, request: Request, user_id: str = Depe
         # Plan the session
         plan = plan_next(req_user_id, last_session_id, next_session_id, idem_key=idem_key)
         
+        # Validate constraints before responding
+        constraint_report = plan.get("constraint_report_json", {})
+        assert_no_forbidden_relaxations(constraint_report)
+        
         # Final hard shape assertion - get the actual pack to validate
         pack_data = load_pack(req_user_id, next_session_id)
         if pack_data and pack_data.get("pack_json"):
             pack = pack_data["pack_json"]
-            easy_count = sum(1 for item in pack if item.get("bucket") == "Easy")
-            medium_count = sum(1 for item in pack if item.get("bucket") == "Medium")
-            hard_count = sum(1 for item in pack if item.get("bucket") == "Hard")
-            
-            if len(pack) != 12 or easy_count != 3 or medium_count != 6 or hard_count != 3:
-                raise HTTPException(status_code=500, detail={"code": "PACK_SHAPE_INVALID"})
+            validate_pack_constraints(pack, constraint_report)
         
         return {
             "user_id": req_user_id, 
             "session_id": next_session_id,
             "status": plan.get("status", "planned"),
-            "constraint_report": plan.get("constraint_report_json", {})
+            "constraint_report": constraint_report
         }
         
     except ConflictError as e:
