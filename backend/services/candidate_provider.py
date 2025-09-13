@@ -192,7 +192,7 @@ class CandidateProvider:
                            user_id: str,
                            readiness_levels: Optional[Dict[str, str]] = None,
                            coverage_debt: Optional[Dict[str, float]] = None,
-                           k_pool_per_band: int = 50) -> Tuple[List[QuestionCandidate], Dict[str, Any]]:
+                           k_pool_per_band: int = None) -> Tuple[List[QuestionCandidate], Dict[str, Any]]:
         """
         Build adaptive candidate pool based on readiness and coverage
         
