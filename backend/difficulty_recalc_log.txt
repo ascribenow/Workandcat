@@ -5,3 +5,4 @@ INFO:__main__:Formula: 0.25×Concepts + 0.50×Steps + 0.25×Operations
 INFO:__main__:Bands: Easy(1.5-1.9), Medium(2.0-3.0), Hard(3.1-5.0)
 INFO:__main__:============================================================
 INFO:__main__:📋 Processing regular questions...
+INFO:__main__:   Found 452 questions to process
