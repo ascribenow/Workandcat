@@ -835,6 +835,28 @@ async def submit_session_answer(
         logger.error(f"❌ Error submitting answer: {e}")
         raise HTTPException(status_code=500, detail="Failed to submit answer")
 
+@app.post("/api/sessions/start")
+async def start_session(user_id: str = Depends(get_current_user)):
+    """Temporary endpoint to start a new session"""
+    try:
+        # Generate a mock session ID
+        session_id = f"session_{uuid.uuid4()}"
+        
+        return {
+            "success": True,
+            "session_id": session_id,
+            "message": "Session started successfully",
+            "session_metadata": {
+                "total_questions": 12,
+                "current_question": 0,
+                "session_type": "practice"
+            }
+        }
+        
+    except Exception as e:
+        logger.error(f"❌ Error starting session: {e}")
+        raise HTTPException(status_code=500, detail="Failed to start session")
+
 @app.get("/api/dashboard/simple-taxonomy")
 async def get_simple_taxonomy(user_id: str = Depends(get_current_user)):
     """Temporary endpoint for dashboard data"""
