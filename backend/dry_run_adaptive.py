@@ -94,7 +94,7 @@ class AdaptiveDryRun:
                     difficulty_band=attempt.difficulty_band,
                     subcategory=attempt.subcategory,
                     type_of_question=attempt.type_of_question,
-                    core_concepts=concepts,
+                    core_concepts=concepts,  # Keep as list for AttemptEvent
                     pyq_frequency_score=float(attempt.pyq_frequency_score) if attempt.pyq_frequency_score else 0.5
                 )
                 attempt_events.append(event)
