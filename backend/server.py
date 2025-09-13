@@ -637,6 +637,96 @@ async def upload_image(
         "url": f"/uploads/images/{filename}"
     }
 
+# Question Action Logging Endpoints
+@app.post("/api/log/question-action")
+async def log_question_action(
+    log_data: QuestionActionLog,
+    user_id: str = Depends(get_current_user)
+):
+    """Log question actions (skip, submit, correct, incorrect) for future session implementation"""
+    try:
+        # Add user_id and create a log entry
+        log_entry = {
+            "id": str(uuid.uuid4()),
+            "user_id": user_id,
+            "session_id": log_data.session_id,
+            "question_id": log_data.question_id,
+            "action": log_data.action,
+            "data": log_data.data,
+            "timestamp": log_data.timestamp,
+            "logged_at": datetime.utcnow().isoformat()
+        }
+        
+        # Store in memory for now (replace with database table in production)
+        question_action_logs.append(log_entry)
+        
+        logger.info(f"📝 Logged action: {log_data.action} for question {log_data.question_id[:8]} by user {user_id[:8]}")
+        
+        return {
+            "success": True,
+            "log_id": log_entry["id"],
+            "message": f"Action '{log_data.action}' logged successfully"
+        }
+        
+    except Exception as e:
+        logger.error(f"❌ Failed to log question action: {e}")
+        raise HTTPException(status_code=500, detail="Failed to log action")
+
+@app.get("/api/log/question-actions")
+async def get_question_actions(
+    session_id: Optional[str] = None,
+    user_id: str = Depends(get_current_user)
+):
+    """Get question action logs for a user (optionally filtered by session)"""
+    try:
+        # Filter logs by user
+        user_logs = [log for log in question_action_logs if log["user_id"] == user_id]
+        
+        # Filter by session if provided
+        if session_id:
+            user_logs = [log for log in user_logs if log["session_id"] == session_id]
+        
+        # Sort by timestamp (most recent first)
+        user_logs.sort(key=lambda x: x["timestamp"], reverse=True)
+        
+        return {
+            "success": True,
+            "logs": user_logs,
+            "total_count": len(user_logs)
+        }
+        
+    except Exception as e:
+        logger.error(f"❌ Failed to get question actions: {e}")
+        raise HTTPException(status_code=500, detail="Failed to get action logs")
+
+@app.get("/api/admin/log/question-actions")
+async def admin_get_question_actions(
+    limit: int = 100,
+    admin_user: User = Depends(get_current_admin_user)
+):
+    """Admin endpoint to get all question action logs"""
+    try:
+        # Get most recent logs
+        recent_logs = sorted(question_action_logs, key=lambda x: x["timestamp"], reverse=True)[:limit]
+        
+        # Calculate action statistics
+        action_stats = {}
+        for log in question_action_logs:
+            action = log["action"]
+            action_stats[action] = action_stats.get(action, 0) + 1
+        
+        return {
+            "success": True,
+            "logs": recent_logs,
+            "total_count": len(question_action_logs),
+            "action_statistics": action_stats,
+            "available_actions": ["skip", "submit", "correct", "incorrect"]
+        }
+        
+    except Exception as e:
+        logger.error(f"❌ Failed to get admin question actions: {e}")
+        raise HTTPException(status_code=500, detail="Failed to get admin action logs")
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8001)
