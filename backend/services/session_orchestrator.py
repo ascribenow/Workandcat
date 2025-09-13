@@ -239,7 +239,14 @@ def plan_next(user_id: str, last_session_id: str, next_session_id: str, idem_key
         if not success:
             raise Exception("Failed to save session pack")
         
-        # Step 6: Return planned session data
+        # Step 6: Emit telemetry
+        telemetry_service.emit_session_planned(
+            constraint_report, 
+            cold_start=pipeline_result.get('cold_start_mode', False),
+            pool_expanded=constraint_report.get('meta', {}).get('pool_expanded', False)
+        )
+        
+        # Step 7: Return planned session data
         return load_pack(user_id, next_session_id)
         
     except Exception as e:
