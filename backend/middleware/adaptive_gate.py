@@ -6,7 +6,7 @@ Protects /adapt/* endpoints with global and user-level flags
 import os
 from fastapi import Request, HTTPException, Depends
 from .auth import get_current_user
-from database import SessionLocal, User
+from .database import SessionLocal, User
 from sqlalchemy import select
 
 # Global adaptive feature flag
