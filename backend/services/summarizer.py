@@ -1,0 +1,271 @@
+"""
+Post-Session Summarizer Service
+Analyzes user attempt history to extract concept dominance and readiness patterns
+"""
+
+import json
+import logging
+from typing import Dict, Any, List
+from database import SessionLocal
+from sqlalchemy import text
+from util.schemas import SUMMARIZER_SCHEMA
+from util.llm_guarded import call_llm_json_with_retry
+from services.deterministic_kernels import stable_semantic_id
+
+logger = logging.getLogger(__name__)
+
+class SummarizerService:
+    """Post-session qualitative analysis using LLM"""
+    
+    def __init__(self):
+        self.system_prompt = self._load_system_prompt()
+    
+    def _load_system_prompt(self) -> str:
+        """Load summarizer system prompt"""
+        return """You are an expert at analyzing student performance in CAT preparation to identify concept mastery patterns.
+
+TASK: Analyze the student's attempt history and provide qualitative insights about concept dominance, readiness, and coverage patterns.
+
+OUTPUT REQUIREMENTS:
+1. **Concept Alias Mapping**: Normalize raw concept strings, reuse existing aliases when possible, only create provisional new concepts when necessary
+2. **Dominance Analysis**: For each question attempt, identify 1-2 dominant concepts that drove the solution approach
+3. **Readiness Assessment**: Evaluate concept mastery based on performance patterns (skipped, wrong streaks, correct patterns)
+4. **Coverage Debt**: Identify concept pairs that need more practice based on recency and exposure
+
+NORMALIZATION RULES:
+- Reuse existing alias when ANY normalized member matches
+- Only create "provisional": true new concepts when absolutely necessary
+- Maintain consistency in concept identification
+
+DOMINANCE RULES:
+- High confidence + 1 dominant → 0.7/0.3 weight split
+- High confidence + 2 dominants → 0.5/0.5 weight split
+- Otherwise → equal split 1/k
+
+READINESS CRITERIA:
+- "skipped": High skip rate indicates avoidance
+- "forever_wrong": Never got correct, indicates fundamental gap
+- "wrong_1_to_3": Recent wrong streak, needs reinforcement
+- "wrong_gt_3": Extended wrong streak, serious difficulty
+- "cold_start": New concept, needs foundation building
+
+Return ONLY valid JSON matching the required schema."""
+
+    def run_summarizer(self, user_id: str, session_history_limit: int = 5) -> Dict[str, Any]:
+        """
+        Run post-session analysis for a user
+        
+        Args:
+            user_id: User identifier
+            session_history_limit: Number of recent sessions to analyze
+            
+        Returns:
+            Summarizer analysis results
+        """
+        logger.info(f"🧠 Running Summarizer for user {user_id[:8]}...")
+        
+        # Build payload with user attempt history
+        payload = self._build_summarizer_payload(user_id, session_history_limit)
+        
+        if not payload["attempt_history"]:
+            logger.warning(f"No attempt history found for user {user_id[:8]}")
+            return self._generate_empty_summary()
+        
+        # Call LLM with schema validation and retry
+        try:
+            data = call_llm_json_with_retry(
+                system_prompt=self.system_prompt,
+                user_payload=payload,
+                schema=SUMMARIZER_SCHEMA,
+                model_primary="gpt-4o-mini",
+                model_fallback="gemini-1.5-pro",
+                max_retries=1
+            )
+            
+            logger.info(f"✅ Summarizer completed for user {user_id[:8]}")
+            return data
+            
+        except Exception as e:
+            logger.error(f"❌ Summarizer failed for user {user_id[:8]}: {e}")
+            return self._generate_empty_summary()
+    
+    def _build_summarizer_payload(self, user_id: str, session_limit: int) -> Dict[str, Any]:
+        """Build payload for summarizer LLM call"""
+        db = SessionLocal()
+        try:
+            # Get recent attempt history with session context
+            attempts = db.execute(text("""
+                SELECT 
+                    ae.question_id,
+                    ae.was_correct,
+                    ae.skipped,
+                    ae.response_time_ms,
+                    ae.sess_seq_at_serve,
+                    ae.difficulty_band,
+                    ae.subcategory,
+                    ae.type_of_question,
+                    ae.core_concepts,
+                    ae.pyq_frequency_score,
+                    ae.created_at
+                FROM attempt_events ae
+                JOIN sessions s ON ae.session_id = s.session_id
+                WHERE ae.user_id = :user_id
+                AND s.sess_seq > (
+                    SELECT COALESCE(MAX(sess_seq), 0) - :session_limit
+                    FROM sessions
+                    WHERE user_id = :user_id
+                )
+                ORDER BY ae.sess_seq_at_serve, ae.created_at
+                LIMIT 100
+            """), {
+                "user_id": user_id,
+                "session_limit": session_limit
+            }).fetchall()
+            
+            # Format attempt history
+            attempt_history = []
+            for attempt in attempts:
+                # Parse core concepts
+                try:
+                    if isinstance(attempt.core_concepts, list):
+                        concepts = attempt.core_concepts
+                    elif isinstance(attempt.core_concepts, str):
+                        concepts = json.loads(attempt.core_concepts)
+                    else:
+                        concepts = []
+                except:
+                    concepts = []
+                
+                attempt_history.append({
+                    "question_id": attempt.question_id,
+                    "was_correct": attempt.was_correct,
+                    "skipped": attempt.skipped,
+                    "response_time_ms": attempt.response_time_ms,
+                    "sess_seq": attempt.sess_seq_at_serve,
+                    "difficulty_band": attempt.difficulty_band,
+                    "pair": f"{attempt.subcategory}:{attempt.type_of_question}",
+                    "core_concepts": concepts,
+                    "pyq_frequency_score": float(attempt.pyq_frequency_score) if attempt.pyq_frequency_score else 0.5
+                })
+            
+            # Get existing concept alias map (if any)
+            existing_aliases = self._get_existing_concept_aliases(user_id)
+            
+            return {
+                "user_id": user_id,
+                "attempt_history": attempt_history,
+                "existing_concept_aliases": existing_aliases,
+                "analysis_instructions": {
+                    "focus_areas": [
+                        "Identify recurring concept patterns",
+                        "Assess confidence levels by difficulty band",
+                        "Detect avoidance behaviors (skipping patterns)",
+                        "Evaluate concept coverage gaps"
+                    ]
+                }
+            }
+            
+        finally:
+            db.close()
+    
+    def _get_existing_concept_aliases(self, user_id: str) -> List[Dict[str, Any]]:
+        """Get existing concept alias mappings for the user"""
+        db = SessionLocal()
+        try:
+            # Check if we have any existing alias mappings
+            aliases = db.execute(text("""
+                SELECT semantic_id, canonical_label, members
+                FROM concept_alias_map_latest
+                WHERE user_id = :user_id
+                ORDER BY created_at DESC
+            """), {"user_id": user_id}).fetchall()
+            
+            alias_list = []
+            for alias in aliases:
+                # Parse members JSON
+                try:
+                    members = alias.members if isinstance(alias.members, list) else json.loads(alias.members or "[]")
+                except:
+                    members = []
+                
+                alias_list.append({
+                    "semantic_id": alias.semantic_id,
+                    "canonical_label": alias.canonical_label,
+                    "members": members
+                })
+            
+            return alias_list
+            
+        except Exception as e:
+            logger.warning(f"Could not load existing aliases for user {user_id[:8]}: {e}")
+            return []
+        finally:
+            db.close()
+    
+    def _generate_empty_summary(self) -> Dict[str, Any]:
+        """Generate empty summary for users with no history"""
+        return {
+            "concept_alias_map_updated": [],
+            "dominance_by_item": {},
+            "concept_readiness_labels": [],
+            "pair_coverage_labels": [],
+            "notes": "No attempt history available for analysis"
+        }
+    
+    def save_session_summary(self, user_id: str, session_id: str, summary_data: Dict[str, Any]) -> None:
+        """Save summarizer results to database"""
+        db = SessionLocal()
+        try:
+            # Save to session_summary_llm table
+            db.execute(text("""
+                INSERT INTO session_summary_llm (
+                    user_id, session_id, 
+                    concept_alias_map_updated, dominance_by_item,
+                    concept_readiness_labels, pair_coverage_labels,
+                    notes, created_at
+                ) VALUES (
+                    :user_id, :session_id,
+                    :concept_alias_map, :dominance_by_item,
+                    :readiness_labels, :coverage_labels,
+                    :notes, CURRENT_TIMESTAMP
+                )
+            """), {
+                "user_id": user_id,
+                "session_id": session_id,
+                "concept_alias_map": json.dumps(summary_data.get("concept_alias_map_updated", [])),
+                "dominance_by_item": json.dumps(summary_data.get("dominance_by_item", {})),
+                "readiness_labels": json.dumps(summary_data.get("concept_readiness_labels", [])),
+                "coverage_labels": json.dumps(summary_data.get("pair_coverage_labels", [])),
+                "notes": summary_data.get("notes", "")
+            })
+            
+            # Update concept alias map latest
+            for alias in summary_data.get("concept_alias_map_updated", []):
+                db.execute(text("""
+                    INSERT INTO concept_alias_map_latest (
+                        user_id, semantic_id, canonical_label, members, created_at
+                    ) VALUES (
+                        :user_id, :semantic_id, :canonical_label, :members, CURRENT_TIMESTAMP
+                    ) ON CONFLICT (user_id, semantic_id) 
+                    DO UPDATE SET 
+                        canonical_label = EXCLUDED.canonical_label,
+                        members = EXCLUDED.members,
+                        created_at = EXCLUDED.created_at
+                """), {
+                    "user_id": user_id,
+                    "semantic_id": alias["semantic_id"],
+                    "canonical_label": alias["canonical_label"],
+                    "members": json.dumps(alias["members"])
+                })
+            
+            db.commit()
+            logger.info(f"💾 Saved summarizer results for user {user_id[:8]}")
+            
+        except Exception as e:
+            logger.error(f"❌ Failed to save summarizer results: {e}")
+            db.rollback()
+        finally:
+            db.close()
+
+# Global instance
+summarizer_service = SummarizerService()
