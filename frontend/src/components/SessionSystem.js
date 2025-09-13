@@ -386,14 +386,12 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
       const response = await axios.get(`${API}/sessions/${sessionId}/next-question`);
       
       if (response.data.session_complete) {
-        // Session completed, show summary
-        if (onSessionEnd) {
-          onSessionEnd({
-            completed: true,
-            questionsCompleted: response.data.questions_completed,
-            totalQuestions: response.data.total_questions
-          });
-        }
+        // Session completed - trigger end-of-session handshake
+        await handleSessionCompletionWithHandshake({
+          completed: true,
+          questionsCompleted: response.data.questions_completed,
+          totalQuestions: response.data.total_questions
+        });
         return;
       }
       
