@@ -286,6 +286,9 @@ class User(Base):
     # Referral system
     referral_code = Column(String(6), unique=True, nullable=True)  # 6-character alphanumeric referral code
     
+    # Adaptive system feature flag
+    adaptive_enabled = Column(Boolean, default=False, nullable=False)
+    
     # Relationships - updated after database cleanup
     # diagnostics, attempts, mastery, plans, sessions, coverage_tracking relationships removed (tables deleted)
 
