@@ -708,3 +708,740 @@ INFO:regular_enrichment_service:🎯 Regular question difficulty: 3.0 > 1.5 ✅
 INFO:regular_enrichment_service:📊 Found 27 category x subcategory filtered PYQ questions
 INFO:llm_utils:🧠 Starting LLM-based PYQ frequency calculation for 27 category-filtered PYQs
 INFO:llm_utils:🎯 Category: Arithmetic, Subcategory: Averages and Alligation
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:llm_utils:✅ LLM PYQ frequency calculation completed with openai-gpt-4o
+INFO:llm_utils:🎯 Found 3 raw matches (no scaling) → Score: 1.0
+INFO:llm_utils:📊 Processed 27 category-filtered PYQ questions
+INFO:regular_enrichment_service:✅ PYQ frequency score calculated: 1.0
+INFO:regular_enrichment_service:🎯 Processed 27 questions with raw matching (no scaling)
+   = No change: 1.0
+🔄 Processing 57/370: 0fe90130...
+INFO:regular_enrichment_service:🔍 Getting qualifying PYQ questions for category='Geometry and Mensuration', subcategory='Triangles'
+INFO:regular_enrichment_service:🎯 Regular question difficulty: 3.0 > 1.5 ✅
+INFO:regular_enrichment_service:📊 Found 5 category x subcategory filtered PYQ questions
+INFO:llm_utils:🧠 Starting LLM-based PYQ frequency calculation for 5 category-filtered PYQs
+INFO:llm_utils:🎯 Category: Geometry and Mensuration, Subcategory: Triangles
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:llm_utils:✅ LLM PYQ frequency calculation completed with openai-gpt-4o
+INFO:llm_utils:🎯 Found 1 raw matches (no scaling) → Score: 1.0
+INFO:llm_utils:📊 Processed 5 category-filtered PYQ questions
+INFO:regular_enrichment_service:✅ PYQ frequency score calculated: 1.0
+INFO:regular_enrichment_service:🎯 Processed 5 questions with raw matching (no scaling)
+   = No change: 1.0
+🔄 Processing 58/370: b7916e97...
+INFO:regular_enrichment_service:🔍 Getting qualifying PYQ questions for category='Arithmetic', subcategory='Time-Work'
+INFO:regular_enrichment_service:🎯 Regular question difficulty: 3.0 > 1.5 ✅
+INFO:regular_enrichment_service:📊 Found 22 category x subcategory filtered PYQ questions
+INFO:llm_utils:🧠 Starting LLM-based PYQ frequency calculation for 22 category-filtered PYQs
+INFO:llm_utils:🎯 Category: Arithmetic, Subcategory: Time-Work
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:llm_utils:✅ LLM PYQ frequency calculation completed with openai-gpt-4o
+INFO:llm_utils:🎯 Found 2 raw matches (no scaling) → Score: 1.0
+INFO:llm_utils:📊 Processed 22 category-filtered PYQ questions
+INFO:regular_enrichment_service:✅ PYQ frequency score calculated: 1.0
+INFO:regular_enrichment_service:🎯 Processed 22 questions with raw matching (no scaling)
+   = No change: 1.0
+🔄 Processing 59/370: 39c886a0...
+INFO:regular_enrichment_service:🔍 Getting qualifying PYQ questions for category='Arithmetic', subcategory='Averages and Alligation'
+INFO:regular_enrichment_service:🎯 Regular question difficulty: 3.2 > 1.5 ✅
+INFO:regular_enrichment_service:📊 Found 27 category x subcategory filtered PYQ questions
+INFO:llm_utils:🧠 Starting LLM-based PYQ frequency calculation for 27 category-filtered PYQs
+INFO:llm_utils:🎯 Category: Arithmetic, Subcategory: Averages and Alligation
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:llm_utils:✅ LLM PYQ frequency calculation completed with openai-gpt-4o
+INFO:llm_utils:🎯 Found 2 raw matches (no scaling) → Score: 1.0
+INFO:llm_utils:📊 Processed 27 category-filtered PYQ questions
+INFO:regular_enrichment_service:✅ PYQ frequency score calculated: 1.0
+INFO:regular_enrichment_service:🎯 Processed 27 questions with raw matching (no scaling)
+   = No change: 1.0
+🔄 Processing 60/370: 9a3c79cb...
+INFO:regular_enrichment_service:🔍 Getting qualifying PYQ questions for category='Arithmetic', subcategory='Time-Speed-Distance'
+INFO:regular_enrichment_service:🎯 Regular question difficulty: 3.0 > 1.5 ✅
+INFO:regular_enrichment_service:📊 Found 35 category x subcategory filtered PYQ questions
+INFO:llm_utils:🧠 Starting LLM-based PYQ frequency calculation for 35 category-filtered PYQs
+INFO:llm_utils:🎯 Category: Arithmetic, Subcategory: Time-Speed-Distance
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:llm_utils:✅ LLM PYQ frequency calculation completed with openai-gpt-4o
+INFO:llm_utils:🎯 Found 4 raw matches (no scaling) → Score: 1.5
+INFO:llm_utils:📊 Processed 35 category-filtered PYQ questions
+INFO:regular_enrichment_service:✅ PYQ frequency score calculated: 1.5
+INFO:regular_enrichment_service:🎯 Processed 35 questions with raw matching (no scaling)
+   ✅ Updated: 1.0 → 1.5
+   💾 Committed batch (processed: 60)
+🔄 Processing 61/370: 48d2fe35...
+INFO:regular_enrichment_service:🔍 Getting qualifying PYQ questions for category='Arithmetic', subcategory='Simple and Compound Interest'
+INFO:regular_enrichment_service:🎯 Regular question difficulty: 3.2 > 1.5 ✅
+INFO:regular_enrichment_service:📊 Found 13 category x subcategory filtered PYQ questions
+INFO:llm_utils:🧠 Starting LLM-based PYQ frequency calculation for 13 category-filtered PYQs
+INFO:llm_utils:🎯 Category: Arithmetic, Subcategory: Simple and Compound Interest
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:llm_utils:✅ LLM PYQ frequency calculation completed with openai-gpt-4o
+INFO:llm_utils:🎯 Found 1 raw matches (no scaling) → Score: 1.0
+INFO:llm_utils:📊 Processed 13 category-filtered PYQ questions
+INFO:regular_enrichment_service:✅ PYQ frequency score calculated: 1.0
+INFO:regular_enrichment_service:🎯 Processed 13 questions with raw matching (no scaling)
+   = No change: 1.0
+🔄 Processing 62/370: 63a34106...
+INFO:regular_enrichment_service:🔍 Getting qualifying PYQ questions for category='Arithmetic', subcategory='Time-Speed-Distance'
+INFO:regular_enrichment_service:🎯 Regular question difficulty: 3.0 > 1.5 ✅
+INFO:regular_enrichment_service:📊 Found 35 category x subcategory filtered PYQ questions
+INFO:llm_utils:🧠 Starting LLM-based PYQ frequency calculation for 35 category-filtered PYQs
+INFO:llm_utils:🎯 Category: Arithmetic, Subcategory: Time-Speed-Distance
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:llm_utils:✅ LLM PYQ frequency calculation completed with openai-gpt-4o
+INFO:llm_utils:🎯 Found 2 raw matches (no scaling) → Score: 1.0
+INFO:llm_utils:📊 Processed 35 category-filtered PYQ questions
+INFO:regular_enrichment_service:✅ PYQ frequency score calculated: 1.0
+INFO:regular_enrichment_service:🎯 Processed 35 questions with raw matching (no scaling)
+   = No change: 1.0
+🔄 Processing 63/370: 608d89bf...
+INFO:regular_enrichment_service:🔍 Getting qualifying PYQ questions for category='Arithmetic', subcategory='Simple and Compound Interest'
+INFO:regular_enrichment_service:🎯 Regular question difficulty: 3.0 > 1.5 ✅
+INFO:regular_enrichment_service:📊 Found 13 category x subcategory filtered PYQ questions
+INFO:llm_utils:🧠 Starting LLM-based PYQ frequency calculation for 13 category-filtered PYQs
+INFO:llm_utils:🎯 Category: Arithmetic, Subcategory: Simple and Compound Interest
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:llm_utils:✅ LLM PYQ frequency calculation completed with openai-gpt-4o
+INFO:llm_utils:🎯 Found 2 raw matches (no scaling) → Score: 1.0
+INFO:llm_utils:📊 Processed 13 category-filtered PYQ questions
+INFO:regular_enrichment_service:✅ PYQ frequency score calculated: 1.0
+INFO:regular_enrichment_service:🎯 Processed 13 questions with raw matching (no scaling)
+   = No change: 1.0
+🔄 Processing 64/370: c4d4c7fd...
+INFO:regular_enrichment_service:🔍 Getting qualifying PYQ questions for category='Arithmetic', subcategory='Profit-Loss-Discount'
+INFO:regular_enrichment_service:🎯 Regular question difficulty: 3.5 > 1.5 ✅
+INFO:regular_enrichment_service:📊 Found 16 category x subcategory filtered PYQ questions
+INFO:llm_utils:🧠 Starting LLM-based PYQ frequency calculation for 16 category-filtered PYQs
+INFO:llm_utils:🎯 Category: Arithmetic, Subcategory: Profit-Loss-Discount
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:llm_utils:✅ LLM PYQ frequency calculation completed with openai-gpt-4o
+INFO:llm_utils:🎯 Found 2 raw matches (no scaling) → Score: 1.0
+INFO:llm_utils:📊 Processed 16 category-filtered PYQ questions
+INFO:regular_enrichment_service:✅ PYQ frequency score calculated: 1.0
+INFO:regular_enrichment_service:🎯 Processed 16 questions with raw matching (no scaling)
+   = No change: 1.0
+🔄 Processing 65/370: c516e2b3...
+INFO:regular_enrichment_service:🔍 Getting qualifying PYQ questions for category='Arithmetic', subcategory='Time-Speed-Distance'
+INFO:regular_enrichment_service:🎯 Regular question difficulty: 3.2 > 1.5 ✅
+INFO:regular_enrichment_service:📊 Found 35 category x subcategory filtered PYQ questions
+INFO:llm_utils:🧠 Starting LLM-based PYQ frequency calculation for 35 category-filtered PYQs
+INFO:llm_utils:🎯 Category: Arithmetic, Subcategory: Time-Speed-Distance
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:llm_utils:✅ LLM PYQ frequency calculation completed with openai-gpt-4o
+INFO:llm_utils:🎯 Found 2 raw matches (no scaling) → Score: 1.0
+INFO:llm_utils:📊 Processed 35 category-filtered PYQ questions
+INFO:regular_enrichment_service:✅ PYQ frequency score calculated: 1.0
+INFO:regular_enrichment_service:🎯 Processed 35 questions with raw matching (no scaling)
+   = No change: 1.0
+🔄 Processing 66/370: 16e603d2...
+INFO:regular_enrichment_service:🔍 Getting qualifying PYQ questions for category='Arithmetic', subcategory='Profit-Loss-Discount'
+INFO:regular_enrichment_service:🎯 Regular question difficulty: 3.2 > 1.5 ✅
+INFO:regular_enrichment_service:📊 Found 16 category x subcategory filtered PYQ questions
+INFO:llm_utils:🧠 Starting LLM-based PYQ frequency calculation for 16 category-filtered PYQs
+INFO:llm_utils:🎯 Category: Arithmetic, Subcategory: Profit-Loss-Discount
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:llm_utils:✅ LLM PYQ frequency calculation completed with openai-gpt-4o
+INFO:llm_utils:🎯 Found 2 raw matches (no scaling) → Score: 1.0
+INFO:llm_utils:📊 Processed 16 category-filtered PYQ questions
+INFO:regular_enrichment_service:✅ PYQ frequency score calculated: 1.0
+INFO:regular_enrichment_service:🎯 Processed 16 questions with raw matching (no scaling)
+   = No change: 1.0
+🔄 Processing 67/370: aec9cfcc...
+INFO:regular_enrichment_service:🔍 Getting qualifying PYQ questions for category='Arithmetic', subcategory='Time-Speed-Distance'
+INFO:regular_enrichment_service:🎯 Regular question difficulty: 3.0 > 1.5 ✅
+INFO:regular_enrichment_service:📊 Found 35 category x subcategory filtered PYQ questions
+INFO:llm_utils:🧠 Starting LLM-based PYQ frequency calculation for 35 category-filtered PYQs
+INFO:llm_utils:🎯 Category: Arithmetic, Subcategory: Time-Speed-Distance
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:llm_utils:✅ LLM PYQ frequency calculation completed with openai-gpt-4o
+INFO:llm_utils:🎯 Found 3 raw matches (no scaling) → Score: 1.0
+INFO:llm_utils:📊 Processed 35 category-filtered PYQ questions
+INFO:regular_enrichment_service:✅ PYQ frequency score calculated: 1.0
+INFO:regular_enrichment_service:🎯 Processed 35 questions with raw matching (no scaling)
+   = No change: 1.0
+🔄 Processing 68/370: bf4117ba...
+INFO:regular_enrichment_service:🔍 Getting qualifying PYQ questions for category='Arithmetic', subcategory='Time-Speed-Distance'
+INFO:regular_enrichment_service:🎯 Regular question difficulty: 3.0 > 1.5 ✅
+INFO:regular_enrichment_service:📊 Found 35 category x subcategory filtered PYQ questions
+INFO:llm_utils:🧠 Starting LLM-based PYQ frequency calculation for 35 category-filtered PYQs
+INFO:llm_utils:🎯 Category: Arithmetic, Subcategory: Time-Speed-Distance
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:llm_utils:✅ LLM PYQ frequency calculation completed with openai-gpt-4o
+INFO:llm_utils:🎯 Found 3 raw matches (no scaling) → Score: 1.0
+INFO:llm_utils:📊 Processed 35 category-filtered PYQ questions
+INFO:regular_enrichment_service:✅ PYQ frequency score calculated: 1.0
+INFO:regular_enrichment_service:🎯 Processed 35 questions with raw matching (no scaling)
+   = No change: 1.0
+🔄 Processing 69/370: a82e3761...
+INFO:regular_enrichment_service:🔍 Getting qualifying PYQ questions for category='Arithmetic', subcategory='Mixtures and Solutions'
+INFO:regular_enrichment_service:🎯 Regular question difficulty: 3.2 > 1.5 ✅
+INFO:regular_enrichment_service:📊 Found 14 category x subcategory filtered PYQ questions
+INFO:llm_utils:🧠 Starting LLM-based PYQ frequency calculation for 14 category-filtered PYQs
+INFO:llm_utils:🎯 Category: Arithmetic, Subcategory: Mixtures and Solutions
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:llm_utils:✅ LLM PYQ frequency calculation completed with openai-gpt-4o
+INFO:llm_utils:🎯 Found 2 raw matches (no scaling) → Score: 1.0
+INFO:llm_utils:📊 Processed 14 category-filtered PYQ questions
+INFO:regular_enrichment_service:✅ PYQ frequency score calculated: 1.0
+INFO:regular_enrichment_service:🎯 Processed 14 questions with raw matching (no scaling)
+   = No change: 1.0
+🔄 Processing 70/370: d8812aab...
+INFO:regular_enrichment_service:🔍 Getting qualifying PYQ questions for category='Arithmetic', subcategory='Time-Speed-Distance'
+INFO:regular_enrichment_service:🎯 Regular question difficulty: 3.2 > 1.5 ✅
+INFO:regular_enrichment_service:📊 Found 35 category x subcategory filtered PYQ questions
+INFO:llm_utils:🧠 Starting LLM-based PYQ frequency calculation for 35 category-filtered PYQs
+INFO:llm_utils:🎯 Category: Arithmetic, Subcategory: Time-Speed-Distance
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:llm_utils:✅ LLM PYQ frequency calculation completed with openai-gpt-4o
+INFO:llm_utils:🎯 Found 2 raw matches (no scaling) → Score: 1.0
+INFO:llm_utils:📊 Processed 35 category-filtered PYQ questions
+INFO:regular_enrichment_service:✅ PYQ frequency score calculated: 1.0
+INFO:regular_enrichment_service:🎯 Processed 35 questions with raw matching (no scaling)
+   = No change: 1.0
+   💾 Committed batch (processed: 70)
+🔄 Processing 71/370: 5b9d1f30...
+INFO:regular_enrichment_service:🔍 Getting qualifying PYQ questions for category='Arithmetic', subcategory='Percentages'
+INFO:regular_enrichment_service:🎯 Regular question difficulty: 3.2 > 1.5 ✅
+INFO:regular_enrichment_service:📊 Found 12 category x subcategory filtered PYQ questions
+INFO:llm_utils:🧠 Starting LLM-based PYQ frequency calculation for 12 category-filtered PYQs
+INFO:llm_utils:🎯 Category: Arithmetic, Subcategory: Percentages
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:llm_utils:✅ LLM PYQ frequency calculation completed with openai-gpt-4o
+INFO:llm_utils:🎯 Found 1 raw matches (no scaling) → Score: 1.0
+INFO:llm_utils:📊 Processed 12 category-filtered PYQ questions
+INFO:regular_enrichment_service:✅ PYQ frequency score calculated: 1.0
+INFO:regular_enrichment_service:🎯 Processed 12 questions with raw matching (no scaling)
+   = No change: 1.0
+🔄 Processing 72/370: f457891e...
+INFO:regular_enrichment_service:🔍 Getting qualifying PYQ questions for category='Geometry and Mensuration', subcategory='Circles'
+INFO:regular_enrichment_service:🎯 Regular question difficulty: 3.2 > 1.5 ✅
+INFO:regular_enrichment_service:📊 Found 13 category x subcategory filtered PYQ questions
+INFO:llm_utils:🧠 Starting LLM-based PYQ frequency calculation for 13 category-filtered PYQs
+INFO:llm_utils:🎯 Category: Geometry and Mensuration, Subcategory: Circles
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:llm_utils:✅ LLM PYQ frequency calculation completed with openai-gpt-4o
+INFO:llm_utils:🎯 Found 1 raw matches (no scaling) → Score: 1.0
+INFO:llm_utils:📊 Processed 13 category-filtered PYQ questions
+INFO:regular_enrichment_service:✅ PYQ frequency score calculated: 1.0
+INFO:regular_enrichment_service:🎯 Processed 13 questions with raw matching (no scaling)
+   = No change: 1.0
+🔄 Processing 73/370: 4fd3b2f3...
+INFO:regular_enrichment_service:🔍 Getting qualifying PYQ questions for category='Arithmetic', subcategory='Time-Work'
+INFO:regular_enrichment_service:🎯 Regular question difficulty: 3.2 > 1.5 ✅
+INFO:regular_enrichment_service:📊 Found 22 category x subcategory filtered PYQ questions
+INFO:llm_utils:🧠 Starting LLM-based PYQ frequency calculation for 22 category-filtered PYQs
+INFO:llm_utils:🎯 Category: Arithmetic, Subcategory: Time-Work
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:llm_utils:✅ LLM PYQ frequency calculation completed with openai-gpt-4o
+INFO:llm_utils:🎯 Found 2 raw matches (no scaling) → Score: 1.0
+INFO:llm_utils:📊 Processed 22 category-filtered PYQ questions
+INFO:regular_enrichment_service:✅ PYQ frequency score calculated: 1.0
+INFO:regular_enrichment_service:🎯 Processed 22 questions with raw matching (no scaling)
+   = No change: 1.0
+🔄 Processing 74/370: 408af014...
+INFO:regular_enrichment_service:🔍 Getting qualifying PYQ questions for category='Arithmetic', subcategory='Time-Speed-Distance'
+INFO:regular_enrichment_service:🎯 Regular question difficulty: 3.0 > 1.5 ✅
+INFO:regular_enrichment_service:📊 Found 35 category x subcategory filtered PYQ questions
+INFO:llm_utils:🧠 Starting LLM-based PYQ frequency calculation for 35 category-filtered PYQs
+INFO:llm_utils:🎯 Category: Arithmetic, Subcategory: Time-Speed-Distance
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:llm_utils:✅ LLM PYQ frequency calculation completed with openai-gpt-4o
+INFO:llm_utils:🎯 Found 3 raw matches (no scaling) → Score: 1.0
+INFO:llm_utils:📊 Processed 35 category-filtered PYQ questions
+INFO:regular_enrichment_service:✅ PYQ frequency score calculated: 1.0
+INFO:regular_enrichment_service:🎯 Processed 35 questions with raw matching (no scaling)
+   = No change: 1.0
+🔄 Processing 75/370: f12bf431...
+INFO:regular_enrichment_service:🔍 Getting qualifying PYQ questions for category='Arithmetic', subcategory='Percentages'
+INFO:regular_enrichment_service:🎯 Regular question difficulty: 3.0 > 1.5 ✅
+INFO:regular_enrichment_service:📊 Found 12 category x subcategory filtered PYQ questions
+INFO:llm_utils:🧠 Starting LLM-based PYQ frequency calculation for 12 category-filtered PYQs
+INFO:llm_utils:🎯 Category: Arithmetic, Subcategory: Percentages
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:llm_utils:✅ LLM PYQ frequency calculation completed with openai-gpt-4o
+INFO:llm_utils:🎯 Found 2 raw matches (no scaling) → Score: 1.0
+INFO:llm_utils:📊 Processed 12 category-filtered PYQ questions
+INFO:regular_enrichment_service:✅ PYQ frequency score calculated: 1.0
+INFO:regular_enrichment_service:🎯 Processed 12 questions with raw matching (no scaling)
+   = No change: 1.0
+🔄 Processing 76/370: e2e1f40d...
+INFO:regular_enrichment_service:🔍 Getting qualifying PYQ questions for category='Geometry and Mensuration', subcategory='Mensuration 3D'
+INFO:regular_enrichment_service:🎯 Regular question difficulty: 3.5 > 1.5 ✅
+INFO:regular_enrichment_service:📊 Found 7 category x subcategory filtered PYQ questions
+INFO:llm_utils:🧠 Starting LLM-based PYQ frequency calculation for 7 category-filtered PYQs
+INFO:llm_utils:🎯 Category: Geometry and Mensuration, Subcategory: Mensuration 3D
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:llm_utils:✅ LLM PYQ frequency calculation completed with openai-gpt-4o
+INFO:llm_utils:🎯 Found 1 raw matches (no scaling) → Score: 1.0
+INFO:llm_utils:📊 Processed 7 category-filtered PYQ questions
+INFO:regular_enrichment_service:✅ PYQ frequency score calculated: 1.0
+INFO:regular_enrichment_service:🎯 Processed 7 questions with raw matching (no scaling)
+   = No change: 1.0
+🔄 Processing 77/370: 653b199a...
+INFO:regular_enrichment_service:🔍 Getting qualifying PYQ questions for category='Arithmetic', subcategory='Percentages'
+INFO:regular_enrichment_service:🎯 Regular question difficulty: 3.0 > 1.5 ✅
+INFO:regular_enrichment_service:📊 Found 12 category x subcategory filtered PYQ questions
+INFO:llm_utils:🧠 Starting LLM-based PYQ frequency calculation for 12 category-filtered PYQs
+INFO:llm_utils:🎯 Category: Arithmetic, Subcategory: Percentages
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:llm_utils:✅ LLM PYQ frequency calculation completed with openai-gpt-4o
+INFO:llm_utils:🎯 Found 2 raw matches (no scaling) → Score: 1.0
+INFO:llm_utils:📊 Processed 12 category-filtered PYQ questions
+INFO:regular_enrichment_service:✅ PYQ frequency score calculated: 1.0
+INFO:regular_enrichment_service:🎯 Processed 12 questions with raw matching (no scaling)
+   = No change: 1.0
+🔄 Processing 78/370: 4f1f0fd8...
+INFO:regular_enrichment_service:🎯 Regular question difficulty (1.2) ≤ 1.5, skipping PYQ frequency calculation
+   = No change: 0.5
+🔄 Processing 79/370: dcdd92e8...
+INFO:regular_enrichment_service:🔍 Getting qualifying PYQ questions for category='Arithmetic', subcategory='Time-Work'
+INFO:regular_enrichment_service:🎯 Regular question difficulty: 3.2 > 1.5 ✅
+INFO:regular_enrichment_service:📊 Found 22 category x subcategory filtered PYQ questions
+INFO:llm_utils:🧠 Starting LLM-based PYQ frequency calculation for 22 category-filtered PYQs
+INFO:llm_utils:🎯 Category: Arithmetic, Subcategory: Time-Work
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:llm_utils:✅ LLM PYQ frequency calculation completed with openai-gpt-4o
+INFO:llm_utils:🎯 Found 3 raw matches (no scaling) → Score: 1.0
+INFO:llm_utils:📊 Processed 22 category-filtered PYQ questions
+INFO:regular_enrichment_service:✅ PYQ frequency score calculated: 1.0
+INFO:regular_enrichment_service:🎯 Processed 22 questions with raw matching (no scaling)
+   = No change: 1.0
+🔄 Processing 80/370: 8388e61e...
+INFO:regular_enrichment_service:🔍 Getting qualifying PYQ questions for category='Arithmetic', subcategory='Ratios and Proportions'
+INFO:regular_enrichment_service:🎯 Regular question difficulty: 3.0 > 1.5 ✅
+INFO:regular_enrichment_service:📊 Found 20 category x subcategory filtered PYQ questions
+INFO:llm_utils:🧠 Starting LLM-based PYQ frequency calculation for 20 category-filtered PYQs
+INFO:llm_utils:🎯 Category: Arithmetic, Subcategory: Ratios and Proportions
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:llm_utils:✅ LLM PYQ frequency calculation completed with openai-gpt-4o
+INFO:llm_utils:🎯 Found 2 raw matches (no scaling) → Score: 1.0
+INFO:llm_utils:📊 Processed 20 category-filtered PYQ questions
+INFO:regular_enrichment_service:✅ PYQ frequency score calculated: 1.0
+INFO:regular_enrichment_service:🎯 Processed 20 questions with raw matching (no scaling)
+   = No change: 1.0
+   💾 Committed batch (processed: 80)
+🔄 Processing 81/370: 3563a9a3...
+INFO:regular_enrichment_service:🔍 Getting qualifying PYQ questions for category='Arithmetic', subcategory='Profit-Loss-Discount'
+INFO:regular_enrichment_service:🎯 Regular question difficulty: 3.0 > 1.5 ✅
+INFO:regular_enrichment_service:📊 Found 16 category x subcategory filtered PYQ questions
+INFO:llm_utils:🧠 Starting LLM-based PYQ frequency calculation for 16 category-filtered PYQs
+INFO:llm_utils:🎯 Category: Arithmetic, Subcategory: Profit-Loss-Discount
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:llm_utils:✅ LLM PYQ frequency calculation completed with openai-gpt-4o
+INFO:llm_utils:🎯 Found 2 raw matches (no scaling) → Score: 1.0
+INFO:llm_utils:📊 Processed 16 category-filtered PYQ questions
+INFO:regular_enrichment_service:✅ PYQ frequency score calculated: 1.0
+INFO:regular_enrichment_service:🎯 Processed 16 questions with raw matching (no scaling)
+   = No change: 1.0
+🔄 Processing 82/370: 2bf28f4b...
+INFO:regular_enrichment_service:🔍 Getting qualifying PYQ questions for category='Arithmetic', subcategory='Percentages'
+INFO:regular_enrichment_service:🎯 Regular question difficulty: 3.2 > 1.5 ✅
+INFO:regular_enrichment_service:📊 Found 12 category x subcategory filtered PYQ questions
+INFO:llm_utils:🧠 Starting LLM-based PYQ frequency calculation for 12 category-filtered PYQs
+INFO:llm_utils:🎯 Category: Arithmetic, Subcategory: Percentages
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:llm_utils:✅ LLM PYQ frequency calculation completed with openai-gpt-4o
+INFO:llm_utils:🎯 Found 2 raw matches (no scaling) → Score: 1.0
+INFO:llm_utils:📊 Processed 12 category-filtered PYQ questions
+INFO:regular_enrichment_service:✅ PYQ frequency score calculated: 1.0
+INFO:regular_enrichment_service:🎯 Processed 12 questions with raw matching (no scaling)
+   = No change: 1.0
+🔄 Processing 83/370: 2029be86...
+INFO:regular_enrichment_service:🔍 Getting qualifying PYQ questions for category='Arithmetic', subcategory='Time-Speed-Distance'
+INFO:regular_enrichment_service:🎯 Regular question difficulty: 3.0 > 1.5 ✅
+INFO:regular_enrichment_service:📊 Found 35 category x subcategory filtered PYQ questions
+INFO:llm_utils:🧠 Starting LLM-based PYQ frequency calculation for 35 category-filtered PYQs
+INFO:llm_utils:🎯 Category: Arithmetic, Subcategory: Time-Speed-Distance
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:llm_utils:✅ LLM PYQ frequency calculation completed with openai-gpt-4o
+INFO:llm_utils:🎯 Found 2 raw matches (no scaling) → Score: 1.0
+INFO:llm_utils:📊 Processed 35 category-filtered PYQ questions
+INFO:regular_enrichment_service:✅ PYQ frequency score calculated: 1.0
+INFO:regular_enrichment_service:🎯 Processed 35 questions with raw matching (no scaling)
+   = No change: 1.0
+🔄 Processing 84/370: 82442c1b...
+INFO:regular_enrichment_service:🔍 Getting qualifying PYQ questions for category='Arithmetic', subcategory='Simple and Compound Interest'
+INFO:regular_enrichment_service:🎯 Regular question difficulty: 3.0 > 1.5 ✅
+INFO:regular_enrichment_service:📊 Found 13 category x subcategory filtered PYQ questions
+INFO:llm_utils:🧠 Starting LLM-based PYQ frequency calculation for 13 category-filtered PYQs
+INFO:llm_utils:🎯 Category: Arithmetic, Subcategory: Simple and Compound Interest
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:llm_utils:✅ LLM PYQ frequency calculation completed with openai-gpt-4o
+INFO:llm_utils:🎯 Found 2 raw matches (no scaling) → Score: 1.0
+INFO:llm_utils:📊 Processed 13 category-filtered PYQ questions
+INFO:regular_enrichment_service:✅ PYQ frequency score calculated: 1.0
+INFO:regular_enrichment_service:🎯 Processed 13 questions with raw matching (no scaling)
+   = No change: 1.0
+🔄 Processing 85/370: 03a5a845...
+INFO:regular_enrichment_service:🔍 Getting qualifying PYQ questions for category='Arithmetic', subcategory='Time-Speed-Distance'
+INFO:regular_enrichment_service:🎯 Regular question difficulty: 3.0 > 1.5 ✅
+INFO:regular_enrichment_service:📊 Found 35 category x subcategory filtered PYQ questions
+INFO:llm_utils:🧠 Starting LLM-based PYQ frequency calculation for 35 category-filtered PYQs
+INFO:llm_utils:🎯 Category: Arithmetic, Subcategory: Time-Speed-Distance
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:llm_utils:✅ LLM PYQ frequency calculation completed with openai-gpt-4o
+INFO:llm_utils:🎯 Found 4 raw matches (no scaling) → Score: 1.5
+INFO:llm_utils:📊 Processed 35 category-filtered PYQ questions
+INFO:regular_enrichment_service:✅ PYQ frequency score calculated: 1.5
+INFO:regular_enrichment_service:🎯 Processed 35 questions with raw matching (no scaling)
+   = No change: 1.5
+🔄 Processing 86/370: aef048b1...
+INFO:regular_enrichment_service:🔍 Getting qualifying PYQ questions for category='Arithmetic', subcategory='Profit-Loss-Discount'
+INFO:regular_enrichment_service:🎯 Regular question difficulty: 3.0 > 1.5 ✅
+INFO:regular_enrichment_service:📊 Found 16 category x subcategory filtered PYQ questions
+INFO:llm_utils:🧠 Starting LLM-based PYQ frequency calculation for 16 category-filtered PYQs
+INFO:llm_utils:🎯 Category: Arithmetic, Subcategory: Profit-Loss-Discount
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:llm_utils:✅ LLM PYQ frequency calculation completed with openai-gpt-4o
+INFO:llm_utils:🎯 Found 2 raw matches (no scaling) → Score: 1.0
+INFO:llm_utils:📊 Processed 16 category-filtered PYQ questions
+INFO:regular_enrichment_service:✅ PYQ frequency score calculated: 1.0
+INFO:regular_enrichment_service:🎯 Processed 16 questions with raw matching (no scaling)
+   = No change: 1.0
+🔄 Processing 87/370: 64b461f6...
+INFO:regular_enrichment_service:🔍 Getting qualifying PYQ questions for category='Arithmetic', subcategory='Time-Speed-Distance'
+INFO:regular_enrichment_service:🎯 Regular question difficulty: 3.0 > 1.5 ✅
+INFO:regular_enrichment_service:📊 Found 35 category x subcategory filtered PYQ questions
+INFO:llm_utils:🧠 Starting LLM-based PYQ frequency calculation for 35 category-filtered PYQs
+INFO:llm_utils:🎯 Category: Arithmetic, Subcategory: Time-Speed-Distance
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:llm_utils:✅ LLM PYQ frequency calculation completed with openai-gpt-4o
+INFO:llm_utils:🎯 Found 3 raw matches (no scaling) → Score: 1.0
+INFO:llm_utils:📊 Processed 35 category-filtered PYQ questions
+INFO:regular_enrichment_service:✅ PYQ frequency score calculated: 1.0
+INFO:regular_enrichment_service:🎯 Processed 35 questions with raw matching (no scaling)
+   = No change: 1.0
+🔄 Processing 88/370: 9f711065...
+INFO:regular_enrichment_service:🔍 Getting qualifying PYQ questions for category='Arithmetic', subcategory='Profit-Loss-Discount'
+INFO:regular_enrichment_service:🎯 Regular question difficulty: 3.5 > 1.5 ✅
+INFO:regular_enrichment_service:📊 Found 16 category x subcategory filtered PYQ questions
+INFO:llm_utils:🧠 Starting LLM-based PYQ frequency calculation for 16 category-filtered PYQs
+INFO:llm_utils:🎯 Category: Arithmetic, Subcategory: Profit-Loss-Discount
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:llm_utils:✅ LLM PYQ frequency calculation completed with openai-gpt-4o
+INFO:llm_utils:🎯 Found 1 raw matches (no scaling) → Score: 1.0
+INFO:llm_utils:📊 Processed 16 category-filtered PYQ questions
+INFO:regular_enrichment_service:✅ PYQ frequency score calculated: 1.0
+INFO:regular_enrichment_service:🎯 Processed 16 questions with raw matching (no scaling)
+   = No change: 1.0
+🔄 Processing 89/370: 71b320b9...
+INFO:regular_enrichment_service:🔍 Getting qualifying PYQ questions for category='Arithmetic', subcategory='Averages and Alligation'
+INFO:regular_enrichment_service:🎯 Regular question difficulty: 3.2 > 1.5 ✅
+INFO:regular_enrichment_service:📊 Found 27 category x subcategory filtered PYQ questions
+INFO:llm_utils:🧠 Starting LLM-based PYQ frequency calculation for 27 category-filtered PYQs
+INFO:llm_utils:🎯 Category: Arithmetic, Subcategory: Averages and Alligation
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:llm_utils:✅ LLM PYQ frequency calculation completed with openai-gpt-4o
+INFO:llm_utils:🎯 Found 2 raw matches (no scaling) → Score: 1.0
+INFO:llm_utils:📊 Processed 27 category-filtered PYQ questions
+INFO:regular_enrichment_service:✅ PYQ frequency score calculated: 1.0
+INFO:regular_enrichment_service:🎯 Processed 27 questions with raw matching (no scaling)
+   = No change: 1.0
+🔄 Processing 90/370: e1b36be2...
+INFO:regular_enrichment_service:🔍 Getting qualifying PYQ questions for category='Geometry and Mensuration', subcategory='Triangles'
+INFO:regular_enrichment_service:🎯 Regular question difficulty: 3.5 > 1.5 ✅
+INFO:regular_enrichment_service:📊 Found 5 category x subcategory filtered PYQ questions
+INFO:llm_utils:🧠 Starting LLM-based PYQ frequency calculation for 5 category-filtered PYQs
+INFO:llm_utils:🎯 Category: Geometry and Mensuration, Subcategory: Triangles
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:llm_utils:✅ LLM PYQ frequency calculation completed with openai-gpt-4o
+INFO:llm_utils:🎯 Found 1 raw matches (no scaling) → Score: 1.0
+INFO:llm_utils:📊 Processed 5 category-filtered PYQ questions
+INFO:regular_enrichment_service:✅ PYQ frequency score calculated: 1.0
+INFO:regular_enrichment_service:🎯 Processed 5 questions with raw matching (no scaling)
+   = No change: 1.0
+   💾 Committed batch (processed: 90)
+🔄 Processing 91/370: 5ebb26f4...
+INFO:regular_enrichment_service:🔍 Getting qualifying PYQ questions for category='Arithmetic', subcategory='Profit-Loss-Discount'
+INFO:regular_enrichment_service:🎯 Regular question difficulty: 3.5 > 1.5 ✅
+INFO:regular_enrichment_service:📊 Found 16 category x subcategory filtered PYQ questions
+INFO:llm_utils:🧠 Starting LLM-based PYQ frequency calculation for 16 category-filtered PYQs
+INFO:llm_utils:🎯 Category: Arithmetic, Subcategory: Profit-Loss-Discount
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:llm_utils:✅ LLM PYQ frequency calculation completed with openai-gpt-4o
+INFO:llm_utils:🎯 Found 2 raw matches (no scaling) → Score: 1.0
+INFO:llm_utils:📊 Processed 16 category-filtered PYQ questions
+INFO:regular_enrichment_service:✅ PYQ frequency score calculated: 1.0
+INFO:regular_enrichment_service:🎯 Processed 16 questions with raw matching (no scaling)
+   = No change: 1.0
+🔄 Processing 92/370: 011a646a...
+INFO:regular_enrichment_service:🔍 Getting qualifying PYQ questions for category='Arithmetic', subcategory='Time-Work'
+INFO:regular_enrichment_service:🎯 Regular question difficulty: 3.2 > 1.5 ✅
+INFO:regular_enrichment_service:📊 Found 22 category x subcategory filtered PYQ questions
+INFO:llm_utils:🧠 Starting LLM-based PYQ frequency calculation for 22 category-filtered PYQs
+INFO:llm_utils:🎯 Category: Arithmetic, Subcategory: Time-Work
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:llm_utils:✅ LLM PYQ frequency calculation completed with openai-gpt-4o
+INFO:llm_utils:🎯 Found 2 raw matches (no scaling) → Score: 1.0
+INFO:llm_utils:📊 Processed 22 category-filtered PYQ questions
+INFO:regular_enrichment_service:✅ PYQ frequency score calculated: 1.0
+INFO:regular_enrichment_service:🎯 Processed 22 questions with raw matching (no scaling)
+   = No change: 1.0
+🔄 Processing 93/370: 9e66c3e7...
+INFO:regular_enrichment_service:🔍 Getting qualifying PYQ questions for category='Geometry and Mensuration', subcategory='Mensuration 3D'
+INFO:regular_enrichment_service:🎯 Regular question difficulty: 3.2 > 1.5 ✅
+INFO:regular_enrichment_service:📊 Found 7 category x subcategory filtered PYQ questions
+INFO:llm_utils:🧠 Starting LLM-based PYQ frequency calculation for 7 category-filtered PYQs
+INFO:llm_utils:🎯 Category: Geometry and Mensuration, Subcategory: Mensuration 3D
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:llm_utils:✅ LLM PYQ frequency calculation completed with openai-gpt-4o
+INFO:llm_utils:🎯 Found 2 raw matches (no scaling) → Score: 1.0
+INFO:llm_utils:📊 Processed 7 category-filtered PYQ questions
+INFO:regular_enrichment_service:✅ PYQ frequency score calculated: 1.0
+INFO:regular_enrichment_service:🎯 Processed 7 questions with raw matching (no scaling)
+   = No change: 1.0
+🔄 Processing 94/370: 01473128...
+INFO:regular_enrichment_service:🔍 Getting qualifying PYQ questions for category='Arithmetic', subcategory='Time-Speed-Distance'
+INFO:regular_enrichment_service:🎯 Regular question difficulty: 3.2 > 1.5 ✅
+INFO:regular_enrichment_service:📊 Found 35 category x subcategory filtered PYQ questions
+INFO:llm_utils:🧠 Starting LLM-based PYQ frequency calculation for 35 category-filtered PYQs
+INFO:llm_utils:🎯 Category: Arithmetic, Subcategory: Time-Speed-Distance
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:llm_utils:✅ LLM PYQ frequency calculation completed with openai-gpt-4o
+INFO:llm_utils:🎯 Found 3 raw matches (no scaling) → Score: 1.0
+INFO:llm_utils:📊 Processed 35 category-filtered PYQ questions
+INFO:regular_enrichment_service:✅ PYQ frequency score calculated: 1.0
+INFO:regular_enrichment_service:🎯 Processed 35 questions with raw matching (no scaling)
+   = No change: 1.0
+🔄 Processing 95/370: 68a035b8...
+INFO:regular_enrichment_service:🔍 Getting qualifying PYQ questions for category='Arithmetic', subcategory='Percentages'
+INFO:regular_enrichment_service:🎯 Regular question difficulty: 2.5 > 1.5 ✅
+INFO:regular_enrichment_service:📊 Found 12 category x subcategory filtered PYQ questions
+INFO:llm_utils:🧠 Starting LLM-based PYQ frequency calculation for 12 category-filtered PYQs
+INFO:llm_utils:🎯 Category: Arithmetic, Subcategory: Percentages
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:llm_utils:✅ LLM PYQ frequency calculation completed with openai-gpt-4o
+INFO:llm_utils:🎯 Found 2 raw matches (no scaling) → Score: 1.0
+INFO:llm_utils:📊 Processed 12 category-filtered PYQ questions
+INFO:regular_enrichment_service:✅ PYQ frequency score calculated: 1.0
+INFO:regular_enrichment_service:🎯 Processed 12 questions with raw matching (no scaling)
+   = No change: 1.0
+🔄 Processing 96/370: 8e402fef...
+INFO:regular_enrichment_service:🔍 Getting qualifying PYQ questions for category='Geometry and Mensuration', subcategory='Circles'
+INFO:regular_enrichment_service:🎯 Regular question difficulty: 3.0 > 1.5 ✅
+INFO:regular_enrichment_service:📊 Found 13 category x subcategory filtered PYQ questions
+INFO:llm_utils:🧠 Starting LLM-based PYQ frequency calculation for 13 category-filtered PYQs
+INFO:llm_utils:🎯 Category: Geometry and Mensuration, Subcategory: Circles
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:llm_utils:✅ LLM PYQ frequency calculation completed with openai-gpt-4o
+INFO:llm_utils:🎯 Found 1 raw matches (no scaling) → Score: 1.0
+INFO:llm_utils:📊 Processed 13 category-filtered PYQ questions
+INFO:regular_enrichment_service:✅ PYQ frequency score calculated: 1.0
+INFO:regular_enrichment_service:🎯 Processed 13 questions with raw matching (no scaling)
+   = No change: 1.0
+🔄 Processing 97/370: 2a6cfcdd...
+INFO:regular_enrichment_service:🔍 Getting qualifying PYQ questions for category='Arithmetic', subcategory='Time-Speed-Distance'
+INFO:regular_enrichment_service:🎯 Regular question difficulty: 3.0 > 1.5 ✅
+INFO:regular_enrichment_service:📊 Found 35 category x subcategory filtered PYQ questions
+INFO:llm_utils:🧠 Starting LLM-based PYQ frequency calculation for 35 category-filtered PYQs
+INFO:llm_utils:🎯 Category: Arithmetic, Subcategory: Time-Speed-Distance
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:llm_utils:✅ LLM PYQ frequency calculation completed with openai-gpt-4o
+INFO:llm_utils:🎯 Found 3 raw matches (no scaling) → Score: 1.0
+INFO:llm_utils:📊 Processed 35 category-filtered PYQ questions
+INFO:regular_enrichment_service:✅ PYQ frequency score calculated: 1.0
+INFO:regular_enrichment_service:🎯 Processed 35 questions with raw matching (no scaling)
+   = No change: 1.0
+🔄 Processing 98/370: 6044517e...
+INFO:regular_enrichment_service:🔍 Getting qualifying PYQ questions for category='Arithmetic', subcategory='Time-Work'
+INFO:regular_enrichment_service:🎯 Regular question difficulty: 2.5 > 1.5 ✅
+INFO:regular_enrichment_service:📊 Found 22 category x subcategory filtered PYQ questions
+INFO:llm_utils:🧠 Starting LLM-based PYQ frequency calculation for 22 category-filtered PYQs
+INFO:llm_utils:🎯 Category: Arithmetic, Subcategory: Time-Work
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:llm_utils:✅ LLM PYQ frequency calculation completed with openai-gpt-4o
+INFO:llm_utils:🎯 Found 2 raw matches (no scaling) → Score: 1.0
+INFO:llm_utils:📊 Processed 22 category-filtered PYQ questions
+INFO:regular_enrichment_service:✅ PYQ frequency score calculated: 1.0
+INFO:regular_enrichment_service:🎯 Processed 22 questions with raw matching (no scaling)
+   = No change: 1.0
+🔄 Processing 99/370: 4f5a8cf1...
+INFO:regular_enrichment_service:🔍 Getting qualifying PYQ questions for category='Arithmetic', subcategory='Time-Speed-Distance'
+INFO:regular_enrichment_service:🎯 Regular question difficulty: 3.0 > 1.5 ✅
+INFO:regular_enrichment_service:📊 Found 35 category x subcategory filtered PYQ questions
+INFO:llm_utils:🧠 Starting LLM-based PYQ frequency calculation for 35 category-filtered PYQs
+INFO:llm_utils:🎯 Category: Arithmetic, Subcategory: Time-Speed-Distance
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:llm_utils:✅ LLM PYQ frequency calculation completed with openai-gpt-4o
+INFO:llm_utils:🎯 Found 4 raw matches (no scaling) → Score: 1.5
+INFO:llm_utils:📊 Processed 35 category-filtered PYQ questions
+INFO:regular_enrichment_service:✅ PYQ frequency score calculated: 1.5
+INFO:regular_enrichment_service:🎯 Processed 35 questions with raw matching (no scaling)
+   ✅ Updated: 1.0 → 1.5
+🔄 Processing 100/370: 3a033197...
+INFO:regular_enrichment_service:🔍 Getting qualifying PYQ questions for category='Arithmetic', subcategory='Time-Work'
+INFO:regular_enrichment_service:🎯 Regular question difficulty: 3.2 > 1.5 ✅
+INFO:regular_enrichment_service:📊 Found 22 category x subcategory filtered PYQ questions
+INFO:llm_utils:🧠 Starting LLM-based PYQ frequency calculation for 22 category-filtered PYQs
+INFO:llm_utils:🎯 Category: Arithmetic, Subcategory: Time-Work
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:llm_utils:✅ LLM PYQ frequency calculation completed with openai-gpt-4o
+INFO:llm_utils:🎯 Found 2 raw matches (no scaling) → Score: 1.0
+INFO:llm_utils:📊 Processed 22 category-filtered PYQ questions
+INFO:regular_enrichment_service:✅ PYQ frequency score calculated: 1.0
+INFO:regular_enrichment_service:🎯 Processed 22 questions with raw matching (no scaling)
+   = No change: 1.0
+   💾 Committed batch (processed: 100)
+🔄 Processing 101/370: e65cc395...
+INFO:regular_enrichment_service:🔍 Getting qualifying PYQ questions for category='Geometry and Mensuration', subcategory='Mensuration 3D'
+INFO:regular_enrichment_service:🎯 Regular question difficulty: 3.5 > 1.5 ✅
+INFO:regular_enrichment_service:📊 Found 7 category x subcategory filtered PYQ questions
+INFO:llm_utils:🧠 Starting LLM-based PYQ frequency calculation for 7 category-filtered PYQs
+INFO:llm_utils:🎯 Category: Geometry and Mensuration, Subcategory: Mensuration 3D
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:llm_utils:✅ LLM PYQ frequency calculation completed with openai-gpt-4o
+INFO:llm_utils:🎯 Found 2 raw matches (no scaling) → Score: 1.0
+INFO:llm_utils:📊 Processed 7 category-filtered PYQ questions
+INFO:regular_enrichment_service:✅ PYQ frequency score calculated: 1.0
+INFO:regular_enrichment_service:🎯 Processed 7 questions with raw matching (no scaling)
+   = No change: 1.0
+🔄 Processing 102/370: 59ec6cb4...
+INFO:regular_enrichment_service:🔍 Getting qualifying PYQ questions for category='Arithmetic', subcategory='Time-Work'
+INFO:regular_enrichment_service:🎯 Regular question difficulty: 3.0 > 1.5 ✅
+INFO:regular_enrichment_service:📊 Found 22 category x subcategory filtered PYQ questions
+INFO:llm_utils:🧠 Starting LLM-based PYQ frequency calculation for 22 category-filtered PYQs
+INFO:llm_utils:🎯 Category: Arithmetic, Subcategory: Time-Work
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:llm_utils:✅ LLM PYQ frequency calculation completed with openai-gpt-4o
+INFO:llm_utils:🎯 Found 2 raw matches (no scaling) → Score: 1.0
+INFO:llm_utils:📊 Processed 22 category-filtered PYQ questions
+INFO:regular_enrichment_service:✅ PYQ frequency score calculated: 1.0
+INFO:regular_enrichment_service:🎯 Processed 22 questions with raw matching (no scaling)
+   = No change: 1.0
+🔄 Processing 103/370: ba51e3b4...
+INFO:regular_enrichment_service:🔍 Getting qualifying PYQ questions for category='Arithmetic', subcategory='Time-Work'
+INFO:regular_enrichment_service:🎯 Regular question difficulty: 3.0 > 1.5 ✅
+INFO:regular_enrichment_service:📊 Found 22 category x subcategory filtered PYQ questions
+INFO:llm_utils:🧠 Starting LLM-based PYQ frequency calculation for 22 category-filtered PYQs
+INFO:llm_utils:🎯 Category: Arithmetic, Subcategory: Time-Work
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:llm_utils:✅ LLM PYQ frequency calculation completed with openai-gpt-4o
+INFO:llm_utils:🎯 Found 2 raw matches (no scaling) → Score: 1.0
+INFO:llm_utils:📊 Processed 22 category-filtered PYQ questions
+INFO:regular_enrichment_service:✅ PYQ frequency score calculated: 1.0
+INFO:regular_enrichment_service:🎯 Processed 22 questions with raw matching (no scaling)
+   = No change: 1.0
+🔄 Processing 104/370: adf8fbad...
+INFO:regular_enrichment_service:🔍 Getting qualifying PYQ questions for category='Geometry and Mensuration', subcategory='Mensuration 3D'
+INFO:regular_enrichment_service:🎯 Regular question difficulty: 3.2 > 1.5 ✅
+INFO:regular_enrichment_service:📊 Found 7 category x subcategory filtered PYQ questions
+INFO:llm_utils:🧠 Starting LLM-based PYQ frequency calculation for 7 category-filtered PYQs
+INFO:llm_utils:🎯 Category: Geometry and Mensuration, Subcategory: Mensuration 3D
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:llm_utils:✅ LLM PYQ frequency calculation completed with openai-gpt-4o
+INFO:llm_utils:🎯 Found 1 raw matches (no scaling) → Score: 1.0
+INFO:llm_utils:📊 Processed 7 category-filtered PYQ questions
+INFO:regular_enrichment_service:✅ PYQ frequency score calculated: 1.0
+INFO:regular_enrichment_service:🎯 Processed 7 questions with raw matching (no scaling)
+   = No change: 1.0
+🔄 Processing 105/370: 98a6d4db...
+INFO:regular_enrichment_service:🔍 Getting qualifying PYQ questions for category='Arithmetic', subcategory='Time-Speed-Distance'
+INFO:regular_enrichment_service:🎯 Regular question difficulty: 3.0 > 1.5 ✅
+INFO:regular_enrichment_service:📊 Found 35 category x subcategory filtered PYQ questions
+INFO:llm_utils:🧠 Starting LLM-based PYQ frequency calculation for 35 category-filtered PYQs
+INFO:llm_utils:🎯 Category: Arithmetic, Subcategory: Time-Speed-Distance
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:llm_utils:✅ LLM PYQ frequency calculation completed with openai-gpt-4o
+INFO:llm_utils:🎯 Found 2 raw matches (no scaling) → Score: 1.0
+INFO:llm_utils:📊 Processed 35 category-filtered PYQ questions
+INFO:regular_enrichment_service:✅ PYQ frequency score calculated: 1.0
+INFO:regular_enrichment_service:🎯 Processed 35 questions with raw matching (no scaling)
+   = No change: 1.0
+🔄 Processing 106/370: e0ef5fcd...
+INFO:regular_enrichment_service:🔍 Getting qualifying PYQ questions for category='Arithmetic', subcategory='Ratios and Proportions'
+INFO:regular_enrichment_service:🎯 Regular question difficulty: 3.2 > 1.5 ✅
+INFO:regular_enrichment_service:📊 Found 20 category x subcategory filtered PYQ questions
+INFO:llm_utils:🧠 Starting LLM-based PYQ frequency calculation for 20 category-filtered PYQs
+INFO:llm_utils:🎯 Category: Arithmetic, Subcategory: Ratios and Proportions
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:llm_utils:✅ LLM PYQ frequency calculation completed with openai-gpt-4o
+INFO:llm_utils:🎯 Found 1 raw matches (no scaling) → Score: 1.0
+INFO:llm_utils:📊 Processed 20 category-filtered PYQ questions
+INFO:regular_enrichment_service:✅ PYQ frequency score calculated: 1.0
+INFO:regular_enrichment_service:🎯 Processed 20 questions with raw matching (no scaling)
+   = No change: 1.0
+🔄 Processing 107/370: e3b18be4...
+INFO:regular_enrichment_service:🔍 Getting qualifying PYQ questions for category='Arithmetic', subcategory='Time-Speed-Distance'
+INFO:regular_enrichment_service:🎯 Regular question difficulty: 3.0 > 1.5 ✅
+INFO:regular_enrichment_service:📊 Found 35 category x subcategory filtered PYQ questions
+INFO:llm_utils:🧠 Starting LLM-based PYQ frequency calculation for 35 category-filtered PYQs
+INFO:llm_utils:🎯 Category: Arithmetic, Subcategory: Time-Speed-Distance
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:llm_utils:✅ LLM PYQ frequency calculation completed with openai-gpt-4o
+INFO:llm_utils:🎯 Found 2 raw matches (no scaling) → Score: 1.0
+INFO:llm_utils:📊 Processed 35 category-filtered PYQ questions
+INFO:regular_enrichment_service:✅ PYQ frequency score calculated: 1.0
+INFO:regular_enrichment_service:🎯 Processed 35 questions with raw matching (no scaling)
+   = No change: 1.0
+🔄 Processing 108/370: 4ca24e5e...
+INFO:regular_enrichment_service:🔍 Getting qualifying PYQ questions for category='Arithmetic', subcategory='Averages and Alligation'
+INFO:regular_enrichment_service:🎯 Regular question difficulty: 3.0 > 1.5 ✅
+INFO:regular_enrichment_service:📊 Found 27 category x subcategory filtered PYQ questions
+INFO:llm_utils:🧠 Starting LLM-based PYQ frequency calculation for 27 category-filtered PYQs
+INFO:llm_utils:🎯 Category: Arithmetic, Subcategory: Averages and Alligation
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:llm_utils:✅ LLM PYQ frequency calculation completed with openai-gpt-4o
+INFO:llm_utils:🎯 Found 2 raw matches (no scaling) → Score: 1.0
+INFO:llm_utils:📊 Processed 27 category-filtered PYQ questions
+INFO:regular_enrichment_service:✅ PYQ frequency score calculated: 1.0
+INFO:regular_enrichment_service:🎯 Processed 27 questions with raw matching (no scaling)
+   = No change: 1.0
+🔄 Processing 109/370: 33879370...
+INFO:regular_enrichment_service:🔍 Getting qualifying PYQ questions for category='Arithmetic', subcategory='Averages and Alligation'
+INFO:regular_enrichment_service:🎯 Regular question difficulty: 3.0 > 1.5 ✅
+INFO:regular_enrichment_service:📊 Found 27 category x subcategory filtered PYQ questions
+INFO:llm_utils:🧠 Starting LLM-based PYQ frequency calculation for 27 category-filtered PYQs
+INFO:llm_utils:🎯 Category: Arithmetic, Subcategory: Averages and Alligation
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:llm_utils:✅ LLM PYQ frequency calculation completed with openai-gpt-4o
+INFO:llm_utils:🎯 Found 3 raw matches (no scaling) → Score: 1.0
+INFO:llm_utils:📊 Processed 27 category-filtered PYQ questions
+INFO:regular_enrichment_service:✅ PYQ frequency score calculated: 1.0
+INFO:regular_enrichment_service:🎯 Processed 27 questions with raw matching (no scaling)
+   = No change: 1.0
+🔄 Processing 110/370: 7746bcdb...
+INFO:regular_enrichment_service:🔍 Getting qualifying PYQ questions for category='Arithmetic', subcategory='Percentages'
+INFO:regular_enrichment_service:🎯 Regular question difficulty: 2.5 > 1.5 ✅
+INFO:regular_enrichment_service:📊 Found 12 category x subcategory filtered PYQ questions
+INFO:llm_utils:🧠 Starting LLM-based PYQ frequency calculation for 12 category-filtered PYQs
+INFO:llm_utils:🎯 Category: Arithmetic, Subcategory: Percentages
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:llm_utils:✅ LLM PYQ frequency calculation completed with openai-gpt-4o
+INFO:llm_utils:🎯 Found 2 raw matches (no scaling) → Score: 1.0
+INFO:llm_utils:📊 Processed 12 category-filtered PYQ questions
+INFO:regular_enrichment_service:✅ PYQ frequency score calculated: 1.0
+INFO:regular_enrichment_service:🎯 Processed 12 questions with raw matching (no scaling)
+   = No change: 1.0
+   💾 Committed batch (processed: 110)
+🔄 Processing 111/370: 479ea468...
+INFO:regular_enrichment_service:🔍 Getting qualifying PYQ questions for category='Arithmetic', subcategory='Time-Speed-Distance'
+INFO:regular_enrichment_service:🎯 Regular question difficulty: 3.0 > 1.5 ✅
+INFO:regular_enrichment_service:📊 Found 35 category x subcategory filtered PYQ questions
+INFO:llm_utils:🧠 Starting LLM-based PYQ frequency calculation for 35 category-filtered PYQs
+INFO:llm_utils:🎯 Category: Arithmetic, Subcategory: Time-Speed-Distance
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:llm_utils:✅ LLM PYQ frequency calculation completed with openai-gpt-4o
+INFO:llm_utils:🎯 Found 3 raw matches (no scaling) → Score: 1.0
+INFO:llm_utils:📊 Processed 35 category-filtered PYQ questions
+INFO:regular_enrichment_service:✅ PYQ frequency score calculated: 1.0
+INFO:regular_enrichment_service:🎯 Processed 35 questions with raw matching (no scaling)
+   = No change: 1.0
+🔄 Processing 112/370: a30e4a16...
+INFO:regular_enrichment_service:🔍 Getting qualifying PYQ questions for category='Algebra', subcategory='Linear Equations'
+INFO:regular_enrichment_service:🎯 Regular question difficulty: 3.0 > 1.5 ✅
+INFO:regular_enrichment_service:📊 Found 10 category x subcategory filtered PYQ questions
+INFO:llm_utils:🧠 Starting LLM-based PYQ frequency calculation for 10 category-filtered PYQs
+INFO:llm_utils:🎯 Category: Algebra, Subcategory: Linear Equations
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:llm_utils:✅ LLM PYQ frequency calculation completed with openai-gpt-4o
+INFO:llm_utils:🎯 Found 1 raw matches (no scaling) → Score: 1.0
+INFO:llm_utils:📊 Processed 10 category-filtered PYQ questions
+INFO:regular_enrichment_service:✅ PYQ frequency score calculated: 1.0
+INFO:regular_enrichment_service:🎯 Processed 10 questions with raw matching (no scaling)
+   = No change: 1.0
+🔄 Processing 113/370: 7b1c0185...
+INFO:regular_enrichment_service:🔍 Getting qualifying PYQ questions for category='Arithmetic', subcategory='Time-Speed-Distance'
+INFO:regular_enrichment_service:🎯 Regular question difficulty: 3.0 > 1.5 ✅
+INFO:regular_enrichment_service:📊 Found 35 category x subcategory filtered PYQ questions
+INFO:llm_utils:🧠 Starting LLM-based PYQ frequency calculation for 35 category-filtered PYQs
+INFO:llm_utils:🎯 Category: Arithmetic, Subcategory: Time-Speed-Distance
