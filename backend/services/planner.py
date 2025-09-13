@@ -5,6 +5,7 @@ Uses LLM intelligence to select optimal 12-question packs based on readiness and
 
 import json
 import logging
+import time
 from typing import Dict, Any, List
 from util.schemas import PLANNER_SCHEMA
 from util.llm_guarded import call_llm_json_with_retry
