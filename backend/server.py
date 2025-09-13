@@ -843,6 +843,35 @@ async def get_simple_taxonomy(user_id: str = Depends(get_current_user)):
         "taxonomy_data": []
     }
 
+@app.get("/api/user/session-limit-status")
+async def get_session_limit_status(user_id: str = Depends(get_current_user)):
+    """Temporary endpoint for session limit status"""
+    return {
+        "sessions_today": 0,
+        "daily_limit": 10,
+        "can_start_session": True,
+        "remaining_sessions": 10
+    }
+
+@app.get("/api/dashboard/mastery")
+async def get_dashboard_mastery(user_id: str = Depends(get_current_user)):
+    """Temporary endpoint for mastery data"""
+    return {
+        "total_questions_attempted": 0,
+        "correct_answers": 0,
+        "accuracy_rate": 0.0,
+        "mastery_levels": []
+    }
+
+@app.get("/api/user/subscription-management")
+async def get_subscription_management(user_id: str = Depends(get_current_user)):
+    """Temporary endpoint for subscription management"""
+    return {
+        "active_subscription": None,
+        "subscription_status": "inactive",
+        "can_access_premium": False
+    }
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8001)
