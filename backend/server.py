@@ -740,6 +740,42 @@ async def admin_get_question_actions(
 
 # Temporary Session Endpoints (for frontend compatibility)
 # These are minimal implementations - full session logic will be implemented later
+
+@app.get("/api/sessions/last-completed-id")
+async def get_last_completed_session_id(user_id: str, auth_user_id: str = Depends(get_current_user)):
+    """Get the last completed session ID for a user"""
+    try:
+        # Security check
+        if user_id != auth_user_id:
+            raise HTTPException(status_code=403, detail="Cannot access other users' sessions")
+        
+        db = SessionLocal()
+        try:
+            result = db.execute(text("""
+                SELECT session_id, sess_seq
+                FROM sessions
+                WHERE user_id = :user_id AND status = 'completed'
+                ORDER BY sess_seq DESC
+                LIMIT 1
+            """), {'user_id': user_id}).fetchone()
+            
+            if not result:
+                raise HTTPException(status_code=404, detail={"code": "NO_COMPLETED_SESSIONS"})
+                
+            return {
+                "user_id": user_id,
+                "session_id": result.session_id,
+                "sess_seq": result.sess_seq
+            }
+        finally:
+            db.close()
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"❌ Error getting last completed session: {e}")
+        raise HTTPException(status_code=500, detail="Failed to get last completed session")
+
 @app.get("/api/sessions/{session_id}/next-question")
 async def get_next_question(
     session_id: str,
