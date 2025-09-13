@@ -67,7 +67,7 @@ async def plan_next_controller(body: dict, request: Request, user_id: str = Depe
         raise HTTPException(status_code=502, detail={"code": "PLANNER_FAILED", "msg": str(e)})
 
 @router.get("/pack")
-async def get_pack_controller(user_id: str, session_id: str, auth_user_id: str = Depends(get_current_user)):
+async def get_pack_controller(user_id: str, session_id: str, auth_user_id: str = Depends(ensure_adaptive_enabled)):
     """
     Get the ordered 12-question pack for a planned session
     
