@@ -915,11 +915,34 @@ async def get_subscription_management(user_id: str = Depends(get_current_user)):
 @app.get("/api/sessions/current-status")
 async def get_current_session_status(user_id: str = Depends(get_current_user)):
     """Temporary endpoint for current session status"""
-    return {
-        "has_active_session": False,
-        "session_id": None,
-        "message": "No active session found"
-    }
+    try:
+        # Check if we have any active sessions for this user
+        if hasattr(start_session, 'active_sessions'):
+            for session_id, session_data in start_session.active_sessions.items():
+                if session_data["user_id"] == user_id and session_data["status"] == "active":
+                    return {
+                        "has_active_session": True,
+                        "session_id": session_id,
+                        "session_metadata": {
+                            "total_questions": session_data["total_questions"],
+                            "current_question": session_data["current_question"],
+                            "started_at": session_data["started_at"]
+                        }
+                    }
+        
+        return {
+            "has_active_session": False,
+            "session_id": None,
+            "message": "No active session found"
+        }
+        
+    except Exception as e:
+        logger.error(f"❌ Error getting session status: {e}")
+        return {
+            "has_active_session": False,
+            "session_id": None,
+            "message": "Error checking session status"
+        }
 
 @app.get("/api/dashboard/progress")
 async def get_dashboard_progress(user_id: str = Depends(get_current_user)):
