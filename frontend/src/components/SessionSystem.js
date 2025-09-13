@@ -420,7 +420,15 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
   };
 
   const handleNextQuestion = () => {
-    fetchNextQuestion();
+    if (adaptiveEnabled && currentPack.length > 0) {
+      // Adaptive flow: advance to next question in pack
+      const nextIndex = currentQuestionIndex + 1;
+      setCurrentQuestionIndex(nextIndex);
+      serveQuestionFromPack(nextIndex);
+    } else {
+      // Legacy flow: fetch from server
+      fetchNextQuestion();
+    }
   };
 
   const handleOptionSelect = (option) => {
