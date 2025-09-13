@@ -563,32 +563,64 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
               </div>
             )}
 
-            {/* Submit Answer Button */}
+            {/* Action Buttons */}
             {!showResult && (
-              <button
-                onClick={submitAnswer}
-                disabled={!userAnswer || loading || answerSubmitted || !currentQuestion.options}
-                className="w-full py-3 px-6 rounded-lg font-semibold transition-colors disabled:cursor-not-allowed"
-                style={{
-                  backgroundColor: (!userAnswer || loading || answerSubmitted || !currentQuestion.options) ? '#cccccc' : '#9ac026',
-                  color: 'white',
-                  fontFamily: 'Lato, sans-serif'
-                }}
-                onMouseOver={(e) => {
-                  if (!e.target.disabled) {
-                    e.target.style.backgroundColor = '#8bb024';
-                  }
-                }}
-                onMouseOut={(e) => {
-                  if (!e.target.disabled) {
-                    e.target.style.backgroundColor = '#9ac026';
-                  }
-                }}
-              >
-                {loading ? 'Submitting...' : 
-                 !currentQuestion.options ? 'Loading options...' :
-                 'Submit Answer'}
-              </button>
+              <div className="space-y-3">
+                {/* Submit Answer Button */}
+                <button
+                  onClick={submitAnswer}
+                  disabled={!userAnswer || loading || answerSubmitted || !currentQuestion.options}
+                  className="w-full py-3 px-6 rounded-lg font-semibold transition-colors disabled:cursor-not-allowed"
+                  style={{
+                    backgroundColor: (!userAnswer || loading || answerSubmitted || !currentQuestion.options) ? '#cccccc' : '#9ac026',
+                    color: 'white',
+                    fontFamily: 'Lato, sans-serif'
+                  }}
+                  onMouseOver={(e) => {
+                    if (!e.target.disabled) {
+                      e.target.style.backgroundColor = '#8bb024';
+                    }
+                  }}
+                  onMouseOut={(e) => {
+                    if (!e.target.disabled) {
+                      e.target.style.backgroundColor = '#9ac026';
+                    }
+                  }}
+                >
+                  {loading ? 'Submitting...' : 
+                   !currentQuestion.options ? 'Loading options...' :
+                   'Submit Answer'}
+                </button>
+
+                {/* Skip Question Button */}
+                <button
+                  onClick={skipQuestion}
+                  disabled={loading || answerSubmitted || !currentQuestion.options}
+                  className="w-full py-2 px-6 rounded-lg font-medium transition-colors disabled:cursor-not-allowed border-2"
+                  style={{
+                    backgroundColor: 'transparent',
+                    color: (loading || answerSubmitted || !currentQuestion.options) ? '#cccccc' : '#ff6d4d',
+                    borderColor: (loading || answerSubmitted || !currentQuestion.options) ? '#cccccc' : '#ff6d4d',
+                    fontFamily: 'Lato, sans-serif'
+                  }}
+                  onMouseOver={(e) => {
+                    if (!e.target.disabled) {
+                      e.target.style.backgroundColor = '#fff5f3';
+                      e.target.style.borderColor = '#e55a3c';
+                      e.target.style.color = '#e55a3c';
+                    }
+                  }}
+                  onMouseOut={(e) => {
+                    if (!e.target.disabled) {
+                      e.target.style.backgroundColor = 'transparent';
+                      e.target.style.borderColor = '#ff6d4d';
+                      e.target.style.color = '#ff6d4d';
+                    }
+                  }}
+                >
+                  {loading ? 'Skipping...' : 'Skip Question →'}
+                </button>
+              </div>
             )}
 
             {/* Answer Result and Solution */}
