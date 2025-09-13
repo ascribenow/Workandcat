@@ -8,14 +8,11 @@ export default defineConfig({
   expect: { timeout: 10_000 },
   workers: 4,
   fullyParallel: true,
+  globalSetup: require.resolve('./global.setup'),
   reporter: [['list'], ['html', { open: 'never' }]],
   use: {
     baseURL: API_BASE,
-    extraHTTPHeaders: (() => {
-      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-      if (process.env.E2E_BEARER) headers['Authorization'] = `Bearer ${process.env.E2E_BEARER}`;
-      return headers;
-    })(),
+    extraHTTPHeaders: { 'Content-Type': 'application/json' },
   },
   projects: [
     { name: 'API', use: { ...devices['Desktop Chrome'] } },
