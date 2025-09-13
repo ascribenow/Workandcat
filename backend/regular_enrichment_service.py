@@ -259,15 +259,7 @@ Analyze the ORIGINAL PROBLEM and find the best canonical taxonomy match based on
             pyq_frequency_result = await self._calculate_pyq_frequency_score_llm(stem, enrichment_data)
             enrichment_data['pyq_frequency_score'] = pyq_frequency_result
             
-            # QUALITY VERIFICATION (same as PYQ) - MOVED TO AFTER ALL ENRICHMENT
-            logger.info("🔍 Performing quality verification...")
-            quality_result = await self._perform_quality_verification(
-                stem, enrichment_data, current_answer, snap_read, solution_approach, 
-                detailed_solution, principle_to_remember, mcq_options
-            )
-            enrichment_data.update(quality_result)
-            
-            # Set concept extraction status based on core_concepts field (CORRECT LOGIC)
+            # STAGE 4: Set concept extraction status based on core_concepts field (MUST BE BEFORE QUALITY VERIFICATION)
             core_concepts = enrichment_data.get('core_concepts', [])
             if core_concepts and len(core_concepts) > 0:
                 enrichment_data['concept_extraction_status'] = 'completed'
@@ -275,6 +267,14 @@ Analyze the ORIGINAL PROBLEM and find the best canonical taxonomy match based on
             else:
                 enrichment_data['concept_extraction_status'] = 'pending'
                 logger.warning(f"⚠️ Concept extraction incomplete - no core concepts found")
+            
+            # STAGE 5: QUALITY VERIFICATION (22 criteria including concept_extraction_status check)
+            logger.info("🔍 Performing quality verification...")
+            quality_result = await self._perform_quality_verification(
+                stem, enrichment_data, current_answer, snap_read, solution_approach, 
+                detailed_solution, principle_to_remember, mcq_options
+            )
+            enrichment_data.update(quality_result)
             
             logger.info(f"✨ Regular question enrichment completed successfully")
             logger.info(f"📊 Generated enrichment for all required fields")
