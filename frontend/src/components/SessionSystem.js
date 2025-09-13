@@ -169,6 +169,88 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
     setAnswerSubmitted(false);
     
     try {
+      if (adaptiveEnabled) {
+        // ADAPTIVE FLOW: Use local pack
+        await handleAdaptiveQuestionFlow();
+      } else {
+        // LEGACY FLOW: Server-driven next-question
+        await handleLegacyQuestionFlow();
+      }
+    } catch (err) {
+      console.error('Error in question flow:', err);
+      setError('Failed to load question');
+      setLoading(false);
+    }
+  };
+
+  const handleAdaptiveQuestionFlow = async () => {
+    // If we have a pack but need to start/continue from it
+    if (currentPack.length > 0) {
+      // Serve from current pack
+      serveQuestionFromPack(currentQuestionIndex);
+    } else if (nextSessionId) {
+      // Fetch planned pack and start serving
+      try {
+        const pack = await fetchAdaptivePack(nextSessionId);
+        setCurrentPack(pack);
+        setCurrentQuestionIndex(0);
+        setSessionId(nextSessionId);
+        
+        // Mark as served after we start rendering
+        await markPackServed(nextSessionId);
+        
+        serveQuestionFromPack(0);
+      } catch (error) {
+        console.warn('Adaptive pack failed, falling back to legacy:', error);
+        await handleLegacyQuestionFlow();
+      }
+    } else {
+      // No pack or planned session, fall back to legacy
+      console.log('No adaptive pack available, falling back to legacy flow');
+      await handleLegacyQuestionFlow();
+    }
+  };
+
+  const serveQuestionFromPack = (questionIndex) => {
+    if (questionIndex >= currentPack.length) {
+      // Session completed
+      if (onSessionEnd) {
+        onSessionEnd({
+          completed: true,
+          questionsCompleted: currentPack.length,
+          totalQuestions: currentPack.length
+        });
+      }
+      return;
+    }
+
+    const packItem = currentPack[questionIndex];
+    
+    // Convert pack item to question format expected by UI
+    const question = {
+      id: packItem.item_id,
+      // We need to fetch full question details from the question ID
+      // For now, create a mock structure
+      stem: 'Loading question...',
+      options: { a: 'A', b: 'B', c: 'C', d: 'D' },
+      has_image: false,
+      subcategory: packItem.why?.pair || 'Unknown',
+      difficulty_band: packItem.bucket
+    };
+
+    setCurrentQuestion(question);
+    setSessionProgress({
+      current_question: questionIndex + 1,
+      total_questions: currentPack.length
+    });
+    
+    setLoading(false);
+    console.log('🎯 Adaptive question served:', question.id, `(${questionIndex + 1}/${currentPack.length})`);
+  };
+
+  const handleLegacyQuestionFlow = async () => {
+    
+    try {
       // Using global axios authorization header set by AuthProvider
       const response = await axios.get(`${API}/sessions/${sessionId}/next-question`);
       
