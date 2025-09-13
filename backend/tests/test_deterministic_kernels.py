@@ -462,8 +462,9 @@ class TestValidatePack:
     def test_duplicate_questions(self):
         """Test validation failure for duplicate questions"""
         pack = self.create_valid_pack()
-        # Duplicate the first question
-        pack[1].question_id = pack[0].question_id
+        # Duplicate the first question using dataclasses.replace
+        from dataclasses import replace
+        pack[1] = replace(pack[1], question_id=pack[0].question_id)
         
         result = validate_pack(pack, pack, set(), set())
         
