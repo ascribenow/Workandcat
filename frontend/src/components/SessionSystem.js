@@ -213,14 +213,8 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
 
   const serveQuestionFromPack = (questionIndex) => {
     if (questionIndex >= currentPack.length) {
-      // Session completed
-      if (onSessionEnd) {
-        onSessionEnd({
-          completed: true,
-          questionsCompleted: currentPack.length,
-          totalQuestions: currentPack.length
-        });
-      }
+      // Session completed - trigger adaptive planning for next session
+      handleAdaptiveSessionCompletion();
       return;
     }
 
@@ -246,6 +240,37 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
     
     setLoading(false);
     console.log('🎯 Adaptive question served:', question.id, `(${questionIndex + 1}/${currentPack.length})`);
+  };
+
+  const handleAdaptiveSessionCompletion = async () => {
+    try {
+      console.log('🎯 Session completed, triggering adaptive planning...');
+      
+      // Plan the next session
+      if (adaptiveEnabled) {
+        await planNextAdaptiveSession(sessionId);
+      }
+      
+      // Call original session end handler
+      if (onSessionEnd) {
+        onSessionEnd({
+          completed: true,
+          questionsCompleted: currentPack.length,
+          totalQuestions: currentPack.length
+        });
+      }
+      
+    } catch (error) {
+      console.error('❌ Adaptive session completion failed:', error);
+      // Still call session end even if planning fails
+      if (onSessionEnd) {
+        onSessionEnd({
+          completed: true,
+          questionsCompleted: currentPack.length,
+          totalQuestions: currentPack.length
+        });
+      }
+    }
   };
 
   const handleLegacyQuestionFlow = async () => {
