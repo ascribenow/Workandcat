@@ -427,9 +427,7 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
       }
     } catch (err) {
       if (err.response?.status === 404) {
-        if (onSessionEnd) {
-          onSessionEnd({ completed: true });
-        }
+        await handleSessionCompletionWithHandshake({ completed: true });
       } else {
         setError('Failed to load next question');
         console.error('Error fetching next question:', err);
