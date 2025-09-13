@@ -200,11 +200,16 @@ class CandidateProvider:
             user_id: User identifier
             readiness_levels: Map of semantic_id -> readiness level  
             coverage_debt: Map of pair -> debt score
-            k_pool_per_band: Pool size per difficulty band
+            k_pool_per_band: Pool size per difficulty band (defaults to config value)
             
         Returns:
             (candidates, metadata) where candidates is the filtered pool
         """
+        # Import config and set default
+        from .pipeline import AdaptiveConfig
+        if k_pool_per_band is None:
+            k_pool_per_band = AdaptiveConfig.K_POOL_PER_BAND
+            
         logger.info(f"Building adaptive candidate pool for user {user_id[:8]}... (K={k_pool_per_band})")
         
         # Get user's recent question history to avoid repetition
