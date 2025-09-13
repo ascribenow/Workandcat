@@ -699,15 +699,8 @@ def calculate_importance_index_fixed(freq_score: float, difficulty_normalized: f
         learning_impact * 0.25
     )
     
-    # Band determination
-    if importance_score < 0.4:
-        importance_band = "Low"
-    elif importance_score < 0.7:
-        importance_band = "Medium"
-    else:
-        importance_band = "High"
-    
-    return importance_score, importance_band
+    # importance_band removed - only return score
+    return importance_score
 
 
 def calculate_preparedness_delta(current_mastery: Dict[str, float], previous_mastery: Dict[str, float],
