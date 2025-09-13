@@ -342,20 +342,21 @@ async def stage4_concept_status(request: StageRequest):
         db.close()
 
 # =============================================================================
-# STAGE 5A: SEMANTIC ANSWER MATCHING ONLY
+# STAGE 5A: COMPLETE QUALITY VERIFICATION (Original Process)
 # =============================================================================
 
-@stages_router.post("/stage5a-answer-matching", response_model=StageResponse)
-async def stage5a_answer_matching(request: StageRequest):
+@stages_router.post("/stage5a-quality-verification", response_model=StageResponse)
+async def stage5a_quality_verification(request: StageRequest):
     """
-    STAGE 5A: Semantic Answer Matching Only
-    Sets: answer_match using LLM semantic comparison
+    STAGE 5A: Complete Quality Verification (Original Process)
+    Performs the EXACT same quality verification as in regular_enrichment_service._perform_quality_verification
+    Sets: answer_match, quality_verified, is_active
     """
     db = SessionLocal()
     try:
-        logger.info("🎯 STAGE 5A: Semantic Answer Matching")
+        logger.info("🎯 STAGE 5A: Complete Quality Verification (Original Process)")
         
-        # Get questions that need answer matching
+        # Get questions that need quality verification
         if request.question_ids:
             questions = db.execute(
                 select(Question).where(Question.id.in_(request.question_ids))
@@ -365,7 +366,7 @@ async def stage5a_answer_matching(request: StageRequest):
                 select(Question)
                 .where(and_(
                     Question.right_answer.isnot(None),
-                    Question.answer_match.is_(None)
+                    Question.concept_extraction_status == 'completed'
                 ))
                 .limit(request.limit)
             ).scalars().all()
@@ -376,36 +377,68 @@ async def stage5a_answer_matching(request: StageRequest):
         
         for question in questions:
             try:
-                logger.info(f"🔄 Processing {question.id[:8]}... - Answer Matching")
+                logger.info(f"🔄 Processing {question.id[:8]}... - Quality Verification")
                 
-                # Perform semantic answer matching
-                answer_match = await regular_questions_enrichment_service._perform_semantic_answer_matching(
-                    question.right_answer or '', question.answer or ''
+                # Prepare enrichment data exactly as in original code
+                enrichment_data = {
+                    'right_answer': question.right_answer,
+                    'category': question.category,
+                    'subcategory': question.subcategory,
+                    'type_of_question': question.type_of_question,
+                    'difficulty_score': question.difficulty_score,
+                    'difficulty_band': question.difficulty_band,
+                    'core_concepts': question.core_concepts,
+                    'concept_difficulty': question.concept_difficulty,
+                    'operations_required': question.operations_required,
+                    'problem_structure': question.problem_structure,
+                    'concept_keywords': question.concept_keywords,
+                    'solution_method': question.solution_method,
+                    'pyq_frequency_score': question.pyq_frequency_score,
+                    'concept_extraction_status': question.concept_extraction_status
+                }
+                
+                # Use the EXACT original quality verification process
+                quality_result = await regular_questions_enrichment_service._perform_quality_verification(
+                    question.stem,
+                    enrichment_data,
+                    question.answer,
+                    question.snap_read,
+                    question.solution_approach,
+                    question.detailed_solution,
+                    question.principle_to_remember,
+                    question.mcq_options
                 )
                 
-                question.answer_match = answer_match
+                # Update question with results
+                question.answer_match = quality_result.get('answer_match', False)
+                question.quality_verified = quality_result.get('quality_verified', False)
+                
+                if question.quality_verified:
+                    question.is_active = True
+                
                 db.commit()
                 
-                if answer_match:
+                if question.quality_verified:
                     success_count += 1
-                    logger.info(f"✅ Answer match: TRUE")
+                    logger.info(f"✅ Quality verified: TRUE")
                 else:
                     failed_count += 1
-                    logger.info(f"❌ Answer match: FALSE")
+                    logger.info(f"❌ Quality verification failed")
                 
             except Exception as e:
                 failed_count += 1
-                logger.error(f"❌ Error in answer matching for {question.id[:8]}: {e}")
+                logger.error(f"❌ Error in quality verification for {question.id[:8]}: {e}")
         
         return StageResponse(
             success=True,
-            stage="stage5a_answer_matching",
+            stage="stage5a_quality_verification",
             processed=processed,
             success_count=success_count,
             failed_count=failed_count,
             details={
-                "fields_set": ["answer_match"],
-                "match_rate": f"{(success_count/processed)*100:.1f}%" if processed > 0 else "0%"
+                "fields_set": ["answer_match", "quality_verified", "is_active"],
+                "verification_rate": f"{(success_count/processed)*100:.1f}%" if processed > 0 else "0%",
+                "criteria": "EXACT original 22-criteria quality verification process"
             }
         )
         
