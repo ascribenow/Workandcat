@@ -20,7 +20,7 @@ def recalculate_all_difficulty_scores():
     logger.info("🔢 STARTING DIFFICULTY RECALCULATION")
     logger.info("=" * 60)
     logger.info("Formula: 0.25×Concepts + 0.50×Steps + 0.25×Operations")
-    logger.info("Bands: Easy(1.5-1.9), Medium(2.0-3.0), Hard(3.1-5.0)")
+    logger.info("Bands: Easy(≤2.0), Medium(2.0<score≤2.5), Hard(>2.5)")
     logger.info("=" * 60)
     
     db = SessionLocal()
