@@ -11,6 +11,7 @@ from datetime import datetime
 
 from services.session_orchestrator import plan_next, load_pack, transition_pack_to_served, ConflictError
 from auth import get_current_user
+from middleware.adaptive_gate import ensure_adaptive_enabled
 
 logger = logging.getLogger(__name__)
 
