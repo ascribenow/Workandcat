@@ -34,6 +34,21 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
   const [remainingMessages, setRemainingMessages] = useState(10);
   const [conversationLocked, setConversationLocked] = useState(false);
 
+  // Adaptive session state  
+  const [currentPack, setCurrentPack] = useState([]);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [nextSessionId, setNextSessionId] = useState(null);
+  const [isPlanning, setIsPlanning] = useState(false);
+
+  // Add adaptive flag logging
+  useEffect(() => {
+    console.log('🏁 Adaptive Feature Status:', {
+      ADAPTIVE_GLOBAL,
+      userAdaptiveEnabled: user?.adaptive_enabled,
+      effectiveAdaptive: adaptiveEnabled
+    });
+  }, [user, adaptiveEnabled]);
+
   // Handle case where no session ID is provided
   useEffect(() => {
     if (!propSessionId && !sessionId) {
