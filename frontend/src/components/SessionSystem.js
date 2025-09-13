@@ -393,8 +393,8 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
       // Log the skip action
       await logQuestionAction('skip', {});
       
-      // Move to next question
-      fetchNextQuestion();
+      // Move to next question (adaptive or legacy)
+      handleNextQuestion();
       
     } catch (err) {
       setError('Failed to skip question');
