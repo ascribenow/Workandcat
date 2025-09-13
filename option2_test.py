@@ -11,7 +11,7 @@ import time
 from datetime import datetime
 
 class Option2Tester:
-    def __init__(self, base_url="https://adaptive-study-prep.preview.emergentagent.com/api"):
+    def __init__(self, base_url="https://pyq-enrichment-hub.preview.emergentagent.com/api"):
         self.base_url = base_url
         self.admin_token = None
         self.student_token = None
