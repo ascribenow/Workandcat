@@ -14,7 +14,7 @@
 # Main and testing agents must follow this exact format to maintain testing data. 
 # The testing data must be entered in yaml format Below is the data structure:
 # 
-## user_problem_statement: "The user discovered that the database cleanup from their previous session was not persisted - tables that should have been deleted (13 tables including attempts, sessions, mastery, etc.) were still present in the database. They requested to re-execute Option 1: the table deletion to restore the clean database state with only 12 tables remaining."
+## user_problem_statement: "The user requested to complete Phase 2 of the adaptive learning system implementation - specifically to fix the dry-run script query in /app/backend/dry_run_adaptive.py to correctly include users with 0 sessions for cold-start testing, and run comprehensive dry-run tests to validate cold-start user scenarios."
 
 ## backend:
   - task: "Database Table Cleanup - Re-execute 13 Table Deletion"
