@@ -263,6 +263,11 @@ class CandidateProvider:
         # Check feasibility and expand if needed
         feasible, feasibility_details = self.preflight_feasible(selected_candidates)
         
+        # TELEMETRY: Log selected PYQ counts
+        selected_pyq_15 = sum(1 for c in selected_candidates if c.pyq_frequency_score >= 1.5)
+        selected_pyq_10 = sum(1 for c in selected_candidates if c.pyq_frequency_score >= 1.0)
+        logger.info(f"📊 TELEMETRY: selected_pyq15_in_pool={selected_pyq_15} selected_pyq10_in_pool={selected_pyq_10} pool_feasible={feasible}")
+        
         if not feasible:
             logger.warning("Initial pool not feasible, attempting expansion")
             expanded_candidates, expansion_details = self.adaptively_expand_pool(
