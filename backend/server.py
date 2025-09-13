@@ -71,6 +71,9 @@ subscription_service = SubscriptionAccessService()
 os.makedirs("/app/backend/uploads/images", exist_ok=True)
 app.mount("/uploads", StaticFiles(directory="/app/backend/uploads"), name="uploads")
 
+# In-memory logging store (for MVP - replace with database in production)
+question_action_logs = []
+
 # Pydantic models for requests
 class LoginRequest(BaseModel):
     email: str
