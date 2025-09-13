@@ -11,7 +11,7 @@ from datetime import datetime
 
 class PostgreSQLMigrationTester:
     def __init__(self):
-        self.base_url = "https://adaptive-cat-prep.preview.emergentagent.com/api"
+        self.base_url = "https://question-tracker-2.preview.emergentagent.com/api"
         self.admin_token = None
         self.student_token = None
         self.tests_run = 0
