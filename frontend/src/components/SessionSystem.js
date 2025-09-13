@@ -2,9 +2,14 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { useAuth, API } from './AuthProvider';
 import MathRenderer from './MathRenderer';
+import { ADAPTIVE_GLOBAL } from '../config';
 
 export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSessionEnd }) => {
   const { user } = useAuth();
+  
+  // Feature flag check
+  const adaptiveEnabled = ADAPTIVE_GLOBAL && !!user?.adaptive_enabled;
+  
   const [sessionId, setSessionId] = useState(propSessionId);
   const [sessionNumber, setSessionNumber] = useState(null);
   const [currentQuestion, setCurrentQuestion] = useState(null);
