@@ -383,10 +383,17 @@ class AdaptiveDryRun:
                             candidates: List[QuestionCandidate],
                             readiness_levels: Dict[str, str],
                             coverage_debt: Dict[str, float]) -> List[QuestionCandidate]:
-        """Simple adaptive pack selection (would use LLM Planner in full implementation)"""
-        # For dry-run, use simple selection with some adaptive logic
+        """Simple adaptive pack selection with PYQ constraints"""
         from collections import defaultdict
         import random
+        
+        # First, ensure PYQ constraints can be met
+        pyq_1_0_candidates = [c for c in candidates if c.pyq_frequency_score >= 1.0]
+        pyq_1_5_candidates = [c for c in candidates if c.pyq_frequency_score >= 1.5]
+        
+        if len(pyq_1_0_candidates) < 2 or len(pyq_1_5_candidates) < 2:
+            logger.warning(f"Insufficient PYQ candidates: {len(pyq_1_0_candidates)} ≥1.0, {len(pyq_1_5_candidates)} ≥1.5")
+            return []
         
         # Group by difficulty
         by_difficulty = defaultdict(list)
@@ -396,24 +403,53 @@ class AdaptiveDryRun:
         pack = []
         target_distribution = {"Easy": 3, "Medium": 6, "Hard": 3}
         
+        # Pre-select PYQ questions to ensure constraints
+        selected_pyq_1_5 = random.sample(pyq_1_5_candidates, min(2, len(pyq_1_5_candidates)))
+        selected_pyq_1_0 = random.sample(
+            [c for c in pyq_1_0_candidates if c not in selected_pyq_1_5], 
+            min(2, len([c for c in pyq_1_0_candidates if c not in selected_pyq_1_5]))
+        )
+        
+        reserved_questions = set(selected_pyq_1_5 + selected_pyq_1_0)
+        
+        # Distribute reserved questions by difficulty band
+        reserved_by_band = defaultdict(list)
+        for q in reserved_questions:
+            reserved_by_band[q.difficulty_band].append(q)
+        
+        # Select remaining questions for each band
         for band, target_count in target_distribution.items():
             available = by_difficulty[band]
+            reserved_count = len(reserved_by_band[band])
+            remaining_needed = target_count - reserved_count
             
-            if len(available) >= target_count:
-                # Sort by adaptive criteria (simplified)
-                def adaptive_score(candidate):
-                    score = 0.0
-                    # Favor high coverage debt pairs
-                    score += coverage_debt.get(candidate.pair, 0.5)
-                    # Favor weak readiness concepts (simplified mapping)
-                    for concept in candidate.core_concepts:
-                        if readiness_levels.get(concept, "Moderate") == "Weak":
-                            score += 1.0
-                    return score
+            if remaining_needed > 0:
+                # Get unreserved candidates
+                unreserved = [c for c in available if c not in reserved_questions]
                 
-                available.sort(key=adaptive_score, reverse=True)
-                selected = available[:target_count]
-                pack.extend(selected)
+                if len(unreserved) >= remaining_needed:
+                    # Sort by adaptive criteria
+                    def adaptive_score(candidate):
+                        score = 0.0
+                        score += coverage_debt.get(candidate.pair, 0.5)
+                        for concept in candidate.core_concepts:
+                            if readiness_levels.get(concept, "Moderate") == "Weak":
+                                score += 1.0
+                        return score
+                    
+                    unreserved.sort(key=adaptive_score, reverse=True)
+                    selected_additional = unreserved[:remaining_needed]
+                    
+                    # Add reserved + additional for this band
+                    pack.extend(reserved_by_band[band])
+                    pack.extend(selected_additional)
+                else:
+                    # Not enough candidates for this band
+                    pack.extend(reserved_by_band[band])
+                    pack.extend(unreserved)
+            else:
+                # Only reserved questions for this band
+                pack.extend(reserved_by_band[band][:target_count])
         
         return pack
     
