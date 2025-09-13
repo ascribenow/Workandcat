@@ -727,6 +727,122 @@ async def admin_get_question_actions(
         logger.error(f"❌ Failed to get admin question actions: {e}")
         raise HTTPException(status_code=500, detail="Failed to get admin action logs")
 
+# Temporary Session Endpoints (for frontend compatibility)
+# These are minimal implementations - full session logic will be implemented later
+@app.get("/api/sessions/{session_id}/next-question")
+async def get_next_question(
+    session_id: str,
+    user_id: str = Depends(get_current_user)
+):
+    """Temporary endpoint to get next question (random selection for now)"""
+    try:
+        db = SessionLocal()
+        try:
+            # Get a random active question
+            result = db.execute(
+                select(Question)
+                .where(Question.is_active == True)
+                .order_by(func.random())
+                .limit(1)
+            )
+            question = result.scalar_one_or_none()
+            
+            if not question:
+                return {"session_complete": True, "message": "No questions available"}
+            
+            # Create mock options from mcq_options if available
+            options = {}
+            if question.mcq_options:
+                try:
+                    mcq_data = json.loads(question.mcq_options) if isinstance(question.mcq_options, str) else question.mcq_options
+                    options = mcq_data
+                except:
+                    # Fallback mock options
+                    options = {
+                        "a": "Option A",
+                        "b": "Option B", 
+                        "c": "Option C",
+                        "d": "Option D"
+                    }
+            
+            return {
+                "question": {
+                    "id": question.id,
+                    "stem": question.stem,
+                    "options": options,
+                    "has_image": question.has_image,
+                    "image_url": question.image_url,
+                    "subcategory": question.subcategory,
+                    "difficulty_band": question.difficulty_band
+                },
+                "session_progress": {
+                    "current_question": 1,
+                    "total_questions": 12
+                }
+            }
+        finally:
+            db.close()
+            
+    except Exception as e:
+        logger.error(f"❌ Error getting next question: {e}")
+        raise HTTPException(status_code=500, detail="Failed to get next question")
+
+@app.post("/api/sessions/{session_id}/submit-answer")
+async def submit_session_answer(
+    session_id: str,
+    request: dict,
+    user_id: str = Depends(get_current_user)
+):
+    """Temporary endpoint to submit answer"""
+    try:
+        question_id = request.get("question_id")
+        user_answer = request.get("user_answer")
+        
+        db = SessionLocal()
+        try:
+            # Get the question
+            result = db.execute(select(Question).where(Question.id == question_id))
+            question = result.scalar_one_or_none()
+            
+            if not question:
+                raise HTTPException(status_code=404, detail="Question not found")
+            
+            # Check if answer is correct (simple comparison for now)
+            is_correct = str(user_answer).strip().lower() == str(question.answer).strip().lower()
+            
+            return {
+                "correct": is_correct,
+                "status": "correct" if is_correct else "incorrect",
+                "message": "Correct answer!" if is_correct else "That's not quite right.",
+                "user_answer": user_answer,
+                "correct_answer": question.answer,
+                "solution_feedback": {
+                    "snap_read": question.snap_read,
+                    "solution_approach": question.solution_approach,
+                    "detailed_solution": question.detailed_solution,
+                    "principle_to_remember": question.principle_to_remember
+                },
+                "question_metadata": {
+                    "subcategory": question.subcategory,
+                    "difficulty_band": question.difficulty_band,
+                    "type_of_question": question.type_of_question
+                }
+            }
+        finally:
+            db.close()
+            
+    except Exception as e:
+        logger.error(f"❌ Error submitting answer: {e}")
+        raise HTTPException(status_code=500, detail="Failed to submit answer")
+
+@app.get("/api/dashboard/simple-taxonomy")
+async def get_simple_taxonomy(user_id: str = Depends(get_current_user)):
+    """Temporary endpoint for dashboard data"""
+    return {
+        "total_sessions": 0,
+        "taxonomy_data": []
+    }
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8001)
