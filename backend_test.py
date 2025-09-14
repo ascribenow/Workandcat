@@ -17601,42 +17601,35 @@ class CATBackendTester:
         return success_rate >= 60  # Return True if signup email flow is functional
 
 if __name__ == "__main__":
-    print("🎯 PHASE B: ADAPTIVE SYSTEM v1.1 COMPLIANCE TESTING")
-    print("=" * 80)
-    print("Starting comprehensive testing of Phase B adaptive system v1.1 compliance...")
-    print("")
-    
     tester = CATBackendTester()
     
-    try:
-        # Run the Phase B v1.1 compliance testing
-        success = tester.test_phase_b_adaptive_v11_compliance()
-        
-        print("\n" + "=" * 80)
-        print("🎯 PHASE B v1.1 COMPLIANCE TESTING SUMMARY")
-        print("=" * 80)
-        
-        if success:
-            print("🎉 PHASE B: ADAPTIVE SYSTEM v1.1 COMPLIANCE ACHIEVED!")
-            print("   ✅ Adaptive gate middleware working with proper flag enforcement")
-            print("   ✅ API contract hardening with Idempotency-Key requirement enforced")
-            print("   ✅ Database indexes created for performance optimization")
-            print("   ✅ Constraint enforcement blocking forbidden relaxations")
-            print("   ✅ Complete adaptive flow functional with 12-question packs")
-            print("   ✅ 3-6-3 difficulty distribution maintained")
-            print("   🏆 PRODUCTION READY - All Phase B v1.1 objectives achieved!")
-        else:
-            print("❌ PHASE B: ADAPTIVE SYSTEM v1.1 COMPLIANCE INCOMPLETE")
-            print("   🚨 Some v1.1 requirements not met")
-            print("   🔧 Additional fixes needed for full compliance")
-        
-        print(f"\nTotal Tests Run: {tester.tests_run}")
-        print(f"Tests Passed: {tester.tests_passed}")
-        print(f"Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%" if tester.tests_run > 0 else "No tests run")
-        
-    except Exception as e:
-        print(f"\n❌ TESTING FAILED WITH EXCEPTION: {e}")
-        print("   🚨 CRITICAL ERROR - Testing could not complete")
-        
+    print("🚀 STARTING SUMMARIZER SESSION_ID TYPE MISMATCH FIX TESTING")
+    print("=" * 80)
+    
+    # Run the summarizer test
+    success = tester.test_summarizer_session_id_type_mismatch_fix()
+    
     print("\n" + "=" * 80)
+    print("🎯 FINAL SUMMARIZER TESTING RESULTS")
+    print("=" * 80)
+    
+    if success:
+        print("🎉 SUMMARIZER SESSION_ID TYPE MISMATCH FIX TESTING - SUCCESS!")
+        print("   ✅ LLM analytics tables are now being populated correctly")
+        print("   ✅ Session completion flow triggers summarizer successfully")
+        print("   ✅ Database population validated for both required tables")
+        print("   ✅ SQL fix resolving session_id to sess_seq working")
+        print("   ✅ All acceptance criteria met")
+        print("   🏆 PRODUCTION READY - 100% LLM analytics population achieved!")
+    else:
+        print("❌ SUMMARIZER SESSION_ID TYPE MISMATCH FIX TESTING - ISSUES FOUND!")
+        print("   🚨 Critical issues preventing LLM analytics population")
+        print("   🔧 Review the detailed test results above for specific failures")
+        print("   ⚠️ Additional fixes may be needed")
+    
+    print(f"\nTotal tests run: {tester.tests_run}")
+    print(f"Total tests passed: {tester.tests_passed}")
+    print(f"Success rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%" if tester.tests_run > 0 else "No tests run")
+    
+    sys.exit(0 if success else 1)
 
