@@ -1,0 +1,9 @@
+{
+  "session_id": "a02efd6a-a4ea-4704-8c82-cff4855f5793",
+  "status": "served",
+  "served_at": "2025-09-14T20:23:32.338567",
+  "completed_at": null,
+  "llm_model_used": "planner_fallback@v1.1",
+  "processing_time_ms": 150,
+  "note": "Pack length and constraint_report require JSON parsing"
+}
