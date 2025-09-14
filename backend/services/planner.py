@@ -188,8 +188,87 @@ Return ONLY valid JSON matching the required schema. The constraint_report field
             logger.error(f"❌ Planner failed for user {user_id[:8]}: {e}")
             return self._generate_fallback_plan(candidate_pool_by_band, cold_start_mode)
     
-    def _generate_fallback_plan(self, candidate_pool_by_band: Dict[str, List], 
-                               cold_start_mode: bool) -> Dict[str, Any]:
+    def _get_simplified_prompt(self) -> str:
+        """P0 FIX: Simplified prompt for fast ID ordering only"""
+        return """You are an expert session planner. Your task is to select and order exactly 12 question IDs from a candidate pool.
+
+TASK: Return a JSON with an ordered array of 12 question IDs, optimized for adaptive learning.
+
+CONSTRAINTS (NEVER RELAX):
+1. Exactly 12 questions total
+2. Maintain 3 Easy : 6 Medium : 3 Hard distribution  
+3. Include ≥2 questions with PYQ score ≥1.0 and ≥2 with PYQ score ≥1.5
+
+COLD START: If specified, prioritize diversity (≥5 distinct concept pairs).
+
+OUTPUT FORMAT (max 300 tokens):
+{
+  "selected_ids": ["id1", "id2", ..., "id12"],
+  "reasoning": "brief 1-line explanation"
+}
+
+Return ONLY this JSON format. Do not include question content or metadata."""
+    
+    def _get_simplified_schema(self):
+        """P0 FIX: Simplified schema for ID ordering only"""
+        return {
+            "type": "object",
+            "properties": {
+                "selected_ids": {
+                    "type": "array", 
+                    "items": {"type": "string"},
+                    "minItems": 12,
+                    "maxItems": 12
+                },
+                "reasoning": {"type": "string", "maxLength": 200}
+            },
+            "required": ["selected_ids", "reasoning"]
+        }
+    
+    def _convert_id_ordering_to_pack(self, llm_response, candidates, constraint_report_base):
+        """P0 FIX: Convert simplified LLM response to full pack format"""
+        selected_ids = llm_response.get("selected_ids", [])
+        
+        # Create mapping from candidates
+        candidate_map = {q["id"]: q for q in candidates}
+        
+        # Build full pack from selected IDs
+        pack = []
+        for question_id in selected_ids[:12]:  # Ensure max 12
+            if question_id in candidate_map:
+                question = candidate_map[question_id]
+                pack.append({
+                    "item_id": question["id"],  # P0 FIX: Always present
+                    "why": question.get("stem", "Question content"),
+                    "bucket": question.get("difficulty_band", "Medium").lower(),
+                    "pair": question.get("subcategory", "unknown"),
+                    "pyq_frequency_score": question.get("pyq_frequency_score", 0.0),
+                    "semantic_concepts": question.get("semantic_concepts", [])
+                })
+        
+        # If we don't have enough questions, fill with fallback
+        while len(pack) < 12 and len(candidates) > len(pack):
+            remaining_candidates = [c for c in candidates if c["id"] not in selected_ids]
+            if remaining_candidates:
+                q = remaining_candidates[0]
+                pack.append({
+                    "item_id": q["id"],
+                    "why": q.get("stem", "Question content"),
+                    "bucket": q.get("difficulty_band", "Medium").lower(),
+                    "pair": q.get("subcategory", "unknown"),
+                    "pyq_frequency_score": q.get("pyq_frequency_score", 0.0),
+                    "semantic_concepts": q.get("semantic_concepts", [])
+                })
+                selected_ids.append(q["id"])
+            else:
+                break
+        
+        return {
+            "pack": pack[:12],
+            "constraint_report": constraint_report_base
+        }
+        
+    def _generate_deterministic_fallback(self, candidates, constraint_report_base):
         """Generate fallback plan when LLM fails"""
         import random
         
