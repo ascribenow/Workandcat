@@ -640,14 +640,6 @@ class CandidateProvider:
             "feasible": feasible,
             "feasibility_details": feasibility_details
         }
-            expanded_pool, expansion_details = self.adaptively_expand_pool(
-                diverse_candidates, diversity_pool_size // 3  # Use smaller base for expansion
-            )
-            
-            metadata = {
-                "selection_strategy": "cold_start_diversity",
-                "initial_size": len(diverse_candidates),
-                "expanded_size": len(expanded_pool),
                 "distinct_pairs": len(pairs_included),
                 "pool_expanded": True,
                 "feasibility": feasibility_details,
