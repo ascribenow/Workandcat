@@ -9,7 +9,7 @@ import uuid
 import asyncio
 
 class CATBackendTester:
-    def __init__(self, base_url="http://localhost:8001/api"):
+    def __init__(self, base_url="https://adaptive-cat-1.preview.emergentagent.com/api"):
         self.base_url = base_url
         self.student_user = None
         self.admin_user = None
