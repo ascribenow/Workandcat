@@ -264,8 +264,8 @@ def plan_next_session(user_id: str, force_cold_start: bool = False, request_id: 
         # COLD START PATH - Skip Summarizer, use diversity-first Planner
         logger.info("🔥 Using COLD START pipeline...")
         
-        # Build cold start candidate pool
-        candidates, metadata = candidate_provider.build_coldstart_pool(user_id)
+        # Build cold start candidate pool with seeded hash sampling
+        candidates, metadata = candidate_provider.build_coldstart_pool(user_id, session_seq=next_sess_seq)
         
         if not candidates:
             return {
