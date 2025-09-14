@@ -92,7 +92,7 @@ def mark_session_completed(user_id: str, session_id: str) -> bool:
         """), {
             'user_id': user_id,
             'session_id': session_id,
-            'completed_at': utcnow()
+            'completed_at': datetime.utcnow()
         })
         
         session_updated = result.fetchone()
