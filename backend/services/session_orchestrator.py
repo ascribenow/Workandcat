@@ -171,17 +171,16 @@ def transition_pack_to_served(user_id: str, session_id: str) -> bool:
     """
     db = SessionLocal()
     try:
-        # Update session pack plan
+        # Update session pack plan with server-side timestamp
         result = db.execute(text("""
             UPDATE session_pack_plan 
-            SET status = 'served', served_at = :served_at
+            SET status = 'served', served_at = NOW()
             WHERE user_id = :user_id AND session_id = :session_id 
             AND status = 'planned'
             RETURNING user_id
         """), {
             'user_id': user_id,
-            'session_id': session_id,
-            'served_at': datetime.utcnow()
+            'session_id': session_id
         })
         
         updated = result.fetchone()
