@@ -22,7 +22,7 @@ router = APIRouter(prefix="/api/adapt", tags=["adaptive_sessions"])
 @router.post("/plan-next")
 async def plan_next_controller(body: dict, request: Request, user_id: str = Depends(get_current_user)):
     """
-    Plan the next session after current session completion
+    Plan the next session after current session completion - WITH DIAGNOSTIC TRACING
     
     Request body:
         user_id: User identifier
@@ -35,6 +35,28 @@ async def plan_next_controller(body: dict, request: Request, user_id: str = Depe
         status: 'planned'
         constraint_report: Validation and relaxation details
     """
+    import asyncio
+    import time
+    import json
+    import uuid
+    from datetime import datetime
+    
+    # DIAGNOSTIC TRACING SETUP
+    rid = request.headers.get("X-Request-Id") or request.headers.get("Idempotency-Key") or str(uuid.uuid4())
+    t0 = time.perf_counter()
+    start_ts = datetime.utcnow().isoformat() + 'Z'
+    tm = {"db_candidates": 0, "llm_planner": 0, "validator": 0, "db_write": 0, "other": 0}
+    
+    def td_ms():
+        """Get milliseconds since start"""
+        return int((time.perf_counter() - t0) * 1000)
+    
+    def t_section(key: str):
+        """Time section wrapper"""
+        return time.perf_counter()
+    
+    logger.info(f"🔍 TRACE START: request_id={rid}, route=POST /api/adapt/plan-next")
+    
     try:
         # Extract request parameters
         req_user_id = body.get("user_id")
@@ -59,40 +81,76 @@ async def plan_next_controller(body: dict, request: Request, user_id: str = Depe
         if len(parts) != 3:
             raise HTTPException(status_code=400, detail={"code": "IDEMPOTENCY_KEY_BAD_FORMAT"})
         
-        # Plan the session with timeout handling
-        import asyncio
+        # TIMING SECTION 1: SESSION ORCHESTRATION (includes DB candidates + LLM + DB write)
+        t_orchestration = t_section("orchestration")
         
-        async def run_planning_with_timeout():
-            return plan_next(req_user_id, last_session_id, next_session_id, idem_key=idem_key)
+        async def run_planning_with_timing():
+            # This will internally call candidate selection, LLM planner, and DB write
+            return plan_next(req_user_id, last_session_id, next_session_id, idem_key=idem_key, request_id=rid)
         
         try:
             # 60-second timeout for LLM operations  
-            plan = await asyncio.wait_for(run_planning_with_timeout(), timeout=60.0)
+            plan = await asyncio.wait_for(run_planning_with_timing(), timeout=60.0)
         except asyncio.TimeoutError:
-            logger.warning(f"⏰ Planning timeout for user {req_user_id[:8]}, session {next_session_id[:8]}")
+            logger.warning(f"⏰ TRACE TIMEOUT: request_id={rid}, dur_ms={td_ms()}")
             raise HTTPException(status_code=502, detail={"code": "PLANNING_TIMEOUT", "msg": "Session planning timed out, please try again"})
         
-        # Validate constraints before responding
+        # TIMING SECTION 2: VALIDATION  
+        t_validation = t_section("validation")
         constraint_report = plan.get("constraint_report_json", {})
         assert_no_forbidden_relaxations(constraint_report)
+        tm["validator"] = int((time.perf_counter() - t_validation) * 1000)
         
-        # Final hard shape assertion - get the actual pack to validate
+        # TIMING SECTION 3: PACK LOADING (additional DB read)
+        t_pack_load = t_section("pack_load") 
         pack_data = load_pack(req_user_id, next_session_id)
         if pack_data and pack_data.get("pack_json"):
             pack = pack_data["pack_json"]
             validate_pack_constraints(pack, constraint_report)
+        pack_load_ms = int((time.perf_counter() - t_pack_load) * 1000)
         
-        return {
+        # PREPARE RESPONSE
+        result = {
             "user_id": req_user_id, 
             "session_id": next_session_id,
             "status": plan.get("status", "planned"),
             "constraint_report": constraint_report
         }
         
+        # FINAL TRACE LOGGING
+        end_ts = datetime.utcnow().isoformat() + 'Z'
+        dur_ms = td_ms()
+        resp_bytes = len(json.dumps(result))
+        
+        # Extract detailed timings from plan if available
+        plan_meta = plan.get("timing_meta", {})
+        tm["db_candidates"] = plan_meta.get("db_candidates", 0)
+        tm["llm_planner"] = plan_meta.get("llm_planner", 0) 
+        tm["db_write"] = plan_meta.get("db_write", 0)
+        tm["other"] = dur_ms - sum(tm.values()) - pack_load_ms
+        
+        trace_data = {
+            "request_id": rid,
+            "route": "POST /api/adapt/plan-next",
+            "start_ts": start_ts,
+            "end_ts": end_ts, 
+            "dur_ms": dur_ms,
+            "timings_ms": tm,
+            "retries": plan_meta.get("retries", {"llm": 0, "db": 0}),
+            "http_status": 200,
+            "resp_bytes": resp_bytes,
+            "pack_load_ms": pack_load_ms
+        }
+        
+        logger.info(f"🔍 TRACE COMPLETE: {json.dumps(trace_data)}")
+        
+        return result
+        
     except ConflictError as e:
+        logger.error(f"🔍 TRACE ERROR: request_id={rid}, dur_ms={td_ms()}, error=CONFLICT: {str(e)}")
         raise HTTPException(status_code=409, detail={"code": "PLANNING_IN_PROGRESS", "msg": str(e)})
     except Exception as e:
-        logger.error(f"❌ Plan next session error: {e}")
+        logger.error(f"🔍 TRACE ERROR: request_id={rid}, dur_ms={td_ms()}, error={str(e)}")
         raise HTTPException(status_code=502, detail={"code": "PLANNER_FAILED", "msg": str(e)})
 
 @router.get("/pack")
