@@ -1,88 +1,85 @@
 <analysis>
-The AI engineer successfully implemented Phase 4 (Full Pipeline Orchestration) and Phase 5 (Frontend Integration) of the Twelvr adaptive learning system. This involved creating backend API endpoints (, , ), database schema updates (indexes,  column), and a session orchestrator. Key work included integrating LLM-powered summarizer and planner services, enforcing v1.1 rules (e.g., 3-6-3 pack distribution, PYQ minima, no mid-session adaptation), and implementing robust feature flagging. Frontend integration with  utilized a hybrid approach with two guardrails: an end-of-session handshake for pre-planning and a pre-session auto-plan guard to ensure pack availability, boosting adaptive utilization from 70% to 95-100%. Comprehensive Playwright API tests and backend testing validated the entire system, confirming it's production-ready.
+The trajectory chronicles the transition of the Twelvr adaptive learning system from an AI engineer to a human expert. Initially, the AI engineer claimed to have completed Phases 4 and 5, achieving high adaptive utilization. However, upon receiving a detailed v1.1 handoff packet, the user tasked the AI with auditing the existing codebase against the specification, identifying gaps, and implementing fixes.
+
+The AI engineer successfully completed a multi-phase process: an audit (Phase A), identified and fixed critical gaps in middleware, database indexes, API contracts, and constraint enforcement (Phase B), and addressed data capture issues for LLM-generated analytics (Fixes 1-5). It also wired up session lifecycle endpoints (start/completion) to populate  table timestamps. Throughout, the AI demonstrated iterative problem-solving, debugging import errors, and correcting logic for PYQ minima enforcement.
+
+The system is now 100% compliant with the v1.1 core adaptive logic, including pack generation, constraint enforcement, and API contracts. Most metadata fields (, , ) are correctly populated. However, LLM analytics tables (, ) remain empty due to a persistent  type mismatch (expected integer, received string UUID) in the summarizer's database query, and the need for actual  in test sessions.
 </analysis>
+
 <product_requirements>
-The Twelvr application is an adaptive CAT preparation platform using LLMs for high-quality question enrichment. The core problem is to deliver personalized question sets based on student performance and concept mastery, including cold-start user handling. This system is built in phases. Phase 1 established the database. Phase 2 focused on deterministic kernels. Phase 3 integrated LLM services (Summarizer, Planner) for qualitative analysis and session planning, ensuring 100% test coverage for its components. The immediate previous work involved RFI documentation and a Skip Question UI feature. The current task was to complete Phase 4 (Full Pipeline Orchestration), which involved wiring API endpoints, persisting planned packs, defining frontend hooks, and integrating adaptive logic into  (Phase 5). The system must enforce specific rules: 12-item packs, 3-6-3 difficulty distribution, PYQ minima (min 2 items each for 1.0 and 1.5 PYQ scores), and no mid-session adaptation.
+The Twelvr application is an adaptive CAT preparation platform using LLMs to deliver personalized question sets, manage cold-start users, and ensure high-quality question enrichment. The core problem is to optimize learning paths through dynamic content.
+
+The previous work involved implementing Phase 4 (Full Pipeline Orchestration) and Phase 5 (Frontend Integration) to wire API endpoints, persist planned packs, define frontend hooks, and integrate adaptive logic into . Key rules include 12-item packs with a 3-6-3 difficulty distribution (3 Easy, 6 Medium, 3 Hard), a minimum of 2 questions each for PYQ scores of 1.0 and 1.5, and no mid-session adaptation. The system should feature a hybrid frontend with legacy fallback, dual-gate feature flags ( and ), and two guardrails: an end-of-session handshake for post-completion planning and a pre-session auto-plan guard for pack availability with retry logic. Comprehensive testing and monitoring for adaptive utilization, pack-miss rates, LLM latencies, and forbidden relaxations are also required for a safe rollout ladder.
 </product_requirements>
+
 <key_technical_concepts>
 - Full-stack: React (Frontend), FastAPI (Backend), PostgreSQL (Supabase)
-- LLM Integration: OpenAI/Anthropic/Google via  (Summarizer, Planner), JSON schema validation
-- Adaptive Learning: Deterministic kernels, LLM planning, cold-start handling
-- Database: SQLAlchemy, PostgreSQL indexes, UUIDs
-- Testing: Playwright (API/UI), comprehensive backend testing
-- Feature Flags: Global kill-switch (environment variable) + per-user property ()
+- Adaptive Learning: LLM-powered planning (Summarizer, Planner), deterministic kernels, cold-start handling
+- Database: SQLAlchemy, PostgreSQL indexes (including unique partial indexes), UUIDs, advisory locks
+- Testing: Playwright (API/UI), comprehensive backend API testing
+- Feature Flags: Global kill-switch (environment variable) and per-user property
+- Telemetry: Logging key adaptive metrics
+- Idempotency & Concurrency: Via  headers and database advisory locks
 </key_technical_concepts>
+
 <code_architecture>
 
-- ****:
-    - **Importance**: Main FastAPI application entry point.
-    - **Changes**: Registered the new  router. Modified  endpoint to expose  flag. Authentication logic refactored out.
-- ** (CREATED)**:
-    - **Importance**: Centralized authentication logic to resolve circular import issues in .
-    - **Changes**: Created to encapsulate JWT token generation and validation.
-- ** (CREATED)**:
-    - **Importance**: Defines the core API endpoints for the adaptive learning system.
-    - **Changes**: Implemented , , , and . These endpoints integrate with the  service.
-- ** (CREATED)**:
-    - **Importance**: Enforces the feature flag logic on the backend.
-    - **Changes**: Created to guard  endpoints, checking both  environment variable and  status, returning 403 if disabled.
-- ****:
-    - **Importance**: Contains database models and connection.
-    - **Changes**: Added  attribute to the  Pydantic model.
-- ** (CREATED)**:
-    - **Importance**: Centralizes the adaptive session planning logic.
-    - **Changes**: Created to integrate , handle idempotency, concurrency via PostgreSQL advisory locks, and orchestrate the planning process.
-- ****:
-    - **Importance**: Core logic for generating adaptive session plans.
-    - **Changes**: Modified  to be synchronous. Fixed  import and LLM service calls to match synchronous requirements.
-- ** (CREATED)**:
-    - **Importance**: Handles logging and metrics for adaptive system.
-    - **Changes**: Created to emit events like , , , and .
-- ****:
-    - **Importance**: Defines database schema changes.
-    - **Changes**: Added indexes on , , and . Added a unique partial index on  for .
-- ** (CREATED)**:
-    - **Importance**: Script to provision dedicated E2E test users and session history.
-    - **Changes**: Created to insert  and  users with pre-defined session and attempt data into PostgreSQL.
-- ** (CREATED)**:
-    - **Importance**: Stores frontend configuration, including the global adaptive flag.
-    - **Changes**: Created to define  based on environment variables.
-- ****:
-    - **Importance**: Manages the user's interactive session experience.
-    - **Changes**: Significantly refactored to implement the hybrid adaptive flow. Added helper functions (, , , , , , ). Integrated the end-of-session handshake to trigger planning and the pre-session auto-plan guard to ensure pack availability, including retry logic. Updated  and  to work with in-memory adaptive packs. Added UI feedback for planning state.
-- ** (CREATED)**:
-    - **Importance**: Environment variables for Playwright tests.
-    - **Changes**: Created to store , E2E user IDs, session IDs, and  token.
-- ****:
-    - **Importance**: Manages frontend dependencies and scripts.
-    - **Changes**: Added Playwright and  as  and e2e test scripts.
-- ** (CREATED)**:
-    - **Importance**: Contains comprehensive Playwright API integration tests.
-    - **Changes**: Created multiple test files (, , , , ) along with , , , and . These validate the full Phase 4 contract end-to-end, including cold-start, adaptive flow, hard constraints, idempotency, concurrency, and telemetry.
+- ****: Main FastAPI entry.
+    - **Changes**: Wired  middleware to  router. Included new .
+- ****: Centralized authentication.
+    - **No recent changes.**
+- ****: Adaptive API endpoints.
+    - **Changes**: Enforced  header, added validation for pack shape (3-6-3), integrated , and included a post-session summarizer call.
+- ** (CREATED)**: New router for session start/completion endpoints.
+    - **Importance**: Provides  and  to manage session timestamps and trigger summarization.
+- ****: Enforces feature flag logic.
+    - **Changes**: Modified to correctly integrate with FastAPI  for user authentication.
+- ****: DB models.
+    - **No recent changes.**
+- ****: Adaptive session planning.
+    - **Changes**: Confirmed  setting in . Handles  and  from planner metadata.
+- ****: Generates adaptive session plans.
+    - **Changes**: Added telemetry breadcrumbs for PYQ counts.
+- ****: Provides question candidates.
+    - **Changes**: Added telemetry to  and  to track PYQ availability. Confirmed usage of  table.
+- ****: LLM-powered summarizer.
+    - **Changes**: Fixed DB insertion to use correct column names for  and added  upsert logic.
+- ****: LLM-powered session planner.
+    - **Changes**: Modified fallback planner to prioritize PYQ minima, ensuring  and  are included in the constraint report metadata. Applied JSON hardening.
+- ****: Handles logging.
+    - **Changes**: Used to emit new adaptive metrics and errors.
+- ** (CREATED)**: Manages session  and  timestamps.
+    - **Importance**: Contains  and  functions which update  and  tables idempotently, and triggers the summarizer.
+- ** (CREATED)**: Validator to reject forbidden relaxations.
+    - **Importance**: Ensures hard constraints (band shape, PYQ minima) are never violated.
+- ****: LLM wrapper.
+    - **Changes**: Implemented JSON hardening (JSON mode, temperature=0, post-processing trim/clean-up).
+- ** (CREATED)**: DB migration.
+    - **Importance**: Added missing performance indexes for  (, ) and a unique partial index for  ().
+- ** (CREATED)**: Minimal compliance tests.
+    - **Importance**: Validates idempotency, pack shape, and absence of forbidden relaxations.
+- ****: Frontend session logic.
+    - **Changes**: Added  after first question render and  after session completion (after final attempt flush).
 </code_architecture>
-<pending_tasks>
-- Develop new features or enhancements as requested by the user.
-</pending_tasks>
-<current_work>
-The AI engineer has just completed the full implementation of **Phase 4 (Full Pipeline Orchestration)** and **Phase 5 (Frontend Integration)**, culminating in a production-ready hybrid adaptive learning system.
-This involved:
-1.  **Backend API Implementation**: Created , , , and  endpoints in , routing through .
-2.  **Orchestration Logic**: Developed  to manage adaptive planning, incorporating idempotency, concurrency safety via advisory locks, and integration with the  (now synchronous).
-3.  **Database Updates**: Added necessary indexes and a unique partial index to . Altered the  table to include an  boolean column.
-4.  **Feature Flagging**: Implemented a dual-gate feature flag system ( environment variable and  property), enforced on both frontend and backend ().
-5.  **Frontend Integration ()**: Refactored the session component to support a hybrid flow. This includes:
-    *   An end-of-session handshake () to trigger adaptive planning immediately after session completion, persisting  in local storage.
-    *   A pre-session auto-plan guard () that checks for an existing planned pack, auto-plans if missing (with silent retry), and gracefully falls back to the legacy system if planning fails.
-    *   Question advancement from an in-memory 12-item pack, replacing server-side next-question calls.
-    *    is called after the first question of a new pack is rendered.
-6.  **Telemetry**: Integrated basic telemetry hooks in  and  to monitor key adaptive metrics (latency, tokens, relaxation rates, pool expansion, retry usage).
-7.  **Comprehensive Testing**:
-    *   Backend APIs were thoroughly tested via  and the  agent.
-    *   A comprehensive suite of Playwright API tests was implemented (cold-start, adaptive, idempotency, concurrency, contract checks) and executed, validating the entire adaptive flow.
-    *   The  agent confirmed the frontend integration in  achieved 100% adaptive utilization when guardrails are enabled.
 
-The system now reliably achieves 95-100% adaptive utilization for eligible users, adheres to all v1.1 constraints (3-6-3, PYQ minima), and is fully production-ready.
+<pending_tasks>
+- **Summarizer  Type Mismatch**: The summarizer service () expects integer  but receives string UUIDs when querying  via  table. This prevents  and  from being populated.
+- **Generate Test **: To fully test LLM analytics, actual  are needed, either through real user sessions or mocked test data.
+</pending_tasks>
+
+<current_work>
+The Twelvr Adaptive (v1.1) system has reached a highly compliant and functional state. All core adaptive features, including session planning, pack generation (12 items with 3-6-3 difficulty, PYQ minima), API contracts (e.g.,  enforcement), and constraint validation (no forbidden relaxations), are working as specified.
+
+Recent work focused on resolving data capture gaps for LLM analytics and ensuring proper session lifecycle tracking. The AI engineer:
+1.  **Fixed Summarizer Column Mismatches**: Updated  to use correct column names for inserting into  and .
+2.  **Wired Session Lifecycle Endpoints**: Created  with  and  endpoints, handled by .
+3.  **Added Frontend Hooks**: Integrated calls to these new lifecycle endpoints in  to mark session start (on first question render) and completion (after final attempt flush).
+4.  **Ensured Metadata Population**: Correctly populates , ,  (e.g., planner_fallback@v1.1), and .
+5.  **Hardened LLM JSON Processing**: Implemented , , and post-processing cleanup in  to make LLM responses more robust.
+
+The system is currently production-ready for its core adaptive learning functionality. However, the LLM analytics tables (, ) remain empty because the summarizer, while correctly called, fails to process data due to an SQL query expecting an integer  format when UUID strings are provided.
 </current_work>
+
 <optional_next_step>
-Ask user for Twelvr Adaptive (v1.1) — Implementation & Rollout Handoff and then proceed accordingly.
+Address the summarizer's  type mismatch in  to correctly query .
 </optional_next_step>

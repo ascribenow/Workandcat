@@ -9,7 +9,7 @@ import json
 import sys
 
 class AdminPanelTester:
-    def __init__(self, base_url="https://smart-study-21.preview.emergentagent.com/api"):
+    def __init__(self, base_url="https://adaptive-cat-1.preview.emergentagent.com/api"):
         self.base_url = base_url
         self.admin_token = None
         self.admin_user = None

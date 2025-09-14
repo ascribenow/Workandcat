@@ -8,7 +8,7 @@ import json
 import uuid
 
 # Test configuration
-BASE_URL = "https://smart-study-21.preview.emergentagent.com/api"
+BASE_URL = "https://adaptive-cat-1.preview.emergentagent.com/api"
 
 def test_plan_next_endpoint():
     print("🎯 QUICK PHASE 4 PLAN-NEXT ENDPOINT TEST")
