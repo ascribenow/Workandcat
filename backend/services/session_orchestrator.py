@@ -104,7 +104,7 @@ def save_pack(user_id: str, session_id: str, plan: Dict[str, Any], constraint_re
             WHERE user_id = :user_id
         """), {'user_id': user_id}).fetchone()
         
-        next_sess_seq = sess_seq_result[0] if sess_seq_result else 1
+        next_sess_seq = sess_seq_result.next_sess_seq if sess_seq_result else 1
         
         # Insert session record first
         db.execute(text("""
