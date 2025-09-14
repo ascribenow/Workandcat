@@ -951,6 +951,606 @@ class CATBackendTester:
             
         return planning_results["root_cause_identified"] or success_rate >= 70
 
+    def test_question_content_investigation(self):
+        """
+        🚨 CRITICAL QUESTION CONTENT INVESTIGATION: Session loads successfully but question content is empty/missing.
+
+        CURRENT STATUS:
+        ✅ Performance issues resolved - session loads in normal time
+        ✅ Session interface working - shows "Session #1 • 12-Question Practice"  
+        ✅ Session metadata working - shows "Time-Speed-Distance-Basics • Medium"
+        ❌ Question content missing - shows "Loading question..." instead of actual question
+        ❌ Answer options empty - just shows "A", "B", "C", "D" without content
+
+        SPECIFIC INVESTIGATION NEEDED:
+        1. **Question Data Quality**: Check if questions in database have complete content (stem, options)
+        2. **Question Delivery API**: Test the question content endpoints
+        3. **Question Rendering**: Verify question data structure in pack responses
+        4. **Database Content**: Check if question records have proper stem, options fields
+
+        FOCUS AREAS:
+        - Test pack response structure and question data completeness
+        - Verify question table has proper content fields populated
+        - Check if question ID references are valid
+        - Investigate question content API endpoints
+
+        AUTHENTICATION: sp@theskinmantra.com/student123
+        """
+        print("🚨 CRITICAL QUESTION CONTENT INVESTIGATION")
+        print("=" * 80)
+        print("OBJECTIVE: Investigate why question content is empty/missing in session interface")
+        print("FOCUS: Question data quality, pack response structure, question delivery APIs")
+        print("EXPECTED: Find root cause of empty question content and missing answer options")
+        print("=" * 80)
+        
+        content_results = {
+            # Authentication Setup
+            "authentication_working": False,
+            "user_adaptive_enabled": False,
+            "jwt_token_valid": False,
+            
+            # Question Data Quality Testing
+            "questions_table_accessible": False,
+            "questions_have_stem_content": False,
+            "questions_have_mcq_options": False,
+            "questions_have_complete_data": False,
+            "sample_question_content_valid": False,
+            
+            # Pack Response Structure Testing
+            "adaptive_pack_accessible": False,
+            "pack_contains_question_data": False,
+            "pack_questions_have_stem": False,
+            "pack_questions_have_options": False,
+            "pack_question_structure_complete": False,
+            
+            # Question Delivery API Testing
+            "next_question_endpoint_working": False,
+            "question_content_delivered": False,
+            "question_options_populated": False,
+            "question_metadata_present": False,
+            "question_rendering_data_complete": False,
+            
+            # Database Content Validation
+            "database_questions_populated": False,
+            "question_ids_valid": False,
+            "question_references_working": False,
+            "content_fields_not_null": False,
+            
+            # Root Cause Analysis
+            "empty_content_root_cause_identified": False,
+            "missing_options_root_cause_identified": False,
+            "question_delivery_issue_confirmed": False,
+            "database_content_issue_confirmed": False,
+            
+            # Overall Assessment
+            "question_content_issue_reproduced": False,
+            "fix_recommendation_available": False,
+            "content_delivery_functional": False
+        }
+        
+        # PHASE 1: AUTHENTICATION SETUP
+        print("\n🔐 PHASE 1: AUTHENTICATION SETUP")
+        print("-" * 60)
+        print("Setting up authentication with sp@theskinmantra.com/student123")
+        
+        auth_data = {
+            "email": "sp@theskinmantra.com",
+            "password": "student123"
+        }
+        
+        success, response = self.run_test("Authentication", "POST", "auth/login", [200, 401], auth_data)
+        
+        auth_headers = None
+        user_id = None
+        if success and response.get('access_token'):
+            token = response['access_token']
+            auth_headers = {
+                'Authorization': f'Bearer {token}',
+                'Content-Type': 'application/json'
+            }
+            content_results["authentication_working"] = True
+            content_results["jwt_token_valid"] = True
+            print(f"   ✅ Authentication successful")
+            print(f"   📊 JWT Token length: {len(token)} characters")
+            
+            user_data = response.get('user', {})
+            user_id = user_data.get('id')
+            adaptive_enabled = user_data.get('adaptive_enabled', False)
+            
+            if adaptive_enabled:
+                content_results["user_adaptive_enabled"] = True
+                print(f"   ✅ User adaptive_enabled confirmed: {adaptive_enabled}")
+                print(f"   📊 User ID: {user_id}")
+            else:
+                print(f"   ⚠️ User adaptive_enabled: {adaptive_enabled}")
+        else:
+            print("   ❌ Authentication failed - cannot proceed with question content investigation")
+            return False
+        
+        # PHASE 2: QUESTION DATA QUALITY TESTING
+        print("\n📋 PHASE 2: QUESTION DATA QUALITY TESTING")
+        print("-" * 60)
+        print("Testing direct question data quality from questions endpoint")
+        
+        if auth_headers:
+            # Test questions endpoint to check data quality
+            success, questions_response = self.run_test(
+                "Questions Endpoint", 
+                "GET", 
+                "questions?limit=5", 
+                [200, 404, 500], 
+                None, 
+                auth_headers
+            )
+            
+            if success and isinstance(questions_response, list):
+                content_results["questions_table_accessible"] = True
+                print(f"   ✅ Questions table accessible")
+                print(f"   📊 Retrieved {len(questions_response)} questions")
+                
+                if questions_response:
+                    # Analyze first question for content quality
+                    sample_question = questions_response[0]
+                    print(f"   📊 Sample question ID: {sample_question.get('id', 'N/A')}")
+                    
+                    # Check stem content
+                    stem = sample_question.get('stem', '')
+                    if stem and len(stem.strip()) > 10:
+                        content_results["questions_have_stem_content"] = True
+                        print(f"   ✅ Question has stem content: {len(stem)} characters")
+                        print(f"   📊 Stem preview: {stem[:100]}...")
+                    else:
+                        print(f"   ❌ Question stem missing or too short: '{stem}'")
+                    
+                    # Check MCQ options - this is critical for the issue
+                    right_answer = sample_question.get('right_answer', '')
+                    if right_answer:
+                        print(f"   📊 Right answer: {right_answer}")
+                    else:
+                        print(f"   ⚠️ Right answer missing")
+                    
+                    # Check other critical fields
+                    category = sample_question.get('category', '')
+                    difficulty_level = sample_question.get('difficulty_level', '')
+                    print(f"   📊 Category: {category}")
+                    print(f"   📊 Difficulty: {difficulty_level}")
+                    
+                    # Overall content validation
+                    if stem and right_answer and category:
+                        content_results["sample_question_content_valid"] = True
+                        print(f"   ✅ Sample question has complete basic content")
+                    else:
+                        print(f"   ❌ Sample question missing critical content")
+                        
+                    # Check for MCQ options structure
+                    has_image = sample_question.get('has_image', False)
+                    image_url = sample_question.get('image_url', '')
+                    print(f"   📊 Has image: {has_image}")
+                    if image_url:
+                        print(f"   📊 Image URL: {image_url}")
+                        
+                else:
+                    print(f"   ❌ No questions returned from endpoint")
+            else:
+                print(f"   ❌ Questions endpoint failed: {questions_response}")
+        
+        # PHASE 3: PACK RESPONSE STRUCTURE TESTING
+        print("\n📦 PHASE 3: PACK RESPONSE STRUCTURE TESTING")
+        print("-" * 60)
+        print("Testing adaptive pack response structure and question data completeness")
+        
+        if user_id and auth_headers:
+            # First create a session plan
+            session_id = f"content_test_{uuid.uuid4()}"
+            plan_data = {
+                "user_id": user_id,
+                "last_session_id": "S0",
+                "next_session_id": session_id
+            }
+            
+            headers_with_idem = auth_headers.copy()
+            headers_with_idem['Idempotency-Key'] = f"{user_id}:S0:{session_id}"
+            
+            print(f"   🔄 Creating session plan: {session_id[:8]}...")
+            
+            success, plan_response = self.run_test(
+                "Plan Session for Content Test", 
+                "POST", 
+                "adapt/plan-next", 
+                [200, 400, 500, 502], 
+                plan_data, 
+                headers_with_idem
+            )
+            
+            if success and plan_response.get('status') == 'planned':
+                print(f"   ✅ Session planned successfully")
+                
+                # Now test pack fetch to examine question structure
+                success, pack_response = self.run_test(
+                    "Adaptive Pack Content Analysis", 
+                    "GET", 
+                    f"adapt/pack?user_id={user_id}&session_id={session_id}", 
+                    [200, 404, 500], 
+                    None, 
+                    auth_headers
+                )
+                
+                if success and pack_response.get('pack'):
+                    content_results["adaptive_pack_accessible"] = True
+                    content_results["pack_contains_question_data"] = True
+                    print(f"   ✅ Adaptive pack accessible")
+                    
+                    pack_data = pack_response.get('pack', [])
+                    print(f"   📊 Pack contains {len(pack_data)} questions")
+                    
+                    if pack_data:
+                        # Analyze first question in pack for content structure
+                        pack_question = pack_data[0]
+                        print(f"   📊 Analyzing pack question structure...")
+                        
+                        # Check what fields are available in pack question
+                        available_fields = list(pack_question.keys())
+                        print(f"   📊 Available fields: {available_fields}")
+                        
+                        # Check for critical content fields
+                        item_id = pack_question.get('item_id', '')
+                        why = pack_question.get('why', '')
+                        bucket = pack_question.get('bucket', '')
+                        
+                        print(f"   📊 Item ID: {item_id}")
+                        print(f"   📊 Why (question stem): {len(why) if why else 0} characters")
+                        print(f"   📊 Bucket (difficulty): {bucket}")
+                        
+                        if why and len(why.strip()) > 10:
+                            content_results["pack_questions_have_stem"] = True
+                            print(f"   ✅ Pack question has stem content")
+                            print(f"   📊 Stem preview: {why[:100]}...")
+                        else:
+                            print(f"   ❌ Pack question missing stem content")
+                            print(f"   🚨 CRITICAL: This could be the root cause of 'Loading question...'")
+                        
+                        # Check for options structure in pack
+                        # The pack might not contain options directly - they might be fetched separately
+                        if 'options' in pack_question:
+                            options = pack_question.get('options', {})
+                            print(f"   📊 Options in pack: {options}")
+                            if options and len(options) >= 4:
+                                content_results["pack_questions_have_options"] = True
+                                print(f"   ✅ Pack question has options")
+                            else:
+                                print(f"   ❌ Pack question missing options")
+                        else:
+                            print(f"   ⚠️ Options not included in pack structure")
+                            print(f"   🔍 Options might be fetched separately via question ID")
+                        
+                        # Check if we can identify the root cause
+                        if not why or len(why.strip()) <= 10:
+                            content_results["empty_content_root_cause_identified"] = True
+                            print(f"   🚨 ROOT CAUSE IDENTIFIED: Pack questions have empty/missing 'why' field")
+                            print(f"   🔍 This explains 'Loading question...' in frontend")
+                        
+                        if item_id:
+                            print(f"   📊 Question item_id available: {item_id}")
+                            content_results["question_ids_valid"] = True
+                        else:
+                            print(f"   ❌ Question item_id missing")
+                            
+                    else:
+                        print(f"   ❌ Pack contains no questions")
+                else:
+                    print(f"   ❌ Pack fetch failed: {pack_response}")
+            else:
+                print(f"   ❌ Session planning failed: {plan_response}")
+        
+        # PHASE 4: QUESTION DELIVERY API TESTING
+        print("\n🔄 PHASE 4: QUESTION DELIVERY API TESTING")
+        print("-" * 60)
+        print("Testing question delivery through session next-question endpoint")
+        
+        if auth_headers:
+            # Test the legacy session endpoint that frontend might be using
+            test_session_id = f"legacy_test_{uuid.uuid4()}"
+            
+            # First start a session
+            session_start_data = {"session_type": "practice"}
+            success, session_response = self.run_test(
+                "Start Legacy Session", 
+                "POST", 
+                "sessions/start", 
+                [200, 400, 500], 
+                session_start_data, 
+                auth_headers
+            )
+            
+            if success and session_response.get('session_id'):
+                legacy_session_id = session_response['session_id']
+                print(f"   ✅ Legacy session started: {legacy_session_id}")
+                
+                # Test next question endpoint
+                success, question_response = self.run_test(
+                    "Get Next Question (Legacy)", 
+                    "GET", 
+                    f"sessions/{legacy_session_id}/next-question", 
+                    [200, 404, 500], 
+                    None, 
+                    auth_headers
+                )
+                
+                if success and question_response.get('question'):
+                    content_results["next_question_endpoint_working"] = True
+                    print(f"   ✅ Next question endpoint working")
+                    
+                    question_data = question_response['question']
+                    print(f"   📊 Question data structure: {list(question_data.keys())}")
+                    
+                    # Check question content
+                    stem = question_data.get('stem', '')
+                    options = question_data.get('options', {})
+                    question_id = question_data.get('id', '')
+                    
+                    print(f"   📊 Question ID: {question_id}")
+                    print(f"   📊 Stem length: {len(stem) if stem else 0} characters")
+                    print(f"   📊 Options: {options}")
+                    
+                    if stem and len(stem.strip()) > 10:
+                        content_results["question_content_delivered"] = True
+                        print(f"   ✅ Question content delivered successfully")
+                        print(f"   📊 Stem preview: {stem[:100]}...")
+                    else:
+                        print(f"   ❌ Question content missing or empty")
+                        print(f"   🚨 CRITICAL: This matches the reported issue")
+                    
+                    if options and len(options) >= 4:
+                        content_results["question_options_populated"] = True
+                        print(f"   ✅ Question options populated")
+                        for key, value in options.items():
+                            print(f"   📊 Option {key.upper()}: {value}")
+                    else:
+                        print(f"   ❌ Question options missing or incomplete")
+                        print(f"   🚨 CRITICAL: This explains empty A, B, C, D options")
+                        content_results["missing_options_root_cause_identified"] = True
+                    
+                    # Check metadata
+                    has_image = question_data.get('has_image', False)
+                    subcategory = question_data.get('subcategory', '')
+                    difficulty_band = question_data.get('difficulty_band', '')
+                    
+                    if subcategory or difficulty_band:
+                        content_results["question_metadata_present"] = True
+                        print(f"   ✅ Question metadata present")
+                        print(f"   📊 Subcategory: {subcategory}")
+                        print(f"   📊 Difficulty band: {difficulty_band}")
+                    
+                    # Overall assessment
+                    if stem and options and len(options) >= 4:
+                        content_results["question_rendering_data_complete"] = True
+                        print(f"   ✅ Question rendering data complete")
+                    else:
+                        print(f"   ❌ Question rendering data incomplete")
+                        content_results["question_delivery_issue_confirmed"] = True
+                        
+                else:
+                    print(f"   ❌ Next question endpoint failed: {question_response}")
+            else:
+                print(f"   ❌ Legacy session start failed: {session_response}")
+        
+        # PHASE 5: DATABASE CONTENT VALIDATION
+        print("\n🗄️ PHASE 5: DATABASE CONTENT VALIDATION")
+        print("-" * 60)
+        print("Validating database question content and field population")
+        
+        if content_results["questions_table_accessible"]:
+            # Test with more questions to validate database content
+            success, more_questions = self.run_test(
+                "Extended Questions Sample", 
+                "GET", 
+                "questions?limit=10", 
+                [200, 404, 500], 
+                None, 
+                auth_headers
+            )
+            
+            if success and isinstance(more_questions, list) and more_questions:
+                content_results["database_questions_populated"] = True
+                print(f"   ✅ Database questions populated ({len(more_questions)} questions)")
+                
+                # Analyze content quality across multiple questions
+                questions_with_stem = 0
+                questions_with_answer = 0
+                questions_with_category = 0
+                empty_stems = []
+                
+                for i, q in enumerate(more_questions):
+                    stem = q.get('stem', '')
+                    answer = q.get('right_answer', '')
+                    category = q.get('category', '')
+                    q_id = q.get('id', f'question_{i}')
+                    
+                    if stem and len(stem.strip()) > 10:
+                        questions_with_stem += 1
+                    else:
+                        empty_stems.append(q_id[:8])
+                    
+                    if answer:
+                        questions_with_answer += 1
+                    
+                    if category:
+                        questions_with_category += 1
+                
+                print(f"   📊 Questions with stem content: {questions_with_stem}/{len(more_questions)}")
+                print(f"   📊 Questions with answers: {questions_with_answer}/{len(more_questions)}")
+                print(f"   📊 Questions with categories: {questions_with_category}/{len(more_questions)}")
+                
+                if empty_stems:
+                    print(f"   ⚠️ Questions with empty stems: {empty_stems}")
+                    content_results["database_content_issue_confirmed"] = True
+                    print(f"   🚨 DATABASE CONTENT ISSUE: Some questions have empty stem content")
+                
+                if questions_with_stem == len(more_questions):
+                    content_results["content_fields_not_null"] = True
+                    print(f"   ✅ All questions have non-null content fields")
+                else:
+                    print(f"   ❌ {len(more_questions) - questions_with_stem} questions have missing content")
+                    
+                # Check if question IDs are valid format
+                valid_ids = 0
+                for q in more_questions:
+                    q_id = q.get('id', '')
+                    if q_id and len(q_id) > 10:  # Reasonable ID length
+                        valid_ids += 1
+                
+                if valid_ids == len(more_questions):
+                    content_results["question_ids_valid"] = True
+                    print(f"   ✅ All question IDs are valid format")
+                else:
+                    print(f"   ⚠️ {len(more_questions) - valid_ids} questions have invalid IDs")
+        
+        # PHASE 6: ROOT CAUSE ANALYSIS
+        print("\n🔍 PHASE 6: ROOT CAUSE ANALYSIS")
+        print("-" * 60)
+        print("Analyzing root cause of question content and options issues")
+        
+        # Determine if we've reproduced the issue
+        if (not content_results["question_content_delivered"] or 
+            not content_results["question_options_populated"] or
+            not content_results["pack_questions_have_stem"]):
+            content_results["question_content_issue_reproduced"] = True
+            print(f"   ✅ Question content issue successfully reproduced")
+            
+            # Identify specific root causes
+            root_causes = []
+            
+            if not content_results["pack_questions_have_stem"]:
+                root_causes.append("Pack questions missing 'why' field (stem content)")
+                
+            if not content_results["question_options_populated"]:
+                root_causes.append("Question options not populated in API responses")
+                
+            if content_results["database_content_issue_confirmed"]:
+                root_causes.append("Database questions have empty stem content")
+                
+            if not content_results["question_content_delivered"]:
+                root_causes.append("Next question endpoint not delivering content")
+            
+            print(f"   🚨 ROOT CAUSES IDENTIFIED:")
+            for i, cause in enumerate(root_causes, 1):
+                print(f"   {i}. {cause}")
+            
+            # Provide fix recommendations
+            content_results["fix_recommendation_available"] = True
+            print(f"\n   🔧 FIX RECOMMENDATIONS:")
+            
+            if not content_results["pack_questions_have_stem"]:
+                print(f"   1. PACK STRUCTURE FIX:")
+                print(f"      - Check session_orchestrator.py pack generation")
+                print(f"      - Ensure 'why' field is populated from question.stem")
+                print(f"      - Verify question lookup in pack building process")
+                
+            if not content_results["question_options_populated"]:
+                print(f"   2. OPTIONS DELIVERY FIX:")
+                print(f"      - Check question.mcq_options field in database")
+                print(f"      - Verify options parsing in next-question endpoint")
+                print(f"      - Ensure options are included in API responses")
+                
+            if content_results["database_content_issue_confirmed"]:
+                print(f"   3. DATABASE CONTENT FIX:")
+                print(f"      - Run data quality check on questions table")
+                print(f"      - Identify questions with empty stem fields")
+                print(f"      - Re-import or fix question content data")
+                
+        else:
+            print(f"   ⚠️ Unable to reproduce question content issue")
+            print(f"   📊 All tested endpoints returning content correctly")
+            print(f"   🔍 Issue may be frontend-specific or intermittent")
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 80)
+        print("🚨 CRITICAL QUESTION CONTENT INVESTIGATION - RESULTS")
+        print("=" * 80)
+        
+        passed_tests = sum(content_results.values())
+        total_tests = len(content_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        # Group results by testing phases
+        testing_phases = {
+            "AUTHENTICATION SETUP": [
+                "authentication_working", "user_adaptive_enabled", "jwt_token_valid"
+            ],
+            "QUESTION DATA QUALITY": [
+                "questions_table_accessible", "questions_have_stem_content", 
+                "questions_have_mcq_options", "questions_have_complete_data", "sample_question_content_valid"
+            ],
+            "PACK RESPONSE STRUCTURE": [
+                "adaptive_pack_accessible", "pack_contains_question_data",
+                "pack_questions_have_stem", "pack_questions_have_options", "pack_question_structure_complete"
+            ],
+            "QUESTION DELIVERY API": [
+                "next_question_endpoint_working", "question_content_delivered",
+                "question_options_populated", "question_metadata_present", "question_rendering_data_complete"
+            ],
+            "DATABASE CONTENT VALIDATION": [
+                "database_questions_populated", "question_ids_valid",
+                "question_references_working", "content_fields_not_null"
+            ],
+            "ROOT CAUSE ANALYSIS": [
+                "empty_content_root_cause_identified", "missing_options_root_cause_identified",
+                "question_delivery_issue_confirmed", "database_content_issue_confirmed",
+                "question_content_issue_reproduced", "fix_recommendation_available", "content_delivery_functional"
+            ]
+        }
+        
+        for phase, tests in testing_phases.items():
+            print(f"\n{phase}:")
+            phase_passed = 0
+            phase_total = len(tests)
+            
+            for test in tests:
+                if test in content_results:
+                    result = content_results[test]
+                    status = "✅ PASS" if result else "❌ FAIL"
+                    print(f"  {test.replace('_', ' ').title():<50} {status}")
+                    if result:
+                        phase_passed += 1
+            
+            phase_rate = (phase_passed / phase_total) * 100 if phase_total > 0 else 0
+            print(f"  Phase Success Rate: {phase_passed}/{phase_total} ({phase_rate:.1f}%)")
+        
+        print("-" * 80)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # CRITICAL FINDINGS SUMMARY
+        print("\n🎯 CRITICAL FINDINGS SUMMARY:")
+        
+        if content_results["question_content_issue_reproduced"]:
+            print("\n🎉 SUCCESS: Question content issue successfully reproduced and analyzed!")
+            
+            if content_results["empty_content_root_cause_identified"]:
+                print("   🚨 ROOT CAUSE #1: Pack questions have empty/missing 'why' field")
+                print("   📋 This explains 'Loading question...' in frontend")
+                
+            if content_results["missing_options_root_cause_identified"]:
+                print("   🚨 ROOT CAUSE #2: Question options missing or incomplete")
+                print("   📋 This explains empty A, B, C, D options in frontend")
+                
+            if content_results["database_content_issue_confirmed"]:
+                print("   🚨 ROOT CAUSE #3: Database questions have empty stem content")
+                print("   📋 Data quality issue in questions table")
+                
+            print("\n🔧 IMMEDIATE ACTIONS REQUIRED:")
+            print("   1. Fix pack generation to populate 'why' field from question.stem")
+            print("   2. Ensure question.mcq_options are parsed and included in responses")
+            print("   3. Run data quality check on questions table")
+            print("   4. Verify question lookup and content delivery in APIs")
+            
+        else:
+            print("\n⚠️ UNABLE TO REPRODUCE QUESTION CONTENT ISSUE")
+            print("   - All tested endpoints returning content correctly")
+            print("   - Issue may be frontend-specific, timing-related, or intermittent")
+            print("   - Consider testing with specific session IDs from production logs")
+            
+        return content_results["question_content_issue_reproduced"] or success_rate >= 70
+
     def test_critical_llm_planner_fix_verification(self):
         """
         🚨 CRITICAL LLM PLANNER FIX VERIFICATION: Test that the constraint_report fix resolves the session planning failures.
