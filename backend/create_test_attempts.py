@@ -25,8 +25,16 @@ def create_test_attempts():
     db = SessionLocal()
     
     try:
-        # Test user (sp@theskinmantra.com)
-        user_id = "2d2d43a9-3c4e-4b4f-a1e2-9f8e7d6c5b4a"
+        # Get real test user ID (sp@theskinmantra.com)
+        user_result = db.execute(text("""
+            SELECT id FROM users WHERE email = 'sp@theskinmantra.com' LIMIT 1
+        """)).fetchone()
+        
+        if not user_result:
+            print("❌ Test user sp@theskinmantra.com not found in database")
+            return None, None
+            
+        user_id = user_result.id
         
         # Get or create a test session
         session_result = db.execute(text("""
