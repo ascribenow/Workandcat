@@ -111,7 +111,7 @@ class CandidateProvider:
             SELECT id, difficulty_band, pyq_frequency_score
             FROM questions
             WHERE {where_clause}
-            ORDER BY (abs(hashtext(id::text) # hashtext(%(seed)s)))
+            ORDER BY (abs(hashtext(id::text) # hashtext(%(seed)s::text)))
             LIMIT {limit}
             """
             
