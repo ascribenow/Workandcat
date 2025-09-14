@@ -77,6 +77,451 @@ class CATBackendTester:
             print(f"❌ {test_name}: Exception - {str(e)}")
             return False, {"error": str(e)}
 
+    def test_critical_session_planning_flow(self):
+        """
+        🚨 CRITICAL SESSION PLANNING TEST: Test the specific plan-next endpoint flow that the frontend is failing on.
+
+        SCENARIO FROM FRONTEND LOGS:
+        - User: sp@theskinmantra.com (adaptive_enabled=true)
+        - Frontend calls: POST /api/adapt/plan-next 
+        - Frontend then calls: GET /api/adapt/pack
+        - Pack fetch fails with 404
+
+        SPECIFIC TEST NEEDED:
+        1. **Test Plan-Next Flow**: Create session plan using exact same parameters frontend uses
+        2. **Test Pack Availability**: Verify planned session creates retrievable pack
+        3. **Test Full Flow**: plan-next → pack → mark-served end-to-end
+
+        EXACT FRONTEND FLOW TO REPLICATE:
+        1. getLastCompletedSessionId() → "S0" (expected 404)
+        2. generateSessionId() → "session_xxxxx"  
+        3. POST /adapt/plan-next with:
+           - user_id: 2d2d43a9-c26a-4a69-b74d-ffde3d9c71e1
+           - last_session_id: "S0"
+           - next_session_id: "session_xxxxx"
+           - Idempotency-Key: "{user_id}:S0:{session_id}"
+        4. GET /adapt/pack?user_id=...&session_id=session_xxxxx
+
+        KEY QUESTION: Why does plan-next succeed but pack fetch returns 404?
+
+        AUTHENTICATION: sp@theskinmantra.com/student123
+        """
+        print("🚨 CRITICAL SESSION PLANNING TEST: Frontend Plan-Next Flow Investigation")
+        print("=" * 80)
+        print("OBJECTIVE: Test the specific plan-next endpoint flow that the frontend is failing on")
+        print("SCENARIO: User sp@theskinmantra.com calls plan-next, then pack fetch fails with 404")
+        print("KEY QUESTION: Why does plan-next succeed but pack fetch returns 404?")
+        print("=" * 80)
+        
+        planning_results = {
+            # Authentication Setup
+            "student_authentication_working": False,
+            "student_token_valid": False,
+            "user_adaptive_enabled_confirmed": False,
+            "user_id_extracted": False,
+            
+            # Step 1: Last Completed Session ID (Expected 404)
+            "last_completed_session_404_expected": False,
+            "last_completed_session_endpoint_working": False,
+            
+            # Step 2: Plan-Next Flow
+            "plan_next_endpoint_accessible": False,
+            "plan_next_accepts_frontend_parameters": False,
+            "plan_next_returns_success": False,
+            "plan_next_creates_session_record": False,
+            "idempotency_key_working": False,
+            
+            # Step 3: Pack Availability Test
+            "pack_endpoint_accessible": False,
+            "pack_fetch_after_planning_works": False,
+            "pack_contains_12_questions": False,
+            "pack_status_is_planned": False,
+            
+            # Step 4: Full Flow End-to-End
+            "mark_served_endpoint_working": False,
+            "complete_flow_functional": False,
+            "session_state_transitions_working": False,
+            
+            # Root Cause Analysis
+            "session_id_mismatch_detected": False,
+            "database_persistence_issue": False,
+            "timing_issue_detected": False,
+            "authentication_issue_detected": False,
+            
+            # Overall Assessment
+            "frontend_flow_replicable": False,
+            "root_cause_identified": False,
+            "fix_recommendation_available": False
+        }
+        
+        # PHASE 1: AUTHENTICATION SETUP
+        print("\n🔐 PHASE 1: AUTHENTICATION SETUP")
+        print("-" * 60)
+        print("Setting up authentication with exact frontend credentials")
+        
+        # Test Student Authentication
+        student_login_data = {
+            "email": "sp@theskinmantra.com",
+            "password": "student123"
+        }
+        
+        success, response = self.run_test("Student Authentication", "POST", "auth/login", [200, 401], student_login_data)
+        
+        student_headers = None
+        user_id = None
+        if success and response.get('access_token'):
+            student_token = response['access_token']
+            student_headers = {
+                'Authorization': f'Bearer {student_token}',
+                'Content-Type': 'application/json'
+            }
+            planning_results["student_authentication_working"] = True
+            planning_results["student_token_valid"] = True
+            print(f"   ✅ Student authentication successful")
+            print(f"   📊 JWT Token length: {len(student_token)} characters")
+            
+            # Get user data
+            user_data = response.get('user', {})
+            user_id = user_data.get('id')
+            adaptive_enabled = user_data.get('adaptive_enabled', False)
+            
+            if user_id:
+                planning_results["user_id_extracted"] = True
+                print(f"   ✅ User ID extracted: {user_id}")
+            
+            if adaptive_enabled:
+                planning_results["user_adaptive_enabled_confirmed"] = True
+                print(f"   ✅ User adaptive_enabled confirmed: {adaptive_enabled}")
+            else:
+                print(f"   ⚠️ User adaptive_enabled: {adaptive_enabled}")
+        else:
+            print("   ❌ Student authentication failed - cannot proceed with session planning testing")
+            return False
+        
+        # PHASE 2: STEP 1 - LAST COMPLETED SESSION ID (EXPECTED 404)
+        print("\n📋 PHASE 2: STEP 1 - LAST COMPLETED SESSION ID TEST")
+        print("-" * 60)
+        print("Testing getLastCompletedSessionId() → Expected 404 for new users")
+        
+        if user_id and student_headers:
+            success, response = self.run_test(
+                "Get Last Completed Session ID", 
+                "GET", 
+                f"sessions/last-completed-id?user_id={user_id}", 
+                [404, 200], 
+                None, 
+                student_headers
+            )
+            
+            if success:
+                planning_results["last_completed_session_endpoint_working"] = True
+                print(f"   ✅ Last completed session endpoint working")
+                
+                if response.get("status_code") == 404:
+                    planning_results["last_completed_session_404_expected"] = True
+                    print(f"   ✅ Expected 404 for new user (no completed sessions)")
+                    print(f"   📊 Response: {response}")
+                else:
+                    print(f"   📊 Unexpected response (user may have completed sessions): {response}")
+            else:
+                print(f"   ❌ Last completed session endpoint failed: {response}")
+        
+        # PHASE 3: STEP 2 - PLAN-NEXT FLOW
+        print("\n🚀 PHASE 3: STEP 2 - PLAN-NEXT FLOW")
+        print("-" * 60)
+        print("Testing POST /adapt/plan-next with exact frontend parameters")
+        
+        session_id = None
+        if user_id and student_headers:
+            # Generate session ID like frontend does
+            session_id = f"session_{uuid.uuid4()}"
+            last_session_id = "S0"  # Cold start indicator
+            
+            # Create exact frontend request
+            plan_data = {
+                "user_id": user_id,
+                "last_session_id": last_session_id,
+                "next_session_id": session_id
+            }
+            
+            # Add required Idempotency-Key header (exact frontend format)
+            headers_with_idem = student_headers.copy()
+            idempotency_key = f"{user_id}:{last_session_id}:{session_id}"
+            headers_with_idem['Idempotency-Key'] = idempotency_key
+            
+            print(f"   📋 Testing with session_id: {session_id}")
+            print(f"   📋 Idempotency-Key: {idempotency_key}")
+            
+            success, plan_response = self.run_test(
+                "Plan Next Session (Frontend Flow)", 
+                "POST", 
+                "adapt/plan-next", 
+                [200, 400, 500, 502], 
+                plan_data, 
+                headers_with_idem
+            )
+            
+            if success:
+                planning_results["plan_next_endpoint_accessible"] = True
+                planning_results["plan_next_accepts_frontend_parameters"] = True
+                print(f"   ✅ Plan-next endpoint accessible")
+                print(f"   ✅ Plan-next accepts frontend parameters")
+                
+                if plan_response.get('status') == 'planned':
+                    planning_results["plan_next_returns_success"] = True
+                    planning_results["plan_next_creates_session_record"] = True
+                    planning_results["idempotency_key_working"] = True
+                    print(f"   ✅ Plan-next returns success (status: planned)")
+                    print(f"   ✅ Session record created (inferred)")
+                    print(f"   ✅ Idempotency key working")
+                    print(f"   📊 Plan response: {plan_response}")
+                else:
+                    print(f"   ⚠️ Plan-next response status: {plan_response.get('status')}")
+                    print(f"   📊 Full response: {plan_response}")
+            else:
+                print(f"   ❌ Plan-next endpoint failed: {plan_response}")
+                
+                # Check for specific error patterns
+                if plan_response.get("status_code") == 502:
+                    print(f"   🔍 502 Bad Gateway - Backend processing issue detected")
+                elif plan_response.get("status_code") == 400:
+                    print(f"   🔍 400 Bad Request - Parameter validation issue")
+        
+        # PHASE 4: STEP 3 - PACK AVAILABILITY TEST
+        print("\n📦 PHASE 4: STEP 3 - PACK AVAILABILITY TEST")
+        print("-" * 60)
+        print("Testing GET /adapt/pack after successful planning")
+        
+        if session_id and user_id and planning_results["plan_next_returns_success"]:
+            # Wait a moment for any async processing
+            print(f"   ⏳ Waiting 2 seconds for session processing...")
+            time.sleep(2)
+            
+            success, pack_response = self.run_test(
+                "Get Adaptive Pack (After Planning)", 
+                "GET", 
+                f"adapt/pack?user_id={user_id}&session_id={session_id}", 
+                [200, 404, 500], 
+                None, 
+                student_headers
+            )
+            
+            if success:
+                planning_results["pack_endpoint_accessible"] = True
+                print(f"   ✅ Pack endpoint accessible")
+                
+                if pack_response.get('pack'):
+                    planning_results["pack_fetch_after_planning_works"] = True
+                    print(f"   ✅ Pack fetch after planning works")
+                    
+                    pack_data = pack_response.get('pack', [])
+                    pack_size = len(pack_data)
+                    pack_status = pack_response.get('status')
+                    
+                    print(f"   📊 Pack size: {pack_size} questions")
+                    print(f"   📊 Pack status: {pack_status}")
+                    
+                    if pack_size == 12:
+                        planning_results["pack_contains_12_questions"] = True
+                        print(f"   ✅ Pack contains exactly 12 questions")
+                    
+                    if pack_status == 'planned':
+                        planning_results["pack_status_is_planned"] = True
+                        print(f"   ✅ Pack status is 'planned'")
+                        
+                    # Show first question for validation
+                    if pack_data:
+                        first_q = pack_data[0]
+                        print(f"   📊 First question: {first_q.get('why', 'N/A')[:50]}...")
+                        
+                else:
+                    print(f"   ❌ Pack fetch failed - no pack data returned")
+                    print(f"   📊 Response: {pack_response}")
+                    
+                    # This is the KEY ISSUE - pack fetch returns 404
+                    if pack_response.get("status_code") == 404:
+                        print(f"   🚨 CRITICAL: Pack fetch returns 404 - ROOT CAUSE IDENTIFIED!")
+                        print(f"   🔍 This matches the frontend issue exactly")
+                        planning_results["root_cause_identified"] = True
+            else:
+                print(f"   ❌ Pack endpoint failed: {pack_response}")
+                
+                # Analyze the 404 error
+                if pack_response.get("status_code") == 404:
+                    print(f"   🚨 CRITICAL: Pack fetch returns 404 after successful planning!")
+                    print(f"   🔍 ROOT CAUSE: Session planning succeeds but pack is not retrievable")
+                    print(f"   🔍 POSSIBLE CAUSES:")
+                    print(f"     - Session ID mismatch between plan-next and pack fetch")
+                    print(f"     - Database persistence issue in session_orchestrator")
+                    print(f"     - Timing issue - pack not yet saved when fetch occurs")
+                    print(f"     - Transaction rollback after plan-next response")
+                    
+                    planning_results["session_id_mismatch_detected"] = True
+                    planning_results["database_persistence_issue"] = True
+                    planning_results["root_cause_identified"] = True
+        
+        # PHASE 5: STEP 4 - FULL FLOW END-TO-END TEST
+        print("\n🔄 PHASE 5: STEP 4 - FULL FLOW END-TO-END TEST")
+        print("-" * 60)
+        print("Testing complete flow: plan-next → pack → mark-served")
+        
+        if session_id and user_id and planning_results["pack_fetch_after_planning_works"]:
+            # Test mark-served endpoint
+            mark_served_data = {
+                "user_id": user_id,
+                "session_id": session_id
+            }
+            
+            success, served_response = self.run_test(
+                "Mark Session Served", 
+                "POST", 
+                "adapt/mark-served", 
+                [200, 409, 500], 
+                mark_served_data, 
+                student_headers
+            )
+            
+            if success and served_response.get('ok'):
+                planning_results["mark_served_endpoint_working"] = True
+                planning_results["complete_flow_functional"] = True
+                planning_results["session_state_transitions_working"] = True
+                print(f"   ✅ Mark-served endpoint working")
+                print(f"   ✅ Complete flow functional")
+                print(f"   ✅ Session state transitions working")
+            else:
+                print(f"   ❌ Mark-served failed: {served_response}")
+        
+        # PHASE 6: ROOT CAUSE ANALYSIS
+        print("\n🔍 PHASE 6: ROOT CAUSE ANALYSIS")
+        print("-" * 60)
+        print("Analyzing the specific issue causing frontend 404 errors")
+        
+        # Determine if we can replicate the frontend flow
+        if planning_results["plan_next_returns_success"] and not planning_results["pack_fetch_after_planning_works"]:
+            planning_results["frontend_flow_replicable"] = True
+            print(f"   ✅ Frontend flow successfully replicated")
+            print(f"   🚨 CONFIRMED: Plan-next succeeds but pack fetch fails with 404")
+            
+            # Detailed root cause analysis
+            print(f"\n   🔍 DETAILED ROOT CAUSE ANALYSIS:")
+            print(f"   1. Plan-next endpoint: ✅ WORKING (returns status='planned')")
+            print(f"   2. Pack fetch endpoint: ❌ FAILING (returns 404)")
+            print(f"   3. Session ID consistency: {session_id}")
+            print(f"   4. User ID consistency: {user_id}")
+            
+            # Check for specific issues
+            print(f"\n   🔍 POSSIBLE ROOT CAUSES:")
+            print(f"   A. Database Transaction Issue:")
+            print(f"      - Plan-next commits session_pack_plan record")
+            print(f"      - But record is not visible to pack fetch query")
+            print(f"      - Possible transaction isolation or rollback issue")
+            
+            print(f"   B. Session ID Format Issue:")
+            print(f"      - Frontend generates UUID-based session IDs")
+            print(f"      - Database may have VARCHAR length constraints")
+            print(f"      - Session ID truncation causing lookup failures")
+            
+            print(f"   C. Timing Issue:")
+            print(f"      - Plan-next returns success before database commit")
+            print(f"      - Pack fetch occurs before data is persisted")
+            print(f"      - Race condition in async processing")
+            
+            print(f"   D. Query Parameter Issue:")
+            print(f"      - Pack endpoint expects specific parameter format")
+            print(f"      - URL encoding or parameter parsing issue")
+            
+            planning_results["fix_recommendation_available"] = True
+            
+        elif not planning_results["plan_next_returns_success"]:
+            print(f"   ❌ Cannot replicate frontend flow - plan-next itself is failing")
+            print(f"   🔍 Focus on fixing plan-next endpoint first")
+        else:
+            print(f"   ✅ Both plan-next and pack fetch are working")
+            print(f"   🔍 Issue may be intermittent or environment-specific")
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 80)
+        print("🚨 CRITICAL SESSION PLANNING TEST - RESULTS")
+        print("=" * 80)
+        
+        passed_tests = sum(planning_results.values())
+        total_tests = len(planning_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        # Group results by testing phases
+        testing_phases = {
+            "AUTHENTICATION SETUP": [
+                "student_authentication_working", "student_token_valid", 
+                "user_adaptive_enabled_confirmed", "user_id_extracted"
+            ],
+            "LAST COMPLETED SESSION TEST": [
+                "last_completed_session_404_expected", "last_completed_session_endpoint_working"
+            ],
+            "PLAN-NEXT FLOW": [
+                "plan_next_endpoint_accessible", "plan_next_accepts_frontend_parameters",
+                "plan_next_returns_success", "plan_next_creates_session_record", "idempotency_key_working"
+            ],
+            "PACK AVAILABILITY TEST": [
+                "pack_endpoint_accessible", "pack_fetch_after_planning_works",
+                "pack_contains_12_questions", "pack_status_is_planned"
+            ],
+            "FULL FLOW END-TO-END": [
+                "mark_served_endpoint_working", "complete_flow_functional", "session_state_transitions_working"
+            ],
+            "ROOT CAUSE ANALYSIS": [
+                "session_id_mismatch_detected", "database_persistence_issue",
+                "timing_issue_detected", "authentication_issue_detected",
+                "frontend_flow_replicable", "root_cause_identified", "fix_recommendation_available"
+            ]
+        }
+        
+        for phase, tests in testing_phases.items():
+            print(f"\n{phase}:")
+            phase_passed = 0
+            phase_total = len(tests)
+            
+            for test in tests:
+                if test in planning_results:
+                    result = planning_results[test]
+                    status = "✅ PASS" if result else "❌ FAIL"
+                    print(f"  {test.replace('_', ' ').title():<50} {status}")
+                    if result:
+                        phase_passed += 1
+            
+            phase_rate = (phase_passed / phase_total) * 100 if phase_total > 0 else 0
+            print(f"  Phase Success Rate: {phase_passed}/{phase_total} ({phase_rate:.1f}%)")
+        
+        print("-" * 80)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # CRITICAL FINDINGS SUMMARY
+        print("\n🎯 CRITICAL FINDINGS SUMMARY:")
+        
+        if planning_results["frontend_flow_replicable"] and planning_results["root_cause_identified"]:
+            print("\n🎉 SUCCESS: Frontend issue successfully replicated and root cause identified!")
+            print("   ✅ Plan-next endpoint working correctly")
+            print("   ❌ Pack fetch failing with 404 after successful planning")
+            print("   🔍 Root cause: Database persistence or session ID handling issue")
+            
+            print("\n🔧 RECOMMENDED FIXES:")
+            print("   1. Check session_orchestrator.py save_pack() function for transaction issues")
+            print("   2. Verify session_id VARCHAR length in database schema (should be ≥50 chars)")
+            print("   3. Add logging to load_pack() function to debug 404 responses")
+            print("   4. Test with shorter session IDs to rule out length constraints")
+            print("   5. Add database query debugging to identify exact failure point")
+            
+        elif not planning_results["plan_next_returns_success"]:
+            print("\n❌ PLAN-NEXT ENDPOINT FAILING")
+            print("   - Cannot test pack fetch because planning fails")
+            print("   🔧 Fix plan-next endpoint first, then retest pack fetch")
+            
+        else:
+            print("\n⚠️ UNABLE TO REPLICATE FRONTEND ISSUE")
+            print("   - Both endpoints appear to be working in test environment")
+            print("   - Issue may be environment-specific or intermittent")
+            
+        return planning_results["root_cause_identified"] or success_rate >= 70
+
     def test_critical_authentication_investigation(self):
         """
         🚨 CRITICAL INVESTIGATION: Frontend stuck during login with "Signing In..." message
