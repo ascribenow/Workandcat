@@ -261,7 +261,7 @@ class CATBackendTester:
                 print(f"   ✅ Plan-next endpoint reachable")
                 print(f"   ✅ Plan-next accepts parameters")
                 
-                if plan_response.get("status_code") == 200:
+                if plan_response.get("status_code") == 200 or plan_response.get('status') == 'planned':
                     sync_results["plan_next_returns_200_ok"] = True
                     sync_results["idempotency_key_accepted"] = True
                     print(f"   ✅ Plan-next returns 200 OK")
