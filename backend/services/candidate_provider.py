@@ -640,24 +640,6 @@ class CandidateProvider:
             "feasible": feasible,
             "feasibility_details": feasibility_details
         }
-                "distinct_pairs": len(pairs_included),
-                "pool_expanded": True,
-                "feasibility": feasibility_details,
-                "expansion": expansion_details
-            }
-            
-            return expanded_pool, metadata
-        
-        metadata = {
-            "selection_strategy": "cold_start_diversity",
-            "pool_size": len(diverse_candidates),
-            "distinct_pairs": len(pairs_included),
-            "pool_expanded": False,
-            "feasibility": feasibility_details
-        }
-        
-        logger.info(f"Cold start pool: {len(diverse_candidates)} candidates, {len(pairs_included)} distinct pairs")
-        return diverse_candidates, metadata
     
     def _get_recent_questions(self, user_id: str, sessions_lookback: int = 3) -> Set[str]:
         """Get question IDs from user's recent sessions to avoid repetition"""
