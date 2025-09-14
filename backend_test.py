@@ -2104,7 +2104,7 @@ class CATBackendTester:
         6. **Response Times**: Check for timeout issues in authentication flow
         
         AUTHENTICATION CREDENTIALS: sp@theskinmantra.com/student123
-        BACKEND URL: https://adaptive-cat-1.preview.emergentagent.com/api
+        BACKEND URL: https://learn-planner-1.preview.emergentagent.com/api
         """
         print("🚨 CRITICAL AUTHENTICATION INVESTIGATION")
         print("=" * 80)
@@ -2381,7 +2381,7 @@ class CATBackendTester:
             options_response = requests.options(
                 f"{self.base_url}/auth/login",
                 headers={
-                    'Origin': 'https://adaptive-cat-1.preview.emergentagent.com',
+                    'Origin': 'https://learn-planner-1.preview.emergentagent.com',
                     'Access-Control-Request-Method': 'POST',
                     'Access-Control-Request-Headers': 'Content-Type,Authorization'
                 },
@@ -2404,7 +2404,7 @@ class CATBackendTester:
                 else:
                     print(f"     {header}: Not present")
             
-            if cors_headers['Access-Control-Allow-Origin'] in ['*', 'https://adaptive-cat-1.preview.emergentagent.com']:
+            if cors_headers['Access-Control-Allow-Origin'] in ['*', 'https://learn-planner-1.preview.emergentagent.com']:
                 print(f"   ✅ CORS configured for frontend domain")
             else:
                 print(f"   ⚠️ CORS may not be configured for frontend domain")
@@ -3965,7 +3965,7 @@ class CATBackendTester:
         - Headers (CORS, Content-Type, etc.)
         
         AUTHENTICATION CREDENTIALS: sp@theskinmantra.com/student123
-        API BASE: Test both https://adaptive-cat-1.preview.emergentagent.com and https://adaptive-quant.emergent.host
+        API BASE: Test both https://learn-planner-1.preview.emergentagent.com and https://adaptive-quant.emergent.host
         
         EXPECTED RESPONSES:
         - plan-next: { status:"ok", reused: false|true, pack:[…12…] }
@@ -4415,11 +4415,11 @@ class CATBackendTester:
         
         SPECIFIC 404 ERRORS TO INVESTIGATE:
         1. **GET /api/adapt/pack** → 404 NOT FOUND
-           - Called with: ?user_id=2d2d43a9-c26a-4a69-b74d-ffde3d9c71e1&session_id=7409bbc3-d8a3-4d9e-8337-f37685d60d58
+           - Called with: ?user_id=learn-planner-1&session_id=learn-planner-1
            - This should return planned session packs
         
         2. **GET /api/sessions/last-completed-id** → 404 NOT FOUND  
-           - Called with: ?user_id=2d2d43a9-c26a-4a69-b74d-ffde3d9c71e1
+           - Called with: ?user_id=learn-planner-1
            - This endpoint seems to be missing from backend
         
         WORKING ENDPOINTS (200 OK):

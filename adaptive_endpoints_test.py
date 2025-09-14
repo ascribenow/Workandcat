@@ -15,7 +15,7 @@ For each endpoint, capture:
 - Headers (CORS, Content-Type, etc.)
 
 AUTHENTICATION CREDENTIALS: sp@theskinmantra.com/student123
-API BASE: Test both https://adaptive-cat-1.preview.emergentagent.com and https://adaptive-quant.emergent.host
+API BASE: Test both https://learn-planner-1.preview.emergentagent.com and https://adaptive-quant.emergent.host
 
 EXPECTED RESPONSES:
 - plan-next: { status:"ok", reused: false|true, pack:[…12…] }
@@ -322,7 +322,7 @@ def main():
     
     # Test both API bases mentioned in the review request
     api_bases = [
-        "https://adaptive-cat-1.preview.emergentagent.com/api",
+        "https://learn-planner-1.preview.emergentagent.com/api",
         "https://adaptive-quant.emergent.host/api"
     ]
     
