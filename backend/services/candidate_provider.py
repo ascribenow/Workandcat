@@ -481,52 +481,111 @@ class CandidateProvider:
     
     def build_coldstart_pool(self, 
                            user_id: str,
-                           diversity_pool_size: int = 100) -> Tuple[List[QuestionCandidate], Dict[str, Any]]:
+                           diversity_pool_size: int = 100,
+                           session_seq: int = 1) -> Tuple[List[QuestionCandidate], Dict[str, Any]]:
         """
-        Build diversity-first candidate pool for cold start users
+        P0 FIX: Build diversity-first candidate pool with seeded hash sampling
         
         Prioritizes:
         - Unseen concept/pair combinations
-        - Broad exposure across taxonomy
+        - Broad exposure across taxonomy  
         - Meeting basic constraints (3/6/3, PYQ minima)
+        - Deterministic seeded ordering (no ORDER BY RANDOM())
         
         Args:
             user_id: User identifier (new user)
             diversity_pool_size: Size of diversity pool
+            session_seq: Session sequence for deterministic seeding
             
         Returns:
             (candidates, metadata) for cold start selection
         """
         logger.info(f"Building cold start diversity pool for user {user_id[:8]}... (size={diversity_pool_size})")
         
-        # For new users, no exclusions needed
-        all_candidates = self._fetch_active_questions()
+        # P0 FIX: Use seeded hash sampling for PYQ requirements first
+        # This avoids the ORDER BY RANDOM() performance issue
+        
+        # Step 1: Get PYQ 1.5 candidates (deterministic)
+        pyq15_candidates = self._fetch_candidates_with_seeded_hash(
+            user_id=user_id, session_seq=session_seq, 
+            pyq_score=1.5, limit=10
+        )
+        
+        # Step 2: Get PYQ 1.0 candidates (deterministic)  
+        pyq10_candidates = self._fetch_candidates_with_seeded_hash(
+            user_id=user_id, session_seq=session_seq,
+            pyq_score=1.0, limit=20
+        )
+        
+        # Step 3: Get fill candidates by band (deterministic)
+        easy_candidates = self._fetch_candidates_with_seeded_hash(
+            user_id=user_id, session_seq=session_seq,
+            difficulty_band="Easy", limit=30
+        )
+        
+        medium_candidates = self._fetch_candidates_with_seeded_hash(
+            user_id=user_id, session_seq=session_seq,
+            difficulty_band="Medium", limit=40
+        )
+        
+        hard_candidates = self._fetch_candidates_with_seeded_hash(
+            user_id=user_id, session_seq=session_seq,
+            difficulty_band="Hard", limit=30
+        )
+        
+        # Combine all candidates with preference for PYQ
+        all_candidates = []
+        all_candidates.extend(pyq15_candidates[:2])  # Ensure at least 2 PYQ 1.5
+        all_candidates.extend(pyq10_candidates[:2])  # Ensure at least 2 PYQ 1.0  
+        
+        # Add remaining candidates to reach diversity_pool_size
+        remaining_candidates = []
+        remaining_candidates.extend(pyq15_candidates[2:])
+        remaining_candidates.extend(pyq10_candidates[2:])
+        remaining_candidates.extend(easy_candidates)
+        remaining_candidates.extend(medium_candidates) 
+        remaining_candidates.extend(hard_candidates)
+        
+        # Remove duplicates and add to pool
+        seen_ids = {c.question_id for c in all_candidates}
+        for candidate in remaining_candidates:
+            if candidate.question_id not in seen_ids and len(all_candidates) < diversity_pool_size:
+                all_candidates.append(candidate)
+                seen_ids.add(candidate.question_id)
         
         # TELEMETRY: Log data source and PYQ availability for cold start
-        pyq_15_available = sum(1 for c in all_candidates if c.pyq_frequency_score >= 1.5)
-        pyq_10_available = sum(1 for c in all_candidates if c.pyq_frequency_score >= 1.0)
-        logger.info(f"📊 TELEMETRY COLDSTART: provider_source=questions available_pyq15_in_pool={pyq_15_available} available_pyq10_in_pool={pyq_10_available} total_active={len(all_candidates)}")
+        pyq_15_available = len(pyq15_candidates)
+        pyq_10_available = len(pyq10_candidates)
+        logger.info(f"📊 TELEMETRY COLDSTART: provider_source=seeded_hash available_pyq15_in_pool={pyq_15_available} available_pyq10_in_pool={pyq_10_available} total_active={len(all_candidates)}")
         
-        if not all_candidates:
-            return [], {"error": "no_active_questions"}
+        # Check feasibility
+        feasible, feasibility_details = self.preflight_feasible(all_candidates)
         
-        # Group by pair for diversity
-        pair_groups = {}
-        for candidate in all_candidates:
-            pair = candidate.pair
-            if pair not in pair_groups:
-                pair_groups[pair] = []
-            pair_groups[pair].append(candidate)
+        # TELEMETRY: Log cold start selection results
+        selected_pyq_15 = sum(1 for c in all_candidates if c.pyq_frequency_score >= 1.5)
+        selected_pyq_10 = sum(1 for c in all_candidates if c.pyq_frequency_score >= 1.0)
+        logger.info(f"📊 TELEMETRY COLDSTART: selected_pyq15_in_pool={selected_pyq_15} selected_pyq10_in_pool={selected_pyq_10} pool_feasible={feasible}")
         
-        # Select diverse candidates: aim for 5+ distinct pairs minimum
-        diverse_candidates = []
+        if not feasible:
+            logger.warning("Cold start pool not feasible, expanding with seeded sampling")
+            return self._expand_pool_deterministic(all_candidates, diversity_pool_size, user_id, session_seq)
+        
+        # Group by pair for diversity check
         pairs_included = set()
+        for candidate in all_candidates:
+            pairs_included.add(candidate.pair)
         
-        # First pass: one question from each pair (up to diversity_pool_size)
-        pair_list = list(pair_groups.keys())
-        random.shuffle(pair_list)
+        logger.info(f"Cold start pool: {len(all_candidates)} candidates, {len(pairs_included)} distinct pairs")
         
-        for pair in pair_list:
+        return all_candidates, {
+            "pool_size": len(all_candidates),
+            "distinct_pairs": len(pairs_included),
+            "pyq_15_count": selected_pyq_15,
+            "pyq_10_count": selected_pyq_10,
+            "feasible": feasible,
+            "strategy": "seeded_hash_sampling",
+            "feasibility_details": feasibility_details
+        }
             if len(diverse_candidates) >= diversity_pool_size:
                 break
                 
