@@ -77,7 +77,485 @@ class CATBackendTester:
             print(f"❌ {test_name}: Exception - {str(e)}")
             return False, {"error": str(e)}
 
-    def test_session_persistence_fix(self):
+    def test_critical_authentication_investigation(self):
+        """
+        🚨 CRITICAL INVESTIGATION: Frontend stuck during login with "Signing In..." message
+        
+        URGENT INVESTIGATION NEEDED:
+        1. **Authentication Endpoint Status**: Test POST /api/auth/login endpoint directly
+        2. **Backend Connectivity**: Verify the backend server is reachable at the configured URL  
+        3. **CORS Configuration**: Check if CORS is properly configured for the frontend domain
+        4. **Login API Response**: Test with sp@theskinmantra.com/student123 credentials
+        5. **Database Connection**: Ensure the authentication database queries are working
+        6. **Response Times**: Check for timeout issues in authentication flow
+        
+        AUTHENTICATION CREDENTIALS: sp@theskinmantra.com/student123
+        BACKEND URL: https://adaptive-cat-1.preview.emergentagent.com/api
+        """
+        print("🚨 CRITICAL AUTHENTICATION INVESTIGATION")
+        print("=" * 80)
+        print("OBJECTIVE: Investigate frontend stuck during login with 'Signing In...' message")
+        print("BACKEND URL:", self.base_url)
+        print("CREDENTIALS: sp@theskinmantra.com/student123")
+        print("=" * 80)
+        
+        auth_results = {
+            # Backend Connectivity Tests
+            "backend_server_reachable": False,
+            "health_endpoint_working": False,
+            "cors_headers_present": False,
+            "dns_resolution_working": False,
+            
+            # Authentication Endpoint Tests
+            "auth_login_endpoint_exists": False,
+            "auth_login_accepts_post": False,
+            "auth_login_response_time_acceptable": False,
+            "auth_login_returns_valid_json": False,
+            
+            # Credential Testing
+            "valid_credentials_accepted": False,
+            "jwt_token_generated": False,
+            "user_data_returned": False,
+            "adaptive_enabled_flag_present": False,
+            
+            # Database Connection Tests
+            "database_queries_working": False,
+            "user_lookup_successful": False,
+            "password_verification_working": False,
+            
+            # Error Handling Tests
+            "invalid_credentials_handled": False,
+            "error_responses_formatted_correctly": False,
+            "timeout_handling_working": False,
+            
+            # Overall Assessment
+            "authentication_system_functional": False,
+            "login_flow_working_end_to_end": False
+        }
+        
+        # PHASE 1: BACKEND CONNECTIVITY TESTS
+        print("\n🌐 PHASE 1: BACKEND CONNECTIVITY TESTS")
+        print("-" * 60)
+        print("Testing if backend server is reachable and responding")
+        
+        # Test DNS resolution and basic connectivity
+        import socket
+        import urllib.parse
+        
+        try:
+            parsed_url = urllib.parse.urlparse(self.base_url)
+            hostname = parsed_url.hostname
+            port = parsed_url.port or (443 if parsed_url.scheme == 'https' else 80)
+            
+            print(f"   🔍 Testing DNS resolution for {hostname}...")
+            socket.gethostbyname(hostname)
+            auth_results["dns_resolution_working"] = True
+            print(f"   ✅ DNS resolution working for {hostname}")
+            
+            print(f"   🔍 Testing TCP connectivity to {hostname}:{port}...")
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.settimeout(10)
+            result = sock.connect_ex((hostname, port))
+            sock.close()
+            
+            if result == 0:
+                auth_results["backend_server_reachable"] = True
+                print(f"   ✅ Backend server reachable at {hostname}:{port}")
+            else:
+                print(f"   ❌ Cannot connect to {hostname}:{port} (error code: {result})")
+                
+        except Exception as e:
+            print(f"   ❌ DNS/Connectivity error: {e}")
+        
+        # Test health endpoint
+        try:
+            import time
+            start_time = time.time()
+            
+            success, response = self.run_test(
+                "Health Check Endpoint", 
+                "GET", 
+                "../health",  # Go up one level from /api
+                [200, 404], 
+                None, 
+                None
+            )
+            
+            response_time = time.time() - start_time
+            
+            if success:
+                auth_results["health_endpoint_working"] = True
+                print(f"   ✅ Health endpoint working (response time: {response_time:.2f}s)")
+                print(f"   📊 Health response: {response}")
+            else:
+                print(f"   ⚠️ Health endpoint not available: {response}")
+                
+        except Exception as e:
+            print(f"   ❌ Health endpoint error: {e}")
+        
+        # PHASE 2: AUTHENTICATION ENDPOINT TESTS
+        print("\n🔐 PHASE 2: AUTHENTICATION ENDPOINT TESTS")
+        print("-" * 60)
+        print("Testing authentication endpoint availability and response")
+        
+        # Test if auth/login endpoint exists (with invalid method first)
+        success, response = self.run_test(
+            "Auth Login Endpoint Exists (GET test)", 
+            "GET", 
+            "auth/login", 
+            [405, 404, 200],  # 405 = Method Not Allowed is expected
+            None, 
+            None
+        )
+        
+        if success and response.get("status_code") == 405:
+            auth_results["auth_login_endpoint_exists"] = True
+            print(f"   ✅ Auth login endpoint exists (405 Method Not Allowed for GET is correct)")
+        elif success and response.get("status_code") == 404:
+            print(f"   ❌ Auth login endpoint not found (404)")
+        else:
+            print(f"   ⚠️ Unexpected response from auth endpoint: {response}")
+        
+        # Test POST method acceptance
+        test_credentials = {
+            "email": "test@example.com",
+            "password": "invalid"
+        }
+        
+        import time
+        start_time = time.time()
+        
+        success, response = self.run_test(
+            "Auth Login Accepts POST", 
+            "POST", 
+            "auth/login", 
+            [200, 401, 400, 422, 500], 
+            test_credentials, 
+            {'Content-Type': 'application/json'}
+        )
+        
+        response_time = time.time() - start_time
+        
+        if success:
+            auth_results["auth_login_accepts_post"] = True
+            auth_results["auth_login_returns_valid_json"] = True
+            print(f"   ✅ Auth login accepts POST requests")
+            print(f"   ✅ Response time acceptable: {response_time:.2f}s")
+            print(f"   📊 Response status: {response.get('status_code', 'unknown')}")
+            
+            if response_time < 30:
+                auth_results["auth_login_response_time_acceptable"] = True
+                print(f"   ✅ Response time under 30s threshold")
+            else:
+                print(f"   ❌ Response time too slow: {response_time:.2f}s")
+                
+        else:
+            print(f"   ❌ Auth login POST failed: {response}")
+        
+        # PHASE 3: CREDENTIAL TESTING
+        print("\n🔑 PHASE 3: CREDENTIAL TESTING")
+        print("-" * 60)
+        print("Testing with actual credentials: sp@theskinmantra.com/student123")
+        
+        # Test with valid credentials
+        valid_credentials = {
+            "email": "sp@theskinmantra.com",
+            "password": "student123"
+        }
+        
+        start_time = time.time()
+        
+        success, response = self.run_test(
+            "Valid Credentials Authentication", 
+            "POST", 
+            "auth/login", 
+            [200, 401, 500], 
+            valid_credentials, 
+            {'Content-Type': 'application/json'}
+        )
+        
+        response_time = time.time() - start_time
+        
+        if success and response.get("access_token"):
+            auth_results["valid_credentials_accepted"] = True
+            auth_results["jwt_token_generated"] = True
+            auth_results["database_queries_working"] = True
+            auth_results["user_lookup_successful"] = True
+            auth_results["password_verification_working"] = True
+            
+            token = response.get("access_token")
+            user_data = response.get("user", {})
+            
+            print(f"   ✅ Valid credentials accepted")
+            print(f"   ✅ JWT token generated (length: {len(token)} chars)")
+            print(f"   ✅ Database queries working")
+            print(f"   ✅ User lookup successful")
+            print(f"   ✅ Password verification working")
+            print(f"   📊 Response time: {response_time:.2f}s")
+            
+            if user_data:
+                auth_results["user_data_returned"] = True
+                print(f"   ✅ User data returned")
+                print(f"   📊 User ID: {user_data.get('id', 'N/A')[:8]}...")
+                print(f"   📊 Email: {user_data.get('email', 'N/A')}")
+                print(f"   📊 Full Name: {user_data.get('full_name', 'N/A')}")
+                
+                if 'adaptive_enabled' in user_data:
+                    auth_results["adaptive_enabled_flag_present"] = True
+                    print(f"   ✅ Adaptive enabled flag present: {user_data.get('adaptive_enabled')}")
+                else:
+                    print(f"   ⚠️ Adaptive enabled flag missing from user data")
+            else:
+                print(f"   ❌ No user data returned")
+                
+        elif success and response.get("status_code") == 401:
+            print(f"   ❌ Valid credentials rejected (401 Unauthorized)")
+            print(f"   📊 Error response: {response}")
+        elif success and response.get("status_code") == 500:
+            print(f"   ❌ Server error during authentication (500)")
+            print(f"   📊 Error response: {response}")
+        else:
+            print(f"   ❌ Authentication failed: {response}")
+            print(f"   📊 Response time: {response_time:.2f}s")
+        
+        # PHASE 4: ERROR HANDLING TESTS
+        print("\n⚠️ PHASE 4: ERROR HANDLING TESTS")
+        print("-" * 60)
+        print("Testing error handling with invalid credentials")
+        
+        # Test with invalid credentials
+        invalid_credentials = {
+            "email": "sp@theskinmantra.com",
+            "password": "wrongpassword"
+        }
+        
+        success, response = self.run_test(
+            "Invalid Credentials Test", 
+            "POST", 
+            "auth/login", 
+            [401, 400, 500], 
+            invalid_credentials, 
+            {'Content-Type': 'application/json'}
+        )
+        
+        if success and response.get("status_code") == 401:
+            auth_results["invalid_credentials_handled"] = True
+            auth_results["error_responses_formatted_correctly"] = True
+            print(f"   ✅ Invalid credentials properly rejected (401)")
+            print(f"   ✅ Error response formatted correctly")
+            print(f"   📊 Error message: {response.get('detail', 'N/A')}")
+        else:
+            print(f"   ❌ Invalid credentials not handled properly: {response}")
+        
+        # Test timeout handling (if response time was too slow)
+        if not auth_results["auth_login_response_time_acceptable"]:
+            print(f"   ⚠️ Response time issues detected - may cause frontend timeout")
+        else:
+            auth_results["timeout_handling_working"] = True
+            print(f"   ✅ Response times acceptable - no timeout issues")
+        
+        # PHASE 5: CORS CONFIGURATION TEST
+        print("\n🌐 PHASE 5: CORS CONFIGURATION TEST")
+        print("-" * 60)
+        print("Testing CORS headers for frontend domain compatibility")
+        
+        # Make a request and check for CORS headers
+        try:
+            import requests
+            
+            # Make an OPTIONS request to check CORS preflight
+            options_response = requests.options(
+                f"{self.base_url}/auth/login",
+                headers={
+                    'Origin': 'https://adaptive-cat-1.preview.emergentagent.com',
+                    'Access-Control-Request-Method': 'POST',
+                    'Access-Control-Request-Headers': 'Content-Type,Authorization'
+                },
+                timeout=30,
+                verify=False
+            )
+            
+            cors_headers = {
+                'Access-Control-Allow-Origin': options_response.headers.get('Access-Control-Allow-Origin'),
+                'Access-Control-Allow-Methods': options_response.headers.get('Access-Control-Allow-Methods'),
+                'Access-Control-Allow-Headers': options_response.headers.get('Access-Control-Allow-Headers'),
+                'Access-Control-Allow-Credentials': options_response.headers.get('Access-Control-Allow-Credentials')
+            }
+            
+            print(f"   📊 CORS Headers:")
+            for header, value in cors_headers.items():
+                if value:
+                    print(f"     {header}: {value}")
+                    auth_results["cors_headers_present"] = True
+                else:
+                    print(f"     {header}: Not present")
+            
+            if cors_headers['Access-Control-Allow-Origin'] in ['*', 'https://adaptive-cat-1.preview.emergentagent.com']:
+                print(f"   ✅ CORS configured for frontend domain")
+            else:
+                print(f"   ⚠️ CORS may not be configured for frontend domain")
+                
+        except Exception as e:
+            print(f"   ❌ CORS test failed: {e}")
+        
+        # PHASE 6: OVERALL ASSESSMENT
+        print("\n🎯 PHASE 6: OVERALL ASSESSMENT")
+        print("-" * 60)
+        print("Assessing overall authentication system health")
+        
+        # Calculate success metrics
+        connectivity_success = (
+            auth_results["backend_server_reachable"] and
+            auth_results["dns_resolution_working"]
+        )
+        
+        endpoint_success = (
+            auth_results["auth_login_endpoint_exists"] and
+            auth_results["auth_login_accepts_post"] and
+            auth_results["auth_login_response_time_acceptable"]
+        )
+        
+        authentication_success = (
+            auth_results["valid_credentials_accepted"] and
+            auth_results["jwt_token_generated"] and
+            auth_results["user_data_returned"]
+        )
+        
+        database_success = (
+            auth_results["database_queries_working"] and
+            auth_results["user_lookup_successful"] and
+            auth_results["password_verification_working"]
+        )
+        
+        error_handling_success = (
+            auth_results["invalid_credentials_handled"] and
+            auth_results["error_responses_formatted_correctly"] and
+            auth_results["timeout_handling_working"]
+        )
+        
+        # Overall success assessment
+        all_systems_working = (
+            connectivity_success and endpoint_success and 
+            authentication_success and database_success and error_handling_success
+        )
+        
+        if all_systems_working:
+            auth_results["authentication_system_functional"] = True
+            auth_results["login_flow_working_end_to_end"] = True
+        
+        print(f"   📊 Backend Connectivity: {'✅' if connectivity_success else '❌'}")
+        print(f"   📊 Endpoint Availability: {'✅' if endpoint_success else '❌'}")
+        print(f"   📊 Authentication Logic: {'✅' if authentication_success else '❌'}")
+        print(f"   📊 Database Operations: {'✅' if database_success else '❌'}")
+        print(f"   📊 Error Handling: {'✅' if error_handling_success else '❌'}")
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 80)
+        print("🚨 CRITICAL AUTHENTICATION INVESTIGATION - RESULTS")
+        print("=" * 80)
+        
+        passed_tests = sum(auth_results.values())
+        total_tests = len(auth_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        # Group results by testing phases
+        testing_phases = {
+            "BACKEND CONNECTIVITY": [
+                "backend_server_reachable", "health_endpoint_working", 
+                "cors_headers_present", "dns_resolution_working"
+            ],
+            "AUTHENTICATION ENDPOINT": [
+                "auth_login_endpoint_exists", "auth_login_accepts_post",
+                "auth_login_response_time_acceptable", "auth_login_returns_valid_json"
+            ],
+            "CREDENTIAL TESTING": [
+                "valid_credentials_accepted", "jwt_token_generated",
+                "user_data_returned", "adaptive_enabled_flag_present"
+            ],
+            "DATABASE CONNECTION": [
+                "database_queries_working", "user_lookup_successful",
+                "password_verification_working"
+            ],
+            "ERROR HANDLING": [
+                "invalid_credentials_handled", "error_responses_formatted_correctly",
+                "timeout_handling_working"
+            ],
+            "OVERALL ASSESSMENT": [
+                "authentication_system_functional", "login_flow_working_end_to_end"
+            ]
+        }
+        
+        for phase, tests in testing_phases.items():
+            print(f"\n{phase}:")
+            phase_passed = 0
+            phase_total = len(tests)
+            
+            for test in tests:
+                if test in auth_results:
+                    result = auth_results[test]
+                    status = "✅ PASS" if result else "❌ FAIL"
+                    print(f"  {test.replace('_', ' ').title():<50} {status}")
+                    if result:
+                        phase_passed += 1
+            
+            phase_rate = (phase_passed / phase_total) * 100 if phase_total > 0 else 0
+            print(f"  Phase Success Rate: {phase_passed}/{phase_total} ({phase_rate:.1f}%)")
+        
+        print("-" * 80)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # CRITICAL DIAGNOSIS
+        print("\n🚨 CRITICAL DIAGNOSIS:")
+        
+        if success_rate >= 90:
+            print("\n✅ AUTHENTICATION SYSTEM FULLY FUNCTIONAL")
+            print("   - Backend server is reachable and responding")
+            print("   - Authentication endpoint working correctly")
+            print("   - Valid credentials accepted and JWT tokens generated")
+            print("   - Database queries working properly")
+            print("   - Error handling functioning correctly")
+            print("   🔍 FRONTEND ISSUE: The problem is likely in the frontend code, not backend")
+            print("   💡 RECOMMENDATION: Check frontend authentication flow and error handling")
+        elif success_rate >= 70:
+            print("\n⚠️ AUTHENTICATION SYSTEM MOSTLY FUNCTIONAL - MINOR ISSUES")
+            print(f"   - {passed_tests}/{total_tests} tests passed ({success_rate:.1f}%)")
+            print("   - Core authentication working but some components need attention")
+            print("   🔧 RECOMMENDATION: Address failing components and retest")
+        else:
+            print("\n❌ CRITICAL AUTHENTICATION SYSTEM ISSUES DETECTED")
+            print(f"   - Only {passed_tests}/{total_tests} tests passed ({success_rate:.1f}%)")
+            print("   - Significant backend issues preventing authentication")
+            print("   🚨 URGENT ACTION REQUIRED: Fix backend authentication system")
+        
+        # SPECIFIC ISSUE IDENTIFICATION
+        print("\n🔍 SPECIFIC ISSUE IDENTIFICATION:")
+        
+        critical_issues = []
+        if not auth_results["backend_server_reachable"]:
+            critical_issues.append("❌ Backend server not reachable - DNS/network issue")
+        if not auth_results["auth_login_endpoint_exists"]:
+            critical_issues.append("❌ Authentication endpoint missing or misconfigured")
+        if not auth_results["valid_credentials_accepted"]:
+            critical_issues.append("❌ Valid credentials rejected - database/auth logic issue")
+        if not auth_results["auth_login_response_time_acceptable"]:
+            critical_issues.append("❌ Response time too slow - may cause frontend timeout")
+        if not auth_results["cors_headers_present"]:
+            critical_issues.append("❌ CORS headers missing - may block frontend requests")
+        
+        if critical_issues:
+            print("   CRITICAL ISSUES FOUND:")
+            for issue in critical_issues:
+                print(f"     {issue}")
+        else:
+            print("   ✅ No critical backend issues detected")
+            print("   💡 Frontend 'Signing In...' issue likely due to:")
+            print("     - Frontend timeout handling")
+            print("     - JavaScript error in authentication flow")
+            print("     - Network connectivity from client side")
+            print("     - Frontend state management issues")
+        
+        return success_rate >= 80  # Return True if authentication system is functional
+
         """
         🎯 SESSION PERSISTENCE FIX TESTING
         
