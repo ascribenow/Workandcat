@@ -2396,31 +2396,36 @@ class CATBackendTester:
         return overall_success
 
 if __name__ == "__main__":
-    print("🚨 CRITICAL AUTHENTICATION INVESTIGATION")
-    print("Investigating frontend stuck during login with 'Signing In...' message")
-    print("=" * 80)
+    # Test with both API bases mentioned in the review request
+    api_bases = [
+        "https://adaptive-cat-1.preview.emergentagent.com/api",
+        "https://adaptive-quant.emergent.host/api"
+    ]
     
-    # Initialize tester with the URL mentioned in the review request
-    tester = CATBackendTester("https://adaptive-quant.emergent.host/api")
-    
-    # Run the critical authentication investigation
-    auth_success = tester.test_critical_authentication_investigation()
-    
-    print("\n" + "=" * 80)
-    print("🎯 FINAL SUMMARY")
-    print("=" * 80)
-    
-    if auth_success:
-        print("✅ AUTHENTICATION SYSTEM FUNCTIONAL")
-        print("   Backend authentication is working correctly")
-        print("   Frontend 'Signing In...' issue is likely client-side")
-        print("   Recommend checking frontend code and network connectivity")
-    else:
-        print("❌ AUTHENTICATION SYSTEM ISSUES DETECTED")
-        print("   Backend authentication has critical problems")
-        print("   Frontend 'Signing In...' issue is due to backend failures")
-        print("   Urgent backend fixes required")
-    
-    print(f"\nTotal tests run: {tester.tests_run}")
-    print(f"Tests passed: {tester.tests_passed}")
-    print(f"Success rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%" if tester.tests_run > 0 else "No tests run")
+    for base_url in api_bases:
+        print(f"\n{'='*100}")
+        print(f"TESTING API BASE: {base_url}")
+        print(f"{'='*100}")
+        
+        tester = CATBackendTester(base_url)
+        
+        # Run the adaptive endpoints black-box testing as requested
+        adaptive_success = tester.test_adaptive_endpoints_black_box()
+        
+        if adaptive_success:
+            print(f"\n🎉 Adaptive endpoints system functional for {base_url}")
+        else:
+            print(f"\n❌ Adaptive endpoints system issues detected for {base_url}")
+        
+        print(f"\nFinal Results for {base_url}:")
+        print(f"Tests Run: {tester.tests_run}")
+        print(f"Tests Passed: {tester.tests_passed}")
+        print(f"Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%")
+        
+        print(f"\n{'='*100}")
+        print(f"END TESTING FOR: {base_url}")
+        print(f"{'='*100}")
+        
+        # Add separator between API base tests
+        if base_url != api_bases[-1]:
+            print("\n" + "🔄 SWITCHING TO NEXT API BASE" + "\n")
