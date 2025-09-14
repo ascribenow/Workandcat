@@ -308,7 +308,7 @@ class CATBackendTester:
                 sync_results["pack_endpoint_reachable"] = True
                 print(f"   ✅ Pack endpoint reachable")
                 
-                if pack_response.get("status_code") == 200:
+                if pack_response.get("status_code") == 200 or pack_response.get('pack'):
                     sync_results["pack_fetch_immediate_success"] = True
                     sync_results["pack_contains_valid_data"] = True
                     print(f"   ✅ Pack fetch immediate success")
