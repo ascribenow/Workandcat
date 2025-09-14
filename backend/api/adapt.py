@@ -59,8 +59,18 @@ async def plan_next_controller(body: dict, request: Request, user_id: str = Depe
         if len(parts) != 3:
             raise HTTPException(status_code=400, detail={"code": "IDEMPOTENCY_KEY_BAD_FORMAT"})
         
-        # Plan the session
-        plan = plan_next(req_user_id, last_session_id, next_session_id, idem_key=idem_key)
+        # Plan the session with timeout handling
+        import asyncio
+        
+        async def run_planning_with_timeout():
+            return plan_next(req_user_id, last_session_id, next_session_id, idem_key=idem_key)
+        
+        try:
+            # 60-second timeout for LLM operations  
+            plan = await asyncio.wait_for(run_planning_with_timeout(), timeout=60.0)
+        except asyncio.TimeoutError:
+            logger.warning(f"⏰ Planning timeout for user {req_user_id[:8]}, session {next_session_id[:8]}")
+            raise HTTPException(status_code=502, detail={"code": "PLANNING_TIMEOUT", "msg": "Session planning timed out, please try again"})
         
         # Validate constraints before responding
         constraint_report = plan.get("constraint_report_json", {})
