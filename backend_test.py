@@ -2395,6 +2395,440 @@ class CATBackendTester:
         
         return overall_success
 
+    def test_urgent_backend_endpoint_investigation(self):
+        """
+        🚨 URGENT BACKEND ENDPOINT INVESTIGATION: Frontend is getting 404 errors on specific endpoints
+        
+        SPECIFIC 404 ERRORS TO INVESTIGATE:
+        1. **GET /api/adapt/pack** → 404 NOT FOUND
+           - Called with: ?user_id=2d2d43a9-c26a-4a69-b74d-ffde3d9c71e1&session_id=7409bbc3-d8a3-4d9e-8337-f37685d60d58
+           - This should return planned session packs
+        
+        2. **GET /api/sessions/last-completed-id** → 404 NOT FOUND  
+           - Called with: ?user_id=2d2d43a9-c26a-4a69-b74d-ffde3d9c71e1
+           - This endpoint seems to be missing from backend
+        
+        WORKING ENDPOINTS (200 OK):
+        - ✅ POST /api/auth/login 
+        - ✅ GET /api/user/session-limit-status
+        - ✅ GET /api/sessions/current-status
+        - ✅ POST /api/sessions/start
+        - ✅ GET /api/dashboard/simple-taxonomy
+        
+        AUTHENTICATION WORKING:
+        - User sp@theskinmantra.com/student123 authenticates successfully
+        - JWT tokens being passed correctly in requests
+        - User has adaptive_enabled=true
+        
+        OBJECTIVE: Identify missing backend endpoints and fix 404 errors that prevent session pack loading
+        """
+        print("🚨 URGENT BACKEND ENDPOINT INVESTIGATION")
+        print("=" * 80)
+        print("OBJECTIVE: Investigate specific 404 errors on backend endpoints")
+        print("BACKEND URL:", self.base_url)
+        print("CREDENTIALS: sp@theskinmantra.com/student123")
+        print("=" * 80)
+        
+        endpoint_results = {
+            # Authentication Setup
+            "student_authentication_working": False,
+            "student_token_valid": False,
+            "user_adaptive_enabled_confirmed": False,
+            
+            # Working Endpoints Verification
+            "auth_login_working": False,
+            "user_session_limit_status_working": False,
+            "sessions_current_status_working": False,
+            "sessions_start_working": False,
+            "dashboard_simple_taxonomy_working": False,
+            
+            # Problem Endpoints Investigation
+            "adapt_pack_endpoint_exists": False,
+            "adapt_pack_responds_correctly": False,
+            "sessions_last_completed_id_endpoint_exists": False,
+            "sessions_last_completed_id_responds_correctly": False,
+            
+            # Endpoint Routing Analysis
+            "adapt_router_mounted": False,
+            "session_lifecycle_router_mounted": False,
+            "adaptive_middleware_working": False,
+            
+            # Session Data Investigation
+            "test_session_creation": False,
+            "test_session_planning": False,
+            "test_pack_availability": False,
+            
+            # Overall Assessment
+            "missing_endpoints_identified": False,
+            "routing_issues_identified": False,
+            "authentication_issues_identified": False
+        }
+        
+        # PHASE 1: AUTHENTICATION SETUP
+        print("\n🔐 PHASE 1: AUTHENTICATION SETUP")
+        print("-" * 60)
+        print("Setting up authentication for endpoint investigation")
+        
+        # Test Student Authentication
+        student_login_data = {
+            "email": "sp@theskinmantra.com",
+            "password": "student123"
+        }
+        
+        success, response = self.run_test("Student Authentication", "POST", "auth/login", [200, 401], student_login_data)
+        
+        student_headers = None
+        user_id = None
+        if success and response.get('access_token'):
+            student_token = response['access_token']
+            student_headers = {
+                'Authorization': f'Bearer {student_token}',
+                'Content-Type': 'application/json'
+            }
+            endpoint_results["student_authentication_working"] = True
+            endpoint_results["student_token_valid"] = True
+            endpoint_results["auth_login_working"] = True
+            print(f"   ✅ Student authentication successful")
+            print(f"   📊 JWT Token length: {len(student_token)} characters")
+            
+            # Get user data
+            user_data = response.get('user', {})
+            user_id = user_data.get('id')
+            adaptive_enabled = user_data.get('adaptive_enabled', False)
+            
+            if adaptive_enabled:
+                endpoint_results["user_adaptive_enabled_confirmed"] = True
+                print(f"   ✅ User adaptive_enabled confirmed: {adaptive_enabled}")
+                print(f"   📊 User ID: {user_id[:8]}...")
+            else:
+                print(f"   ⚠️ User adaptive_enabled: {adaptive_enabled}")
+        else:
+            print("   ❌ Student authentication failed - cannot proceed with endpoint investigation")
+            return False
+        
+        # PHASE 2: WORKING ENDPOINTS VERIFICATION
+        print("\n✅ PHASE 2: WORKING ENDPOINTS VERIFICATION")
+        print("-" * 60)
+        print("Verifying that the known working endpoints are indeed working")
+        
+        if student_headers and user_id:
+            # Test user/session-limit-status
+            success, response = self.run_test(
+                "GET /api/user/session-limit-status", 
+                "GET", 
+                "user/session-limit-status", 
+                [200, 500], 
+                None, 
+                student_headers
+            )
+            if success:
+                endpoint_results["user_session_limit_status_working"] = True
+                print(f"   ✅ /api/user/session-limit-status working")
+            
+            # Test sessions/current-status
+            success, response = self.run_test(
+                "GET /api/sessions/current-status", 
+                "GET", 
+                "sessions/current-status", 
+                [200, 500], 
+                None, 
+                student_headers
+            )
+            if success:
+                endpoint_results["sessions_current_status_working"] = True
+                print(f"   ✅ /api/sessions/current-status working")
+            
+            # Test sessions/start
+            success, response = self.run_test(
+                "POST /api/sessions/start", 
+                "POST", 
+                "sessions/start", 
+                [200, 500], 
+                {}, 
+                student_headers
+            )
+            if success:
+                endpoint_results["sessions_start_working"] = True
+                print(f"   ✅ /api/sessions/start working")
+            
+            # Test dashboard/simple-taxonomy
+            success, response = self.run_test(
+                "GET /api/dashboard/simple-taxonomy", 
+                "GET", 
+                "dashboard/simple-taxonomy", 
+                [200, 500], 
+                None, 
+                student_headers
+            )
+            if success:
+                endpoint_results["dashboard_simple_taxonomy_working"] = True
+                print(f"   ✅ /api/dashboard/simple-taxonomy working")
+        
+        # PHASE 3: PROBLEM ENDPOINTS INVESTIGATION
+        print("\n❌ PHASE 3: PROBLEM ENDPOINTS INVESTIGATION")
+        print("-" * 60)
+        print("Investigating the specific endpoints that are returning 404 errors")
+        
+        if student_headers and user_id:
+            # Test GET /api/adapt/pack with the exact parameters from the review
+            test_user_id = "2d2d43a9-c26a-4a69-b74d-ffde3d9c71e1"  # From review request
+            test_session_id = "7409bbc3-d8a3-4d9e-8337-f37685d60d58"  # From review request
+            
+            print(f"   🔍 Testing GET /api/adapt/pack with review request parameters")
+            print(f"   📊 user_id: {test_user_id}")
+            print(f"   📊 session_id: {test_session_id}")
+            
+            success, response = self.run_test(
+                "GET /api/adapt/pack (Review Request Params)", 
+                "GET", 
+                f"adapt/pack?user_id={test_user_id}&session_id={test_session_id}", 
+                [200, 404, 403, 500], 
+                None, 
+                student_headers
+            )
+            
+            if success:
+                if response.get("status_code") == 200:
+                    endpoint_results["adapt_pack_endpoint_exists"] = True
+                    endpoint_results["adapt_pack_responds_correctly"] = True
+                    print(f"   ✅ /api/adapt/pack endpoint exists and responds correctly")
+                    print(f"   📊 Response: {response}")
+                elif response.get("status_code") == 404:
+                    endpoint_results["adapt_pack_endpoint_exists"] = False
+                    print(f"   ❌ /api/adapt/pack returns 404 - endpoint missing or session not found")
+                    print(f"   📊 Error response: {response}")
+                elif response.get("status_code") == 403:
+                    endpoint_results["adapt_pack_endpoint_exists"] = True
+                    print(f"   ⚠️ /api/adapt/pack exists but returns 403 - authorization issue")
+                    print(f"   📊 Error response: {response}")
+                else:
+                    endpoint_results["adapt_pack_endpoint_exists"] = True
+                    print(f"   ⚠️ /api/adapt/pack exists but returns {response.get('status_code')}")
+                    print(f"   📊 Error response: {response}")
+            
+            # Test with current user's ID instead
+            print(f"   🔍 Testing GET /api/adapt/pack with current user ID")
+            success, response = self.run_test(
+                "GET /api/adapt/pack (Current User)", 
+                "GET", 
+                f"adapt/pack?user_id={user_id}&session_id={test_session_id}", 
+                [200, 404, 403, 500], 
+                None, 
+                student_headers
+            )
+            
+            if success and response.get("status_code") == 200:
+                endpoint_results["adapt_pack_responds_correctly"] = True
+                print(f"   ✅ /api/adapt/pack works with current user ID")
+            elif success and response.get("status_code") == 404:
+                print(f"   ❌ /api/adapt/pack returns 404 even with current user - session not found")
+            
+            # Test GET /api/sessions/last-completed-id
+            print(f"   🔍 Testing GET /api/sessions/last-completed-id")
+            success, response = self.run_test(
+                "GET /api/sessions/last-completed-id (Review Request Params)", 
+                "GET", 
+                f"sessions/last-completed-id?user_id={test_user_id}", 
+                [200, 404, 403, 500], 
+                None, 
+                student_headers
+            )
+            
+            if success:
+                if response.get("status_code") == 200:
+                    endpoint_results["sessions_last_completed_id_endpoint_exists"] = True
+                    endpoint_results["sessions_last_completed_id_responds_correctly"] = True
+                    print(f"   ✅ /api/sessions/last-completed-id endpoint exists and responds correctly")
+                    print(f"   📊 Response: {response}")
+                elif response.get("status_code") == 404:
+                    endpoint_results["sessions_last_completed_id_endpoint_exists"] = False
+                    print(f"   ❌ /api/sessions/last-completed-id returns 404 - endpoint missing or no completed sessions")
+                    print(f"   📊 Error response: {response}")
+                elif response.get("status_code") == 403:
+                    endpoint_results["sessions_last_completed_id_endpoint_exists"] = True
+                    print(f"   ⚠️ /api/sessions/last-completed-id exists but returns 403 - authorization issue")
+                else:
+                    endpoint_results["sessions_last_completed_id_endpoint_exists"] = True
+                    print(f"   ⚠️ /api/sessions/last-completed-id exists but returns {response.get('status_code')}")
+            
+            # Test with current user's ID
+            print(f"   🔍 Testing GET /api/sessions/last-completed-id with current user ID")
+            success, response = self.run_test(
+                "GET /api/sessions/last-completed-id (Current User)", 
+                "GET", 
+                f"sessions/last-completed-id?user_id={user_id}", 
+                [200, 404, 403, 500], 
+                None, 
+                student_headers
+            )
+            
+            if success and response.get("status_code") == 200:
+                endpoint_results["sessions_last_completed_id_responds_correctly"] = True
+                print(f"   ✅ /api/sessions/last-completed-id works with current user ID")
+            elif success and response.get("status_code") == 404:
+                print(f"   ❌ /api/sessions/last-completed-id returns 404 - no completed sessions found")
+                print(f"   📊 This might be expected if user has no completed sessions")
+        
+        # PHASE 4: ENDPOINT ROUTING ANALYSIS
+        print("\n🔍 PHASE 4: ENDPOINT ROUTING ANALYSIS")
+        print("-" * 60)
+        print("Analyzing potential routing issues")
+        
+        # Test if adaptive router is mounted by checking a simple endpoint
+        success, response = self.run_test(
+            "Test Adaptive Router Mounting", 
+            "GET", 
+            "adapt/admin/dashboard", 
+            [200, 404, 403, 500], 
+            None, 
+            student_headers
+        )
+        
+        if success:
+            if response.get("status_code") in [200, 403]:  # 403 means endpoint exists but needs admin
+                endpoint_results["adapt_router_mounted"] = True
+                print(f"   ✅ Adaptive router is mounted (admin dashboard accessible)")
+            elif response.get("status_code") == 404:
+                endpoint_results["adapt_router_mounted"] = False
+                print(f"   ❌ Adaptive router may not be mounted (admin dashboard 404)")
+        
+        # Test session lifecycle router
+        if endpoint_results["sessions_current_status_working"]:
+            endpoint_results["session_lifecycle_router_mounted"] = True
+            print(f"   ✅ Session lifecycle router is mounted (current-status works)")
+        
+        # PHASE 5: SESSION DATA INVESTIGATION
+        print("\n📊 PHASE 5: SESSION DATA INVESTIGATION")
+        print("-" * 60)
+        print("Investigating session data availability")
+        
+        if student_headers and user_id:
+            # Try to create a session for testing
+            session_id = f"session_{uuid.uuid4()}"
+            last_session_id = f"session_{uuid.uuid4()}"
+            
+            # Test adaptive plan-next to create session data
+            plan_data = {
+                "user_id": user_id,
+                "last_session_id": last_session_id,
+                "next_session_id": session_id
+            }
+            
+            headers_with_idem = student_headers.copy()
+            headers_with_idem['Idempotency-Key'] = f"{user_id}:{last_session_id}:{session_id}"
+            
+            success, plan_response = self.run_test(
+                "Test Session Creation via Plan-Next", 
+                "POST", 
+                "adapt/plan-next", 
+                [200, 400, 500], 
+                plan_data, 
+                headers_with_idem
+            )
+            
+            if success and plan_response:
+                endpoint_results["test_session_creation"] = True
+                endpoint_results["test_session_planning"] = True
+                print(f"   ✅ Session creation via plan-next working")
+                print(f"   📊 Plan response: {plan_response}")
+                
+                # Now test if we can get the pack for this session
+                success, pack_response = self.run_test(
+                    "Test Pack Availability for Created Session", 
+                    "GET", 
+                    f"adapt/pack?user_id={user_id}&session_id={session_id}", 
+                    [200, 404, 500], 
+                    None, 
+                    student_headers
+                )
+                
+                if success and pack_response:
+                    endpoint_results["test_pack_availability"] = True
+                    print(f"   ✅ Pack availability for created session working")
+                    print(f"   📊 Pack response status: {pack_response.get('status', 'unknown')}")
+                else:
+                    print(f"   ❌ Pack not available for created session: {pack_response}")
+            else:
+                print(f"   ❌ Session creation failed: {plan_response}")
+        
+        # PHASE 6: OVERALL ASSESSMENT
+        print("\n🎯 PHASE 6: OVERALL ASSESSMENT")
+        print("-" * 60)
+        print("Assessing overall endpoint investigation results")
+        
+        # Calculate success metrics
+        working_endpoints_count = sum([
+            endpoint_results["auth_login_working"],
+            endpoint_results["user_session_limit_status_working"],
+            endpoint_results["sessions_current_status_working"],
+            endpoint_results["sessions_start_working"],
+            endpoint_results["dashboard_simple_taxonomy_working"]
+        ])
+        
+        problem_endpoints_resolved = sum([
+            endpoint_results["adapt_pack_responds_correctly"],
+            endpoint_results["sessions_last_completed_id_responds_correctly"]
+        ])
+        
+        routing_health = sum([
+            endpoint_results["adapt_router_mounted"],
+            endpoint_results["session_lifecycle_router_mounted"]
+        ])
+        
+        print(f"   📊 Working Endpoints: {working_endpoints_count}/5")
+        print(f"   📊 Problem Endpoints Resolved: {problem_endpoints_resolved}/2")
+        print(f"   📊 Router Health: {routing_health}/2")
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 80)
+        print("🚨 URGENT BACKEND ENDPOINT INVESTIGATION - RESULTS")
+        print("=" * 80)
+        
+        passed_tests = sum(endpoint_results.values())
+        total_tests = len(endpoint_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # CRITICAL FINDINGS
+        print("\n🔍 CRITICAL FINDINGS:")
+        
+        if not endpoint_results["adapt_pack_endpoint_exists"]:
+            print("   ❌ CRITICAL: /api/adapt/pack endpoint returning 404")
+            print("   💡 POSSIBLE CAUSES:")
+            print("     - Adaptive router not properly mounted")
+            print("     - Session ID not found in database")
+            print("     - User authorization issues")
+            endpoint_results["missing_endpoints_identified"] = True
+        
+        if not endpoint_results["sessions_last_completed_id_endpoint_exists"]:
+            print("   ❌ CRITICAL: /api/sessions/last-completed-id endpoint returning 404")
+            print("   💡 POSSIBLE CAUSES:")
+            print("     - Endpoint implementation missing")
+            print("     - No completed sessions for user")
+            print("     - Database query issues")
+            endpoint_results["missing_endpoints_identified"] = True
+        
+        if not endpoint_results["adapt_router_mounted"]:
+            print("   ❌ CRITICAL: Adaptive router may not be properly mounted")
+            endpoint_results["routing_issues_identified"] = True
+        
+        # RECOMMENDATIONS
+        print("\n💡 RECOMMENDATIONS:")
+        
+        if endpoint_results["missing_endpoints_identified"]:
+            print("   1. Check if adaptive router is properly included in main FastAPI app")
+            print("   2. Verify session data exists in database for the requested session IDs")
+            print("   3. Check authentication and authorization middleware")
+            print("   4. Verify database connectivity and query execution")
+        
+        if endpoint_results["routing_issues_identified"]:
+            print("   1. Verify router mounting in main server.py")
+            print("   2. Check for import errors in router modules")
+            print("   3. Verify middleware dependencies are properly configured")
+        
+        return success_rate >= 70  # Return True if most endpoints are working
+
 if __name__ == "__main__":
     # Test with both API bases mentioned in the review request
     api_bases = [
@@ -2409,13 +2843,13 @@ if __name__ == "__main__":
         
         tester = CATBackendTester(base_url)
         
-        # Run the adaptive endpoints black-box testing as requested
-        adaptive_success = tester.test_adaptive_endpoints_black_box()
+        # Run the urgent backend endpoint investigation as requested
+        endpoint_success = tester.test_urgent_backend_endpoint_investigation()
         
-        if adaptive_success:
-            print(f"\n🎉 Adaptive endpoints system functional for {base_url}")
+        if endpoint_success:
+            print(f"\n🎉 Backend endpoints investigation successful for {base_url}")
         else:
-            print(f"\n❌ Adaptive endpoints system issues detected for {base_url}")
+            print(f"\n❌ Backend endpoints investigation found issues for {base_url}")
         
         print(f"\nFinal Results for {base_url}:")
         print(f"Tests Run: {tester.tests_run}")
