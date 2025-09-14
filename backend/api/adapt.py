@@ -12,7 +12,7 @@ from datetime import datetime
 from services.session_orchestrator import plan_next, load_pack, transition_pack_to_served, ConflictError
 from auth import get_current_user
 from util.constraint_validator import assert_no_forbidden_relaxations, validate_pack_constraints
-from services.summarizer import summarizer_service
+from services.summarizer import run_summarizer
 from services.telemetry import telemetry_service
 
 logger = logging.getLogger(__name__)
@@ -156,7 +156,7 @@ async def mark_served_controller(body: dict, user_id: str = Depends(get_current_
         # NEW: Always run summarizer post-session for LLM data capture
         try:
             logger.info(f"📊 Running post-session summarizer for user {req_user_id[:8]}, session {session_id}")
-            summary_result = summarizer_service.run_summarizer(req_user_id, session_id)
+            summary_result = run_summarizer(req_user_id, session_id)
             logger.info(f"✅ Post-session summarizer completed for session {session_id}")
         except Exception as e:
             # Map to telemetry only; do not fail the flow
