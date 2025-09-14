@@ -5,6 +5,8 @@ from datetime import datetime
 import time
 import os
 import io
+import uuid
+import asyncio
 
 class CATBackendTester:
     def __init__(self, base_url="https://adaptive-cat-1.preview.emergentagent.com/api"):
