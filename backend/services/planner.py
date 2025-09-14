@@ -217,13 +217,13 @@ Return ONLY valid JSON matching the required schema. The constraint_report field
         return {
             "pack": [
                 {
-                    "item_id": q.get("question_id", "unknown"),
+                    "item_id": q.get("id", q.get("question_id", "unknown")),  # Use 'id' field, fallback to 'question_id'
                     "bucket": q.get("difficulty_band", "Medium"),
                     "why": {
-                        "semantic_concepts": q.get("core_concepts", []),
+                        "semantic_concepts": q.get("core_concepts", [])[:2] if isinstance(q.get("core_concepts"), list) else [],
                         "readiness": "Moderate",
-                        "pair": q.get("pair", "unknown:unknown"),
-                        "pyq_frequency_score": q.get("pyq_frequency_score", 0.5)
+                        "pair": f"{q.get('subcategory', 'General')}:{q.get('type_of_question', 'Practice')}",
+                        "pyq_frequency_score": float(q.get("pyq_frequency_score", 0.5))
                     }
                 }
                 for q in pack[:12]  # Ensure max 12 questions
