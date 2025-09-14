@@ -1,0 +1,28 @@
+{
+  "request_id": "2d2d43a9-c26a-4a69-b74d-ffde3d9c71e1:S0:a02efd6a-a4ea-4704-8c82-cff4855f5793",
+  "route": "POST /api/adapt/plan-next", 
+  "start_ts": "2025-09-14T20:21:47.610687Z",
+  "end_ts": "2025-09-14T20:23:26.295072Z",
+  "dur_ms": 98684,
+  "timings_ms": {
+    "db_candidates": 0,
+    "llm_planner": 0, 
+    "validator": 0,
+    "db_write": 1233,
+    "other": 96504
+  },
+  "retries": {
+    "llm": 0,
+    "db": 0
+  },
+  "http_status": 200,
+  "resp_bytes": 605,
+  "pack_load_ms": 947,
+  "orchestration_dur_ms": 96785,
+  "analysis": {
+    "bottleneck": "other/pipeline processing",
+    "llm_planner_failed": true,
+    "fallback_used": true,
+    "cold_start_mode": true
+  }
+}
