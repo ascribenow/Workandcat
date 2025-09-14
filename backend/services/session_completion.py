@@ -42,7 +42,7 @@ def mark_session_started(user_id: str, session_id: str) -> bool:
         """), {
             'user_id': user_id,
             'session_id': session_id,
-            'served_at': utcnow()
+            'served_at': datetime.utcnow()
         })
         
         updated = result.fetchone()
