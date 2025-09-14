@@ -142,7 +142,7 @@ def save_pack(user_id: str, session_id: str, plan: Dict[str, Any], constraint_re
             'constraint_report': json.dumps(constraint_report),
             'cold_start_mode': plan.get('cold_start_mode', False),
             'planning_strategy': plan.get('pipeline_path', 'unknown'),
-            'created_at': datetime.utcnow(),
+            'created_at': text('NOW()'),  # Use server-side timestamp
             'llm_model_used': constraint_report.get('meta', {}).get('model_used'),
             'processing_time_ms': constraint_report.get('meta', {}).get('processing_time_ms')
         })
