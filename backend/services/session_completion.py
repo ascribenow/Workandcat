@@ -8,7 +8,7 @@ import logging
 from datetime import datetime, timezone
 from database import SessionLocal
 from sqlalchemy import text
-from services.summarizer import summarizer_service
+from services.summarizer import run_summarizer
 from services.telemetry import telemetry_service
 
 logger = logging.getLogger(__name__)
@@ -119,7 +119,7 @@ def mark_session_completed(user_id: str, session_id: str) -> bool:
             # Post-session summarizer (non-fatal)
             try:
                 logger.info(f"📊 Running post-completion summarizer for session {session_id[:8]}")
-                summary_result = summarizer_service.run_summarizer(user_id, session_id)
+                summary_result = run_summarizer(user_id, session_id)
                 logger.info(f"✅ Post-completion summarizer succeeded for session {session_id[:8]}")
             except Exception as e:
                 # Log error but don't fail the completion
