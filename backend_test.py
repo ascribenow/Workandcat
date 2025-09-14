@@ -77,28 +77,28 @@ class CATBackendTester:
             print(f"❌ {test_name}: Exception - {str(e)}")
             return False, {"error": str(e)}
 
-    def test_summarizer_session_id_type_mismatch_fix(self):
+    def test_session_persistence_fix(self):
         """
-        🎯 SUMMARIZER SESSION_ID TYPE MISMATCH FIX TESTING
+        🎯 SESSION PERSISTENCE FIX TESTING
         
-        OBJECTIVE: Test the newly implemented summarizer session_id type mismatch fix to validate 
-        that LLM analytics tables are now being populated correctly.
+        OBJECTIVE: Test the core session persistence fix to validate that sessions are now being 
+        properly created in the sessions table during adaptive session planning.
         
         CRITICAL TESTING REQUIREMENTS:
-        1. **Test Session Completion Flow**: Complete a full session to trigger the summarizer via session lifecycle endpoints
-        2. **Validate Database Population**: Verify that both `session_summary_llm` and `concept_alias_map_latest` tables are populated after session completion  
-        3. **Test Summarizer SQL Fix**: Confirm that the summarizer can now correctly query attempt_events by resolving session_id (UUID) to sess_seq (integer)
-        4. **Test Acceptance Criteria**: Run the exact SQL queries provided by user to validate results
-        5. **Test Telemetry Events**: Verify that proper telemetry is emitted (summarizer_ok, summarizer_missing_session, summarizer_no_attempts)
-        6. **Test API Endpoints**: Test both session completion endpoints (/sessions/mark-completed) and adaptive endpoints (/adapt/mark-served) that trigger summarizer
-        7. **Validate Error Handling**: Test graceful handling when session_id cannot be resolved or no attempts exist
+        1. **Session Creation During Planning**: Test that when adaptive session planning occurs (POST /adapt/plan-next), 
+           a corresponding session record is created in the sessions table with proper user_id, session_id, and sess_seq values.
+        2. **Session Status Transitions**: Test that when pack is marked as served (POST /adapt/mark-served), 
+           the session status is updated from 'planned' to 'in_progress' and started_at timestamp is set.
+        3. **Database Query Validation**: Verify that after session planning, the summarizer's session resolution query now works:
+           SELECT sess_seq FROM sessions WHERE user_id = :user_id AND session_id = :session_id LIMIT 1
+        4. **Basic Summarizer Testing**: If sessions are properly created, test that the summarizer can now resolve 
+           session_id to sess_seq without the previous type mismatch error.
         
-        CRITICAL SUCCESS CRITERIA:
-        - After completing one real session, attempts count = 12
-        - session_summary_llm table has exactly one row with proper JSON types for all fields
-        - concept_alias_map_latest table has one row with proper alias_map_json
-        - Telemetry shows summarizer_ok event with correct user_id, session_id, sess_seq, and llm_model_used
-        - No more "session_id type mismatch" errors in logs
+        KEY SUCCESS CRITERIA:
+        - After planning: sessions table has new record with correct user_id, session_id, sess_seq, status='planned'
+        - After mark-served: session status updated to 'in_progress', started_at populated
+        - No more "session not found" errors when resolving session_id to sess_seq
+        - Session lifecycle endpoints can find sessions to operate on
         
         AUTHENTICATION: sp@theskinmantra.com/student123
         """
