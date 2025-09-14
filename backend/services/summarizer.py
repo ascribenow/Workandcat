@@ -52,58 +52,129 @@ READINESS CRITERIA:
 
 Return ONLY valid JSON matching the required schema."""
 
-    def run_summarizer(self, user_id: str, session_history_limit: int = 5) -> Dict[str, Any]:
+    async def run(self, user_id: str, session_id: str = None, sess_seq: int = None) -> Dict[str, Any]:
         """
         Run post-session analysis for a user
         
         Args:
-            user_id: User identifier
-            session_history_limit: Number of recent sessions to analyze
+            user_id: User identifier  
+            session_id: Session UUID (optional, will resolve to sess_seq)
+            sess_seq: Session sequence number (optional)
             
         Returns:
             Summarizer analysis results
         """
+        from services.telemetry import telemetry_service as telemetry
+        from database import SessionLocal
+        
         logger.info(f"🧠 Running Summarizer for user {user_id[:8]}...")
         
-        # Build payload with user attempt history
-        payload = self._build_summarizer_payload(user_id, session_history_limit)
-        
-        if not payload["attempt_history"]:
-            logger.warning(f"No attempt history found for user {user_id[:8]}")
-            return self._generate_empty_summary()
-        
-        # Call LLM with schema validation and retry
-        start_time = time.time()
-        tokens_used = 0
-        
+        db = SessionLocal()
         try:
-            data = call_llm_json_with_retry(
-                system_prompt=self.system_prompt,
-                user_payload=payload,
-                schema=SUMMARIZER_SCHEMA,
-                model_primary="gpt-4o-mini",
-                model_fallback="gemini-1.5-pro",
-                max_retries=1
-            )
+            # 1) Resolve sess_seq from sessions if not given
+            if sess_seq is None:
+                row = db.execute(text("""
+                    SELECT sess_seq
+                    FROM sessions
+                    WHERE user_id = :user_id AND session_id = :session_id
+                    LIMIT 1
+                """), {"user_id": user_id, "session_id": session_id}).fetchone()
+                if not row:
+                    telemetry.emit("summarizer_missing_session", {"user_id": user_id, "session_id": session_id})
+                    return self._generate_empty_summary()  # no-op: don't fail pipeline
+                sess_seq = row["sess_seq"]
+
+            # 2) Fetch attempts by (user_id, sess_seq_at_serve)
+            attempts = db.execute(text("""
+                SELECT *
+                FROM attempt_events
+                WHERE user_id = :user_id AND sess_seq_at_serve = :sess_seq
+                ORDER BY served_at ASC, attempt_id ASC
+            """), {"user_id": user_id, "sess_seq": sess_seq}).fetchall()
+
+            if not attempts:
+                telemetry.emit("summarizer_no_attempts", {"user_id": user_id, "sess_seq": sess_seq, "session_id": session_id})
+                return self._generate_empty_summary()  # nothing to summarize
+
+            # Build payload with attempt history for this session
+            payload = self._build_summarizer_payload_from_attempts(user_id, attempts)
             
-            # Calculate telemetry
-            elapsed_time = time.time() - start_time
-            tokens_used = len(json.dumps(payload)) // 4  # Rough token estimate
+            # Call LLM with schema validation and retry
+            start_time = time.time()
+            tokens_used = 0
             
-            # Add telemetry to response
-            data.setdefault("telemetry", {}).update({
-                "processing_time_ms": int(elapsed_time * 1000),
-                "estimated_tokens": tokens_used,
-                "alias_reuse_rate": self._calculate_alias_reuse_rate(data),
-                "provisional_new_count": self._count_provisional_concepts(data)
-            })
-            
-            logger.info(f"✅ Summarizer completed for user {user_id[:8]} ({elapsed_time:.2f}s, ~{tokens_used} tokens)")
-            return data
-            
-        except Exception as e:
-            logger.error(f"❌ Summarizer failed for user {user_id[:8]}: {e}")
-            return self._generate_empty_summary()
+            try:
+                data = call_llm_json_with_retry(
+                    system_prompt=self.system_prompt,
+                    user_payload=payload,
+                    schema=SUMMARIZER_SCHEMA,
+                    model_primary="gpt-4o-mini",
+                    model_fallback="gemini-1.5-pro",
+                    max_retries=1
+                )
+                
+                # Calculate telemetry
+                elapsed_time = time.time() - start_time
+                tokens_used = len(json.dumps(payload)) // 4  # Rough token estimate
+                
+                # Add telemetry to response
+                data.setdefault("telemetry", {}).update({
+                    "processing_time_ms": int(elapsed_time * 1000),
+                    "estimated_tokens": tokens_used,
+                    "alias_reuse_rate": self._calculate_alias_reuse_rate(data),
+                    "provisional_new_count": self._count_provisional_concepts(data),
+                    "llm_model_used": "gpt-4o-mini"
+                })
+                
+                # 3) Persist session summary (use the UUID session_id you received)
+                db.execute(text("""
+                    INSERT INTO session_summary_llm
+                        (session_id, user_id,
+                         concept_alias_map, dominance, readiness_reasons, coverage_labels,
+                         llm_model_used, created_at)
+                    VALUES
+                        (:session_id, :user_id, :concept_alias_map_json::jsonb, :dominance_json::jsonb, 
+                         :readiness_reasons_json::jsonb, :coverage_labels_json::jsonb, :llm_model_used, NOW())
+                """), {
+                    "session_id": session_id,
+                    "user_id": user_id,
+                    "concept_alias_map_json": json.dumps(data.get("concept_alias_map_updated", [])),
+                    "dominance_json": json.dumps(data.get("dominance_by_item", {})),
+                    "readiness_reasons_json": json.dumps(data.get("concept_readiness_labels", [])),
+                    "coverage_labels_json": json.dumps(data.get("pair_coverage_labels", [])),
+                    "llm_model_used": data["telemetry"]["llm_model_used"]
+                })
+
+                # 4) Upsert per-user alias map
+                if data.get("concept_alias_map_updated"):
+                    db.execute(text("""
+                        INSERT INTO concept_alias_map_latest (user_id, alias_map_json, updated_at)
+                        VALUES (:user_id, :alias_map_json::jsonb, NOW())
+                        ON CONFLICT (user_id) DO UPDATE
+                          SET alias_map_json = EXCLUDED.alias_map_json,
+                              updated_at = EXCLUDED.updated_at
+                    """), {
+                        "user_id": user_id, 
+                        "alias_map_json": json.dumps(data.get("concept_alias_map_updated", []))
+                    })
+
+                db.commit()
+                
+                telemetry.emit("summarizer_ok", {
+                    "user_id": user_id, "session_id": session_id, "sess_seq": sess_seq,
+                    "llm_model_used": data["telemetry"]["llm_model_used"]
+                })
+                
+                logger.info(f"✅ Summarizer completed for user {user_id[:8]} ({elapsed_time:.2f}s, ~{tokens_used} tokens)")
+                return data
+                
+            except Exception as e:
+                db.rollback()
+                logger.error(f"❌ Summarizer failed for user {user_id[:8]}: {e}")
+                return self._generate_empty_summary()
+                
+        finally:
+            db.close()
     
     def _build_summarizer_payload(self, user_id: str, session_limit: int) -> Dict[str, Any]:
         """Build payload for summarizer LLM call"""
