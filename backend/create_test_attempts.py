@@ -98,21 +98,21 @@ def create_test_attempts():
             
             db.execute(text("""
                 INSERT INTO attempt_events (
-                    attempt_id, user_id, question_id, sess_seq_at_serve,
+                    id, user_id, session_id, question_id, 
                     difficulty_band, subcategory, type_of_question, core_concepts,
                     pyq_frequency_score, was_correct, skipped, response_time_ms,
-                    served_at, created_at
+                    sess_seq_at_serve, created_at
                 ) VALUES (
-                    :attempt_id, :user_id, :question_id, :sess_seq_at_serve,
+                    :attempt_id, :user_id, :session_id, :question_id,
                     :difficulty_band, :subcategory, :type_of_question, :core_concepts,
                     :pyq_frequency_score, :was_correct, :skipped, :response_time_ms,
-                    :served_at, :created_at
+                    :sess_seq_at_serve, :created_at
                 )
             """), {
                 "attempt_id": attempt_id,
                 "user_id": user_id,
+                "session_id": session_id,  # Use the actual session_id for the relationship
                 "question_id": attempt["question_id"],
-                "sess_seq_at_serve": sess_seq,
                 "difficulty_band": attempt["difficulty_band"],
                 "subcategory": attempt["subcategory"], 
                 "type_of_question": attempt["type_of_question"],
@@ -121,7 +121,7 @@ def create_test_attempts():
                 "was_correct": attempt["was_correct"],
                 "skipped": attempt["skipped"],
                 "response_time_ms": attempt["response_time_ms"],
-                "served_at": attempt["served_at"],
+                "sess_seq_at_serve": sess_seq,
                 "created_at": datetime.utcnow()
             })
         
