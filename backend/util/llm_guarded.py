@@ -11,7 +11,7 @@ from .json_guard import parse_and_validate, build_repair_message
 
 def call_llm_with_fallback(system_prompt: str, user_json: Dict[str, Any], 
                           model_primary: str, model_fallback: str, 
-                          response_format: str = "json") -> str:
+                          response_format: str = "json", timeout_ms: int = 15000) -> str:
     """
     Simple synchronous LLM call with fallback for the guarded wrapper
     """
