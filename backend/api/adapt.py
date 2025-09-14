@@ -156,7 +156,7 @@ async def mark_served_controller(body: dict, user_id: str = Depends(get_current_
         # NEW: Always run summarizer post-session for LLM data capture
         try:
             logger.info(f"📊 Running post-session summarizer for user {req_user_id[:8]}, session {session_id}")
-            summary_result = run_summarizer(req_user_id, session_id)
+            summary_result = await run_summarizer(req_user_id, session_id)
             logger.info(f"✅ Post-session summarizer completed for session {session_id}")
         except Exception as e:
             # Map to telemetry only; do not fail the flow
