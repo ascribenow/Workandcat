@@ -113,41 +113,68 @@ Return ONLY valid JSON matching the required schema. The constraint_report field
                 "diversity_priority": True
             }
         
-        # Call LLM with schema validation and retry
+        # Call LLM with STRICT TIMEOUT and schema validation
         start_time = time.time()
+        llm_timeout_ms = 15000  # P0 FIX: Cap at 15 seconds
         
         try:
+            # P0 FIX: Simplified schema - just return ID ordering, not full objects  
+            simplified_payload = {
+                "user_id": user_id[-8:],  # Shorter for token efficiency
+                "candidate_pool_size": len(candidates),
+                "constraints": {
+                    "total": 12,
+                    "difficulty": {"easy": 3, "medium": 6, "hard": 3},
+                    "pyq_requirements": {"min_15_score": 2, "min_10_score": 2}
+                },
+                "task": "Return only an ordered list of 12 question IDs from the candidate pool, prioritized by adaptive learning value"
+            }
+            
+            if cold_start_mode:
+                simplified_payload["cold_start"] = {"min_distinct_pairs": 5}
+            
             data = call_llm_json_with_retry(
-                system_prompt=self.system_prompt,
-                user_payload=payload,
-                schema=PLANNER_SCHEMA,
-                model_primary="gpt-4o",
-                model_fallback="gemini-1.5-pro",
-                max_retries=1
+                system_prompt=self._get_simplified_prompt(),
+                user_payload=simplified_payload,
+                schema=self._get_simplified_schema(),
+                model_primary="gpt-4o-mini",  # Faster model
+                model_fallback="gemini-1.5-flash",  # Faster fallback
+                max_retries=1,  # P0 FIX: Only 1 retry max
+                timeout_ms=llm_timeout_ms  # P0 FIX: 15s timeout
             )
             
-            # CRITICAL FIX: Ensure constraint_report is always present
-            if "constraint_report" not in data:
-                logger.warning(f"⚠️ LLM response missing constraint_report, adding default")
-                data["constraint_report"] = {
-                    "met": ["total_count", "difficulty_distribution"],
-                    "relaxed": []
-                }
-            
-            # Ensure constraint_report has required fields
-            if "met" not in data["constraint_report"]:
-                data["constraint_report"]["met"] = ["total_count"]
-            if "relaxed" not in data["constraint_report"]:
-                data["constraint_report"]["relaxed"] = []
-            
-            # Calculate telemetry
             elapsed_time = time.time() - start_time
-            tokens_used = len(json.dumps(payload)) // 4  # Rough token estimate
+            logger.info(f"✅ LLM planner completed in {elapsed_time*1000:.0f}ms")
             
-            # Add telemetry to constraint report
-            if "constraint_report" in data:
-                data["constraint_report"].setdefault("meta", {}).update({
+            # Convert simplified response to full pack format
+            return self._convert_id_ordering_to_pack(data, candidates, constraint_report_base={
+                "met": ["total_count", "difficulty_distribution", "pyq_requirements"],
+                "relaxed": [],
+                "meta": {
                     "processing_time_ms": int(elapsed_time * 1000),
+                    "model_used": "llm_planner_simplified",
+                    "retry_used": 0,
+                    "timeout_ms": llm_timeout_ms
+                }
+            })
+            
+        except Exception as e:
+            elapsed_time = time.time() - start_time
+            logger.error(f"❌ Planner failed for user {user_id[:8]} after {elapsed_time*1000:.0f}ms: {e}")
+            
+            # P0 FIX: Fast fallback to deterministic order
+            logger.warning(f"🔄 Using deterministic fallback due to LLM timeout/failure")
+            return self._generate_deterministic_fallback(candidates, {
+                "met": ["total_count", "difficulty_distribution"],
+                "relaxed": ["llm_planning"],
+                "meta": {
+                    "processing_time_ms": int(elapsed_time * 1000),
+                    "model_used": "deterministic_fallback",
+                    "retry_used": 1,
+                    "timeout_ms": llm_timeout_ms,
+                    "fallback_reason": str(e)
+                }
+            })
                     "estimated_tokens": tokens_used,
                     "relaxation_count": len(data["constraint_report"].get("relaxed", [])),
                     "cold_start_mode": cold_start_mode,
