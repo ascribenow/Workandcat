@@ -97,13 +97,14 @@ def call_llm_json_with_retry(system_prompt: str, user_payload: Dict[str, Any],
     Raises:
         ValueError: If LLM returns invalid JSON after all retries
     """
-    # Initial LLM call
+    # Initial LLM call with timeout
     resp = call_llm_with_fallback(
         system_prompt=system_prompt, 
         user_json=user_payload,
         model_primary=model_primary, 
         model_fallback=model_fallback,
-        response_format="json"
+        response_format="json",
+        timeout_ms=timeout_ms
     )
     
     # Convert response to text for validation
