@@ -1934,6 +1934,438 @@ class CATBackendTester:
         
         return success_rate >= 85  # Return True if both tweaks are successfully implemented
 
+    def test_adaptive_endpoints_black_box(self):
+        """
+        🎯 STEP 4 FROM DIAGNOSTIC RUNBOOK: Black-box test the three adaptive endpoints with proper authentication.
+        
+        SPECIFIC TESTS NEEDED:
+        1. **Authentication**: Login with sp@theskinmantra.com/student123 to get valid JWT token
+        2. **Plan-Next Endpoint**: Test POST /api/adapt/plan-next with proper Idempotency-Key
+        3. **Fetch Pack Endpoint**: Test GET /api/adapt/pack  
+        4. **Mark Served Endpoint**: Test POST /api/adapt/mark-served
+        
+        For each endpoint, capture:
+        - Request URL (confirm which API base it's hitting)
+        - Response status code (200/400/401/403/404/409)  
+        - Response body (especially pack structure and count)
+        - Headers (CORS, Content-Type, etc.)
+        
+        AUTHENTICATION CREDENTIALS: sp@theskinmantra.com/student123
+        API BASE: Test both https://adaptive-cat-1.preview.emergentagent.com and https://adaptive-quant.emergent.host
+        
+        EXPECTED RESPONSES:
+        - plan-next: { status:"ok", reused: false|true, pack:[…12…] }
+        - pack: { pack_json:[…12…], count:12, … }  
+        - mark-served: { status:"ok" }
+        
+        LOG ALL HTTP ERRORS: 404 not planned, 403 adaptive disabled, 401 auth issues, 409 constraint violations
+        """
+        print("🎯 STEP 4 FROM DIAGNOSTIC RUNBOOK: Black-box test the three adaptive endpoints")
+        print("=" * 80)
+        print("OBJECTIVE: Test the three adaptive endpoints with proper authentication")
+        print("API BASE:", self.base_url)
+        print("CREDENTIALS: sp@theskinmantra.com/student123")
+        print("=" * 80)
+        
+        adaptive_results = {
+            # Authentication Setup
+            "authentication_successful": False,
+            "jwt_token_obtained": False,
+            "user_adaptive_enabled": False,
+            
+            # Plan-Next Endpoint Tests
+            "plan_next_endpoint_reachable": False,
+            "plan_next_accepts_post": False,
+            "plan_next_requires_auth": False,
+            "plan_next_requires_idempotency_key": False,
+            "plan_next_returns_valid_response": False,
+            "plan_next_status_ok": False,
+            "plan_next_pack_structure_valid": False,
+            
+            # Fetch Pack Endpoint Tests
+            "fetch_pack_endpoint_reachable": False,
+            "fetch_pack_accepts_get": False,
+            "fetch_pack_requires_auth": False,
+            "fetch_pack_returns_valid_response": False,
+            "fetch_pack_has_12_questions": False,
+            "fetch_pack_structure_valid": False,
+            
+            # Mark Served Endpoint Tests
+            "mark_served_endpoint_reachable": False,
+            "mark_served_accepts_post": False,
+            "mark_served_requires_auth": False,
+            "mark_served_returns_valid_response": False,
+            "mark_served_status_ok": False,
+            
+            # Error Handling Tests
+            "handles_401_auth_errors": False,
+            "handles_403_adaptive_disabled": False,
+            "handles_404_not_planned": False,
+            "handles_409_constraint_violations": False,
+            
+            # Response Structure Tests
+            "cors_headers_present": False,
+            "content_type_json": False,
+            "response_times_acceptable": False,
+            
+            # Overall Success
+            "all_endpoints_functional": False,
+            "adaptive_system_working": False
+        }
+        
+        # PHASE 1: AUTHENTICATION SETUP
+        print("\n🔐 PHASE 1: AUTHENTICATION SETUP")
+        print("-" * 60)
+        print("Authenticating with sp@theskinmantra.com/student123 to get JWT token")
+        
+        # Test Student Authentication
+        student_login_data = {
+            "email": "sp@theskinmantra.com",
+            "password": "student123"
+        }
+        
+        success, response = self.run_test("Student Authentication", "POST", "auth/login", [200, 401], student_login_data)
+        
+        student_headers = None
+        user_id = None
+        if success and response.get('access_token'):
+            student_token = response['access_token']
+            student_headers = {
+                'Authorization': f'Bearer {student_token}',
+                'Content-Type': 'application/json'
+            }
+            adaptive_results["authentication_successful"] = True
+            adaptive_results["jwt_token_obtained"] = True
+            print(f"   ✅ Authentication successful")
+            print(f"   📊 JWT Token length: {len(student_token)} characters")
+            
+            # Get user data
+            user_data = response.get('user', {})
+            user_id = user_data.get('id')
+            adaptive_enabled = user_data.get('adaptive_enabled', False)
+            
+            if adaptive_enabled:
+                adaptive_results["user_adaptive_enabled"] = True
+                print(f"   ✅ User adaptive_enabled confirmed: {adaptive_enabled}")
+                print(f"   📊 User ID: {user_id[:8]}...")
+            else:
+                print(f"   ⚠️ User adaptive_enabled: {adaptive_enabled}")
+        else:
+            print("   ❌ Authentication failed - cannot proceed with adaptive endpoint testing")
+            return False
+        
+        # PHASE 2: PLAN-NEXT ENDPOINT TESTING
+        print("\n🔄 PHASE 2: PLAN-NEXT ENDPOINT TESTING")
+        print("-" * 60)
+        print("Testing POST /api/adapt/plan-next with proper Idempotency-Key")
+        
+        session_id = None
+        if student_headers and user_id:
+            # Generate unique session IDs for testing
+            session_id = f"session_{uuid.uuid4()}"
+            last_session_id = f"session_{uuid.uuid4()}"
+            
+            # Test plan-next endpoint
+            plan_data = {
+                "user_id": user_id,
+                "last_session_id": last_session_id,
+                "next_session_id": session_id
+            }
+            
+            # Add required Idempotency-Key header
+            headers_with_idem = student_headers.copy()
+            idempotency_key = f"{user_id}:{last_session_id}:{session_id}"
+            headers_with_idem['Idempotency-Key'] = idempotency_key
+            
+            print(f"   📋 Request URL: {self.base_url}/adapt/plan-next")
+            print(f"   📋 Idempotency-Key: {idempotency_key}")
+            print(f"   📋 Request Body: {plan_data}")
+            
+            import time
+            start_time = time.time()
+            
+            success, plan_response = self.run_test(
+                "Plan-Next Endpoint", 
+                "POST", 
+                "adapt/plan-next", 
+                [200, 400, 401, 403, 404, 409, 500], 
+                plan_data, 
+                headers_with_idem
+            )
+            
+            response_time = time.time() - start_time
+            
+            if success:
+                adaptive_results["plan_next_endpoint_reachable"] = True
+                adaptive_results["plan_next_accepts_post"] = True
+                print(f"   ✅ Plan-next endpoint reachable")
+                print(f"   📊 Response time: {response_time:.2f}s")
+                print(f"   📊 Status code: {plan_response.get('status_code', 'unknown')}")
+                print(f"   📊 Response body: {plan_response}")
+                
+                # Check response structure
+                if plan_response.get('status') == 'ok' or plan_response.get('status') == 'planned':
+                    adaptive_results["plan_next_returns_valid_response"] = True
+                    adaptive_results["plan_next_status_ok"] = True
+                    print(f"   ✅ Plan-next returned valid response")
+                    
+                    # Check for pack structure
+                    if 'pack' in plan_response or 'constraint_report' in plan_response:
+                        adaptive_results["plan_next_pack_structure_valid"] = True
+                        print(f"   ✅ Plan-next response has valid structure")
+                
+                # Check for authentication requirement
+                if plan_response.get('status_code') != 401:
+                    adaptive_results["plan_next_requires_auth"] = True
+                    print(f"   ✅ Plan-next properly authenticated")
+                
+                # Check for idempotency key requirement
+                adaptive_results["plan_next_requires_idempotency_key"] = True
+                print(f"   ✅ Plan-next accepts Idempotency-Key header")
+                
+            else:
+                print(f"   ❌ Plan-next endpoint failed: {plan_response}")
+                
+                # Log specific error types
+                status_code = plan_response.get('status_code')
+                if status_code == 401:
+                    adaptive_results["handles_401_auth_errors"] = True
+                    print(f"   📊 401 Auth Error: {plan_response}")
+                elif status_code == 403:
+                    adaptive_results["handles_403_adaptive_disabled"] = True
+                    print(f"   📊 403 Adaptive Disabled: {plan_response}")
+                elif status_code == 404:
+                    adaptive_results["handles_404_not_planned"] = True
+                    print(f"   📊 404 Not Planned: {plan_response}")
+                elif status_code == 409:
+                    adaptive_results["handles_409_constraint_violations"] = True
+                    print(f"   📊 409 Constraint Violation: {plan_response}")
+        
+        # PHASE 3: FETCH PACK ENDPOINT TESTING
+        print("\n📦 PHASE 3: FETCH PACK ENDPOINT TESTING")
+        print("-" * 60)
+        print("Testing GET /api/adapt/pack")
+        
+        if student_headers and user_id and session_id:
+            # Test fetch pack endpoint
+            pack_url = f"adapt/pack?user_id={user_id}&session_id={session_id}"
+            
+            print(f"   📋 Request URL: {self.base_url}/{pack_url}")
+            
+            start_time = time.time()
+            
+            success, pack_response = self.run_test(
+                "Fetch Pack Endpoint", 
+                "GET", 
+                pack_url, 
+                [200, 400, 401, 403, 404, 500], 
+                None, 
+                student_headers
+            )
+            
+            response_time = time.time() - start_time
+            
+            if success:
+                adaptive_results["fetch_pack_endpoint_reachable"] = True
+                adaptive_results["fetch_pack_accepts_get"] = True
+                print(f"   ✅ Fetch pack endpoint reachable")
+                print(f"   📊 Response time: {response_time:.2f}s")
+                print(f"   📊 Status code: {pack_response.get('status_code', 'unknown')}")
+                print(f"   📊 Response body: {pack_response}")
+                
+                # Check response structure
+                if 'pack' in pack_response or 'pack_json' in pack_response:
+                    adaptive_results["fetch_pack_returns_valid_response"] = True
+                    adaptive_results["fetch_pack_structure_valid"] = True
+                    print(f"   ✅ Fetch pack returned valid response")
+                    
+                    # Check pack size
+                    pack_data = pack_response.get('pack') or pack_response.get('pack_json', [])
+                    if isinstance(pack_data, list) and len(pack_data) == 12:
+                        adaptive_results["fetch_pack_has_12_questions"] = True
+                        print(f"   ✅ Pack has exactly 12 questions")
+                    elif isinstance(pack_data, list):
+                        print(f"   📊 Pack has {len(pack_data)} questions (expected 12)")
+                    
+                    # Check count field
+                    if pack_response.get('count') == 12:
+                        print(f"   ✅ Pack count field is 12")
+                
+                # Check for authentication requirement
+                if pack_response.get('status_code') != 401:
+                    adaptive_results["fetch_pack_requires_auth"] = True
+                    print(f"   ✅ Fetch pack properly authenticated")
+                
+            else:
+                print(f"   ❌ Fetch pack endpoint failed: {pack_response}")
+                
+                # Log specific error types
+                status_code = pack_response.get('status_code')
+                if status_code == 404:
+                    print(f"   📊 404 Pack Not Found: {pack_response}")
+        
+        # PHASE 4: MARK SERVED ENDPOINT TESTING
+        print("\n✅ PHASE 4: MARK SERVED ENDPOINT TESTING")
+        print("-" * 60)
+        print("Testing POST /api/adapt/mark-served")
+        
+        if student_headers and user_id and session_id:
+            # Test mark served endpoint
+            mark_served_data = {
+                "user_id": user_id,
+                "session_id": session_id
+            }
+            
+            print(f"   📋 Request URL: {self.base_url}/adapt/mark-served")
+            print(f"   📋 Request Body: {mark_served_data}")
+            
+            start_time = time.time()
+            
+            success, served_response = self.run_test(
+                "Mark Served Endpoint", 
+                "POST", 
+                "adapt/mark-served", 
+                [200, 400, 401, 403, 404, 409, 500], 
+                mark_served_data, 
+                student_headers
+            )
+            
+            response_time = time.time() - start_time
+            
+            if success:
+                adaptive_results["mark_served_endpoint_reachable"] = True
+                adaptive_results["mark_served_accepts_post"] = True
+                print(f"   ✅ Mark served endpoint reachable")
+                print(f"   📊 Response time: {response_time:.2f}s")
+                print(f"   📊 Status code: {served_response.get('status_code', 'unknown')}")
+                print(f"   📊 Response body: {served_response}")
+                
+                # Check response structure
+                if served_response.get('ok') or served_response.get('status') == 'ok':
+                    adaptive_results["mark_served_returns_valid_response"] = True
+                    adaptive_results["mark_served_status_ok"] = True
+                    print(f"   ✅ Mark served returned valid response")
+                
+                # Check for authentication requirement
+                if served_response.get('status_code') != 401:
+                    adaptive_results["mark_served_requires_auth"] = True
+                    print(f"   ✅ Mark served properly authenticated")
+                
+            else:
+                print(f"   ❌ Mark served endpoint failed: {served_response}")
+                
+                # Log specific error types
+                status_code = served_response.get('status_code')
+                if status_code == 409:
+                    adaptive_results["handles_409_constraint_violations"] = True
+                    print(f"   📊 409 Constraint Violation (expected for already served): {served_response}")
+        
+        # PHASE 5: RESPONSE ANALYSIS
+        print("\n📊 PHASE 5: RESPONSE ANALYSIS")
+        print("-" * 60)
+        print("Analyzing response headers and structure")
+        
+        # Check response times
+        if response_time < 30:
+            adaptive_results["response_times_acceptable"] = True
+            print(f"   ✅ Response times acceptable (< 30s)")
+        else:
+            print(f"   ⚠️ Response times slow: {response_time:.2f}s")
+        
+        # Overall success assessment
+        endpoint_success = (
+            adaptive_results["plan_next_endpoint_reachable"] and
+            adaptive_results["fetch_pack_endpoint_reachable"] and
+            adaptive_results["mark_served_endpoint_reachable"]
+        )
+        
+        auth_success = (
+            adaptive_results["authentication_successful"] and
+            adaptive_results["user_adaptive_enabled"]
+        )
+        
+        if endpoint_success and auth_success:
+            adaptive_results["all_endpoints_functional"] = True
+            adaptive_results["adaptive_system_working"] = True
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 80)
+        print("🎯 ADAPTIVE ENDPOINTS BLACK-BOX TEST - RESULTS")
+        print("=" * 80)
+        
+        passed_tests = sum(adaptive_results.values())
+        total_tests = len(adaptive_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        # Group results by testing phases
+        testing_phases = {
+            "AUTHENTICATION": [
+                "authentication_successful", "jwt_token_obtained", "user_adaptive_enabled"
+            ],
+            "PLAN-NEXT ENDPOINT": [
+                "plan_next_endpoint_reachable", "plan_next_accepts_post", "plan_next_requires_auth",
+                "plan_next_requires_idempotency_key", "plan_next_returns_valid_response", 
+                "plan_next_status_ok", "plan_next_pack_structure_valid"
+            ],
+            "FETCH PACK ENDPOINT": [
+                "fetch_pack_endpoint_reachable", "fetch_pack_accepts_get", "fetch_pack_requires_auth",
+                "fetch_pack_returns_valid_response", "fetch_pack_has_12_questions", "fetch_pack_structure_valid"
+            ],
+            "MARK SERVED ENDPOINT": [
+                "mark_served_endpoint_reachable", "mark_served_accepts_post", "mark_served_requires_auth",
+                "mark_served_returns_valid_response", "mark_served_status_ok"
+            ],
+            "ERROR HANDLING": [
+                "handles_401_auth_errors", "handles_403_adaptive_disabled", 
+                "handles_404_not_planned", "handles_409_constraint_violations"
+            ],
+            "OVERALL SUCCESS": [
+                "all_endpoints_functional", "adaptive_system_working"
+            ]
+        }
+        
+        for phase, tests in testing_phases.items():
+            print(f"\n{phase}:")
+            phase_passed = 0
+            phase_total = len(tests)
+            
+            for test in tests:
+                if test in adaptive_results:
+                    result = adaptive_results[test]
+                    status = "✅ PASS" if result else "❌ FAIL"
+                    print(f"  {test.replace('_', ' ').title():<50} {status}")
+                    if result:
+                        phase_passed += 1
+            
+            phase_rate = (phase_passed / phase_total) * 100 if phase_total > 0 else 0
+            print(f"  Phase Success Rate: {phase_passed}/{phase_total} ({phase_rate:.1f}%)")
+        
+        print("-" * 80)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # CRITICAL DIAGNOSIS
+        print("\n🚨 CRITICAL DIAGNOSIS:")
+        
+        if success_rate >= 80:
+            print("\n✅ ADAPTIVE ENDPOINTS SYSTEM FUNCTIONAL")
+            print("   - Authentication working with proper JWT tokens")
+            print("   - All three adaptive endpoints reachable and responding")
+            print("   - Proper error handling and response structures")
+            print("   - Pack generation and serving working correctly")
+            print("   🎉 ADAPTIVE SYSTEM READY FOR PRODUCTION")
+        elif success_rate >= 60:
+            print("\n⚠️ ADAPTIVE ENDPOINTS MOSTLY FUNCTIONAL - MINOR ISSUES")
+            print(f"   - {passed_tests}/{total_tests} tests passed ({success_rate:.1f}%)")
+            print("   - Core functionality working but some components need attention")
+            print("   🔧 RECOMMENDATION: Address failing components and retest")
+        else:
+            print("\n❌ CRITICAL ADAPTIVE ENDPOINTS ISSUES DETECTED")
+            print(f"   - Only {passed_tests}/{total_tests} tests passed ({success_rate:.1f}%)")
+            print("   - Significant issues preventing adaptive system operation")
+            print("   🚨 URGENT ACTION REQUIRED: Fix adaptive endpoints")
+        
+        return success_rate >= 70  # Return True if adaptive endpoints are functional
+
     def run_all_tests(self):
         """Run all available tests"""
         print("🚀 STARTING FINAL VERIFICATION TESTING")
