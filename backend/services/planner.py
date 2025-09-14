@@ -213,7 +213,8 @@ Return ONLY valid JSON matching the required schema."""
                     "retry_used": False,
                     "fallback_used": True,
                     "pyq_15_final": final_pyq_15_count,
-                    "pyq_10_final": final_pyq_10_count
+                    "pyq_10_final": final_pyq_10_count,
+                    "model_used": "planner_fallback@v1.1"
                 }
             },
             "session_notes": "Fallback plan generated due to LLM failure with PYQ minima enforcement"
