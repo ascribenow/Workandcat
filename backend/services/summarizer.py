@@ -176,84 +176,50 @@ Return ONLY valid JSON matching the required schema."""
         finally:
             db.close()
     
-    def _build_summarizer_payload(self, user_id: str, session_limit: int) -> Dict[str, Any]:
-        """Build payload for summarizer LLM call"""
-        db = SessionLocal()
-        try:
-            # Get recent attempt history with session context
-            attempts = db.execute(text("""
-                SELECT 
-                    ae.question_id,
-                    ae.was_correct,
-                    ae.skipped,
-                    ae.response_time_ms,
-                    ae.sess_seq_at_serve,
-                    ae.difficulty_band,
-                    ae.subcategory,
-                    ae.type_of_question,
-                    ae.core_concepts,
-                    ae.pyq_frequency_score,
-                    ae.created_at
-                FROM attempt_events ae
-                JOIN sessions s ON ae.session_id = s.session_id
-                WHERE ae.user_id = :user_id
-                AND s.sess_seq > (
-                    SELECT COALESCE(MAX(sess_seq), 0) - :session_limit
-                    FROM sessions
-                    WHERE user_id = :user_id
-                )
-                ORDER BY ae.sess_seq_at_serve, ae.created_at
-                LIMIT 100
-            """), {
-                "user_id": user_id,
-                "session_limit": session_limit
-            }).fetchall()
-            
-            # Format attempt history
-            attempt_history = []
-            for attempt in attempts:
-                # Parse core concepts
-                try:
-                    if isinstance(attempt.core_concepts, list):
-                        concepts = attempt.core_concepts
-                    elif isinstance(attempt.core_concepts, str):
-                        concepts = json.loads(attempt.core_concepts)
-                    else:
-                        concepts = []
-                except:
+    def _build_summarizer_payload_from_attempts(self, user_id: str, attempts: List) -> Dict[str, Any]:
+        """Build payload for summarizer LLM call from attempt records"""
+        # Format attempt history
+        attempt_history = []
+        for attempt in attempts:
+            # Parse core concepts
+            try:
+                if isinstance(attempt.core_concepts, list):
+                    concepts = attempt.core_concepts
+                elif isinstance(attempt.core_concepts, str):
+                    concepts = json.loads(attempt.core_concepts)
+                else:
                     concepts = []
-                
-                attempt_history.append({
-                    "question_id": attempt.question_id,
-                    "was_correct": attempt.was_correct,
-                    "skipped": attempt.skipped,
-                    "response_time_ms": attempt.response_time_ms,
-                    "sess_seq": attempt.sess_seq_at_serve,
-                    "difficulty_band": attempt.difficulty_band,
-                    "pair": f"{attempt.subcategory}:{attempt.type_of_question}",
-                    "core_concepts": concepts,
-                    "pyq_frequency_score": float(attempt.pyq_frequency_score) if attempt.pyq_frequency_score else 0.5
-                })
+            except:
+                concepts = []
             
-            # Get existing concept alias map (if any)
-            existing_aliases = self._get_existing_concept_aliases(user_id)
-            
-            return {
-                "user_id": user_id,
-                "attempt_history": attempt_history,
-                "existing_concept_aliases": existing_aliases,
-                "analysis_instructions": {
-                    "focus_areas": [
-                        "Identify recurring concept patterns",
-                        "Assess confidence levels by difficulty band",
-                        "Detect avoidance behaviors (skipping patterns)",
-                        "Evaluate concept coverage gaps"
-                    ]
-                }
+            attempt_history.append({
+                "question_id": attempt.question_id,
+                "was_correct": attempt.was_correct,
+                "skipped": attempt.skipped,
+                "response_time_ms": attempt.response_time_ms,
+                "sess_seq": attempt.sess_seq_at_serve,
+                "difficulty_band": attempt.difficulty_band,
+                "pair": f"{attempt.subcategory}:{attempt.type_of_question}",
+                "core_concepts": concepts,
+                "pyq_frequency_score": float(attempt.pyq_frequency_score) if attempt.pyq_frequency_score else 0.5
+            })
+        
+        # Get existing concept alias map (if any)
+        existing_aliases = self._get_existing_concept_aliases(user_id)
+        
+        return {
+            "user_id": user_id,
+            "attempt_history": attempt_history,
+            "existing_concept_aliases": existing_aliases,
+            "analysis_instructions": {
+                "focus_areas": [
+                    "Identify recurring concept patterns",
+                    "Assess confidence levels by difficulty band",
+                    "Detect avoidance behaviors (skipping patterns)",
+                    "Evaluate concept coverage gaps"
+                ]
             }
-            
-        finally:
-            db.close()
+        }
     
     def _get_existing_concept_aliases(self, user_id: str) -> List[Dict[str, Any]]:
         """Get existing concept alias mappings for the user"""
