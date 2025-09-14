@@ -5388,36 +5388,44 @@ class CATBackendTester:
         return success_rate >= 70  # Return True if most endpoints are working
 
 if __name__ == "__main__":
-    print("🚀 Starting Critical Question Content Investigation")
+    print("🚀 CRITICAL BACKEND FIXES VALIDATION - STARTING TESTS")
+    print("=" * 80)
+    print("Testing critical backend fixes for:")
+    print("1. Database Schema Fix (session_id VARCHAR(100))")
+    print("2. LLM Planner Performance & Schema")
+    print("3. Session Planning Performance (3-10s target)")
+    print("4. End-to-End Adaptive Flow")
+    print("5. Empty Question Content Resolution")
     print("=" * 80)
     
-    # Use the correct backend URL from test results
-    tester = CATBackendTester("https://twelvr.com/api")
+    tester = CATBackendTester()
     
     try:
-        # Run the critical question content investigation
-        success = tester.test_question_content_investigation()
+        # Run the critical backend fixes validation
+        success = tester.test_critical_backend_fixes_validation()
         
         print("\n" + "=" * 80)
-        print("🏁 INVESTIGATION COMPLETE")
+        print("🏁 CRITICAL BACKEND FIXES VALIDATION - FINAL SUMMARY")
         print("=" * 80)
-        print(f"Tests Run: {tester.tests_run}")
-        print(f"Tests Passed: {tester.tests_passed}")
-        print(f"Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%" if tester.tests_run > 0 else "No tests run")
-        print(f"Investigation Result: {'✅ SUCCESS' if success else '❌ FAILED'}")
         
         if success:
-            print("\n🎯 INVESTIGATION SUCCESSFUL:")
-            print("- Question content issue root cause identified")
-            print("- Fix recommendations provided")
-            print("- Ready for implementation")
+            print("🎉 SUCCESS: Critical backend fixes validation PASSED")
+            print("   - Database schema fixes working")
+            print("   - Performance improvements validated")
+            print("   - Empty content issue resolved")
+            print("   - End-to-end adaptive flow functional")
+            print("   - System ready for production use")
         else:
-            print("\n⚠️ INVESTIGATION INCOMPLETE:")
-            print("- Unable to fully reproduce or identify root cause")
-            print("- May require additional debugging")
-            print("- Consider environment-specific factors")
-            
+            print("❌ FAILURE: Critical backend fixes validation FAILED")
+            print("   - One or more critical issues still present")
+            print("   - Additional fixes required")
+            print("   - System not ready for production")
+        
+        print(f"\nOverall Test Results: {tester.tests_passed}/{tester.tests_run} passed")
+        print(f"Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%")
+        
     except Exception as e:
-        print(f"\n❌ INVESTIGATION FAILED: {str(e)}")
-        import traceback
-        traceback.print_exc()
+        print(f"\n❌ CRITICAL ERROR during testing: {e}")
+        print("Testing aborted due to unexpected error")
+        
+    print("\n" + "=" * 80)
