@@ -4844,36 +4844,36 @@ class CATBackendTester:
         return success_rate >= 70  # Return True if most endpoints are working
 
 if __name__ == "__main__":
-    # Test with both API bases mentioned in the review request
-    api_bases = [
-        "https://adaptive-cat-1.preview.emergentagent.com/api",
-        "https://adaptive-quant.emergent.host/api"
-    ]
+    print("🚀 Starting Critical Question Content Investigation")
+    print("=" * 80)
     
-    for base_url in api_bases:
-        print(f"\n{'='*100}")
-        print(f"TESTING API BASE: {base_url}")
-        print(f"{'='*100}")
+    # Use the correct backend URL from test results
+    tester = CATBackendTester("https://twelvr.com/api")
+    
+    try:
+        # Run the critical question content investigation
+        success = tester.test_question_content_investigation()
         
-        tester = CATBackendTester(base_url)
-        
-        # Run the urgent backend endpoint investigation as requested
-        endpoint_success = tester.test_urgent_backend_endpoint_investigation()
-        
-        if endpoint_success:
-            print(f"\n🎉 Backend endpoints investigation successful for {base_url}")
-        else:
-            print(f"\n❌ Backend endpoints investigation found issues for {base_url}")
-        
-        print(f"\nFinal Results for {base_url}:")
+        print("\n" + "=" * 80)
+        print("🏁 INVESTIGATION COMPLETE")
+        print("=" * 80)
         print(f"Tests Run: {tester.tests_run}")
         print(f"Tests Passed: {tester.tests_passed}")
-        print(f"Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%")
+        print(f"Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%" if tester.tests_run > 0 else "No tests run")
+        print(f"Investigation Result: {'✅ SUCCESS' if success else '❌ FAILED'}")
         
-        print(f"\n{'='*100}")
-        print(f"END TESTING FOR: {base_url}")
-        print(f"{'='*100}")
-        
-        # Add separator between API base tests
-        if base_url != api_bases[-1]:
-            print("\n" + "🔄 SWITCHING TO NEXT API BASE" + "\n")
+        if success:
+            print("\n🎯 INVESTIGATION SUCCESSFUL:")
+            print("- Question content issue root cause identified")
+            print("- Fix recommendations provided")
+            print("- Ready for implementation")
+        else:
+            print("\n⚠️ INVESTIGATION INCOMPLETE:")
+            print("- Unable to fully reproduce or identify root cause")
+            print("- May require additional debugging")
+            print("- Consider environment-specific factors")
+            
+    except Exception as e:
+        print(f"\n❌ INVESTIGATION FAILED: {str(e)}")
+        import traceback
+        traceback.print_exc()
