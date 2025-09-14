@@ -128,7 +128,8 @@ def call_llm_json_with_retry(system_prompt: str, user_payload: Dict[str, Any],
             }, 
             model_primary=model_primary, 
             model_fallback=model_fallback, 
-            response_format="json"
+            response_format="json",
+            timeout_ms=timeout_ms
         )
         
         # Convert repaired response to text
