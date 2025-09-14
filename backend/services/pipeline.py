@@ -405,10 +405,8 @@ def plan_next_session(user_id: str, force_cold_start: bool = False) -> Dict[str,
                 "expansion_attempts": expansion_attempts
             })
         
-        # Step 8: Save summarizer results for future sessions
-        # TODO: Get actual session_id
-        temp_session_id = f"session_{next_sess_seq}_{user_id[:8]}"
-        summarizer_service.save_session_summary(user_id, temp_session_id, summary_result)
+        # Step 8: Summarizer results are now saved post-session, not during planning
+        # The summarizer will be called after session completion via session lifecycle endpoints
         
         return {
             'success': True,
