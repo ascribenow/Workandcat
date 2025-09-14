@@ -180,6 +180,7 @@ def transition_pack_to_served(user_id: str, session_id: str) -> bool:
     """
     db = SessionLocal()
     try:
+        # Update session pack plan
         result = db.execute(text("""
             UPDATE session_pack_plan 
             SET status = 'served', served_at = :served_at
@@ -194,6 +195,17 @@ def transition_pack_to_served(user_id: str, session_id: str) -> bool:
         
         updated = result.fetchone()
         if updated:
+            # Also update session status
+            db.execute(text("""
+                UPDATE sessions 
+                SET status = 'in_progress', started_at = :started_at
+                WHERE user_id = :user_id AND session_id = :session_id
+            """), {
+                'user_id': user_id,
+                'session_id': session_id,
+                'started_at': datetime.utcnow()
+            })
+            
             db.commit()
             logger.info(f"✅ Transitioned pack to served for user {user_id[:8]}, session {session_id[:8]}")
             return True
