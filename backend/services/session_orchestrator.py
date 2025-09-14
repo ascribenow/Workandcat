@@ -97,13 +97,17 @@ def save_pack(user_id: str, session_id: str, plan: Dict[str, Any], constraint_re
         # Extract pack from plan
         pack_data = plan.get('pack', [])
         
-        # Insert session record with race-safe sess_seq calculation (inside existing transaction)
+        # Insert session record with race-safe sess_seq calculation using proper FOR UPDATE pattern
         db.execute(text("""
-            WITH next AS (
-                SELECT COALESCE(MAX(sess_seq), 0) + 1 AS next_sess_seq
+            WITH locked_sessions AS (
+                SELECT sess_seq
                 FROM sessions
                 WHERE user_id = :user_id
-                FOR UPDATE  -- prevent race on MAX+1
+                FOR UPDATE  -- lock existing rows for this user
+            ),
+            next AS (
+                SELECT COALESCE(MAX(sess_seq), 0) + 1 AS next_sess_seq
+                FROM locked_sessions
             )
             INSERT INTO sessions (user_id, session_id, sess_seq, status, created_at)
             SELECT :user_id, :session_id, next_sess_seq, 'planned', NOW()
