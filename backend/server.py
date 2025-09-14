@@ -77,11 +77,13 @@ app.include_router(stages_router)
 
 # Import and include adaptive session router
 from api.adapt import router as adapt_router
+from api.session_lifecycle import router as session_lifecycle_router
 from middleware.adaptive_gate import ensure_adaptive_enabled
 app.include_router(
     adapt_router,
     dependencies=[Depends(ensure_adaptive_enabled)]
 )
+app.include_router(session_lifecycle_router, prefix="/api/sessions")
 
 # In-memory logging store (for MVP - replace with database in production)
 question_action_logs = []
