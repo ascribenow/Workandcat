@@ -79,10 +79,10 @@ def mark_session_completed(user_id: str, session_id: str) -> bool:
     """
     db = SessionLocal()
     try:
-        # Idempotent completion stamp for sessions table
+        # Idempotent completion stamp for sessions table with server-side timestamp
         result = db.execute(text("""
             UPDATE sessions
-            SET completed_at = COALESCE(completed_at, :completed_at),
+            SET completed_at = COALESCE(completed_at, NOW()),
                 status = CASE 
                     WHEN completed_at IS NULL THEN 'completed'
                     ELSE status 
@@ -91,8 +91,7 @@ def mark_session_completed(user_id: str, session_id: str) -> bool:
             RETURNING session_id
         """), {
             'user_id': user_id,
-            'session_id': session_id,
-            'completed_at': datetime.utcnow()
+            'session_id': session_id
         })
         
         session_updated = result.fetchone()
