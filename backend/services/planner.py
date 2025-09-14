@@ -50,7 +50,17 @@ SELECTION STRATEGY:
 3. Use readiness ONLY for the question's own concept pair
 4. Report which constraints were relaxed and why
 
-Return ONLY valid JSON matching the required schema."""
+REQUIRED OUTPUT FORMAT:
+You MUST return a JSON object with exactly these two fields:
+{
+  "pack": [...12 question objects...],
+  "constraint_report": {
+    "met": ["list of constraints that were satisfied"],
+    "relaxed": [{"name": "constraint_name", "reason": "why it was relaxed"}]
+  }
+}
+
+Return ONLY valid JSON matching the required schema. The constraint_report field is MANDATORY."""
 
     def run_planner(self, user_id: str, candidate_pool_by_band: Dict[str, List], 
                    final_readiness: List[Dict], concept_weights_by_item: Dict,
