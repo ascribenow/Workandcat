@@ -123,7 +123,7 @@ def save_pack(user_id: str, session_id: str, plan: Dict[str, Any], constraint_re
                 llm_model_used, processing_time_ms
             ) VALUES (
                 :user_id, :session_id, :pack, :constraint_report, 'planned',
-                :cold_start_mode, :planning_strategy, :created_at,
+                :cold_start_mode, :planning_strategy, NOW(),
                 :llm_model_used, :processing_time_ms
             )
             ON CONFLICT (user_id, session_id) DO UPDATE SET
@@ -142,7 +142,6 @@ def save_pack(user_id: str, session_id: str, plan: Dict[str, Any], constraint_re
             'constraint_report': json.dumps(constraint_report),
             'cold_start_mode': plan.get('cold_start_mode', False),
             'planning_strategy': plan.get('pipeline_path', 'unknown'),
-            'created_at': text('NOW()'),  # Use server-side timestamp
             'llm_model_used': constraint_report.get('meta', {}).get('model_used'),
             'processing_time_ms': constraint_report.get('meta', {}).get('processing_time_ms')
         })
