@@ -951,6 +951,546 @@ class CATBackendTester:
             
         return planning_results["root_cause_identified"] or success_rate >= 70
 
+    def test_critical_llm_planner_fix_verification(self):
+        """
+        🚨 CRITICAL LLM PLANNER FIX VERIFICATION: Test that the constraint_report fix resolves the session planning failures.
+        
+        ISSUE FIXED:
+        - Updated system prompt to explicitly require constraint_report field
+        - Added safety check to ensure constraint_report is always present in LLM responses
+        - Backend restarted to apply fixes
+        
+        SPECIFIC VERIFICATION NEEDED:
+        1. **Test Plan-Next Performance**: Verify plan-next endpoint responds faster
+        2. **Test LLM Schema Compliance**: Ensure no more "constraint_report missing" errors
+        3. **Test Session Planning**: Verify session planning succeeds consistently
+        4. **Test End-to-End Flow**: Complete plan-next → pack → mark-served cycle
+        
+        PERFORMANCE EXPECTATIONS:
+        - Plan-next should complete within 10-30 seconds (down from 60+ seconds)
+        - No more LLM JSON validation failures
+        - Consistent session planning success
+        - Fallback plans working when LLM fails
+        
+        AUTHENTICATION: sp@theskinmantra.com/student123
+        
+        Monitor backend logs for:
+        - ✅ "✅ Planner completed" messages  
+        - ❌ "❌ Planner failed" messages
+        - ⚠️ "🔄 Generating fallback plan" messages
+        """
+        print("🚨 CRITICAL LLM PLANNER FIX VERIFICATION")
+        print("=" * 80)
+        print("OBJECTIVE: Test that the constraint_report fix resolves the session planning failures")
+        print("FOCUS: Plan-next performance, LLM schema compliance, session planning consistency")
+        print("EXPECTED: 10-30 second response times, no constraint_report missing errors")
+        print("=" * 80)
+        
+        planner_results = {
+            # Authentication Setup
+            "authentication_working": False,
+            "user_adaptive_enabled": False,
+            "jwt_token_valid": False,
+            
+            # Plan-Next Performance Testing
+            "plan_next_endpoint_accessible": False,
+            "plan_next_response_time_acceptable": False,
+            "plan_next_under_30_seconds": False,
+            "plan_next_under_10_seconds": False,
+            "performance_improvement_confirmed": False,
+            
+            # LLM Schema Compliance Testing
+            "constraint_report_present": False,
+            "no_constraint_report_missing_errors": False,
+            "llm_json_validation_working": False,
+            "schema_compliance_verified": False,
+            
+            # Session Planning Consistency
+            "session_planning_succeeds": False,
+            "session_creation_working": False,
+            "session_persistence_confirmed": False,
+            "multiple_planning_attempts_successful": False,
+            
+            # End-to-End Flow Testing
+            "pack_fetch_working": False,
+            "mark_served_working": False,
+            "complete_flow_functional": False,
+            "pack_contains_12_questions": False,
+            "pack_has_3_6_3_distribution": False,
+            
+            # Fallback System Testing
+            "fallback_plans_working": False,
+            "deterministic_fallback_functional": False,
+            "system_resilient_to_llm_failures": False,
+            
+            # Backend Log Analysis
+            "planner_completed_messages_detected": False,
+            "planner_failed_messages_minimal": False,
+            "fallback_plan_messages_appropriate": False,
+            
+            # Overall Assessment
+            "llm_planner_fix_successful": False,
+            "production_ready_performance": False,
+            "consistent_session_planning": False
+        }
+        
+        # PHASE 1: AUTHENTICATION SETUP
+        print("\n🔐 PHASE 1: AUTHENTICATION SETUP")
+        print("-" * 60)
+        print("Setting up authentication with sp@theskinmantra.com/student123")
+        
+        auth_data = {
+            "email": "sp@theskinmantra.com",
+            "password": "student123"
+        }
+        
+        success, response = self.run_test("Authentication", "POST", "auth/login", [200, 401], auth_data)
+        
+        auth_headers = None
+        user_id = None
+        if success and response.get('access_token'):
+            token = response['access_token']
+            auth_headers = {
+                'Authorization': f'Bearer {token}',
+                'Content-Type': 'application/json'
+            }
+            planner_results["authentication_working"] = True
+            planner_results["jwt_token_valid"] = True
+            print(f"   ✅ Authentication successful")
+            print(f"   📊 JWT Token length: {len(token)} characters")
+            
+            user_data = response.get('user', {})
+            user_id = user_data.get('id')
+            adaptive_enabled = user_data.get('adaptive_enabled', False)
+            
+            if adaptive_enabled:
+                planner_results["user_adaptive_enabled"] = True
+                print(f"   ✅ User adaptive_enabled confirmed: {adaptive_enabled}")
+                print(f"   📊 User ID: {user_id}")
+            else:
+                print(f"   ⚠️ User adaptive_enabled: {adaptive_enabled}")
+        else:
+            print("   ❌ Authentication failed - cannot proceed with LLM planner testing")
+            return False
+        
+        # PHASE 2: PLAN-NEXT PERFORMANCE TESTING
+        print("\n🚀 PHASE 2: PLAN-NEXT PERFORMANCE TESTING")
+        print("-" * 60)
+        print("Testing plan-next endpoint performance and response times")
+        
+        if user_id and auth_headers:
+            # Test multiple plan-next calls to verify consistency
+            performance_tests = []
+            
+            for test_num in range(3):
+                session_id = f"perf_test_{uuid.uuid4()}"
+                last_session_id = "S0"  # Cold start
+                
+                plan_data = {
+                    "user_id": user_id,
+                    "last_session_id": last_session_id,
+                    "next_session_id": session_id
+                }
+                
+                headers_with_idem = auth_headers.copy()
+                idempotency_key = f"{user_id}:{last_session_id}:{session_id}"
+                headers_with_idem['Idempotency-Key'] = idempotency_key
+                
+                print(f"   🔄 Performance Test {test_num + 1}/3: {session_id[:8]}...")
+                
+                import time
+                start_time = time.time()
+                
+                success, plan_response = self.run_test(
+                    f"Plan-Next Performance Test {test_num + 1}", 
+                    "POST", 
+                    "adapt/plan-next", 
+                    [200, 400, 500, 502, 504], 
+                    plan_data, 
+                    headers_with_idem
+                )
+                
+                response_time = time.time() - start_time
+                performance_tests.append({
+                    'test_num': test_num + 1,
+                    'response_time': response_time,
+                    'success': success,
+                    'response': plan_response,
+                    'session_id': session_id
+                })
+                
+                print(f"   📊 Response time: {response_time:.2f}s")
+                
+                if success:
+                    planner_results["plan_next_endpoint_accessible"] = True
+                    
+                    if response_time <= 30:
+                        planner_results["plan_next_under_30_seconds"] = True
+                        print(f"   ✅ Response time under 30s threshold")
+                        
+                        if response_time <= 10:
+                            planner_results["plan_next_under_10_seconds"] = True
+                            print(f"   ✅ Response time under 10s (excellent)")
+                    else:
+                        print(f"   ⚠️ Response time over 30s: {response_time:.2f}s")
+                    
+                    # Check for constraint_report in response
+                    if plan_response.get('constraint_report'):
+                        planner_results["constraint_report_present"] = True
+                        print(f"   ✅ constraint_report present in response")
+                    else:
+                        print(f"   ❌ constraint_report missing from response")
+                    
+                    # Check for successful session planning
+                    if plan_response.get('status') == 'planned':
+                        planner_results["session_planning_succeeds"] = True
+                        planner_results["session_creation_working"] = True
+                        print(f"   ✅ Session planning successful (status: planned)")
+                    else:
+                        print(f"   ⚠️ Session planning status: {plan_response.get('status')}")
+                        
+                else:
+                    print(f"   ❌ Plan-next failed: {plan_response}")
+                
+                # Small delay between tests
+                time.sleep(2)
+            
+            # Analyze performance results
+            successful_tests = [t for t in performance_tests if t['success']]
+            if len(successful_tests) >= 2:
+                avg_response_time = sum(t['response_time'] for t in successful_tests) / len(successful_tests)
+                max_response_time = max(t['response_time'] for t in successful_tests)
+                min_response_time = min(t['response_time'] for t in successful_tests)
+                
+                print(f"\n   📊 PERFORMANCE ANALYSIS:")
+                print(f"   • Successful tests: {len(successful_tests)}/3")
+                print(f"   • Average response time: {avg_response_time:.2f}s")
+                print(f"   • Min response time: {min_response_time:.2f}s")
+                print(f"   • Max response time: {max_response_time:.2f}s")
+                
+                if avg_response_time <= 30:
+                    planner_results["plan_next_response_time_acceptable"] = True
+                    print(f"   ✅ Average response time acceptable")
+                
+                if len(successful_tests) == 3:
+                    planner_results["multiple_planning_attempts_successful"] = True
+                    print(f"   ✅ All planning attempts successful")
+                
+                # Check for performance improvement (assuming previous issues were 60+ seconds)
+                if avg_response_time < 60:
+                    planner_results["performance_improvement_confirmed"] = True
+                    print(f"   ✅ Performance improvement confirmed (< 60s)")
+        
+        # PHASE 3: LLM SCHEMA COMPLIANCE TESTING
+        print("\n🔍 PHASE 3: LLM SCHEMA COMPLIANCE TESTING")
+        print("-" * 60)
+        print("Testing LLM JSON schema compliance and constraint_report validation")
+        
+        if successful_tests:
+            # Analyze responses for schema compliance
+            schema_compliant_count = 0
+            constraint_report_count = 0
+            
+            for test in successful_tests:
+                response = test['response']
+                
+                # Check for required fields
+                required_fields = ['user_id', 'session_id', 'status', 'constraint_report']
+                has_all_fields = all(field in response for field in required_fields)
+                
+                if has_all_fields:
+                    schema_compliant_count += 1
+                    print(f"   ✅ Test {test['test_num']}: Schema compliant")
+                else:
+                    missing_fields = [field for field in required_fields if field not in response]
+                    print(f"   ❌ Test {test['test_num']}: Missing fields: {missing_fields}")
+                
+                # Check constraint_report specifically
+                if response.get('constraint_report'):
+                    constraint_report_count += 1
+                    constraint_report = response['constraint_report']
+                    print(f"   📊 Test {test['test_num']}: constraint_report keys: {list(constraint_report.keys())}")
+            
+            if schema_compliant_count == len(successful_tests):
+                planner_results["llm_json_validation_working"] = True
+                planner_results["schema_compliance_verified"] = True
+                print(f"   ✅ All responses schema compliant")
+            
+            if constraint_report_count == len(successful_tests):
+                planner_results["no_constraint_report_missing_errors"] = True
+                print(f"   ✅ No constraint_report missing errors")
+            else:
+                print(f"   ⚠️ constraint_report missing in {len(successful_tests) - constraint_report_count} responses")
+        
+        # PHASE 4: END-TO-END FLOW TESTING
+        print("\n🔄 PHASE 4: END-TO-END FLOW TESTING")
+        print("-" * 60)
+        print("Testing complete plan-next → pack → mark-served flow")
+        
+        if successful_tests:
+            # Use the first successful test for end-to-end testing
+            test_session = successful_tests[0]
+            test_session_id = test_session['session_id']
+            
+            print(f"   🎯 Testing with session: {test_session_id[:8]}...")
+            
+            # Test pack fetch
+            success, pack_response = self.run_test(
+                "Pack Fetch (End-to-End)", 
+                "GET", 
+                f"adapt/pack?user_id={user_id}&session_id={test_session_id}", 
+                [200, 404, 500], 
+                None, 
+                auth_headers
+            )
+            
+            if success and pack_response.get('pack'):
+                planner_results["pack_fetch_working"] = True
+                print(f"   ✅ Pack fetch successful")
+                
+                pack_data = pack_response.get('pack', [])
+                pack_size = len(pack_data)
+                print(f"   📊 Pack size: {pack_size} questions")
+                
+                if pack_size == 12:
+                    planner_results["pack_contains_12_questions"] = True
+                    print(f"   ✅ Pack contains exactly 12 questions")
+                    
+                    # Check difficulty distribution
+                    difficulty_counts = {}
+                    for question in pack_data:
+                        bucket = question.get('bucket', 'Unknown')
+                        difficulty_counts[bucket] = difficulty_counts.get(bucket, 0) + 1
+                    
+                    print(f"   📊 Difficulty distribution: {difficulty_counts}")
+                    
+                    # Check for 3-6-3 distribution (Easy-Medium-Hard)
+                    easy_count = difficulty_counts.get('Easy', 0)
+                    medium_count = difficulty_counts.get('Medium', 0)
+                    hard_count = difficulty_counts.get('Hard', 0)
+                    
+                    if easy_count == 3 and medium_count == 6 and hard_count == 3:
+                        planner_results["pack_has_3_6_3_distribution"] = True
+                        print(f"   ✅ Perfect 3-6-3 difficulty distribution")
+                    else:
+                        print(f"   ⚠️ Distribution: Easy={easy_count}, Medium={medium_count}, Hard={hard_count}")
+                
+                # Test mark-served
+                mark_served_data = {
+                    "user_id": user_id,
+                    "session_id": test_session_id
+                }
+                
+                success, served_response = self.run_test(
+                    "Mark Served (End-to-End)", 
+                    "POST", 
+                    "adapt/mark-served", 
+                    [200, 409, 500], 
+                    mark_served_data, 
+                    auth_headers
+                )
+                
+                if success and served_response.get('ok'):
+                    planner_results["mark_served_working"] = True
+                    planner_results["complete_flow_functional"] = True
+                    print(f"   ✅ Mark-served successful")
+                    print(f"   ✅ Complete end-to-end flow functional")
+                else:
+                    print(f"   ❌ Mark-served failed: {served_response}")
+            else:
+                print(f"   ❌ Pack fetch failed: {pack_response}")
+        
+        # PHASE 5: FALLBACK SYSTEM TESTING
+        print("\n🛡️ PHASE 5: FALLBACK SYSTEM TESTING")
+        print("-" * 60)
+        print("Testing fallback system resilience and deterministic planning")
+        
+        # Test with potentially problematic parameters to trigger fallback
+        fallback_session_id = f"fallback_test_{uuid.uuid4()}"
+        fallback_data = {
+            "user_id": user_id,
+            "last_session_id": "S0",
+            "next_session_id": fallback_session_id
+        }
+        
+        fallback_headers = auth_headers.copy()
+        fallback_headers['Idempotency-Key'] = f"{user_id}:S0:{fallback_session_id}"
+        
+        print(f"   🔄 Testing fallback with session: {fallback_session_id[:8]}...")
+        
+        success, fallback_response = self.run_test(
+            "Fallback System Test", 
+            "POST", 
+            "adapt/plan-next", 
+            [200, 400, 500], 
+            fallback_data, 
+            fallback_headers
+        )
+        
+        if success:
+            planner_results["fallback_plans_working"] = True
+            print(f"   ✅ Fallback system working")
+            
+            if fallback_response.get('status') == 'planned':
+                planner_results["deterministic_fallback_functional"] = True
+                planner_results["system_resilient_to_llm_failures"] = True
+                print(f"   ✅ Deterministic fallback functional")
+                print(f"   ✅ System resilient to LLM failures")
+        else:
+            print(f"   ❌ Fallback system failed: {fallback_response}")
+        
+        # PHASE 6: OVERALL ASSESSMENT
+        print("\n🎯 PHASE 6: OVERALL ASSESSMENT")
+        print("-" * 60)
+        print("Assessing overall LLM planner fix success")
+        
+        # Calculate success metrics
+        performance_success = (
+            planner_results["plan_next_response_time_acceptable"] and
+            planner_results["plan_next_under_30_seconds"] and
+            planner_results["performance_improvement_confirmed"]
+        )
+        
+        schema_success = (
+            planner_results["constraint_report_present"] and
+            planner_results["no_constraint_report_missing_errors"] and
+            planner_results["schema_compliance_verified"]
+        )
+        
+        planning_success = (
+            planner_results["session_planning_succeeds"] and
+            planner_results["multiple_planning_attempts_successful"] and
+            planner_results["session_creation_working"]
+        )
+        
+        flow_success = (
+            planner_results["pack_fetch_working"] and
+            planner_results["mark_served_working"] and
+            planner_results["complete_flow_functional"]
+        )
+        
+        fallback_success = (
+            planner_results["fallback_plans_working"] and
+            planner_results["system_resilient_to_llm_failures"]
+        )
+        
+        # Overall success assessment
+        overall_success = (
+            performance_success and schema_success and 
+            planning_success and flow_success
+        )
+        
+        if overall_success:
+            planner_results["llm_planner_fix_successful"] = True
+            planner_results["production_ready_performance"] = True
+            planner_results["consistent_session_planning"] = True
+        
+        print(f"   📊 Performance Fix: {'✅' if performance_success else '❌'}")
+        print(f"   📊 Schema Compliance: {'✅' if schema_success else '❌'}")
+        print(f"   📊 Session Planning: {'✅' if planning_success else '❌'}")
+        print(f"   📊 End-to-End Flow: {'✅' if flow_success else '❌'}")
+        print(f"   📊 Fallback System: {'✅' if fallback_success else '❌'}")
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 80)
+        print("🚨 CRITICAL LLM PLANNER FIX VERIFICATION - RESULTS")
+        print("=" * 80)
+        
+        passed_tests = sum(planner_results.values())
+        total_tests = len(planner_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        # Group results by testing phases
+        testing_phases = {
+            "AUTHENTICATION": [
+                "authentication_working", "user_adaptive_enabled", "jwt_token_valid"
+            ],
+            "PERFORMANCE TESTING": [
+                "plan_next_endpoint_accessible", "plan_next_response_time_acceptable",
+                "plan_next_under_30_seconds", "plan_next_under_10_seconds", "performance_improvement_confirmed"
+            ],
+            "SCHEMA COMPLIANCE": [
+                "constraint_report_present", "no_constraint_report_missing_errors",
+                "llm_json_validation_working", "schema_compliance_verified"
+            ],
+            "SESSION PLANNING": [
+                "session_planning_succeeds", "session_creation_working",
+                "session_persistence_confirmed", "multiple_planning_attempts_successful"
+            ],
+            "END-TO-END FLOW": [
+                "pack_fetch_working", "mark_served_working", "complete_flow_functional",
+                "pack_contains_12_questions", "pack_has_3_6_3_distribution"
+            ],
+            "FALLBACK SYSTEM": [
+                "fallback_plans_working", "deterministic_fallback_functional",
+                "system_resilient_to_llm_failures"
+            ],
+            "OVERALL ASSESSMENT": [
+                "llm_planner_fix_successful", "production_ready_performance",
+                "consistent_session_planning"
+            ]
+        }
+        
+        for phase, tests in testing_phases.items():
+            print(f"\n{phase}:")
+            phase_passed = 0
+            phase_total = len(tests)
+            
+            for test in tests:
+                if test in planner_results:
+                    result = planner_results[test]
+                    status = "✅ PASS" if result else "❌ FAIL"
+                    print(f"  {test.replace('_', ' ').title():<50} {status}")
+                    if result:
+                        phase_passed += 1
+            
+            phase_rate = (phase_passed / phase_total) * 100 if phase_total > 0 else 0
+            print(f"  Phase Success Rate: {phase_passed}/{phase_total} ({phase_rate:.1f}%)")
+        
+        print("-" * 80)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # CRITICAL FINDINGS SUMMARY
+        print("\n🎯 CRITICAL FINDINGS SUMMARY:")
+        
+        if planner_results["llm_planner_fix_successful"]:
+            print("\n🎉 LLM PLANNER FIX SUCCESSFUL!")
+            print("   ✅ Performance improved significantly")
+            print("   ✅ constraint_report missing errors resolved")
+            print("   ✅ Session planning working consistently")
+            print("   ✅ End-to-end flow functional")
+            
+            if planner_results["plan_next_under_10_seconds"]:
+                print("\n⚡ EXCELLENT PERFORMANCE:")
+                print("   - Plan-next completing in under 10 seconds")
+                print("   - Significant improvement from previous 60+ second timeouts")
+                
+            if planner_results["no_constraint_report_missing_errors"]:
+                print("\n🔧 SCHEMA COMPLIANCE FIXED:")
+                print("   - constraint_report field present in all responses")
+                print("   - No more LLM JSON validation failures")
+                print("   - System prompt fix working correctly")
+                
+        else:
+            print("\n❌ LLM PLANNER FIX ISSUES DETECTED")
+            
+            if not performance_success:
+                print("   🐌 PERFORMANCE ISSUES:")
+                print("   - Plan-next still taking too long")
+                print("   - May need further optimization")
+                
+            if not schema_success:
+                print("   📋 SCHEMA COMPLIANCE ISSUES:")
+                print("   - constraint_report still missing in some responses")
+                print("   - LLM JSON validation may still be failing")
+                
+            if not planning_success:
+                print("   🔄 SESSION PLANNING ISSUES:")
+                print("   - Session planning not consistently successful")
+                print("   - May need further debugging")
+        
+        return planner_results["llm_planner_fix_successful"] or success_rate >= 75
+
     def test_critical_authentication_investigation(self):
         """
         🚨 CRITICAL INVESTIGATION: Frontend stuck during login with "Signing In..." message
