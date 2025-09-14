@@ -186,15 +186,14 @@ def transition_pack_to_served(user_id: str, session_id: str) -> bool:
         
         updated = result.fetchone()
         if updated:
-            # Also update session status
+            # Also update session status with server-side timestamp
             db.execute(text("""
                 UPDATE sessions 
-                SET status = 'in_progress', started_at = :started_at
+                SET status = 'in_progress', started_at = NOW()
                 WHERE user_id = :user_id AND session_id = :session_id
             """), {
                 'user_id': user_id,
-                'session_id': session_id,
-                'started_at': datetime.utcnow()
+                'session_id': session_id
             })
             
             db.commit()
