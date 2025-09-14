@@ -586,36 +586,59 @@ class CandidateProvider:
             "strategy": "seeded_hash_sampling",
             "feasibility_details": feasibility_details
         }
-            if len(diverse_candidates) >= diversity_pool_size:
+        def _expand_pool_deterministic(self, initial_pool, target_size, user_id, session_seq):
+        """P0 FIX: Deterministic pool expansion using seeded hash sampling"""
+        logger.info("Expanding pool deterministically with seeded hash sampling")
+        
+        # Try to fetch more candidates with higher limits
+        expanded_candidates = []
+        expanded_candidates.extend(initial_pool)
+        
+        # Get more candidates per category with higher limits
+        categories = [
+            (1.5, 20),  # PYQ 1.5 - more limit
+            (1.0, 40),  # PYQ 1.0 - more limit 
+            ("Easy", 50),
+            ("Medium", 60),
+            ("Hard", 50)
+        ]
+        
+        seen_ids = {c.question_id for c in initial_pool}
+        
+        for category, limit in categories:
+            if len(expanded_candidates) >= target_size:
                 break
                 
-            # Select one random question from this pair
-            candidate = random.choice(pair_groups[pair])
-            diverse_candidates.append(candidate)
-            pairs_included.add(pair)
+            if isinstance(category, float):
+                # PYQ score category
+                candidates = self._fetch_candidates_with_seeded_hash(
+                    user_id=user_id, session_seq=session_seq + 1,  # Slight offset for variety
+                    pyq_score=category, limit=limit
+                )
+            else:
+                # Difficulty band category
+                candidates = self._fetch_candidates_with_seeded_hash(
+                    user_id=user_id, session_seq=session_seq + 1,
+                    difficulty_band=category, limit=limit
+                )
+            
+            # Add unseen candidates
+            for candidate in candidates:
+                if (candidate.question_id not in seen_ids and 
+                    len(expanded_candidates) < target_size):
+                    expanded_candidates.append(candidate)
+                    seen_ids.add(candidate.question_id)
         
-        # Second pass: fill remaining slots randomly from all candidates
-        remaining_candidates = [c for c in all_candidates if c not in diverse_candidates]
-        remaining_slots = diversity_pool_size - len(diverse_candidates)
+        # Check final feasibility
+        feasible, feasibility_details = self.preflight_feasible(expanded_candidates)
         
-        if remaining_slots > 0 and remaining_candidates:
-            additional = random.sample(
-                remaining_candidates, 
-                min(remaining_slots, len(remaining_candidates))
-            )
-            diverse_candidates.extend(additional)
-        
-        # Check feasibility
-        feasible, feasibility_details = self.preflight_feasible(diverse_candidates)
-        
-        # TELEMETRY: Log cold start selection results
-        selected_pyq_15 = sum(1 for c in diverse_candidates if c.pyq_frequency_score >= 1.5)
-        selected_pyq_10 = sum(1 for c in diverse_candidates if c.pyq_frequency_score >= 1.0)
-        logger.info(f"📊 TELEMETRY COLDSTART: selected_pyq15_in_pool={selected_pyq_15} selected_pyq10_in_pool={selected_pyq_10} pool_feasible={feasible}")
-        
-        if not feasible:
-            logger.warning("Cold start pool not feasible, expanding")
-            # For cold start, expand aggressively
+        return expanded_candidates, {
+            "success": feasible,
+            "final_size": len(expanded_candidates),
+            "strategy": "deterministic_expansion",
+            "feasible": feasible,
+            "feasibility_details": feasibility_details
+        }
             expanded_pool, expansion_details = self.adaptively_expand_pool(
                 diverse_candidates, diversity_pool_size // 3  # Use smaller base for expansion
             )
