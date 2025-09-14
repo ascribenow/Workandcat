@@ -7,13 +7,11 @@ Handles idempotency, concurrency safety, and state transitions
 
 import logging
 import json
-import uuid
-from typing import Dict, Any, Optional, Tuple
+from typing import Dict, Any, Optional
 from database import SessionLocal
 from sqlalchemy import text
 from services.pipeline import plan_next_session
 from services.telemetry import telemetry_service
-from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
