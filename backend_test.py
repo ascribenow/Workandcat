@@ -1968,8 +1968,8 @@ if __name__ == "__main__":
     print("Investigating frontend stuck during login with 'Signing In...' message")
     print("=" * 80)
     
-    # Initialize tester with the correct backend URL from frontend .env
-    tester = CATBackendTester("https://adaptive-cat-1.preview.emergentagent.com/api")
+    # Initialize tester with the URL mentioned in the review request
+    tester = CATBackendTester("https://adaptive-quant.emergent.host/api")
     
     # Run the critical authentication investigation
     auth_success = tester.test_critical_authentication_investigation()
