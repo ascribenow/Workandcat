@@ -328,6 +328,17 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
     try {
       console.log('🎯 Session completed, triggering end-of-session handshake...');
       
+      // NEW: Mark session as completed (sets completed_at timestamp)
+      try {
+        await axios.post(`${API}/sessions/mark-completed`, {
+          session_id: sessionId
+        });
+        console.log('🏁 session completed:', sessionId);
+      } catch (completionError) {
+        console.warn('⚠️ Session completion timestamp failed:', completionError);
+        // Don't fail the flow
+      }
+      
       // End-of-session handshake: plan next session if adaptive enabled
       if (adaptiveEnabled) {
         const lastSessionId = sessionId;
