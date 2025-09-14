@@ -79,7 +79,7 @@ def load_pack(user_id: str, session_id: str) -> Optional[Dict[str, Any]]:
     finally:
         db.close()
 
-def save_pack(user_id: str, session_id: str, plan: Dict[str, Any], constraint_report: Dict[str, Any]) -> bool:
+def save_pack(user_id: str, session_id: str, plan: Dict[str, Any], constraint_report: Dict[str, Any], request_id: str = None) -> bool:
     """
     Save a session pack plan to database
     
@@ -88,6 +88,7 @@ def save_pack(user_id: str, session_id: str, plan: Dict[str, Any], constraint_re
         session_id: Session identifier  
         plan: Planned session data
         constraint_report: Planning constraints and validation results
+        request_id: Optional request correlation ID for diagnostic tracing
         
     Returns:
         True if saved successfully
