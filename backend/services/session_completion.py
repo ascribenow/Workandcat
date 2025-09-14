@@ -119,7 +119,15 @@ def mark_session_completed(user_id: str, session_id: str) -> bool:
             # Post-session summarizer (non-fatal)
             try:
                 logger.info(f"📊 Running post-completion summarizer for session {session_id[:8]}")
-                summary_result = run_summarizer(user_id, session_id)
+                import asyncio
+                if asyncio.iscoroutinefunction(run_summarizer):
+                    # Handle async call
+                    loop = asyncio.new_event_loop()
+                    asyncio.set_event_loop(loop)
+                    summary_result = loop.run_until_complete(run_summarizer(user_id, session_id))
+                    loop.close()
+                else:
+                    summary_result = run_summarizer(user_id, session_id)
                 logger.info(f"✅ Post-completion summarizer succeeded for session {session_id[:8]}")
             except Exception as e:
                 # Log error but don't fail the completion
