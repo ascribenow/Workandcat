@@ -1,0 +1,15 @@
+# Log rotation configuration for Twelvr API logs
+# Save as /etc/logrotate.d/twelvr_api
+
+/var/log/nginx/api_access.log {
+  daily
+  rotate 7
+  compress
+  missingok
+  notifempty
+  create 640 www-data adm
+  sharedscripts
+  postrotate
+    [ -s /run/nginx.pid ] && kill -USR1 `cat /run/nginx.pid`
+  endscript
+}
