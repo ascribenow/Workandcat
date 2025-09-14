@@ -1964,6 +1964,31 @@ class CATBackendTester:
         return overall_success
 
 if __name__ == "__main__":
-    tester = CATBackendTester()
-    success = tester.run_all_tests()
-    sys.exit(0 if success else 1)
+    print("🚨 CRITICAL AUTHENTICATION INVESTIGATION")
+    print("Investigating frontend stuck during login with 'Signing In...' message")
+    print("=" * 80)
+    
+    # Initialize tester with the correct backend URL from frontend .env
+    tester = CATBackendTester("https://adaptive-cat-1.preview.emergentagent.com/api")
+    
+    # Run the critical authentication investigation
+    auth_success = tester.test_critical_authentication_investigation()
+    
+    print("\n" + "=" * 80)
+    print("🎯 FINAL SUMMARY")
+    print("=" * 80)
+    
+    if auth_success:
+        print("✅ AUTHENTICATION SYSTEM FUNCTIONAL")
+        print("   Backend authentication is working correctly")
+        print("   Frontend 'Signing In...' issue is likely client-side")
+        print("   Recommend checking frontend code and network connectivity")
+    else:
+        print("❌ AUTHENTICATION SYSTEM ISSUES DETECTED")
+        print("   Backend authentication has critical problems")
+        print("   Frontend 'Signing In...' issue is due to backend failures")
+        print("   Urgent backend fixes required")
+    
+    print(f"\nTotal tests run: {tester.tests_run}")
+    print(f"Tests passed: {tester.tests_passed}")
+    print(f"Success rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%" if tester.tests_run > 0 else "No tests run")
