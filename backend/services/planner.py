@@ -118,6 +118,11 @@ Return ONLY valid JSON matching the required schema. The constraint_report field
         llm_timeout_ms = 15000  # P0 FIX: Cap at 15 seconds
         
         try:
+            # P0 FIX: Flatten candidate pool for simplified processing
+            candidates = []
+            for band_candidates in candidate_pool_by_band.values():
+                candidates.extend(band_candidates)
+            
             # P0 FIX: Simplified schema - just return ID ordering, not full objects  
             simplified_payload = {
                 "user_id": user_id[-8:],  # Shorter for token efficiency
