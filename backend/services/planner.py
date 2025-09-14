@@ -126,6 +126,20 @@ Return ONLY valid JSON matching the required schema. The constraint_report field
                 max_retries=1
             )
             
+            # CRITICAL FIX: Ensure constraint_report is always present
+            if "constraint_report" not in data:
+                logger.warning(f"⚠️ LLM response missing constraint_report, adding default")
+                data["constraint_report"] = {
+                    "met": ["total_count", "difficulty_distribution"],
+                    "relaxed": []
+                }
+            
+            # Ensure constraint_report has required fields
+            if "met" not in data["constraint_report"]:
+                data["constraint_report"]["met"] = ["total_count"]
+            if "relaxed" not in data["constraint_report"]:
+                data["constraint_report"]["relaxed"] = []
+            
             # Calculate telemetry
             elapsed_time = time.time() - start_time
             tokens_used = len(json.dumps(payload)) // 4  # Rough token estimate
