@@ -77,7 +77,8 @@ def call_llm_with_fallback(system_prompt: str, user_json: Dict[str, Any],
 
 def call_llm_json_with_retry(system_prompt: str, user_payload: Dict[str, Any],
                              schema: Dict[str, Any], model_primary: str, model_fallback: str,
-                             max_retries: int = 1) -> Dict[str, Any]:
+                             max_retries: int = 1,
+                             timeout_ms: int = 15000) -> Dict[str, Any]:
     """
     Call LLM with JSON schema validation and automatic retry on invalid output
     
