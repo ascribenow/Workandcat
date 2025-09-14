@@ -113,7 +113,7 @@ def save_pack(user_id: str, session_id: str, plan: Dict[str, Any], constraint_re
             ) VALUES (
                 :user_id, :session_id, :sess_seq, 'planned', :created_at
             )
-            ON CONFLICT (user_id, session_id) DO UPDATE SET
+            ON CONFLICT (session_id) DO UPDATE SET
                 sess_seq = EXCLUDED.sess_seq,
                 status = EXCLUDED.status,
                 created_at = EXCLUDED.created_at
