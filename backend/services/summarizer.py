@@ -273,66 +273,10 @@ Return ONLY valid JSON matching the required schema."""
         concept_map = data.get("concept_alias_map_updated", [])
         return sum(1 for concept in concept_map if concept.get("provisional", False))
     
-    def save_session_summary(self, user_id: str, session_id: str, summary_data: Dict[str, Any]) -> None:
-        """Save summarizer results to database"""
-        db = SessionLocal()
-        try:
-            # Save to session_summary_llm table with CORRECT column names
-            db.execute(text("""
-                INSERT INTO session_summary_llm (
-                    user_id, session_id, 
-                    concept_alias_map, dominance,
-                    readiness_reasons, coverage_labels,
-                    llm_model_used, created_at
-                ) VALUES (
-                    :user_id, :session_id,
-                    :concept_alias_map_json, :dominance_json,
-                    :readiness_reasons_json, :coverage_labels_json,
-                    :llm_model_used, CURRENT_TIMESTAMP
-                )
-            """), {
-                "user_id": user_id,
-                "session_id": session_id,
-                "concept_alias_map_json": json.dumps(summary_data.get("concept_alias_map_updated", [])),
-                "dominance_json": json.dumps(summary_data.get("dominance_by_item", {})),
-                "readiness_reasons_json": json.dumps(summary_data.get("concept_readiness_labels", [])),
-                "coverage_labels_json": json.dumps(summary_data.get("pair_coverage_labels", [])),
-                "llm_model_used": "openai:gpt-4o-mini"
-            })
-            
-            # Update concept alias map latest - simplified upsert per user
-            if summary_data.get("concept_alias_map_updated"):
-                db.execute(text("""
-                    INSERT INTO concept_alias_map_latest (
-                        user_id, semantic_id, canonical_label, members, last_updated, usage_count
-                    ) 
-                    SELECT 
-                        :user_id, 
-                        alias->>'semantic_id',
-                        alias->>'canonical_label', 
-                        alias->'members',
-                        CURRENT_TIMESTAMP,
-                        1
-                    FROM jsonb_array_elements(:alias_map_json::jsonb) AS alias
-                    ON CONFLICT (user_id, semantic_id) 
-                    DO UPDATE SET 
-                        canonical_label = EXCLUDED.canonical_label,
-                        members = EXCLUDED.members,
-                        last_updated = EXCLUDED.last_updated,
-                        usage_count = concept_alias_map_latest.usage_count + 1
-                """), {
-                    "user_id": user_id,
-                    "alias_map_json": json.dumps(summary_data.get("concept_alias_map_updated", []))
-                })
-            
-            db.commit()
-            logger.info(f"💾 Saved summarizer results for user {user_id[:8]}")
-            
-        except Exception as e:
-            logger.error(f"❌ Failed to save summarizer results: {e}")
-            db.rollback()
-        finally:
-            db.close()
-
 # Global instance
 summarizer_service = SummarizerService()
+
+# Legacy wrapper for compatibility
+async def run_summarizer(user_id: str, session_id: str) -> Dict[str, Any]:
+    """Legacy wrapper for the summarizer run method"""
+    return await summarizer_service.run(user_id=user_id, session_id=session_id)
