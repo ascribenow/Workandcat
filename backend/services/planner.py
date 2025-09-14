@@ -175,18 +175,6 @@ Return ONLY valid JSON matching the required schema. The constraint_report field
                     "fallback_reason": str(e)
                 }
             })
-                    "estimated_tokens": tokens_used,
-                    "relaxation_count": len(data["constraint_report"].get("relaxed", [])),
-                    "cold_start_mode": cold_start_mode,
-                    "model_used": "openai:gpt-4o-mini"
-                })
-            
-            logger.info(f"✅ Planner completed for user {user_id[:8]} ({elapsed_time:.2f}s, ~{tokens_used} tokens)")
-            return data
-            
-        except Exception as e:
-            logger.error(f"❌ Planner failed for user {user_id[:8]}: {e}")
-            return self._generate_fallback_plan(candidate_pool_by_band, cold_start_mode)
     
     def _get_simplified_prompt(self) -> str:
         """P0 FIX: Simplified prompt for fast ID ordering only"""
