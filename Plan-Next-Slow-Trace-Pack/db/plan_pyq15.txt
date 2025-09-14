@@ -1,0 +1,26 @@
+-- EXPLAIN ANALYZE for sql_pyq15.sql
+-- Query: SELECT id, subcategory, difficulty_band, pyq_frequency_score, stem, mcq_options, right_answer
+FROM questions 
+WHERE pyq_frequency_score = 1.5 
+  AND difficulty_band IN ('Easy', 'Medium', 'Hard')
+ORDER BY RANDOM() 
+LIMIT 10
+
+Limit  (cost=236.80..236.82 rows=10 width=463) (actual time=4.292..4.294 rows=10 loops=1)
+  Output: id, subcategory, difficulty_band, pyq_frequency_score, stem, mcq_options, right_answer, (random())
+  Buffers: shared hit=232
+  ->  Sort  (cost=236.80..236.84 rows=19 width=463) (actual time=4.291..4.292 rows=10 loops=1)
+        Output: id, subcategory, difficulty_band, pyq_frequency_score, stem, mcq_options, right_answer, (random())
+        Sort Key: (random())
+        Sort Method: quicksort  Memory: 38kB
+        Buffers: shared hit=232
+        ->  Seq Scan on public.questions  (cost=0.00..236.39 rows=19 width=463) (actual time=3.866..4.260 rows=19 loops=1)
+              Output: id, subcategory, difficulty_band, pyq_frequency_score, stem, mcq_options, right_answer, random()
+              Filter: ((questions.pyq_frequency_score = 1.5) AND (questions.difficulty_band = ANY ('{Easy,Medium,Hard}'::text[])))
+              Rows Removed by Filter: 433
+              Buffers: shared hit=229
+Query Identifier: -8849216946893098156
+Planning:
+  Buffers: shared hit=17
+Planning Time: 3.588 ms
+Execution Time: 4.325 ms
