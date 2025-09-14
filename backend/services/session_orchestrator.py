@@ -212,7 +212,7 @@ def transition_pack_to_served(user_id: str, session_id: str) -> bool:
     finally:
         db.close()
 
-def plan_next(user_id: str, last_session_id: str, next_session_id: str, idem_key: Optional[str] = None) -> Dict[str, Any]:
+def plan_next(user_id: str, last_session_id: str, next_session_id: str, idem_key: Optional[str] = None, request_id: str = None) -> Dict[str, Any]:
     """
     Main orchestration function for planning next session
     
