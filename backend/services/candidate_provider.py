@@ -586,7 +586,8 @@ class CandidateProvider:
             "strategy": "seeded_hash_sampling",
             "feasibility_details": feasibility_details
         }
-        def _expand_pool_deterministic(self, initial_pool, target_size, user_id, session_seq):
+    
+    def _expand_pool_deterministic(self, initial_pool, target_size, user_id, session_seq):
         """P0 FIX: Deterministic pool expansion using seeded hash sampling"""
         logger.info("Expanding pool deterministically with seeded hash sampling")
         
