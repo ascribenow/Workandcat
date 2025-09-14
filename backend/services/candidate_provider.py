@@ -107,11 +107,12 @@ class CandidateProvider:
             where_clause = " AND ".join(base_conditions)
             
             # P0 FIX: Use seeded hash ordering instead of RANDOM()
+            # Simple deterministic approach using modulo with CRC32
             light_query = f"""
             SELECT id, difficulty_band, pyq_frequency_score
             FROM questions
             WHERE {where_clause}
-            ORDER BY (abs(hashtext(id::text) # hashtext(%(seed)s::text)))
+            ORDER BY ((abs(('x' || substr(md5(id || ':{seed}'), 1, 8))::bit(32)::int) % 1000000))
             LIMIT {limit}
             """
             
