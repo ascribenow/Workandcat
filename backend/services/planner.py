@@ -126,7 +126,8 @@ Return ONLY valid JSON matching the required schema."""
                     "processing_time_ms": int(elapsed_time * 1000),
                     "estimated_tokens": tokens_used,
                     "relaxation_count": len(data["constraint_report"].get("relaxed", [])),
-                    "cold_start_mode": cold_start_mode
+                    "cold_start_mode": cold_start_mode,
+                    "model_used": "openai:gpt-4o-mini"
                 })
             
             logger.info(f"✅ Planner completed for user {user_id[:8]} ({elapsed_time:.2f}s, ~{tokens_used} tokens)")
