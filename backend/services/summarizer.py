@@ -227,27 +227,19 @@ Return ONLY valid JSON matching the required schema."""
         try:
             # Check if we have any existing alias mappings
             aliases = db.execute(text("""
-                SELECT semantic_id, canonical_label, members
+                SELECT alias_map_json
                 FROM concept_alias_map_latest
                 WHERE user_id = :user_id
-                ORDER BY created_at DESC
-            """), {"user_id": user_id}).fetchall()
+                ORDER BY updated_at DESC
+                LIMIT 1
+            """), {"user_id": user_id}).fetchone()
             
-            alias_list = []
-            for alias in aliases:
-                # Parse members JSON
+            if aliases and aliases.alias_map_json:
                 try:
-                    members = alias.members if isinstance(alias.members, list) else json.loads(alias.members or "[]")
+                    return json.loads(aliases.alias_map_json) if isinstance(aliases.alias_map_json, str) else aliases.alias_map_json
                 except:
-                    members = []
-                
-                alias_list.append({
-                    "semantic_id": alias.semantic_id,
-                    "canonical_label": alias.canonical_label,
-                    "members": members
-                })
-            
-            return alias_list
+                    return []
+            return []
             
         except Exception as e:
             logger.warning(f"Could not load existing aliases for user {user_id[:8]}: {e}")
