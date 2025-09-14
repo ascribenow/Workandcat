@@ -248,46 +248,53 @@ Return ONLY valid JSON matching the required schema."""
         """Save summarizer results to database"""
         db = SessionLocal()
         try:
-            # Save to session_summary_llm table
+            # Save to session_summary_llm table with CORRECT column names
             db.execute(text("""
                 INSERT INTO session_summary_llm (
                     user_id, session_id, 
-                    concept_alias_map_updated, dominance_by_item,
-                    concept_readiness_labels, pair_coverage_labels,
-                    notes, created_at
+                    concept_alias_map, dominance,
+                    readiness_reasons, coverage_labels,
+                    llm_model_used, created_at
                 ) VALUES (
                     :user_id, :session_id,
-                    :concept_alias_map, :dominance_by_item,
-                    :readiness_labels, :coverage_labels,
-                    :notes, CURRENT_TIMESTAMP
+                    :concept_alias_map_json, :dominance_json,
+                    :readiness_reasons_json, :coverage_labels_json,
+                    :llm_model_used, CURRENT_TIMESTAMP
                 )
             """), {
                 "user_id": user_id,
                 "session_id": session_id,
-                "concept_alias_map": json.dumps(summary_data.get("concept_alias_map_updated", [])),
-                "dominance_by_item": json.dumps(summary_data.get("dominance_by_item", {})),
-                "readiness_labels": json.dumps(summary_data.get("concept_readiness_labels", [])),
-                "coverage_labels": json.dumps(summary_data.get("pair_coverage_labels", [])),
-                "notes": summary_data.get("notes", "")
+                "concept_alias_map_json": json.dumps(summary_data.get("concept_alias_map_updated", [])),
+                "dominance_json": json.dumps(summary_data.get("dominance_by_item", {})),
+                "readiness_reasons_json": json.dumps(summary_data.get("concept_readiness_labels", [])),
+                "coverage_labels_json": json.dumps(summary_data.get("pair_coverage_labels", [])),
+                "llm_model_used": "openai:gpt-4o-mini"
             })
             
-            # Update concept alias map latest
-            for alias in summary_data.get("concept_alias_map_updated", []):
+            # Update concept alias map latest - simplified upsert per user
+            if summary_data.get("concept_alias_map_updated"):
                 db.execute(text("""
                     INSERT INTO concept_alias_map_latest (
-                        user_id, semantic_id, canonical_label, members, created_at
-                    ) VALUES (
-                        :user_id, :semantic_id, :canonical_label, :members, CURRENT_TIMESTAMP
-                    ) ON CONFLICT (user_id, semantic_id) 
+                        user_id, semantic_id, canonical_label, members, last_updated, usage_count
+                    ) 
+                    SELECT 
+                        :user_id, 
+                        alias->>'semantic_id',
+                        alias->>'canonical_label', 
+                        alias->'members',
+                        CURRENT_TIMESTAMP,
+                        1
+                    FROM jsonb_array_elements(:alias_map_json::jsonb) AS alias
+                    ON CONFLICT (user_id, semantic_id) 
                     DO UPDATE SET 
                         canonical_label = EXCLUDED.canonical_label,
                         members = EXCLUDED.members,
-                        created_at = EXCLUDED.created_at
+                        last_updated = EXCLUDED.last_updated,
+                        usage_count = concept_alias_map_latest.usage_count + 1
                 """), {
                     "user_id": user_id,
-                    "semantic_id": alias["semantic_id"],
-                    "canonical_label": alias["canonical_label"],
-                    "members": json.dumps(alias["members"])
+                    "alias_map_json": json.dumps(summary_data.get("concept_alias_map_updated", []))
+                })
                 })
             
             db.commit()
