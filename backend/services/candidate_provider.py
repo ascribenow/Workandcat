@@ -80,6 +80,85 @@ class CandidateProvider:
         finally:
             db.close()
     
+    def _fetch_candidates_with_seeded_hash(self, user_id: str, session_seq: int, 
+                                         pyq_score: float = None, difficulty_band: str = None, 
+                                         limit: int = 50) -> List[QuestionCandidate]:
+        """P0 FIX: Replace ORDER BY RANDOM() with seeded hash ordering"""
+        db = SessionLocal()
+        try:
+            # Create deterministic seed from user_id and session_seq
+            seed = f"{user_id}:{session_seq}"
+            
+            # Build base query with light columns first (performance optimization)
+            base_conditions = ["is_active = true"]
+            params = {"seed": seed}
+            
+            if pyq_score is not None:
+                if pyq_score >= 1.5:
+                    base_conditions.append("pyq_frequency_score >= 1.5")
+                elif pyq_score >= 1.0:
+                    base_conditions.append("pyq_frequency_score >= 1.0 AND pyq_frequency_score < 1.5")
+                else:
+                    base_conditions.append("pyq_frequency_score < 1.0")
+            
+            if difficulty_band:
+                base_conditions.append(f"difficulty_band = '{difficulty_band}'")
+                
+            where_clause = " AND ".join(base_conditions)
+            
+            # P0 FIX: Use seeded hash ordering instead of RANDOM()
+            light_query = f"""
+            SELECT id, difficulty_band, pyq_frequency_score
+            FROM questions
+            WHERE {where_clause}
+            ORDER BY (abs(hashtext(id::text) # hashtext(%(seed)s)))
+            LIMIT {limit}
+            """
+            
+            # Get light results first
+            light_results = db.execute(text(light_query), params).fetchall()
+            question_ids = [row[0] for row in light_results]
+            
+            if not question_ids:
+                return []
+            
+            # Then fetch full question data for selected IDs
+            full_query = select(Question).where(Question.id.in_(question_ids))
+            questions = db.execute(full_query).scalars().all()
+            
+            # Convert to QuestionCandidate objects
+            candidates = []
+            for q in questions:
+                try:
+                    # Parse core concepts
+                    if isinstance(q.core_concepts, list):
+                        concepts = q.core_concepts
+                    elif isinstance(q.core_concepts, str):
+                        import json
+                        concepts = json.loads(q.core_concepts)
+                    else:
+                        concepts = []
+                    
+                    candidate = QuestionCandidate(
+                        question_id=q.id,
+                        difficulty_band=q.difficulty_band or 'Medium',
+                        subcategory=q.subcategory or 'Unknown',
+                        type_of_question=q.type_of_question or 'Unknown',
+                        core_concepts=tuple(concepts),
+                        pyq_frequency_score=float(q.pyq_frequency_score) if q.pyq_frequency_score else 0.5,
+                        pair=f"{q.subcategory}:{q.type_of_question}" if q.subcategory and q.type_of_question else "Unknown:Unknown"
+                    )
+                    candidates.append(candidate)
+                    
+                except Exception as e:
+                    logger.warning(f"Error processing question {q.id}: {e}")
+                    continue
+            
+            return candidates
+            
+        finally:
+            db.close()
+    
     def _fetch_active_questions(self, excluded_question_ids: Optional[Set[str]] = None) -> List[QuestionCandidate]:
         """Fetch all active questions as candidates"""
         db = SessionLocal()
