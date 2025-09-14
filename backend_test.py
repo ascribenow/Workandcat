@@ -77,7 +77,436 @@ class CATBackendTester:
             print(f"❌ {test_name}: Exception - {str(e)}")
             return False, {"error": str(e)}
 
-    def test_critical_session_planning_flow(self):
+    def test_session_id_sync_debug(self):
+        """
+        🚨 STEP 3: SESSION ID SYNC FIX - Debug the exact session planning flow causing 404s.
+        
+        POST-DEPLOYMENT STATUS:
+        ✅ API fix deployed successfully - all calls now use https://twelvr.com/api/...
+        ✅ Authentication working perfectly
+        ✅ User flow reaching dashboard successfully
+
+        REMAINING ISSUE - SESSION ID SYNCHRONIZATION:
+        From production logs, I can see:
+        - Frontend requests pack for session: 836b5872-4c42-4269-b0bc-2f073f0cf991
+        - Frontend calls POST /api/adapt/plan-next 
+        - Pack fetch returns 404 (session not found)
+
+        ROOT CAUSE INVESTIGATION NEEDED:
+        1. **Test Plan-Next Flow**: Why isn't plan-next creating the sessions properly?
+        2. **Session ID Timing**: Is there a race condition between plan-next and pack fetch?
+        3. **Database Persistence**: Are sessions being saved to the database correctly?
+        4. **Idempotency Keys**: Are the Idempotency-Key headers formatted correctly?
+
+        SPECIFIC DEBUGGING:
+        - Test POST /adapt/plan-next with exact frontend parameters
+        - Verify session records are created in sessions table
+        - Check session_pack_plan table for planned sessions
+        - Test timing between plan-next completion and pack fetch
+
+        AUTHENTICATION: sp@theskinmantra.com/student123
+        USER_ID: 2d2d43a9-c26a-4a69-b74d-ffde3d9c71e1 (from logs)
+
+        Focus on why plan-next succeeds (200 OK) but doesn't create retrievable session packs.
+        """
+        print("🚨 STEP 3: SESSION ID SYNC FIX - Debug the exact session planning flow causing 404s")
+        print("=" * 80)
+        print("POST-DEPLOYMENT STATUS:")
+        print("✅ API fix deployed successfully - all calls now use https://twelvr.com/api/...")
+        print("✅ Authentication working perfectly")
+        print("✅ User flow reaching dashboard successfully")
+        print("")
+        print("REMAINING ISSUE - SESSION ID SYNCHRONIZATION:")
+        print("From production logs:")
+        print("- Frontend requests pack for session: 836b5872-4c42-4269-b0bc-2f073f0cf991")
+        print("- Frontend calls POST /api/adapt/plan-next")
+        print("- Pack fetch returns 404 (session not found)")
+        print("")
+        print("ROOT CAUSE INVESTIGATION:")
+        print("1. Test Plan-Next Flow: Why isn't plan-next creating the sessions properly?")
+        print("2. Session ID Timing: Is there a race condition between plan-next and pack fetch?")
+        print("3. Database Persistence: Are sessions being saved to the database correctly?")
+        print("4. Idempotency Keys: Are the Idempotency-Key headers formatted correctly?")
+        print("=" * 80)
+        
+        sync_results = {
+            # Authentication Setup
+            "authentication_working": False,
+            "user_id_matches_logs": False,
+            "adaptive_enabled_confirmed": False,
+            
+            # Plan-Next Flow Testing
+            "plan_next_endpoint_reachable": False,
+            "plan_next_accepts_parameters": False,
+            "plan_next_returns_200_ok": False,
+            "plan_next_response_valid": False,
+            "idempotency_key_accepted": False,
+            
+            # Session Creation Verification
+            "session_record_created": False,
+            "session_pack_plan_created": False,
+            "database_persistence_working": False,
+            "session_id_format_correct": False,
+            
+            # Pack Fetch Testing
+            "pack_endpoint_reachable": False,
+            "pack_fetch_immediate_success": False,
+            "pack_fetch_after_delay_success": False,
+            "pack_contains_valid_data": False,
+            
+            # Timing Analysis
+            "race_condition_detected": False,
+            "timing_issue_identified": False,
+            "immediate_fetch_fails": False,
+            "delayed_fetch_succeeds": False,
+            
+            # Root Cause Analysis
+            "session_id_sync_issue_confirmed": False,
+            "database_transaction_issue": False,
+            "async_processing_delay": False,
+            "fix_recommendation_identified": False
+        }
+        
+        # PHASE 1: AUTHENTICATION SETUP
+        print("\n🔐 PHASE 1: AUTHENTICATION SETUP")
+        print("-" * 60)
+        print("Authenticating with exact production credentials")
+        
+        # Test authentication with production credentials
+        auth_data = {
+            "email": "sp@theskinmantra.com",
+            "password": "student123"
+        }
+        
+        success, response = self.run_test("Production Authentication", "POST", "auth/login", [200, 401], auth_data)
+        
+        auth_headers = None
+        user_id = None
+        if success and response.get('access_token'):
+            token = response['access_token']
+            auth_headers = {
+                'Authorization': f'Bearer {token}',
+                'Content-Type': 'application/json'
+            }
+            sync_results["authentication_working"] = True
+            print(f"   ✅ Authentication successful")
+            print(f"   📊 JWT Token length: {len(token)} characters")
+            
+            # Verify user ID matches production logs
+            user_data = response.get('user', {})
+            user_id = user_data.get('id')
+            expected_user_id = "2d2d43a9-c26a-4a69-b74d-ffde3d9c71e1"
+            
+            if user_id == expected_user_id:
+                sync_results["user_id_matches_logs"] = True
+                print(f"   ✅ User ID matches production logs: {user_id}")
+            else:
+                print(f"   ⚠️ User ID mismatch - Expected: {expected_user_id}, Got: {user_id}")
+            
+            if user_data.get('adaptive_enabled'):
+                sync_results["adaptive_enabled_confirmed"] = True
+                print(f"   ✅ Adaptive enabled confirmed: {user_data.get('adaptive_enabled')}")
+            else:
+                print(f"   ⚠️ Adaptive not enabled for user")
+        else:
+            print("   ❌ Authentication failed - cannot proceed")
+            return False
+        
+        # PHASE 2: PLAN-NEXT FLOW TESTING
+        print("\n🚀 PHASE 2: PLAN-NEXT FLOW TESTING")
+        print("-" * 60)
+        print("Testing POST /adapt/plan-next with exact frontend parameters")
+        
+        test_session_id = None
+        if auth_headers and user_id:
+            # Use a session ID similar to the one in production logs
+            test_session_id = "836b5872-4c42-4269-b0bc-2f073f0cf991"
+            last_session_id = "S0"  # Cold start
+            
+            # Create plan-next request with exact frontend format
+            plan_data = {
+                "user_id": user_id,
+                "last_session_id": last_session_id,
+                "next_session_id": test_session_id
+            }
+            
+            # Add Idempotency-Key header (exact frontend format)
+            headers_with_idem = auth_headers.copy()
+            idempotency_key = f"{user_id}:{last_session_id}:{test_session_id}"
+            headers_with_idem['Idempotency-Key'] = idempotency_key
+            
+            print(f"   📋 Testing with session_id: {test_session_id}")
+            print(f"   📋 User ID: {user_id}")
+            print(f"   📋 Idempotency-Key: {idempotency_key}")
+            
+            # Test plan-next endpoint with extended timeout
+            import time
+            start_time = time.time()
+            
+            success, plan_response = self.run_test(
+                "Plan-Next Session (Production Flow)", 
+                "POST", 
+                "adapt/plan-next", 
+                [200, 400, 500, 502, 504], 
+                plan_data, 
+                headers_with_idem
+            )
+            
+            response_time = time.time() - start_time
+            print(f"   📊 Plan-next response time: {response_time:.2f}s")
+            
+            if success:
+                sync_results["plan_next_endpoint_reachable"] = True
+                sync_results["plan_next_accepts_parameters"] = True
+                print(f"   ✅ Plan-next endpoint reachable")
+                print(f"   ✅ Plan-next accepts parameters")
+                
+                if plan_response.get("status_code") == 200:
+                    sync_results["plan_next_returns_200_ok"] = True
+                    sync_results["idempotency_key_accepted"] = True
+                    print(f"   ✅ Plan-next returns 200 OK")
+                    print(f"   ✅ Idempotency key accepted")
+                    
+                    if plan_response.get('status') == 'planned':
+                        sync_results["plan_next_response_valid"] = True
+                        sync_results["session_record_created"] = True
+                        sync_results["session_pack_plan_created"] = True
+                        sync_results["database_persistence_working"] = True
+                        print(f"   ✅ Plan-next response valid (status: planned)")
+                        print(f"   ✅ Session record created (inferred)")
+                        print(f"   ✅ Database persistence working (inferred)")
+                        print(f"   📊 Full response: {plan_response}")
+                    else:
+                        print(f"   ⚠️ Unexpected plan-next status: {plan_response.get('status')}")
+                        print(f"   📊 Response: {plan_response}")
+                elif plan_response.get("status_code") in [502, 504]:
+                    print(f"   ❌ Plan-next timeout/gateway error: {plan_response.get('status_code')}")
+                    print(f"   🔍 This indicates backend processing issues")
+                else:
+                    print(f"   ❌ Plan-next failed with status: {plan_response.get('status_code')}")
+                    print(f"   📊 Error response: {plan_response}")
+            else:
+                print(f"   ❌ Plan-next endpoint failed: {plan_response}")
+        
+        # PHASE 3: IMMEDIATE PACK FETCH TESTING
+        print("\n📦 PHASE 3: IMMEDIATE PACK FETCH TESTING")
+        print("-" * 60)
+        print("Testing GET /adapt/pack immediately after plan-next")
+        
+        if test_session_id and user_id and sync_results["plan_next_returns_200_ok"]:
+            # Test immediate pack fetch (this is where the 404 occurs)
+            success, pack_response = self.run_test(
+                "Pack Fetch (Immediate)", 
+                "GET", 
+                f"adapt/pack?user_id={user_id}&session_id={test_session_id}", 
+                [200, 404, 500], 
+                None, 
+                auth_headers
+            )
+            
+            if success:
+                sync_results["pack_endpoint_reachable"] = True
+                print(f"   ✅ Pack endpoint reachable")
+                
+                if pack_response.get("status_code") == 200:
+                    sync_results["pack_fetch_immediate_success"] = True
+                    sync_results["pack_contains_valid_data"] = True
+                    print(f"   ✅ Pack fetch immediate success")
+                    
+                    pack_data = pack_response.get('pack', [])
+                    print(f"   📊 Pack size: {len(pack_data)} questions")
+                    print(f"   📊 Pack status: {pack_response.get('status')}")
+                    
+                    if len(pack_data) == 12:
+                        print(f"   ✅ Pack contains 12 questions as expected")
+                    
+                elif pack_response.get("status_code") == 404:
+                    sync_results["immediate_fetch_fails"] = True
+                    sync_results["session_id_sync_issue_confirmed"] = True
+                    print(f"   🚨 CRITICAL: Pack fetch returns 404 immediately after plan-next!")
+                    print(f"   🔍 This confirms the session ID sync issue")
+                    print(f"   📊 404 Response: {pack_response}")
+                else:
+                    print(f"   ❌ Pack fetch failed with status: {pack_response.get('status_code')}")
+                    print(f"   📊 Response: {pack_response}")
+            else:
+                print(f"   ❌ Pack endpoint failed: {pack_response}")
+        
+        # PHASE 4: DELAYED PACK FETCH TESTING
+        print("\n⏰ PHASE 4: DELAYED PACK FETCH TESTING")
+        print("-" * 60)
+        print("Testing GET /adapt/pack after delay to check for timing issues")
+        
+        if test_session_id and user_id and sync_results["immediate_fetch_fails"]:
+            # Wait for potential async processing
+            print(f"   ⏳ Waiting 5 seconds for potential async processing...")
+            time.sleep(5)
+            
+            success, delayed_pack_response = self.run_test(
+                "Pack Fetch (After 5s Delay)", 
+                "GET", 
+                f"adapt/pack?user_id={user_id}&session_id={test_session_id}", 
+                [200, 404, 500], 
+                None, 
+                auth_headers
+            )
+            
+            if success:
+                if delayed_pack_response.get("status_code") == 200:
+                    sync_results["pack_fetch_after_delay_success"] = True
+                    sync_results["delayed_fetch_succeeds"] = True
+                    sync_results["timing_issue_identified"] = True
+                    sync_results["async_processing_delay"] = True
+                    print(f"   ✅ Pack fetch succeeds after delay!")
+                    print(f"   🔍 TIMING ISSUE IDENTIFIED: Async processing delay")
+                    print(f"   📊 Delayed response: {delayed_pack_response}")
+                elif delayed_pack_response.get("status_code") == 404:
+                    sync_results["database_transaction_issue"] = True
+                    print(f"   ❌ Pack fetch still returns 404 after delay")
+                    print(f"   🔍 DATABASE TRANSACTION ISSUE: Session not persisted")
+                else:
+                    print(f"   ❌ Delayed pack fetch failed: {delayed_pack_response.get('status_code')}")
+            else:
+                print(f"   ❌ Delayed pack fetch failed: {delayed_pack_response}")
+        
+        # PHASE 5: ROOT CAUSE ANALYSIS
+        print("\n🔍 PHASE 5: ROOT CAUSE ANALYSIS")
+        print("-" * 60)
+        print("Analyzing the specific root cause of session ID sync issue")
+        
+        # Determine the specific issue pattern
+        if sync_results["plan_next_returns_200_ok"] and sync_results["immediate_fetch_fails"]:
+            if sync_results["delayed_fetch_succeeds"]:
+                sync_results["race_condition_detected"] = True
+                sync_results["fix_recommendation_identified"] = True
+                print(f"   🎯 ROOT CAUSE IDENTIFIED: RACE CONDITION")
+                print(f"   📋 Pattern: Plan-next succeeds → Immediate pack fetch fails → Delayed pack fetch succeeds")
+                print(f"   🔍 Issue: Async processing delay between plan-next response and database persistence")
+                print(f"   💡 RECOMMENDATION: Add database transaction synchronization or response delay")
+            else:
+                sync_results["database_transaction_issue"] = True
+                sync_results["fix_recommendation_identified"] = True
+                print(f"   🎯 ROOT CAUSE IDENTIFIED: DATABASE TRANSACTION ISSUE")
+                print(f"   📋 Pattern: Plan-next succeeds → Pack fetch always fails")
+                print(f"   🔍 Issue: Session records not being persisted to database")
+                print(f"   💡 RECOMMENDATION: Check session_orchestrator.py save_pack() function")
+        elif not sync_results["plan_next_returns_200_ok"]:
+            print(f"   🎯 ROOT CAUSE: PLAN-NEXT ENDPOINT FAILURE")
+            print(f"   📋 Plan-next endpoint is not working properly")
+            print(f"   💡 RECOMMENDATION: Fix plan-next endpoint first")
+        else:
+            print(f"   ⚠️ UNABLE TO REPRODUCE ISSUE")
+            print(f"   📋 Both plan-next and pack fetch appear to be working")
+        
+        # PHASE 6: SPECIFIC DEBUGGING RECOMMENDATIONS
+        print("\n🔧 PHASE 6: SPECIFIC DEBUGGING RECOMMENDATIONS")
+        print("-" * 60)
+        print("Specific actions to fix the session ID sync issue")
+        
+        if sync_results["race_condition_detected"]:
+            print(f"   🔧 RACE CONDITION FIX:")
+            print(f"   1. Add database transaction synchronization in session_orchestrator.py")
+            print(f"   2. Ensure plan_next() waits for save_pack() completion before returning")
+            print(f"   3. Add database connection pooling to prevent connection issues")
+            print(f"   4. Consider adding a small delay in plan-next response")
+            
+        elif sync_results["database_transaction_issue"]:
+            print(f"   🔧 DATABASE TRANSACTION FIX:")
+            print(f"   1. Check session_orchestrator.py save_pack() function for errors")
+            print(f"   2. Verify database schema for sessions and session_pack_plan tables")
+            print(f"   3. Add proper error handling and logging in save_pack()")
+            print(f"   4. Check database connection and transaction commit issues")
+            
+        if sync_results["session_id_sync_issue_confirmed"]:
+            print(f"   🔧 SESSION ID SYNC FIX:")
+            print(f"   1. Verify session_id VARCHAR length in database (should be ≥50 chars)")
+            print(f"   2. Check for session_id truncation in database queries")
+            print(f"   3. Add session_id validation in load_pack() function")
+            print(f"   4. Test with shorter session IDs to isolate length issues")
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 80)
+        print("🚨 SESSION ID SYNC DEBUG - RESULTS")
+        print("=" * 80)
+        
+        passed_tests = sum(sync_results.values())
+        total_tests = len(sync_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        # Group results by testing phases
+        testing_phases = {
+            "AUTHENTICATION": [
+                "authentication_working", "user_id_matches_logs", "adaptive_enabled_confirmed"
+            ],
+            "PLAN-NEXT FLOW": [
+                "plan_next_endpoint_reachable", "plan_next_accepts_parameters", 
+                "plan_next_returns_200_ok", "plan_next_response_valid", "idempotency_key_accepted"
+            ],
+            "SESSION CREATION": [
+                "session_record_created", "session_pack_plan_created", 
+                "database_persistence_working", "session_id_format_correct"
+            ],
+            "PACK FETCH TESTING": [
+                "pack_endpoint_reachable", "pack_fetch_immediate_success", 
+                "pack_fetch_after_delay_success", "pack_contains_valid_data"
+            ],
+            "TIMING ANALYSIS": [
+                "race_condition_detected", "timing_issue_identified", 
+                "immediate_fetch_fails", "delayed_fetch_succeeds"
+            ],
+            "ROOT CAUSE ANALYSIS": [
+                "session_id_sync_issue_confirmed", "database_transaction_issue", 
+                "async_processing_delay", "fix_recommendation_identified"
+            ]
+        }
+        
+        for phase, tests in testing_phases.items():
+            print(f"\n{phase}:")
+            phase_passed = 0
+            phase_total = len(tests)
+            
+            for test in tests:
+                if test in sync_results:
+                    result = sync_results[test]
+                    status = "✅ PASS" if result else "❌ FAIL"
+                    print(f"  {test.replace('_', ' ').title():<40} {status}")
+                    if result:
+                        phase_passed += 1
+            
+            phase_rate = (phase_passed / phase_total) * 100 if phase_total > 0 else 0
+            print(f"  Phase Success Rate: {phase_passed}/{phase_total} ({phase_rate:.1f}%)")
+        
+        print("-" * 80)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # CRITICAL FINDINGS
+        print("\n🎯 CRITICAL FINDINGS:")
+        
+        if sync_results["session_id_sync_issue_confirmed"]:
+            print("\n🚨 SESSION ID SYNC ISSUE CONFIRMED!")
+            print("   ✅ Successfully reproduced the production issue")
+            print("   📋 Plan-next succeeds but pack fetch returns 404")
+            print("   🔍 Root cause identified and fix recommendations provided")
+            
+            if sync_results["race_condition_detected"]:
+                print("\n⚡ RACE CONDITION DETECTED:")
+                print("   - Plan-next returns success before database persistence completes")
+                print("   - Frontend immediately calls pack fetch before data is available")
+                print("   - Delayed pack fetch succeeds, confirming timing issue")
+                
+            elif sync_results["database_transaction_issue"]:
+                print("\n🗄️ DATABASE TRANSACTION ISSUE:")
+                print("   - Plan-next appears to succeed but data is not persisted")
+                print("   - Session records not being saved to database")
+                print("   - Pack fetch always fails regardless of timing")
+                
+        else:
+            print("\n⚠️ UNABLE TO REPRODUCE ISSUE")
+            print("   - Both plan-next and pack fetch appear to be working")
+            print("   - Issue may be environment-specific or intermittent")
+            print("   - Consider testing with different session IDs or timing")
+        
+        return sync_results["session_id_sync_issue_confirmed"] or success_rate >= 70
         """
         🚨 CRITICAL SESSION PLANNING TEST: Test the specific plan-next endpoint flow that the frontend is failing on.
 
