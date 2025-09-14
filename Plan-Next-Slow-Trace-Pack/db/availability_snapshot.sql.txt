@@ -1,0 +1,13 @@
+-- Availability Snapshot Query:
+
+SELECT difficulty_band,
+       COUNT(*) FILTER (WHERE pyq_frequency_score=1.5) AS pyq15,
+       COUNT(*) FILTER (WHERE pyq_frequency_score=1.0) AS pyq10,
+       COUNT(*) AS total
+FROM questions
+GROUP BY 1 ORDER BY 1;
+
+-- Results:
+Easy       | pyq15:   0 | pyq10:   8 | total:  29
+Hard       | pyq15:   2 | pyq10:  81 | total:  84
+Medium     | pyq15:  17 | pyq10: 302 | total: 339
