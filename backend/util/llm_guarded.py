@@ -22,7 +22,7 @@ def call_llm_with_fallback(system_prompt: str, user_json: Dict[str, Any],
     user_content = json.dumps(user_json, indent=2)
     
     try:
-        # Try primary model with JSON mode and hardening
+        # P1 FIX: Try primary model with timeout and reduced token limit
         response = client.chat.completions.create(
             model=model_primary,
             messages=[
@@ -30,8 +30,9 @@ def call_llm_with_fallback(system_prompt: str, user_json: Dict[str, Any],
                 {"role": "user", "content": user_content}
             ],
             temperature=0,  # Set to 0 for deterministic JSON output
-            max_tokens=2000,
-            response_format={"type": "json_object"} if response_format == "json" else None
+            max_tokens=300,  # P0 FIX: Reduced from 2000 to 300 for faster response
+            response_format={"type": "json_object"} if response_format == "json" else None,
+            timeout=timeout_ms / 1000.0  # P1 FIX: Convert ms to seconds for OpenAI API
         )
         raw_content = response.choices[0].message.content
         
