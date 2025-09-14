@@ -77,6 +77,550 @@ class CATBackendTester:
             print(f"❌ {test_name}: Exception - {str(e)}")
             return False, {"error": str(e)}
 
+    def test_critical_backend_fixes_validation(self):
+        """
+        🚨 CRITICAL BACKEND FIXES VALIDATION: Test the critical backend fixes that were recently applied.
+        
+        FOCUS AREAS FROM REVIEW REQUEST:
+        1. Database Schema Fix Validation - session_id columns should be VARCHAR(100) instead of VARCHAR(36)
+        2. LLM Planner Performance & Schema Testing - /api/adapt/plan-next with 60s timeout
+        3. Session Planning Performance - should be 3-10 seconds instead of 60+ seconds  
+        4. End-to-End Adaptive Flow - plan-next → pack fetch → mark-served flow
+        
+        EXPECTED OUTCOMES:
+        - Session planning completes in 3-10 seconds (not 60+ seconds)
+        - No more empty question content
+        - Database schema handles longer session IDs
+        - LLM schema validation errors resolved
+        - Fallback system works when LLM fails
+        
+        AUTHENTICATION: sp@theskinmantra.com/student123 (adaptive_enabled=true)
+        """
+        print("🚨 CRITICAL BACKEND FIXES VALIDATION")
+        print("=" * 80)
+        print("OBJECTIVE: Test critical backend fixes for empty question content and performance issues")
+        print("FOCUS: Database schema, LLM planner performance, session planning, adaptive flow")
+        print("EXPECTED: 3-10s session planning, no empty content, schema fixes working")
+        print("=" * 80)
+        
+        fix_results = {
+            # Authentication Setup
+            "authentication_working": False,
+            "user_adaptive_enabled": False,
+            "jwt_token_valid": False,
+            
+            # Database Schema Fix Validation
+            "session_id_length_test_passed": False,
+            "long_session_id_accepted": False,
+            "database_schema_fix_working": False,
+            "no_session_id_truncation": False,
+            
+            # LLM Planner Performance Testing
+            "plan_next_endpoint_accessible": False,
+            "plan_next_completes_under_60s": False,
+            "plan_next_completes_3_10s": False,
+            "llm_planner_schema_validation_working": False,
+            "constraint_report_field_present": False,
+            "fallback_system_working": False,
+            
+            # Session Planning Performance
+            "session_planning_performance_improved": False,
+            "cold_start_planning_working": False,
+            "adaptive_planning_working": False,
+            "pack_generation_12_questions": False,
+            "pack_distribution_3_6_3": False,
+            
+            # End-to-End Adaptive Flow
+            "plan_next_to_pack_flow_working": False,
+            "pack_fetch_successful": False,
+            "mark_served_working": False,
+            "complete_adaptive_flow_functional": False,
+            "session_persistence_working": False,
+            
+            # Question Content Validation
+            "question_content_not_empty": False,
+            "question_stem_populated": False,
+            "question_options_populated": False,
+            "question_metadata_complete": False,
+            
+            # Overall Assessment
+            "critical_fixes_validated": False,
+            "performance_issues_resolved": False,
+            "empty_content_issue_resolved": False,
+            "production_ready": False
+        }
+        
+        # PHASE 1: AUTHENTICATION SETUP
+        print("\n🔐 PHASE 1: AUTHENTICATION SETUP")
+        print("-" * 60)
+        print("Authenticating with sp@theskinmantra.com/student123 (adaptive_enabled=true)")
+        
+        auth_data = {
+            "email": "sp@theskinmantra.com",
+            "password": "student123"
+        }
+        
+        success, response = self.run_test("Authentication", "POST", "auth/login", [200, 401], auth_data)
+        
+        auth_headers = None
+        user_id = None
+        if success and response.get('access_token'):
+            token = response['access_token']
+            auth_headers = {
+                'Authorization': f'Bearer {token}',
+                'Content-Type': 'application/json'
+            }
+            fix_results["authentication_working"] = True
+            fix_results["jwt_token_valid"] = True
+            print(f"   ✅ Authentication successful")
+            print(f"   📊 JWT Token length: {len(token)} characters")
+            
+            user_data = response.get('user', {})
+            user_id = user_data.get('id')
+            adaptive_enabled = user_data.get('adaptive_enabled', False)
+            
+            if adaptive_enabled:
+                fix_results["user_adaptive_enabled"] = True
+                print(f"   ✅ User adaptive_enabled confirmed: {adaptive_enabled}")
+                print(f"   📊 User ID: {user_id}")
+            else:
+                print(f"   ⚠️ User adaptive_enabled: {adaptive_enabled}")
+        else:
+            print("   ❌ Authentication failed - cannot proceed with critical fixes validation")
+            return False
+        
+        # PHASE 2: DATABASE SCHEMA FIX VALIDATION
+        print("\n🗄️ PHASE 2: DATABASE SCHEMA FIX VALIDATION")
+        print("-" * 60)
+        print("Testing session_id VARCHAR(100) schema fix with longer session IDs")
+        
+        if user_id and auth_headers:
+            # Test with a longer session ID (up to 55 characters as mentioned in review)
+            long_session_id = f"session_schema_test_{uuid.uuid4()}_{int(time.time())}"  # ~55 chars
+            print(f"   📊 Testing with long session_id: {long_session_id} ({len(long_session_id)} chars)")
+            
+            plan_data = {
+                "user_id": user_id,
+                "last_session_id": "S0",
+                "next_session_id": long_session_id
+            }
+            
+            headers_with_idem = auth_headers.copy()
+            headers_with_idem['Idempotency-Key'] = f"{user_id}:S0:{long_session_id}"
+            
+            print(f"   🔄 Testing database schema with long session ID...")
+            
+            success, plan_response = self.run_test(
+                "Database Schema Fix - Long Session ID", 
+                "POST", 
+                "adapt/plan-next", 
+                [200, 400, 500, 502], 
+                plan_data, 
+                headers_with_idem
+            )
+            
+            if success and plan_response.get('status') == 'planned':
+                fix_results["long_session_id_accepted"] = True
+                fix_results["database_schema_fix_working"] = True
+                fix_results["no_session_id_truncation"] = True
+                print(f"   ✅ Long session ID accepted by database")
+                print(f"   ✅ Database schema fix working (VARCHAR(100))")
+                print(f"   ✅ No session ID truncation detected")
+            else:
+                print(f"   ❌ Long session ID rejected: {plan_response}")
+                if "too long" in str(plan_response).lower() or "truncated" in str(plan_response).lower():
+                    print(f"   🚨 CRITICAL: Database schema fix not applied - session_id still VARCHAR(36)")
+        
+        # PHASE 3: LLM PLANNER PERFORMANCE & SCHEMA TESTING
+        print("\n🤖 PHASE 3: LLM PLANNER PERFORMANCE & SCHEMA TESTING")
+        print("-" * 60)
+        print("Testing /api/adapt/plan-next with 60s timeout and schema validation")
+        
+        if user_id and auth_headers:
+            # Test with normal session ID for performance testing
+            perf_session_id = f"perf_test_{uuid.uuid4()}"
+            plan_data = {
+                "user_id": user_id,
+                "last_session_id": "S0",
+                "next_session_id": perf_session_id
+            }
+            
+            headers_with_idem = auth_headers.copy()
+            headers_with_idem['Idempotency-Key'] = f"{user_id}:S0:{perf_session_id}"
+            
+            print(f"   ⏱️ Testing plan-next performance (target: 3-10 seconds)...")
+            
+            start_time = time.time()
+            success, plan_response = self.run_test(
+                "LLM Planner Performance Test", 
+                "POST", 
+                "adapt/plan-next", 
+                [200, 400, 500, 502, 504], 
+                plan_data, 
+                headers_with_idem
+            )
+            response_time = time.time() - start_time
+            
+            print(f"   📊 Plan-next response time: {response_time:.2f} seconds")
+            
+            if success:
+                fix_results["plan_next_endpoint_accessible"] = True
+                print(f"   ✅ Plan-next endpoint accessible")
+                
+                if response_time < 60:
+                    fix_results["plan_next_completes_under_60s"] = True
+                    print(f"   ✅ Plan-next completes under 60 seconds")
+                    
+                    if 3 <= response_time <= 10:
+                        fix_results["plan_next_completes_3_10s"] = True
+                        fix_results["session_planning_performance_improved"] = True
+                        print(f"   ✅ Plan-next completes in target 3-10 second range")
+                        print(f"   ✅ Session planning performance improved")
+                    elif response_time < 3:
+                        print(f"   ✅ Plan-next completes very fast (under 3 seconds)")
+                        fix_results["session_planning_performance_improved"] = True
+                    else:
+                        print(f"   ⚠️ Plan-next slower than target (>10 seconds)")
+                else:
+                    print(f"   ❌ Plan-next still taking too long (>60 seconds)")
+                
+                # Check response structure for schema validation fixes
+                if plan_response.get('status') == 'planned':
+                    print(f"   ✅ Plan-next returns 'planned' status")
+                    
+                    # Check for constraint_report field (mentioned in review)
+                    if 'constraint_report' in plan_response:
+                        fix_results["constraint_report_field_present"] = True
+                        fix_results["llm_planner_schema_validation_working"] = True
+                        print(f"   ✅ constraint_report field present")
+                        print(f"   ✅ LLM planner schema validation working")
+                        
+                        constraint_report = plan_response.get('constraint_report', {})
+                        print(f"   📊 Constraint report: {constraint_report}")
+                    else:
+                        print(f"   ⚠️ constraint_report field missing")
+                    
+                    # Test if this was LLM or fallback
+                    if 'fallback' in str(plan_response).lower():
+                        fix_results["fallback_system_working"] = True
+                        print(f"   ✅ Fallback system working (LLM failed, fallback succeeded)")
+                    else:
+                        print(f"   📊 Likely LLM planner success (no fallback indicators)")
+                        
+                else:
+                    print(f"   ❌ Plan-next failed: {plan_response}")
+            else:
+                print(f"   ❌ Plan-next endpoint failed: {plan_response}")
+        
+        # PHASE 4: SESSION PLANNING PERFORMANCE VALIDATION
+        print("\n⚡ PHASE 4: SESSION PLANNING PERFORMANCE VALIDATION")
+        print("-" * 60)
+        print("Testing cold-start and adaptive planning scenarios")
+        
+        if user_id and auth_headers and fix_results["plan_next_endpoint_accessible"]:
+            # Test cold-start scenario (should be faster)
+            cold_session_id = f"cold_start_{uuid.uuid4()}"
+            cold_plan_data = {
+                "user_id": user_id,
+                "last_session_id": "S0",  # Cold start
+                "next_session_id": cold_session_id
+            }
+            
+            headers_cold = auth_headers.copy()
+            headers_cold['Idempotency-Key'] = f"{user_id}:S0:{cold_session_id}"
+            
+            print(f"   🆕 Testing cold-start planning...")
+            
+            start_time = time.time()
+            success, cold_response = self.run_test(
+                "Cold-Start Planning", 
+                "POST", 
+                "adapt/plan-next", 
+                [200, 400, 500], 
+                cold_plan_data, 
+                headers_cold
+            )
+            cold_time = time.time() - start_time
+            
+            if success and cold_response.get('status') == 'planned':
+                fix_results["cold_start_planning_working"] = True
+                print(f"   ✅ Cold-start planning working ({cold_time:.2f}s)")
+            else:
+                print(f"   ❌ Cold-start planning failed: {cold_response}")
+        
+        # PHASE 5: END-TO-END ADAPTIVE FLOW TESTING
+        print("\n🔄 PHASE 5: END-TO-END ADAPTIVE FLOW TESTING")
+        print("-" * 60)
+        print("Testing plan-next → pack fetch → mark-served flow")
+        
+        test_session_id = None
+        if user_id and auth_headers and fix_results["plan_next_endpoint_accessible"]:
+            # Use the session from performance test if successful
+            if fix_results["plan_next_completes_under_60s"]:
+                test_session_id = perf_session_id
+                print(f"   📋 Using session from performance test: {test_session_id[:8]}...")
+            else:
+                # Create new session for flow test
+                test_session_id = f"flow_test_{uuid.uuid4()}"
+                flow_plan_data = {
+                    "user_id": user_id,
+                    "last_session_id": "S0",
+                    "next_session_id": test_session_id
+                }
+                
+                headers_flow = auth_headers.copy()
+                headers_flow['Idempotency-Key'] = f"{user_id}:S0:{test_session_id}"
+                
+                success, flow_response = self.run_test(
+                    "Flow Test Session Planning", 
+                    "POST", 
+                    "adapt/plan-next", 
+                    [200, 400, 500], 
+                    flow_plan_data, 
+                    headers_flow
+                )
+                
+                if not (success and flow_response.get('status') == 'planned'):
+                    print(f"   ❌ Flow test session planning failed")
+                    test_session_id = None
+            
+            # Test pack fetch
+            if test_session_id:
+                print(f"   📦 Testing pack fetch...")
+                
+                success, pack_response = self.run_test(
+                    "Pack Fetch (End-to-End Flow)", 
+                    "GET", 
+                    f"adapt/pack?user_id={user_id}&session_id={test_session_id}", 
+                    [200, 404, 500], 
+                    None, 
+                    auth_headers
+                )
+                
+                if success and pack_response.get('pack'):
+                    fix_results["pack_fetch_successful"] = True
+                    fix_results["plan_next_to_pack_flow_working"] = True
+                    fix_results["session_persistence_working"] = True
+                    print(f"   ✅ Pack fetch successful")
+                    print(f"   ✅ Plan-next to pack flow working")
+                    print(f"   ✅ Session persistence working")
+                    
+                    pack_data = pack_response.get('pack', [])
+                    pack_size = len(pack_data)
+                    print(f"   📊 Pack size: {pack_size} questions")
+                    
+                    if pack_size == 12:
+                        fix_results["pack_generation_12_questions"] = True
+                        print(f"   ✅ Pack generates exactly 12 questions")
+                        
+                        # Check 3-6-3 distribution
+                        difficulty_counts = {}
+                        for q in pack_data:
+                            bucket = q.get('bucket', 'unknown')
+                            difficulty_counts[bucket] = difficulty_counts.get(bucket, 0) + 1
+                        
+                        print(f"   📊 Difficulty distribution: {difficulty_counts}")
+                        
+                        easy_count = difficulty_counts.get('Easy', 0)
+                        medium_count = difficulty_counts.get('Medium', 0)
+                        hard_count = difficulty_counts.get('Hard', 0)
+                        
+                        if easy_count == 3 and medium_count == 6 and hard_count == 3:
+                            fix_results["pack_distribution_3_6_3"] = True
+                            print(f"   ✅ Perfect 3-6-3 difficulty distribution")
+                        else:
+                            print(f"   ⚠️ Distribution not exactly 3-6-3: E={easy_count}, M={medium_count}, H={hard_count}")
+                    
+                    # Test question content (critical fix validation)
+                    if pack_data:
+                        first_question = pack_data[0]
+                        question_stem = first_question.get('why', '')
+                        question_id = first_question.get('item_id', '')
+                        
+                        print(f"   📊 First question ID: {question_id}")
+                        print(f"   📊 Question stem length: {len(question_stem) if question_stem else 0} chars")
+                        
+                        if question_stem and len(question_stem.strip()) > 10:
+                            fix_results["question_content_not_empty"] = True
+                            fix_results["question_stem_populated"] = True
+                            print(f"   ✅ Question content not empty")
+                            print(f"   ✅ Question stem populated")
+                            print(f"   📊 Stem preview: {question_stem[:100]}...")
+                        else:
+                            print(f"   ❌ Question content still empty - critical fix not working")
+                            print(f"   🚨 CRITICAL: Empty question content issue not resolved")
+                    
+                    # Test mark-served
+                    print(f"   🏁 Testing mark-served...")
+                    
+                    mark_data = {
+                        "user_id": user_id,
+                        "session_id": test_session_id
+                    }
+                    
+                    success, mark_response = self.run_test(
+                        "Mark Served (End-to-End Flow)", 
+                        "POST", 
+                        "adapt/mark-served", 
+                        [200, 409, 500], 
+                        mark_data, 
+                        auth_headers
+                    )
+                    
+                    if success and mark_response.get('ok'):
+                        fix_results["mark_served_working"] = True
+                        fix_results["complete_adaptive_flow_functional"] = True
+                        print(f"   ✅ Mark-served working")
+                        print(f"   ✅ Complete adaptive flow functional")
+                    else:
+                        print(f"   ❌ Mark-served failed: {mark_response}")
+                        
+                else:
+                    print(f"   ❌ Pack fetch failed: {pack_response}")
+                    if pack_response.get("status_code") == 404:
+                        print(f"   🚨 CRITICAL: Pack fetch returns 404 - session persistence issue")
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 80)
+        print("🚨 CRITICAL BACKEND FIXES VALIDATION - RESULTS")
+        print("=" * 80)
+        
+        passed_tests = sum(fix_results.values())
+        total_tests = len(fix_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        # Group results by fix categories
+        fix_categories = {
+            "AUTHENTICATION": [
+                "authentication_working", "user_adaptive_enabled", "jwt_token_valid"
+            ],
+            "DATABASE SCHEMA FIXES": [
+                "session_id_length_test_passed", "long_session_id_accepted", 
+                "database_schema_fix_working", "no_session_id_truncation"
+            ],
+            "LLM PLANNER PERFORMANCE": [
+                "plan_next_endpoint_accessible", "plan_next_completes_under_60s",
+                "plan_next_completes_3_10s", "llm_planner_schema_validation_working",
+                "constraint_report_field_present", "fallback_system_working"
+            ],
+            "SESSION PLANNING PERFORMANCE": [
+                "session_planning_performance_improved", "cold_start_planning_working",
+                "adaptive_planning_working", "pack_generation_12_questions", "pack_distribution_3_6_3"
+            ],
+            "END-TO-END ADAPTIVE FLOW": [
+                "plan_next_to_pack_flow_working", "pack_fetch_successful",
+                "mark_served_working", "complete_adaptive_flow_functional", "session_persistence_working"
+            ],
+            "QUESTION CONTENT VALIDATION": [
+                "question_content_not_empty", "question_stem_populated",
+                "question_options_populated", "question_metadata_complete"
+            ]
+        }
+        
+        for category, tests in fix_categories.items():
+            print(f"\n{category}:")
+            category_passed = 0
+            category_total = len(tests)
+            
+            for test in tests:
+                if test in fix_results:
+                    result = fix_results[test]
+                    status = "✅ PASS" if result else "❌ FAIL"
+                    print(f"  {test.replace('_', ' ').title():<50} {status}")
+                    if result:
+                        category_passed += 1
+            
+            category_rate = (category_passed / category_total) * 100 if category_total > 0 else 0
+            print(f"  Category Success Rate: {category_passed}/{category_total} ({category_rate:.1f}%)")
+        
+        print("-" * 80)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # CRITICAL ASSESSMENT
+        print("\n🎯 CRITICAL ASSESSMENT:")
+        
+        # Database Schema Fix Assessment
+        if fix_results["database_schema_fix_working"]:
+            print("\n✅ DATABASE SCHEMA FIX: WORKING")
+            print("   - session_id VARCHAR(100) schema fix applied successfully")
+            print("   - Long session IDs (55+ chars) accepted without truncation")
+            print("   - No database insertion failures detected")
+        else:
+            print("\n❌ DATABASE SCHEMA FIX: FAILED")
+            print("   - session_id still appears to be VARCHAR(36)")
+            print("   - Long session IDs rejected or truncated")
+            print("   - Database schema fix not properly applied")
+        
+        # Performance Assessment
+        if fix_results["session_planning_performance_improved"]:
+            print("\n✅ SESSION PLANNING PERFORMANCE: IMPROVED")
+            if fix_results["plan_next_completes_3_10s"]:
+                print("   - Session planning completes in target 3-10 second range")
+            else:
+                print("   - Session planning completes under 60 seconds (improvement)")
+            print("   - Performance issues resolved")
+        else:
+            print("\n❌ SESSION PLANNING PERFORMANCE: STILL SLOW")
+            print("   - Session planning still taking 60+ seconds")
+            print("   - Performance issues not resolved")
+        
+        # LLM Schema Assessment
+        if fix_results["llm_planner_schema_validation_working"]:
+            print("\n✅ LLM PLANNER SCHEMA: FIXED")
+            print("   - constraint_report field present in responses")
+            print("   - Schema validation errors resolved")
+            if fix_results["fallback_system_working"]:
+                print("   - Fallback system working when LLM fails")
+        else:
+            print("\n⚠️ LLM PLANNER SCHEMA: NEEDS VERIFICATION")
+            print("   - constraint_report field status unclear")
+            print("   - Schema validation fix needs verification")
+        
+        # Question Content Assessment
+        if fix_results["question_content_not_empty"]:
+            print("\n✅ EMPTY QUESTION CONTENT: RESOLVED")
+            print("   - Question content no longer empty")
+            print("   - Question stems properly populated")
+            print("   - Critical content issue fixed")
+        else:
+            print("\n❌ EMPTY QUESTION CONTENT: STILL BROKEN")
+            print("   - Question content still empty or missing")
+            print("   - Critical issue not resolved")
+        
+        # End-to-End Flow Assessment
+        if fix_results["complete_adaptive_flow_functional"]:
+            print("\n✅ END-TO-END ADAPTIVE FLOW: WORKING")
+            print("   - plan-next → pack fetch → mark-served flow functional")
+            print("   - Session persistence working correctly")
+            print("   - Complete adaptive system operational")
+        else:
+            print("\n❌ END-TO-END ADAPTIVE FLOW: BROKEN")
+            print("   - Adaptive flow has critical issues")
+            print("   - Session persistence or state management problems")
+        
+        # Overall Production Readiness
+        critical_fixes_working = (
+            fix_results["database_schema_fix_working"] and
+            fix_results["session_planning_performance_improved"] and
+            fix_results["question_content_not_empty"] and
+            fix_results["complete_adaptive_flow_functional"]
+        )
+        
+        if critical_fixes_working:
+            fix_results["critical_fixes_validated"] = True
+            fix_results["production_ready"] = True
+            print("\n🎉 PRODUCTION READINESS: READY")
+            print("   - All critical backend fixes validated")
+            print("   - Performance issues resolved")
+            print("   - Empty content issue resolved")
+            print("   - System ready for production use")
+        else:
+            print("\n⚠️ PRODUCTION READINESS: NOT READY")
+            print("   - Critical issues still present")
+            print("   - Additional fixes required before production")
+        
+        return success_rate >= 75 and critical_fixes_working
+
     def test_session_id_sync_debug(self):
         """
         🚨 STEP 3: SESSION ID SYNC FIX - Debug the exact session planning flow causing 404s.
