@@ -295,7 +295,6 @@ Return ONLY valid JSON matching the required schema."""
                     "user_id": user_id,
                     "alias_map_json": json.dumps(summary_data.get("concept_alias_map_updated", []))
                 })
-                })
             
             db.commit()
             logger.info(f"💾 Saved summarizer results for user {user_id[:8]}")
