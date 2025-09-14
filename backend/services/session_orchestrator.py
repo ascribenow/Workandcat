@@ -212,30 +212,37 @@ def transition_pack_to_served(user_id: str, session_id: str) -> bool:
     finally:
         db.close()
 
-def plan_next(user_id: str, last_session_id: str, next_session_id: str, idem_key: Optional[str] = None, request_id: str = None) -> Dict[str, Any]:
+def plan_next(user_id: str, last_session_id: str, next_session_id: str, idem_key: str = None, request_id: str = None) -> Dict[str, Any]:
     """
-    Main orchestration function for planning next session
-    
-    Implements idempotency, concurrency safety, and dual-path logic
+    Main orchestration function for planning next session - WITH DIAGNOSTIC TRACING
     
     Args:
         user_id: User identifier
         last_session_id: Previous session identifier 
         next_session_id: Next session identifier to plan
         idem_key: Optional idempotency key for request deduplication
+        request_id: Request correlation ID for diagnostic tracing
         
     Returns:
-        Session plan with pack and metadata
+        Session plan with pack and metadata + timing information
         
     Raises:
         ConflictError: If another planning operation is in progress
     """
-    logger.info(f"🚀 Orchestrating session planning for user {user_id[:8]}, next session {next_session_id[:8]}")
+    import time
+    
+    # DIAGNOSTIC TIMING SETUP
+    t0 = time.perf_counter()
+    timing_meta = {"db_candidates": 0, "llm_planner": 0, "db_write": 0, "retries": {"llm": 0, "db": 0}}
+    rid_log = f"request_id={request_id}" if request_id else ""
+    
+    logger.info(f"🚀 Orchestrating session planning for user {user_id[:8]}, next session {next_session_id[:8]} {rid_log}")
     
     # Step 1: Check for existing planned session (idempotency)
     existing = load_pack(user_id, next_session_id)
     if existing and existing["status"] == "planned":
-        logger.info(f"📋 Returning existing planned session for user {user_id[:8]}")
+        logger.info(f"📋 Returning existing planned session for user {user_id[:8]} {rid_log}")
+        existing["timing_meta"] = timing_meta  # Add empty timing for consistency
         return existing
     
     # Step 2: Acquire advisory lock for concurrency safety  
@@ -244,14 +251,22 @@ def plan_next(user_id: str, last_session_id: str, next_session_id: str, idem_key
         raise ConflictError("Planning already in progress for user")
     
     try:
-        # Step 3: Run session-scoped pipeline (Phase 3 implementation)
-        logger.info(f"🧠 Running pipeline planning for user {user_id[:8]}")
+        # Step 3: Run session-scoped pipeline (Phase 3 implementation) - WITH TIMING
+        logger.info(f"🧠 Running pipeline planning for user {user_id[:8]} {rid_log}")
         
-        # Call the existing pipeline function
-        pipeline_result = plan_next_session(user_id, force_cold_start=False)
+        t_pipeline_start = time.perf_counter()
+        # Call the existing pipeline function - this includes candidate selection and LLM
+        pipeline_result = plan_next_session(user_id, force_cold_start=False, request_id=request_id)
+        pipeline_dur_ms = int((time.perf_counter() - t_pipeline_start) * 1000)
         
         if not pipeline_result.get('success'):
             raise Exception(f"Pipeline planning failed: {pipeline_result.get('error')}")
+        
+        # Extract timing from pipeline if available
+        pipeline_timing = pipeline_result.get('timing_meta', {})
+        timing_meta["db_candidates"] = pipeline_timing.get("db_candidates", 0)
+        timing_meta["llm_planner"] = pipeline_timing.get("llm_planner", 0) 
+        timing_meta["retries"] = pipeline_timing.get("retries", {"llm": 0, "db": 0})
         
         # Step 4: Extract plan and constraint report
         plan = pipeline_result.get('plan', {})
@@ -262,13 +277,16 @@ def plan_next(user_id: str, last_session_id: str, next_session_id: str, idem_key
             'pipeline_path': pipeline_result.get('pipeline_path', 'unknown'),
             'cold_start_mode': pipeline_result.get('cold_start_mode', False),
             'session_sequence': pipeline_result.get('session_sequence', 1),
-            'candidate_pool_size': pipeline_result.get('metadata', {}).get('candidate_pool_size', 0)
+            'candidate_pool_size': pipeline_result.get('metadata', {}).get('candidate_pool_size', 0),
+            'pipeline_dur_ms': pipeline_dur_ms
         })
         
-        # Step 5: Save pack in database transaction
-        success = save_pack(user_id, next_session_id, plan, constraint_report)
+        # Step 5: Save pack in database transaction - WITH TIMING  
+        t_db_write = time.perf_counter()
+        success = save_pack(user_id, next_session_id, plan, constraint_report, request_id=request_id)
         if not success:
             raise Exception("Failed to save session pack")
+        timing_meta["db_write"] = int((time.perf_counter() - t_db_write) * 1000)
         
         # Step 6: Emit telemetry
         telemetry_service.emit_session_planned(
@@ -277,7 +295,18 @@ def plan_next(user_id: str, last_session_id: str, next_session_id: str, idem_key
             pool_expanded=constraint_report.get('meta', {}).get('pool_expanded', False)
         )
         
-        # Step 7: Return planned session data
+        # Step 7: Return planned session data WITH TIMING
+        total_dur_ms = int((time.perf_counter() - t0) * 1000)
+        logger.info(f"✅ Session planning completed for user {user_id[:8]} in {total_dur_ms}ms {rid_log}")
+        
+        return {
+            "user_id": user_id,
+            "session_id": next_session_id, 
+            "status": "planned",
+            "constraint_report_json": constraint_report,
+            "timing_meta": timing_meta,
+            "total_orchestration_ms": total_dur_ms
+        }
         return load_pack(user_id, next_session_id)
         
     except Exception as e:
