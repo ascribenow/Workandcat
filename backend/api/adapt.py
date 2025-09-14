@@ -153,6 +153,21 @@ async def mark_served_controller(body: dict, user_id: str = Depends(get_current_
         if not updated:
             raise HTTPException(status_code=409, detail="Invalid state transition")
         
+        # NEW: Always run summarizer post-session for LLM data capture
+        try:
+            logger.info(f"📊 Running post-session summarizer for user {req_user_id[:8]}, session {session_id}")
+            summary_result = summarizer_service.run_summarizer(req_user_id, session_id)
+            logger.info(f"✅ Post-session summarizer completed for session {session_id}")
+        except Exception as e:
+            # Map to telemetry only; do not fail the flow
+            logger.warning(f"⚠️ Post-session summarizer failed for session {session_id}: {e}")
+            if hasattr(telemetry_service, 'emit'):
+                telemetry_service.emit("summarizer_error", {
+                    "user_id": req_user_id, 
+                    "session_id": session_id, 
+                    "error": str(e)
+                })
+        
         return {"ok": True}
         
     except HTTPException:
