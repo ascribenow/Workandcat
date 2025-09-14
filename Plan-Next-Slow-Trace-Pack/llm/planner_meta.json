@@ -1,0 +1,23 @@
+{
+  "request_id": "2d2d43a9-c26a-4a69-b74d-ffde3d9c71e1:S0:a02efd6a-a4ea-4704-8c82-cff4855f5793",
+  "provider": "openai",
+  "model": "gpt-4o-mini", 
+  "wall_time_ms": 95000,
+  "retries": 1,
+  "status_code": "SCHEMA_VALIDATION_FAILED",
+  "usage": {
+    "note": "Token counts not exposed by backend logs",
+    "prompt_chars": "~4000",
+    "response_chars": "~2000"
+  },
+  "schema_fail_examples": [
+    {
+      "why": "missing fields item_id",
+      "first_200_chars_of_output": "LLM returned invalid JSON after 1 retries. Reasons: pack.11: 'item_id' is a required property",
+      "fallback_triggered": true,
+      "fallback_success": true
+    }
+  ],
+  "cold_start_mode": true,
+  "final_outcome": "fallback_plan_used"
+}
