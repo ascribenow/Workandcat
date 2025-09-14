@@ -308,7 +308,9 @@ def plan_next_session(user_id: str, force_cold_start: bool = False) -> Dict[str,
         logger.info("🧠 Using NORMAL ADAPTIVE pipeline...")
         
         # Step 1: Run Summarizer for qualitative analysis
-        summary_result = summarizer_service.run_summarizer(user_id)
+        # NOTE: Summarizer now runs post-session, so we use existing summary data
+        # TODO: Load existing summary data instead of running fresh summarizer
+        summary_result = {"dominance_by_item": {}, "concept_readiness_labels": [], "pair_coverage_labels": []}
         
         # Step 2: Convert LLM dominance to deterministic weights
         concept_weights_by_item = _convert_dominance_to_weights(
