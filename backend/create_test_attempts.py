@@ -42,7 +42,7 @@ def create_test_attempts():
             print(f"Using existing session: {session_id} (sess_seq: {sess_seq})")
         else:
             # Create a test session
-            session_id = f"session_{uuid.uuid4()}"
+            session_id = str(uuid.uuid4())  # Just the UUID, no "session_" prefix
             sess_seq = 1
             
             db.execute(text("""
