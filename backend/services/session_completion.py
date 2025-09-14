@@ -96,17 +96,16 @@ def mark_session_completed(user_id: str, session_id: str) -> bool:
         
         session_updated = result.fetchone()
 
-        # Idempotent completion stamp for session_pack_plan
+        # Idempotent completion stamp for session_pack_plan with server-side timestamp
         result = db.execute(text("""
             UPDATE session_pack_plan 
-            SET completed_at = COALESCE(completed_at, :completed_at)
+            SET completed_at = COALESCE(completed_at, NOW())
             WHERE user_id = :user_id AND session_id = :session_id 
             AND status = 'served'
             RETURNING user_id
         """), {
             'user_id': user_id,
-            'session_id': session_id,
-            'completed_at': datetime.utcnow()
+            'session_id': session_id
         })
         
         pack_updated = result.fetchone()
