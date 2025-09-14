@@ -647,6 +647,18 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
         session_id: sessionId
       });
       console.log('✅ Pack marked as served:', sessionId);
+      
+      // NEW: Mark session as started (first question render)
+      try {
+        await axios.post(`${API}/sessions/mark-started`, {
+          session_id: sessionId
+        });
+        console.log('🟢 session started:', sessionId);
+      } catch (startError) {
+        console.warn('⚠️ Session start timestamp failed:', startError);
+        // Don't fail the flow
+      }
+      
     } catch (error) {
       console.error('❌ Mark served failed:', error);
       // Don't throw - this shouldn't break the flow
