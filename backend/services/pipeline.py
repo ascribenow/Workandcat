@@ -237,7 +237,7 @@ def _load_user_attempts(user_id: str, session_limit: int = 5) -> List[AttemptEve
     finally:
         db.close()
 
-def plan_next_session(user_id: str, force_cold_start: bool = False) -> Dict[str, Any]:
+def plan_next_session(user_id: str, force_cold_start: bool = False, request_id: str = None) -> Dict[str, Any]:
     """
     Main pipeline function - plans the next session for a user
     
