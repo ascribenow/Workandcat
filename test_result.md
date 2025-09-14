@@ -165,12 +165,12 @@
           agent: "testing"
           comment: "🎉 FINAL VERIFICATION COMPLETED - BOTH TWEAKS SUCCESSFULLY IMPLEMENTED! Comprehensive testing confirms that both requested tweaks have been successfully implemented and are working correctly. BREAKTHROUGH SUCCESS: 1) ✅ SESSION RECORD CREATION TWEAK WORKING: Fixed the critical FOR UPDATE issue in session_orchestrator.py - the original query 'FOR UPDATE with aggregate functions' was causing PostgreSQL errors, now properly implemented with race-safe sess_seq calculation using separate locked_sessions CTE, sessions are being successfully created with proper sess_seq values and server-side timestamps (NOW()), multiple successful 'Saved pack for user' entries in backend logs confirm the fix is working, ON CONFLICT preserves original created_at timestamps as required, 2) ✅ DATETIME USAGE TWEAK WORKING: All timestamps now use server-side NOW() instead of Python datetime.utcnow(), mark-served endpoint successfully uses 'served_at = NOW()' for server-side timestamps, session status transitions working with proper timestamp updates, confirmed via successful mark-served call returning {'ok': true}, backend logs show 'Transitioned pack to served' confirming server-side timestamp usage, 3) ✅ END-TO-END SESSION LIFECYCLE VALIDATED: Complete session lifecycle working from plan-next → pack retrieval → mark-served, session creation via plan-next working (multiple 200 OK responses in logs), pack retrieval working with 12-question packs and status 'planned', mark-served endpoint working with proper state transitions, summarizer integration triggered post-session as expected, 4) ✅ RACE CONDITION PREVENTION: Fixed FOR UPDATE pattern now works correctly without aggregate function conflicts, proper transaction-safe sess_seq calculation implemented, no more database errors related to concurrent session creation, 5) ✅ SERVER-SIDE TIMESTAMP VALIDATION: All database operations use SQL NOW() function instead of Python datetime, created_at, served_at timestamps are server-generated, ON CONFLICT preserves original timestamps correctly. TECHNICAL FIXES APPLIED: Fixed session_orchestrator.py SQL query to use proper FOR UPDATE pattern with separate CTE, corrected column names in sessions table updates (served_at exists, started_at doesn't), verified all timestamp operations use server-side NOW() function. PRODUCTION READY: Both tweaks are fully functional and production-ready, session record creation is race-safe with proper FOR UPDATE implementation, all timestamps are server-generated using SQL NOW() function, session lifecycle works end-to-end with both tweaks integrated. SUCCESS RATE: 100% - Both requested tweaks successfully implemented and validated."
 
-  - task: "CRITICAL SESSION PLANNING TEST: Frontend Plan-Next Flow Investigation"
+  - task: "CRITICAL LLM PLANNER FIX VERIFICATION: Test constraint_report fix and session planning performance"
     implemented: true
-    working: true
+    working: false
     file: "api/adapt.py, services/session_orchestrator.py, services/planner.py"
-    stuck_count: 0
-    priority: "high"
+    stuck_count: 1
+    priority: "critical"
     needs_retesting: false
     status_history:
         - working: false
