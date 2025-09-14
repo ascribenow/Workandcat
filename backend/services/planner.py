@@ -3,11 +3,9 @@ Session Planner Service
 Uses LLM intelligence to select optimal 12-question packs based on readiness and coverage
 """
 
-import json
 import logging
 import time
 from typing import Dict, Any, List
-from util.schemas import PLANNER_SCHEMA
 from util.llm_guarded import call_llm_json_with_retry
 from services.deterministic_kernels import validate_pack
 
@@ -168,7 +166,7 @@ Return ONLY valid JSON matching the required schema. The constraint_report field
             logger.error(f"❌ Planner failed for user {user_id[:8]} after {elapsed_time*1000:.0f}ms: {e}")
             
             # P0 FIX: Fast fallback to deterministic order
-            logger.warning(f"🔄 Using deterministic fallback due to LLM timeout/failure")
+            logger.warning("🔄 Using deterministic fallback due to LLM timeout/failure")
             return self._generate_deterministic_fallback(candidates, {
                 "met": ["total_count", "difficulty_distribution"],
                 "relaxed": ["llm_planning"],
@@ -263,7 +261,6 @@ Return ONLY this JSON format. Do not include question content or metadata."""
         
     def _generate_deterministic_fallback(self, candidates, constraint_report_base):
         """P0 FIX: Fast deterministic fallback using candidate list"""
-        import random
         
         logger.warning("🔄 Generating deterministic fallback plan")
         
