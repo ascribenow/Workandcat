@@ -12,6 +12,8 @@ from datetime import datetime
 from services.session_orchestrator import plan_next, load_pack, transition_pack_to_served, ConflictError
 from auth import get_current_user
 from util.constraint_validator import assert_no_forbidden_relaxations, validate_pack_constraints
+from services.summarizer import summarizer_service
+from services.telemetry import telemetry_service
 
 logger = logging.getLogger(__name__)
 
