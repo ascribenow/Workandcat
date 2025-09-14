@@ -22,17 +22,43 @@ def call_llm_with_fallback(system_prompt: str, user_json: Dict[str, Any],
     user_content = json.dumps(user_json, indent=2)
     
     try:
-        # Try primary model
+        # Try primary model with JSON mode and hardening
         response = client.chat.completions.create(
             model=model_primary,
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_content}
             ],
-            temperature=0.1,
-            max_tokens=2000
+            temperature=0,  # Set to 0 for deterministic JSON output
+            max_tokens=2000,
+            response_format={"type": "json_object"} if response_format == "json" else None
         )
-        return response.choices[0].message.content
+        raw_content = response.choices[0].message.content
+        
+        # JSON hardening: Clean up common issues
+        if response_format == "json":
+            # Trim to first complete JSON object
+            if '{' in raw_content:
+                start_idx = raw_content.find('{')
+                # Find matching closing brace
+                brace_count = 0
+                end_idx = -1
+                for i, char in enumerate(raw_content[start_idx:], start_idx):
+                    if char == '{':
+                        brace_count += 1
+                    elif char == '}':
+                        brace_count -= 1
+                        if brace_count == 0:
+                            end_idx = i + 1
+                            break
+                
+                if end_idx > start_idx:
+                    raw_content = raw_content[start_idx:end_idx]
+            
+            # Remove trailing commas
+            raw_content = raw_content.replace(',}', '}').replace(',]', ']')
+        
+        return raw_content
     except Exception as e:
         # Try fallback model (simplified - just return a basic response)
         try:
