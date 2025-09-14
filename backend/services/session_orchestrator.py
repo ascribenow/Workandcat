@@ -97,31 +97,22 @@ def save_pack(user_id: str, session_id: str, plan: Dict[str, Any], constraint_re
         # Extract pack from plan
         pack_data = plan.get('pack', [])
         
-        # Get session sequence for this user
-        sess_seq_result = db.execute(text("""
-            SELECT COALESCE(MAX(sess_seq), 0) + 1 as next_sess_seq
-            FROM sessions 
-            WHERE user_id = :user_id
-        """), {'user_id': user_id}).fetchone()
-        
-        next_sess_seq = sess_seq_result.next_sess_seq if sess_seq_result else 1
-        
-        # Insert session record first
+        # Insert session record with race-safe sess_seq calculation (inside existing transaction)
         db.execute(text("""
-            INSERT INTO sessions (
-                user_id, session_id, sess_seq, status, created_at
-            ) VALUES (
-                :user_id, :session_id, :sess_seq, 'planned', :created_at
+            WITH next AS (
+                SELECT COALESCE(MAX(sess_seq), 0) + 1 AS next_sess_seq
+                FROM sessions
+                WHERE user_id = :user_id
+                FOR UPDATE  -- prevent race on MAX+1
             )
-            ON CONFLICT (session_id) DO UPDATE SET
-                sess_seq = EXCLUDED.sess_seq,
-                status = EXCLUDED.status,
-                created_at = EXCLUDED.created_at
+            INSERT INTO sessions (user_id, session_id, sess_seq, status, created_at)
+            SELECT :user_id, :session_id, next_sess_seq, 'planned', NOW()
+            FROM next
+            ON CONFLICT (session_id) DO UPDATE
+                SET status = EXCLUDED.status  -- don't touch created_at; keep original
         """), {
             'user_id': user_id,
-            'session_id': session_id,
-            'sess_seq': next_sess_seq,
-            'created_at': datetime.utcnow()
+            'session_id': session_id
         })
         
         # Insert or update session pack plan
