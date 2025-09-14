@@ -231,12 +231,15 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
         const headers = { 'Idempotency-Key': `${user.id}:${lastSessionId}:${nextSessionId}` };
         
         try {
-          // First attempt
+          // First attempt with extended timeout for LLM processing
           await axios.post(`${API}/adapt/plan-next`, {
             user_id: user.id,
             last_session_id: lastSessionId,
             next_session_id: nextSessionId
-          }, { headers });
+          }, { 
+            headers,
+            timeout: 70000  // 70 seconds to accommodate backend 60s timeout + buffer
+          });
           
         } catch (error) {
           console.log('First planning attempt failed, retrying...');
@@ -249,7 +252,10 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
               user_id: user.id,
               last_session_id: lastSessionId,
               next_session_id: nextSessionId
-            }, { headers });
+            }, { 
+              headers,
+              timeout: 70000  // 70 seconds for retry attempt
+            });
             
           } catch (retryError) {
             console.error('❌ Auto-plan guard failed after retry, falling back to legacy');
