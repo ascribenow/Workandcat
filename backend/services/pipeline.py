@@ -14,7 +14,7 @@ from services.deterministic_kernels import (
     coverage_debt_by_sessions, AttemptEvent
 )
 from services.candidate_provider import candidate_provider
-from services.summarizer import summarizer_service
+# Removed: from services.summarizer import summarizer_service - now done post-session
 from services.planner import planner_service
 
 logger = logging.getLogger(__name__)
