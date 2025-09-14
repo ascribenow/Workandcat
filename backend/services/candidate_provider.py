@@ -106,13 +106,15 @@ class CandidateProvider:
                 
             where_clause = " AND ".join(base_conditions)
             
-            # P0 FIX: Use seeded hash ordering instead of RANDOM()
-            # Simple deterministic approach using modulo with CRC32
+            # P0 FIX: Use deterministic ordering based on user and session
+            # Simpler approach: Use user_id hash with session_seq for deterministic ordering
+            user_hash = abs(hash(f"{user_id}:{session_seq}")) % 1000000
+            
             light_query = f"""
             SELECT id, difficulty_band, pyq_frequency_score
             FROM questions
             WHERE {where_clause}
-            ORDER BY ((abs(('x' || substr(md5(id || ':{seed}'), 1, 8))::bit(32)::int) % 1000000))
+            ORDER BY ((abs(hashtext(id)) + {user_hash}) % 1000000)
             LIMIT {limit}
             """
             
