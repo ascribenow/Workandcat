@@ -307,7 +307,6 @@ def plan_next(user_id: str, last_session_id: str, next_session_id: str, idem_key
             "timing_meta": timing_meta,
             "total_orchestration_ms": total_dur_ms
         }
-        return load_pack(user_id, next_session_id)
         
     except Exception as e:
         logger.error(f"❌ Session planning failed for user {user_id[:8]}: {e}")
