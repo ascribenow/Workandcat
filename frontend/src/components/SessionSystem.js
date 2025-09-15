@@ -536,7 +536,14 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
       }
     } catch (err) {
       if (err.response?.status === 404) {
-        await handleSessionCompletionWithHandshake({ completed: true });
+        // V2 FIX: Don't trigger session completion for adaptive sessions
+        if (adaptiveEnabled && currentPack.length > 0) {
+          console.log('⚠️ 404 in adaptive session - ignoring (using pack-based serving)');
+          setError('Using adaptive pack mode - no legacy endpoint needed');
+        } else {
+          // Only complete session for legacy flows
+          await handleSessionCompletionWithHandshake({ completed: true });
+        }
       } else {
         setError('Failed to load next question');
         console.error('Error fetching next question:', err);
