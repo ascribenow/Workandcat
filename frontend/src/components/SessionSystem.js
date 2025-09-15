@@ -171,12 +171,28 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
   };
 
   const fetchNextQuestion = async () => {
+    const requestId = diagnosticRequestId.current;
+    console.log(`[DIAGNOSTIC] ${requestId}: fetchNextQuestion called`);
+    
     // Check if we have a valid session ID
     if (!sessionId) {
+      console.error(`[DIAGNOSTIC] ${requestId}: No session ID - setting error`);
       setError('No active session found. Please start a new session from the dashboard.');
       setLoading(false);
       return;
     }
+
+    // DIAGNOSTIC: Dump state before fetch
+    console.log(`[STATE_DUMP] ${requestId}: Pre-fetch state`, {
+      sessionId,
+      adaptiveEnabled,
+      currentPackLength: currentPack.length,
+      currentQuestionIndex,
+      nextSessionId,
+      isPlanning,
+      loading,
+      hasCurrentQuestion: !!currentQuestion
+    });
 
     setLoading(true);
     setError('');
@@ -187,17 +203,36 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
     
     try {
       if (adaptiveEnabled) {
+        console.log(`[DIAGNOSTIC] ${requestId}: Using ADAPTIVE flow`);
         // ADAPTIVE FLOW: Use local pack
         await handleAdaptiveQuestionFlow();
       } else {
+        console.log(`[DIAGNOSTIC] ${requestId}: Using LEGACY flow`);
         // LEGACY FLOW: Server-driven next-question
         await handleLegacyQuestionFlow();
       }
     } catch (err) {
-      console.error('Error in question flow:', err);
+      console.error(`[DIAGNOSTIC] ${requestId}: Question flow ERROR:`, {
+        error: err.message,
+        stack: err.stack,
+        adaptiveEnabled,
+        currentFlow: adaptiveEnabled ? 'adaptive' : 'legacy'
+      });
       setError('Failed to load question');
       setLoading(false);
     }
+    
+    // DIAGNOSTIC: Verify final state
+    setTimeout(() => {
+      console.log(`[STATE_VERIFY] ${requestId}: Post-fetch final state`, {
+        hasCurrentQuestion: !!currentQuestion,
+        questionId: currentQuestion?.id,
+        sessionId,
+        loadingCleared: !loading,
+        hasError: !!error,
+        currentUrl: window.location.href
+      });
+    }, 500);
   };
 
   const handleAdaptiveQuestionFlow = async () => {
