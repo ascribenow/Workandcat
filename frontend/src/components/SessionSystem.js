@@ -359,13 +359,9 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
       
     } catch (error) {
       console.error('❌ Auto-plan guard failed:', error);
-      setError('Failed to start adaptive session. Continuing with standard session.');
-      try {
-        await handleLegacyQuestionFlow();
-      } catch (legacyError) {
-        console.error('❌ Legacy fallback also failed:', legacyError);
-        setError('Session start failed. Please refresh the page.');
-      }
+      // V2 CRITICAL FIX: Don't use legacy fallback - it causes dashboard redirect
+      setError('Session creation failed. Please refresh the page to try again.');
+      // Don't call handleLegacyQuestionFlow - it triggers session completion
     } finally {
       // V2 FIX: Always clear planning state
       console.log('🔧 V2 FIX: Clearing isPlanning state in finally block');
