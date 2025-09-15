@@ -135,12 +135,55 @@ export const Dashboard = () => {
         return false;
       }
       
-      // Check for existing active session
+      // V2 HARDENING: Check for uncompleted adaptive sessions first
+      if (user?.adaptive_enabled) {
+        try {
+          console.log('Dashboard: Checking for uncompleted adaptive sessions...');
+          
+          // Check localStorage for any active session
+          const storedSessionId = localStorage.getItem('currentSessionId') || localStorage.getItem('nextSessionId');
+          
+          if (storedSessionId) {
+            console.log('Dashboard: Found stored session ID, checking if pack exists:', storedSessionId);
+            
+            // V2 HARDENING: ONLY call GET /pack (never re-plan)
+            const packResponse = await axios.get(`${API}/adapt/pack`, {
+              params: {
+                user_id: user.id,
+                session_id: storedSessionId
+              }
+            });
+            
+            if (packResponse.status === 200 && packResponse.data.pack) {
+              console.log('Dashboard: Uncompleted adaptive session found - showing RESUME option');
+              
+              // Show resume session UI instead of auto-starting
+              setActiveSessionId(storedSessionId);
+              setSessionMetadata({
+                resume_session: true,
+                session_id: storedSessionId,
+                pack_available: true,
+                questions_count: packResponse.data.pack.length
+              });
+              setCurrentView('session');
+              return true;
+            }
+          }
+          
+        } catch (adaptiveCheckError) {
+          console.log('Dashboard: No uncompleted adaptive session or pack not found, proceeding with new session');
+          // Clear any stale session data
+          localStorage.removeItem('currentSessionId');
+          localStorage.removeItem('nextSessionId');
+        }
+      }
+      
+      // Check for existing legacy active session
       const sessionStatusResponse = await axios.get(`${API}/sessions/current-status`);
       console.log('Dashboard: Session status response:', sessionStatusResponse.data);
       
       if (sessionStatusResponse.data.active_session) {
-        console.log('Dashboard: Active session found, resuming...');
+        console.log('Dashboard: Active legacy session found, resuming...');
         const existingSessionId = sessionStatusResponse.data.session_id;
         const progress = sessionStatusResponse.data.progress;
         
