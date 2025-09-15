@@ -748,8 +748,6 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
       }, 100);
     }
   };
-    }
-  };
 
   const skipQuestion = async () => {
     if (!sessionId || !currentQuestion) {
