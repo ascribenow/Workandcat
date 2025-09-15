@@ -1660,6 +1660,7 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
           </div>
         </div>
       )}
+      </div>
     </SessionErrorBoundary>
   );
 };
