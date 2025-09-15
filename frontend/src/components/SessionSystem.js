@@ -240,9 +240,10 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
       
       console.log('📋 Auto-planning with session ID:', nextSessionId);
 
-      // Generate headers
-      const headers = {
-        'Idempotency-Key': generateSessionId() // Use for idempotency
+      // Generate headers for planning
+      const planHeaders = {
+        'Idempotency-Key': `${user.id}:${lastSessionId}:${nextSessionId}`,  // V2 FIX: Proper idempotency format
+        'X-Request-Id': nextSessionId
       };
 
       // First try to get existing pack
@@ -251,32 +252,37 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
       if (!pack) {
         console.log('📋 No existing pack, triggering planning...');
         
-        // Plan session
+        // Plan session with proper headers
         try {
-          await axios.post(`${API}/adapt/plan-next`, {
+          console.log('🚀 Calling plan-next with headers:', planHeaders);
+          const planResponse = await axios.post(`${API}/adapt/plan-next`, {
             user_id: user.id,
             last_session_id: lastSessionId,
             next_session_id: nextSessionId
           }, { 
-            headers,
-            timeout: 70000  // 70 seconds to accommodate backend 60s timeout + buffer
+            headers: planHeaders,
+            timeout: 25000  // V2 FIX: Reduced timeout since backend is now fast
           });
           
-        } catch (error) {
-          console.log('First planning attempt failed, retrying...');
+          console.log('✅ Planning completed:', planResponse.status, planResponse.data);
           
-          // Silent retry with jitter
+        } catch (error) {
+          console.log('First planning attempt failed, retrying...', error.message);
+          
+          // Silent retry with jitter  
           await new Promise(r => setTimeout(r, 400 + Math.random() * 400));
           
           try {
-            await axios.post(`${API}/adapt/plan-next`, {
+            const retryResponse = await axios.post(`${API}/adapt/plan-next`, {
               user_id: user.id,
               last_session_id: lastSessionId,
               next_session_id: nextSessionId
             }, { 
-              headers,
-              timeout: 70000  // 70 seconds for retry attempt
+              headers: planHeaders,
+              timeout: 25000  // V2 FIX: Reduced timeout
             });
+            
+            console.log('✅ Planning retry completed:', retryResponse.status);
             
           } catch (retryError) {
             console.error('❌ Auto-plan guard failed after retry, falling back to legacy');
@@ -286,10 +292,27 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
           }
         }
         
-        // Fetch pack after planning
-        pack = await tryFetchPack(user.id, nextSessionId);
+        // V2 FIX: Wait a moment for backend to persist the pack
+        console.log('⏳ Waiting for pack persistence...');
+        await new Promise(r => setTimeout(r, 1000));
         
-        if (!pack) {
+        // Fetch pack after planning with retries
+        for (let attempt = 1; attempt <= 3; attempt++) {
+          console.log(`📦 Pack fetch attempt ${attempt}/3...`);
+          pack = await tryFetchPack(user.id, nextSessionId);
+          
+          if (pack && pack.length > 0) {
+            console.log(`✅ Pack fetch successful on attempt ${attempt}: ${pack.length} questions`);
+            break;
+          } else {
+            console.log(`⚠️ Pack fetch attempt ${attempt} failed, waiting...`);
+            if (attempt < 3) {
+              await new Promise(r => setTimeout(r, 2000 * attempt));  // Exponential backoff
+            }
+          }
+        }
+        
+        if (!pack || pack.length === 0) {
           console.error('❌ Pack still not available after planning, falling back to legacy');
           setError('Adaptive pack not ready. Continuing with standard session.');
           await handleLegacyQuestionFlow();
@@ -299,6 +322,8 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
       
       // Success - serve adaptive pack
       console.log('✅ Pack available, setting up adaptive session...');
+      console.log('📊 Pack preview:', pack.slice(0, 1));  // Log first item for debugging
+      
       setCurrentPack(pack);
       setCurrentQuestionIndex(0);
       setSessionId(nextSessionId);
@@ -306,7 +331,13 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
       
       // Clear localStorage and mark served
       clearNext(user.id);
-      await markPackServed(nextSessionId);
+      
+      try {
+        await markPackServed(nextSessionId);
+        console.log('✅ Pack marked as served');
+      } catch (markError) {
+        console.warn('⚠️ Mark served failed, but continuing:', markError.message);
+      }
       
       console.log('✅ About to serve first question from pack...');
       serveQuestionFromPack(0);
@@ -316,7 +347,12 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
     } catch (error) {
       console.error('❌ Auto-plan guard failed:', error);
       setError('Failed to start adaptive session. Continuing with standard session.');
-      await handleLegacyQuestionFlow();
+      try {
+        await handleLegacyQuestionFlow();
+      } catch (legacyError) {
+        console.error('❌ Legacy fallback also failed:', legacyError);
+        setError('Session start failed. Please refresh the page.');
+      }
     } finally {
       // V2 FIX: Always clear planning state
       console.log('🔧 V2 FIX: Clearing isPlanning state in finally block');
