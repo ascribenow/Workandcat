@@ -69,6 +69,24 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
       console.trace('Pack emptied stack trace');
     }
   }, [currentPack]);
+  
+  // SURGICAL FIX: Protected pack setter to prevent accidental clearing
+  const setCurrentPackSafe = (newPack) => {
+    const requestId = diagnosticRequestId.current;
+    
+    if (!newPack || newPack.length === 0) {
+      console.error(`[PACK_MONITOR] ${requestId}: BLOCKED attempt to set empty pack!`, {
+        newPack,
+        currentPackLength: currentPack.length,
+        stackTrace: new Error().stack
+      });
+      // Don't allow pack to be set to empty unless explicitly clearing
+      return;
+    }
+    
+    console.log(`[PACK_MONITOR] ${requestId}: Setting pack safely - ${newPack.length} items`);
+    setCurrentPack(newPack);
+  };
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [nextSessionId, setNextSessionId] = useState(null);
   const [isPlanning, setIsPlanning] = useState(false);
