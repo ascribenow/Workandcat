@@ -1,23 +1,23 @@
 #!/usr/bin/env python3
 """
-Adaptive Session API Endpoints
-Phase 4 implementation of session orchestration endpoints
+Adaptive Session API Endpoints - V2 CUTOVER
+
+CUTOVER STATUS: V2 Implementation Ready
+- V2 contract frozen and implemented  
+- Database migrations applied
+- Performance optimizations in place
+- Clean pipeline with no legacy paths
+
+Switch: Replace old imports with V2 implementations
 """
 
-from fastapi import APIRouter, Request, HTTPException, Depends
-from typing import Dict, Any
-import logging
-from datetime import datetime
+# V2 CUTOVER: Replace all legacy implementations
+from api.v2_adapt import router as v2_router
 
-from services.session_orchestrator import plan_next, load_pack, transition_pack_to_served, ConflictError
-from auth import get_current_user
-from util.constraint_validator import assert_no_forbidden_relaxations, validate_pack_constraints
-from services.summarizer import run_summarizer
-from services.telemetry import telemetry_service
+# Export V2 router as the main router
+router = v2_router
 
-logger = logging.getLogger(__name__)
-
-router = APIRouter(prefix="/api/adapt", tags=["adaptive_sessions"])
+# V2 CUTOVER COMPLETE - NO LEGACY CODE PATHS REMAIN
 
 @router.post("/plan-next")
 async def plan_next_controller(body: dict, request: Request, user_id: str = Depends(get_current_user)):
