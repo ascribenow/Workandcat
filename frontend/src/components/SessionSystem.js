@@ -5,6 +5,7 @@ import MathRenderer from './MathRenderer';
 import { ADAPTIVE_GLOBAL } from '../config';
 import { useRouteTrace, setupGlobalErrorMonitoring } from '../utils/sessionMonitoring';
 import SessionErrorBoundary from './SessionErrorBoundary';
+import { recordPackWrite } from '../utils/packHistoryRecorder';
 
 export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSessionEnd }) => {
   const { user } = useAuth();
@@ -12,8 +13,8 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
   // DIAGNOSTIC: Generate unique request ID for this session instance
   const diagnosticRequestId = useRef(`session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`);
   
-  // DIAGNOSTIC: Route monitoring
-  useRouteTrace(diagnosticRequestId.current);
+  // DIAGNOSTIC: Route monitoring with session tag
+  useRouteTrace('SESSION');
   
   // DIAGNOSTIC: Setup global error monitoring
   useEffect(() => {
