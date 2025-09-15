@@ -432,7 +432,7 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
       console.log('✅ Pack available, setting up adaptive session...');
       console.log('📊 Pack preview:', pack.slice(0, 1));  // Log first item for debugging
       
-      setCurrentPack(pack);
+      setCurrentPackSafe(pack);
       setCurrentQuestionIndex(0);
       setSessionId(nextSessionId);
       setNextSessionId(nextSessionId);
