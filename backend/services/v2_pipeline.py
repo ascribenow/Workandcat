@@ -172,7 +172,7 @@ class V2SessionPipeline:
                 VALUES (:session_id, :user_id, :sess_seq, 'planned', NOW())
                 ON CONFLICT (session_id) DO UPDATE SET
                     sess_seq = EXCLUDED.sess_seq,
-                    updated_at = NOW()
+                    status = EXCLUDED.status
             """), {
                 "session_id": session_id,
                 "user_id": user_id, 
