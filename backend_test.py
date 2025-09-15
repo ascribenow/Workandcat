@@ -274,7 +274,7 @@ class CATBackendTester:
         print("-" * 60)
         print("Testing V2 schema compliance: planner returns ONLY v2 schema with 12 UUIDs")
         
-        if user_id and auth_headers and v2_results["plan_next_under_10s"]:
+        if user_id and auth_headers and (v2_results["plan_next_under_10s"] or avg_time <= 11):  # Continue if close to target
             # Test V2 contract compliance
             contract_session_id = f"v2_contract_{uuid.uuid4()}"
             plan_data = {
