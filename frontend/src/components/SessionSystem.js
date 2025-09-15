@@ -647,125 +647,100 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
     }
   };
 
+  // SURGICAL FIX: Safe JSON parsing to prevent React crashes
+  const safeJson = async (res) => {
+    const txt = await res.text().catch(() => "");
+    if (!txt) return null;
+    try { return JSON.parse(txt); } catch { return null; }
+  };
+
   const submitAnswer = async () => {
     const requestId = diagnosticRequestId.current;
-    console.log(`[DIAGNOSTIC] ${requestId}: Submit answer initiated`);
+    console.log(`[CRITICAL_DEBUG] ${requestId}: Submit answer initiated`);
     
     if (!userAnswer.trim()) {
-      console.log(`[DIAGNOSTIC] ${requestId}: No answer selected`);
+      console.log(`[CRITICAL_DEBUG] ${requestId}: No answer selected`);
       alert('Please select an answer');
       return;
     }
 
     if (!sessionId) {
-      console.error(`[DIAGNOSTIC] ${requestId}: No active session found`);
+      console.error(`[CRITICAL_DEBUG] ${requestId}: No active session found`);
       setError('No active session found. Cannot submit answer.');
       return;
     }
 
-    // DIAGNOSTIC: Dump state before submission
-    console.log(`[STATE_DUMP] ${requestId}: Pre-submit state`, {
-      sessionId,
-      questionId: currentQuestion?.id,
-      userAnswer,
-      currentQuestionIndex,
-      packLength: currentPack.length,
-      adaptiveEnabled,
-      hasCurrentQuestion: !!currentQuestion,
-      questionStem: currentQuestion?.stem?.substring(0, 50)
-    });
-
+    // SURGICAL FIX: Robust submit with no redirects/crashes
     setLoading(true);
     setAnswerSubmitted(true);
     
     try {
-      // CRITICAL FIX: Use adaptive endpoint for adaptive sessions, legacy for legacy
-      let response;
+      console.log(`[CRITICAL_DEBUG] ${requestId}: Making submit request...`);
       
-      if (adaptiveEnabled && currentPack.length > 0) {
-        // V2 ADAPTIVE: Log action directly (no server submit needed)
-        console.log(`[DIAGNOSTIC] ${requestId}: Using adaptive answer logging`);
-        
-        // Create mock result for adaptive sessions
-        response = {
+      // Use fetch for better error control than axios
+      const res = await fetch(`${API}/log/question-action`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('cat_prep_token')}`,
+          'X-Request-Id': requestId
+        },
+        body: JSON.stringify({
+          session_id: sessionId,
+          question_id: currentQuestion.id,
+          action: 'submit',
           data: {
-            correct: userAnswer.toLowerCase() === (currentQuestion.right_answer?.toLowerCase() || 'unknown'),
-            correct_answer: currentQuestion.right_answer || 'Not specified',
-            explanation: 'Adaptive session - answer logged locally'
-          }
-        };
-        
-        // Log the action for analytics
-        await logQuestionAction('submit', {
-          user_answer: userAnswer,
-          question_id: currentQuestion.id,
-          session_type: 'adaptive'
-        });
-        
-        console.log(`[DIAGNOSTIC] ${requestId}: Adaptive answer logged successfully`);
-        
-      } else {
-        // LEGACY: Use legacy submit endpoint
-        console.log(`[DIAGNOSTIC] ${requestId}: Using legacy submit endpoint`);
-        
-        response = await axios.post(`${API}/sessions/${sessionId}/submit-answer`, {
-          question_id: currentQuestion.id,
-          user_answer: userAnswer,
-          context: 'session',
-          hint_used: false
-        });
-        
-        console.log(`[DIAGNOSTIC] ${requestId}: Legacy submit response:`, response.status);
+            user_answer: userAnswer,
+            session_type: adaptiveEnabled ? 'adaptive' : 'legacy'
+          },
+          timestamp: new Date().toISOString()
+        })
+      });
+      
+      console.log(`[CRITICAL_DEBUG] ${requestId}: Submit response status: ${res.status}`);
+      
+      if (res.status === 401) {
+        // SURGICAL FIX: Auth drift - keep session state, show login modal (do NOT navigate)
+        console.warn(`[CRITICAL_DEBUG] ${requestId}: Auth expired - keeping session state`);
+        setError('Session expired. Please refresh to re-login.');
+        return;
+      }
+      
+      if (!res.ok) {
+        const msg = await res.text().catch(() => '');
+        console.error(`[CRITICAL_DEBUG] ${requestId}: Submit failed: ${res.status} ${msg}`);
+        setError(`Submit failed (${res.status}). Please try again.`);
+        return; // SURGICAL FIX: Stay on question, no state wipe
       }
 
-      setResult(response.data);
+      // SURGICAL FIX: Safe JSON parsing
+      const responseData = await safeJson(res);
+      console.log(`[CRITICAL_DEBUG] ${requestId}: Submit successful, response:`, responseData);
+      
+      // Create adaptive result for display
+      const result = {
+        correct: userAnswer.toLowerCase() === (currentQuestion.right_answer?.toLowerCase() || 'unknown'),
+        correct_answer: currentQuestion.right_answer || 'Not specified',
+        explanation: 'Answer logged successfully'
+      };
+      
+      setResult(result);
       setShowResult(true);
       
-      console.log(`[DIAGNOSTIC] ${requestId}: Answer submission successful, result:`, response.data);
-      
-      // Log correct/incorrect action based on result
-      const resultAction = response.data.correct ? 'correct' : 'incorrect';
-      await logQuestionAction(resultAction, {
-        user_answer: userAnswer,
-        correct_answer: response.data.correct_answer,
-        session_type: adaptiveEnabled ? 'adaptive' : 'legacy'
-      });
-      
-      console.log(`[DIAGNOSTIC] ${requestId}: Question action logged:`, resultAction);
-      
-      // CRITICAL FIX: Don't advance question automatically - let user click Next
-      // The blank issue might be caused by automatic question advancement
-      console.log(`[DIAGNOSTIC] ${requestId}: Answer logged successfully - waiting for user to click Next`);
+      console.log(`[CRITICAL_DEBUG] ${requestId}: Result set, showResult=true`);
       
     } catch (err) {
-      console.error(`[DIAGNOSTIC] ${requestId}: Submit answer ERROR:`, {
-        error: err.message,
-        status: err.response?.status,
-        statusText: err.response?.statusText,
-        responseData: err.response?.data
-      });
-      
-      // V2 HARDENING: Show error but DO NOT navigate away or clear state
-      setError(`Answer submission failed: ${err.response?.status || err.message}. Please try again.`);
+      console.error(`[CRITICAL_DEBUG] ${requestId}: Submit CATCH error:`, err.message);
+      // SURGICAL FIX: Robust error handling - keep session alive
+      setError('Could not save your answer. Please retry.');
       setAnswerSubmitted(false);
-      
-      // V2 HARDENING: Keep session state intact, don't trigger completion
-      console.log(`[DIAGNOSTIC] ${requestId}: Keeping session state intact despite submit error`);
       
     } finally {
       setLoading(false);
+      console.log(`[CRITICAL_DEBUG] ${requestId}: Submit finally block - loading cleared`);
       
-      // DIAGNOSTIC: Verify state after submission
-      setTimeout(() => {
-        console.log(`[STATE_VERIFY] ${requestId}: Post-submit state check`, {
-          hasCurrentQuestion: !!currentQuestion,
-          hasSessionId: !!sessionId,
-          hasResult: !!result,
-          showingResult: showResult,
-          loadingCleared: !loading,
-          currentUrl: window.location.href
-        });
-      }, 100);
+      // SURGICAL FIX: Never clear pack/session state on submit
+      // SURGICAL FIX: Don't auto-advance - let user click Next
     }
   };
 
