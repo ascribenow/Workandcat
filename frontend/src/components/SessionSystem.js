@@ -389,16 +389,31 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
   };
 
   const serveQuestionFromPack = (questionIndex) => {
-    console.log(`🎯 Serving question ${questionIndex + 1} of ${currentPack.length}`);
+    const requestId = diagnosticRequestId.current;
+    console.log(`[DIAGNOSTIC] ${requestId}: Serving question ${questionIndex + 1} of ${currentPack.length}`);
+    
+    // DIAGNOSTIC: Dump critical state before serving
+    console.log(`[STATE_DUMP] ${requestId}`, {
+      questionIndex,
+      packLength: currentPack.length,
+      sessionId,
+      currentQuestionId: currentQuestion?.id,
+      sessionProgress,
+      isLoading: loading,
+      isPlanning,
+      localStorage_keys: Object.keys(localStorage),
+      sessionStorage_keys: Object.keys(sessionStorage)
+    });
     
     if (questionIndex >= currentPack.length) {
+      console.log(`[DIAGNOSTIC] ${requestId}: Session completion triggered`);
       // Session completed - trigger adaptive planning for next session
       handleAdaptiveSessionCompletion();
       return;
     }
 
     const packItem = currentPack[questionIndex];
-    console.log('📦 Pack item received:', Object.keys(packItem));
+    console.log(`[DIAGNOSTIC] ${requestId}: Pack item keys:`, Object.keys(packItem));
     
     // V2 FIX: Use actual question data from V2 pack structure
     const question = {
@@ -416,12 +431,11 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
       right_answer: packItem.right_answer || ''
     };
 
-    console.log('📝 Question stem:', question.stem?.substring(0, 100) + '...');
-    console.log('📋 Real MCQ Options:', {
-      a: question.options.a,
-      b: question.options.b, 
-      c: question.options.c,
-      d: question.options.d
+    console.log(`[DIAGNOSTIC] ${requestId}: Question prepared:`, {
+      id: question.id,
+      stem_length: question.stem?.length,
+      options_keys: Object.keys(question.options),
+      real_options: Object.values(question.options).filter(opt => !opt.startsWith('Option '))
     });
 
     setCurrentQuestion(question);
@@ -435,7 +449,19 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
     setIsPlanning(false);  // V2 FIX: Ensure planning state is cleared
     setError('');          // V2 FIX: Clear any error states
     
-    console.log('✅ V2 Adaptive question served successfully:', question.id, `(${questionIndex + 1}/${currentPack.length})`);
+    console.log(`[DIAGNOSTIC] ${requestId}: V2 Adaptive question served successfully: ${question.id} (${questionIndex + 1}/${currentPack.length})`);
+    
+    // DIAGNOSTIC: Verify state was set correctly
+    setTimeout(() => {
+      console.log(`[STATE_VERIFY] ${requestId}: Post-serve state check`, {
+        currentQuestionSet: !!currentQuestion,
+        questionId: currentQuestion?.id,
+        progressSet: !!sessionProgress,
+        loadingCleared: !loading,
+        planningCleared: !isPlanning,
+        errorCleared: !error
+      });
+    }, 100);
   };
 
   const handleSessionCompletionWithHandshake = async (completionData) => {
