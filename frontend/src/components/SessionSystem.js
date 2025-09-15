@@ -3,9 +3,26 @@ import axios from 'axios';
 import { useAuth, API } from './AuthProvider';
 import MathRenderer from './MathRenderer';
 import { ADAPTIVE_GLOBAL } from '../config';
+import { useRouteTrace, setupGlobalErrorMonitoring } from '../utils/sessionMonitoring';
 
 export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSessionEnd }) => {
   const { user } = useAuth();
+  
+  // DIAGNOSTIC: Generate unique request ID for this session instance
+  const diagnosticRequestId = useRef(`session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`);
+  
+  // DIAGNOSTIC: Route monitoring
+  useRouteTrace(diagnosticRequestId.current);
+  
+  // DIAGNOSTIC: Setup global error monitoring
+  useEffect(() => {
+    setupGlobalErrorMonitoring(diagnosticRequestId.current);
+    console.log(`[DIAGNOSTIC] Session instance started with request_id: ${diagnosticRequestId.current}`);
+    
+    return () => {
+      console.log(`[DIAGNOSTIC] Session instance cleanup for request_id: ${diagnosticRequestId.current}`);
+    };
+  }, []);
   
   // Feature flag check
   const adaptiveEnabled = ADAPTIVE_GLOBAL && !!user?.adaptive_enabled;
