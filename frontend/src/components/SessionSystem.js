@@ -225,7 +225,17 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
     }
   };
 
+  // Add session creation lock to prevent multiple simultaneous attempts  
+  const [isCreatingSession, setIsCreatingSession] = useState(false);
+
   const startNextAdaptiveSessionWithAutoPlanning = async () => {
+    // Prevent multiple simultaneous session creation
+    if (isCreatingSession) {
+      console.log('⚠️ Session creation already in progress, skipping...');
+      return;
+    }
+    
+    setIsCreatingSession(true);
     setIsPlanning(true);  // Set planning state
     setError('');         // Clear any errors
     setLoading(true);     // Ensure loading is set
@@ -358,6 +368,7 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
       console.log('🔧 V2 FIX: Clearing isPlanning state in finally block');
       setIsPlanning(false);
       setLoading(false);
+      setIsCreatingSession(false);  // V2 FIX: Clear session creation lock
     }
   };
 
