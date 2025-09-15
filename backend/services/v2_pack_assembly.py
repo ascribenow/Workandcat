@@ -120,6 +120,39 @@ class V2PackAssemblyService:
         finally:
             db.close()
     
+    def _parse_mcq_options(self, mcq_options) -> Dict[str, str]:
+        """Parse MCQ options from database field"""
+        if not mcq_options:
+            return {'a': 'Option A', 'b': 'Option B', 'c': 'Option C', 'd': 'Option D'}
+        
+        try:
+            if isinstance(mcq_options, str):
+                options_data = json.loads(mcq_options)
+            else:
+                options_data = mcq_options
+            
+            # Handle different formats
+            if isinstance(options_data, dict):
+                return {
+                    'a': options_data.get('a', options_data.get('option_a', 'Option A')),
+                    'b': options_data.get('b', options_data.get('option_b', 'Option B')),
+                    'c': options_data.get('c', options_data.get('option_c', 'Option C')),
+                    'd': options_data.get('d', options_data.get('option_d', 'Option D'))
+                }
+            elif isinstance(options_data, list) and len(options_data) >= 4:
+                return {
+                    'a': options_data[0],
+                    'b': options_data[1], 
+                    'c': options_data[2],
+                    'd': options_data[3]
+                }
+            else:
+                return {'a': 'Option A', 'b': 'Option B', 'c': 'Option C', 'd': 'Option D'}
+                
+        except Exception as e:
+            logger.warning(f"Error parsing MCQ options: {e}")
+            return {'a': 'Option A', 'b': 'Option B', 'c': 'Option C', 'd': 'Option D'}
+    
     def _parse_concepts(self, core_concepts) -> List[str]:
         """Parse core concepts from various formats"""
         if isinstance(core_concepts, list):
