@@ -341,14 +341,18 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
   const startNextAdaptiveSession = async (sessionId) => {
     try {
       console.log('🎯 Starting adaptive session:', sessionId);
-      const pack = await fetchAdaptivePack(sessionId);
+      const pack = await fetchPackSafe(user.id, sessionId);
       
-      if (!pack || pack.length === 0) {
-        throw new Error('Empty or invalid pack received');
+      // SURGICAL FIX: Safe guard - loading-aware and session-aware
+      if (!isLoadingPack && (pack == null || pack.length === 0) && !inProgressSession) {
+        // SURGICAL FIX: DO NOT navigate - show local error UI
+        setError('Pack unavailable for this session. Please refresh to restart.');
+        setLoading(false);
+        setIsPlanning(false);
+        return;
       }
       
-      console.log('✅ Pack received, setting up session state...');
-      setCurrentPackSafe(pack);
+      if (pack && pack.length > 0) {
       setCurrentQuestionIndex(0);
       setSessionId(sessionId);
       
