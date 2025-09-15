@@ -353,21 +353,24 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
       }
       
       if (pack && pack.length > 0) {
-      setCurrentQuestionIndex(0);
-      setSessionId(sessionId);
-      
-      // Mark as served after we start rendering
-      await markPackServed(sessionId);
-      
-      console.log('✅ Serving first question from pack...');
-      
-      // SURGICAL FIX: Wait for state update before serving question
-      setTimeout(() => {
-        console.log('✅ State settled, serving question with delay...');
-        serveQuestionFromPack(0);
-      }, 100);
-      
-      console.log('✅ Adaptive session started successfully');
+        console.log('✅ Pack received, setting up session state...');
+        setPackSafe(pack, 'startNextAdaptiveSession-success');
+        setCurrentQuestionIndex(0);
+        setSessionId(sessionId);
+        
+        // Mark as served after we start rendering
+        await markPackServed(sessionId);
+        
+        console.log('✅ Serving first question from pack...');
+        
+        // SURGICAL FIX: Wait for state update before serving question
+        setTimeout(() => {
+          console.log('✅ State settled, serving question with delay...');
+          serveQuestionFromPack(0);
+        }, 100);
+        
+        console.log('✅ Adaptive session started successfully');
+      }
     } catch (error) {
       console.error('❌ Adaptive session failed:', error);
       // V2 CRITICAL FIX: Don't fall back to legacy - it triggers dashboard redirect
