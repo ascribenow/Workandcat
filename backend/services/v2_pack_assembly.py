@@ -55,16 +55,27 @@ class V2PackAssemblyService:
                 logger.error(f"V2 Pack Assembly: Question {question_id} not found in database")
                 raise ValueError(f"Question {question_id} not found")
         
-        # Convert to V2 pack items
+        # Convert to V2 pack items with full question data
         pack_items = []
         for question in ordered_questions:
+            # Parse MCQ options from the mcq_options field
+            options = self._parse_mcq_options(question.mcq_options)
+            
             pack_items.append(V2PackItem(
                 item_id=question.id,
                 why=question.stem or "Question content unavailable",
                 bucket=(question.difficulty_band or "Medium").lower(),
                 pair=f"{question.subcategory or 'Unknown'}:{question.type_of_question or 'Unknown'}",
                 pyq_frequency_score=float(question.pyq_frequency_score or 0.5),
-                semantic_concepts=self._parse_concepts(question.core_concepts)
+                semantic_concepts=self._parse_concepts(question.core_concepts),
+                # V2 FIX: Add MCQ options for frontend
+                option_a=options.get('a', 'Option A'),
+                option_b=options.get('b', 'Option B'), 
+                option_c=options.get('c', 'Option C'),
+                option_d=options.get('d', 'Option D'),
+                right_answer=question.right_answer or question.answer,
+                subcategory=question.subcategory or 'Unknown',
+                difficulty_band=question.difficulty_band or 'Medium'
             ))
         
         # Create V2 pack
