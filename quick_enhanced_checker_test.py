@@ -14,7 +14,7 @@ def test_enhanced_enrichment_checker():
     print("🔍 QUICK ENHANCED ENRICHMENT CHECKER SYSTEM TEST")
     print("=" * 60)
     
-    base_url = "https://learn-planner-1.preview.emergentagent.com/api"
+    base_url = "https://twelvr-debugger.preview.emergentagent.com/api"
     
     # Phase 1: Admin Authentication
     print("\n🔐 PHASE 1: Admin Authentication")

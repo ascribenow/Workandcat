@@ -189,7 +189,7 @@ CREATE UNIQUE INDEX session_pack_plan_pkey ON public.session_pack_plan USING btr
   "plan_next_timeout_ms": 60000,
   "uses_bearer_auth": true,
   "idempotency_key_header": "Idempotency-Key",
-  "backend_base_url": "https://learn-planner-1.preview.emergentagent.com/api",
+  "backend_base_url": "https://twelvr-debugger.preview.emergentagent.com/api",
   "adaptive_endpoints": {
     "plan_next": "/adapt/plan-next", 
     "pack": "/adapt/pack",

@@ -9,7 +9,7 @@ import json
 def test_critical_fixes():
     """Test the critical fixes for Phase 3B"""
     
-    base_url = "https://learn-planner-1.preview.emergentagent.com/api"
+    base_url = "https://twelvr-debugger.preview.emergentagent.com/api"
     
     print("🎯 FOCUSED PHASE 3B TEST - CRITICAL FIXES VALIDATION")
     print("=" * 60)

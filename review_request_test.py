@@ -11,7 +11,7 @@ import sys
 
 class ReviewRequestTester:
     def __init__(self):
-        self.base_url = "https://learn-planner-1.preview.emergentagent.com/api"
+        self.base_url = "https://twelvr-debugger.preview.emergentagent.com/api"
         self.student_token = None
         self.admin_token = None
         self.session_id = None

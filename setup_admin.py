@@ -74,7 +74,7 @@ if __name__ == "__main__":
             print("   Email: sumedhprabhu18@gmail.com")
             print("   Password: admin2025")
             print("\n🌐 Access the app at:")
-            print("   https://learn-planner-1.preview.emergentagent.com")
+            print("   https://twelvr-debugger.preview.emergentagent.com")
         else:
             print("\n❌ Admin access test failed")
     else:

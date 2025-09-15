@@ -11,7 +11,7 @@ from datetime import datetime
 
 class BackgroundProcessingTester:
     def __init__(self):
-        self.base_url = "https://learn-planner-1.preview.emergentagent.com/api"
+        self.base_url = "https://twelvr-debugger.preview.emergentagent.com/api"
         self.admin_token = None
         self.tests_run = 0
         self.tests_passed = 0

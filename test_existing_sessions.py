@@ -7,7 +7,7 @@ import requests
 import json
 
 def test_existing_sessions():
-    base_url = "https://learn-planner-1.preview.emergentagent.com/api"
+    base_url = "https://twelvr-debugger.preview.emergentagent.com/api"
     
     # Step 1: Authenticate
     print("🔐 Step 1: Authentication")

@@ -7,7 +7,7 @@ import requests
 import json
 
 def check_pyq_enrichment():
-    base_url = "https://learn-planner-1.preview.emergentagent.com/api"
+    base_url = "https://twelvr-debugger.preview.emergentagent.com/api"
     
     # Login as admin
     login_data = {

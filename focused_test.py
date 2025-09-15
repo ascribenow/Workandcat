@@ -11,7 +11,7 @@ import sys
 def test_basic_connectivity():
     """Test basic API connectivity"""
     try:
-        response = requests.get("https://learn-planner-1.preview.emergentagent.com/api/", timeout=10)
+        response = requests.get("https://twelvr-debugger.preview.emergentagent.com/api/", timeout=10)
         print(f"✅ API connectivity: {response.status_code}")
         return response.status_code == 200
     except Exception as e:
@@ -27,7 +27,7 @@ def test_admin_authentication():
         }
         
         response = requests.post(
-            "https://learn-planner-1.preview.emergentagent.com/api/auth/login",
+            "https://twelvr-debugger.preview.emergentagent.com/api/auth/login",
             json=login_data,
             timeout=10
         )
@@ -50,7 +50,7 @@ def test_student_authentication():
         }
         
         response = requests.post(
-            "https://learn-planner-1.preview.emergentagent.com/api/auth/login",
+            "https://twelvr-debugger.preview.emergentagent.com/api/auth/login",
             json=login_data,
             timeout=10
         )
@@ -84,7 +84,7 @@ def test_llm_enrichment_priority(admin_token):
     
     try:
         response = requests.post(
-            "https://learn-planner-1.preview.emergentagent.com/api/questions",
+            "https://twelvr-debugger.preview.emergentagent.com/api/questions",
             json=test_question,
             headers=headers,
             timeout=15
@@ -108,7 +108,7 @@ def test_llm_enrichment_priority(admin_token):
                 
                 # Check enrichment result
                 response = requests.get(
-                    "https://learn-planner-1.preview.emergentagent.com/api/questions?limit=5",
+                    "https://twelvr-debugger.preview.emergentagent.com/api/questions?limit=5",
                     headers=headers,
                     timeout=10
                 )
@@ -166,7 +166,7 @@ def test_session_engine_priority(student_token):
         for i in range(3):
             session_data = {"target_minutes": 30}
             response = requests.post(
-                "https://learn-planner-1.preview.emergentagent.com/api/sessions/start",
+                "https://twelvr-debugger.preview.emergentagent.com/api/sessions/start",
                 json=session_data,
                 headers=headers,
                 timeout=15
@@ -221,7 +221,7 @@ def test_canonical_taxonomy_compliance(admin_token):
     try:
         # Get questions to analyze taxonomy compliance
         response = requests.get(
-            "https://learn-planner-1.preview.emergentagent.com/api/questions?limit=50",
+            "https://twelvr-debugger.preview.emergentagent.com/api/questions?limit=50",
             headers=headers,
             timeout=10
         )
@@ -290,7 +290,7 @@ def test_session_quality_with_priority_logic(student_token):
         # Create a session and analyze its quality
         session_data = {"target_minutes": 30}
         response = requests.post(
-            "https://learn-planner-1.preview.emergentagent.com/api/sessions/start",
+            "https://twelvr-debugger.preview.emergentagent.com/api/sessions/start",
             json=session_data,
             headers=headers,
             timeout=15
@@ -317,7 +317,7 @@ def test_session_quality_with_priority_logic(student_token):
                 # Get first few questions to analyze Type diversity
                 for i in range(min(5, total_questions)):
                     response = requests.get(
-                        f"https://learn-planner-1.preview.emergentagent.com/api/sessions/{session_id}/next-question",
+                        f"https://twelvr-debugger.preview.emergentagent.com/api/sessions/{session_id}/next-question",
                         headers=headers,
                         timeout=10
                     )
