@@ -138,10 +138,9 @@ class V2CandidateSelector:
                 conditions.append(f"difficulty_band = '{difficulty_band}'")
             
             if exclude_ids:
-                # Use parameter binding for excluded IDs
-                conditions.append(f"id NOT IN ({','.join([f'%s' for _ in exclude_ids])})")
-                for i, exclude_id in enumerate(exclude_ids):
-                    params[f'exclude_{i}'] = exclude_id
+                # Direct SQL string building (safe for UUIDs)
+                exclude_clause = "id NOT IN ('" + "','".join(exclude_ids) + "')"
+                conditions.append(exclude_clause)
             
             where_clause = " AND ".join(conditions)
             
@@ -172,15 +171,8 @@ class V2CandidateSelector:
             LIMIT {limit}
             """
             
-            # Handle exclude_ids in query if needed
-            if exclude_ids:
-                # Rebuild query without parameter binding for excluded IDs (simpler)
-                exclude_clause = "id NOT IN ('" + "','".join(exclude_ids) + "')" if exclude_ids else "true"
-                where_clause = where_clause.replace(f"id NOT IN ({','.join([f'%s' for _ in exclude_ids])})", exclude_clause)
-                # Remove exclude parameters
-                params = {k: v for k, v in params.items() if not k.startswith('exclude_')}
-            
-            result = db.execute(text(query), params).fetchall()
+            # Execute query with no parameters (direct values)
+            result = db.execute(text(query)).fetchall()
             
             candidates = []
             for row in result:
