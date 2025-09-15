@@ -695,10 +695,11 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
   };
 
   const handleAdaptiveSessionCompletion = async () => {
+    const livePack = currentPackRef.current;
     await handleSessionCompletionWithHandshake({
       completed: true,
-      questionsCompleted: currentPack.length || 12,
-      totalQuestions: currentPack.length || 12
+      questionsCompleted: livePack?.length || 12,
+      totalQuestions: livePack?.length || 12
     });
   };
 
