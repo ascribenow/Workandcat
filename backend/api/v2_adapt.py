@@ -201,3 +201,4 @@ async def v2_mark_served_controller(body: dict, auth_user_id: str = Depends(get_
 
 # Import for registration
 from database import SessionLocal
+from sqlalchemy import text
