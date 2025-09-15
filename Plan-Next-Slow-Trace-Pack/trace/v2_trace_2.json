@@ -1,0 +1,8 @@
+{
+  "request_id": "v2_trace_1_1757919642",
+  "route": "POST /api/adapt/plan-next (V2)",
+  "dur_ms": 9517,
+  "http_status": 200,
+  "resp_bytes": 321,
+  "test_type": "idempotent_call"
+}
