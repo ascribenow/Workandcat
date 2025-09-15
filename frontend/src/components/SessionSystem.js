@@ -71,25 +71,70 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
     }
   }, [currentPack]);
   
-  // SURGICAL FIX: Protected pack setter to prevent accidental clearing
-  const setCurrentPackSafe = (newPack) => {
-    const requestId = diagnosticRequestId.current;
+  // V2 HARDENING: Track mark-served state to prevent duplicate calls
+  const [packMarkedServed, setPackMarkedServed] = useState(false);
+
+  // SURGICAL FIX: Atomic pack fetch with loading awareness
+  const packEpochRef = useRef(0);
+  
+  const setPackSafe = (nextPack, reason) => {
+    // Record history
+    recordPackWrite(nextPack, reason);
     
-    // MICRO-INSTRUMENTATION: Record all pack writes
-    recordPackWrite(newPack, `setCurrentPackSafe-${requestId}`);
-    
-    if (!newPack || newPack.length === 0) {
-      console.error(`[PACK_MONITOR] ${requestId}: BLOCKED attempt to set empty pack!`, {
-        newPack,
-        currentPackLength: currentPack.length,
-        stackTrace: new Error().stack
-      });
-      // Don't allow pack to be set to empty unless explicitly clearing
+    // SURGICAL FIX: While session is in progress, never accept null/empty pack writes
+    if (inProgressSession && (!nextPack || nextPack.length === 0)) {
+      console.warn('[PACK-GUARD] ignored empty pack write while in-progress', { reason, inProgressSession });
       return;
     }
     
-    console.log(`[PACK_MONITOR] ${requestId}: Setting pack safely - ${newPack.length} items`);
-    setCurrentPack(newPack);
+    console.log(`[PACK-SAFE] Setting pack: ${Array.isArray(nextPack) ? nextPack.length : 'null'} items (${reason})`);
+    setCurrentPack(nextPack || []);
+  };
+  
+  const fetchPackSafe = async (userId, sessionId) => {
+    const epoch = ++packEpochRef.current;
+    setIsLoadingPack(true);
+    
+    try {
+      console.log(`[PACK-FETCH] Starting fetch epoch ${epoch} for session ${sessionId.substring(0, 8)}`);
+      
+      const res = await fetch(`${API}/adapt/pack?user_id=${userId}&session_id=${sessionId}`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('cat_prep_token')}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (!res.ok) {
+        console.warn('[PACK-FETCH] Non-OK response:', res.status);
+        // SURGICAL FIX: Don't zero pack on error - keep current pack
+        setError(`Pack fetch failed (${res.status}). Current session preserved.`);
+        return null;
+      }
+      
+      const data = await res.json();
+      
+      // SURGICAL FIX: Ignore stale responses
+      if (packEpochRef.current === epoch) {
+        const pack = data?.pack || [];
+        setPackSafe(pack, `fetch-pack-success-epoch-${epoch}`);
+        console.log(`[PACK-FETCH] Success epoch ${epoch}: ${pack.length} items`);
+        return pack;
+      } else {
+        console.warn(`[PACK-FETCH] Stale response ignored: epoch ${epoch} vs current ${packEpochRef.current}`);
+        return null;
+      }
+      
+    } catch (e) {
+      console.error('[PACK-FETCH] Error:', e.message);
+      // SURGICAL FIX: Keep old pack, don't write []
+      setError('Network error while fetching pack. Current session preserved.');
+      return null;
+    } finally {
+      if (packEpochRef.current === epoch) {
+        setIsLoadingPack(false);
+      }
+    }
   };
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [nextSessionId, setNextSessionId] = useState(null);
