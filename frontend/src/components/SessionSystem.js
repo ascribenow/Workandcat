@@ -602,7 +602,7 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
     setCurrentQuestion(question);
     setSessionProgress({
       current_question: questionIndex + 1,
-      total_questions: currentPack.length
+      total_questions: livePack.length
     });
     
     // CRITICAL: Explicitly clear loading states  
