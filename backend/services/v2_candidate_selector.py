@@ -123,9 +123,8 @@ class V2CandidateSelector:
         """
         db = SessionLocal()
         try:
-            # Build WHERE conditions
+            # Build WHERE conditions  
             conditions = ["is_active = true"]
-            params = {"seed_hash": seed % 2147483647}  # Stay within int range
             
             if pyq_score is not None:
                 if pyq_score >= 1.5:
