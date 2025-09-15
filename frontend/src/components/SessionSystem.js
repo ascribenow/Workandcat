@@ -1227,7 +1227,27 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
               <div className="space-y-3">
                 {/* Submit Answer Button */}
                 <button
-                  onClick={submitAnswer}
+                  onClick={async () => {
+                    const requestId = diagnosticRequestId.current;
+                    console.log(`[CRITICAL_DEBUG] ${requestId}: Submit button clicked - starting submission`);
+                    
+                    try {
+                      console.log(`[CRITICAL_DEBUG] ${requestId}: About to call submitAnswer function`);
+                      await submitAnswer();
+                      console.log(`[CRITICAL_DEBUG] ${requestId}: submitAnswer function completed successfully`);
+                    } catch (submitError) {
+                      console.error(`[CRITICAL_DEBUG] ${requestId}: SUBMIT BUTTON ERROR:`, {
+                        error: submitError.message,
+                        stack: submitError.stack,
+                        timestamp: new Date().toISOString()
+                      });
+                      
+                      // Try to keep session alive even if submit fails
+                      setError(`Submit failed: ${submitError.message}`);
+                      setLoading(false);
+                      setAnswerSubmitted(false);
+                    }
+                  }}
                   disabled={!userAnswer || loading || answerSubmitted || !currentQuestion.options}
                   className="w-full py-3 px-6 rounded-lg font-semibold transition-colors disabled:cursor-not-allowed"
                   style={{
