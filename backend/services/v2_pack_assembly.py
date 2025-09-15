@@ -121,36 +121,74 @@ class V2PackAssemblyService:
             db.close()
     
     def _parse_mcq_options(self, mcq_options) -> Dict[str, str]:
-        """Parse MCQ options from database field"""
+        """Parse MCQ options from database field - handles text format"""
         if not mcq_options:
             return {'a': 'Option A', 'b': 'Option B', 'c': 'Option C', 'd': 'Option D'}
         
         try:
-            if isinstance(mcq_options, str):
-                options_data = json.loads(mcq_options)
-            else:
-                options_data = mcq_options
-            
-            # Handle different formats
-            if isinstance(options_data, dict):
+            # First try JSON parsing (in case some are stored as JSON)
+            if isinstance(mcq_options, dict):
                 return {
-                    'a': options_data.get('a', options_data.get('option_a', 'Option A')),
-                    'b': options_data.get('b', options_data.get('option_b', 'Option B')),
-                    'c': options_data.get('c', options_data.get('option_c', 'Option C')),
-                    'd': options_data.get('d', options_data.get('option_d', 'Option D'))
+                    'a': mcq_options.get('a', mcq_options.get('option_a', 'Option A')),
+                    'b': mcq_options.get('b', mcq_options.get('option_b', 'Option B')),
+                    'c': mcq_options.get('c', mcq_options.get('option_c', 'Option C')),
+                    'd': mcq_options.get('d', mcq_options.get('option_d', 'Option D'))
                 }
-            elif isinstance(options_data, list) and len(options_data) >= 4:
+            elif isinstance(mcq_options, str):
+                # Try JSON first
+                try:
+                    parsed = json.loads(mcq_options)
+                    return self._parse_mcq_options(parsed)  # Recursive call with parsed dict
+                except json.JSONDecodeError:
+                    # Handle text format: "(A) 20%\n(B) 30%\n(C) 35.2%\n(D) 40%"
+                    return self._parse_text_mcq_options(mcq_options)
+            elif isinstance(mcq_options, list) and len(mcq_options) >= 4:
                 return {
-                    'a': options_data[0],
-                    'b': options_data[1], 
-                    'c': options_data[2],
-                    'd': options_data[3]
+                    'a': mcq_options[0],
+                    'b': mcq_options[1], 
+                    'c': mcq_options[2],
+                    'd': mcq_options[3]
                 }
             else:
                 return {'a': 'Option A', 'b': 'Option B', 'c': 'Option C', 'd': 'Option D'}
                 
         except Exception as e:
             logger.warning(f"Error parsing MCQ options: {e}")
+            return {'a': 'Option A', 'b': 'Option B', 'c': 'Option C', 'd': 'Option D'}
+    
+    def _parse_text_mcq_options(self, text_options: str) -> Dict[str, str]:
+        """Parse text format MCQ options like '(A) 20%\\n(B) 30%\\n(C) 35.2%\\n(D) 40%'"""
+        try:
+            options = {'a': 'Option A', 'b': 'Option B', 'c': 'Option C', 'd': 'Option D'}
+            
+            # Split by lines and parse each option
+            lines = text_options.strip().split('\n')
+            
+            for line in lines:
+                line = line.strip()
+                if not line:
+                    continue
+                    
+                # Match patterns like "(A) 20%" or "A) 30%" or "A. text"
+                if line.startswith('(A)') or line.startswith('A)') or line.startswith('A.'):
+                    options['a'] = line.split(')', 1)[-1].split('.', 1)[-1].strip()
+                elif line.startswith('(B)') or line.startswith('B)') or line.startswith('B.'):
+                    options['b'] = line.split(')', 1)[-1].split('.', 1)[-1].strip()
+                elif line.startswith('(C)') or line.startswith('C)') or line.startswith('C.'):
+                    options['c'] = line.split(')', 1)[-1].split('.', 1)[-1].strip()
+                elif line.startswith('(D)') or line.startswith('D)') or line.startswith('D.'):
+                    options['d'] = line.split(')', 1)[-1].split('.', 1)[-1].strip()
+            
+            # Validate we got real options (not just defaults)
+            real_options = [v for v in options.values() if not v.startswith('Option ')]
+            if len(real_options) >= 2:  # At least 2 real options found
+                return options
+            else:
+                logger.warning(f"Failed to parse sufficient real options from: {text_options[:100]}")
+                return {'a': 'Option A', 'b': 'Option B', 'c': 'Option C', 'd': 'Option D'}
+                
+        except Exception as e:
+            logger.warning(f"Error parsing text MCQ options: {e}")
             return {'a': 'Option A', 'b': 'Option B', 'c': 'Option C', 'd': 'Option D'}
     
     def _parse_concepts(self, core_concepts) -> List[str]:
