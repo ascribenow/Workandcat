@@ -127,7 +127,7 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
       // SURGICAL FIX: Ignore stale responses
       if (packEpochRef.current === epoch) {
         const pack = data?.pack || [];
-        setPackSafe(pack, `fetch-pack-success-epoch-${epoch}`);
+        setCurrentPackSafe(pack, `fetch-pack-success-epoch-${epoch}`);
         console.log(`[PACK-FETCH] Success epoch ${epoch}: ${pack.length} items`);
         return pack;
       } else {
