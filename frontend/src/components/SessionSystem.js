@@ -332,8 +332,11 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
   // Add session creation lock to prevent multiple simultaneous attempts  
   const [isCreatingSession, setIsCreatingSession] = useState(false);
 
-  // V2 HARDENING: Track mark-served state to prevent duplicate calls
-  const [packMarkedServed, setPackMarkedServed] = useState(false);
+  // SURGICAL FIX: Add loading and session progress tracking
+  const [isLoadingPack, setIsLoadingPack] = useState(false);
+  
+  // SURGICAL FIX: Helper to determine if session is in progress
+  const inProgressSession = sessionId && sessionProgress && !result?.session_complete;
 
   const startNextAdaptiveSessionWithAutoPlanning = async () => {
     // Prevent multiple simultaneous session creation
