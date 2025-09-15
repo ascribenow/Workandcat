@@ -4,6 +4,7 @@ import { useAuth, API } from './AuthProvider';
 import MathRenderer from './MathRenderer';
 import { ADAPTIVE_GLOBAL } from '../config';
 import { useRouteTrace, setupGlobalErrorMonitoring } from '../utils/sessionMonitoring';
+import SessionErrorBoundary from './SessionErrorBoundary';
 
 export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSessionEnd }) => {
   const { user } = useAuth();
