@@ -192,6 +192,27 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
     }
   }, [sessionId, sessionMetadata]);
 
+  // SURGICAL FIX: State-driven first question serving when pack becomes ready
+  const firstServeDoneRef = useRef(false);
+  useEffect(() => {
+    if (
+      currentPackRef.current?.length > 0 &&
+      !currentQuestion &&
+      sessionId &&
+      !isPlanning &&
+      !firstServeDoneRef.current
+    ) {
+      console.log('[BOOT] Pack ready & no currentQuestion; serving Q1');
+      firstServeDoneRef.current = true;
+      serveQuestionFromPack(0);
+    }
+  }, [currentQuestion, sessionId, isPlanning, currentPack]);
+
+  // SURGICAL FIX: Reset first serve flag when session changes
+  useEffect(() => {
+    firstServeDoneRef.current = false;
+  }, [sessionId]);
+
   const handleImagePreload = async (imageUrl) => {
     if (!imageUrl) return true;
     
