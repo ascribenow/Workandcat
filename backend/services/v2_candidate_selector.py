@@ -7,7 +7,7 @@ NO random sampling. NO full table scans. Pure V2 implementation.
 
 import logging
 import hashlib
-from typing import List, Dict, Any, Tuple
+from typing import List, Dict
 from dataclasses import dataclass
 from database import SessionLocal
 from sqlalchemy import text
