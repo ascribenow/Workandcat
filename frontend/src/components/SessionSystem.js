@@ -379,12 +379,7 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
         
         console.log('✅ Serving first question from pack...');
         
-        // SURGICAL FIX: Wait for state update before serving question
-        setTimeout(() => {
-          console.log('✅ State settled, serving question with delay...');
-          serveQuestionFromPack(0);
-        }, 100);
-        
+        // SURGICAL FIX: State-driven serving - removed setTimeout, will be handled by useEffect
         console.log('✅ Adaptive session started successfully');
       }
     } catch (error) {
