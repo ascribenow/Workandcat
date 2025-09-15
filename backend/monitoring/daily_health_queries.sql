@@ -8,12 +8,50 @@ FROM session_pack_plan
 WHERE served_at IS NULL 
   AND now() - created_at > interval '24 hours';
 
--- 2. Constraint drift detection (should be zero)  
-SELECT 'constraint_violations' as metric, COUNT(*) as count,
-       STRING_AGG(user_id::text || ':' || sess_seq::text, ', ') as affected_sessions
+-- 2. V2-CORRECTED: Constraint drift detection (should be zero)
+SELECT 'constraint_violations' AS metric,
+       COUNT(*) AS count,
+       STRING_AGG(user_id::text || ':' || sess_seq::text, ', ') AS affected_sessions
 FROM session_pack_plan
-WHERE (pack_json->'items' IS NULL OR jsonb_array_length(pack_json->'items') <> 12)
+WHERE (pack_json IS NULL
+       OR jsonb_typeof(pack_json) <> 'object'
+       OR NOT (pack_json ? 'items')
+       OR jsonb_array_length(pack_json->'items') <> 12)
   AND created_at > now() - interval '7 days';
+
+-- 2b. 3/6/3 band shape (should be all OK)
+SELECT 'band_shape_363' AS metric,
+       COUNT(*) FILTER (WHERE
+         (SELECT COUNT(*) FROM jsonb_array_elements(pack_json->'items') e WHERE e->>'bucket'='easy')   = 3 AND
+         (SELECT COUNT(*) FROM jsonb_array_elements(pack_json->'items') e WHERE e->>'bucket'='medium') = 6 AND
+         (SELECT COUNT(*) FROM jsonb_array_elements(pack_json->'items') e WHERE e->>'bucket'='hard')   = 3
+       ) AS ok_count,
+       COUNT(*) FILTER (WHERE
+         (SELECT COUNT(*) FROM jsonb_array_elements(pack_json->'items') e WHERE e->>'bucket'='easy')   <> 3 OR
+         (SELECT COUNT(*) FROM jsonb_array_elements(pack_json->'items') e WHERE e->>'bucket'='medium') <> 6 OR
+         (SELECT COUNT(*) FROM jsonb_array_elements(pack_json->'items') e WHERE e->>'bucket'='hard')   <> 3
+       ) AS violation_count
+FROM session_pack_plan
+WHERE created_at > now() - interval '7 days';
+
+-- 2c. PYQ minima (≥2 with 1.5 and ≥2 with 1.0)
+SELECT 'pyq_minima' AS metric,
+       COUNT(*) FILTER (WHERE
+         (SELECT COUNT(*) FROM jsonb_array_elements(pack_json->'items') e WHERE (e->>'pyq_frequency_score')::float >= 1.5) >= 2 AND
+         (SELECT COUNT(*) FROM jsonb_array_elements(pack_json->'items') e WHERE (e->>'pyq_frequency_score')::float >= 1.0) >= 2
+       ) AS ok_count,
+       COUNT(*) FILTER (WHERE
+         (SELECT COUNT(*) FROM jsonb_array_elements(pack_json->'items') e WHERE (e->>'pyq_frequency_score')::float >= 1.5) < 2 OR
+         (SELECT COUNT(*) FROM jsonb_array_elements(pack_json->'items') e WHERE (e->>'pyq_frequency_score')::float >= 1.0) < 2
+       ) AS violation_count
+FROM session_pack_plan
+WHERE created_at > now() - interval '7 days';
+
+-- 2d. Idempotency integrity (should be zero)
+SELECT 'duplicate_pack_rows' AS metric, user_id, sess_seq, COUNT(*) AS dup_count
+FROM session_pack_plan
+GROUP BY 1,2
+HAVING COUNT(*) > 1;
 
 -- 3. Recent sessions with attempt tracking
 SELECT 'session_health' as metric,
@@ -33,6 +71,18 @@ WHERE spp.created_at > now() - interval '2 days'
 ORDER BY spp.created_at DESC
 LIMIT 20;
 
+-- 3b. Completed sessions have 12 attempts (exactly-once submit)
+SELECT 'completion_attempts_mismatch' AS metric,
+       COUNT(*) AS bad_count
+FROM session_pack_plan spp
+WHERE spp.completed_at IS NOT NULL
+AND 12 <> (
+  SELECT COUNT(*)
+  FROM attempt_events a
+  WHERE a.user_id = spp.user_id
+    AND a.sess_seq_at_serve = spp.sess_seq
+);
+
 -- 4. Performance metrics (p95 tracking)
 SELECT 'performance_metrics' as metric,
        PERCENTILE_CONT(0.95) WITHIN GROUP (ORDER BY processing_time_ms) as p95_planning_ms,
@@ -41,6 +91,15 @@ SELECT 'performance_metrics' as metric,
        COUNT(*) as total_sessions
 FROM session_pack_plan
 WHERE created_at > now() - interval '24 hours';
+
+-- 4b. Summarizer coverage for recently completed sessions
+SELECT 'summarizer_coverage' AS metric,
+       COUNT(*) FILTER (WHERE sslm.session_id IS NOT NULL)  AS with_summary,
+       COUNT(*) FILTER (WHERE sslm.session_id IS NULL)      AS missing_summary
+FROM session_pack_plan spp
+LEFT JOIN session_summary_llm sslm
+  ON sslm.user_id = spp.user_id AND sslm.sess_seq = spp.sess_seq
+WHERE spp.completed_at > now() - interval '48 hours';
 
 -- 5. Error rate monitoring
 SELECT 'error_rates' as metric,
