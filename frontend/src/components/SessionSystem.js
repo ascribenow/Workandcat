@@ -596,48 +596,123 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
   };
 
   const submitAnswer = async () => {
+    const requestId = diagnosticRequestId.current;
+    console.log(`[DIAGNOSTIC] ${requestId}: Submit answer initiated`);
+    
     if (!userAnswer.trim()) {
+      console.log(`[DIAGNOSTIC] ${requestId}: No answer selected`);
       alert('Please select an answer');
       return;
     }
 
     if (!sessionId) {
+      console.error(`[DIAGNOSTIC] ${requestId}: No active session found`);
       setError('No active session found. Cannot submit answer.');
       return;
     }
+
+    // DIAGNOSTIC: Dump state before submission
+    console.log(`[STATE_DUMP] ${requestId}: Pre-submit state`, {
+      sessionId,
+      questionId: currentQuestion?.id,
+      userAnswer,
+      currentQuestionIndex,
+      packLength: currentPack.length,
+      adaptiveEnabled,
+      hasCurrentQuestion: !!currentQuestion,
+      questionStem: currentQuestion?.stem?.substring(0, 50)
+    });
 
     setLoading(true);
     setAnswerSubmitted(true);
     
     try {
-      const response = await axios.post(`${API}/sessions/${sessionId}/submit-answer`, {
-        question_id: currentQuestion.id,
-        user_answer: userAnswer,
-        context: 'session',
-        hint_used: false
-      });
+      // CRITICAL FIX: Use adaptive endpoint for adaptive sessions, legacy for legacy
+      let response;
+      
+      if (adaptiveEnabled && currentPack.length > 0) {
+        // V2 ADAPTIVE: Log action directly (no server submit needed)
+        console.log(`[DIAGNOSTIC] ${requestId}: Using adaptive answer logging`);
+        
+        // Create mock result for adaptive sessions
+        response = {
+          data: {
+            correct: userAnswer.toLowerCase() === (currentQuestion.right_answer?.toLowerCase() || 'unknown'),
+            correct_answer: currentQuestion.right_answer || 'Not specified',
+            explanation: 'Adaptive session - answer logged locally'
+          }
+        };
+        
+        // Log the action for analytics
+        await logQuestionAction('submit', {
+          user_answer: userAnswer,
+          question_id: currentQuestion.id,
+          session_type: 'adaptive'
+        });
+        
+        console.log(`[DIAGNOSTIC] ${requestId}: Adaptive answer logged successfully`);
+        
+      } else {
+        // LEGACY: Use legacy submit endpoint
+        console.log(`[DIAGNOSTIC] ${requestId}: Using legacy submit endpoint`);
+        
+        response = await axios.post(`${API}/sessions/${sessionId}/submit-answer`, {
+          question_id: currentQuestion.id,
+          user_answer: userAnswer,
+          context: 'session',
+          hint_used: false
+        });
+        
+        console.log(`[DIAGNOSTIC] ${requestId}: Legacy submit response:`, response.status);
+      }
 
       setResult(response.data);
       setShowResult(true);
       
-      // Log the submit action
-      await logQuestionAction('submit', {
-        user_answer: userAnswer
-      });
+      console.log(`[DIAGNOSTIC] ${requestId}: Answer submission successful, result:`, response.data);
       
       // Log correct/incorrect action based on result
       const resultAction = response.data.correct ? 'correct' : 'incorrect';
       await logQuestionAction(resultAction, {
         user_answer: userAnswer,
-        correct_answer: response.data.correct_answer
+        correct_answer: response.data.correct_answer,
+        session_type: adaptiveEnabled ? 'adaptive' : 'legacy'
       });
       
+      console.log(`[DIAGNOSTIC] ${requestId}: Question action logged:`, resultAction);
+      
     } catch (err) {
+      console.error(`[DIAGNOSTIC] ${requestId}: Submit answer ERROR:`, {
+        error: err.message,
+        status: err.response?.status,
+        statusText: err.response?.statusText,
+        responseData: err.response?.data
+      });
+      
       setError('Failed to submit answer');
-      console.error('Error submitting answer:', err);
       setAnswerSubmitted(false);
+      
+      // DIAGNOSTIC: Check if this error might trigger session blank
+      if (err.response?.status === 404) {
+        console.error(`[DIAGNOSTIC] ${requestId}: 404 error on submit - this might trigger session completion!`);
+      }
+      
     } finally {
       setLoading(false);
+      
+      // DIAGNOSTIC: Verify state after submission
+      setTimeout(() => {
+        console.log(`[STATE_VERIFY] ${requestId}: Post-submit state check`, {
+          hasCurrentQuestion: !!currentQuestion,
+          hasSessionId: !!sessionId,
+          hasResult: !!result,
+          showingResult: showResult,
+          loadingCleared: !loading,
+          currentUrl: window.location.href
+        });
+      }, 100);
+    }
+  };
     }
   };
 
