@@ -752,7 +752,7 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
     } catch (err) {
       if (err.response?.status === 404) {
         // V2 FIX: Don't trigger session completion for adaptive sessions
-        if (adaptiveEnabled && currentPack.length > 0) {
+        if (adaptiveEnabled && currentPackRef.current?.length > 0) {
           console.log('⚠️ 404 in adaptive session - ignoring (using pack-based serving)');
           setError('Using adaptive pack mode - no legacy endpoint needed');
         } else {
