@@ -733,6 +733,10 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
       
       console.log(`[DIAGNOSTIC] ${requestId}: Question action logged:`, resultAction);
       
+      // CRITICAL FIX: Don't advance question automatically - let user click Next
+      // The blank issue might be caused by automatic question advancement
+      console.log(`[DIAGNOSTIC] ${requestId}: Answer logged successfully - waiting for user to click Next`);
+      
     } catch (err) {
       console.error(`[DIAGNOSTIC] ${requestId}: Submit answer ERROR:`, {
         error: err.message,
