@@ -75,6 +75,9 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
   const setCurrentPackSafe = (newPack) => {
     const requestId = diagnosticRequestId.current;
     
+    // MICRO-INSTRUMENTATION: Record all pack writes
+    recordPackWrite(newPack, `setCurrentPackSafe-${requestId}`);
+    
     if (!newPack || newPack.length === 0) {
       console.error(`[PACK_MONITOR] ${requestId}: BLOCKED attempt to set empty pack!`, {
         newPack,
