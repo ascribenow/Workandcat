@@ -298,9 +298,9 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
             console.log('✅ Planning retry completed:', retryResponse.status);
             
           } catch (retryError) {
-            console.error('❌ Auto-plan guard failed after retry, falling back to legacy');
-            setError('Adaptive planning unavailable. Continuing with standard session.');
-            await handleLegacyQuestionFlow();
+            console.error('❌ Auto-plan guard failed after retry');
+            // V2 CRITICAL FIX: Don't use legacy fallback - it causes dashboard redirect
+            setError('Adaptive planning failed. Please refresh the page to try again.');
             return;  // V2 FIX: Early return to prevent state issues
           }
         }
