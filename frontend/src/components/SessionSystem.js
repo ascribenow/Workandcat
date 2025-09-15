@@ -66,15 +66,21 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
     });
   }, [user, adaptiveEnabled]);
 
-  // Handle case where no session ID is provided
+  // V2 HARDENING: Check for uncompleted sessions on mount
   useEffect(() => {
-    if (!propSessionId && !sessionId) {
-      setError('No active session found. Please start a new session.');
-      setLoading(false);
-    } else if (propSessionId && propSessionId !== sessionId) {
+    if (propSessionId && !sessionId) {
       setSessionId(propSessionId);
     }
-  }, [propSessionId, sessionId]);
+    
+    // V2 HARDENING: Handle session resume from localStorage
+    if (!propSessionId && !sessionId && user?.adaptive_enabled) {
+      const storedSessionId = localStorage.getItem('currentSessionId');
+      if (storedSessionId) {
+        console.log('[HARDENING] Checking for uncompleted session on mount:', storedSessionId);
+        // Don't auto-resume - let Dashboard handle it
+      }
+    }
+  }, [propSessionId, sessionId, user]);
 
   useEffect(() => {
     if (sessionId) {
