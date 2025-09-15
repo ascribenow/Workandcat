@@ -542,12 +542,14 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
 
   const serveQuestionFromPack = (questionIndex) => {
     const requestId = diagnosticRequestId.current;
-    console.log(`[DIAGNOSTIC] ${requestId}: Serving question ${questionIndex + 1} of ${currentPack.length}`);
+    // SURGICAL FIX: Use currentPackRef to get live pack
+    const livePack = currentPackRef.current;
+    console.log(`[DIAGNOSTIC] ${requestId}: Serving question ${questionIndex + 1} of ${livePack.length}`);
     
     // DIAGNOSTIC: Dump critical state before serving
     console.log(`[STATE_DUMP] ${requestId}`, {
       questionIndex,
-      packLength: currentPack.length,
+      packLength: livePack.length,
       sessionId,
       currentQuestionId: currentQuestion?.id,
       sessionProgress,
@@ -557,21 +559,21 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
       sessionStorage_keys: Object.keys(sessionStorage)
     });
     
-    // CRITICAL FIX: Validate pack exists before checking completion
-    if (!currentPack || currentPack.length === 0) {
+    // SURGICAL FIX: Use livePack to avoid stale closure reads
+    if (!livePack || livePack.length === 0) {
       console.error(`[DIAGNOSTIC] ${requestId}: CRITICAL - Pack is empty! Cannot serve question.`);
       setError('Session pack is empty. Please refresh to restart.');
       return;
     }
     
-    if (questionIndex >= currentPack.length) {
-      console.log(`[DIAGNOSTIC] ${requestId}: Session completion triggered - ${questionIndex} >= ${currentPack.length}`);
+    if (questionIndex >= livePack.length) {
+      console.log(`[DIAGNOSTIC] ${requestId}: Session completion triggered - ${questionIndex} >= ${livePack.length}`);
       // Session completed - trigger adaptive planning for next session
       handleAdaptiveSessionCompletion();
       return;
     }
 
-    const packItem = currentPack[questionIndex];
+    const packItem = livePack[questionIndex];
     console.log(`[DIAGNOSTIC] ${requestId}: Pack item keys:`, Object.keys(packItem));
     
     // V2 FIX: Use actual question data from V2 pack structure
