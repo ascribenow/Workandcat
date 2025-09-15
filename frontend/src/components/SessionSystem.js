@@ -1663,3 +1663,5 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
     </SessionErrorBoundary>
   );
 };
+
+export default SessionSystem;
