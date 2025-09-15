@@ -64,6 +64,14 @@ class V2PackItem(BaseModel):
     pair: str = Field(..., description="Subcategory:Type")
     pyq_frequency_score: float = Field(..., description="PYQ score: 0.5|1.0|1.5")
     semantic_concepts: List[str] = Field(default_factory=list)
+    # V2 Frontend Compatibility Fields
+    option_a: str = Field("Option A", description="MCQ Option A")
+    option_b: str = Field("Option B", description="MCQ Option B") 
+    option_c: str = Field("Option C", description="MCQ Option C")
+    option_d: str = Field("Option D", description="MCQ Option D")
+    right_answer: str = Field("", description="Correct answer")
+    subcategory: str = Field("Unknown", description="Question subcategory")
+    difficulty_band: str = Field("Medium", description="Difficulty band")
 
 class V2Pack(BaseModel):
     """V2 Complete Pack - Ready for frontend consumption"""
