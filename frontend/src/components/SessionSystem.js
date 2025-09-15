@@ -308,16 +308,19 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
 
     const packItem = currentPack[questionIndex];
     
-    // Convert pack item to question format expected by UI
+    // V2 FIX: Use actual question data from pack item
     const question = {
       id: packItem.item_id,
-      // We need to fetch full question details from the question ID
-      // For now, create a mock structure
-      stem: 'Loading question...',
-      options: { a: 'A', b: 'B', c: 'C', d: 'D' },
+      stem: packItem.why || 'Question content unavailable',  // V2 FIX: Use actual stem
+      options: {
+        a: packItem.option_a || 'Option A',  // V2 FIX: Use real options if available
+        b: packItem.option_b || 'Option B',
+        c: packItem.option_c || 'Option C', 
+        d: packItem.option_d || 'Option D'
+      },
       has_image: false,
-      subcategory: packItem.why?.pair || 'Unknown',
-      difficulty_band: packItem.bucket
+      subcategory: packItem.pair?.split(':')[0] || 'Unknown',
+      difficulty_band: packItem.bucket || 'Medium'
     };
 
     setCurrentQuestion(question);
@@ -327,7 +330,8 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
     });
     
     setLoading(false);
-    console.log('🎯 Adaptive question served:', question.id, `(${questionIndex + 1}/${currentPack.length})`);
+    console.log('🎯 V2 Adaptive question served:', question.id, `(${questionIndex + 1}/${currentPack.length})`);
+    console.log('📝 Question stem:', question.stem.substring(0, 100) + '...');
   };
 
   const handleSessionCompletionWithHandshake = async (completionData) => {
