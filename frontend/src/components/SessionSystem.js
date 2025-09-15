@@ -416,9 +416,10 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
       };
 
       // First try to get existing pack
-      let pack = await tryFetchPack(user.id, nextSessionId);
+      let pack = await fetchPackSafe(user.id, nextSessionId);
       
-      if (!pack) {
+      // SURGICAL FIX: Safe guard for pack check
+      if (!isLoadingPack && (pack == null || pack.length === 0) && !inProgressSession) {
         console.log('📋 No existing pack, triggering planning...');
         
         // Plan session with proper headers
