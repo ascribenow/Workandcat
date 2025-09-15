@@ -273,6 +273,12 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
     const requestId = diagnosticRequestId.current;
     console.log(`[DIAGNOSTIC] ${requestId}: fetchNextQuestion called`);
     
+    // SURGICAL FIX: Gate fetchNextQuestion while planning to prevent double-boot
+    if (isPlanning) {
+      console.log(`[DIAGNOSTIC] ${requestId}: Planning in progress; skipping fetchNextQuestion to avoid race.`);
+      return;
+    }
+    
     // Check if we have a valid session ID
     if (!sessionId) {
       console.error(`[DIAGNOSTIC] ${requestId}: No session ID - setting error`);
