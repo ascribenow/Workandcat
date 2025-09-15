@@ -724,13 +724,12 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
         responseData: err.response?.data
       });
       
-      setError('Failed to submit answer');
+      // V2 HARDENING: Show error but DO NOT navigate away or clear state
+      setError(`Answer submission failed: ${err.response?.status || err.message}. Please try again.`);
       setAnswerSubmitted(false);
       
-      // DIAGNOSTIC: Check if this error might trigger session blank
-      if (err.response?.status === 404) {
-        console.error(`[DIAGNOSTIC] ${requestId}: 404 error on submit - this might trigger session completion!`);
-      }
+      // V2 HARDENING: Keep session state intact, don't trigger completion
+      console.log(`[DIAGNOSTIC] ${requestId}: Keeping session state intact despite submit error`);
       
     } finally {
       setLoading(false);
