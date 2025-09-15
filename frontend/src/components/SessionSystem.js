@@ -308,19 +308,20 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
 
     const packItem = currentPack[questionIndex];
     
-    // V2 FIX: Use actual question data from pack item
+    // V2 FIX: Use actual question data from V2 pack structure
     const question = {
       id: packItem.item_id,
-      stem: packItem.why || 'Question content unavailable',  // V2 FIX: Use actual stem
+      stem: packItem.why || 'Question content unavailable',  // V2: Use actual stem
       options: {
-        a: packItem.option_a || 'Option A',  // V2 FIX: Use real options if available
+        a: packItem.option_a || 'Option A',  // V2: Use real options
         b: packItem.option_b || 'Option B',
         c: packItem.option_c || 'Option C', 
         d: packItem.option_d || 'Option D'
       },
       has_image: false,
-      subcategory: packItem.pair?.split(':')[0] || 'Unknown',
-      difficulty_band: packItem.bucket || 'Medium'
+      subcategory: packItem.subcategory || packItem.pair?.split(':')[0] || 'Unknown',
+      difficulty_band: packItem.difficulty_band || packItem.bucket || 'Medium',
+      right_answer: packItem.right_answer || ''
     };
 
     setCurrentQuestion(question);
@@ -331,7 +332,8 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
     
     setLoading(false);
     console.log('🎯 V2 Adaptive question served:', question.id, `(${questionIndex + 1}/${currentPack.length})`);
-    console.log('📝 Question stem:', question.stem.substring(0, 100) + '...');
+    console.log('📝 Question stem:', question.stem?.substring(0, 100) + '...');
+    console.log('📋 Options:', Object.keys(question.options).map(k => `${k}: ${question.options[k]?.substring(0, 30)}...`));
   };
 
   const handleSessionCompletionWithHandshake = async (completionData) => {
