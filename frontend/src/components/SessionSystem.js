@@ -1055,7 +1055,8 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6" style={{ fontFamily: 'Manrope, sans-serif' }}>
+    <SessionErrorBoundary>
+      <div className="max-w-4xl mx-auto p-6" style={{ fontFamily: 'Manrope, sans-serif' }}>
       {/* Session Progress Header */}
       {sessionProgress && (
         <div className="border rounded-lg p-4 mb-6" style={{ backgroundColor: '#f7fdf0', borderColor: '#9ac026' }}>
