@@ -912,27 +912,36 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
   };
 
   const markPackServed = async (sessionId) => {
+    const requestId = diagnosticRequestId.current;
+    
+    // V2 HARDENING: Only mark served once per session
+    if (packMarkedServed) {
+      console.log(`[DIAGNOSTIC] ${requestId}: Pack already marked served, skipping`);
+      return;
+    }
+    
     try {
       await axios.post(`${API}/adapt/mark-served`, {
         user_id: user.id,
         session_id: sessionId
       });
-      console.log('✅ Pack marked as served:', sessionId);
+      console.log(`[DIAGNOSTIC] ${requestId}: Pack marked as served:`, sessionId);
+      setPackMarkedServed(true);  // V2 HARDENING: Set flag to prevent duplicates
       
       // NEW: Mark session as started (first question render)
       try {
         await axios.post(`${API}/sessions/mark-started`, {
           session_id: sessionId
         });
-        console.log('🟢 session started:', sessionId);
+        console.log(`[DIAGNOSTIC] ${requestId}: Session marked as started`);
       } catch (startError) {
-        console.warn('⚠️ Session start timestamp failed:', startError);
-        // Don't fail the flow
+        console.warn(`[DIAGNOSTIC] ${requestId}: Mark started failed (non-critical):`, startError.message);
       }
       
     } catch (error) {
-      console.error('❌ Mark served failed:', error);
-      // Don't throw - this shouldn't break the flow
+      console.error(`[DIAGNOSTIC] ${requestId}: Mark served failed:`, error.message);
+      // V2 HARDENING: Don't throw - marking served failure shouldn't break session
+      console.warn(`[DIAGNOSTIC] ${requestId}: Continuing session despite mark-served failure`);
     }
   };
 
