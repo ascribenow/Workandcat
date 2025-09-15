@@ -199,7 +199,14 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
 
   const startNextAdaptiveSession = async (sessionId) => {
     try {
+      console.log('🎯 Starting adaptive session:', sessionId);
       const pack = await fetchAdaptivePack(sessionId);
+      
+      if (!pack || pack.length === 0) {
+        throw new Error('Empty or invalid pack received');
+      }
+      
+      console.log('✅ Pack received, setting up session state...');
       setCurrentPack(pack);
       setCurrentQuestionIndex(0);
       setSessionId(sessionId);
@@ -207,9 +214,13 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
       // Mark as served after we start rendering
       await markPackServed(sessionId);
       
+      console.log('✅ Serving first question from pack...');
       serveQuestionFromPack(0);
+      
+      console.log('✅ Adaptive session started successfully');
     } catch (error) {
-      console.warn('Adaptive pack failed, falling back to legacy:', error);
+      console.error('❌ Adaptive session failed:', error);
+      console.warn('Falling back to legacy session flow');
       await handleLegacyQuestionFlow();
     }
   };
