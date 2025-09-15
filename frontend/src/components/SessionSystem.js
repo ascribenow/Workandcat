@@ -54,6 +54,21 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
 
   // Adaptive session state  
   const [currentPack, setCurrentPack] = useState([]);
+  
+  // CRITICAL DEBUG: Monitor pack changes
+  useEffect(() => {
+    const requestId = diagnosticRequestId.current;
+    console.log(`[PACK_MONITOR] ${requestId}: Pack changed - length: ${currentPack.length}`, {
+      packLength: currentPack.length,
+      packFirstItem: currentPack[0]?.item_id || 'none',
+      timestamp: new Date().toISOString()
+    });
+    
+    if (currentPack.length === 0) {
+      console.warn(`[PACK_MONITOR] ${requestId}: CRITICAL - Pack is empty! This will cause session completion.`);
+      console.trace('Pack emptied stack trace');
+    }
+  }, [currentPack]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [nextSessionId, setNextSessionId] = useState(null);
   const [isPlanning, setIsPlanning] = useState(false);
