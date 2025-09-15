@@ -326,9 +326,9 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
         }
         
         if (!pack || pack.length === 0) {
-          console.error('❌ Pack still not available after planning, falling back to legacy');
-          setError('Adaptive pack not ready. Continuing with standard session.');
-          await handleLegacyQuestionFlow();
+          console.error('❌ Pack still not available after planning');
+          // V2 CRITICAL FIX: Don't use legacy fallback - show error instead
+          setError('Session planning completed but pack not ready. Please refresh to try again.');
           return;  // V2 FIX: Early return to prevent state issues
         }
       }
