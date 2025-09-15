@@ -466,25 +466,13 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
         console.log('⏳ Waiting for pack persistence...');
         await new Promise(r => setTimeout(r, 1000));
         
-        // Fetch pack after planning with retries
-        for (let attempt = 1; attempt <= 3; attempt++) {
-          console.log(`📦 Pack fetch attempt ${attempt}/3...`);
-          pack = await tryFetchPack(user.id, nextSessionId);
-          
-          if (pack && pack.length > 0) {
-            console.log(`✅ Pack fetch successful on attempt ${attempt}: ${pack.length} questions`);
-            break;
-          } else {
-            console.log(`⚠️ Pack fetch attempt ${attempt} failed, waiting...`);
-            if (attempt < 3) {
-              await new Promise(r => setTimeout(r, 2000 * attempt));  // Exponential backoff
-            }
-          }
-        }
+        // Fetch pack after planning with safe fetching
+        pack = await fetchPackSafe(user.id, nextSessionId);
         
-        if (!pack || pack.length === 0) {
+        // SURGICAL FIX: Safe guard after planning
+        if (!isLoadingPack && (pack == null || pack.length === 0) && !inProgressSession) {
           console.error('❌ Pack still not available after planning');
-          // V2 CRITICAL FIX: Don't use legacy fallback - show error instead
+          // SURGICAL FIX: Don't navigate - show local error UI
           setError('Session planning completed but pack not ready. Please refresh to try again.');
           return;  // V2 FIX: Early return to prevent state issues
         }
