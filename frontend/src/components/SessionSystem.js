@@ -226,8 +226,11 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
   };
 
   const startNextAdaptiveSessionWithAutoPlanning = async () => {
+    setIsPlanning(true);  // Set planning state
+    setError('');         // Clear any errors
+    setLoading(true);     // Ensure loading is set
+    
     try {
-      setIsPlanning(true);
       console.log('🎯 Auto-planning session (no pre-planned pack available)...');
       
       // Get last completed session
@@ -235,14 +238,21 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
       const cached = loadNext(user.id);
       const nextSessionId = cached?.nextSessionId || generateSessionId();
       
-      // Pre-session auto-plan guard with retry
+      console.log('📋 Auto-planning with session ID:', nextSessionId);
+
+      // Generate headers
+      const headers = {
+        'Idempotency-Key': generateSessionId() // Use for idempotency
+      };
+
+      // First try to get existing pack
       let pack = await tryFetchPack(user.id, nextSessionId);
       
       if (!pack) {
-        const headers = { 'Idempotency-Key': `${user.id}:${lastSessionId}:${nextSessionId}` };
+        console.log('📋 No existing pack, triggering planning...');
         
+        // Plan session
         try {
-          // First attempt with extended timeout for LLM processing
           await axios.post(`${API}/adapt/plan-next`, {
             user_id: user.id,
             last_session_id: lastSessionId,
@@ -272,7 +282,7 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
             console.error('❌ Auto-plan guard failed after retry, falling back to legacy');
             setError('Adaptive planning unavailable. Continuing with standard session.');
             await handleLegacyQuestionFlow();
-            return;
+            return;  // V2 FIX: Early return to prevent state issues
           }
         }
         
@@ -283,11 +293,12 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
           console.error('❌ Pack still not available after planning, falling back to legacy');
           setError('Adaptive pack not ready. Continuing with standard session.');
           await handleLegacyQuestionFlow();
-          return;
+          return;  // V2 FIX: Early return to prevent state issues
         }
       }
       
       // Success - serve adaptive pack
+      console.log('✅ Pack available, setting up adaptive session...');
       setCurrentPack(pack);
       setCurrentQuestionIndex(0);
       setSessionId(nextSessionId);
@@ -297,6 +308,7 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
       clearNext(user.id);
       await markPackServed(nextSessionId);
       
+      console.log('✅ About to serve first question from pack...');
       serveQuestionFromPack(0);
       
       console.log('✅ Auto-plan guard successful, serving adaptive pack');
@@ -306,7 +318,10 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
       setError('Failed to start adaptive session. Continuing with standard session.');
       await handleLegacyQuestionFlow();
     } finally {
+      // V2 FIX: Always clear planning state
+      console.log('🔧 V2 FIX: Clearing isPlanning state in finally block');
       setIsPlanning(false);
+      setLoading(false);
     }
   };
 
