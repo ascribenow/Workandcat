@@ -221,7 +221,7 @@ class V2SessionPipeline:
                     retry_used = EXCLUDED.retry_used,
                     llm_model_used = EXCLUDED.llm_model_used,
                     processing_time_ms = EXCLUDED.processing_time_ms,
-                    updated_at = NOW()
+                    status = 'planned'
             """), {
                 "user_id": user_id,
                 "session_id": session_id,
