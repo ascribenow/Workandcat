@@ -146,19 +146,22 @@ class V2CandidateSelector:
             
             where_clause = " AND ".join(conditions)
             
-            # V2 Wrap-around selection using shuffle_hash index
+            # V2 Wrap-around selection using shuffle_hash index  
+            # Use direct hash value instead of parameter binding
+            seed_hash = seed % 2147483647
+            
             query = f"""
             WITH chunk_forward AS (
                 SELECT id, difficulty_band, pyq_frequency_score, subcategory, type_of_question, shuffle_hash
                 FROM questions
-                WHERE {where_clause} AND shuffle_hash >= %(seed_hash)s
+                WHERE {where_clause} AND shuffle_hash >= {seed_hash}
                 ORDER BY shuffle_hash
                 LIMIT {limit}
             ),
             chunk_wrap AS (
                 SELECT id, difficulty_band, pyq_frequency_score, subcategory, type_of_question, shuffle_hash
                 FROM questions  
-                WHERE {where_clause} AND shuffle_hash < %(seed_hash)s
+                WHERE {where_clause} AND shuffle_hash < {seed_hash}
                 ORDER BY shuffle_hash
                 LIMIT GREATEST(0, {limit} - (SELECT COUNT(*) FROM chunk_forward))
             )
