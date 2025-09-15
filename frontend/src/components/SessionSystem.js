@@ -56,6 +56,10 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
   // Adaptive session state  
   const [currentPack, setCurrentPack] = useState([]);
   
+  // SURGICAL FIX: Add ref for latest pack to avoid stale closures
+  const currentPackRef = useRef(currentPack);
+  useEffect(() => { currentPackRef.current = currentPack; }, [currentPack]);
+  
   // CRITICAL DEBUG: Monitor pack changes
   useEffect(() => {
     const requestId = diagnosticRequestId.current;
