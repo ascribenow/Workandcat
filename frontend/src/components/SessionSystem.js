@@ -299,7 +299,7 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
       }
       
       console.log('✅ Pack received, setting up session state...');
-      setCurrentPack(pack);
+      setCurrentPackSafe(pack);
       setCurrentQuestionIndex(0);
       setSessionId(sessionId);
       
