@@ -681,9 +681,12 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
 
   const tryFetchPack = async (userId, sessionId) => {
     try {
-      return await fetchAdaptivePack(sessionId);
+      console.log(`📦 Attempting to fetch pack for session: ${sessionId}`);
+      const pack = await fetchAdaptivePack(sessionId);
+      console.log(`✅ Pack fetch successful: ${pack ? pack.length : 0} questions`);
+      return pack;
     } catch (error) {
-      console.log('Pack fetch failed:', error);
+      console.log(`❌ Pack fetch failed for ${sessionId}:`, error.response?.status, error.message);
       return null;
     }
   };
