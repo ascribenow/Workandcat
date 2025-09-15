@@ -81,7 +81,7 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
   // SURGICAL FIX: Atomic pack fetch with loading awareness
   const packEpochRef = useRef(0);
   
-  const setPackSafe = (nextPack, reason) => {
+  const setCurrentPackSafe = (nextPack, reason) => {
     // Record history
     recordPackWrite(nextPack, reason);
     
@@ -93,6 +93,12 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
     
     console.log(`[PACK-SAFE] Setting pack: ${Array.isArray(nextPack) ? nextPack.length : 'null'} items (${reason})`);
     setCurrentPack(nextPack || []);
+  };
+  
+  // SURGICAL FIX: Dedicated clear function for explicit pack clearing
+  const clearPack = () => {
+    recordPackWrite([], 'explicit-clear-pack');
+    setCurrentPack([]); // Only this path may set empty
   };
   
   const fetchPackSafe = async (userId, sessionId) => {
