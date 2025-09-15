@@ -783,12 +783,25 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
   };
 
   const handleNextQuestion = () => {
+    const requestId = diagnosticRequestId.current;
+    console.log(`[CRITICAL_DEBUG] ${requestId}: handleNextQuestion called`);
+    
     if (adaptiveEnabled && currentPack.length > 0) {
       // Adaptive flow: advance to next question in pack
       const nextIndex = currentQuestionIndex + 1;
+      console.log(`[CRITICAL_DEBUG] ${requestId}: Advancing to question ${nextIndex + 1} of ${currentPack.length}`);
+      
+      // SURGICAL FIX: Validate before advancing
+      if (nextIndex >= currentPack.length) {
+        console.log(`[CRITICAL_DEBUG] ${requestId}: Reached end of pack (${nextIndex} >= ${currentPack.length}) - completing session`);
+        handleAdaptiveSessionCompletion();
+        return;
+      }
+      
       setCurrentQuestionIndex(nextIndex);
       serveQuestionFromPack(nextIndex);
     } else {
+      console.log(`[CRITICAL_DEBUG] ${requestId}: Using legacy flow for next question`);
       // Legacy flow: fetch from server
       fetchNextQuestion();
     }
