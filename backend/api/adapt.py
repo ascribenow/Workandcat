@@ -13,6 +13,9 @@ V2 Implementation Active:
 from api.v2_adapt import router
 
 # V2 CUTOVER COMPLETE - All endpoints now use V2 implementation
+
+@router.post("/plan-next")
+async def plan_next_controller(body: dict, request: Request, user_id: str = Depends(get_current_user)):
     """
     Plan the next session after current session completion - WITH DIAGNOSTIC TRACING
     
