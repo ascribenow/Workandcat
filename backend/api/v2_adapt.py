@@ -183,8 +183,7 @@ async def v2_mark_served_controller(body: dict, auth_user_id: str = Depends(get_
         result = db.execute(text("""
             UPDATE session_pack_plan 
             SET status = 'served',
-                served_at = NOW(),
-                updated_at = NOW()
+                served_at = NOW()
             WHERE user_id = :user_id AND session_id = :session_id AND status = 'planned'
         """), {"user_id": user_id, "session_id": session_id})
         
