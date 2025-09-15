@@ -71,11 +71,27 @@ def test_v2_core_objectives():
     print(f"\n📦 TESTING V2 PACK FETCH & TELEMETRY")
     
     if performance_times:
-        # Use the last successful session
-        last_session = f"v2_focused_2_{uuid.uuid4()}"
+        # Use the last successful session from the performance test
+        last_session = f"v2_focused_2_{str(uuid.uuid4()).split('-')[0]}"  # Use the same format
         
-        # Get pack
-        response = requests.get(f"{base_url}/adapt/pack?user_id={user_id}&session_id={last_session}", headers=headers, timeout=30)
+        # First create a session
+        plan_data = {
+            "user_id": user_id,
+            "last_session_id": "S0",
+            "next_session_id": last_session
+        }
+        
+        headers_with_idem = headers.copy()
+        headers_with_idem['Idempotency-Key'] = f"{user_id}:S0:{last_session}"
+        
+        # Plan the session first
+        plan_response = requests.post(f"{base_url}/adapt/plan-next", json=plan_data, headers=headers_with_idem, timeout=60)
+        
+        if plan_response.status_code == 200:
+            print(f"   ✅ Session planned successfully")
+            
+            # Now get pack
+            response = requests.get(f"{base_url}/adapt/pack?user_id={user_id}&session_id={last_session}", headers=headers, timeout=30)
         
         if response.status_code == 200:
             pack_data = response.json()
