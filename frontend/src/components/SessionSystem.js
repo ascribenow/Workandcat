@@ -341,8 +341,8 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
   };
 
   const handleAdaptiveQuestionFlow = async () => {
-    // If we have a pack but need to start/continue from it
-    if (currentPack.length > 0) {
+    // SURGICAL FIX: Use currentPackRef to avoid stale closure reads
+    if (currentPackRef.current && currentPackRef.current.length > 0) {
       // Serve from current pack
       serveQuestionFromPack(currentQuestionIndex);
     } else if (nextSessionId) {
