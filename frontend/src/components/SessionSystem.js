@@ -453,7 +453,12 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
       }
       
       console.log('✅ About to serve first question from pack...');
-      serveQuestionFromPack(0);
+      
+      // SURGICAL FIX: Wait for React state updates before serving
+      setTimeout(() => {
+        console.log('✅ State settled, serving first question...');
+        serveQuestionFromPack(0);
+      }, 100);
       
       console.log('✅ Auto-plan guard successful, serving adaptive pack');
       
