@@ -450,8 +450,15 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
       sessionStorage_keys: Object.keys(sessionStorage)
     });
     
+    // CRITICAL FIX: Validate pack exists before checking completion
+    if (!currentPack || currentPack.length === 0) {
+      console.error(`[DIAGNOSTIC] ${requestId}: CRITICAL - Pack is empty! Cannot serve question.`);
+      setError('Session pack is empty. Please refresh to restart.');
+      return;
+    }
+    
     if (questionIndex >= currentPack.length) {
-      console.log(`[DIAGNOSTIC] ${requestId}: Session completion triggered`);
+      console.log(`[DIAGNOSTIC] ${requestId}: Session completion triggered - ${questionIndex} >= ${currentPack.length}`);
       // Session completed - trigger adaptive planning for next session
       handleAdaptiveSessionCompletion();
       return;
