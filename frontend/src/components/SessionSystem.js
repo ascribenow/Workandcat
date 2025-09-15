@@ -364,7 +364,7 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
       
       if (pack && pack.length > 0) {
         console.log('✅ Pack received, setting up session state...');
-        setPackSafe(pack, 'startNextAdaptiveSession-success');
+        setCurrentPackSafe(pack, 'startNextAdaptiveSession-success');
         setCurrentQuestionIndex(0);
         setSessionId(sessionId);
         
