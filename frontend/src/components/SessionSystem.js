@@ -220,8 +220,11 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
       console.log('✅ Adaptive session started successfully');
     } catch (error) {
       console.error('❌ Adaptive session failed:', error);
-      console.warn('Falling back to legacy session flow');
-      await handleLegacyQuestionFlow();
+      // V2 CRITICAL FIX: Don't fall back to legacy - it triggers dashboard redirect
+      // Instead, show error and let user retry
+      setError(`Adaptive session failed: ${error.message}. Please refresh to try again.`);
+      setLoading(false);
+      setIsPlanning(false);
     }
   };
 
