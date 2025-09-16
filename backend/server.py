@@ -793,11 +793,10 @@ async def log_question_action(
                                 if clean_answer:
                                     break
                         
-                        # Create question object with correct answer field
+                        # Create question object with ONLY answer field (never right_answer)
                         question = type('Question', (), {
                             'id': item.get('item_id'),
-                            'answer': clean_answer or options[0],  # Use found answer or fallback to first option
-                            'right_answer': item.get('right_answer', ''),
+                            'answer': item.get('answer', ''),  # Use pack answer field only
                             'difficulty_band': item.get('bucket', 'Medium'),
                             'subcategory': item.get('subcategory', ''),
                             'type_of_question': item.get('pair', '').split(':')[0] if item.get('pair') else '',
