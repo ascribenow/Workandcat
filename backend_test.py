@@ -7088,49 +7088,64 @@ class CATBackendTester:
         return success_rate >= 70  # Return True if most endpoints are working
 
 if __name__ == "__main__":
-    print("🚀 V2 IMPLEMENTATION VALIDATION - STARTING TESTS")
-    print("=" * 80)
-    print("Testing V2 redesign validation objectives:")
-    print("1. Performance Verification (≤10s target)")
-    print("2. V2 Contract Compliance (schema validation)")
-    print("3. Database Optimization (no ORDER BY RANDOM())")
-    print("4. End-to-End V2 Flow (plan-next → pack → mark-served)")
-    print("5. Fallback System (deterministic fallback)")
-    print("6. Frontend Compatibility (API contract unchanged)")
-    print("=" * 80)
-    
     tester = CATBackendTester()
     
-    try:
-        # Run the V2 implementation validation
-        success = tester.test_v2_implementation_validation()
-        
-        print("\n" + "=" * 80)
-        print("🏁 V2 IMPLEMENTATION VALIDATION - FINAL SUMMARY")
-        print("=" * 80)
-        
-        if success:
-            print("🎉 SUCCESS: V2 implementation validation PASSED")
-            print("   - Performance target ≤10s achieved consistently")
-            print("   - 89-91% performance improvement confirmed")
-            print("   - V2 contract compliance verified")
-            print("   - Database optimizations effective")
-            print("   - Fallback system operational")
-            print("   - Frontend compatibility maintained")
-            print("   - Clean V2 redesign working correctly")
-        else:
-            print("❌ FAILURE: V2 implementation validation FAILED")
-            print("   - Some V2 acceptance criteria not met")
-            print("   - Additional optimization may be required")
-            print("   - Review failed test categories above")
-        
-        print(f"\nOverall Test Results: {tester.tests_passed}/{tester.tests_run} passed")
-        print(f"Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%")
-        
-    except Exception as e:
-        print(f"\n❌ CRITICAL ERROR during V2 testing: {e}")
-        print("V2 validation aborted due to unexpected error")
-        import traceback
-        traceback.print_exc()
-        
+    print("🚀 STARTING COMPREHENSIVE CAT BACKEND TESTING")
+    print("=" * 80)
+    
+    # Run all test suites
+    all_tests_passed = True
+    
+    # Test 1: Solution Feedback & Doubts System Validation (NEW - PRIMARY FOCUS)
+    print("\n" + "🎓" * 20)
+    print("TEST SUITE 1: SOLUTION FEEDBACK & DOUBTS SYSTEM VALIDATION")
+    print("🎓" * 20)
+    feedback_passed = tester.test_solution_feedback_and_doubts_system()
+    if not feedback_passed:
+        all_tests_passed = False
+    
+    # Test 2: V2 Implementation Validation
+    print("\n" + "🚀" * 20)
+    print("TEST SUITE 2: V2 IMPLEMENTATION VALIDATION")
+    print("🚀" * 20)
+    v2_passed = tester.test_v2_implementation_validation()
+    if not v2_passed:
+        all_tests_passed = False
+    
+    # Test 3: Session Pack Empty Fix Validation
+    print("\n" + "🚨" * 20)
+    print("TEST SUITE 3: SESSION PACK EMPTY FIX VALIDATION")
+    print("🚨" * 20)
+    pack_fix_passed = tester.test_session_pack_empty_fix_validation()
+    if not pack_fix_passed:
+        all_tests_passed = False
+    
+    # Test 4: Critical Backend Fixes Validation
+    print("\n" + "🚨" * 20)
+    print("TEST SUITE 4: CRITICAL BACKEND FIXES VALIDATION")
+    print("🚨" * 20)
+    backend_fixes_passed = tester.test_critical_backend_fixes_validation()
+    if not backend_fixes_passed:
+        all_tests_passed = False
+    
+    # Final Summary
     print("\n" + "=" * 80)
+    print("🏁 COMPREHENSIVE TESTING COMPLETE")
+    print("=" * 80)
+    
+    print(f"📊 Tests Run: {tester.tests_run}")
+    print(f"✅ Tests Passed: {tester.tests_passed}")
+    print(f"❌ Tests Failed: {tester.tests_run - tester.tests_passed}")
+    print(f"📈 Success Rate: {(tester.tests_passed / tester.tests_run * 100):.1f}%")
+    
+    print("\n📋 TEST SUITE RESULTS:")
+    print(f"   Solution Feedback & Doubts System: {'✅ PASS' if feedback_passed else '❌ FAIL'}")
+    print(f"   V2 Implementation Validation: {'✅ PASS' if v2_passed else '❌ FAIL'}")
+    print(f"   Session Pack Empty Fix: {'✅ PASS' if pack_fix_passed else '❌ FAIL'}")
+    print(f"   Critical Backend Fixes: {'✅ PASS' if backend_fixes_passed else '❌ FAIL'}")
+    
+    if all_tests_passed:
+        print("\n🎉 ALL TEST SUITES PASSED - SYSTEM READY FOR PRODUCTION")
+    else:
+        print("\n⚠️ SOME TEST SUITES FAILED - REVIEW REQUIRED")
+        sys.exit(1)
