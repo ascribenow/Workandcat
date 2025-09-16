@@ -629,7 +629,7 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
       has_image: false,
       subcategory: packItem.subcategory || packItem.pair?.split(':')[0] || 'Unknown',
       difficulty_band: packItem.difficulty_band || packItem.bucket || 'Medium',
-      right_answer: packItem.right_answer || ''
+      right_answer: packItem.answer || ''  // Use answer field from pack (clean answer)
     };
 
     console.log(`[DIAGNOSTIC] ${requestId}: Question prepared:`, {
