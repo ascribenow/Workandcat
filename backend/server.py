@@ -674,9 +674,61 @@ async def log_question_action(
         # Store in database (attempt_events table)
         db = SessionLocal()
         try:
-            # Get question details for attempt_events
-            result = db.execute(select(Question).where(Question.id == log_data.question_id))
-            question = result.scalar_one_or_none()
+            # For adaptive sessions, try to get question from pack data first
+            question = None
+            sess_seq_at_serve = 1
+            
+            # First, get sess_seq for this session
+            sess_seq_result = db.execute(text("""
+                SELECT sess_seq FROM sessions 
+                WHERE user_id = :user_id AND session_id = :session_id 
+                LIMIT 1
+            """), {
+                'user_id': user_id,
+                'session_id': log_data.session_id
+            })
+            sess_seq_row = sess_seq_result.fetchone()
+            sess_seq_at_serve = sess_seq_row.sess_seq if sess_seq_row else 1
+            
+            # Try to get question from pack data (for adaptive sessions)
+            pack_result = db.execute(text("""
+                SELECT pack_json FROM session_pack_plan 
+                WHERE user_id = :user_id AND session_id = :session_id 
+                LIMIT 1
+            """), {
+                'user_id': user_id,
+                'session_id': log_data.session_id
+            })
+            pack_row = pack_result.fetchone()
+            
+            if pack_row and pack_row.pack_json:
+                # Look for the question in the pack data
+                pack_data = pack_row.pack_json
+                items = pack_data.get('items', [])
+                
+                for item in items:
+                    if item.get('item_id') == log_data.question_id:
+                        # Found the question in pack data
+                        question = type('Question', (), {
+                            'id': item.get('item_id'),
+                            'answer': item.get('right_answer', '').split('.')[0].strip() if item.get('right_answer') else '',  # Extract clean answer
+                            'right_answer': item.get('right_answer', ''),
+                            'difficulty_band': item.get('bucket', 'Medium'),
+                            'subcategory': item.get('subcategory', ''),
+                            'type_of_question': item.get('pair', '').split(':')[0] if item.get('pair') else '',
+                            'core_concepts': json.dumps(item.get('semantic_concepts', [])),
+                            'pyq_frequency_score': item.get('pyq_frequency_score', 0),
+                            'snap_read': item.get('snap_read'),
+                            'solution_approach': item.get('solution_approach'), 
+                            'detailed_solution': item.get('detailed_solution'),
+                            'principle_to_remember': item.get('principle_to_remember')
+                        })()
+                        break
+            
+            # Fallback: try to get question from questions table
+            if not question:
+                result = db.execute(select(Question).where(Question.id == log_data.question_id))
+                question = result.scalar_one_or_none()
             
             if question:
                 # Determine if answer was correct (for submit actions)
