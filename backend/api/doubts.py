@@ -11,8 +11,24 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session as SQLSession
 from sqlalchemy import select, func, and_, desc, text
 
-from database import SessionLocal, Question, get_current_user
+from database import SessionLocal, Question
 import google.generativeai as genai
+
+# Authentication helpers (import from main server)
+import jwt
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+
+security = HTTPBearer()
+
+async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    try:
+        payload = jwt.decode(credentials.credentials, os.getenv("JWT_SECRET"), algorithms=["HS256"])
+        user_id: str = payload.get("sub")
+        if user_id is None:
+            raise HTTPException(status_code=401, detail="Invalid token")
+        return user_id
+    except jwt.PyJWTError:
+        raise HTTPException(status_code=401, detail="Invalid token")
 
 # Initialize logging
 logger = logging.getLogger(__name__)
