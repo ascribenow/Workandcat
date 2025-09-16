@@ -665,48 +665,81 @@ async def log_question_action(
     log_data: QuestionActionLog,
     user_id: str = Depends(get_current_user)
 ):
-    """Log question actions and return solution feedback for submit actions"""
+    """Log question actions to database and return solution feedback for submit actions"""
     try:
-        # Add user_id and create a log entry
-        log_entry = {
-            "id": str(uuid.uuid4()),
-            "user_id": user_id,
-            "session_id": log_data.session_id,
-            "question_id": log_data.question_id,
-            "action": log_data.action,
-            "data": log_data.data,
-            "timestamp": log_data.timestamp,
-            "logged_at": datetime.utcnow().isoformat()
-        }
+        logger.info(f"📝 Logging action: {log_data.action} for question {log_data.question_id[:8]} by user {user_id[:8]}")
         
-        # Store in memory for now (replace with database table in production)
-        question_action_logs.append(log_entry)
-        
-        logger.info(f"📝 Logged action: {log_data.action} for question {log_data.question_id[:8]} by user {user_id[:8]}")
-        
-        # If action is 'submit', get question details and return solution feedback
-        if log_data.action == "submit":
-            db = SessionLocal()
-            try:
-                # Get the question
-                result = db.execute(select(Question).where(Question.id == log_data.question_id))
-                question = result.scalar_one_or_none()
+        # Store in database (attempt_events table)
+        db = SessionLocal()
+        try:
+            # Get question details for attempt_events
+            result = db.execute(select(Question).where(Question.id == log_data.question_id))
+            question = result.scalar_one_or_none()
+            
+            if question:
+                # Determine if answer was correct (for submit actions)
+                user_answer = log_data.data.get('user_answer', '')
+                was_correct = False
+                skipped = log_data.action == 'skip'
                 
-                if question:
-                    # Extract user's answer from the log data
-                    user_answer = log_data.data.get('user_answer', '')
-                    
-                    # Check if answer is correct
-                    is_correct = str(user_answer).strip().lower() == str(question.right_answer).strip().lower()
-                    
+                if log_data.action == 'submit' and user_answer:
+                    was_correct = str(user_answer).strip().lower() == str(question.right_answer).strip().lower()
+                
+                # Calculate response time (default to reasonable value if not provided)
+                response_time_ms = log_data.data.get('time_taken', 60) * 1000  # Convert to milliseconds
+                
+                # Get sess_seq for this session
+                sess_seq_result = db.execute(text("""
+                    SELECT sess_seq FROM sessions 
+                    WHERE user_id = :user_id AND session_id = :session_id 
+                    LIMIT 1
+                """), {
+                    'user_id': user_id,
+                    'session_id': log_data.session_id
+                })
+                sess_seq_row = sess_seq_result.fetchone()
+                sess_seq_at_serve = sess_seq_row.sess_seq if sess_seq_row else 1
+                
+                # Insert into attempt_events
+                db.execute(text("""
+                    INSERT INTO attempt_events (
+                        id, user_id, session_id, question_id, was_correct, skipped,
+                        response_time_ms, created_at, difficulty_band, subcategory,
+                        type_of_question, core_concepts, pyq_frequency_score, sess_seq_at_serve
+                    ) VALUES (
+                        :id, :user_id, :session_id, :question_id, :was_correct, :skipped,
+                        :response_time_ms, :created_at, :difficulty_band, :subcategory,
+                        :type_of_question, :core_concepts, :pyq_frequency_score, :sess_seq_at_serve
+                    )
+                """), {
+                    'id': str(uuid.uuid4()),
+                    'user_id': user_id,
+                    'session_id': log_data.session_id,
+                    'question_id': log_data.question_id,
+                    'was_correct': was_correct,
+                    'skipped': skipped,
+                    'response_time_ms': response_time_ms,
+                    'created_at': datetime.utcnow(),
+                    'difficulty_band': question.difficulty_band,
+                    'subcategory': question.subcategory,
+                    'type_of_question': question.type_of_question,
+                    'core_concepts': question.core_concepts,
+                    'pyq_frequency_score': question.pyq_frequency_score,
+                    'sess_seq_at_serve': sess_seq_at_serve
+                })
+                
+                db.commit()
+                logger.info(f"✅ Question action logged to database: {log_data.action} for question {log_data.question_id[:8]}")
+                
+                # If action is 'submit', return solution feedback
+                if log_data.action == "submit":
                     return {
                         "success": True,
-                        "log_id": log_entry["id"],
                         "message": f"Action '{log_data.action}' logged successfully",
                         "result": {
-                            "correct": is_correct,
-                            "status": "correct" if is_correct else "incorrect",
-                            "message": "Correct answer!" if is_correct else "That's not quite right, but keep learning!",
+                            "correct": was_correct,
+                            "status": "correct" if was_correct else "incorrect",
+                            "message": "Correct answer!" if was_correct else "That's not quite right, but keep learning!",
                             "user_answer": user_answer,
                             "correct_answer": question.right_answer or "Not specified",
                             "solution_feedback": {
@@ -722,17 +755,21 @@ async def log_question_action(
                             }
                         }
                     }
-                else:
-                    logger.warning(f"⚠️ Question {log_data.question_id} not found for solution feedback")
-            finally:
-                db.close()
-        
-        # For non-submit actions, return basic success response
-        return {
-            "success": True,
-            "log_id": log_entry["id"],
-            "message": f"Action '{log_data.action}' logged successfully"
-        }
+                
+                # For non-submit actions, return basic success response
+                return {
+                    "success": True,
+                    "message": f"Action '{log_data.action}' logged successfully"
+                }
+            else:
+                logger.warning(f"⚠️ Question {log_data.question_id} not found for logging")
+                return {
+                    "success": False,
+                    "message": "Question not found"
+                }
+                
+        finally:
+            db.close()
         
     except Exception as e:
         logger.error(f"❌ Failed to log question action: {e}")
