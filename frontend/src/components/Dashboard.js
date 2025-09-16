@@ -142,9 +142,11 @@ export const Dashboard = () => {
       if (user?.adaptive_enabled) {
         try {
           console.log('Dashboard: Checking for uncompleted adaptive sessions...');
+          console.log('Dashboard: About to call session-progress/current API...');
           
           // Check for incomplete sessions using the new progress tracking system
           const incompleteSessionResponse = await axios.get(`${API}/session-progress/current/${user.id}`);
+          console.log('Dashboard: Session progress response:', incompleteSessionResponse.data);
           
           if (incompleteSessionResponse.data.has_current_session) {
             const sessionData = incompleteSessionResponse.data;
@@ -163,7 +165,10 @@ export const Dashboard = () => {
               }
             });
             setCurrentView('session');
+            console.log('Dashboard: Set up session resumption, switching to session view');
             return true;
+          } else {
+            console.log('Dashboard: No incomplete sessions found, proceeding with new session creation');
           }
           
           // Fallback: Check localStorage for any active session (legacy)
