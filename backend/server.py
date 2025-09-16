@@ -145,46 +145,6 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
     except jwt.PyJWTError:
         raise HTTPException(status_code=401, detail="Invalid token")
 
-def extract_answer_from_explanation(explanation: str) -> str:
-    """
-    Extract a clean answer from the explanation text.
-    Handles various formats like "5 days", "35.2%", etc.
-    """
-    if not explanation:
-        return "Not specified"
-    
-    import re
-    
-    # Try to extract the first meaningful answer pattern
-    # Look for patterns like "X days", "X%", "X units", numbers, etc.
-    
-    # Pattern 1: Look for "answer is X" or "result is X"
-    answer_patterns = [
-        r'answer is ([^.]+)',
-        r'result is ([^.]+)',
-        r'equals? ([^.]+)',
-        r'is ([0-9]+(?:\.[0-9]+)?[%]?)',
-        r'([0-9]+(?:\.[0-9]+)?\s*(?:days?|hours?|minutes?|years?|months?|weeks?|%|percent))',
-        r'([0-9]+(?:\.[0-9]+)?)'
-    ]
-    
-    explanation_lower = explanation.lower().strip()
-    
-    for pattern in answer_patterns:
-        match = re.search(pattern, explanation_lower, re.IGNORECASE)
-        if match:
-            extracted = match.group(1).strip()
-            # Clean up the extracted answer
-            if extracted and len(extracted) < 50:  # Reasonable length check
-                return extracted
-    
-    # Fallback: return first sentence or first 100 characters
-    sentences = explanation.split('.')
-    if sentences and len(sentences[0].strip()) < 100:
-        return sentences[0].strip()
-    
-    return explanation[:100].strip() if len(explanation) > 100 else explanation.strip()
-
 async def get_current_admin_user(user_id: str = Depends(get_current_user)):
     db = SessionLocal()
     try:
