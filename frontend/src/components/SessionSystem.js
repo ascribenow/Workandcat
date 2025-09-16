@@ -177,7 +177,8 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
 
   useEffect(() => {
     if (sessionId) {
-      fetchNextQuestion();
+      // First check if this session has existing progress for resumption
+      checkAndResumeSession();
       
       // Set session number immediately if not available from metadata
       if (!sessionNumber) {
@@ -191,6 +192,34 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
       }
     }
   }, [sessionId, sessionMetadata]);
+
+  // Session Resumption Logic
+  const checkAndResumeSession = async () => {
+    if (!sessionId) return;
+    
+    try {
+      console.log(`[RESUME] Checking for existing progress in session: ${sessionId}`);
+      const progress = await getSessionProgress(sessionId);
+      
+      if (progress && progress.current_question_index > 0) {
+        console.log(`[RESUME] Found existing progress: Q${progress.current_question_index + 1}/${progress.total_questions}`);
+        
+        // Resume from where user left off
+        setCurrentQuestionIndex(progress.current_question_index);
+        
+        // Don't fetch next question - we'll use the pack-based serving
+        return; // Skip fetchNextQuestion call
+      }
+      
+      // No existing progress, start fresh
+      console.log(`[RESUME] No existing progress found, starting fresh session`);
+      fetchNextQuestion();
+      
+    } catch (error) {
+      console.warn('[RESUME] Error checking session progress, starting fresh:', error.message);
+      fetchNextQuestion();
+    }
+  };
 
   // SURGICAL FIX: State-driven first question serving when pack becomes ready
   const firstServeDoneRef = useRef(false);
