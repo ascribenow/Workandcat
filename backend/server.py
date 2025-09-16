@@ -258,14 +258,15 @@ async def get_questions(
     limit: int = 50,
     user_id: str = Depends(get_current_user)
 ):
-    async for db in get_database():
+    db = SessionLocal()
+    try:
         query = select(Question).where(Question.is_active == True)
         
         if category:
             query = query.where(Question.category == category)
         
         query = query.limit(limit)
-        result = await db.execute(query)
+        result = db.execute(query)
         questions = result.scalars().all()
         
         return [
@@ -290,6 +291,8 @@ async def get_questions(
                 principle_to_remember=q.principle_to_remember
             ) for q in questions
         ]
+    finally:
+        db.close()
 
 # User referral endpoints
 @app.get("/api/user/referral-code")
