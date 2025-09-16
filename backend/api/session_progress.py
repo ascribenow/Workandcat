@@ -126,7 +126,7 @@ async def get_session_progress(
         logger.error(f"❌ Error getting session progress: {e}")
         raise HTTPException(status_code=500, detail="Failed to get session progress")
 
-@router.get("/current/{user_id}")  
+@router.get("/current/{user_id_param}")  
 async def get_current_session_for_user(
     user_id_param: str,
     user_id: str = Depends(get_current_user)
