@@ -729,6 +729,7 @@ async def log_question_action(
         
         # Store in database (attempt_events table)
         db = SessionLocal()
+        stored_answer = ""  # Initialize to avoid scope issues
         try:
             # For adaptive sessions, try to get question from pack data first
             question = None
