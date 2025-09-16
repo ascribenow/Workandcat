@@ -138,6 +138,16 @@ def create_access_token(data: dict):
     encoded_jwt = jwt.encode(to_encode, os.getenv("JWT_SECRET"), algorithm="HS256")
     return encoded_jwt
 
+def clean_answer_for_comparison(answer_text):
+    """Clean answer text for comparison by removing MCQ prefixes and normalizing"""
+    if not answer_text:
+        return ""
+    
+    # Remove MCQ prefixes like "(A) ", "(B) ", etc.
+    cleaned = str(answer_text).strip()
+    cleaned = re.sub(r'^\([A-D]\)\s*', '', cleaned)  # Remove (A), (B), etc.
+    return cleaned.lower().strip()
+
 async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
     try:
         payload = jwt.decode(credentials.credentials, os.getenv("JWT_SECRET"), algorithms=["HS256"])
