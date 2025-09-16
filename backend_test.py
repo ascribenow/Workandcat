@@ -1674,7 +1674,7 @@ class CATBackendTester:
                     success, current_response = self.run_test(
                         "Resumption Detection", 
                         "GET", 
-                        f"session-progress/current/{user_id}", 
+                        f"session-progress/current/{user_id}?user_id_param={user_id}", 
                         [200], 
                         None, 
                         auth_headers
