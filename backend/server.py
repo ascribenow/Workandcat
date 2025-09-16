@@ -800,8 +800,8 @@ async def log_question_action(
                     stored_answer = getattr(question, 'answer', '') or ""
                     stored_answer_clean = clean_answer_for_comparison(stored_answer)
                     
-                    # Direct comparison with cleaned answers
-                    was_correct = user_answer_clean == stored_answer_clean
+                    # Use sophisticated answer matching with multiple strategies
+                    was_correct = answers_match(user_answer, stored_answer)
                     
                     logger.info(f"Answer comparison: user='{user_answer}' (clean: '{user_answer_clean}') vs answer='{stored_answer}' (clean: '{stored_answer_clean}') → {'CORRECT' if was_correct else 'INCORRECT'}")
                 
