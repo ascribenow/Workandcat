@@ -192,7 +192,6 @@ export const Dashboard = () => {
               return true;
             }
           }
-          }
           
         } catch (adaptiveCheckError) {
           console.log('Dashboard: No uncompleted adaptive session or pack not found, proceeding with new session');
