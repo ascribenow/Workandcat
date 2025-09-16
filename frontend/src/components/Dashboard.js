@@ -140,7 +140,30 @@ export const Dashboard = () => {
         try {
           console.log('Dashboard: Checking for uncompleted adaptive sessions...');
           
-          // Check localStorage for any active session
+          // Check for incomplete sessions using the new progress tracking system
+          const incompleteSessionResponse = await axios.get(`${API}/session-progress/current/${user.id}`);
+          
+          if (incompleteSessionResponse.data.has_current_session) {
+            const sessionData = incompleteSessionResponse.data;
+            console.log(`Dashboard: Found incomplete session: ${sessionData.session_id} at Q${sessionData.current_question_index + 1}/${sessionData.total_questions}`);
+            
+            // Show resume session UI
+            setActiveSessionId(sessionData.session_id);
+            setSessionMetadata({
+              resume_session: true,
+              session_id: sessionData.session_id,
+              current_question_index: sessionData.current_question_index,
+              total_questions: sessionData.total_questions,
+              last_question_id: sessionData.last_question_id,
+              phase_info: {
+                current_session: sessionData.current_question_index + 1
+              }
+            });
+            setCurrentView('session');
+            return true;
+          }
+          
+          // Fallback: Check localStorage for any active session (legacy)
           const storedSessionId = localStorage.getItem('currentSessionId') || localStorage.getItem('nextSessionId');
           
           if (storedSessionId) {
@@ -168,6 +191,7 @@ export const Dashboard = () => {
               setCurrentView('session');
               return true;
             }
+          }
           }
           
         } catch (adaptiveCheckError) {
