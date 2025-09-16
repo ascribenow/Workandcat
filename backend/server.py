@@ -85,7 +85,7 @@ app.include_router(
     dependencies=[Depends(ensure_adaptive_enabled)]
 )
 app.include_router(session_lifecycle_router, prefix="/api/sessions")
-app.include_router(doubts_router)
+app.include_router(doubts_router, prefix="/api")
 
 # In-memory logging store (for MVP - replace with database in production)
 question_action_logs = []
