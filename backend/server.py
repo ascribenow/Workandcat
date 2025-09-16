@@ -818,7 +818,7 @@ async def log_question_action(
                             "status": "correct" if was_correct else "incorrect",
                             "message": "Correct answer!" if was_correct else "That's not quite right, but keep learning!",
                             "user_answer": user_answer,
-                            "correct_answer": question.answer or "Not specified",
+                            "correct_answer": stored_answer or "Not specified",
                             "solution_feedback": {
                                 "snap_read": question.snap_read,
                                 "solution_approach": question.solution_approach,
