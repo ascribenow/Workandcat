@@ -73,7 +73,7 @@ class V2PackAssemblyService:
                 option_b=options.get('b', 'Option B'), 
                 option_c=options.get('c', 'Option C'),
                 option_d=options.get('d', 'Option D'),
-                right_answer=question.right_answer or question.answer,
+                answer=question.answer or "Not specified",  # Use ONLY answer field, never right_answer
                 subcategory=question.subcategory or 'Unknown',
                 difficulty_band=question.difficulty_band or 'Medium'
             ))
