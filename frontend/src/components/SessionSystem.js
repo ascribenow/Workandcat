@@ -838,19 +838,26 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
       const responseData = await safeJson(res);
       console.log(`[CRITICAL_DEBUG] ${requestId}: Submit successful, response:`, responseData);
       
-      // Create adaptive result for display
-      const isCorrect = userAnswer.toLowerCase() === (currentQuestion.right_answer?.toLowerCase() || 'unknown');
-      const result = {
-        correct: isCorrect,
-        status: isCorrect ? 'correct' : 'incorrect',
-        message: isCorrect ? 'Well done!' : 'Not quite right, but keep learning!',
-        user_answer: userAnswer,
-        correct_answer: currentQuestion.right_answer || 'Not specified',
-        explanation: 'Answer logged successfully'
-      };
-      
-      setResult(result);
-      setShowResult(true);
+      // Check if response contains result data (from enhanced question-action endpoint)
+      if (responseData && responseData.result) {
+        // Use the result data from backend
+        setResult(responseData.result);
+        setShowResult(true);
+      } else {
+        // Fallback: Create adaptive result for display (backward compatibility)
+        const isCorrect = userAnswer.toLowerCase() === (currentQuestion.right_answer?.toLowerCase() || 'unknown');
+        const result = {
+          correct: isCorrect,
+          status: isCorrect ? 'correct' : 'incorrect',
+          message: isCorrect ? 'Well done!' : 'Not quite right, but keep learning!',
+          user_answer: userAnswer,
+          correct_answer: currentQuestion.right_answer || 'Not specified',
+          explanation: 'Answer logged successfully'
+        };
+        
+        setResult(result);
+        setShowResult(true);
+      }
       
       console.log(`[CRITICAL_DEBUG] ${requestId}: Result set, showResult=true`);
       
