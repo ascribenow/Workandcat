@@ -9349,36 +9349,74 @@ if __name__ == "__main__":
     
     tester = CATBackendTester()
     
-    # Run the answer comparison logic validation test
-    print("\n🎯 RUNNING ANSWER COMPARISON LOGIC VALIDATION")
-    print("=" * 80)
-    
-    try:
-        success = tester.test_answer_comparison_logic_validation()
-        
-        print("\n" + "=" * 80)
-        print("🏁 TESTING COMPLETE")
+    # Check command line arguments for specific test
+    import sys
+    if len(sys.argv) > 1 and sys.argv[1] == "mcq_validation":
+        # Run the MCQ answer comparison validation test
+        print("\n🎯 RUNNING MCQ ANSWER COMPARISON VALIDATION")
         print("=" * 80)
-        print(f"Tests Run: {tester.tests_run}")
-        print(f"Tests Passed: {tester.tests_passed}")
-        print(f"Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%" if tester.tests_run > 0 else "No tests run")
         
-        if success:
-            print("\n✅ ANSWER COMPARISON LOGIC VALIDATION: PASSED")
-            print("   - Critical bug fix validated successfully")
-            print("   - Users now get correct feedback for right answers")
-            print("   - Multi-approach comparison logic working")
-            print("   - System ready for production use")
-        else:
-            print("\n❌ ANSWER COMPARISON LOGIC VALIDATION: FAILED")
-            print("   - Critical issues detected in answer comparison")
-            print("   - Users may still get incorrect feedback")
-            print("   - Additional fixes required")
+        try:
+            success = tester.test_mcq_answer_comparison_validation()
+            
+            print("\n" + "=" * 80)
+            print("🏁 MCQ TESTING COMPLETE")
+            print("=" * 80)
+            print(f"Tests Run: {tester.tests_run}")
+            print(f"Tests Passed: {tester.tests_passed}")
+            print(f"Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%" if tester.tests_run > 0 else "No tests run")
+            
+            if success:
+                print("\n✅ MCQ ANSWER COMPARISON VALIDATION: PASSED")
+                print("   - MCQ comparison fix validated successfully")
+                print("   - 100% accurate answer comparison achieved")
+                print("   - No false negatives or false positives")
+                print("   - clean_answer_for_comparison() function working")
+                print("   - System ready for production use")
+            else:
+                print("\n❌ MCQ ANSWER COMPARISON VALIDATION: FAILED")
+                print("   - Critical issues detected in MCQ comparison")
+                print("   - False negatives or false positives present")
+                print("   - Additional fixes required")
+            
+            sys.exit(0 if success else 1)
+            
+        except Exception as e:
+            print(f"\n❌ MCQ TESTING FAILED WITH EXCEPTION: {e}")
+            import traceback
+            traceback.print_exc()
+            sys.exit(1)
+    else:
+        # Run the default answer comparison logic validation test
+        print("\n🎯 RUNNING ANSWER COMPARISON LOGIC VALIDATION")
+        print("=" * 80)
         
-        sys.exit(0 if success else 1)
-        
-    except Exception as e:
-        print(f"\n❌ TESTING FAILED WITH EXCEPTION: {e}")
-        import traceback
-        traceback.print_exc()
-        sys.exit(1)
+        try:
+            success = tester.test_answer_comparison_logic_validation()
+            
+            print("\n" + "=" * 80)
+            print("🏁 TESTING COMPLETE")
+            print("=" * 80)
+            print(f"Tests Run: {tester.tests_run}")
+            print(f"Tests Passed: {tester.tests_passed}")
+            print(f"Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%" if tester.tests_run > 0 else "No tests run")
+            
+            if success:
+                print("\n✅ ANSWER COMPARISON LOGIC VALIDATION: PASSED")
+                print("   - Critical bug fix validated successfully")
+                print("   - Users now get correct feedback for right answers")
+                print("   - Multi-approach comparison logic working")
+                print("   - System ready for production use")
+            else:
+                print("\n❌ ANSWER COMPARISON LOGIC VALIDATION: FAILED")
+                print("   - Critical issues detected in answer comparison")
+                print("   - Users may still get incorrect feedback")
+                print("   - Additional fixes required")
+            
+            sys.exit(0 if success else 1)
+            
+        except Exception as e:
+            print(f"\n❌ TESTING FAILED WITH EXCEPTION: {e}")
+            import traceback
+            traceback.print_exc()
+            sys.exit(1)
