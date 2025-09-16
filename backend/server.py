@@ -683,7 +683,36 @@ async def log_question_action(
                 skipped = log_data.action == 'skip'
                 
                 if log_data.action == 'submit' and user_answer:
-                    was_correct = str(user_answer).strip().lower() == str(question.right_answer).strip().lower()
+                    # For adaptive sessions, compare against MCQ options first
+                    mcq_options = None
+                    if question.mcq_options:
+                        try:
+                            if isinstance(question.mcq_options, str):
+                                mcq_options = json.loads(question.mcq_options)
+                            else:
+                                mcq_options = question.mcq_options
+                        except:
+                            mcq_options = None
+                    
+                    # Try to match against MCQ options if available
+                    if mcq_options and isinstance(mcq_options, dict):
+                        # Check if user answer matches any of the MCQ options
+                        user_answer_lower = str(user_answer).strip().lower()
+                        for option_key, option_value in mcq_options.items():
+                            if option_key.lower() == 'correct':  # Skip metadata
+                                continue
+                            option_value_lower = str(option_value).strip().lower()
+                            if user_answer_lower == option_value_lower:
+                                # Found matching option, now check if it's correct
+                                # Look for the correct answer in the explanation text
+                                explanation = str(question.right_answer).lower()
+                                if option_value_lower in explanation:
+                                    was_correct = True
+                                    break
+                    
+                    # Fallback to direct comparison with right_answer
+                    if not was_correct:
+                        was_correct = str(user_answer).strip().lower() == str(question.right_answer).strip().lower()
                 
                 # Calculate response time (default to reasonable value if not provided)
                 response_time_ms = log_data.data.get('time_taken', 60) * 1000  # Convert to milliseconds
