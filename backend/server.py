@@ -826,9 +826,8 @@ async def log_question_action(
                     user_answer_clean = clean_answer_for_comparison(user_answer)
                     
                     # Use the correct answer field based on question source
-                    # For pack data questions, use the 'answer' field (already set correctly above)
-                    # For questions table questions, use the 'answer' field (canonical answer)
-                    stored_answer = getattr(question, 'answer', '') or getattr(question, 'right_answer', '')
+                    # ONLY use answer field as per specification - never right_answer
+                    stored_answer = getattr(question, 'answer', '') or ""
                     stored_answer_clean = clean_answer_for_comparison(stored_answer)
                     
                     # Direct comparison with cleaned answers
