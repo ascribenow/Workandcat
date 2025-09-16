@@ -224,6 +224,14 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
   // SURGICAL FIX: State-driven first question serving when pack becomes ready
   const firstServeDoneRef = useRef(false);
   useEffect(() => {
+    const packLength = currentPackRef.current?.length || 0;
+    const hasCurrentQuestion = !!currentQuestion;
+    const hasSessionId = !!sessionId;
+    const notPlanning = !isPlanning;
+    const notServedYet = !firstServeDoneRef.current;
+    
+    console.log(`[BOOT_DEBUG] State check: pack=${packLength}, question=${hasCurrentQuestion}, session=${hasSessionId}, planning=${isPlanning}, served=${firstServeDoneRef.current}`);
+    
     if (
       currentPackRef.current?.length > 0 &&
       !currentQuestion &&
@@ -234,6 +242,8 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
       console.log('[BOOT] Pack ready & no currentQuestion; serving Q1');
       firstServeDoneRef.current = true;
       serveQuestionFromPack(0);
+    } else {
+      console.log(`[BOOT_DEBUG] Conditions not met: pack=${packLength > 0}, noQuestion=${!hasCurrentQuestion}, session=${hasSessionId}, notPlanning=${notPlanning}, notServed=${notServedYet}`);
     }
   }, [currentQuestion, sessionId, isPlanning, currentPack]);
 
