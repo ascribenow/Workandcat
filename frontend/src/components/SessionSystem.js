@@ -616,6 +616,9 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
       total_questions: livePack.length
     });
     
+    // CRITICAL: Track session progress for resumption
+    updateSessionProgress(questionIndex, question.id);
+    
     // CRITICAL: Explicitly clear loading states  
     setLoading(false);
     setIsPlanning(false);  // V2 FIX: Ensure planning state is cleared
