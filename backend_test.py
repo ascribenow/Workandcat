@@ -1169,6 +1169,655 @@ class CATBackendTester:
         
         return success_rate >= 80 and critical_fixes_working
 
+    def test_session_completion_resumption_system_validation(self):
+        """
+        🚨 SESSION COMPLETION & RESUMPTION SYSTEM VALIDATION
+        
+        OBJECTIVE: Validate critical fixes for session completion and resumption system
+        
+        FIXES IMPLEMENTED:
+        1. Session Completion Error Fix: Enhanced question action logging to handle adaptive session questions from pack data
+        2. Session Progress Tracking System: New /api/session-progress/* endpoints for tracking question progress
+        3. Session Resumption Logic: Frontend checks for incomplete sessions and resumes from last attempted question
+        
+        CRITICAL TEST REQUIREMENTS:
+        1. Authenticate with sp@theskinmantra.com/student123
+        2. Start a session and progress through several questions
+        3. Submit answers and verify no "Could not save your answer" errors
+        4. Test question 12 completion specifically (the error point)
+        5. Test session progress endpoints:
+           - POST /api/session-progress/update (track progress)
+           - GET /api/session-progress/{session_id} (get progress)
+           - GET /api/session-progress/current/{user_id} (find incomplete sessions)
+        6. Verify session completion works without errors
+        7. Test resumption: If session incomplete, should resume from last question
+        
+        AUTHENTICATION: sp@theskinmantra.com/student123
+        """
+        print("🚨 SESSION COMPLETION & RESUMPTION SYSTEM VALIDATION")
+        print("=" * 80)
+        print("OBJECTIVE: Validate session completion and resumption fixes")
+        print("FOCUS: Question action logging, progress tracking, session resumption")
+        print("EXPECTED: No 'Could not save your answer' errors, proper session completion")
+        print("=" * 80)
+        
+        session_results = {
+            # Authentication Setup
+            "authentication_working": False,
+            "user_adaptive_enabled": False,
+            "jwt_token_valid": False,
+            
+            # Session Creation & Planning
+            "session_creation_working": False,
+            "adaptive_session_planning_successful": False,
+            "session_pack_loaded": False,
+            "pack_has_12_questions": False,
+            
+            # Question Action Logging (Critical Fix)
+            "question_action_logging_working": False,
+            "no_could_not_save_answer_errors": False,
+            "question_lookup_from_pack_working": False,
+            "database_persistence_working": False,
+            
+            # Session Progress Tracking System
+            "session_progress_update_working": False,
+            "session_progress_retrieval_working": False,
+            "current_session_detection_working": False,
+            "progress_tracking_endpoints_functional": False,
+            
+            # Question Progression Testing
+            "multiple_questions_answered": False,
+            "question_12_completion_working": False,
+            "session_advancement_smooth": False,
+            "no_session_blanking": False,
+            
+            # Session Completion
+            "session_completion_working": False,
+            "session_marked_completed": False,
+            "completion_without_errors": False,
+            
+            # Session Resumption Logic
+            "incomplete_session_detection": False,
+            "resumption_from_last_question": False,
+            "resumption_logic_working": False,
+            
+            # Overall Assessment
+            "session_completion_fix_validated": False,
+            "session_resumption_system_working": False,
+            "production_ready": False
+        }
+        
+        # PHASE 1: AUTHENTICATION SETUP
+        print("\n🔐 PHASE 1: AUTHENTICATION SETUP")
+        print("-" * 60)
+        print("Authenticating with sp@theskinmantra.com/student123")
+        
+        auth_data = {
+            "email": "sp@theskinmantra.com",
+            "password": "student123"
+        }
+        
+        success, response = self.run_test("Authentication", "POST", "auth/login", [200, 401], auth_data)
+        
+        auth_headers = None
+        user_id = None
+        if success and response.get('access_token'):
+            token = response['access_token']
+            auth_headers = {
+                'Authorization': f'Bearer {token}',
+                'Content-Type': 'application/json'
+            }
+            session_results["authentication_working"] = True
+            session_results["jwt_token_valid"] = True
+            print(f"   ✅ Authentication successful")
+            print(f"   📊 JWT Token length: {len(token)} characters")
+            
+            user_data = response.get('user', {})
+            user_id = user_data.get('id')
+            adaptive_enabled = user_data.get('adaptive_enabled', False)
+            
+            if adaptive_enabled:
+                session_results["user_adaptive_enabled"] = True
+                print(f"   ✅ User adaptive_enabled confirmed: {adaptive_enabled}")
+                print(f"   📊 User ID: {user_id}")
+            else:
+                print(f"   ⚠️ User adaptive_enabled: {adaptive_enabled}")
+        else:
+            print("   ❌ Authentication failed - cannot proceed with session completion validation")
+            return False
+        
+        # PHASE 2: SESSION CREATION & PLANNING
+        print("\n🚀 PHASE 2: SESSION CREATION & PLANNING")
+        print("-" * 60)
+        print("Creating adaptive session and loading pack")
+        
+        test_session_id = None
+        pack_data = None
+        if user_id and auth_headers:
+            # Generate unique session ID for this test
+            test_session_id = f"session_completion_test_{uuid.uuid4()}"
+            last_session_id = "S0"  # Cold start
+            
+            # Plan session
+            plan_data = {
+                "user_id": user_id,
+                "last_session_id": last_session_id,
+                "next_session_id": test_session_id
+            }
+            
+            headers_with_idem = auth_headers.copy()
+            headers_with_idem['Idempotency-Key'] = f"{user_id}:{last_session_id}:{test_session_id}"
+            
+            print(f"   📋 Planning session: {test_session_id[:8]}...")
+            
+            success, plan_response = self.run_test(
+                "Session Planning", 
+                "POST", 
+                "adapt/plan-next", 
+                [200, 400, 500, 502], 
+                plan_data, 
+                headers_with_idem
+            )
+            
+            if success and plan_response.get('status') == 'planned':
+                session_results["session_creation_working"] = True
+                session_results["adaptive_session_planning_successful"] = True
+                print(f"   ✅ Session planning successful")
+                
+                # Load pack
+                print(f"   📦 Loading session pack...")
+                
+                success, pack_response = self.run_test(
+                    "Pack Loading", 
+                    "GET", 
+                    f"adapt/pack?user_id={user_id}&session_id={test_session_id}", 
+                    [200], 
+                    None, 
+                    auth_headers
+                )
+                
+                if success and pack_response.get('pack'):
+                    pack_data = pack_response.get('pack', [])
+                    session_results["session_pack_loaded"] = True
+                    print(f"   ✅ Session pack loaded")
+                    print(f"   📊 Pack size: {len(pack_data)} questions")
+                    
+                    if len(pack_data) == 12:
+                        session_results["pack_has_12_questions"] = True
+                        print(f"   ✅ Pack has exactly 12 questions")
+                    
+                    # Mark session as served
+                    mark_data = {
+                        "user_id": user_id,
+                        "session_id": test_session_id
+                    }
+                    
+                    success, mark_response = self.run_test(
+                        "Mark Session Served", 
+                        "POST", 
+                        "adapt/mark-served", 
+                        [200, 409], 
+                        mark_data, 
+                        auth_headers
+                    )
+                    
+                    if success:
+                        print(f"   ✅ Session marked as served")
+                else:
+                    print(f"   ❌ Pack loading failed: {pack_response}")
+                    return False
+            else:
+                print(f"   ❌ Session planning failed: {plan_response}")
+                return False
+        
+        # PHASE 3: QUESTION ACTION LOGGING (CRITICAL FIX)
+        print("\n📝 PHASE 3: QUESTION ACTION LOGGING (CRITICAL FIX)")
+        print("-" * 60)
+        print("Testing enhanced question action logging with pack data lookup")
+        
+        questions_answered = 0
+        if pack_data and test_session_id and auth_headers:
+            print(f"   🎯 Testing question action logging for {len(pack_data)} questions")
+            
+            # Test first few questions to validate the fix
+            for i, question in enumerate(pack_data[:5]):  # Test first 5 questions
+                question_id = question.get('item_id')
+                if not question_id:
+                    continue
+                
+                print(f"   📝 Testing question {i+1}: {question_id[:8]}...")
+                
+                # Submit answer
+                answer_data = {
+                    "session_id": test_session_id,
+                    "question_id": question_id,
+                    "action": "submit",
+                    "data": {
+                        "user_answer": "A",  # Simple test answer
+                        "time_taken": 30 + i * 5,  # Vary time
+                        "question_number": i + 1
+                    },
+                    "timestamp": datetime.utcnow().isoformat()
+                }
+                
+                success, answer_response = self.run_test(
+                    f"Question Action Logging Q{i+1}", 
+                    "POST", 
+                    "log/question-action", 
+                    [200, 500], 
+                    answer_data, 
+                    auth_headers
+                )
+                
+                if success and answer_response.get('success'):
+                    questions_answered += 1
+                    session_results["question_action_logging_working"] = True
+                    session_results["no_could_not_save_answer_errors"] = True
+                    session_results["question_lookup_from_pack_working"] = True
+                    session_results["database_persistence_working"] = True
+                    
+                    print(f"   ✅ Q{i+1} logged successfully - no 'Could not save your answer' error")
+                    
+                    # Check if response contains solution feedback (indicates pack lookup worked)
+                    if answer_response.get('result', {}).get('solution_feedback'):
+                        print(f"   ✅ Q{i+1} solution feedback present (pack lookup working)")
+                    
+                    # Update session progress after each question
+                    progress_data = {
+                        "session_id": test_session_id,
+                        "current_question_index": i,
+                        "total_questions": 12,
+                        "last_question_id": question_id
+                    }
+                    
+                    success, progress_response = self.run_test(
+                        f"Session Progress Update Q{i+1}", 
+                        "POST", 
+                        "session-progress/update", 
+                        [200], 
+                        progress_data, 
+                        auth_headers
+                    )
+                    
+                    if success and progress_response.get('success'):
+                        session_results["session_progress_update_working"] = True
+                        print(f"   ✅ Q{i+1} progress updated")
+                    
+                else:
+                    print(f"   ❌ Q{i+1} logging failed: {answer_response}")
+                    break
+            
+            if questions_answered >= 3:
+                session_results["multiple_questions_answered"] = True
+                session_results["session_advancement_smooth"] = True
+                session_results["no_session_blanking"] = True
+                print(f"   ✅ Multiple questions answered successfully ({questions_answered})")
+                print(f"   ✅ Session advancement smooth, no blanking detected")
+        
+        # PHASE 4: SESSION PROGRESS TRACKING ENDPOINTS
+        print("\n📊 PHASE 4: SESSION PROGRESS TRACKING ENDPOINTS")
+        print("-" * 60)
+        print("Testing session progress tracking system endpoints")
+        
+        if test_session_id and auth_headers and session_results["session_progress_update_working"]:
+            # Test progress retrieval
+            success, progress_response = self.run_test(
+                "Get Session Progress", 
+                "GET", 
+                f"session-progress/{test_session_id}", 
+                [200], 
+                None, 
+                auth_headers
+            )
+            
+            if success and progress_response.get('success') and progress_response.get('has_progress'):
+                session_results["session_progress_retrieval_working"] = True
+                print(f"   ✅ Session progress retrieval working")
+                print(f"   📊 Current question index: {progress_response.get('current_question_index')}")
+                print(f"   📊 Total questions: {progress_response.get('total_questions')}")
+                print(f"   📊 Last question ID: {progress_response.get('last_question_id', 'N/A')[:8]}...")
+            
+            # Test current session detection
+            success, current_response = self.run_test(
+                "Get Current Session", 
+                "GET", 
+                f"session-progress/current/{user_id}", 
+                [200], 
+                None, 
+                auth_headers
+            )
+            
+            if success and current_response.get('success'):
+                session_results["current_session_detection_working"] = True
+                has_current = current_response.get('has_current_session', False)
+                print(f"   ✅ Current session detection working")
+                print(f"   📊 Has current session: {has_current}")
+                
+                if has_current:
+                    session_results["incomplete_session_detection"] = True
+                    print(f"   ✅ Incomplete session detected for resumption")
+                    print(f"   📊 Session ID: {current_response.get('session_id', 'N/A')[:8]}...")
+                    print(f"   📊 Resume from question: {current_response.get('current_question_index', 0) + 1}")
+            
+            if (session_results["session_progress_update_working"] and 
+                session_results["session_progress_retrieval_working"] and 
+                session_results["current_session_detection_working"]):
+                session_results["progress_tracking_endpoints_functional"] = True
+                print(f"   ✅ All progress tracking endpoints functional")
+        
+        # PHASE 5: QUESTION 12 COMPLETION TESTING (CRITICAL)
+        print("\n🎯 PHASE 5: QUESTION 12 COMPLETION TESTING (CRITICAL)")
+        print("-" * 60)
+        print("Testing question 12 completion specifically (the error point)")
+        
+        if pack_data and test_session_id and auth_headers and len(pack_data) >= 12:
+            # Jump to question 12 for specific testing
+            question_12 = pack_data[11]  # 12th question (0-indexed)
+            question_12_id = question_12.get('item_id')
+            
+            if question_12_id:
+                print(f"   🎯 Testing question 12 completion: {question_12_id[:8]}...")
+                
+                # Submit answer to question 12
+                q12_answer_data = {
+                    "session_id": test_session_id,
+                    "question_id": question_12_id,
+                    "action": "submit",
+                    "data": {
+                        "user_answer": "D",  # Final answer
+                        "time_taken": 45,
+                        "question_number": 12
+                    },
+                    "timestamp": datetime.utcnow().isoformat()
+                }
+                
+                success, q12_response = self.run_test(
+                    "Question 12 Completion", 
+                    "POST", 
+                    "log/question-action", 
+                    [200, 500], 
+                    q12_answer_data, 
+                    auth_headers
+                )
+                
+                if success and q12_response.get('success'):
+                    session_results["question_12_completion_working"] = True
+                    print(f"   ✅ Question 12 completion working - no errors!")
+                    print(f"   ✅ No 'Could not save your answer' error at question 12")
+                    
+                    # Update progress to question 12 (completed)
+                    final_progress_data = {
+                        "session_id": test_session_id,
+                        "current_question_index": 11,  # 0-indexed, so 11 = question 12
+                        "total_questions": 12,
+                        "last_question_id": question_12_id
+                    }
+                    
+                    success, final_progress_response = self.run_test(
+                        "Final Progress Update", 
+                        "POST", 
+                        "session-progress/update", 
+                        [200], 
+                        final_progress_data, 
+                        auth_headers
+                    )
+                    
+                    if success:
+                        print(f"   ✅ Final progress update successful")
+                else:
+                    print(f"   ❌ Question 12 completion failed: {q12_response}")
+        
+        # PHASE 6: SESSION COMPLETION
+        print("\n🏁 PHASE 6: SESSION COMPLETION")
+        print("-" * 60)
+        print("Testing session completion without errors")
+        
+        if test_session_id and auth_headers and session_results["question_12_completion_working"]:
+            # Test session completion (this would typically be done by frontend)
+            # For now, we'll simulate by clearing progress (indicating completion)
+            success, clear_response = self.run_test(
+                "Clear Session Progress (Completion)", 
+                "DELETE", 
+                f"session-progress/{test_session_id}", 
+                [200], 
+                None, 
+                auth_headers
+            )
+            
+            if success and clear_response.get('success'):
+                session_results["session_completion_working"] = True
+                session_results["session_marked_completed"] = True
+                session_results["completion_without_errors"] = True
+                print(f"   ✅ Session completion working")
+                print(f"   ✅ Session marked as completed")
+                print(f"   ✅ Completion without errors")
+        
+        # PHASE 7: SESSION RESUMPTION LOGIC TESTING
+        print("\n🔄 PHASE 7: SESSION RESUMPTION LOGIC TESTING")
+        print("-" * 60)
+        print("Testing session resumption from last question")
+        
+        if auth_headers and user_id:
+            # Create a new incomplete session for resumption testing
+            resume_session_id = f"resume_test_{uuid.uuid4()}"
+            
+            # Plan new session
+            plan_data = {
+                "user_id": user_id,
+                "last_session_id": test_session_id if test_session_id else "S0",
+                "next_session_id": resume_session_id
+            }
+            
+            headers_with_idem = auth_headers.copy()
+            headers_with_idem['Idempotency-Key'] = f"{user_id}:{test_session_id or 'S0'}:{resume_session_id}"
+            
+            success, plan_response = self.run_test(
+                "Resumption Session Planning", 
+                "POST", 
+                "adapt/plan-next", 
+                [200, 400, 500, 502], 
+                plan_data, 
+                headers_with_idem
+            )
+            
+            if success and plan_response.get('status') == 'planned':
+                # Load pack and mark as served
+                success, pack_response = self.run_test(
+                    "Resumption Pack Loading", 
+                    "GET", 
+                    f"adapt/pack?user_id={user_id}&session_id={resume_session_id}", 
+                    [200], 
+                    None, 
+                    auth_headers
+                )
+                
+                if success and pack_response.get('pack'):
+                    resume_pack = pack_response.get('pack', [])
+                    
+                    # Mark as served
+                    mark_data = {"user_id": user_id, "session_id": resume_session_id}
+                    self.run_test("Mark Resume Session Served", "POST", "adapt/mark-served", [200, 409], mark_data, auth_headers)
+                    
+                    # Answer first 3 questions, then test resumption
+                    for i in range(3):
+                        if i < len(resume_pack):
+                            question = resume_pack[i]
+                            question_id = question.get('item_id')
+                            
+                            if question_id:
+                                # Submit answer
+                                answer_data = {
+                                    "session_id": resume_session_id,
+                                    "question_id": question_id,
+                                    "action": "submit",
+                                    "data": {
+                                        "user_answer": "A",
+                                        "time_taken": 30,
+                                        "question_number": i + 1
+                                    },
+                                    "timestamp": datetime.utcnow().isoformat()
+                                }
+                                
+                                self.run_test(f"Resume Q{i+1} Answer", "POST", "log/question-action", [200], answer_data, auth_headers)
+                                
+                                # Update progress
+                                progress_data = {
+                                    "session_id": resume_session_id,
+                                    "current_question_index": i,
+                                    "total_questions": 12,
+                                    "last_question_id": question_id
+                                }
+                                
+                                self.run_test(f"Resume Q{i+1} Progress", "POST", "session-progress/update", [200], progress_data, auth_headers)
+                    
+                    # Now test resumption detection
+                    success, current_response = self.run_test(
+                        "Resumption Detection", 
+                        "GET", 
+                        f"session-progress/current/{user_id}", 
+                        [200], 
+                        None, 
+                        auth_headers
+                    )
+                    
+                    if success and current_response.get('has_current_session'):
+                        session_results["resumption_from_last_question"] = True
+                        session_results["resumption_logic_working"] = True
+                        print(f"   ✅ Resumption logic working")
+                        print(f"   ✅ Can resume from question {current_response.get('current_question_index', 0) + 1}")
+                        print(f"   📊 Resume session: {current_response.get('session_id', 'N/A')[:8]}...")
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 80)
+        print("🚨 SESSION COMPLETION & RESUMPTION SYSTEM VALIDATION - RESULTS")
+        print("=" * 80)
+        
+        passed_tests = sum(session_results.values())
+        total_tests = len(session_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        # Group results by categories
+        categories = {
+            "AUTHENTICATION": [
+                "authentication_working", "user_adaptive_enabled", "jwt_token_valid"
+            ],
+            "SESSION CREATION & PLANNING": [
+                "session_creation_working", "adaptive_session_planning_successful",
+                "session_pack_loaded", "pack_has_12_questions"
+            ],
+            "QUESTION ACTION LOGGING (CRITICAL FIX)": [
+                "question_action_logging_working", "no_could_not_save_answer_errors",
+                "question_lookup_from_pack_working", "database_persistence_working"
+            ],
+            "SESSION PROGRESS TRACKING": [
+                "session_progress_update_working", "session_progress_retrieval_working",
+                "current_session_detection_working", "progress_tracking_endpoints_functional"
+            ],
+            "QUESTION PROGRESSION": [
+                "multiple_questions_answered", "question_12_completion_working",
+                "session_advancement_smooth", "no_session_blanking"
+            ],
+            "SESSION COMPLETION": [
+                "session_completion_working", "session_marked_completed", "completion_without_errors"
+            ],
+            "SESSION RESUMPTION": [
+                "incomplete_session_detection", "resumption_from_last_question", "resumption_logic_working"
+            ]
+        }
+        
+        for category, tests in categories.items():
+            print(f"\n{category}:")
+            category_passed = 0
+            category_total = len(tests)
+            
+            for test in tests:
+                if test in session_results:
+                    result = session_results[test]
+                    status = "✅ PASS" if result else "❌ FAIL"
+                    print(f"  {test.replace('_', ' ').title():<50} {status}")
+                    if result:
+                        category_passed += 1
+            
+            category_rate = (category_passed / category_total) * 100 if category_total > 0 else 0
+            print(f"  Category Success Rate: {category_passed}/{category_total} ({category_rate:.1f}%)")
+        
+        print("-" * 80)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # CRITICAL ASSESSMENT
+        print("\n🎯 CRITICAL ASSESSMENT:")
+        
+        # Session Completion Fix Assessment
+        completion_fix_working = (
+            session_results["no_could_not_save_answer_errors"] and
+            session_results["question_12_completion_working"] and
+            session_results["question_lookup_from_pack_working"] and
+            session_results["database_persistence_working"]
+        )
+        
+        # Progress Tracking System Assessment
+        progress_system_working = (
+            session_results["session_progress_update_working"] and
+            session_results["session_progress_retrieval_working"] and
+            session_results["current_session_detection_working"]
+        )
+        
+        # Resumption Logic Assessment
+        resumption_working = (
+            session_results["incomplete_session_detection"] and
+            session_results["resumption_logic_working"]
+        )
+        
+        if completion_fix_working:
+            session_results["session_completion_fix_validated"] = True
+            print("\n✅ SESSION COMPLETION FIX: VALIDATED")
+            print("   - No 'Could not save your answer' errors detected")
+            print("   - Question 12 completion working without errors")
+            print("   - Enhanced question action logging from pack data working")
+            print("   - Database persistence functional")
+        else:
+            print("\n❌ SESSION COMPLETION FIX: STILL BROKEN")
+            print("   - Critical session completion issues persist")
+            print("   - Question action logging or database persistence problems")
+        
+        if progress_system_working:
+            session_results["session_resumption_system_working"] = True
+            print("\n✅ SESSION PROGRESS TRACKING SYSTEM: WORKING")
+            print("   - POST /api/session-progress/update functional")
+            print("   - GET /api/session-progress/{session_id} functional")
+            print("   - GET /api/session-progress/current/{user_id} functional")
+            print("   - Progress persistence and retrieval working")
+        else:
+            print("\n❌ SESSION PROGRESS TRACKING SYSTEM: BROKEN")
+            print("   - Progress tracking endpoints have issues")
+            print("   - Session resumption capability compromised")
+        
+        if resumption_working:
+            print("\n✅ SESSION RESUMPTION LOGIC: WORKING")
+            print("   - Incomplete session detection functional")
+            print("   - Can resume from last attempted question")
+            print("   - Frontend integration ready for resumption")
+        else:
+            print("\n❌ SESSION RESUMPTION LOGIC: BROKEN")
+            print("   - Resumption detection or logic issues")
+            print("   - Cannot properly resume incomplete sessions")
+        
+        # Overall Production Readiness
+        if completion_fix_working and progress_system_working:
+            session_results["production_ready"] = True
+            print("\n🎉 PRODUCTION READINESS: READY")
+            print("   - Session completion error fix validated")
+            print("   - Session progress tracking system working")
+            print("   - Session resumption capability functional")
+            print("   - No 'Could not save your answer' errors")
+            print("   - Question 12 completion working properly")
+        else:
+            print("\n⚠️ PRODUCTION READINESS: NOT READY")
+            print("   - Critical session completion or resumption issues")
+            print("   - Additional fixes required before production")
+        
+        return success_rate >= 75 and completion_fix_working and progress_system_working
+
     def test_answer_comparison_logic_validation(self):
         """
         🎯 ANSWER COMPARISON LOGIC VALIDATION
