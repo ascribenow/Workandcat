@@ -764,10 +764,39 @@ async def log_question_action(
                 
                 for item in items:
                     if item.get('item_id') == log_data.question_id:
-                        # Found the question in pack data
+                        # Found the question in pack data - need to determine correct clean answer
+                        # The right_answer field contains explanation, but correct answer should be one of the options
+                        explanation = item.get('right_answer', '')
+                        options = [
+                            item.get('option_a', ''),
+                            item.get('option_b', ''),
+                            item.get('option_c', ''),
+                            item.get('option_d', '')
+                        ]
+                        
+                        # Try to find which option matches the explanation
+                        clean_answer = ""
+                        for option in options:
+                            if option and option.lower() in explanation.lower():
+                                clean_answer = option
+                                break
+                        
+                        # If no option found in explanation, extract first meaningful part
+                        if not clean_answer:
+                            # Extract first sentence or first meaningful part
+                            sentences = explanation.split('.')
+                            for sentence in sentences:
+                                for option in options:
+                                    if option and option.lower() in sentence.lower():
+                                        clean_answer = option
+                                        break
+                                if clean_answer:
+                                    break
+                        
+                        # Create question object with correct answer field
                         question = type('Question', (), {
                             'id': item.get('item_id'),
-                            'answer': item.get('right_answer', '').split('.')[0].strip() if item.get('right_answer') else '',  # Extract clean answer
+                            'answer': clean_answer or options[0],  # Use found answer or fallback to first option
                             'right_answer': item.get('right_answer', ''),
                             'difficulty_band': item.get('bucket', 'Medium'),
                             'subcategory': item.get('subcategory', ''),
