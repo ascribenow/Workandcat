@@ -8222,64 +8222,41 @@ class CATBackendTester:
         return success_rate >= 70  # Return True if most endpoints are working
 
 if __name__ == "__main__":
+    print("🚀 CAT BACKEND TESTING SUITE")
+    print("=" * 80)
+    
     tester = CATBackendTester()
     
-    print("🚀 STARTING COMPREHENSIVE CAT BACKEND TESTING")
+    # Run the answer comparison logic validation test
+    print("\n🎯 RUNNING ANSWER COMPARISON LOGIC VALIDATION")
     print("=" * 80)
     
-    # Run all test suites
-    all_tests_passed = True
-    
-    # Test 1: Solution Feedback & Doubts System Validation (NEW - PRIMARY FOCUS)
-    print("\n" + "🎓" * 20)
-    print("TEST SUITE 1: SOLUTION FEEDBACK & DOUBTS SYSTEM VALIDATION")
-    print("🎓" * 20)
-    feedback_passed = tester.test_solution_feedback_and_doubts_system()
-    if not feedback_passed:
-        all_tests_passed = False
-    
-    # Test 2: V2 Implementation Validation
-    print("\n" + "🚀" * 20)
-    print("TEST SUITE 2: V2 IMPLEMENTATION VALIDATION")
-    print("🚀" * 20)
-    v2_passed = tester.test_v2_implementation_validation()
-    if not v2_passed:
-        all_tests_passed = False
-    
-    # Test 3: Session Pack Empty Fix Validation
-    print("\n" + "🚨" * 20)
-    print("TEST SUITE 3: SESSION PACK EMPTY FIX VALIDATION")
-    print("🚨" * 20)
-    pack_fix_passed = tester.test_session_pack_empty_fix_validation()
-    if not pack_fix_passed:
-        all_tests_passed = False
-    
-    # Test 4: Critical Backend Fixes Validation
-    print("\n" + "🚨" * 20)
-    print("TEST SUITE 4: CRITICAL BACKEND FIXES VALIDATION")
-    print("🚨" * 20)
-    backend_fixes_passed = tester.test_critical_backend_fixes_validation()
-    if not backend_fixes_passed:
-        all_tests_passed = False
-    
-    # Final Summary
-    print("\n" + "=" * 80)
-    print("🏁 COMPREHENSIVE TESTING COMPLETE")
-    print("=" * 80)
-    
-    print(f"📊 Tests Run: {tester.tests_run}")
-    print(f"✅ Tests Passed: {tester.tests_passed}")
-    print(f"❌ Tests Failed: {tester.tests_run - tester.tests_passed}")
-    print(f"📈 Success Rate: {(tester.tests_passed / tester.tests_run * 100):.1f}%")
-    
-    print("\n📋 TEST SUITE RESULTS:")
-    print(f"   Solution Feedback & Doubts System: {'✅ PASS' if feedback_passed else '❌ FAIL'}")
-    print(f"   V2 Implementation Validation: {'✅ PASS' if v2_passed else '❌ FAIL'}")
-    print(f"   Session Pack Empty Fix: {'✅ PASS' if pack_fix_passed else '❌ FAIL'}")
-    print(f"   Critical Backend Fixes: {'✅ PASS' if backend_fixes_passed else '❌ FAIL'}")
-    
-    if all_tests_passed:
-        print("\n🎉 ALL TEST SUITES PASSED - SYSTEM READY FOR PRODUCTION")
-    else:
-        print("\n⚠️ SOME TEST SUITES FAILED - REVIEW REQUIRED")
+    try:
+        success = tester.test_answer_comparison_logic_validation()
+        
+        print("\n" + "=" * 80)
+        print("🏁 TESTING COMPLETE")
+        print("=" * 80)
+        print(f"Tests Run: {tester.tests_run}")
+        print(f"Tests Passed: {tester.tests_passed}")
+        print(f"Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%" if tester.tests_run > 0 else "No tests run")
+        
+        if success:
+            print("\n✅ ANSWER COMPARISON LOGIC VALIDATION: PASSED")
+            print("   - Critical bug fix validated successfully")
+            print("   - Users now get correct feedback for right answers")
+            print("   - Multi-approach comparison logic working")
+            print("   - System ready for production use")
+        else:
+            print("\n❌ ANSWER COMPARISON LOGIC VALIDATION: FAILED")
+            print("   - Critical issues detected in answer comparison")
+            print("   - Users may still get incorrect feedback")
+            print("   - Additional fixes required")
+        
+        sys.exit(0 if success else 1)
+        
+    except Exception as e:
+        print(f"\n❌ TESTING FAILED WITH EXCEPTION: {e}")
+        import traceback
+        traceback.print_exc()
         sys.exit(1)
