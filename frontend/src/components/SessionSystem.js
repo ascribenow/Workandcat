@@ -987,9 +987,21 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
     }
   };
 
+  // Helper function to extract clean answer from MCQ option
+  const extractCleanAnswer = (optionText) => {
+    if (!optionText) return optionText;
+    
+    // Remove MCQ prefixes like "(A) ", "(B) ", etc.
+    const cleaned = optionText.replace(/^\([A-D]\)\s*/, '').trim();
+    return cleaned;
+  };
+
   const handleOptionSelect = (option) => {
     if (!answerSubmitted) {
-      setUserAnswer(option);
+      // Store the clean answer value (without (A), (B) prefixes)
+      const cleanAnswer = extractCleanAnswer(option);
+      setUserAnswer(cleanAnswer);
+      console.log(`[ANSWER] User selected: "${option}" → Clean answer: "${cleanAnswer}"`);
     }
   };
 
