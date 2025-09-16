@@ -41,7 +41,7 @@ if GOOGLE_API_KEY:
 else:
     logger.warning("⚠️ Google API key not found - doubts system will not work")
 
-router = APIRouter(prefix="/api/doubts")
+router = APIRouter(prefix="/doubts")
 
 # Pydantic models
 class DoubtMessage(BaseModel):
