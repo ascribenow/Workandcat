@@ -728,6 +728,15 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
 
   const handleAdaptiveSessionCompletion = async () => {
     const livePack = currentPackRef.current;
+    
+    // Clear session progress tracking since session is complete
+    try {
+      await clearSessionProgress(sessionId);
+      console.log('[PROGRESS] Session progress cleared after completion');
+    } catch (error) {
+      console.warn('[PROGRESS] Failed to clear session progress:', error.message);
+    }
+    
     await handleSessionCompletionWithHandshake({
       completed: true,
       questionsCompleted: livePack?.length || 12,
