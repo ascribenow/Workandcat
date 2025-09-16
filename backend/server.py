@@ -750,12 +750,17 @@ async def log_question_action(
                 if log_data.action == 'submit' and user_answer:
                     # Clean both user answer and stored answer for accurate comparison
                     user_answer_clean = clean_answer_for_comparison(user_answer)
-                    stored_answer_clean = clean_answer_for_comparison(question.answer) if question.answer else ""
+                    
+                    # Use the correct answer field based on question source
+                    # For pack data questions, use the 'answer' field (already set correctly above)
+                    # For questions table questions, use the 'answer' field (canonical answer)
+                    stored_answer = getattr(question, 'answer', '') or getattr(question, 'right_answer', '')
+                    stored_answer_clean = clean_answer_for_comparison(stored_answer)
                     
                     # Direct comparison with cleaned answers
                     was_correct = user_answer_clean == stored_answer_clean
                     
-                    logger.info(f"Answer comparison: user='{user_answer}' (clean: '{user_answer_clean}') vs answer='{question.answer}' (clean: '{stored_answer_clean}') → {'CORRECT' if was_correct else 'INCORRECT'}")
+                    logger.info(f"Answer comparison: user='{user_answer}' (clean: '{user_answer_clean}') vs answer='{stored_answer}' (clean: '{stored_answer_clean}') → {'CORRECT' if was_correct else 'INCORRECT'}")
                 
                 # Calculate response time (default to reasonable value if not provided)
                 response_time_ms = log_data.data.get('time_taken', 60) * 1000  # Convert to milliseconds
