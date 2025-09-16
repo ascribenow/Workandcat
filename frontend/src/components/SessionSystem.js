@@ -839,8 +839,12 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
       console.log(`[CRITICAL_DEBUG] ${requestId}: Submit successful, response:`, responseData);
       
       // Create adaptive result for display
+      const isCorrect = userAnswer.toLowerCase() === (currentQuestion.right_answer?.toLowerCase() || 'unknown');
       const result = {
-        correct: userAnswer.toLowerCase() === (currentQuestion.right_answer?.toLowerCase() || 'unknown'),
+        correct: isCorrect,
+        status: isCorrect ? 'correct' : 'incorrect',
+        message: isCorrect ? 'Well done!' : 'Not quite right, but keep learning!',
+        user_answer: userAnswer,
         correct_answer: currentQuestion.right_answer || 'Not specified',
         explanation: 'Answer logged successfully'
       };
