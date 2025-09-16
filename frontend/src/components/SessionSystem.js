@@ -907,6 +907,12 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
     const requestId = diagnosticRequestId.current;
     console.log(`[CRITICAL_DEBUG] ${requestId}: handleNextQuestion called`);
     
+    // CRITICAL FIX: Clear previous question's answer state before advancing
+    setShowResult(false);
+    setResult(null);
+    setUserAnswer('');
+    setAnswerSubmitted(false);
+    
     if (adaptiveEnabled && currentPackRef.current?.length > 0) {
       // Adaptive flow: advance to next question in pack
       const livePack = currentPackRef.current;
