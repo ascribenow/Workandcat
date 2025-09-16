@@ -146,7 +146,52 @@ def clean_answer_for_comparison(answer_text):
     # Remove MCQ prefixes like "(A) ", "(B) ", etc.
     cleaned = str(answer_text).strip()
     cleaned = re.sub(r'^\([A-D]\)\s*', '', cleaned)  # Remove (A), (B), etc.
-    return cleaned.lower().strip()
+    
+    # Convert to lowercase for case-insensitive comparison
+    cleaned = cleaned.lower().strip()
+    
+    return cleaned
+
+def answers_match(user_answer, stored_answer, stored_full_answer=None):
+    """
+    Enhanced answer matching logic for MCQ questions
+    Handles multiple answer formats and comparison strategies
+    """
+    if not user_answer:
+        return False
+    
+    # Clean both answers
+    user_clean = clean_answer_for_comparison(user_answer)
+    stored_clean = clean_answer_for_comparison(stored_answer) if stored_answer else ""
+    stored_full_clean = clean_answer_for_comparison(stored_full_answer) if stored_full_answer else ""
+    
+    # Strategy 1: Direct match with canonical answer
+    if user_clean == stored_clean:
+        return True
+    
+    # Strategy 2: Direct match with full answer (if available)
+    if stored_full_clean and user_clean == stored_full_clean:
+        return True
+    
+    # Strategy 3: Check if user answer contains the canonical answer
+    if stored_clean and stored_clean in user_clean:
+        return True
+    
+    # Strategy 4: Check if canonical answer contains the user answer (for short answers)
+    if stored_clean and user_clean in stored_clean:
+        return True
+    
+    # Strategy 5: Extract key numeric/percentage values for comparison
+    import re
+    user_numbers = re.findall(r'\d+\.?\d*%?', user_clean)
+    stored_numbers = re.findall(r'\d+\.?\d*%?', stored_clean)
+    
+    if user_numbers and stored_numbers:
+        # Check if the main numeric values match
+        if user_numbers[0] == stored_numbers[0]:
+            return True
+    
+    return False
 
 async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
     try:
