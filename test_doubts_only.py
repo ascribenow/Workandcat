@@ -114,8 +114,12 @@ class DoubtsSystemTester:
             auth_headers
         )
         
-        if not success or not questions_response or len(questions_response) == 0:
-            print("   ❌ Failed to get sample question")
+        if not success:
+            print(f"   ❌ Failed to get sample question: {questions_response}")
+            return False
+            
+        if not questions_response or not isinstance(questions_response, list) or len(questions_response) == 0:
+            print(f"   ❌ No questions returned: {questions_response}")
             return False
             
         sample_question = questions_response[0]
