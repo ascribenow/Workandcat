@@ -683,36 +683,33 @@ async def log_question_action(
                 skipped = log_data.action == 'skip'
                 
                 if log_data.action == 'submit' and user_answer:
-                    # For adaptive sessions, compare against MCQ options first
-                    mcq_options = None
-                    if question.mcq_options:
-                        try:
-                            if isinstance(question.mcq_options, str):
-                                mcq_options = json.loads(question.mcq_options)
-                            else:
-                                mcq_options = question.mcq_options
-                        except:
-                            mcq_options = None
+                    # For better answer comparison, try multiple approaches
+                    user_answer_clean = str(user_answer).strip().lower()
                     
-                    # Try to match against MCQ options if available
-                    if mcq_options and isinstance(mcq_options, dict):
-                        # Check if user answer matches any of the MCQ options
-                        user_answer_lower = str(user_answer).strip().lower()
-                        for option_key, option_value in mcq_options.items():
-                            if option_key.lower() == 'correct':  # Skip metadata
-                                continue
-                            option_value_lower = str(option_value).strip().lower()
-                            if user_answer_lower == option_value_lower:
-                                # Found matching option, now check if it's correct
-                                # Look for the correct answer in the explanation text
-                                explanation = str(question.right_answer).lower()
-                                if option_value_lower in explanation:
-                                    was_correct = True
-                                    break
+                    # Approach 1: Direct comparison with stored right_answer
+                    stored_answer_clean = str(question.right_answer).strip().lower() 
+                    was_correct = user_answer_clean == stored_answer_clean
                     
-                    # Fallback to direct comparison with right_answer
+                    # Approach 2: Check if user answer appears in the explanation (for descriptive answers)
+                    if not was_correct and user_answer_clean in stored_answer_clean:
+                        was_correct = True
+                    
+                    # Approach 3: Extract numerical answers (e.g., "5 days" vs "5")
                     if not was_correct:
-                        was_correct = str(user_answer).strip().lower() == str(question.right_answer).strip().lower()
+                        import re
+                        user_numbers = re.findall(r'\d+', user_answer_clean)
+                        stored_numbers = re.findall(r'\d+', stored_answer_clean)
+                        if user_numbers and stored_numbers:
+                            # Check if any number from user matches any number from stored answer
+                            was_correct = any(num in stored_numbers for num in user_numbers)
+                    
+                    # Approach 4: Check if the explanation confirms the user's answer is correct
+                    if not was_correct and 'correct' in stored_answer_clean:
+                        # Look for patterns like "5 days. The current answer is correct"
+                        if user_answer_clean in stored_answer_clean and 'answer is correct' in stored_answer_clean:
+                            was_correct = True
+                    
+                    logger.info(f"Answer comparison: user='{user_answer_clean}' vs stored='{stored_answer_clean[:100]}...' → {'CORRECT' if was_correct else 'INCORRECT'}")
                 
                 # Calculate response time (default to reasonable value if not provided)
                 response_time_ms = log_data.data.get('time_taken', 60) * 1000  # Convert to milliseconds
