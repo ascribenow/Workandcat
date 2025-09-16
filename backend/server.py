@@ -748,14 +748,14 @@ async def log_question_action(
                 skipped = log_data.action == 'skip'
                 
                 if log_data.action == 'submit' and user_answer:
-                    # Simple and accurate comparison: compare user answer with the clean answer field
-                    user_answer_clean = str(user_answer).strip().lower()
-                    stored_answer_clean = str(question.answer).strip().lower() if question.answer else ""
+                    # Clean both user answer and stored answer for accurate comparison
+                    user_answer_clean = clean_answer_for_comparison(user_answer)
+                    stored_answer_clean = clean_answer_for_comparison(question.answer) if question.answer else ""
                     
-                    # Direct comparison with the answer field (not right_answer which is explanation)
+                    # Direct comparison with cleaned answers
                     was_correct = user_answer_clean == stored_answer_clean
                     
-                    logger.info(f"Answer comparison: user='{user_answer}' vs answer='{question.answer}' → {'CORRECT' if was_correct else 'INCORRECT'}")
+                    logger.info(f"Answer comparison: user='{user_answer}' (clean: '{user_answer_clean}') vs answer='{question.answer}' (clean: '{stored_answer_clean}') → {'CORRECT' if was_correct else 'INCORRECT'}")
                 
                 # Calculate response time (default to reasonable value if not provided)
                 response_time_ms = log_data.data.get('time_taken', 60) * 1000  # Convert to milliseconds
