@@ -1016,11 +1016,49 @@ async def start_session(request: dict, user_id: str = Depends(get_current_user))
 
 @app.get("/api/dashboard/simple-taxonomy")
 async def get_simple_taxonomy(user_id: str = Depends(get_current_user)):
-    """Temporary endpoint for dashboard data"""
-    return {
-        "total_sessions": 0,
-        "taxonomy_data": []
-    }
+    """Get dashboard data with real session counts"""
+    db = SessionLocal()
+    try:
+        # Count completed sessions for this user
+        result = db.execute(text("""
+            SELECT COUNT(*) as total_sessions
+            FROM sessions 
+            WHERE user_id = :user_id AND status = 'completed'
+        """), {'user_id': user_id})
+        completed_sessions = result.fetchone()
+        
+        # Get taxonomy data (questions attempted by category)
+        result = db.execute(text("""
+            SELECT 
+                ae.subcategory,
+                ae.difficulty_band,
+                COUNT(*) as attempts,
+                COUNT(CASE WHEN ae.was_correct = true THEN 1 END) as correct,
+                COUNT(CASE WHEN ae.skipped = true THEN 1 END) as skipped
+            FROM attempt_events ae
+            WHERE ae.user_id = :user_id
+            GROUP BY ae.subcategory, ae.difficulty_band
+            ORDER BY ae.subcategory, ae.difficulty_band
+        """), {'user_id': user_id})
+        taxonomy_rows = result.fetchall()
+        
+        taxonomy_data = []
+        for row in taxonomy_rows:
+            taxonomy_data.append({
+                "subcategory": row.subcategory,
+                "difficulty_band": row.difficulty_band,
+                "attempts": row.attempts,
+                "correct": row.correct,
+                "skipped": row.skipped,
+                "accuracy": round((row.correct / row.attempts * 100) if row.attempts > 0 else 0, 1)
+            })
+        
+        return {
+            "total_sessions": completed_sessions.total_sessions if completed_sessions else 0,
+            "taxonomy_data": taxonomy_data
+        }
+    finally:
+        db.close()
 
 @app.get("/api/user/session-limit-status")
 async def get_session_limit_status(user_id: str = Depends(get_current_user)):
