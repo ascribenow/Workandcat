@@ -1072,13 +1072,33 @@ async def get_session_limit_status(user_id: str = Depends(get_current_user)):
 
 @app.get("/api/dashboard/mastery")
 async def get_dashboard_mastery(user_id: str = Depends(get_current_user)):
-    """Temporary endpoint for mastery data"""
-    return {
-        "total_questions_attempted": 0,
-        "correct_answers": 0,
-        "accuracy_rate": 0.0,
-        "mastery_levels": []
-    }
+    """Get mastery data from database"""
+    db = SessionLocal()
+    try:
+        # Get overall stats
+        result = db.execute(text("""
+            SELECT 
+                COUNT(*) as total_attempts,
+                COUNT(CASE WHEN was_correct = true THEN 1 END) as correct_answers,
+                COUNT(CASE WHEN skipped = true THEN 1 END) as skipped_questions
+            FROM attempt_events 
+            WHERE user_id = :user_id
+        """), {'user_id': user_id})
+        stats = result.fetchone()
+        
+        total_attempts = stats.total_attempts if stats else 0
+        correct_answers = stats.correct_answers if stats else 0
+        accuracy_rate = round((correct_answers / total_attempts * 100) if total_attempts > 0 else 0.0, 1)
+        
+        return {
+            "total_questions_attempted": total_attempts,
+            "correct_answers": correct_answers,
+            "accuracy_rate": accuracy_rate,
+            "skipped_questions": stats.skipped_questions if stats else 0,
+            "mastery_levels": []  # Can be expanded later
+        }
+    finally:
+        db.close()
 
 @app.get("/api/user/subscription-management")
 async def get_subscription_management(user_id: str = Depends(get_current_user)):
