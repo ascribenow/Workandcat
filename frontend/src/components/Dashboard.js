@@ -114,11 +114,14 @@ export const Dashboard = () => {
   const startOrResumeSession = async () => {
     try {
       console.log('Dashboard: Checking for active sessions or starting new session...');
+      console.log('Dashboard: User adaptive enabled:', user?.adaptive_enabled);
+      console.log('Dashboard: Current sessionLimitStatus:', sessionLimitStatus);
       
       // First check session limit status
       if (!sessionLimitStatus) {
         console.log('Dashboard: Session limit status not loaded, fetching...');
         const limitResponse = await axios.get(`${API}/user/session-limit-status`);
+        console.log('Dashboard: Session limit response:', limitResponse.data);
         setSessionLimitStatus(limitResponse.data);
         
         // If limit reached, show upgrade modal and prevent session start
