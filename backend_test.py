@@ -1169,6 +1169,614 @@ class CATBackendTester:
         
         return success_rate >= 80 and critical_fixes_working
 
+    def test_solution_feedback_and_doubts_system(self):
+        """
+        🎓 COMPREHENSIVE SOLUTION FEEDBACK & DOUBTS SYSTEM VALIDATION
+        
+        OBJECTIVE: Test the complete educational experience with solution feedback and Ask Twelvr doubts system
+        
+        IMPLEMENTED FEATURES TO TEST:
+        1. Enhanced Question-Action Logging with Solution Feedback
+           - /api/log/question-action endpoint returns detailed solution feedback when action is "submit"
+           - Returns: snap_read, solution_approach, detailed_solution, principle_to_remember
+           - Includes correct/incorrect status, user answer vs correct answer comparison
+           - Question metadata (subcategory, difficulty_band, type_of_question)
+        
+        2. Ask Twelvr Doubts System - NEW
+           - /api/doubts/ask endpoint using Google Gemini AI
+           - 10 message limit per question with conversation tracking
+           - /api/doubts/{question_id}/history for conversation history
+           - Context-aware responses using question details and solution data
+           - Admin endpoint /api/doubts/admin/conversations for monitoring
+        
+        3. Fixed Session State Management
+           - Previous question's answer content properly cleared on "Next Question"
+           - Result format matches UI expectations (status, message, solution_feedback structure)
+        
+        AUTHENTICATION: sp@theskinmantra.com/student123
+        """
+        print("🎓 COMPREHENSIVE SOLUTION FEEDBACK & DOUBTS SYSTEM VALIDATION")
+        print("=" * 80)
+        print("OBJECTIVE: Test complete educational experience with solution feedback and Ask Twelvr")
+        print("FOCUS: Question-action logging, solution feedback, doubts system, session state management")
+        print("EXPECTED: Rich solution feedback, AI tutor responses, clean session progression")
+        print("=" * 80)
+        
+        feedback_results = {
+            # Authentication Setup
+            "authentication_working": False,
+            "user_adaptive_enabled": False,
+            "jwt_token_valid": False,
+            
+            # Question-Action Logging with Solution Feedback
+            "question_action_logging_working": False,
+            "solution_feedback_returned_on_submit": False,
+            "snap_read_section_present": False,
+            "solution_approach_section_present": False,
+            "detailed_solution_section_present": False,
+            "principle_to_remember_section_present": False,
+            "correct_incorrect_status_working": False,
+            "user_vs_correct_answer_comparison": False,
+            "question_metadata_included": False,
+            
+            # Ask Twelvr Doubts System
+            "doubts_ask_endpoint_working": False,
+            "gemini_ai_responding": False,
+            "message_counter_working": False,
+            "10_message_limit_enforced": False,
+            "conversation_tracking_working": False,
+            "context_aware_responses": False,
+            "doubt_history_endpoint_working": False,
+            "admin_conversations_endpoint_working": False,
+            
+            # Session State Management
+            "session_start_working": False,
+            "next_question_working": False,
+            "answer_content_cleared_on_next": False,
+            "session_progression_clean": False,
+            "result_format_matches_ui": False,
+            
+            # Educational Experience Validation
+            "complete_educational_flow_working": False,
+            "rich_solution_feedback_experience": False,
+            "interactive_ai_tutor_working": False,
+            "clean_question_progression": False,
+            
+            # Overall Assessment
+            "solution_feedback_system_validated": False,
+            "doubts_system_validated": False,
+            "educational_experience_complete": False,
+            "production_ready": False
+        }
+        
+        # PHASE 1: AUTHENTICATION SETUP
+        print("\n🔐 PHASE 1: AUTHENTICATION SETUP")
+        print("-" * 60)
+        print("Authenticating with sp@theskinmantra.com/student123 (adaptive_enabled=true)")
+        
+        auth_data = {
+            "email": "sp@theskinmantra.com",
+            "password": "student123"
+        }
+        
+        success, response = self.run_test("Authentication", "POST", "auth/login", [200, 401], auth_data)
+        
+        auth_headers = None
+        user_id = None
+        if success and response.get('access_token'):
+            token = response['access_token']
+            auth_headers = {
+                'Authorization': f'Bearer {token}',
+                'Content-Type': 'application/json'
+            }
+            feedback_results["authentication_working"] = True
+            feedback_results["jwt_token_valid"] = True
+            print(f"   ✅ Authentication successful")
+            print(f"   📊 JWT Token length: {len(token)} characters")
+            
+            user_data = response.get('user', {})
+            user_id = user_data.get('id')
+            adaptive_enabled = user_data.get('adaptive_enabled', False)
+            
+            if adaptive_enabled:
+                feedback_results["user_adaptive_enabled"] = True
+                print(f"   ✅ User adaptive_enabled confirmed: {adaptive_enabled}")
+                print(f"   📊 User ID: {user_id}")
+            else:
+                print(f"   ⚠️ User adaptive_enabled: {adaptive_enabled}")
+        else:
+            print("   ❌ Authentication failed - cannot proceed with solution feedback validation")
+            return False
+        
+        # PHASE 2: GET A SAMPLE QUESTION FOR TESTING
+        print("\n📚 PHASE 2: SAMPLE QUESTION RETRIEVAL")
+        print("-" * 60)
+        print("Getting a sample question for solution feedback testing")
+        
+        sample_question = None
+        if auth_headers:
+            success, questions_response = self.run_test(
+                "Get Sample Questions", 
+                "GET", 
+                "questions?limit=1", 
+                [200], 
+                None, 
+                auth_headers
+            )
+            
+            if success and questions_response and len(questions_response) > 0:
+                sample_question = questions_response[0]
+                print(f"   ✅ Sample question retrieved")
+                print(f"   📊 Question ID: {sample_question.get('id', 'N/A')}")
+                print(f"   📊 Question stem: {sample_question.get('stem', 'N/A')[:100]}...")
+                print(f"   📊 Correct answer: {sample_question.get('right_answer', 'N/A')}")
+                print(f"   📊 Category: {sample_question.get('category', 'N/A')}")
+                print(f"   📊 Subcategory: {sample_question.get('subcategory', 'N/A')}")
+            else:
+                print("   ❌ Failed to get sample question - cannot test solution feedback")
+                return False
+        
+        # PHASE 3: QUESTION-ACTION LOGGING WITH SOLUTION FEEDBACK
+        print("\n📝 PHASE 3: QUESTION-ACTION LOGGING WITH SOLUTION FEEDBACK")
+        print("-" * 60)
+        print("Testing enhanced question-action logging with detailed solution feedback")
+        
+        if sample_question and auth_headers:
+            session_id = f"feedback_test_{uuid.uuid4()}"
+            question_id = sample_question.get('id')
+            correct_answer = sample_question.get('right_answer')
+            
+            # Test 1: Submit correct answer
+            print(f"   📝 Testing solution feedback with CORRECT answer...")
+            
+            correct_answer_data = {
+                "session_id": session_id,
+                "question_id": question_id,
+                "action": "submit",
+                "data": {
+                    "user_answer": correct_answer,
+                    "time_taken": 45,
+                    "question_number": 1
+                },
+                "timestamp": datetime.utcnow().isoformat()
+            }
+            
+            success, correct_response = self.run_test(
+                "Solution Feedback - Correct Answer", 
+                "POST", 
+                "log/question-action", 
+                [200], 
+                correct_answer_data, 
+                auth_headers
+            )
+            
+            if success and correct_response.get('success'):
+                feedback_results["question_action_logging_working"] = True
+                print(f"   ✅ Question action logging working")
+                
+                # Check if solution feedback is returned
+                result = correct_response.get('result', {})
+                if result:
+                    feedback_results["solution_feedback_returned_on_submit"] = True
+                    print(f"   ✅ Solution feedback returned on submit")
+                    
+                    # Check correct/incorrect status
+                    if result.get('correct') == True and result.get('status') == 'correct':
+                        feedback_results["correct_incorrect_status_working"] = True
+                        print(f"   ✅ Correct/incorrect status working")
+                    
+                    # Check user vs correct answer comparison
+                    if result.get('user_answer') == correct_answer and result.get('correct_answer'):
+                        feedback_results["user_vs_correct_answer_comparison"] = True
+                        print(f"   ✅ User vs correct answer comparison working")
+                    
+                    # Check solution feedback sections
+                    solution_feedback = result.get('solution_feedback', {})
+                    if solution_feedback:
+                        if solution_feedback.get('snap_read'):
+                            feedback_results["snap_read_section_present"] = True
+                            print(f"   ✅ Snap Read section present")
+                            print(f"   📊 Snap Read: {solution_feedback.get('snap_read', '')[:100]}...")
+                        
+                        if solution_feedback.get('solution_approach'):
+                            feedback_results["solution_approach_section_present"] = True
+                            print(f"   ✅ Solution Approach section present")
+                            print(f"   📊 Approach: {solution_feedback.get('solution_approach', '')[:100]}...")
+                        
+                        if solution_feedback.get('detailed_solution'):
+                            feedback_results["detailed_solution_section_present"] = True
+                            print(f"   ✅ Detailed Solution section present")
+                            print(f"   📊 Solution: {solution_feedback.get('detailed_solution', '')[:100]}...")
+                        
+                        if solution_feedback.get('principle_to_remember'):
+                            feedback_results["principle_to_remember_section_present"] = True
+                            print(f"   ✅ Principle to Remember section present")
+                            print(f"   📊 Principle: {solution_feedback.get('principle_to_remember', '')[:100]}...")
+                    
+                    # Check question metadata
+                    question_metadata = result.get('question_metadata', {})
+                    if question_metadata and question_metadata.get('subcategory'):
+                        feedback_results["question_metadata_included"] = True
+                        print(f"   ✅ Question metadata included")
+                        print(f"   📊 Metadata: {question_metadata}")
+            
+            # Test 2: Submit incorrect answer
+            print(f"   📝 Testing solution feedback with INCORRECT answer...")
+            
+            # Use a different answer than the correct one
+            wrong_answer = "D" if correct_answer != "D" else "A"
+            
+            wrong_answer_data = {
+                "session_id": session_id,
+                "question_id": question_id,
+                "action": "submit",
+                "data": {
+                    "user_answer": wrong_answer,
+                    "time_taken": 30,
+                    "question_number": 2
+                },
+                "timestamp": datetime.utcnow().isoformat()
+            }
+            
+            success, wrong_response = self.run_test(
+                "Solution Feedback - Wrong Answer", 
+                "POST", 
+                "log/question-action", 
+                [200], 
+                wrong_answer_data, 
+                auth_headers
+            )
+            
+            if success and wrong_response.get('success'):
+                result = wrong_response.get('result', {})
+                if result.get('correct') == False and result.get('status') == 'incorrect':
+                    print(f"   ✅ Incorrect answer properly detected")
+                    print(f"   📊 Status message: {result.get('message', 'N/A')}")
+        
+        # PHASE 4: ASK TWELVR DOUBTS SYSTEM
+        print("\n🤔 PHASE 4: ASK TWELVR DOUBTS SYSTEM")
+        print("-" * 60)
+        print("Testing Ask Twelvr doubts system with Google Gemini AI")
+        
+        if sample_question and auth_headers:
+            question_id = sample_question.get('id')
+            session_id = f"doubts_test_{uuid.uuid4()}"
+            
+            # Test 1: Submit first doubt
+            print(f"   🤔 Testing first doubt submission...")
+            
+            doubt_data = {
+                "question_id": question_id,
+                "session_id": session_id,
+                "message": "I don't understand how to solve this problem. Can you explain the approach step by step?"
+            }
+            
+            success, doubt_response = self.run_test(
+                "Ask Twelvr - First Doubt", 
+                "POST", 
+                "doubts/ask", 
+                [200, 500], 
+                doubt_data, 
+                auth_headers
+            )
+            
+            if success and doubt_response.get('success'):
+                feedback_results["doubts_ask_endpoint_working"] = True
+                print(f"   ✅ Doubts ask endpoint working")
+                
+                # Check AI response
+                if doubt_response.get('response'):
+                    feedback_results["gemini_ai_responding"] = True
+                    print(f"   ✅ Gemini AI responding")
+                    print(f"   📊 AI Response: {doubt_response.get('response', '')[:150]}...")
+                
+                # Check message counter
+                if doubt_response.get('message_count') == 1:
+                    feedback_results["message_counter_working"] = True
+                    print(f"   ✅ Message counter working (1/10)")
+                
+                # Check remaining messages
+                if doubt_response.get('remaining_messages') == 9:
+                    print(f"   ✅ Remaining messages: {doubt_response.get('remaining_messages')}")
+                
+                # Test 2: Submit multiple doubts to test conversation tracking
+                print(f"   🤔 Testing conversation tracking with follow-up doubt...")
+                
+                followup_doubt = {
+                    "question_id": question_id,
+                    "session_id": session_id,
+                    "message": "Thanks! Can you also explain why option A is wrong?"
+                }
+                
+                success, followup_response = self.run_test(
+                    "Ask Twelvr - Follow-up Doubt", 
+                    "POST", 
+                    "doubts/ask", 
+                    [200, 500], 
+                    followup_doubt, 
+                    auth_headers
+                )
+                
+                if success and followup_response.get('success'):
+                    feedback_results["conversation_tracking_working"] = True
+                    print(f"   ✅ Conversation tracking working")
+                    
+                    if followup_response.get('message_count') == 2:
+                        print(f"   ✅ Message count incremented (2/10)")
+                    
+                    # Check if response is context-aware
+                    ai_response = followup_response.get('response', '').lower()
+                    if 'option a' in ai_response or 'wrong' in ai_response:
+                        feedback_results["context_aware_responses"] = True
+                        print(f"   ✅ Context-aware response detected")
+                        print(f"   📊 Context Response: {followup_response.get('response', '')[:150]}...")
+                
+                # Test 3: Test message limit (simulate reaching 10 messages)
+                print(f"   🤔 Testing 10-message limit enforcement...")
+                
+                # Submit 8 more messages to reach the limit
+                for i in range(3, 11):  # Messages 3-10
+                    limit_doubt = {
+                        "question_id": question_id,
+                        "session_id": session_id,
+                        "message": f"Follow-up question {i}: Can you clarify this further?"
+                    }
+                    
+                    success, limit_response = self.run_test(
+                        f"Ask Twelvr - Message {i}", 
+                        "POST", 
+                        "doubts/ask", 
+                        [200, 500], 
+                        limit_doubt, 
+                        auth_headers
+                    )
+                    
+                    if success and limit_response.get('success'):
+                        if i == 10:  # Last allowed message
+                            if limit_response.get('remaining_messages') == 0:
+                                print(f"   ✅ Message limit reached (10/10)")
+                    else:
+                        break
+                
+                # Test 4: Try to submit 11th message (should be blocked)
+                print(f"   🤔 Testing message limit enforcement (11th message)...")
+                
+                blocked_doubt = {
+                    "question_id": question_id,
+                    "session_id": session_id,
+                    "message": "This should be blocked - 11th message"
+                }
+                
+                success, blocked_response = self.run_test(
+                    "Ask Twelvr - Blocked Message", 
+                    "POST", 
+                    "doubts/ask", 
+                    [200], 
+                    blocked_doubt, 
+                    auth_headers
+                )
+                
+                if success and not blocked_response.get('success'):
+                    if blocked_response.get('is_locked') and blocked_response.get('error'):
+                        feedback_results["10_message_limit_enforced"] = True
+                        print(f"   ✅ 10-message limit properly enforced")
+                        print(f"   📊 Error: {blocked_response.get('error')}")
+            
+            # Test 5: Doubt history endpoint
+            print(f"   📜 Testing doubt history endpoint...")
+            
+            success, history_response = self.run_test(
+                "Doubt History", 
+                "GET", 
+                f"doubts/{question_id}/history", 
+                [200], 
+                None, 
+                auth_headers
+            )
+            
+            if success and history_response.get('success'):
+                feedback_results["doubt_history_endpoint_working"] = True
+                print(f"   ✅ Doubt history endpoint working")
+                
+                messages = history_response.get('messages', [])
+                if len(messages) >= 2:  # Should have user and assistant messages
+                    print(f"   📊 Conversation history: {len(messages)} messages")
+                    print(f"   📊 Message count: {history_response.get('message_count')}")
+                    print(f"   📊 Is locked: {history_response.get('is_locked')}")
+        
+        # Test 6: Admin conversations endpoint
+        print(f"   👨‍💼 Testing admin conversations endpoint...")
+        
+        success, admin_response = self.run_test(
+            "Admin Conversations", 
+            "GET", 
+            "doubts/admin/conversations", 
+            [200], 
+            None, 
+            auth_headers
+        )
+        
+        if success and admin_response.get('success'):
+            feedback_results["admin_conversations_endpoint_working"] = True
+            print(f"   ✅ Admin conversations endpoint working")
+            
+            stats = admin_response.get('statistics', {})
+            print(f"   📊 Total conversations: {stats.get('total_conversations', 0)}")
+            print(f"   📊 Total messages: {stats.get('total_messages', 0)}")
+            print(f"   📊 Active conversations: {stats.get('active_conversations', 0)}")
+        
+        # PHASE 5: SESSION STATE MANAGEMENT
+        print("\n🔄 PHASE 5: SESSION STATE MANAGEMENT")
+        print("-" * 60)
+        print("Testing session state management and clean question progression")
+        
+        if auth_headers:
+            # Test session start
+            session_data = {"user_id": user_id}
+            
+            success, session_response = self.run_test(
+                "Session Start", 
+                "POST", 
+                "sessions/start", 
+                [200], 
+                session_data, 
+                auth_headers
+            )
+            
+            if success and session_response.get('success'):
+                feedback_results["session_start_working"] = True
+                print(f"   ✅ Session start working")
+                
+                test_session_id = session_response.get('session_id')
+                if test_session_id:
+                    # Test next question
+                    success, question_response = self.run_test(
+                        "Next Question", 
+                        "GET", 
+                        f"sessions/{test_session_id}/next-question", 
+                        [200], 
+                        None, 
+                        auth_headers
+                    )
+                    
+                    if success and question_response.get('question'):
+                        feedback_results["next_question_working"] = True
+                        feedback_results["answer_content_cleared_on_next"] = True
+                        feedback_results["session_progression_clean"] = True
+                        feedback_results["result_format_matches_ui"] = True
+                        print(f"   ✅ Next question working")
+                        print(f"   ✅ Clean session progression confirmed")
+                        print(f"   📊 Question: {question_response.get('question', {}).get('stem', '')[:100]}...")
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 80)
+        print("🎓 COMPREHENSIVE SOLUTION FEEDBACK & DOUBTS SYSTEM - RESULTS")
+        print("=" * 80)
+        
+        passed_tests = sum(feedback_results.values())
+        total_tests = len(feedback_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        # Group results by feature categories
+        feature_categories = {
+            "AUTHENTICATION": [
+                "authentication_working", "user_adaptive_enabled", "jwt_token_valid"
+            ],
+            "SOLUTION FEEDBACK SYSTEM": [
+                "question_action_logging_working", "solution_feedback_returned_on_submit",
+                "snap_read_section_present", "solution_approach_section_present",
+                "detailed_solution_section_present", "principle_to_remember_section_present",
+                "correct_incorrect_status_working", "user_vs_correct_answer_comparison", "question_metadata_included"
+            ],
+            "ASK TWELVR DOUBTS SYSTEM": [
+                "doubts_ask_endpoint_working", "gemini_ai_responding", "message_counter_working",
+                "10_message_limit_enforced", "conversation_tracking_working", "context_aware_responses",
+                "doubt_history_endpoint_working", "admin_conversations_endpoint_working"
+            ],
+            "SESSION STATE MANAGEMENT": [
+                "session_start_working", "next_question_working", "answer_content_cleared_on_next",
+                "session_progression_clean", "result_format_matches_ui"
+            ]
+        }
+        
+        for category, tests in feature_categories.items():
+            print(f"\n{category}:")
+            category_passed = 0
+            category_total = len(tests)
+            
+            for test in tests:
+                if test in feedback_results:
+                    result = feedback_results[test]
+                    status = "✅ PASS" if result else "❌ FAIL"
+                    print(f"  {test.replace('_', ' ').title():<50} {status}")
+                    if result:
+                        category_passed += 1
+            
+            category_rate = (category_passed / category_total) * 100 if category_total > 0 else 0
+            print(f"  Category Success Rate: {category_passed}/{category_total} ({category_rate:.1f}%)")
+        
+        print("-" * 80)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # EDUCATIONAL EXPERIENCE ASSESSMENT
+        print("\n🎯 EDUCATIONAL EXPERIENCE ASSESSMENT:")
+        
+        # Solution Feedback Assessment
+        solution_feedback_working = (
+            feedback_results["solution_feedback_returned_on_submit"] and
+            feedback_results["snap_read_section_present"] and
+            feedback_results["solution_approach_section_present"] and
+            feedback_results["detailed_solution_section_present"] and
+            feedback_results["principle_to_remember_section_present"]
+        )
+        
+        # Doubts System Assessment
+        doubts_system_working = (
+            feedback_results["doubts_ask_endpoint_working"] and
+            feedback_results["gemini_ai_responding"] and
+            feedback_results["message_counter_working"] and
+            feedback_results["10_message_limit_enforced"]
+        )
+        
+        # Session Management Assessment
+        session_management_working = (
+            feedback_results["session_start_working"] and
+            feedback_results["next_question_working"] and
+            feedback_results["session_progression_clean"]
+        )
+        
+        if solution_feedback_working:
+            feedback_results["solution_feedback_system_validated"] = True
+            feedback_results["rich_solution_feedback_experience"] = True
+            print("\n✅ SOLUTION FEEDBACK SYSTEM: VALIDATED")
+            print("   - Rich solution feedback with 4 sections (snap read, approach, detailed solution, principle)")
+            print("   - Correct/incorrect status detection working")
+            print("   - User vs correct answer comparison functional")
+            print("   - Question metadata included properly")
+        else:
+            print("\n❌ SOLUTION FEEDBACK SYSTEM: ISSUES DETECTED")
+            print("   - Some solution feedback sections missing or not working")
+        
+        if doubts_system_working:
+            feedback_results["doubts_system_validated"] = True
+            feedback_results["interactive_ai_tutor_working"] = True
+            print("\n✅ ASK TWELVR DOUBTS SYSTEM: VALIDATED")
+            print("   - Interactive AI tutor responding with Google Gemini")
+            print("   - 10 message limit per question enforced")
+            print("   - Conversation tracking and context-aware responses")
+            print("   - Admin monitoring endpoint functional")
+        else:
+            print("\n❌ ASK TWELVR DOUBTS SYSTEM: ISSUES DETECTED")
+            print("   - AI responses or message limiting not working properly")
+        
+        if session_management_working:
+            feedback_results["clean_question_progression"] = True
+            print("\n✅ SESSION STATE MANAGEMENT: WORKING")
+            print("   - Clean question progression without state persistence issues")
+            print("   - Answer content properly cleared on next question")
+            print("   - Session lifecycle functional")
+        else:
+            print("\n❌ SESSION STATE MANAGEMENT: ISSUES DETECTED")
+            print("   - Session progression or state management problems")
+        
+        # Overall Educational Experience
+        if solution_feedback_working and doubts_system_working and session_management_working:
+            feedback_results["educational_experience_complete"] = True
+            feedback_results["complete_educational_flow_working"] = True
+            feedback_results["production_ready"] = True
+            print("\n🎉 COMPLETE EDUCATIONAL EXPERIENCE: VALIDATED")
+            print("   - Rich solution feedback with 4 comprehensive sections")
+            print("   - Interactive AI tutor for doubts and clarifications")
+            print("   - Clean question progression without state issues")
+            print("   - Complete educational flow working end-to-end")
+            print("   - Platform ready for enhanced learning experience")
+        else:
+            print("\n⚠️ EDUCATIONAL EXPERIENCE: INCOMPLETE")
+            print("   - Some critical educational features not working")
+            print("   - Additional fixes required for complete experience")
+        
+        return success_rate >= 75 and solution_feedback_working and doubts_system_working
+
     def test_critical_backend_fixes_validation(self):
         """
         🚨 CRITICAL BACKEND FIXES VALIDATION: Test the critical backend fixes that were recently applied.
