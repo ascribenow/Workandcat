@@ -69,7 +69,7 @@ class V2PackItem(BaseModel):
     option_b: str = Field("Option B", description="MCQ Option B") 
     option_c: str = Field("Option C", description="MCQ Option C")
     option_d: str = Field("Option D", description="MCQ Option D")
-    right_answer: str = Field("", description="Correct answer")
+    answer: str = Field("", description="Clean correct answer (from answer field only)")
     subcategory: str = Field("Unknown", description="Question subcategory")
     difficulty_band: str = Field("Medium", description="Difficulty band")
 
