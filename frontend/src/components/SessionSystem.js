@@ -997,6 +997,60 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
     localStorage.removeItem(`twelvr:adapt:next:${userId}`);
   };
 
+  // Session Progress Tracking Functions
+  const updateSessionProgress = async (questionIndex, questionId) => {
+    if (!sessionId || !user?.id) return;
+    
+    try {
+      await axios.post(`${API}/session-progress/update`, {
+        session_id: sessionId,
+        current_question_index: questionIndex,
+        total_questions: currentPackRef.current?.length || 12,
+        last_question_id: questionId
+      });
+      
+      console.log(`[PROGRESS] Updated session progress: Q${questionIndex + 1}/${currentPackRef.current?.length || 12}`);
+    } catch (error) {
+      console.warn('[PROGRESS] Failed to update session progress:', error.message);
+      // Don't fail the session flow for progress tracking issues
+    }
+  };
+
+  const getSessionProgress = async (sessionId) => {
+    if (!sessionId || !user?.id) return null;
+    
+    try {
+      const response = await axios.get(`${API}/session-progress/${sessionId}`);
+      return response.data.has_progress ? response.data : null;
+    } catch (error) {
+      console.warn('[PROGRESS] Failed to get session progress:', error.message);
+      return null;
+    }
+  };
+
+  const checkForIncompleteSession = async () => {
+    if (!user?.id) return null;
+    
+    try {
+      const response = await axios.get(`${API}/session-progress/current/${user.id}`);
+      return response.data.has_current_session ? response.data : null;
+    } catch (error) {
+      console.warn('[PROGRESS] Failed to check incomplete session:', error.message);
+      return null;
+    }
+  };
+
+  const clearSessionProgress = async (sessionId) => {
+    if (!sessionId || !user?.id) return;
+    
+    try {
+      await axios.delete(`${API}/session-progress/${sessionId}`);
+      console.log(`[PROGRESS] Cleared session progress: ${sessionId}`);
+    } catch (error) {
+      console.warn('[PROGRESS] Failed to clear session progress:', error.message);
+    }
+  };
+
   const tryFetchPack = async (userId, sessionId) => {
     // SURGICAL FIX: Use the new atomic fetch method
     return await fetchPackSafe(userId, sessionId);
