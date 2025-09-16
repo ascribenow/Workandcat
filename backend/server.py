@@ -660,7 +660,7 @@ async def log_question_action(
     log_data: QuestionActionLog,
     user_id: str = Depends(get_current_user)
 ):
-    """Log question actions (skip, submit, correct, incorrect) for future session implementation"""
+    """Log question actions and return solution feedback for submit actions"""
     try:
         # Add user_id and create a log entry
         log_entry = {
@@ -679,6 +679,50 @@ async def log_question_action(
         
         logger.info(f"📝 Logged action: {log_data.action} for question {log_data.question_id[:8]} by user {user_id[:8]}")
         
+        # If action is 'submit', get question details and return solution feedback
+        if log_data.action == "submit":
+            db = SessionLocal()
+            try:
+                # Get the question
+                result = db.execute(select(Question).where(Question.id == log_data.question_id))
+                question = result.scalar_one_or_none()
+                
+                if question:
+                    # Extract user's answer from the log data
+                    user_answer = log_data.data.get('user_answer', '')
+                    
+                    # Check if answer is correct
+                    is_correct = str(user_answer).strip().lower() == str(question.right_answer).strip().lower()
+                    
+                    return {
+                        "success": True,
+                        "log_id": log_entry["id"],
+                        "message": f"Action '{log_data.action}' logged successfully",
+                        "result": {
+                            "correct": is_correct,
+                            "status": "correct" if is_correct else "incorrect",
+                            "message": "Correct answer!" if is_correct else "That's not quite right, but keep learning!",
+                            "user_answer": user_answer,
+                            "correct_answer": question.right_answer or "Not specified",
+                            "solution_feedback": {
+                                "snap_read": question.snap_read,
+                                "solution_approach": question.solution_approach,
+                                "detailed_solution": question.detailed_solution,
+                                "principle_to_remember": question.principle_to_remember
+                            },
+                            "question_metadata": {
+                                "subcategory": question.subcategory,
+                                "difficulty_band": question.difficulty_band,
+                                "type_of_question": question.type_of_question
+                            }
+                        }
+                    }
+                else:
+                    logger.warning(f"⚠️ Question {log_data.question_id} not found for solution feedback")
+            finally:
+                db.close()
+        
+        # For non-submit actions, return basic success response
         return {
             "success": True,
             "log_id": log_entry["id"],
