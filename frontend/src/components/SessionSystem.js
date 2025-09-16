@@ -1414,6 +1414,8 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
                 {currentQuestion.options ? (
                   Object.entries(currentQuestion.options).map(([key, value]) => {
                     if (key === 'correct') return null;
+                    const cleanValue = extractCleanAnswer(value);
+                    const isSelected = userAnswer === cleanValue;
                     return (
                       <button
                         key={key}
@@ -1421,19 +1423,19 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
                         disabled={answerSubmitted}
                         className="w-full text-left p-4 rounded-lg border-2 transition-all"
                         style={{
-                          borderColor: userAnswer === value ? '#9ac026' : '#e5e7eb',
-                          backgroundColor: userAnswer === value ? '#f7fdf0' : '#ffffff',
+                          borderColor: isSelected ? '#9ac026' : '#e5e7eb',
+                          backgroundColor: isSelected ? '#f7fdf0' : '#ffffff',
                           color: '#545454',
                           fontFamily: 'Lato, sans-serif'
                         }}
                         onMouseOver={(e) => {
-                          if (userAnswer !== value && !answerSubmitted) {
+                          if (!isSelected && !answerSubmitted) {
                             e.target.style.borderColor = '#ff6d4d';
                             e.target.style.backgroundColor = '#fff5f3';
                           }
                         }}
                         onMouseOut={(e) => {
-                          if (userAnswer !== value) {
+                          if (!isSelected) {
                             e.target.style.borderColor = '#e5e7eb';
                             e.target.style.backgroundColor = '#ffffff';
                           }
@@ -1444,7 +1446,7 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
                           {key.toUpperCase()})
                         </span>
                         <MathRenderer 
-                          content={value}
+                          content={extractCleanAnswer(value)}
                           style={{ fontFamily: 'Lato, sans-serif' }}
                         />
                       </button>
