@@ -277,7 +277,7 @@ async def get_questions(
                 category=q.category or "",
                 subcategory=q.subcategory or "",
                 type_of_question=q.type_of_question or "",
-                difficulty_level=q.difficulty_level or "",
+                difficulty_level=q.difficulty_band or "",
                 difficulty_score=float(q.difficulty_score or 0),
                 concept_keywords=q.concept_keywords or [],
                 core_concepts=q.core_concepts or [],
