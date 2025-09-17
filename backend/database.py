@@ -382,7 +382,7 @@ class PaymentTransaction(Base):
     notes = Column(JSON, default=dict)
     fee = Column(Integer, nullable=True)
     tax = Column(Integer, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: ist_to_utc(now_ist()))
     
     # Relationships
     user = relationship("User", foreign_keys=[user_id])
