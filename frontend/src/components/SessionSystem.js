@@ -756,70 +756,7 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
     });
   };
 
-  const handleLegacyQuestionFlow = async () => {
-    
-    try {
-      // Using global axios authorization header set by AuthProvider
-      const response = await axios.get(`${API}/sessions/${sessionId}/next-question`);
-      
-      if (response.data.session_complete) {
-        // Session completed - trigger end-of-session handshake
-        await handleSessionCompletionWithHandshake({
-          completed: true,
-          questionsCompleted: response.data.questions_completed,
-          totalQuestions: response.data.total_questions
-        });
-        return;
-      }
-      
-      if (response.data.question) {
-        const question = response.data.question;
-        const progress = response.data.session_progress;
-        
-        // Pre-load image if question has one
-        if (question.has_image && question.image_url) {
-          const imageLoaded = await handleImagePreload(question.image_url);
-          if (!imageLoaded) {
-            return; // Will retry with next question
-          }
-        }
-        
-        setCurrentQuestion(question);
-        setSessionProgress(progress);
-        
-        // Debug: Log question structure to identify missing options issue
-        console.log('Question loaded:', {
-          id: question.id,
-          stem: question.stem?.substring(0, 50) + '...',
-          hasOptions: !!question.options,
-          optionKeys: question.options ? Object.keys(question.options) : [],
-          optionCount: question.options ? Object.keys(question.options).length : 0
-        });
-        
-        // Session number is now handled in useEffect to avoid race conditions
-        
-        setImageLoading(false);
-        setImageLoadFailed(false);
-        setRetryCount(0);
-      }
-    } catch (err) {
-      if (err.response?.status === 404) {
-        // V2 FIX: Don't trigger session completion for adaptive sessions
-        if (adaptiveEnabled && currentPackRef.current?.length > 0) {
-          console.log('⚠️ 404 in adaptive session - ignoring (using pack-based serving)');
-          setError('Using adaptive pack mode - no legacy endpoint needed');
-        } else {
-          // Only complete session for legacy flows
-          await handleSessionCompletionWithHandshake({ completed: true });
-        }
-      } else {
-        setError('Failed to load next question');
-        console.error('Error fetching next question:', err);
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
+  // REMOVED: handleLegacyQuestionFlow - System is now adaptive-only
 
   // SURGICAL FIX: Safe JSON parsing to prevent React crashes
   const safeJson = async (res) => {
