@@ -913,26 +913,26 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
     setUserAnswer('');
     setAnswerSubmitted(false);
     
-    if (adaptiveEnabled && currentPackRef.current?.length > 0) {
-      // Adaptive flow: advance to next question in pack
-      const livePack = currentPackRef.current;
-      const nextIndex = currentQuestionIndex + 1;
-      console.log(`[CRITICAL_DEBUG] ${requestId}: Advancing to question ${nextIndex + 1} of ${livePack.length}`);
-      
-      // SURGICAL FIX: Validate before advancing using livePack
-      if (nextIndex >= livePack.length) {
-        console.log(`[CRITICAL_DEBUG] ${requestId}: Reached end of pack (${nextIndex} >= ${livePack.length}) - completing session`);
-        handleAdaptiveSessionCompletion();
-        return;
-      }
-      
-      setCurrentQuestionIndex(nextIndex);
-      serveQuestionFromPack(nextIndex);
-    } else {
-      console.log(`[CRITICAL_DEBUG] ${requestId}: Using legacy flow for next question`);
-      // Legacy flow: fetch from server
-      fetchNextQuestion();
+    // ADAPTIVE-ONLY: Advance to next question in pack
+    const livePack = currentPackRef.current;
+    const nextIndex = currentQuestionIndex + 1;
+    console.log(`[CRITICAL_DEBUG] ${requestId}: Advancing to question ${nextIndex + 1} of ${livePack.length}`);
+    
+    // Validate before advancing using livePack
+    if (!livePack || livePack.length === 0) {
+      console.error(`[CRITICAL_DEBUG] ${requestId}: No pack data available`);
+      setError('Session pack not available. Please refresh to restart.');
+      return;
     }
+    
+    if (nextIndex >= livePack.length) {
+      console.log(`[CRITICAL_DEBUG] ${requestId}: Reached end of pack (${nextIndex} >= ${livePack.length}) - completing session`);
+      handleAdaptiveSessionCompletion();
+      return;
+    }
+    
+    setCurrentQuestionIndex(nextIndex);
+    serveQuestionFromPack(nextIndex);
   };
 
   // Helper function to extract clean answer from MCQ option
