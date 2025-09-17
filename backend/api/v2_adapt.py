@@ -223,8 +223,8 @@ async def v2_start_first_controller(request: dict, auth_user_id: str = Depends(g
         # Step 1: Plan the session
         plan_result = v2_session_pipeline.plan_next_session(
             user_id=user_id,
-            last_session_id=last_session_id,
-            next_session_id=session_id
+            session_id=session_id,
+            request_id=f"start-first-{session_id[:8]}"
         )
         
         if not plan_result.get("success"):
