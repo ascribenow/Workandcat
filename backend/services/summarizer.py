@@ -134,7 +134,7 @@ Return ONLY valid JSON matching the required schema."""
                     "provisional_new_count": self._count_provisional_concepts(data),
                 })
                 
-                # 3) Persist session summary (use the UUID session_id you received)
+                # 3) Persist session summary (always persist, even for fallback)
                 db.execute(text("""
                     INSERT INTO session_summary_llm
                         (session_id, user_id,
@@ -153,18 +153,17 @@ Return ONLY valid JSON matching the required schema."""
                     "llm_model_used": data.get("telemetry", {}).get("llm_model_used", "unknown")
                 })
 
-                # 4) Upsert per-user alias map
-                if data.get("concept_alias_map_updated"):
-                    db.execute(text("""
-                        INSERT INTO concept_alias_map_latest (user_id, alias_map_json, updated_at)
-                        VALUES (:user_id, :alias_map_json::jsonb, NOW())
-                        ON CONFLICT (user_id) DO UPDATE
-                          SET alias_map_json = EXCLUDED.alias_map_json,
-                              updated_at = EXCLUDED.updated_at
-                    """), {
-                        "user_id": user_id, 
-                        "alias_map_json": json.dumps(data.get("concept_alias_map_updated", []))
-                    })
+                # 4) Upsert per-user alias map (always upsert, even empty arrays for tracking)
+                db.execute(text("""
+                    INSERT INTO concept_alias_map_latest (user_id, alias_map_json, updated_at)
+                    VALUES (:user_id, :alias_map_json::jsonb, NOW())
+                    ON CONFLICT (user_id) DO UPDATE
+                      SET alias_map_json = EXCLUDED.alias_map_json,
+                          updated_at = EXCLUDED.updated_at
+                """), {
+                    "user_id": user_id, 
+                    "alias_map_json": json.dumps(data.get("concept_alias_map_updated", []))
+                })
 
                 db.commit()
                 
