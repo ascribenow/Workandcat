@@ -135,35 +135,47 @@ Return ONLY valid JSON matching the required schema."""
                 })
                 
                 # 3) Persist session summary (always persist, even for fallback)
-                db.execute(text("""
-                    INSERT INTO session_summary_llm
-                        (session_id, user_id,
-                         concept_alias_map, dominance, readiness_reasons, coverage_labels,
-                         llm_model_used, created_at)
-                    VALUES
-                        (:session_id, :user_id, :concept_alias_map_json::jsonb, :dominance_json::jsonb, 
-                         :readiness_reasons_json::jsonb, :coverage_labels_json::jsonb, :llm_model_used, NOW())
-                """), {
-                    "session_id": session_id,
-                    "user_id": user_id,
-                    "concept_alias_map_json": json.dumps(data.get("concept_alias_map_updated", [])),
-                    "dominance_json": json.dumps(data.get("dominance_by_item", {})),
-                    "readiness_reasons_json": json.dumps(data.get("concept_readiness_labels", [])),
-                    "coverage_labels_json": json.dumps(data.get("pair_coverage_labels", [])),
-                    "llm_model_used": data.get("telemetry", {}).get("llm_model_used", "unknown")
-                })
+                logger.info(f"📊 Persisting session summary to database...")
+                try:
+                    db.execute(text("""
+                        INSERT INTO session_summary_llm
+                            (session_id, user_id,
+                             concept_alias_map, dominance, readiness_reasons, coverage_labels,
+                             llm_model_used, created_at)
+                        VALUES
+                            (:session_id, :user_id, :concept_alias_map_json::jsonb, :dominance_json::jsonb, 
+                             :readiness_reasons_json::jsonb, :coverage_labels_json::jsonb, :llm_model_used, NOW())
+                    """), {
+                        "session_id": session_id,
+                        "user_id": user_id,
+                        "concept_alias_map_json": json.dumps(data.get("concept_alias_map_updated", [])),
+                        "dominance_json": json.dumps(data.get("dominance_by_item", {})),
+                        "readiness_reasons_json": json.dumps(data.get("concept_readiness_labels", [])),
+                        "coverage_labels_json": json.dumps(data.get("pair_coverage_labels", [])),
+                        "llm_model_used": data.get("telemetry", {}).get("llm_model_used", "unknown")
+                    })
+                    logger.info(f"✅ Session summary persisted successfully")
+                except Exception as persist_error:
+                    logger.error(f"❌ Session summary persistence failed: {persist_error}")
+                    raise persist_error
 
                 # 4) Upsert per-user alias map (always upsert, even empty arrays for tracking)
-                db.execute(text("""
-                    INSERT INTO concept_alias_map_latest (user_id, alias_map_json, updated_at)
-                    VALUES (:user_id, :alias_map_json::jsonb, NOW())
-                    ON CONFLICT (user_id) DO UPDATE
-                      SET alias_map_json = EXCLUDED.alias_map_json,
-                          updated_at = EXCLUDED.updated_at
-                """), {
-                    "user_id": user_id, 
-                    "alias_map_json": json.dumps(data.get("concept_alias_map_updated", []))
-                })
+                logger.info(f"📊 Upserting concept alias map...")
+                try:
+                    db.execute(text("""
+                        INSERT INTO concept_alias_map_latest (user_id, alias_map_json, updated_at)
+                        VALUES (:user_id, :alias_map_json::jsonb, NOW())
+                        ON CONFLICT (user_id) DO UPDATE
+                          SET alias_map_json = EXCLUDED.alias_map_json,
+                              updated_at = EXCLUDED.updated_at
+                    """), {
+                        "user_id": user_id, 
+                        "alias_map_json": json.dumps(data.get("concept_alias_map_updated", []))
+                    })
+                    logger.info(f"✅ Concept alias map upserted successfully")
+                except Exception as alias_error:
+                    logger.error(f"❌ Concept alias map upsert failed: {alias_error}")
+                    raise alias_error
 
                 db.commit()
                 
