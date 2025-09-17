@@ -340,7 +340,7 @@ class Subscription(Base):
     paused_days_remaining = Column(Integer, nullable=True)  # Days remaining when paused
     pause_count = Column(Integer, default=0)  # Track number of times paused
     created_at = Column(DateTime, default=lambda: ist_to_utc(now_ist()))
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    updated_at = Column(DateTime, default=lambda: ist_to_utc(now_ist()), onupdate=lambda: ist_to_utc(now_ist()))
     
     # Relationships
     user = relationship("User", foreign_keys=[user_id])
