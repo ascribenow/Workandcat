@@ -121,6 +121,7 @@ Return ONLY valid JSON matching the required schema."""
                 data.setdefault("telemetry", {}).update({
                     "processing_time_ms": int(elapsed_time * 1000),
                     "estimated_tokens": tokens_used,
+                    "llm_model_used": "gpt-4o-mini",  # Default to primary model
                     "alias_reuse_rate": self._calculate_alias_reuse_rate(data),
                     "provisional_new_count": self._count_provisional_concepts(data),
                     "llm_model_used": "gpt-4o-mini"
