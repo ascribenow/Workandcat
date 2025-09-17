@@ -13256,40 +13256,45 @@ class CATBackendTester:
 if __name__ == "__main__":
     tester = CATBackendTester()
     
-    print("🚀 STARTING FREE TIER SESSION LOGIC WITH CARRY FORWARD TESTING")
+    print("🚀 STARTING FINAL COMPREHENSIVE VALIDATION")
     print("=" * 80)
     
-    # Run the Free Tier Session Logic comprehensive test as requested
-    print("\n" + "=" * 80)
-    print("🎯 FREE TIER SESSION LOGIC WITH CARRY FORWARD - COMPREHENSIVE TESTING")
-    print("=" * 80)
+    # Run the final comprehensive validation test
+    print(f"\n{'='*80}")
+    print(f"🧪 RUNNING FINAL COMPREHENSIVE VALIDATION")
+    print(f"{'='*80}")
     
-    success = tester.test_free_tier_session_logic_comprehensive()
+    try:
+        validation_success = tester.test_final_comprehensive_validation()
+        
+        if validation_success:
+            print(f"\n✅ FINAL COMPREHENSIVE VALIDATION: PASSED")
+        else:
+            print(f"\n❌ FINAL COMPREHENSIVE VALIDATION: FAILED")
+            
+    except Exception as e:
+        print(f"❌ FINAL COMPREHENSIVE VALIDATION: EXCEPTION - {e}")
+        validation_success = False
     
-    # Final Summary
-    print("\n" + "=" * 80)
-    print("🎯 FREE TIER SESSION LOGIC TESTING - SUMMARY")
-    print("=" * 80)
+    # Final summary
+    print(f"\n{'='*80}")
+    print("🎯 FINAL VALIDATION SUMMARY")
+    print(f"{'='*80}")
     
-    if success:
-        print("🎉 FREE TIER SESSION LOGIC TESTING: SUCCESS!")
-        print("   ✅ FreeTierSessionService import and functionality: WORKING")
-        print("   ✅ Session allocation logic (10 initial → 2/week): WORKING")
-        print("   ✅ Carry forward algorithm: WORKING")
-        print("   ✅ 7-day cycle calculations: WORKING")
-        print("   ✅ Upgrade prompt logic: WORKING")
-        print("   ✅ Backend API integration: WORKING")
-        print("   ✅ System ready for production use")
+    if validation_success:
+        print("\n🎉 ALL SYSTEMS VALIDATED - READY FOR PRODUCTION")
+        print("   - Free tier session logic with carry forward: ✅")
+        print("   - Privileged user system: ✅")
+        print("   - IST timezone conversion: ✅")
+        print("   - Payment system (Razorpay): ✅")
+        print("   - Dashboard API (categorized taxonomy): ✅")
+        print("   - Pro tier features (Ask Twelvr): ✅")
     else:
-        print("❌ FREE TIER SESSION LOGIC TESTING: ISSUES DETECTED")
-        print("   - Some critical components need attention")
-        print("   - Review failing tests and implement fixes")
-        print("   - Re-run validation after fixes")
+        print("\n⚠️ SOME SYSTEMS NEED ATTENTION - REVIEW REQUIRED")
     
-    print("\n" + "=" * 80)
-    print(f"Total API calls made: {tester.tests_run}")
+    print(f"\nTotal API calls made: {tester.tests_run}")
     print(f"Successful API calls: {tester.tests_passed}")
-    print(f"API Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%")
-    print("=" * 80)
+    if tester.tests_run > 0:
+        print(f"API Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%")
     
-    exit(0 if success else 1)
+    exit(0 if validation_success else 1)
