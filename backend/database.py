@@ -11,6 +11,8 @@ import uuid
 import os
 import logging
 from dotenv import load_dotenv
+# IST timezone support
+from utils.timezone_utils import now_ist
 
 load_dotenv()
 
