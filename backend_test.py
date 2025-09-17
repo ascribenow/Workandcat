@@ -10673,6 +10673,7 @@ if __name__ == "__main__":
             print(f"\n❌ Unknown test argument: {test_arg}")
             print("Available tests:")
             print("  critical - Critical fixes validation (solution feedback, analytics pipeline, pack data)")
+            print("  mcq_flow - MCQ flow with simplified JSON array format testing")
             print("  mcq_validation - MCQ answer comparison validation")
             print("  (no argument) - Default answer comparison logic validation")
             sys.exit(1)
