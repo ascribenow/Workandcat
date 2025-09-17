@@ -37,7 +37,7 @@ def execute_database_cleanup():
         
         result = db.execute(text("""
             UPDATE sessions 
-            SET status = 'completed', updated_at = NOW()
+            SET status = 'completed'
             WHERE status NOT IN ('planned', 'served', 'completed')
             AND session_id IN (
                 SELECT DISTINCT session_id FROM attempt_events
