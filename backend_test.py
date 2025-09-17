@@ -10597,6 +10597,42 @@ if __name__ == "__main__":
                 traceback.print_exc()
                 sys.exit(1)
         
+        elif test_arg == "mcq_flow":
+            print("\n🎯 RUNNING MCQ FLOW WITH SIMPLIFIED JSON ARRAY FORMAT TESTING")
+            print("=" * 80)
+            
+            try:
+                success = tester.test_mcq_flow_with_simplified_json_array_format()
+                
+                print("\n" + "=" * 80)
+                print("🏁 MCQ FLOW TESTING COMPLETE")
+                print("=" * 80)
+                print(f"Tests Run: {tester.tests_run}")
+                print(f"Tests Passed: {tester.tests_passed}")
+                print(f"Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%" if tester.tests_run > 0 else "No tests run")
+                
+                if success:
+                    print("\n✅ MCQ FLOW WITH SIMPLIFIED JSON ARRAY FORMAT: PASSED")
+                    print("   - Authentication working with specified credentials")
+                    print("   - Adaptive session planning creates sessions successfully")
+                    print("   - MCQ pack assembly uses clean JSON array format")
+                    print("   - Options correctly mapped to A/B/C/D display structure")
+                    print("   - Answer comparison works with clean values (no prefixes)")
+                    print("   - Session progression unbroken with new MCQ format")
+                    print("   - Database migration to simplified format successful")
+                else:
+                    print("\n❌ MCQ FLOW WITH SIMPLIFIED JSON ARRAY FORMAT: FAILED")
+                    print("   - Some review request criteria not met")
+                    print("   - MCQ format migration may need additional work")
+                
+                sys.exit(0 if success else 1)
+                
+            except Exception as e:
+                print(f"\n❌ MCQ FLOW TESTING FAILED WITH EXCEPTION: {e}")
+                import traceback
+                traceback.print_exc()
+                sys.exit(1)
+        
         elif test_arg == "mcq_validation":
             # Run the MCQ answer comparison validation test
             print("\n🎯 RUNNING MCQ ANSWER COMPARISON VALIDATION")
