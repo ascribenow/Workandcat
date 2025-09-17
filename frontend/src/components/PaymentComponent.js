@@ -129,19 +129,8 @@ const PaymentComponent = ({ planType, amount, planName, description, onSuccess, 
       const result = await response.json();
       console.log('Payment data received:', result);
       
-      // Handle subscription-style payment or one-time payment
-      if (planType === 'pro_regular') {
-        if (result.short_url) {
-          // For true subscriptions, redirect to Razorpay hosted page
-          console.log('Redirecting to subscription URL:', result.short_url);
-          window.open(result.short_url, '_blank');
-          setLoading(false);
-          return;
-        } else if (result.subscription_style) {
-          // For subscription-style one-time payment, show message
-          console.log('Pro Regular subscription-style payment:', result.message);
-        }
-      }
+      // For all payment types, open Razorpay checkout modal
+      console.log('Opening Razorpay checkout with payment data:', result);
 
       // For one-time payments (Pro Exclusive), open Razorpay checkout
       const options = {
