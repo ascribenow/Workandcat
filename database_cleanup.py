@@ -51,7 +51,8 @@ def cleanup_legacy_database_data():
             FROM sessions s
             WHERE s.status NOT IN ('planned', 'served', 'completed')
         """))
-        legacy_sessions = result.fetchone().count if result.fetchone() else 0
+        row = result.fetchone()
+        legacy_sessions = row.count if row else 0
         
         if legacy_sessions > 0:
             print(f"   🔄 Found {legacy_sessions} sessions with non-standard status")
