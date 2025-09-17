@@ -366,7 +366,19 @@ def verify_migration():
 
 if __name__ == "__main__":
     print("🧹 MCQ Options Cleanup Script")
-    print("Phase 1: Testing on first 5 rows")
+    print("Phase 2: FULL MIGRATION - All Rows")
     print()
     
-    test_mcq_cleanup()
+    # Confirm before proceeding
+    confirm = input("⚠️  This will modify ALL mcq_options in the database. Continue? (yes/no): ").lower().strip()
+    
+    if confirm == 'yes':
+        print("\n🚀 Starting full migration...")
+        run_full_migration()
+        
+        print("\n" + "="*50)
+        verify_migration()
+        
+    else:
+        print("❌ Migration cancelled by user")
+        print("💡 To run test only, modify the script to call test_mcq_cleanup()")
