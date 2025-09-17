@@ -185,7 +185,7 @@ class PYQQuestion(Base):
     type_of_question = Column(String(150))  # Specific question type within subcategory
     stem = Column(Text, nullable=False)
     answer = Column(Text, nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: ist_to_utc(now_ist()))
     
     # Enhanced PYQ fields for LLM enrichment and conceptual analysis
     is_active = Column(Boolean, default=False)  # Enable/disable for analysis
