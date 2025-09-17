@@ -116,7 +116,7 @@ class Question(Base):
     # Metadata
     source = Column(String(20), default='Admin')  # Admin|PYQ|Mock|AI_GEN
     is_active = Column(Boolean, default=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: ist_to_utc(now_ist()))
     
     # Relationships REMOVED as per requirements
     # topic = relationship("Topic", back_populates="questions") - REMOVED
