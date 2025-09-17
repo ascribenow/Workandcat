@@ -844,7 +844,7 @@ async def log_question_action(
                     'was_correct': was_correct,
                     'skipped': skipped,
                     'response_time_ms': response_time_ms,
-                    'created_at': datetime.utcnow(),
+                    'created_at': ist_to_utc(now_ist()),
                     'difficulty_band': question.difficulty_band,
                     'subcategory': question.subcategory,
                     'type_of_question': question.type_of_question,
