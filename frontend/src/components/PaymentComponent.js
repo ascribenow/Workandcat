@@ -178,7 +178,7 @@ const PaymentComponent = ({ planType, amount, planName, description, onSuccess, 
         prefill: {
           name: result.prefill?.name || user?.name || user?.full_name || '',
           email: result.prefill?.email || user?.email || '',
-          contact: result.data.prefill?.contact || user?.phone || ''
+          contact: result.prefill?.contact || user?.phone || ''
         },
         
         // Success handler
