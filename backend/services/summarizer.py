@@ -89,7 +89,7 @@ Return ONLY valid JSON matching the required schema."""
                 SELECT *
                 FROM attempt_events
                 WHERE user_id = :user_id AND sess_seq_at_serve = :sess_seq
-                ORDER BY served_at ASC, attempt_id ASC
+                ORDER BY created_at ASC, id ASC
             """), {"user_id": user_id, "sess_seq": sess_seq}).fetchall()
 
             if not attempts:
