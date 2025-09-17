@@ -1187,7 +1187,7 @@ async def get_simple_taxonomy(user_id: str = Depends(get_current_user)):
 
 @app.get("/api/dashboard/categorized-taxonomy")
 async def get_categorized_taxonomy(user_id: str = Depends(get_current_user)):
-    """Get dashboard data grouped by category with subcategory breakdown"""
+    """Get dashboard data with canonical CAT taxonomy structure (all 5 categories + subcategories)"""
     db = SessionLocal()
     try:
         # Count completed sessions for this user
@@ -1198,7 +1198,30 @@ async def get_categorized_taxonomy(user_id: str = Depends(get_current_user)):
         """), {'user_id': user_id})
         completed_sessions = result.fetchone()
         
-        # Get categorized taxonomy data (FETCHED FROM DATABASE FIELDS: CATEGORY:SUBCATEGORY)
+        # Define canonical CAT taxonomy structure (all 5 categories + subcategories)
+        canonical_taxonomy = {
+            "Arithmetic": [
+                "Percentages", "Profit-Loss-Discount", "Simple and Compound Interest",
+                "Ratios and Proportions", "Time-Speed-Distance", "Time-Work", 
+                "Mixtures and Solutions", "Averages and Alligation"
+            ],
+            "Algebra": [
+                "Linear Equations", "Quadratic Equations", "Inequalities", "Functions"
+            ],
+            "Geometry and Mensuration": [
+                "Triangles", "Circles", "Coordinate Geometry", "Mensuration 2D", "Mensuration 3D"
+            ],
+            "Number Systems": [
+                "Properties of Numbers", "Divisibility Rules", "Factors and Multiples", 
+                "HCF and LCM", "Prime Numbers"
+            ],
+            "Modern Mathematics": [
+                "Permutations and Combinations", "Probability", "Sequences and Series",
+                "Logarithms", "Progressions"
+            ]
+        }
+        
+        # Get actual attempt data (EXCLUDING SKIPPED QUESTIONS as per requirement)
         result = db.execute(text("""
             SELECT 
                 COALESCE(q.category, 'Uncategorized') as category,
@@ -1206,50 +1229,49 @@ async def get_categorized_taxonomy(user_id: str = Depends(get_current_user)):
                 ae.difficulty_band,
                 COUNT(*) as attempts,
                 COUNT(CASE WHEN ae.was_correct = true THEN 1 END) as correct,
-                COUNT(CASE WHEN ae.skipped = true THEN 1 END) as skipped,
                 ROUND(AVG(CASE WHEN ae.was_correct = true THEN 1.0 ELSE 0.0 END) * 100, 1) as accuracy
             FROM attempt_events ae
             LEFT JOIN questions q ON ae.question_id = q.id
-            WHERE ae.user_id = :user_id AND ae.subcategory IS NOT NULL
+            WHERE ae.user_id = :user_id 
+              AND ae.subcategory IS NOT NULL 
+              AND ae.skipped = false  -- EXCLUDE SKIPPED QUESTIONS
             GROUP BY COALESCE(q.category, 'Uncategorized'), ae.subcategory, ae.difficulty_band
-            ORDER BY category, subcategory, 
-                     CASE ae.difficulty_band 
-                         WHEN 'Easy' THEN 1 
-                         WHEN 'Medium' THEN 2 
-                         WHEN 'Hard' THEN 3 
-                         ELSE 4 
-                     END
         """), {'user_id': user_id})
         
         rows = result.fetchall()
         
-        # Group data by category and subcategory
-        categorized_data = {}
-        
+        # Build actual attempt data dictionary for fast lookup
+        actual_data = {}
         for row in rows:
             category = row.category
             subcategory = row.subcategory
             difficulty = row.difficulty_band
             attempts = row.attempts
             correct = row.correct
-            skipped = row.skipped
             accuracy = row.accuracy
             
-            # Initialize category if not exists
-            if category not in categorized_data:
-                categorized_data[category] = {
-                    "category_name": category,
-                    "total_easy": 0,
-                    "total_medium": 0, 
-                    "total_hard": 0,
-                    "total_attempts": 0,
-                    "subcategories": {}
-                }
+            if category not in actual_data:
+                actual_data[category] = {}
+            if subcategory not in actual_data[category]:
+                actual_data[category][subcategory] = {}
             
-            # Initialize subcategory if not exists
-            if subcategory not in categorized_data[category]["subcategories"]:
-                categorized_data[category]["subcategories"][subcategory] = {
-                    "subcategory_name": subcategory,
+            actual_data[category][subcategory][difficulty] = {
+                "attempts": attempts,
+                "correct": correct,
+                "accuracy": accuracy
+            }
+        
+        # Build complete canonical structure with actual data + zeros for missing
+        categories_array = []
+        
+        for category_name, subcategory_list in canonical_taxonomy.items():
+            category_totals = {"total_easy": 0, "total_medium": 0, "total_hard": 0, "total_attempts": 0}
+            subcategories_array = []
+            
+            for subcategory_name in subcategory_list:
+                # Get actual data or default to zeros
+                subcategory_data = {
+                    "subcategory_name": subcategory_name,
                     "easy_attempts": 0,
                     "medium_attempts": 0,
                     "hard_attempts": 0,
@@ -1261,49 +1283,55 @@ async def get_categorized_taxonomy(user_id: str = Depends(get_current_user)):
                     "hard_accuracy": 0,
                     "total_attempts": 0
                 }
-            
-            # Add attempts to subcategory
-            subcategory_data = categorized_data[category]["subcategories"][subcategory]
-            
-            if difficulty == "Easy":
-                subcategory_data["easy_attempts"] = attempts
-                subcategory_data["easy_correct"] = correct
-                subcategory_data["easy_accuracy"] = accuracy
-                categorized_data[category]["total_easy"] += attempts
-            elif difficulty == "Medium":
-                subcategory_data["medium_attempts"] = attempts
-                subcategory_data["medium_correct"] = correct
-                subcategory_data["medium_accuracy"] = accuracy
-                categorized_data[category]["total_medium"] += attempts
-            elif difficulty == "Hard":
-                subcategory_data["hard_attempts"] = attempts
-                subcategory_data["hard_correct"] = correct
-                subcategory_data["hard_accuracy"] = accuracy
-                categorized_data[category]["total_hard"] += attempts
-            
-            subcategory_data["total_attempts"] += attempts
-            categorized_data[category]["total_attempts"] += attempts
-        
-        # Convert to array format for frontend
-        categories_array = []
-        for category_name, category_data in categorized_data.items():
-            subcategories_array = []
-            for subcategory_name, subcategory_data in category_data["subcategories"].items():
+                
+                # Fill with actual data if available
+                if (category_name in actual_data and 
+                    subcategory_name in actual_data[category_name]):
+                    
+                    subcat_actual = actual_data[category_name][subcategory_name]
+                    
+                    for difficulty in ["Easy", "Medium", "Hard"]:
+                        if difficulty in subcat_actual:
+                            attempts = subcat_actual[difficulty]["attempts"]
+                            correct = subcat_actual[difficulty]["correct"]
+                            accuracy = subcat_actual[difficulty]["accuracy"]
+                            
+                            if difficulty == "Easy":
+                                subcategory_data["easy_attempts"] = attempts
+                                subcategory_data["easy_correct"] = correct
+                                subcategory_data["easy_accuracy"] = accuracy
+                                category_totals["total_easy"] += attempts
+                            elif difficulty == "Medium":
+                                subcategory_data["medium_attempts"] = attempts
+                                subcategory_data["medium_correct"] = correct
+                                subcategory_data["medium_accuracy"] = accuracy
+                                category_totals["total_medium"] += attempts
+                            elif difficulty == "Hard":
+                                subcategory_data["hard_attempts"] = attempts
+                                subcategory_data["hard_correct"] = correct
+                                subcategory_data["hard_accuracy"] = accuracy
+                                category_totals["total_hard"] += attempts
+                            
+                            subcategory_data["total_attempts"] += attempts
+                            category_totals["total_attempts"] += attempts
+                
                 subcategories_array.append(subcategory_data)
             
+            # Add category to final structure
             categories_array.append({
-                "category_name": category_data["category_name"],
-                "total_easy": category_data["total_easy"],
-                "total_medium": category_data["total_medium"],
-                "total_hard": category_data["total_hard"],
-                "total_attempts": category_data["total_attempts"],
+                "category_name": category_name,
+                "total_easy": category_totals["total_easy"],
+                "total_medium": category_totals["total_medium"],
+                "total_hard": category_totals["total_hard"],
+                "total_attempts": category_totals["total_attempts"],
                 "subcategories": subcategories_array
             })
         
         return {
             "total_sessions": completed_sessions.total_sessions if completed_sessions else 0,
             "categorized_data": categories_array,
-            "total_categories": len(categories_array)
+            "total_categories": 5,  # Always 5 canonical categories
+            "note": "Dashboard shows canonical CAT taxonomy. Zero values indicate unattended topics."
         }
     finally:
         db.close()
