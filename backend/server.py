@@ -415,7 +415,7 @@ async def create_subscription_payment(
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
         
-        result = payment_service.create_subscription(
+        result = await payment_service.create_subscription(
             plan_type, user.email, user.full_name, user_id, None, referral_code
         )
         return result
@@ -441,7 +441,7 @@ async def create_order_payment(
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
         
-        result = payment_service.create_order(
+        result = await payment_service.create_order(
             plan_type, user.email, user.full_name, user_id, None, referral_code
         )
         return result
