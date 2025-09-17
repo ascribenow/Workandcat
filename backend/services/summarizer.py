@@ -256,13 +256,20 @@ Return ONLY valid JSON matching the required schema."""
             db.close()
     
     def _generate_empty_summary(self) -> Dict[str, Any]:
-        """Generate empty summary for users with no history"""
+        """Generate basic analytics summary when LLM is not available"""
         return {
             "concept_alias_map_updated": [],
             "dominance_by_item": {},
             "concept_readiness_labels": [],
             "pair_coverage_labels": [],
-            "notes": "No attempt history available for analysis"
+            "notes": "Analytics summary generated without LLM (fallback mode)",
+            "telemetry": {
+                "processing_time_ms": 0,
+                "estimated_tokens": 0,
+                "llm_model_used": "fallback-deterministic",
+                "alias_reuse_rate": 0.0,
+                "provisional_new_count": 0
+            }
         }
     
     def _calculate_alias_reuse_rate(self, data: Dict[str, Any]) -> float:
