@@ -441,7 +441,13 @@ async def verify_payment(request: dict, user_id: str = Depends(get_current_user)
 async def get_subscription_status(user_id: str = Depends(get_current_user)):
     db = SessionLocal()
     try:
-        result = subscription_service.get_user_subscription_status(db, user_id)
+        # Get user email for subscription service
+        user_result = db.execute(select(User).where(User.id == user_id))
+        user = user_result.scalar_one_or_none()
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        result = subscription_service.get_user_access_level(user_id, user.email, db)
         return result
     finally:
         db.close()
