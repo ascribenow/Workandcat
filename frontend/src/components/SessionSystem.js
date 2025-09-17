@@ -160,8 +160,8 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
 
   // Add adaptive flag logging
   useEffect(() => {
-    console.log('🏁 Adaptive Feature Status:', {
-      ADAPTIVE_GLOBAL,
+    console.log('🏁 Adaptive Feature Status: SYSTEM IS ADAPTIVE-ONLY', {
+      adaptiveEnabled: true,
       userAdaptiveEnabled: user?.adaptive_enabled,
       effectiveAdaptive: adaptiveEnabled
     });
