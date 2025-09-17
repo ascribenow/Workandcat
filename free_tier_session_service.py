@@ -16,6 +16,7 @@ from typing import Dict, Any, Optional
 from sqlalchemy.orm import Session
 from sqlalchemy import select, text
 from database import User
+from database import User
 
 logger = logging.getLogger(__name__)
 
