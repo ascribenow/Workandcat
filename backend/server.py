@@ -1187,13 +1187,70 @@ async def get_simple_taxonomy(user_id: str = Depends(get_current_user)):
 
 @app.get("/api/user/session-limit-status")
 async def get_session_limit_status(user_id: str = Depends(get_current_user)):
-    """Temporary endpoint for session limit status"""
-    return {
-        "sessions_today": 0,
-        "daily_limit": 10,
-        "can_start_session": True,
-        "remaining_sessions": 10
-    }
+    """Enhanced session limit status with free tier logic"""
+    db = SessionLocal()
+    try:
+        # Get user details
+        user_result = db.execute(select(User).where(User.id == user_id))
+        user = user_result.scalar_one_or_none()
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        # Check if user is privileged
+        from database import PrivilegedEmail
+        privileged_result = db.execute(select(PrivilegedEmail).where(PrivilegedEmail.email == user.email))
+        is_privileged = privileged_result.scalar_one_or_none() is not None
+        
+        if is_privileged:
+            return {
+                "user_type": "privileged",
+                "sessions_today": 0,
+                "daily_limit": None,
+                "can_start_session": True,
+                "remaining_sessions": None,  # Unlimited
+                "upgrade_prompt_needed": False,
+                "message": "Privileged user - unlimited access"
+            }
+        
+        # Check for active subscription
+        subscription_access = subscription_service.get_user_access_level(user_id, user.email, db)
+        
+        if subscription_access["unlimited_sessions"]:
+            return {
+                "user_type": "premium",
+                "plan_type": subscription_access["plan_type"],
+                "sessions_today": 0,
+                "daily_limit": None,
+                "can_start_session": True,
+                "remaining_sessions": None,  # Unlimited
+                "upgrade_prompt_needed": False,
+                "subscription_expires": subscription_access.get("expires_at"),
+                "message": f"Premium user ({subscription_access['plan_type']}) - unlimited access"
+            }
+        
+        # Free tier logic with carry forward
+        from free_tier_session_service import free_tier_service
+        free_tier_status = free_tier_service.get_user_session_status(user_id, user.email, db)
+        
+        return {
+            "user_type": "free_tier",
+            "sessions_today": 0,  # Not tracking daily, tracking by cycle
+            "daily_limit": None,
+            "can_start_session": free_tier_status["sessions_available"] > 0,
+            "remaining_sessions": free_tier_status["sessions_available"],
+            "upgrade_prompt_needed": free_tier_status["upgrade_prompt_needed"],
+            "free_tier_info": {
+                "is_initial_period": free_tier_status["is_initial_period"],
+                "sessions_used_this_cycle": free_tier_status["sessions_used_this_cycle"],
+                "carry_forward_sessions": free_tier_status["carry_forward_sessions"],
+                "cycle_end_date": free_tier_status["cycle_end_date"],
+                "next_allocation_date": free_tier_status["next_allocation_date"],
+                "total_sessions_completed": free_tier_status.get("total_sessions_completed", 0)
+            },
+            "message": f"Free tier - {free_tier_status['sessions_available']} sessions available"
+        }
+    finally:
+        db.close()
 
 @app.get("/api/dashboard/mastery")
 async def get_dashboard_mastery(user_id: str = Depends(get_current_user)):
