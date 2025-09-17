@@ -162,41 +162,6 @@ class V2PackAssemblyService:
             logger.warning(f"Error parsing JSON array MCQ options: {e}")
             return {'a': 'Option A', 'b': 'Option B', 'c': 'Option C', 'd': 'Option D'}
     
-    def _parse_text_mcq_options(self, text_options: str) -> Dict[str, str]:
-        """Parse text format MCQ options like '(A) 20%\\n(B) 30%\\n(C) 35.2%\\n(D) 40%'"""
-        try:
-            options = {'a': 'Option A', 'b': 'Option B', 'c': 'Option C', 'd': 'Option D'}
-            
-            # Split by lines and parse each option
-            lines = text_options.strip().split('\n')
-            
-            for line in lines:
-                line = line.strip()
-                if not line:
-                    continue
-                    
-                # Match patterns like "(A) 20%" or "A) 30%" or "A. text"
-                if line.startswith('(A)') or line.startswith('A)') or line.startswith('A.'):
-                    options['a'] = line.split(')', 1)[-1].split('.', 1)[-1].strip()
-                elif line.startswith('(B)') or line.startswith('B)') or line.startswith('B.'):
-                    options['b'] = line.split(')', 1)[-1].split('.', 1)[-1].strip()
-                elif line.startswith('(C)') or line.startswith('C)') or line.startswith('C.'):
-                    options['c'] = line.split(')', 1)[-1].split('.', 1)[-1].strip()
-                elif line.startswith('(D)') or line.startswith('D)') or line.startswith('D.'):
-                    options['d'] = line.split(')', 1)[-1].split('.', 1)[-1].strip()
-            
-            # Validate we got real options (not just defaults)
-            real_options = [v for v in options.values() if not v.startswith('Option ')]
-            if len(real_options) >= 2:  # At least 2 real options found
-                return options
-            else:
-                logger.warning(f"Failed to parse sufficient real options from: {text_options[:100]}")
-                return {'a': 'Option A', 'b': 'Option B', 'c': 'Option C', 'd': 'Option D'}
-                
-        except Exception as e:
-            logger.warning(f"Error parsing text MCQ options: {e}")
-            return {'a': 'Option A', 'b': 'Option B', 'c': 'Option C', 'd': 'Option D'}
-    
     def _parse_concepts(self, core_concepts) -> List[str]:
         """Parse core concepts from various formats"""
         if isinstance(core_concepts, list):
