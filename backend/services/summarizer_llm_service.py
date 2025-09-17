@@ -10,24 +10,25 @@ import openai
 import google.generativeai as genai
 from typing import Dict, Any, Tuple, List
 
-# Load environment variables
-try:
-    from dotenv import load_dotenv
-    load_dotenv('/app/backend/.env')
-except ImportError:
-    pass  # dotenv not available, use system environment
-
 logger = logging.getLogger(__name__)
 
 class SummarizerLLMService:
     """Dedicated LLM service for post-session summarization and analytics"""
     
     def __init__(self):
-        # Initialize API keys (now loaded from .env)
+        # Load environment variables (same pattern as working services)
+        from dotenv import load_dotenv
+        load_dotenv()
+        
+        # Initialize API keys
         self.openai_api_key = os.getenv('OPENAI_API_KEY')
         self.google_api_key = os.getenv('GOOGLE_API_KEY')
         
-        # Model configuration
+        if not self.openai_api_key:
+            logger.error("❌ Summarizer LLM: OpenAI API key not found")
+            raise ValueError("OPENAI_API_KEY environment variable required for summarizer")
+        
+        # Model configuration (GPT-4o primary + Gemini fallback pattern)
         self.primary_model = "gpt-4o-mini"
         self.fallback_model = "gemini-1.5-pro"
         
