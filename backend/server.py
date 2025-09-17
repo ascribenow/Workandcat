@@ -1229,26 +1229,39 @@ async def get_session_limit_status(user_id: str = Depends(get_current_user)):
             }
         
         # Free tier logic with carry forward
-        from free_tier_session_service import free_tier_service
-        free_tier_status = free_tier_service.get_user_session_status(user_id, user.email, db)
-        
-        return {
-            "user_type": "free_tier",
-            "sessions_today": 0,  # Not tracking daily, tracking by cycle
-            "daily_limit": None,
-            "can_start_session": free_tier_status["sessions_available"] > 0,
-            "remaining_sessions": free_tier_status["sessions_available"],
-            "upgrade_prompt_needed": free_tier_status["upgrade_prompt_needed"],
-            "free_tier_info": {
-                "is_initial_period": free_tier_status["is_initial_period"],
-                "sessions_used_this_cycle": free_tier_status["sessions_used_this_cycle"],
-                "carry_forward_sessions": free_tier_status["carry_forward_sessions"],
-                "cycle_end_date": free_tier_status["cycle_end_date"],
-                "next_allocation_date": free_tier_status["next_allocation_date"],
-                "total_sessions_completed": free_tier_status.get("total_sessions_completed", 0)
-            },
-            "message": f"Free tier - {free_tier_status['sessions_available']} sessions available"
-        }
+        try:
+            from free_tier_session_service import free_tier_service
+            free_tier_status = free_tier_service.get_user_session_status(user_id, user.email, db)
+            
+            return {
+                "user_type": "free_tier",
+                "sessions_today": 0,  # Not tracking daily, tracking by cycle
+                "daily_limit": None,
+                "can_start_session": free_tier_status["sessions_available"] > 0,
+                "remaining_sessions": free_tier_status["sessions_available"],
+                "upgrade_prompt_needed": free_tier_status["upgrade_prompt_needed"],
+                "free_tier_info": {
+                    "is_initial_period": free_tier_status["is_initial_period"],
+                    "sessions_used_this_cycle": free_tier_status["sessions_used_this_cycle"],
+                    "carry_forward_sessions": free_tier_status["carry_forward_sessions"],
+                    "cycle_end_date": free_tier_status["cycle_end_date"],
+                    "next_allocation_date": free_tier_status["next_allocation_date"],
+                    "total_sessions_completed": free_tier_status.get("total_sessions_completed", 0)
+                },
+                "message": f"Free tier - {free_tier_status['sessions_available']} sessions available"
+            }
+        except ImportError as e:
+            logger.error(f"Free tier service import error: {e}")
+            # Fallback to basic free tier logic
+            return {
+                "user_type": "free_tier",
+                "sessions_today": 0,
+                "daily_limit": 10,
+                "can_start_session": True,
+                "remaining_sessions": 10,
+                "upgrade_prompt_needed": False,
+                "message": "Free tier - basic allocation (service loading...)"
+            }
     finally:
         db.close()
 
