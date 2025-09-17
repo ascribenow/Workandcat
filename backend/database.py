@@ -12,7 +12,7 @@ import os
 import logging
 from dotenv import load_dotenv
 # IST timezone support
-from utils.timezone_utils import now_ist
+from utils.timezone_utils import now_ist, ist_to_utc
 
 load_dotenv()
 
