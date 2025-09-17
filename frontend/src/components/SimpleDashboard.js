@@ -7,6 +7,8 @@ export const SimpleDashboard = () => {
   const { user, token } = useAuth();
   const [loading, setLoading] = useState(true);
   const [dashboardData, setDashboardData] = useState(null);
+  const [categorizedData, setCategorizedData] = useState(null);
+  const [expandedCategories, setExpandedCategories] = useState({}); // Track which categories are expanded
 
   useEffect(() => {
     // Only fetch data if user is authenticated and token exists
@@ -23,6 +25,7 @@ export const SimpleDashboard = () => {
       if (loading) {
         setLoading(false);
         setDashboardData({ total_sessions: 0, taxonomy_data: [] });
+        setCategorizedData({ total_sessions: 0, categorized_data: [], total_categories: 0 });
       }
     }, 15000);
     
@@ -32,36 +35,50 @@ export const SimpleDashboard = () => {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      console.log('SimpleDashboard: Fetching simple taxonomy data...');
-      console.log('SimpleDashboard: API endpoint:', `${API}/dashboard/simple-taxonomy`);
-      console.log('SimpleDashboard: Token present:', !!token);
-      console.log('SimpleDashboard: User:', user?.email);
+      console.log('SimpleDashboard: Fetching categorized taxonomy data...');
       
-      const response = await axios.get(`${API}/dashboard/simple-taxonomy`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        timeout: 10000 // 10 second timeout
-      });
+      // Fetch both simple and categorized data
+      const [simpleResponse, categorizedResponse] = await Promise.all([
+        axios.get(`${API}/dashboard/simple-taxonomy`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          timeout: 10000
+        }),
+        axios.get(`${API}/dashboard/categorized-taxonomy`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          timeout: 10000
+        })
+      ]);
+      
       console.log('SimpleDashboard: Data received successfully!');
-      console.log('SimpleDashboard: Total sessions:', response.data?.total_sessions);
-      console.log('SimpleDashboard: Taxonomy data length:', response.data?.taxonomy_data?.length);
+      console.log('SimpleDashboard: Total sessions:', simpleResponse.data?.total_sessions);
+      console.log('SimpleDashboard: Categories:', categorizedResponse.data?.total_categories);
       
-      setDashboardData(response.data);
+      setDashboardData(simpleResponse.data);
+      setCategorizedData(categorizedResponse.data);
       
     } catch (error) {
       console.error('SimpleDashboard: Error fetching data:', error);
-      console.error('SimpleDashboard: Error message:', error.message);
-      console.error('SimpleDashboard: Error response:', error.response?.data);
-      console.error('SimpleDashboard: Error status:', error.response?.status);
       
       // Set empty data to stop loading
       setDashboardData({ total_sessions: 0, taxonomy_data: [] });
+      setCategorizedData({ total_sessions: 0, categorized_data: [], total_categories: 0 });
     } finally {
       console.log('SimpleDashboard: Setting loading to false');
       setLoading(false);
     }
+  };
+
+  const toggleCategory = (categoryName) => {
+    setExpandedCategories(prev => ({
+      ...prev,
+      [categoryName]: !prev[categoryName]
+    }));
   };
 
   // Show loading while user/token is not available
