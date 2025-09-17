@@ -1105,7 +1105,7 @@ class RazorpayService:
                 "payment_id": payment_id
             }
     
-    async def fetch_order_details_from_razorpay(self, order_id: str) -> Dict[str, Any]:
+    def fetch_order_details_from_razorpay(self, order_id: str) -> Dict[str, Any]:
         """
         Fetch actual order details from Razorpay API
         This provides the original order amount and plan details
