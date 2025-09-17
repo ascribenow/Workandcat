@@ -198,6 +198,83 @@ async def v2_mark_served_controller(body: dict, auth_user_id: str = Depends(get_
     finally:
         db.close()
 
+@router.post("/start-first")
+async def v2_start_first_controller(request: dict, auth_user_id: str = Depends(get_current_user)):
+    """
+    V2 Start-First - Cold start convenience endpoint
+    
+    Combines plan-next and pack fetching for immediate session start.
+    Perfect for adaptive-only system where users always get adaptive sessions.
+    """
+    user_id = request.get("user_id")
+    if not user_id:
+        raise HTTPException(status_code=400, detail="user_id required")
+    
+    if user_id != auth_user_id:
+        raise HTTPException(status_code=403, detail="Cannot create session for other users")
+    
+    logger.info(f"V2 START-FIRST: Cold start for user {user_id[:8]}")
+    
+    try:
+        # Generate session ID for cold start
+        session_id = str(uuid.uuid4())
+        last_session_id = "S0"  # Cold start
+        
+        # Step 1: Plan the session
+        plan_result = v2_session_pipeline.plan_next_session(
+            user_id=user_id,
+            last_session_id=last_session_id,
+            next_session_id=session_id
+        )
+        
+        if not plan_result.get("success"):
+            raise HTTPException(status_code=502, detail="Session planning failed")
+        
+        # Step 2: Fetch the pack
+        db = SessionLocal()
+        try:
+            result = db.execute(text("""
+                SELECT pack_json, status, created_at 
+                FROM session_pack_plan 
+                WHERE user_id = :user_id AND session_id = :session_id
+                LIMIT 1
+            """), {"user_id": user_id, "session_id": session_id})
+            
+            pack_row = result.fetchone()
+            if not pack_row or not pack_row.pack_json:
+                raise HTTPException(status_code=404, detail="Pack not found after planning")
+            
+            pack_data = pack_row.pack_json
+            
+            # Mark as served immediately
+            db.execute(text("""
+                UPDATE session_pack_plan 
+                SET status = 'served', served_at = NOW()
+                WHERE user_id = :user_id AND session_id = :session_id
+            """), {"user_id": user_id, "session_id": session_id})
+            
+            db.commit()
+            
+            logger.info(f"V2 START-FIRST: Successfully created and served session {session_id[:8]}")
+            
+            return {
+                "success": True,
+                "session_id": session_id,
+                "pack": pack_data,
+                "status": "served",
+                "version": "v2",
+                "message": "Adaptive session ready to start"
+            }
+            
+        finally:
+            db.close()
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"❌ V2 START-FIRST: Error for user {user_id[:8]}: {str(e)}")
+        raise HTTPException(status_code=502, detail=f"Start-first failed: {str(e)}")
+
 # Import for registration
 from database import SessionLocal
 from sqlalchemy import text
