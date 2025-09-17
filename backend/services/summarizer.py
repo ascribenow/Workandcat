@@ -256,7 +256,7 @@ Return ONLY valid JSON matching this exact schema with the specified field names
                 "question_id": attempt.question_id,
                 "was_correct": attempt.was_correct,
                 "skipped": attempt.skipped,
-                "response_time_ms": attempt.response_time_ms,
+                "response_time_ms": getattr(attempt, 'response_time_ms', 60000),  # Safe access with default
                 "sess_seq": attempt.sess_seq_at_serve,
                 "difficulty_band": attempt.difficulty_band,
                 "pair": f"{attempt.subcategory}:{attempt.type_of_question}",
