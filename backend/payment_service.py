@@ -300,7 +300,7 @@ class RazorpayService:
                 )
                 db.add(db_order)
                 db.commit()
-                logger.info("Stored Pro Lite order in database")
+                logger.info("Stored Pro Regular subscription order in database")
             finally:
                 db.close()
             
