@@ -194,8 +194,11 @@ Return ONLY valid JSON matching the required schema."""
                 return data
                 
             except Exception as e:
-                db.rollback()
-                logger.error(f"❌ Summarizer failed for user {user_id[:8]}: {e}")
+                logger.warning(f"⚠️ LLM summarization failed: {str(e)[:100]}...")
+                logger.info(f"📋 Session {session_id[:8]} marked for batch processing when LLM is available")
+                
+                # Return empty summary but DO NOT persist to database
+                # Session will be reprocessed when LLM is available
                 return self._generate_empty_summary()
                 
         finally:
