@@ -83,14 +83,14 @@ def execute_database_cleanup():
         # 5. Optimize session_progress_tracking
         print("\n📈 CLEANUP 5: Cleaning session progress tracking...")
         
-        # Remove progress tracking for completed sessions older than 7 days
+        # Remove progress tracking for completed sessions older than 7 days  
         result = db.execute(text("""
             DELETE FROM session_progress_tracking spt
             WHERE EXISTS (
                 SELECT 1 FROM sessions s 
                 WHERE s.session_id = spt.session_id 
                 AND s.status = 'completed'
-                AND s.updated_at < NOW() - INTERVAL '7 days'
+                AND s.created_at < NOW() - INTERVAL '7 days'
             )
         """))
         deleted_progress = result.rowcount
