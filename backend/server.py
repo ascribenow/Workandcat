@@ -385,48 +385,60 @@ async def validate_referral_code(request: dict, user_id: str = Depends(get_curre
 # Payment endpoints
 @app.get("/api/payments/config")
 async def get_payment_config(user_id: str = Depends(get_current_user)):
-    return await payment_service.get_payment_config()
+    return payment_service.get_payment_config()
 
 @app.post("/api/payments/create-subscription")
 async def create_subscription_payment(
     request: dict,
     user_id: str = Depends(get_current_user)
 ):
-    async for db in get_database():
+    db = SessionLocal()
+    try:
         plan_type = request.get("plan_type", "pro_regular")
         referral_code = request.get("referral_code")
         
-        result = await payment_service.create_subscription_payment(
+        result = payment_service.create_subscription_payment(
             db, user_id, plan_type, referral_code
         )
         return result
+    finally:
+        db.close()
 
 @app.post("/api/payments/create-order")
 async def create_order_payment(
     request: dict,
     user_id: str = Depends(get_current_user)
 ):
-    async for db in get_database():
+    db = SessionLocal()
+    try:
         plan_type = request.get("plan_type", "pro_exclusive")
         referral_code = request.get("referral_code")
         
-        result = await payment_service.create_order_payment(
+        result = payment_service.create_order_payment(
             db, user_id, plan_type, referral_code
         )
         return result
+    finally:
+        db.close()
 
 @app.post("/api/payments/verify-payment")
 async def verify_payment(request: dict, user_id: str = Depends(get_current_user)):
-    async for db in get_database():
-        result = await payment_service.verify_payment(db, request, user_id)
+    db = SessionLocal()
+    try:
+        result = payment_service.verify_payment(db, request, user_id)
         return result
+    finally:
+        db.close()
 
 # Subscription endpoints
 @app.get("/api/subscriptions/status")
 async def get_subscription_status(user_id: str = Depends(get_current_user)):
-    async for db in get_database():
-        result = await subscription_service.get_user_subscription_status(db, user_id)
+    db = SessionLocal()
+    try:
+        result = subscription_service.get_user_subscription_status(db, user_id)
         return result
+    finally:
+        db.close()
 
 # Admin endpoints
 @app.get("/api/admin/questions")
