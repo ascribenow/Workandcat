@@ -1028,45 +1028,7 @@ async def get_last_completed_session_id(user_id: str, auth_user_id: str = Depend
 
 # REMOVED: Legacy non-adaptive answer submission endpoint - system is now adaptive-only
 
-@app.post("/api/sessions/start")
-async def start_session(request: dict, user_id: str = Depends(get_current_user)):
-    """Temporary endpoint to start a new session"""
-    try:
-        # Generate session ID
-        session_id = f"session_{uuid.uuid4()}"
-        
-        # Store basic session info in memory (replace with database in production)
-        session_data = {
-            "session_id": session_id,
-            "user_id": user_id,
-            "started_at": datetime.utcnow().isoformat(),
-            "status": "active",
-            "total_questions": 12,
-            "current_question": 0
-        }
-        
-        # For now, we'll use a simple in-memory store
-        if not hasattr(start_session, 'active_sessions'):
-            start_session.active_sessions = {}
-        start_session.active_sessions[session_id] = session_data
-        
-        return {
-            "success": True,
-            "session_id": session_id,
-            "message": "Session started successfully",
-            "session_metadata": {
-                "total_questions": 12,
-                "current_question": 0,
-                "session_type": "practice",
-                "phase_info": {
-                    "current_session": 1
-                }
-            }
-        }
-        
-    except Exception as e:
-        logger.error(f"❌ Error starting session: {e}")
-        raise HTTPException(status_code=500, detail="Failed to start session")
+# REMOVED: Legacy session start endpoint - system now uses adaptive-only session creation
 
 @app.get("/api/dashboard/simple-taxonomy")
 async def get_simple_taxonomy(user_id: str = Depends(get_current_user)):
@@ -1165,26 +1127,13 @@ async def get_subscription_management(user_id: str = Depends(get_current_user)):
 
 @app.get("/api/sessions/current-status")
 async def get_current_session_status(user_id: str = Depends(get_current_user)):
-    """Temporary endpoint for current session status"""
+    """Temporary endpoint for current session status - system now uses adaptive-only sessions"""
     try:
-        # Check if we have any active sessions for this user
-        if hasattr(start_session, 'active_sessions'):
-            for session_id, session_data in start_session.active_sessions.items():
-                if session_data["user_id"] == user_id and session_data["status"] == "active":
-                    return {
-                        "has_active_session": True,
-                        "session_id": session_id,
-                        "session_metadata": {
-                            "total_questions": session_data["total_questions"],
-                            "current_question": session_data["current_question"],
-                            "started_at": session_data["started_at"]
-                        }
-                    }
-        
+        # System is now adaptive-only, no legacy in-memory sessions
         return {
             "has_active_session": False,
             "session_id": None,
-            "message": "No active session found"
+            "message": "No active session found - system uses adaptive sessions only"
         }
         
     except Exception as e:
