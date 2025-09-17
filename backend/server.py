@@ -11,7 +11,7 @@ import re
 from typing import List, Dict, Any, Optional
 from datetime import datetime, timedelta
 # IST timezone imports
-from backend.utils.timezone_utils import now_ist, utc_to_ist, ist_to_utc
+from utils.timezone_utils import now_ist, utc_to_ist, ist_to_utc
 from decimal import Decimal
 
 import bcrypt
