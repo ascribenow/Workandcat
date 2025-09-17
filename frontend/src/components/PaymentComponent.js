@@ -131,27 +131,27 @@ const PaymentComponent = ({ planType, amount, planName, description, onSuccess, 
       
       // Handle subscription-style payment or one-time payment
       if (planType === 'pro_regular') {
-        if (result.data.short_url) {
+        if (result.short_url) {
           // For true subscriptions, redirect to Razorpay hosted page
-          console.log('Redirecting to subscription URL:', result.data.short_url);
-          window.open(result.data.short_url, '_blank');
+          console.log('Redirecting to subscription URL:', result.short_url);
+          window.open(result.short_url, '_blank');
           setLoading(false);
           return;
-        } else if (result.data.subscription_style) {
+        } else if (result.subscription_style) {
           // For subscription-style one-time payment, show message
-          console.log('Pro Regular subscription-style payment:', result.data.message);
+          console.log('Pro Regular subscription-style payment:', result.message);
         }
       }
 
       // For one-time payments (Pro Exclusive), open Razorpay checkout
       const options = {
-        key: result.data.key,
-        amount: result.data.amount,
+        key: result.key,
+        amount: result.amount,
         currency: 'INR',
         name: 'Twelvr',
-        description: result.data.description,
+        description: result.description,
         image: '/favicon.png', // Your logo
-        order_id: result.data.order_id || result.data.id,
+        order_id: result.order_id || result.id,
         
         // Payment methods configuration
         method: {
@@ -176,8 +176,8 @@ const PaymentComponent = ({ planType, amount, planName, description, onSuccess, 
         
         // Prefill user data
         prefill: {
-          name: result.data.prefill?.name || user?.name || user?.full_name || '',
-          email: result.data.prefill?.email || user?.email || '',
+          name: result.prefill?.name || user?.name || user?.full_name || '',
+          email: result.prefill?.email || user?.email || '',
           contact: result.data.prefill?.contact || user?.phone || ''
         },
         
