@@ -1151,8 +1151,8 @@ class RazorpayService:
             logger.info(f"Starting payment integrity verification: Payment={payment_id}, Order={order_id}")
             
             # Fetch actual payment and order data from Razorpay
-            payment_result = await self.fetch_payment_details_from_razorpay(payment_id)
-            order_result = await self.fetch_order_details_from_razorpay(order_id)
+            payment_result = self.fetch_payment_details_from_razorpay(payment_id)
+            order_result = self.fetch_order_details_from_razorpay(order_id)
             
             if not payment_result["success"]:
                 return {
