@@ -108,55 +108,6 @@ export const SimpleDashboard = () => {
           </div>
         </div>
 
-        {/* Phase Information */}
-        <div className="mb-8">
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Learning Phases</h2>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                <div>
-                  <h3 className="font-semibold text-blue-900">Phase A (Coverage & Calibration)</h3>
-                  <p className="text-sm text-blue-700">Sessions 1-30: Build foundational coverage across all topics</p>
-                </div>
-                <div className="text-sm text-blue-600 font-medium">
-                  {dashboardData?.total_sessions <= 30 ? 'Current Phase' : 'Completed'}
-                </div>
-              </div>
-              
-              <div className="flex items-center justify-between p-4 bg-green-50 border border-green-200 rounded-lg">
-                <div>
-                  <h3 className="font-semibold text-green-900">Phase B (Strengthen & Stretch)</h3>
-                  <p className="text-sm text-green-700">Sessions 31-60: Focus on weak areas and challenge yourself</p>
-                </div>
-                <div className="text-sm text-green-600 font-medium">
-                  {dashboardData?.total_sessions > 30 && dashboardData?.total_sessions <= 60 ? 'Current Phase' : 
-                   dashboardData?.total_sessions > 60 ? 'Completed' : 'Upcoming'}
-                </div>
-              </div>
-              
-              <div className="flex items-center justify-between p-4 bg-purple-50 border border-purple-200 rounded-lg">
-                <div>
-                  <h3 className="font-semibold text-purple-900">Phase C (Full Adaptivity)</h3>
-                  <p className="text-sm text-purple-700">Sessions 61+: Advanced adaptive learning with personalized difficulty</p>
-                </div>
-                <div className="text-sm text-purple-600 font-medium">
-                  {dashboardData?.total_sessions > 60 ? 'Current Phase' : 'Upcoming'}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Simplified Taxonomy Table */}
-        <div className="bg-white rounded-lg shadow">
-          <div className="p-6">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-6">
-              Complete CAT Syllabus - Question Attempts by Difficulty
-            </h2>
-            <p className="text-sm text-gray-600 mb-6">
-              Shows number of questions attempted across all sessions for each topic
-            </p>
-            
         {/* Collapsible Categorized Taxonomy Table */}
         <div className="bg-white rounded-lg shadow">
           <div className="p-6">
