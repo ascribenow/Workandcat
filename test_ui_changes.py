@@ -14,7 +14,7 @@ def test_backend_changes():
     print("🔍 Testing Backend Functionality...")
     
     # Test login
-    login_url = "https://twelvr-debugger.preview.emergentagent.com/api/auth/login"
+    login_url = "https://learning-tutor.preview.emergentagent.com/api/auth/login"
     login_data = {
         "email": "student@catprep.com",
         "password": "student123"
@@ -30,7 +30,7 @@ def test_backend_changes():
             headers = {"Authorization": f"Bearer {token}"}
             
             # Test session creation
-            session_url = "https://twelvr-debugger.preview.emergentagent.com/api/sessions/start"
+            session_url = "https://learning-tutor.preview.emergentagent.com/api/sessions/start"
             session_response = requests.post(session_url, json={}, headers=headers)
             
             if session_response.status_code == 200:
@@ -39,7 +39,7 @@ def test_backend_changes():
                 session_id = session_data.get("session_id")
                 
                 # Test getting first question
-                question_url = f"https://twelvr-debugger.preview.emergentagent.com/api/sessions/{session_id}/next-question"
+                question_url = f"https://learning-tutor.preview.emergentagent.com/api/sessions/{session_id}/next-question"
                 question_response = requests.get(question_url, headers=headers)
                 
                 if question_response.status_code == 200:
@@ -48,7 +48,7 @@ def test_backend_changes():
                     question_id = question_data["question"]["id"]
                     
                     # Test answer submission to get solution feedback
-                    answer_url = f"https://twelvr-debugger.preview.emergentagent.com/api/sessions/{session_id}/submit-answer"
+                    answer_url = f"https://learning-tutor.preview.emergentagent.com/api/sessions/{session_id}/submit-answer"
                     answer_data = {
                         "question_id": question_id,
                         "user_answer": "A",

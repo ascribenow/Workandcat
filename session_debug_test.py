@@ -10,7 +10,7 @@ import time
 
 class SessionDebugTester:
     def __init__(self):
-        self.base_url = "https://twelvr-debugger.preview.emergentagent.com/api"
+        self.base_url = "https://learning-tutor.preview.emergentagent.com/api"
         self.admin_token = None
         self.session_id = None
         

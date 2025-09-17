@@ -6,7 +6,7 @@ This package contains everything needed to fix the "blank session" issue at twel
 ## 🚨 ROOT CAUSE
 - Production frontend at twelvr.com serves stale CRA bundle with hardcoded wrong API URL
 - Bundle calls `https://adaptive-quant.emergent.host/api` (WRONG)
-- Should call `https://twelvr-debugger.preview.emergentagent.com/api` (CORRECT)
+- Should call `https://learning-tutor.preview.emergentagent.com/api` (CORRECT)
 
 ## 🚀 SOLUTION
 **Immediate**: Edge proxy at Nginx level routes `/api/*` to correct backend

@@ -25,7 +25,7 @@ def test_authentication():
     
     try:
         response = requests.post(
-            "https://twelvr-debugger.preview.emergentagent.com/api/auth/login",
+            "https://learning-tutor.preview.emergentagent.com/api/auth/login",
             json=login_data,
             timeout=10,
             verify=False
@@ -71,7 +71,7 @@ def test_idempotency_key_requirement(token, user_id):
     try:
         # Test without Idempotency-Key
         response = requests.post(
-            "https://twelvr-debugger.preview.emergentagent.com/api/adapt/plan-next",
+            "https://learning-tutor.preview.emergentagent.com/api/adapt/plan-next",
             json=test_data,
             headers=headers,
             timeout=10,
@@ -119,7 +119,7 @@ def test_idempotency_key_format_validation(token, user_id):
     
     try:
         response = requests.post(
-            "https://twelvr-debugger.preview.emergentagent.com/api/adapt/plan-next",
+            "https://learning-tutor.preview.emergentagent.com/api/adapt/plan-next",
             json=test_data,
             headers=headers,
             timeout=10,
@@ -169,7 +169,7 @@ def test_constraint_enforcement(token, user_id):
     
     try:
         response = requests.post(
-            "https://twelvr-debugger.preview.emergentagent.com/api/adapt/plan-next",
+            "https://learning-tutor.preview.emergentagent.com/api/adapt/plan-next",
             json=test_data,
             headers=headers,
             timeout=30,
@@ -223,7 +223,7 @@ def test_endpoint_accessibility(token, user_id):
     # Test pack endpoint (should return 404 for non-existent session)
     try:
         response = requests.get(
-            f"https://twelvr-debugger.preview.emergentagent.com/api/adapt/pack?user_id={user_id}&session_id=nonexistent",
+            f"https://learning-tutor.preview.emergentagent.com/api/adapt/pack?user_id={user_id}&session_id=nonexistent",
             headers=headers,
             timeout=10,
             verify=False
@@ -239,7 +239,7 @@ def test_endpoint_accessibility(token, user_id):
     # Test mark-served endpoint (should return 400/409 for invalid data)
     try:
         response = requests.post(
-            "https://twelvr-debugger.preview.emergentagent.com/api/adapt/mark-served",
+            "https://learning-tutor.preview.emergentagent.com/api/adapt/mark-served",
             json={"user_id": user_id, "session_id": "nonexistent"},
             headers=headers,
             timeout=10,
@@ -269,7 +269,7 @@ def test_authentication_protection(user_id):
     try:
         # Test without authentication
         response = requests.post(
-            "https://twelvr-debugger.preview.emergentagent.com/api/adapt/plan-next",
+            "https://learning-tutor.preview.emergentagent.com/api/adapt/plan-next",
             json=test_data,
             timeout=10,
             verify=False

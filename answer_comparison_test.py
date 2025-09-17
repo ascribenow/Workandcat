@@ -24,7 +24,7 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 class AnswerComparisonValidator:
     def __init__(self):
-        self.base_url = "https://twelvr-debugger.preview.emergentagent.com/api"
+        self.base_url = "https://learning-tutor.preview.emergentagent.com/api"
         self.auth_headers = None
         self.user_id = None
         

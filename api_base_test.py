@@ -128,12 +128,12 @@ def main():
     print("🔍 API BASE MISMATCH DIAGNOSTIC")
     print("=" * 80)
     print("Testing both API bases mentioned in the review request:")
-    print("1. Frontend configured: https://twelvr-debugger.preview.emergentagent.com")
+    print("1. Frontend configured: https://learning-tutor.preview.emergentagent.com")
     print("2. Review mentioned: https://adaptive-quant.emergent.host/api")
     print("=" * 80)
     
     # Test both API bases
-    test_api_base("https://twelvr-debugger.preview.emergentagent.com/api", "FRONTEND CONFIGURED")
+    test_api_base("https://learning-tutor.preview.emergentagent.com/api", "FRONTEND CONFIGURED")
     test_api_base("https://adaptive-quant.emergent.host/api", "REVIEW MENTIONED")
     
     print("\n" + "=" * 80)
