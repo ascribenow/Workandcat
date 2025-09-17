@@ -12068,37 +12068,32 @@ class CATBackendTester:
 if __name__ == "__main__":
     tester = CATBackendTester()
     
-    print("🚀 STARTING ADAPTIVE-ONLY SYSTEM VALIDATION")
+    print("🚀 STARTING PRIVILEGED USER & SESSION LIMITS TESTING")
     print("=" * 80)
     
-    # Run adaptive-only system validation as requested
+    # Run the privileged user and session limits test as requested
     print("\n" + "=" * 80)
-    print("🎯 ADAPTIVE-ONLY SYSTEM IMPLEMENTATION VALIDATION")
+    print("🎯 PRIVILEGED USER VERIFICATION & SESSION LIMITS TESTING")
     print("=" * 80)
-    # Skip the broken test and go directly to final validation
-    # adaptive_success = tester.test_adaptive_only_system_validation()
     
-    # Run the final 100% success validation test
-    print("🎯 RUNNING FINAL 100% SUCCESS VALIDATION FOR ADAPTIVE-ONLY SYSTEM")
-    print("=" * 80)
-    final_success = tester.test_final_100_percent_success_validation()
+    success = tester.test_privileged_user_and_session_limits()
     
     # Final Summary
     print("\n" + "=" * 80)
-    print("🎯 FINAL 100% SUCCESS VALIDATION - SUMMARY")
+    print("🎯 PRIVILEGED USER & SESSION LIMITS TESTING - SUMMARY")
     print("=" * 80)
     
-    if final_success:
-        print("🎉 FINAL 100% SUCCESS VALIDATION: ACHIEVED!")
-        print("   ✅ All 14 backend tests pass")
-        print("   ✅ All 6 review criteria met")
-        print("   ✅ /api/adapt/start-first endpoint working")
-        print("   ✅ Legacy endpoints properly removed (404s confirmed)")
-        print("   ✅ Adaptive-only system fully validated")
-        print("   ✅ Ready for database cleanup and performance optimization")
+    if success:
+        print("🎉 PRIVILEGED USER & SESSION LIMITS TESTING: SUCCESS!")
+        print("   ✅ Privileged user system working correctly")
+        print("   ✅ Free tier session logic with carry forward functional")
+        print("   ✅ IST timezone conversion working")
+        print("   ✅ All tiers have correct Ask Twelvr access")
+        print("   ✅ No 'Pro Lite' references remain")
+        print("   ✅ System ready for production use")
     else:
-        print("❌ FINAL 100% SUCCESS VALIDATION: NOT YET ACHIEVED")
-        print("   - Critical fixes still needed")
+        print("❌ PRIVILEGED USER & SESSION LIMITS TESTING: ISSUES DETECTED")
+        print("   - Some critical systems need attention")
         print("   - Review failing tests and implement fixes")
         print("   - Re-run validation after fixes")
     
@@ -12107,3 +12102,5 @@ if __name__ == "__main__":
     print(f"Successful API calls: {tester.tests_passed}")
     print(f"API Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%")
     print("=" * 80)
+    
+    exit(0 if success else 1)
