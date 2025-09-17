@@ -449,6 +449,111 @@ async def admin_get_questions(
             "quality_verified": q.quality_verified
         } for q in questions]
 
+@app.get("/api/admin/privileged-users")
+async def admin_get_privileged_users(admin_user: User = Depends(get_current_admin_user)):
+    """Get all privileged users for admin dashboard"""
+    db = SessionLocal()
+    try:
+        from database import PrivilegedEmail
+        result = db.execute(select(PrivilegedEmail).order_by(PrivilegedEmail.created_at.desc()))
+        privileged_users = result.scalars().all()
+        
+        # Also get user details for display
+        privileged_data = []
+        for priv_user in privileged_users:
+            user_result = db.execute(select(User).where(User.email == priv_user.email))
+            user = user_result.scalar_one_or_none()
+            
+            privileged_data.append({
+                "id": priv_user.id,
+                "email": priv_user.email,
+                "added_by_admin": priv_user.added_by_admin,
+                "created_at": utc_to_ist(priv_user.created_at).isoformat(),
+                "notes": priv_user.notes,
+                "user_exists": user is not None,
+                "user_name": user.full_name if user else None,
+                "user_id": user.id if user else None
+            })
+        
+        return {
+            "privileged_users": privileged_data,
+            "total_count": len(privileged_data)
+        }
+    finally:
+        db.close()
+
+@app.post("/api/admin/privileged-users")
+async def admin_add_privileged_user(
+    request: dict,
+    admin_user: User = Depends(get_current_admin_user)
+):
+    """Add a new privileged user"""
+    email = request.get("email", "").strip().lower()
+    notes = request.get("notes", "").strip()
+    
+    if not email:
+        raise HTTPException(status_code=400, detail="Email is required")
+    
+    db = SessionLocal()
+    try:
+        from database import PrivilegedEmail
+        
+        # Check if already exists
+        existing = db.execute(select(PrivilegedEmail).where(PrivilegedEmail.email == email))
+        if existing.scalar_one_or_none():
+            raise HTTPException(status_code=400, detail="Email already has privileged access")
+        
+        # Add new privileged user
+        new_privileged = PrivilegedEmail(
+            email=email,
+            added_by_admin=admin_user.id,
+            notes=notes or f"Added by admin {admin_user.email}"
+        )
+        
+        db.add(new_privileged)
+        db.commit()
+        
+        return {
+            "success": True,
+            "message": f"Privileged access granted to {email}",
+            "privileged_user": {
+                "id": new_privileged.id,
+                "email": new_privileged.email,
+                "notes": new_privileged.notes,
+                "added_by": admin_user.email
+            }
+        }
+    finally:
+        db.close()
+
+@app.delete("/api/admin/privileged-users/{privileged_id}")
+async def admin_remove_privileged_user(
+    privileged_id: str,
+    admin_user: User = Depends(get_current_admin_user)
+):
+    """Remove privileged access for a user"""
+    db = SessionLocal()
+    try:
+        from database import PrivilegedEmail
+        
+        # Find and delete
+        privileged = db.execute(select(PrivilegedEmail).where(PrivilegedEmail.id == privileged_id))
+        privileged_user = privileged.scalar_one_or_none()
+        
+        if not privileged_user:
+            raise HTTPException(status_code=404, detail="Privileged user not found")
+        
+        email = privileged_user.email
+        db.delete(privileged_user)
+        db.commit()
+        
+        return {
+            "success": True,
+            "message": f"Privileged access removed for {email}"
+        }
+    finally:
+        db.close()
+
 # PYQ Admin endpoints
 @app.get("/api/admin/pyq/questions")
 async def admin_get_pyq_questions(
