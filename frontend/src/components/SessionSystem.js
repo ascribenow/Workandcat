@@ -26,8 +26,8 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
     };
   }, []);
   
-  // Feature flag check
-  const adaptiveEnabled = ADAPTIVE_GLOBAL && !!user?.adaptive_enabled;
+  // ADAPTIVE-ONLY: System is now purely adaptive learning platform
+  const adaptiveEnabled = true; // Always adaptive
   
   const [sessionId, setSessionId] = useState(propSessionId);
   const [sessionNumber, setSessionNumber] = useState(null);
