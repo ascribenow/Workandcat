@@ -109,7 +109,8 @@ def cleanup_legacy_database_data():
             LEFT JOIN sessions s ON ae.session_id = s.session_id
             WHERE s.session_id IS NULL
         """))
-        orphaned_attempts = result.fetchone().orphaned_attempts if result.fetchone() else 0
+        row = result.fetchone()
+        orphaned_attempts = row.orphaned_attempts if row else 0
         
         if orphaned_attempts > 0:
             print(f"   ⚠️ Found {orphaned_attempts} orphaned attempt_events")
