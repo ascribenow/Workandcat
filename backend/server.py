@@ -391,7 +391,13 @@ async def validate_referral_code(request: dict, user_id: str = Depends(get_curre
 # Payment endpoints
 @app.get("/api/payments/config")
 async def get_payment_config(user_id: str = Depends(get_current_user)):
-    return payment_service.get_payment_config()
+    try:
+        config = payment_service.get_payment_methods_config()
+        config["razorpay_key_id"] = os.getenv("RAZORPAY_KEY_ID")
+        return config
+    except Exception as e:
+        logger.error(f"Payment config error: {e}")
+        raise HTTPException(status_code=500, detail="Payment configuration error")
 
 @app.post("/api/payments/create-subscription")
 async def create_subscription_payment(
@@ -403,10 +409,19 @@ async def create_subscription_payment(
         plan_type = request.get("plan_type", "pro_regular")
         referral_code = request.get("referral_code")
         
-        result = payment_service.create_subscription_payment(
-            db, user_id, plan_type, referral_code
+        # Get user details
+        user_result = db.execute(select(User).where(User.id == user_id))
+        user = user_result.scalar_one_or_none()
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        result = payment_service.create_subscription(
+            plan_type, user.email, user.full_name, user_id, None, referral_code
         )
         return result
+    except Exception as e:
+        logger.error(f"Subscription creation error: {e}")
+        raise HTTPException(status_code=500, detail="Subscription creation failed")
     finally:
         db.close()
 
@@ -420,21 +435,35 @@ async def create_order_payment(
         plan_type = request.get("plan_type", "pro_exclusive")
         referral_code = request.get("referral_code")
         
-        result = payment_service.create_order_payment(
-            db, user_id, plan_type, referral_code
+        # Get user details
+        user_result = db.execute(select(User).where(User.id == user_id))
+        user = user_result.scalar_one_or_none()
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        result = payment_service.create_order(
+            plan_type, user.email, user.full_name, user_id, None, referral_code
         )
         return result
+    except Exception as e:
+        logger.error(f"Order creation error: {e}")
+        raise HTTPException(status_code=500, detail="Order creation failed")
     finally:
         db.close()
 
 @app.post("/api/payments/verify-payment")
 async def verify_payment(request: dict, user_id: str = Depends(get_current_user)):
-    db = SessionLocal()
     try:
-        result = payment_service.verify_payment(db, request, user_id)
+        result = payment_service.verify_payment(
+            request.get("razorpay_payment_id"),
+            request.get("razorpay_order_id"),
+            request.get("razorpay_signature"),
+            user_id
+        )
         return result
-    finally:
-        db.close()
+    except Exception as e:
+        logger.error(f"Payment verification error: {e}")
+        raise HTTPException(status_code=500, detail="Payment verification failed")
 
 # Subscription endpoints
 @app.get("/api/subscriptions/status")
