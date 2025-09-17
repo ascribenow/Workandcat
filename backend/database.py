@@ -359,7 +359,7 @@ class PaymentOrder(Base):
     status = Column(String(20), default="created")  # created, paid, failed, cancelled
     receipt = Column(String(255), nullable=True)
     notes = Column(JSON, default=dict)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: ist_to_utc(now_ist()))
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
     # Relationships
