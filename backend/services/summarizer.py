@@ -51,7 +51,39 @@ READINESS CRITERIA:
 - "wrong_gt_3": Extended wrong streak, serious difficulty
 - "cold_start": New concept, needs foundation building
 
-Return ONLY valid JSON matching the required schema."""
+REQUIRED JSON OUTPUT FORMAT (use these exact field names):
+{
+  "concept_alias_map_updated": [
+    {
+      "semantic_id": "string",
+      "canonical_label": "string", 
+      "members": ["string"]
+    }
+  ],
+  "dominance_by_item": {
+    "question_id": {
+      "dominant": ["concept1", "concept2"],
+      "secondary": ["concept3"],
+      "dominance_confidence": "high"
+    }
+  },
+  "concept_readiness_labels": [
+    {
+      "semantic_id": "string",
+      "pair": "string",
+      "reason_codes": ["skipped", "wrong_1_to_3"]
+    }
+  ],
+  "pair_coverage_labels": [
+    {
+      "pair": "string",
+      "coverage_debt": "high",
+      "reason_codes": ["insufficient_exposure"]
+    }
+  ]
+}
+
+Return ONLY valid JSON matching this exact schema with the specified field names."""
 
     async def run(self, user_id: str, session_id: str = None, sess_seq: int = None) -> Dict[str, Any]:
         """
