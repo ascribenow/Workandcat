@@ -306,7 +306,7 @@ class ReferralUsage(Base):
     discount_amount = Column(Integer, nullable=False, default=500)  # Discount amount in INR
     subscription_type = Column(String(50), nullable=False)  # pro_regular or pro_exclusive
     payment_reference = Column(String(255), nullable=True)  # Payment ID that triggered the usage recording
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: ist_to_utc(now_ist()))
     
     # Relationships
     used_by_user = relationship("User", foreign_keys=[used_by_user_id])
