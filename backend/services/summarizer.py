@@ -105,27 +105,33 @@ Return ONLY valid JSON matching the required schema."""
             tokens_used = 0
             
             try:
-                data = call_llm_json_with_retry(
+                # Use dedicated summarizer LLM service  
+                from services.summarizer_llm_service import summarizer_llm_service
+                
+                # Call LLM using dedicated service
+                raw_response, model_used = await summarizer_llm_service.call_for_concept_analysis(
                     system_prompt=self.system_prompt,
-                    user_payload=payload,
-                    schema=SUMMARIZER_SCHEMA,
-                    model_primary="gpt-4o-mini",
-                    model_fallback="gemini-1.5-pro",
-                    max_retries=1
+                    user_payload=payload
                 )
+                
+                # Validate response using dedicated service
+                ok, data, errors = summarizer_llm_service.validate_json_response(raw_response, SUMMARIZER_SCHEMA)
+                
+                if not ok:
+                    logger.warning(f"Summarizer LLM returned invalid JSON: {errors}")
+                    return self._generate_empty_summary()
                 
                 # Calculate telemetry
                 elapsed_time = time.time() - start_time
                 tokens_used = len(json.dumps(payload)) // 4  # Rough token estimate
                 
-                # Add telemetry to response
+                # Add telemetry to response with actual model used
                 data.setdefault("telemetry", {}).update({
                     "processing_time_ms": int(elapsed_time * 1000),
                     "estimated_tokens": tokens_used,
-                    "llm_model_used": "gpt-4o-mini",  # Default to primary model
+                    "llm_model_used": model_used,  # Use actual model from dedicated service
                     "alias_reuse_rate": self._calculate_alias_reuse_rate(data),
                     "provisional_new_count": self._count_provisional_concepts(data),
-                    "llm_model_used": "gpt-4o-mini"
                 })
                 
                 # 3) Persist session summary (use the UUID session_id you received)
