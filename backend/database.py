@@ -283,7 +283,7 @@ class User(Base):
     full_name = Column(String(255), nullable=False)
     password_hash = Column(Text, nullable=False)
     is_admin = Column(Boolean, default=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: ist_to_utc(now_ist()))
     
     # Referral system
     referral_code = Column(String(6), unique=True, nullable=True)  # 6-character alphanumeric referral code
