@@ -607,6 +607,136 @@ async def admin_remove_privileged_user(
     finally:
         db.close()
 
+@app.get("/api/admin/referral-dashboard")
+async def get_admin_referral_dashboard(admin_user: User = Depends(get_current_admin_user)):
+    """Get comprehensive referral dashboard for admin"""
+    db = SessionLocal()
+    try:
+        # Overall referral statistics
+        overall_stats = db.execute(text("""
+            SELECT 
+                COUNT(DISTINCT referral_code) as total_referral_codes_used,
+                COUNT(*) as total_referral_usage,
+                SUM(discount_amount) as total_discount_given,
+                COUNT(CASE WHEN subscription_type = 'pro_regular' THEN 1 END) as pro_regular_uses,
+                COUNT(CASE WHEN subscription_type = 'pro_exclusive' THEN 1 END) as pro_exclusive_uses
+            FROM referral_usage
+        """)).fetchone()
+        
+        # Top performing referral codes
+        top_referrals = db.execute(text("""
+            SELECT 
+                ru.referral_code,
+                u.full_name as referrer_name,
+                u.email as referrer_email,
+                COUNT(*) as total_uses,
+                SUM(ru.discount_amount) as total_discount_given,
+                (COUNT(*) * 50000) as cashback_due
+            FROM referral_usage ru
+            LEFT JOIN users u ON u.referral_code = ru.referral_code
+            GROUP BY ru.referral_code, u.full_name, u.email
+            ORDER BY total_uses DESC
+            LIMIT 20
+        """)).fetchall()
+        
+        # Recent referral activity (last 30 days)
+        recent_activity = db.execute(text("""
+            SELECT 
+                ru.referral_code,
+                u.full_name as referrer_name,
+                ru.used_by_email,
+                ru.subscription_type,
+                ru.discount_amount,
+                ru.created_at
+            FROM referral_usage ru
+            LEFT JOIN users u ON u.referral_code = ru.referral_code
+            WHERE ru.created_at >= NOW() - INTERVAL '30 days'
+            ORDER BY ru.created_at DESC
+            LIMIT 50
+        """)).fetchall()
+        
+        return {
+            "overall_stats": {
+                "total_referral_codes_used": overall_stats.total_referral_codes_used or 0,
+                "total_referral_usage": overall_stats.total_referral_usage or 0,
+                "total_discount_given": f"₹{(overall_stats.total_discount_given or 0):.2f}",
+                "total_cashback_due": f"₹{(overall_stats.total_referral_usage or 0) * 500:.2f}",
+                "pro_regular_uses": overall_stats.pro_regular_uses or 0,
+                "pro_exclusive_uses": overall_stats.pro_exclusive_uses or 0
+            },
+            "top_referrals": [
+                {
+                    "referral_code": ref.referral_code,
+                    "referrer_name": ref.referrer_name,
+                    "referrer_email": ref.referrer_email,
+                    "total_uses": ref.total_uses,
+                    "total_discount_given": f"₹{ref.total_discount_given:.2f}",
+                    "cashback_due": f"₹{ref.cashback_due:.2f}"
+                }
+                for ref in top_referrals
+            ],
+            "recent_activity": [
+                {
+                    "referral_code": activity.referral_code,
+                    "referrer_name": activity.referrer_name,
+                    "used_by_email": activity.used_by_email,
+                    "subscription_type": activity.subscription_type,
+                    "discount_amount": f"₹{activity.discount_amount:.2f}",
+                    "date": utc_to_ist(activity.created_at).strftime("%Y-%m-%d %I:%M %p IST") if activity.created_at else None
+                }
+                for activity in recent_activity
+            ]
+        }
+        
+    except Exception as e:
+        logger.error(f"Error getting referral dashboard: {e}")
+        raise HTTPException(status_code=500, detail="Error retrieving referral dashboard")
+    finally:
+        db.close()
+
+@app.get("/api/admin/export-referral-data")
+async def export_referral_data(admin_user: User = Depends(get_current_admin_user)):
+    """Export referral data for admin analysis"""
+    db = SessionLocal()
+    try:
+        # Get all referral usage data
+        referral_data = db.execute(text("""
+            SELECT 
+                ru.referral_code,
+                u.full_name as referrer_name,
+                u.email as referrer_email,
+                ru.used_by_email,
+                ru.subscription_type,
+                ru.discount_amount,
+                ru.created_at
+            FROM referral_usage ru
+            LEFT JOIN users u ON u.referral_code = ru.referral_code
+            ORDER BY ru.created_at DESC
+        """)).fetchall()
+        
+        return {
+            "export_data": [
+                {
+                    "referral_code": data.referral_code,
+                    "referrer_name": data.referrer_name,
+                    "referrer_email": data.referrer_email,
+                    "used_by_email": data.used_by_email,
+                    "subscription_type": data.subscription_type,
+                    "discount_amount": data.discount_amount,
+                    "created_at": utc_to_ist(data.created_at).isoformat() if data.created_at else None
+                }
+                for data in referral_data
+            ],
+            "total_records": len(referral_data),
+            "export_timestamp": utc_to_ist(now_ist()).isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"Error exporting referral data: {e}")
+        raise HTTPException(status_code=500, detail="Error exporting referral data")
+    finally:
+        db.close()
+
 # PYQ Admin endpoints
 @app.get("/api/admin/pyq/questions")
 async def admin_get_pyq_questions(
