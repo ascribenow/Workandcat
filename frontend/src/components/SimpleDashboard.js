@@ -157,70 +157,168 @@ export const SimpleDashboard = () => {
               Shows number of questions attempted across all sessions for each topic
             </p>
             
-            <div className="overflow-x-auto">
-              <table className="min-w-full table-auto">
-                <thead>
-                  <tr className="bg-gray-50">
-                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
-                      Category - Subcategory - Type
-                    </th>
-                    <th className="px-4 py-3 text-center text-sm font-medium text-gray-500 uppercase tracking-wider">
-                      Easy
-                    </th>
-                    <th className="px-4 py-3 text-center text-sm font-medium text-gray-500 uppercase tracking-wider">
-                      Medium
-                    </th>
-                    <th className="px-4 py-3 text-center text-sm font-medium text-gray-500 uppercase tracking-wider">
-                      Hard
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {dashboardData?.taxonomy_data?.map((item, index) => (
-                    <tr key={index} className="hover:bg-gray-50">
-                      <td className="px-4 py-4 text-sm text-gray-900">
-                        <div className="font-medium">
-                          {item.category} - {item.subcategory} - {item.type}
-                        </div>
-                      </td>
-                      <td className="px-4 py-4 text-center">
-                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                          item.easy_attempts > 0 
-                            ? 'bg-green-100 text-green-800' 
-                            : 'bg-gray-100 text-gray-400'
-                        }`}>
-                          {item.easy_attempts}
-                        </span>
-                      </td>
-                      <td className="px-4 py-4 text-center">
-                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                          item.medium_attempts > 0 
-                            ? 'bg-yellow-100 text-yellow-800' 
-                            : 'bg-gray-100 text-gray-400'
-                        }`}>
-                          {item.medium_attempts}
-                        </span>
-                      </td>
-                      <td className="px-4 py-4 text-center">
-                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                          item.hard_attempts > 0 
-                            ? 'bg-red-100 text-red-800' 
-                            : 'bg-gray-100 text-gray-400'
-                        }`}>
-                          {item.hard_attempts}
-                        </span>
-                      </td>
-                    </tr>
-                  )) || []}
-                </tbody>
-              </table>
-            </div>
+        {/* Collapsible Categorized Taxonomy Table */}
+        <div className="bg-white rounded-lg shadow">
+          <div className="p-6">
+            <h2 className="text-2xl font-semibold text-gray-900 mb-6">
+              Complete CAT Syllabus - Question Attempts by Category
+            </h2>
+            <p className="text-sm text-gray-600 mb-6">
+              Click on any category to expand and see subcategory breakdown. Data fetched from database CATEGORY:SUBCATEGORY fields.
+            </p>
             
-            {(!dashboardData?.taxonomy_data || dashboardData.taxonomy_data.length === 0) && (
-              <div className="text-center py-8 text-gray-500">
-                <p>Complete some study sessions to see your progress across the CAT syllabus</p>
-              </div>
-            )}
+            <div className="space-y-2">
+              {categorizedData?.categorized_data?.map((category, categoryIndex) => (
+                <div key={categoryIndex} className="border border-gray-200 rounded-lg">
+                  {/* Category Header - Clickable */}
+                  <div 
+                    className="px-4 py-4 bg-gray-50 hover:bg-gray-100 cursor-pointer flex items-center justify-between transition-colors"
+                    onClick={() => toggleCategory(category.category_name)}
+                  >
+                    <div className="flex items-center space-x-4">
+                      {/* Expand/Collapse Arrow */}
+                      <div className="transform transition-transform duration-200">
+                        {expandedCategories[category.category_name] ? (
+                          <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                          </svg>
+                        ) : (
+                          <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          </svg>
+                        )}
+                      </div>
+                      
+                      {/* Category Name */}
+                      <div className="font-semibold text-gray-900 text-lg">
+                        {category.category_name}
+                      </div>
+                    </div>
+                    
+                    {/* Category Summary (Easy | Medium | Hard) */}
+                    <div className="flex items-center space-x-6">
+                      <div className="text-center">
+                        <div className="text-sm font-medium text-green-600">{category.total_easy}</div>
+                        <div className="text-xs text-gray-500">Easy</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-sm font-medium text-yellow-600">{category.total_medium}</div>
+                        <div className="text-xs text-gray-500">Medium</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-sm font-medium text-red-600">{category.total_hard}</div>
+                        <div className="text-xs text-gray-500">Hard</div>
+                      </div>
+                      <div className="text-center border-l border-gray-300 pl-6">
+                        <div className="text-sm font-bold text-gray-900">{category.total_attempts}</div>
+                        <div className="text-xs text-gray-500">Total</div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Collapsible Subcategory Content */}
+                  {expandedCategories[category.category_name] && (
+                    <div className="border-t border-gray-200">
+                      <div className="overflow-x-auto">
+                        <table className="min-w-full">
+                          <thead>
+                            <tr className="bg-gray-100">
+                              <th className="px-4 py-3 text-left text-sm font-medium text-gray-600 uppercase tracking-wider">
+                                Subcategory
+                              </th>
+                              <th className="px-4 py-3 text-center text-sm font-medium text-gray-600 uppercase tracking-wider">
+                                Easy
+                              </th>
+                              <th className="px-4 py-3 text-center text-sm font-medium text-gray-600 uppercase tracking-wider">
+                                Medium
+                              </th>
+                              <th className="px-4 py-3 text-center text-sm font-medium text-gray-600 uppercase tracking-wider">
+                                Hard
+                              </th>
+                              <th className="px-4 py-3 text-center text-sm font-medium text-gray-600 uppercase tracking-wider">
+                                Total
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody className="bg-white divide-y divide-gray-100">
+                            {category.subcategories?.map((subcategory, subIndex) => (
+                              <tr key={subIndex} className="hover:bg-gray-50">
+                                <td className="px-4 py-3 text-sm text-gray-900">
+                                  <div className="font-medium">
+                                    {subcategory.subcategory_name}
+                                  </div>
+                                </td>
+                                <td className="px-4 py-3 text-center">
+                                  <span className={`inline-flex items-center px-2 py-1 rounded-full text-sm font-medium ${
+                                    subcategory.easy_attempts > 0 
+                                      ? 'bg-green-100 text-green-800' 
+                                      : 'bg-gray-100 text-gray-400'
+                                  }`}>
+                                    {subcategory.easy_attempts}
+                                    {subcategory.easy_attempts > 0 && (
+                                      <span className="ml-1 text-xs">
+                                        ({subcategory.easy_accuracy}%)
+                                      </span>
+                                    )}
+                                  </span>
+                                </td>
+                                <td className="px-4 py-3 text-center">
+                                  <span className={`inline-flex items-center px-2 py-1 rounded-full text-sm font-medium ${
+                                    subcategory.medium_attempts > 0 
+                                      ? 'bg-yellow-100 text-yellow-800' 
+                                      : 'bg-gray-100 text-gray-400'
+                                  }`}>
+                                    {subcategory.medium_attempts}
+                                    {subcategory.medium_attempts > 0 && (
+                                      <span className="ml-1 text-xs">
+                                        ({subcategory.medium_accuracy}%)
+                                      </span>
+                                    )}
+                                  </span>
+                                </td>
+                                <td className="px-4 py-3 text-center">
+                                  <span className={`inline-flex items-center px-2 py-1 rounded-full text-sm font-medium ${
+                                    subcategory.hard_attempts > 0 
+                                      ? 'bg-red-100 text-red-800' 
+                                      : 'bg-gray-100 text-gray-400'
+                                  }`}>
+                                    {subcategory.hard_attempts}
+                                    {subcategory.hard_attempts > 0 && (
+                                      <span className="ml-1 text-xs">
+                                        ({subcategory.hard_accuracy}%)
+                                      </span>
+                                    )}
+                                  </span>
+                                </td>
+                                <td className="px-4 py-3 text-center">
+                                  <span className="inline-flex items-center px-2 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                                    {subcategory.total_attempts}
+                                  </span>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )) || []}
+              
+              {(!categorizedData?.categorized_data || categorizedData.categorized_data.length === 0) && (
+                <div className="text-center py-12 text-gray-500 border border-gray-200 rounded-lg">
+                  <div className="mb-4">
+                    <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H9a2 2 0 01-2-2z" />
+                    </svg>
+                  </div>
+                  <p className="text-lg font-medium text-gray-900 mb-2">No Study Data Yet</p>
+                  <p>Complete some adaptive sessions to see your progress across the CAT syllabus</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
           </div>
         </div>
 
