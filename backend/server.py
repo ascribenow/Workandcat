@@ -908,7 +908,7 @@ async def log_question_action(
                             'was_correct': False,
                             'skipped': True,
                             'response_time_ms': 1000,  # Default for skip
-                            'created_at': datetime.utcnow(),
+                            'created_at': ist_to_utc(now_ist()),
                             'sess_seq_at_serve': sess_seq_at_serve
                         })
                         db.commit()
