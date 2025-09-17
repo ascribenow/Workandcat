@@ -10552,163 +10552,35 @@ class CATBackendTester:
         return success_rate >= 70  # Return True if most endpoints are working
 
 if __name__ == "__main__":
-    print("🚀 CAT BACKEND TESTING SUITE")
-    print("=" * 80)
-    
     tester = CATBackendTester()
     
-    # Check command line arguments for specific test
-    import sys
-    if len(sys.argv) > 1:
-        test_arg = sys.argv[1].lower()
-        
-        if test_arg == "critical":
-            # Run the critical fixes validation test (as per review request)
-            print("\n🚨 RUNNING CRITICAL FIXES VALIDATION")
-            print("=" * 80)
-            
-            try:
-                success = tester.test_critical_fixes_validation()
-                
-                print("\n" + "=" * 80)
-                print("🏁 CRITICAL FIXES TESTING COMPLETE")
-                print("=" * 80)
-                print(f"Tests Run: {tester.tests_run}")
-                print(f"Tests Passed: {tester.tests_passed}")
-                print(f"Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%" if tester.tests_run > 0 else "No tests run")
-                
-                if success:
-                    print("\n✅ CRITICAL FIXES VALIDATION: PASSED")
-                    print("   - Solution feedback missing fix: WORKING")
-                    print("   - Analytics pipeline database error fix: WORKING")
-                    print("   - Pack data answer field fix: WORKING")
-                    print("   - MCQ answer comparison accuracy: WORKING")
-                    print("   - System ready for production use")
-                else:
-                    print("\n❌ CRITICAL FIXES VALIDATION: FAILED")
-                    print("   - Some critical fixes are not working properly")
-                    print("   - Additional fixes may be required")
-                
-                sys.exit(0 if success else 1)
-                
-            except Exception as e:
-                print(f"\n❌ CRITICAL FIXES TESTING FAILED WITH EXCEPTION: {e}")
-                import traceback
-                traceback.print_exc()
-                sys.exit(1)
-        
-        elif test_arg == "mcq_flow":
-            print("\n🎯 RUNNING MCQ FLOW WITH SIMPLIFIED JSON ARRAY FORMAT TESTING")
-            print("=" * 80)
-            
-            try:
-                success = tester.test_mcq_flow_with_simplified_json_array_format()
-                
-                print("\n" + "=" * 80)
-                print("🏁 MCQ FLOW TESTING COMPLETE")
-                print("=" * 80)
-                print(f"Tests Run: {tester.tests_run}")
-                print(f"Tests Passed: {tester.tests_passed}")
-                print(f"Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%" if tester.tests_run > 0 else "No tests run")
-                
-                if success:
-                    print("\n✅ MCQ FLOW WITH SIMPLIFIED JSON ARRAY FORMAT: PASSED")
-                    print("   - Authentication working with specified credentials")
-                    print("   - Adaptive session planning creates sessions successfully")
-                    print("   - MCQ pack assembly uses clean JSON array format")
-                    print("   - Options correctly mapped to A/B/C/D display structure")
-                    print("   - Answer comparison works with clean values (no prefixes)")
-                    print("   - Session progression unbroken with new MCQ format")
-                    print("   - Database migration to simplified format successful")
-                else:
-                    print("\n❌ MCQ FLOW WITH SIMPLIFIED JSON ARRAY FORMAT: FAILED")
-                    print("   - Some review request criteria not met")
-                    print("   - MCQ format migration may need additional work")
-                
-                sys.exit(0 if success else 1)
-                
-            except Exception as e:
-                print(f"\n❌ MCQ FLOW TESTING FAILED WITH EXCEPTION: {e}")
-                import traceback
-                traceback.print_exc()
-                sys.exit(1)
-        
-        elif test_arg == "mcq_validation":
-            # Run the MCQ answer comparison validation test
-            print("\n🎯 RUNNING MCQ ANSWER COMPARISON VALIDATION")
-            print("=" * 80)
-            
-            try:
-                success = tester.test_mcq_answer_comparison_validation()
-                
-                print("\n" + "=" * 80)
-                print("🏁 MCQ TESTING COMPLETE")
-                print("=" * 80)
-                print(f"Tests Run: {tester.tests_run}")
-                print(f"Tests Passed: {tester.tests_passed}")
-                print(f"Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%" if tester.tests_run > 0 else "No tests run")
-                
-                if success:
-                    print("\n✅ MCQ ANSWER COMPARISON VALIDATION: PASSED")
-                    print("   - MCQ comparison fix validated successfully")
-                    print("   - 100% accurate answer comparison achieved")
-                    print("   - No false negatives or false positives")
-                    print("   - clean_answer_for_comparison() function working")
-                    print("   - System ready for production use")
-                else:
-                    print("\n❌ MCQ ANSWER COMPARISON VALIDATION: FAILED")
-                    print("   - Critical issues detected in MCQ comparison")
-                    print("   - False negatives or false positives present")
-                    print("   - Additional fixes required")
-                
-                sys.exit(0 if success else 1)
-                
-            except Exception as e:
-                print(f"\n❌ MCQ TESTING FAILED WITH EXCEPTION: {e}")
-                import traceback
-                traceback.print_exc()
-                sys.exit(1)
-        
-        else:
-            print(f"\n❌ Unknown test argument: {test_arg}")
-            print("Available tests:")
-            print("  critical - Critical fixes validation (solution feedback, analytics pipeline, pack data)")
-            print("  mcq_flow - MCQ flow with simplified JSON array format testing")
-            print("  mcq_validation - MCQ answer comparison validation")
-            print("  (no argument) - Default answer comparison logic validation")
-            sys.exit(1)
+    print("🚀 STARTING ADAPTIVE-ONLY SYSTEM VALIDATION")
+    print("=" * 80)
     
+    # Run adaptive-only system validation as requested
+    print("\n" + "=" * 80)
+    print("🎯 ADAPTIVE-ONLY SYSTEM IMPLEMENTATION VALIDATION")
+    print("=" * 80)
+    adaptive_success = tester.test_adaptive_only_system_validation()
+    
+    # Final Summary
+    print("\n" + "=" * 80)
+    print("🎯 ADAPTIVE-ONLY SYSTEM VALIDATION - FINAL SUMMARY")
+    print("=" * 80)
+    
+    if adaptive_success:
+        print("✅ ADAPTIVE-ONLY SYSTEM VALIDATION: SUCCESS")
+        print("   - System is purely adaptive with no legacy functionality")
+        print("   - All review request objectives validated")
+        print("   - Platform ready for production use")
     else:
-        # Run the critical fixes validation by default (as per review request)
-        print("\n🚨 RUNNING CRITICAL FIXES VALIDATION (DEFAULT)")
-        print("=" * 80)
-        
-        try:
-            success = tester.test_critical_fixes_validation()
-            
-            print("\n" + "=" * 80)
-            print("🏁 TESTING COMPLETE")
-            print("=" * 80)
-            print(f"Tests Run: {tester.tests_run}")
-            print(f"Tests Passed: {tester.tests_passed}")
-            print(f"Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%" if tester.tests_run > 0 else "No tests run")
-            
-            if success:
-                print("\n✅ CRITICAL FIXES VALIDATION: PASSED")
-                print("   - Solution feedback missing fix: WORKING")
-                print("   - Analytics pipeline database error fix: WORKING")
-                print("   - Pack data answer field fix: WORKING")
-                print("   - MCQ answer comparison accuracy: WORKING")
-                print("   - System ready for production use")
-            else:
-                print("\n❌ CRITICAL FIXES VALIDATION: FAILED")
-                print("   - Some critical fixes are not working properly")
-                print("   - Additional fixes may be required")
-            
-            sys.exit(0 if success else 1)
-            
-        except Exception as e:
-            print(f"\n❌ TESTING FAILED WITH EXCEPTION: {e}")
-            import traceback
-            traceback.print_exc()
-            sys.exit(1)
+        print("❌ ADAPTIVE-ONLY SYSTEM VALIDATION: NEEDS ATTENTION")
+        print("   - Some critical issues detected")
+        print("   - Legacy dependencies may still exist")
+        print("   - Additional fixes required")
+    
+    print("\n" + "=" * 80)
+    print(f"Total API calls made: {tester.tests_run}")
+    print(f"Successful API calls: {tester.tests_passed}")
+    print(f"API Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%")
+    print("=" * 80)
