@@ -36,6 +36,9 @@ export const SimpleDashboard = () => {
     try {
       setLoading(true);
       console.log('SimpleDashboard: Fetching categorized taxonomy data...');
+      console.log('SimpleDashboard: API URL:', API);
+      console.log('SimpleDashboard: Token length:', token?.length);
+      console.log('SimpleDashboard: User ID:', user?.id);
       
       // Fetch both simple and categorized data
       const [simpleResponse, categorizedResponse] = await Promise.all([
@@ -56,14 +59,24 @@ export const SimpleDashboard = () => {
       ]);
       
       console.log('SimpleDashboard: Data received successfully!');
+      console.log('SimpleDashboard: Simple response status:', simpleResponse.status);
+      console.log('SimpleDashboard: Categorized response status:', categorizedResponse.status);
       console.log('SimpleDashboard: Total sessions:', simpleResponse.data?.total_sessions);
       console.log('SimpleDashboard: Categories:', categorizedResponse.data?.total_categories);
+      console.log('SimpleDashboard: Simple data:', simpleResponse.data);
+      console.log('SimpleDashboard: Categorized data sample:', categorizedResponse.data?.categorized_data?.[0]);
       
       setDashboardData(simpleResponse.data);
       setCategorizedData(categorizedResponse.data);
       
     } catch (error) {
       console.error('SimpleDashboard: Error fetching data:', error);
+      console.error('SimpleDashboard: Error details:', {
+        message: error.message,
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data
+      });
       
       // Set empty data to stop loading
       setDashboardData({ total_sessions: 0, taxonomy_data: [] });
