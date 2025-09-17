@@ -75,7 +75,12 @@ class V2PackAssemblyService:
                 option_d=options.get('d', 'Option D'),
                 answer=question.answer or "Not specified",  # Use ONLY answer field, never right_answer
                 subcategory=question.subcategory or 'Unknown',
-                difficulty_band=question.difficulty_band or 'Medium'
+                difficulty_band=question.difficulty_band or 'Medium',
+                # Solution feedback fields for educational content
+                snap_read=question.snap_read or "",
+                solution_approach=question.solution_approach or "",
+                detailed_solution=question.detailed_solution or "",
+                principle_to_remember=question.principle_to_remember or ""
             ))
         
         # Create V2 pack
