@@ -132,8 +132,8 @@ class QuestionActionLog(BaseModel):
 # Authentication helpers
 def create_access_token(data: dict):
     to_encode = data.copy()
-    expire = datetime.utcnow() + timedelta(hours=24)
-    to_encode.update({"exp": expire})
+    expire = now_ist() + timedelta(hours=24)  # IST timezone
+    to_encode.update({"exp": expire.timestamp()})  # Convert to timestamp for JWT
     encoded_jwt = jwt.encode(to_encode, os.getenv("JWT_SECRET"), algorithm="HS256")
     return encoded_jwt
 
