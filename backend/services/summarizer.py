@@ -267,17 +267,17 @@ Return ONLY valid JSON matching the required schema."""
             db.close()
     
     def _generate_empty_summary(self) -> Dict[str, Any]:
-        """Generate basic analytics summary when LLM is not available"""
+        """Generate empty summary when no meaningful analysis can be performed"""
         return {
             "concept_alias_map_updated": [],
             "dominance_by_item": {},
             "concept_readiness_labels": [],
             "pair_coverage_labels": [],
-            "notes": "Analytics summary generated without LLM (fallback mode)",
+            "notes": "No attempt history available for analysis",
             "telemetry": {
                 "processing_time_ms": 0,
                 "estimated_tokens": 0,
-                "llm_model_used": "fallback-deterministic",
+                "llm_model_used": "none",
                 "alias_reuse_rate": 0.0,
                 "provisional_new_count": 0
             }
