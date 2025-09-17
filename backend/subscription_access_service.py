@@ -84,11 +84,11 @@ class SubscriptionAccessService:
                     "auto_renew": active_subscription.auto_renew
                 }
             
-            # Default to free trial
-            plan_config = self.plan_features["free_trial"]
+            # Default to free tier
+            plan_config = self.plan_features["free_tier"]
             return {
-                "access_type": "free_trial",
-                "plan_type": "free_trial",
+                "access_type": "free_tier",
+                "plan_type": "free_tier",
                 "session_limit": plan_config["session_limit"],
                 "unlimited_sessions": plan_config["unlimited_sessions"],
                 "ask_twelvr": plan_config["ask_twelvr"],
