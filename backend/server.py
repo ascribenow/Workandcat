@@ -1185,6 +1185,129 @@ async def get_simple_taxonomy(user_id: str = Depends(get_current_user)):
     finally:
         db.close()
 
+@app.get("/api/dashboard/categorized-taxonomy")
+async def get_categorized_taxonomy(user_id: str = Depends(get_current_user)):
+    """Get dashboard data grouped by category with subcategory breakdown"""
+    db = SessionLocal()
+    try:
+        # Count completed sessions for this user
+        result = db.execute(text("""
+            SELECT COUNT(*) as total_sessions
+            FROM sessions 
+            WHERE user_id = :user_id AND status = 'completed'
+        """), {'user_id': user_id})
+        completed_sessions = result.fetchone()
+        
+        # Get categorized taxonomy data (FETCHED FROM DATABASE FIELDS: CATEGORY:SUBCATEGORY)
+        result = db.execute(text("""
+            SELECT 
+                COALESCE(q.category, 'Uncategorized') as category,
+                ae.subcategory,
+                ae.difficulty_band,
+                COUNT(*) as attempts,
+                COUNT(CASE WHEN ae.was_correct = true THEN 1 END) as correct,
+                COUNT(CASE WHEN ae.skipped = true THEN 1 END) as skipped,
+                ROUND(AVG(CASE WHEN ae.was_correct = true THEN 1.0 ELSE 0.0 END) * 100, 1) as accuracy
+            FROM attempt_events ae
+            LEFT JOIN questions q ON ae.question_id = q.id
+            WHERE ae.user_id = :user_id AND ae.subcategory IS NOT NULL
+            GROUP BY COALESCE(q.category, 'Uncategorized'), ae.subcategory, ae.difficulty_band
+            ORDER BY category, subcategory, 
+                     CASE ae.difficulty_band 
+                         WHEN 'Easy' THEN 1 
+                         WHEN 'Medium' THEN 2 
+                         WHEN 'Hard' THEN 3 
+                         ELSE 4 
+                     END
+        """), {'user_id': user_id})
+        
+        rows = result.fetchall()
+        
+        # Group data by category and subcategory
+        categorized_data = {}
+        
+        for row in rows:
+            category = row.category
+            subcategory = row.subcategory
+            difficulty = row.difficulty_band
+            attempts = row.attempts
+            correct = row.correct
+            skipped = row.skipped
+            accuracy = row.accuracy
+            
+            # Initialize category if not exists
+            if category not in categorized_data:
+                categorized_data[category] = {
+                    "category_name": category,
+                    "total_easy": 0,
+                    "total_medium": 0, 
+                    "total_hard": 0,
+                    "total_attempts": 0,
+                    "subcategories": {}
+                }
+            
+            # Initialize subcategory if not exists
+            if subcategory not in categorized_data[category]["subcategories"]:
+                categorized_data[category]["subcategories"][subcategory] = {
+                    "subcategory_name": subcategory,
+                    "easy_attempts": 0,
+                    "medium_attempts": 0,
+                    "hard_attempts": 0,
+                    "easy_correct": 0,
+                    "medium_correct": 0,
+                    "hard_correct": 0,
+                    "easy_accuracy": 0,
+                    "medium_accuracy": 0,
+                    "hard_accuracy": 0,
+                    "total_attempts": 0
+                }
+            
+            # Add attempts to subcategory
+            subcategory_data = categorized_data[category]["subcategories"][subcategory]
+            
+            if difficulty == "Easy":
+                subcategory_data["easy_attempts"] = attempts
+                subcategory_data["easy_correct"] = correct
+                subcategory_data["easy_accuracy"] = accuracy
+                categorized_data[category]["total_easy"] += attempts
+            elif difficulty == "Medium":
+                subcategory_data["medium_attempts"] = attempts
+                subcategory_data["medium_correct"] = correct
+                subcategory_data["medium_accuracy"] = accuracy
+                categorized_data[category]["total_medium"] += attempts
+            elif difficulty == "Hard":
+                subcategory_data["hard_attempts"] = attempts
+                subcategory_data["hard_correct"] = correct
+                subcategory_data["hard_accuracy"] = accuracy
+                categorized_data[category]["total_hard"] += attempts
+            
+            subcategory_data["total_attempts"] += attempts
+            categorized_data[category]["total_attempts"] += attempts
+        
+        # Convert to array format for frontend
+        categories_array = []
+        for category_name, category_data in categorized_data.items():
+            subcategories_array = []
+            for subcategory_name, subcategory_data in category_data["subcategories"].items():
+                subcategories_array.append(subcategory_data)
+            
+            categories_array.append({
+                "category_name": category_data["category_name"],
+                "total_easy": category_data["total_easy"],
+                "total_medium": category_data["total_medium"],
+                "total_hard": category_data["total_hard"],
+                "total_attempts": category_data["total_attempts"],
+                "subcategories": subcategories_array
+            })
+        
+        return {
+            "total_sessions": completed_sessions.total_sessions if completed_sessions else 0,
+            "categorized_data": categories_array,
+            "total_categories": len(categories_array)
+        }
+    finally:
+        db.close()
+
 @app.get("/api/user/session-limit-status")
 async def get_session_limit_status(user_id: str = Depends(get_current_user)):
     """Enhanced session limit status with free tier logic"""
