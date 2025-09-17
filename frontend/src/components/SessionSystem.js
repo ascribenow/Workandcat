@@ -375,15 +375,9 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
     setAnswerSubmitted(false);
     
     try {
-      if (adaptiveEnabled) {
-        console.log(`[DIAGNOSTIC] ${requestId}: Using ADAPTIVE flow`);
-        // ADAPTIVE FLOW: Use local pack
-        await handleAdaptiveQuestionFlow();
-      } else {
-        console.log(`[DIAGNOSTIC] ${requestId}: Using LEGACY flow`);
-        // LEGACY FLOW: Server-driven next-question
-        await handleLegacyQuestionFlow();
-      }
+      console.log(`[DIAGNOSTIC] ${requestId}: Using ADAPTIVE-ONLY flow`);
+      // ADAPTIVE-ONLY FLOW: Use local pack data
+      await handleAdaptiveQuestionFlow();
     } catch (err) {
       console.error(`[DIAGNOSTIC] ${requestId}: Question flow ERROR:`, {
         error: err.message,
