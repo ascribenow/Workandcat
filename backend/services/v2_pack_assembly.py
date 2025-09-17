@@ -126,39 +126,40 @@ class V2PackAssemblyService:
             db.close()
     
     def _parse_mcq_options(self, mcq_options) -> Dict[str, str]:
-        """Parse MCQ options from database field - handles text format"""
+        """Parse MCQ options from new standardized JSON array format"""
         if not mcq_options:
             return {'a': 'Option A', 'b': 'Option B', 'c': 'Option C', 'd': 'Option D'}
         
         try:
-            # First try JSON parsing (in case some are stored as JSON)
-            if isinstance(mcq_options, dict):
+            # NEW FORMAT: JSON array with 4 clean values in A→B→C→D order
+            if isinstance(mcq_options, str):
+                options_array = json.loads(mcq_options)
+            elif isinstance(mcq_options, list):
+                options_array = mcq_options
+            else:
+                # Fallback to defaults
+                return {'a': 'Option A', 'b': 'Option B', 'c': 'Option C', 'd': 'Option D'}
+            
+            # Ensure we have exactly 4 options
+            if len(options_array) >= 4:
                 return {
-                    'a': mcq_options.get('a', mcq_options.get('option_a', 'Option A')),
-                    'b': mcq_options.get('b', mcq_options.get('option_b', 'Option B')),
-                    'c': mcq_options.get('c', mcq_options.get('option_c', 'Option C')),
-                    'd': mcq_options.get('d', mcq_options.get('option_d', 'Option D'))
-                }
-            elif isinstance(mcq_options, str):
-                # Try JSON first
-                try:
-                    parsed = json.loads(mcq_options)
-                    return self._parse_mcq_options(parsed)  # Recursive call with parsed dict
-                except json.JSONDecodeError:
-                    # Handle text format: "(A) 20%\n(B) 30%\n(C) 35.2%\n(D) 40%"
-                    return self._parse_text_mcq_options(mcq_options)
-            elif isinstance(mcq_options, list) and len(mcq_options) >= 4:
-                return {
-                    'a': mcq_options[0],
-                    'b': mcq_options[1], 
-                    'c': mcq_options[2],
-                    'd': mcq_options[3]
+                    'a': str(options_array[0]).strip(),
+                    'b': str(options_array[1]).strip(), 
+                    'c': str(options_array[2]).strip(),
+                    'd': str(options_array[3]).strip()
                 }
             else:
-                return {'a': 'Option A', 'b': 'Option B', 'c': 'Option C', 'd': 'Option D'}
+                # Pad with defaults if not enough options
+                padded = list(options_array) + ['Option A', 'Option B', 'Option C', 'Option D']
+                return {
+                    'a': str(padded[0]).strip(),
+                    'b': str(padded[1]).strip(),
+                    'c': str(padded[2]).strip(), 
+                    'd': str(padded[3]).strip()
+                }
                 
-        except Exception as e:
-            logger.warning(f"Error parsing MCQ options: {e}")
+        except (json.JSONDecodeError, IndexError, TypeError) as e:
+            logger.warning(f"Error parsing JSON array MCQ options: {e}")
             return {'a': 'Option A', 'b': 'Option B', 'c': 'Option C', 'd': 'Option D'}
     
     def _parse_text_mcq_options(self, text_options: str) -> Dict[str, str]:
