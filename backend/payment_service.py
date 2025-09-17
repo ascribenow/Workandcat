@@ -1062,7 +1062,7 @@ class RazorpayService:
     # RAZORPAY API INTEGRATION FOR DATA INTEGRITY
     # ==========================================
     
-    async def fetch_payment_details_from_razorpay(self, payment_id: str) -> Dict[str, Any]:
+    def fetch_payment_details_from_razorpay(self, payment_id: str) -> Dict[str, Any]:
         """
         Fetch actual payment details from Razorpay API
         This ensures data integrity by using Razorpay as source of truth
