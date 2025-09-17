@@ -19,23 +19,25 @@ class SubscriptionAccessService:
     
     def __init__(self):
         self.plan_features = {
-            "free_trial": {
-                "session_limit": 10,
+            "free_tier": {
+                "session_limit": None,  # Special logic: 10 initial + 2/week with carry forward
                 "unlimited_sessions": False,
-                "ask_twelvr": True,
-                "features": ["ask_twelvr"]
+                "ask_twelvr": True,  # FREE TIER HAS ASK TWELVR
+                "features": ["ask_twelvr", "adaptive_sessions"]
             },
             "pro_regular": {
                 "session_limit": None,  # Unlimited
                 "unlimited_sessions": True,
-                "ask_twelvr": False,
-                "features": ["unlimited_sessions"]
+                "ask_twelvr": True,  # PRO REGULAR HAS ASK TWELVR  
+                "features": ["unlimited_sessions", "ask_twelvr"],
+                "available_after": "2025-12-31 23:59:59"  # Available after Dec 31, 2025
             },
             "pro_exclusive": {
                 "session_limit": None,  # Unlimited
                 "unlimited_sessions": True,
-                "ask_twelvr": True,
-                "features": ["unlimited_sessions", "ask_twelvr"]
+                "ask_twelvr": True,  # PRO EXCLUSIVE HAS ASK TWELVR
+                "features": ["unlimited_sessions", "ask_twelvr"],
+                "available_until": "2025-12-31 23:59:59"  # Available until Dec 31, 2025
             }
         }
     
