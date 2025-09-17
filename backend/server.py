@@ -781,10 +781,15 @@ async def log_question_action(
                         })()
                         break
             
-            # Fallback: try to get question from questions table
+            # ADAPTIVE-ONLY: All questions must come from pack data
+            # No fallback to database - ensures data consistency
             if not question:
-                result = db.execute(select(Question).where(Question.id == log_data.question_id))
-                question = result.scalar_one_or_none()
+                logger.warning(f"⚠️ Question {log_data.question_id} not found in pack data - adaptive session may be corrupted")
+                return {
+                    "success": False,
+                    "message": "Question not found in current session pack",
+                    "error": "QUESTION_NOT_IN_PACK"
+                }
             
             if question:
                 # Determine if answer was correct (for submit actions)
