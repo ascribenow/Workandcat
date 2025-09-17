@@ -150,7 +150,7 @@ Return ONLY valid JSON matching the required schema."""
                     "dominance_json": json.dumps(data.get("dominance_by_item", {})),
                     "readiness_reasons_json": json.dumps(data.get("concept_readiness_labels", [])),
                     "coverage_labels_json": json.dumps(data.get("pair_coverage_labels", [])),
-                    "llm_model_used": data["telemetry"]["llm_model_used"]
+                    "llm_model_used": data.get("telemetry", {}).get("llm_model_used", "unknown")
                 })
 
                 # 4) Upsert per-user alias map
