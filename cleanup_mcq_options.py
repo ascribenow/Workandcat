@@ -10,7 +10,8 @@ import re
 from sqlalchemy import create_engine, text
 from dotenv import load_dotenv
 
-load_dotenv()
+# Load environment variables from backend directory
+load_dotenv('/app/backend/.env')
 
 def parse_existing_mcq_options(mcq_options):
     """
