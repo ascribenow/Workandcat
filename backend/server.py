@@ -1024,63 +1024,7 @@ async def get_last_completed_session_id(user_id: str, auth_user_id: str = Depend
         logger.error(f"❌ Error getting last completed session: {e}")
         raise HTTPException(status_code=500, detail="Failed to get last completed session")
 
-@app.get("/api/sessions/{session_id}/next-question")
-async def get_next_question(
-    session_id: str,
-    user_id: str = Depends(get_current_user)
-):
-    """Temporary endpoint to get next question (random selection for now)"""
-    try:
-        db = SessionLocal()
-        try:
-            # Get a random active question
-            result = db.execute(
-                select(Question)
-                .where(Question.is_active == True)
-                .order_by(func.random())
-                .limit(1)
-            )
-            question = result.scalar_one_or_none()
-            
-            if not question:
-                return {"session_complete": True, "message": "No questions available"}
-            
-            # Create mock options from mcq_options if available
-            options = {}
-            if question.mcq_options:
-                try:
-                    mcq_data = json.loads(question.mcq_options) if isinstance(question.mcq_options, str) else question.mcq_options
-                    options = mcq_data
-                except:
-                    # Fallback mock options
-                    options = {
-                        "a": "Option A",
-                        "b": "Option B", 
-                        "c": "Option C",
-                        "d": "Option D"
-                    }
-            
-            return {
-                "question": {
-                    "id": question.id,
-                    "stem": question.stem,
-                    "options": options,
-                    "has_image": question.has_image,
-                    "image_url": question.image_url,
-                    "subcategory": question.subcategory,
-                    "difficulty_band": question.difficulty_band
-                },
-                "session_progress": {
-                    "current_question": 1,
-                    "total_questions": 12
-                }
-            }
-        finally:
-            db.close()
-            
-    except Exception as e:
-        logger.error(f"❌ Error getting next question: {e}")
-        raise HTTPException(status_code=500, detail="Failed to get next question")
+# REMOVED: Legacy non-adaptive session endpoint - system is now adaptive-only
 
 @app.post("/api/sessions/{session_id}/submit-answer")
 async def submit_session_answer(
