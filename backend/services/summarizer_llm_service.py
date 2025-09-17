@@ -10,13 +10,20 @@ import openai
 import google.generativeai as genai
 from typing import Dict, Any, Tuple, List
 
+# Load environment variables
+try:
+    from dotenv import load_dotenv
+    load_dotenv('/app/backend/.env')
+except ImportError:
+    pass  # dotenv not available, use system environment
+
 logger = logging.getLogger(__name__)
 
 class SummarizerLLMService:
     """Dedicated LLM service for post-session summarization and analytics"""
     
     def __init__(self):
-        # Initialize API keys
+        # Initialize API keys (now loaded from .env)
         self.openai_api_key = os.getenv('OPENAI_API_KEY')
         self.google_api_key = os.getenv('GOOGLE_API_KEY')
         
