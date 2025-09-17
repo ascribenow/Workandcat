@@ -82,7 +82,7 @@ Return ONLY valid JSON matching the required schema."""
                 if not row:
                     telemetry.emit("summarizer_missing_session", {"user_id": user_id, "session_id": session_id})
                     return self._generate_empty_summary()  # no-op: don't fail pipeline
-                sess_seq = row["sess_seq"]
+                sess_seq = row.sess_seq  # Fix: Use attribute access instead of dict access
 
             # 2) Fetch attempts by (user_id, sess_seq_at_serve)
             attempts = db.execute(text("""
