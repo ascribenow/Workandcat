@@ -72,6 +72,11 @@ class V2PackItem(BaseModel):
     answer: str = Field("", description="Clean correct answer (from answer field only)")
     subcategory: str = Field("Unknown", description="Question subcategory")
     difficulty_band: str = Field("Medium", description="Difficulty band")
+    # Solution feedback fields for educational content
+    snap_read: str = Field("", description="Quick overview")
+    solution_approach: str = Field("", description="Step-by-step approach")
+    detailed_solution: str = Field("", description="Complete solution")
+    principle_to_remember: str = Field("", description="Key learning principle")
 
 class V2Pack(BaseModel):
     """V2 Complete Pack - Ready for frontend consumption"""
