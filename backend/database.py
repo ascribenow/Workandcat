@@ -455,7 +455,7 @@ class PrivilegedEmail(Base):
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     email = Column(String, unique=True, nullable=False, index=True)
     added_by_admin = Column(String, nullable=False)  # Admin user ID who added this email
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: ist_to_utc(now_ist()))
     notes = Column(String, nullable=True)  # Optional notes about why this email is privileged
 
 
