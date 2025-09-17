@@ -11,10 +11,22 @@ import uuid
 import os
 import logging
 from dotenv import load_dotenv
-# IST timezone support
-from utils.timezone_utils import now_ist, ist_to_utc
 
 load_dotenv()
+
+# IST timezone support - import after load_dotenv
+try:
+    from utils.timezone_utils import now_ist, ist_to_utc
+except ImportError:
+    # Fallback if timezone utils not available yet
+    def now_ist():
+        from datetime import datetime, timezone, timedelta
+        IST = timezone(timedelta(hours=5, minutes=30))
+        return datetime.now(IST)
+    
+    def ist_to_utc(ist_dt):
+        from datetime import timezone
+        return ist_dt.astimezone(timezone.utc)
 
 # Configure logger
 logger = logging.getLogger(__name__)
