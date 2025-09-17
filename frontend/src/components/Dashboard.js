@@ -47,7 +47,7 @@ export const Dashboard = () => {
     };
     
     loadDashboard();
-  }, [currentView]);
+  }, []); // FIXED: Remove currentView dependency to prevent infinite loop
 
   const getCategoryColor = (category) => {
     const colors = {
