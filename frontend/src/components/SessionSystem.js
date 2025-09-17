@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { useAuth, API } from './AuthProvider';
 import MathRenderer from './MathRenderer';
-import { ADAPTIVE_GLOBAL } from '../config';
+// REMOVED: ADAPTIVE_GLOBAL import - system is now adaptive-only
 import { useRouteTrace, setupGlobalErrorMonitoring } from '../utils/sessionMonitoring';
 import SessionErrorBoundary from './SessionErrorBoundary';
 import { recordPackWrite } from '../utils/packHistoryRecorder';
