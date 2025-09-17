@@ -436,7 +436,7 @@ class PYQFiles(Base):
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     filename = Column(Text, nullable=False)
     year = Column(Integer)
-    upload_date = Column(DateTime, default=datetime.utcnow)
+    upload_date = Column(DateTime, default=lambda: ist_to_utc(now_ist()))
     processing_status = Column(String(20), default="pending")
     file_size = Column(BigInteger)
     storage_path = Column(Text)
