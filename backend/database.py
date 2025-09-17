@@ -150,7 +150,7 @@ class PYQIngestion(Base):
     pages_count = Column(Integer, nullable=True)
     parse_status = Column(String(20), default='pending')  # queued|running|done|failed
     parse_log = Column(Text, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: ist_to_utc(now_ist()))
     completed_at = Column(DateTime, nullable=True)
     
     # Relationships
