@@ -1026,53 +1026,7 @@ async def get_last_completed_session_id(user_id: str, auth_user_id: str = Depend
 
 # REMOVED: Legacy non-adaptive session endpoint - system is now adaptive-only
 
-@app.post("/api/sessions/{session_id}/submit-answer")
-async def submit_session_answer(
-    session_id: str,
-    request: dict,
-    user_id: str = Depends(get_current_user)
-):
-    """Temporary endpoint to submit answer"""
-    try:
-        question_id = request.get("question_id")
-        user_answer = request.get("user_answer")
-        
-        db = SessionLocal()
-        try:
-            # Get the question
-            result = db.execute(select(Question).where(Question.id == question_id))
-            question = result.scalar_one_or_none()
-            
-            if not question:
-                raise HTTPException(status_code=404, detail="Question not found")
-            
-            # Check if answer is correct (simple comparison for now)
-            is_correct = str(user_answer).strip().lower() == str(question.answer).strip().lower()
-            
-            return {
-                "correct": is_correct,
-                "status": "correct" if is_correct else "incorrect",
-                "message": "Correct answer!" if is_correct else "That's not quite right.",
-                "user_answer": user_answer,
-                "correct_answer": question.answer,
-                "solution_feedback": {
-                    "snap_read": question.snap_read,
-                    "solution_approach": question.solution_approach,
-                    "detailed_solution": question.detailed_solution,
-                    "principle_to_remember": question.principle_to_remember
-                },
-                "question_metadata": {
-                    "subcategory": question.subcategory,
-                    "difficulty_band": question.difficulty_band,
-                    "type_of_question": question.type_of_question
-                }
-            }
-        finally:
-            db.close()
-            
-    except Exception as e:
-        logger.error(f"❌ Error submitting answer: {e}")
-        raise HTTPException(status_code=500, detail="Failed to submit answer")
+# REMOVED: Legacy non-adaptive answer submission endpoint - system is now adaptive-only
 
 @app.post("/api/sessions/start")
 async def start_session(request: dict, user_id: str = Depends(get_current_user)):
