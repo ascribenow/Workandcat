@@ -360,7 +360,7 @@ class PaymentOrder(Base):
     receipt = Column(String(255), nullable=True)
     notes = Column(JSON, default=dict)
     created_at = Column(DateTime, default=lambda: ist_to_utc(now_ist()))
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    updated_at = Column(DateTime, default=lambda: ist_to_utc(now_ist()), onupdate=lambda: ist_to_utc(now_ist()))
     
     # Relationships
     user = relationship("User", foreign_keys=[user_id])
