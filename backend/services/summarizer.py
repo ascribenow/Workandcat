@@ -170,7 +170,7 @@ Return ONLY valid JSON matching the required schema."""
                 
                 telemetry.emit("summarizer_ok", {
                     "user_id": user_id, "session_id": session_id, "sess_seq": sess_seq,
-                    "llm_model_used": data["telemetry"]["llm_model_used"]
+                    "llm_model_used": data.get("telemetry", {}).get("llm_model_used", "unknown")
                 })
                 
                 logger.info(f"✅ Summarizer completed for user {user_id[:8]} ({elapsed_time:.2f}s, ~{tokens_used} tokens)")
