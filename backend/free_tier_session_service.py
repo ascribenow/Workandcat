@@ -6,9 +6,6 @@ Handles the complex session allocation logic for free tier users:
 - Carry forward unused sessions to next cycle
 """
 
-import sys
-sys.path.append('/app/backend')
-
 import os
 import logging
 from datetime import datetime, timedelta, timezone
