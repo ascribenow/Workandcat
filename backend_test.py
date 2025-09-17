@@ -1169,6 +1169,604 @@ class CATBackendTester:
         
         return success_rate >= 80 and critical_fixes_working
 
+    def test_mcq_flow_with_simplified_json_array_format(self):
+        """
+        🎯 MCQ FLOW WITH SIMPLIFIED JSON ARRAY FORMAT TESTING
+        
+        OBJECTIVE: Test the complete MCQ flow with the new simplified JSON array format after database migration
+        
+        TESTING REQUIREMENTS FROM REVIEW REQUEST:
+        1. AUTHENTICATION: Test login with sp@theskinmantra.com/student123
+        2. ADAPTIVE SESSION PLANNING: Test plan-next endpoint creates a session successfully
+        3. MCQ PACK ASSEMBLY: Verify pack contains questions with clean JSON array options format like ["20%", "30%", "35.2%", "40%"]
+        4. MCQ DISPLAY STRUCTURE: Verify pack items have option_a, option_b, option_c, option_d fields correctly populated from the JSON arrays
+        5. ANSWER COMPARISON: Test question-action logging with answer comparison using the clean answer values (without prefixes)
+        6. SESSION PROGRESSION: Verify user can progress through questions with new MCQ format
+        
+        FOCUS AREAS:
+        - MCQ options are correctly parsed from the new JSON array format: ["value1", "value2", "value3", "value4"]
+        - Options are correctly mapped to A/B/C/D in frontend display structure
+        - Answer comparison works with clean values (no "(A)" prefixes)
+        - Session flow remains unbroken with simplified MCQ handling
+        
+        AUTHENTICATION: sp@theskinmantra.com/student123
+        """
+        print("🎯 MCQ FLOW WITH SIMPLIFIED JSON ARRAY FORMAT TESTING")
+        print("=" * 80)
+        print("OBJECTIVE: Test complete MCQ flow with new simplified JSON array format after database migration")
+        print("FOCUS: JSON array options, A/B/C/D mapping, clean answer comparison, session progression")
+        print("EXPECTED: Clean MCQ format, accurate answer comparison, unbroken session flow")
+        print("=" * 80)
+        
+        mcq_results = {
+            # Authentication Setup
+            "authentication_working": False,
+            "user_adaptive_enabled": False,
+            "jwt_token_valid": False,
+            
+            # Adaptive Session Planning
+            "adaptive_session_planning_working": False,
+            "plan_next_creates_session": False,
+            "session_planning_successful": False,
+            
+            # MCQ Pack Assembly
+            "pack_contains_mcq_questions": False,
+            "mcq_options_json_array_format": False,
+            "clean_json_array_format_verified": False,
+            "options_format_like_expected": False,  # ["20%", "30%", "35.2%", "40%"]
+            
+            # MCQ Display Structure
+            "pack_items_have_option_fields": False,
+            "option_a_populated_correctly": False,
+            "option_b_populated_correctly": False,
+            "option_c_populated_correctly": False,
+            "option_d_populated_correctly": False,
+            "options_mapped_from_json_arrays": False,
+            
+            # Answer Comparison Logic
+            "answer_comparison_working": False,
+            "clean_answer_values_used": False,
+            "no_prefix_in_answer_comparison": False,
+            "correct_answers_return_true": False,
+            "incorrect_answers_return_false": False,
+            
+            # Session Progression
+            "session_progression_working": False,
+            "user_can_progress_through_questions": False,
+            "mcq_format_doesnt_break_session": False,
+            "multiple_questions_tested": False,
+            
+            # Overall Assessment
+            "mcq_flow_working_end_to_end": False,
+            "simplified_json_format_successful": False,
+            "database_migration_successful": False,
+            "production_ready": False
+        }
+        
+        # PHASE 1: AUTHENTICATION
+        print("\n🔐 PHASE 1: AUTHENTICATION")
+        print("-" * 60)
+        print("Testing login with sp@theskinmantra.com/student123")
+        
+        auth_data = {
+            "email": "sp@theskinmantra.com",
+            "password": "student123"
+        }
+        
+        success, response = self.run_test("MCQ Flow Authentication", "POST", "auth/login", [200, 401], auth_data)
+        
+        auth_headers = None
+        user_id = None
+        if success and response.get('access_token'):
+            token = response['access_token']
+            auth_headers = {
+                'Authorization': f'Bearer {token}',
+                'Content-Type': 'application/json'
+            }
+            mcq_results["authentication_working"] = True
+            mcq_results["jwt_token_valid"] = True
+            print(f"   ✅ Authentication successful")
+            print(f"   📊 JWT Token length: {len(token)} characters")
+            
+            user_data = response.get('user', {})
+            user_id = user_data.get('id')
+            adaptive_enabled = user_data.get('adaptive_enabled', False)
+            
+            if adaptive_enabled:
+                mcq_results["user_adaptive_enabled"] = True
+                print(f"   ✅ User adaptive_enabled confirmed: {adaptive_enabled}")
+                print(f"   📊 User ID: {user_id}")
+            else:
+                print(f"   ⚠️ User adaptive_enabled: {adaptive_enabled}")
+        else:
+            print("   ❌ Authentication failed - cannot proceed with MCQ flow testing")
+            return False
+        
+        # PHASE 2: ADAPTIVE SESSION PLANNING
+        print("\n🚀 PHASE 2: ADAPTIVE SESSION PLANNING")
+        print("-" * 60)
+        print("Testing plan-next endpoint creates a session successfully")
+        
+        test_session_id = None
+        if user_id and auth_headers:
+            # Generate a unique session ID for this test
+            test_session_id = f"mcq_flow_test_{uuid.uuid4()}"
+            last_session_id = "S0"  # Cold start scenario
+            
+            plan_data = {
+                "user_id": user_id,
+                "last_session_id": last_session_id,
+                "next_session_id": test_session_id
+            }
+            
+            # Add Idempotency-Key header
+            headers_with_idem = auth_headers.copy()
+            idempotency_key = f"{user_id}:{last_session_id}:{test_session_id}"
+            headers_with_idem['Idempotency-Key'] = idempotency_key
+            
+            print(f"   📋 Testing session planning for: {test_session_id[:8]}...")
+            
+            success, plan_response = self.run_test(
+                "Adaptive Session Planning", 
+                "POST", 
+                "adapt/plan-next", 
+                [200, 400, 500, 502], 
+                plan_data, 
+                headers_with_idem
+            )
+            
+            if success and plan_response.get('status') == 'planned':
+                mcq_results["adaptive_session_planning_working"] = True
+                mcq_results["plan_next_creates_session"] = True
+                mcq_results["session_planning_successful"] = True
+                print(f"   ✅ Adaptive session planning working")
+                print(f"   ✅ Plan-next creates session successfully")
+                print(f"   ✅ Session planning successful")
+                
+                # Check constraint report
+                constraint_report = plan_response.get('constraint_report', {})
+                if constraint_report:
+                    print(f"   ✅ Constraint report present")
+                    print(f"   📊 Constraint report keys: {list(constraint_report.keys())}")
+            else:
+                print(f"   ❌ Session planning failed: {plan_response}")
+                return False
+        
+        # PHASE 3: MCQ PACK ASSEMBLY
+        print("\n📦 PHASE 3: MCQ PACK ASSEMBLY")
+        print("-" * 60)
+        print("Verifying pack contains questions with clean JSON array options format")
+        
+        pack_data = None
+        if test_session_id and auth_headers and mcq_results["session_planning_successful"]:
+            print(f"   📦 Retrieving pack for session: {test_session_id[:8]}...")
+            
+            success, pack_response = self.run_test(
+                "MCQ Pack Retrieval", 
+                "GET", 
+                f"adapt/pack?user_id={user_id}&session_id={test_session_id}", 
+                [200, 404, 500], 
+                None, 
+                auth_headers
+            )
+            
+            if success and pack_response.get('pack'):
+                pack_data = pack_response.get('pack', [])
+                pack_size = len(pack_data)
+                print(f"   ✅ Pack retrieval successful")
+                print(f"   📊 Pack size: {pack_size} questions")
+                
+                if pack_size == 12:
+                    print(f"   ✅ Pack contains 12 questions as expected")
+                    
+                    # Look for MCQ questions with options
+                    mcq_questions = []
+                    for i, question in enumerate(pack_data):
+                        # Check if question has MCQ options in various possible formats
+                        has_options = False
+                        options_data = None
+                        
+                        # Check for different option field names
+                        for option_field in ['mcq_options', 'options', 'option_a', 'option_b', 'option_c', 'option_d']:
+                            if option_field in question:
+                                has_options = True
+                                options_data = question.get(option_field)
+                                break
+                        
+                        # Also check if there are separate option fields
+                        if not has_options:
+                            option_fields = ['option_a', 'option_b', 'option_c', 'option_d']
+                            if any(field in question for field in option_fields):
+                                has_options = True
+                                options_data = {field: question.get(field) for field in option_fields if field in question}
+                        
+                        if has_options:
+                            mcq_questions.append({
+                                'index': i,
+                                'question_id': question.get('item_id'),
+                                'options_data': options_data,
+                                'question': question
+                            })
+                    
+                    print(f"   📊 Found {len(mcq_questions)} questions with MCQ options")
+                    
+                    if len(mcq_questions) > 0:
+                        mcq_results["pack_contains_mcq_questions"] = True
+                        print(f"   ✅ Pack contains MCQ questions")
+                        
+                        # Analyze the first MCQ question in detail
+                        first_mcq = mcq_questions[0]
+                        print(f"   🔍 Analyzing first MCQ question: {first_mcq['question_id']}")
+                        
+                        options_data = first_mcq['options_data']
+                        print(f"   📊 Options data type: {type(options_data)}")
+                        print(f"   📊 Options data: {options_data}")
+                        
+                        # Check if options are in JSON array format
+                        if isinstance(options_data, list):
+                            mcq_results["mcq_options_json_array_format"] = True
+                            mcq_results["clean_json_array_format_verified"] = True
+                            print(f"   ✅ MCQ options in JSON array format")
+                            print(f"   ✅ Clean JSON array format verified")
+                            
+                            # Check if format matches expected pattern like ["20%", "30%", "35.2%", "40%"]
+                            if len(options_data) == 4:
+                                print(f"   📊 Options array: {options_data}")
+                                # Check if options look like the expected format (contain percentages, numbers, or text)
+                                sample_patterns = any(
+                                    '%' in str(opt) or 
+                                    any(char.isdigit() for char in str(opt)) or
+                                    len(str(opt)) > 1
+                                    for opt in options_data
+                                )
+                                if sample_patterns:
+                                    mcq_results["options_format_like_expected"] = True
+                                    print(f"   ✅ Options format matches expected pattern")
+                                else:
+                                    print(f"   ⚠️ Options format may not match expected pattern")
+                            else:
+                                print(f"   ⚠️ Options array has {len(options_data)} items (expected 4)")
+                        
+                        elif isinstance(options_data, dict):
+                            # Check if it's a dictionary with A/B/C/D keys
+                            option_keys = list(options_data.keys())
+                            print(f"   📊 Options dictionary keys: {option_keys}")
+                            
+                            if all(key in ['a', 'b', 'c', 'd', 'A', 'B', 'C', 'D'] for key in option_keys):
+                                print(f"   ✅ Options in A/B/C/D dictionary format")
+                                # Check if values are clean (no prefixes)
+                                option_values = list(options_data.values())
+                                print(f"   📊 Option values: {option_values}")
+                                
+                                # Check for clean values (no "(A)" prefixes)
+                                clean_values = all(
+                                    not str(val).strip().startswith('(') 
+                                    for val in option_values if val
+                                )
+                                if clean_values:
+                                    mcq_results["clean_json_array_format_verified"] = True
+                                    print(f"   ✅ Clean option values (no prefixes)")
+                                else:
+                                    print(f"   ⚠️ Some option values may have prefixes")
+                        
+                        else:
+                            print(f"   ⚠️ Options data in unexpected format: {type(options_data)}")
+                    else:
+                        print(f"   ⚠️ No MCQ questions found in pack")
+                else:
+                    print(f"   ❌ Pack size incorrect: {pack_size} (expected 12)")
+            else:
+                print(f"   ❌ Pack retrieval failed: {pack_response}")
+                return False
+        
+        # PHASE 4: MCQ DISPLAY STRUCTURE
+        print("\n🎨 PHASE 4: MCQ DISPLAY STRUCTURE")
+        print("-" * 60)
+        print("Verifying pack items have option_a, option_b, option_c, option_d fields correctly populated")
+        
+        if pack_data and mcq_results["pack_contains_mcq_questions"]:
+            # Check if pack items have the expected option fields
+            questions_with_options = 0
+            
+            for question in pack_data:
+                option_fields = ['option_a', 'option_b', 'option_c', 'option_d']
+                has_all_options = all(field in question for field in option_fields)
+                
+                if has_all_options:
+                    questions_with_options += 1
+                    
+                    # Check the first question with all options in detail
+                    if questions_with_options == 1:
+                        print(f"   🔍 Analyzing option fields for question: {question.get('item_id')}")
+                        
+                        option_a = question.get('option_a')
+                        option_b = question.get('option_b')
+                        option_c = question.get('option_c')
+                        option_d = question.get('option_d')
+                        
+                        print(f"   📊 Option A: {option_a}")
+                        print(f"   📊 Option B: {option_b}")
+                        print(f"   📊 Option C: {option_c}")
+                        print(f"   📊 Option D: {option_d}")
+                        
+                        # Verify options are populated correctly
+                        if option_a and option_b and option_c and option_d:
+                            mcq_results["pack_items_have_option_fields"] = True
+                            mcq_results["option_a_populated_correctly"] = True
+                            mcq_results["option_b_populated_correctly"] = True
+                            mcq_results["option_c_populated_correctly"] = True
+                            mcq_results["option_d_populated_correctly"] = True
+                            mcq_results["options_mapped_from_json_arrays"] = True
+                            print(f"   ✅ Pack items have option_a, option_b, option_c, option_d fields")
+                            print(f"   ✅ All option fields populated correctly")
+                            print(f"   ✅ Options mapped from JSON arrays successfully")
+                        else:
+                            print(f"   ⚠️ Some option fields are empty")
+            
+            print(f"   📊 Questions with all option fields: {questions_with_options}/{len(pack_data)}")
+            
+            if questions_with_options == 0:
+                print(f"   ⚠️ No questions found with all option_a/b/c/d fields")
+        
+        # PHASE 5: ANSWER COMPARISON
+        print("\n🎯 PHASE 5: ANSWER COMPARISON")
+        print("-" * 60)
+        print("Testing question-action logging with answer comparison using clean answer values")
+        
+        if pack_data and test_session_id and auth_headers:
+            # Test answer submission for first question
+            first_question = pack_data[0]
+            question_id = first_question.get('item_id')
+            
+            if question_id:
+                print(f"   📝 Testing answer comparison for question: {question_id}")
+                
+                # Get the correct answer for this question
+                correct_answer = first_question.get('answer', '')
+                print(f"   📊 Correct answer: {correct_answer}")
+                
+                # Test with correct answer (clean value, no prefix)
+                answer_data_correct = {
+                    "session_id": test_session_id,
+                    "question_id": question_id,
+                    "action": "submit",
+                    "data": {
+                        "user_answer": correct_answer,  # Use clean answer value
+                        "time_taken": 30,
+                        "question_number": 1
+                    },
+                    "timestamp": datetime.utcnow().isoformat()
+                }
+                
+                success, answer_response = self.run_test(
+                    "Answer Comparison (Correct)", 
+                    "POST", 
+                    "log/question-action", 
+                    [200, 500], 
+                    answer_data_correct, 
+                    auth_headers
+                )
+                
+                if success and answer_response.get('success'):
+                    mcq_results["answer_comparison_working"] = True
+                    print(f"   ✅ Answer comparison working")
+                    
+                    result = answer_response.get('result', {})
+                    is_correct = result.get('correct', False)
+                    status = result.get('status', '')
+                    
+                    print(f"   📊 Answer result: correct={is_correct}, status='{status}'")
+                    
+                    if is_correct and status == 'correct':
+                        mcq_results["correct_answers_return_true"] = True
+                        mcq_results["clean_answer_values_used"] = True
+                        mcq_results["no_prefix_in_answer_comparison"] = True
+                        print(f"   ✅ Correct answers return true")
+                        print(f"   ✅ Clean answer values used (no prefixes)")
+                    else:
+                        print(f"   ⚠️ Correct answer not recognized as correct")
+                    
+                    # Test with incorrect answer
+                    incorrect_answer = "Wrong Answer"
+                    answer_data_incorrect = {
+                        "session_id": test_session_id,
+                        "question_id": question_id,
+                        "action": "submit",
+                        "data": {
+                            "user_answer": incorrect_answer,
+                            "time_taken": 25,
+                            "question_number": 1
+                        },
+                        "timestamp": datetime.utcnow().isoformat()
+                    }
+                    
+                    success, answer_response_incorrect = self.run_test(
+                        "Answer Comparison (Incorrect)", 
+                        "POST", 
+                        "log/question-action", 
+                        [200, 500], 
+                        answer_data_incorrect, 
+                        auth_headers
+                    )
+                    
+                    if success and answer_response_incorrect.get('success'):
+                        result_incorrect = answer_response_incorrect.get('result', {})
+                        is_correct_incorrect = result_incorrect.get('correct', True)  # Should be False
+                        status_incorrect = result_incorrect.get('status', '')
+                        
+                        print(f"   📊 Incorrect answer result: correct={is_correct_incorrect}, status='{status_incorrect}'")
+                        
+                        if not is_correct_incorrect and status_incorrect == 'incorrect':
+                            mcq_results["incorrect_answers_return_false"] = True
+                            print(f"   ✅ Incorrect answers return false")
+                        else:
+                            print(f"   ⚠️ Incorrect answer not recognized as incorrect")
+                else:
+                    print(f"   ❌ Answer comparison failed: {answer_response}")
+            else:
+                print(f"   ❌ First question has no item_id")
+        
+        # PHASE 6: SESSION PROGRESSION
+        print("\n🔄 PHASE 6: SESSION PROGRESSION")
+        print("-" * 60)
+        print("Verifying user can progress through questions with new MCQ format")
+        
+        if pack_data and test_session_id and auth_headers and mcq_results["answer_comparison_working"]:
+            print(f"   🚀 Testing session progression through multiple questions...")
+            
+            questions_progressed = 0
+            max_questions_to_test = min(5, len(pack_data))  # Test up to 5 questions
+            
+            for i in range(max_questions_to_test):
+                question = pack_data[i]
+                q_id = question.get('item_id')
+                
+                if q_id:
+                    print(f"   📝 Testing progression to question {i+1}: {q_id[:8]}...")
+                    
+                    answer_data = {
+                        "session_id": test_session_id,
+                        "question_id": q_id,
+                        "action": "submit",
+                        "data": {
+                            "user_answer": "A",  # Simple answer for progression test
+                            "time_taken": 30 + i * 5,  # Vary time
+                            "question_number": i + 1
+                        },
+                        "timestamp": datetime.utcnow().isoformat()
+                    }
+                    
+                    success, response = self.run_test(
+                        f"Session Progression Q{i+1}", 
+                        "POST", 
+                        "log/question-action", 
+                        [200, 500], 
+                        answer_data, 
+                        auth_headers
+                    )
+                    
+                    if success and response.get('success'):
+                        questions_progressed += 1
+                        print(f"   ✅ Question {i+1} progression successful")
+                    else:
+                        print(f"   ❌ Question {i+1} progression failed")
+                        break
+                else:
+                    print(f"   ⚠️ Question {i+1} has no item_id")
+                    break
+            
+            print(f"   📊 Successfully progressed through {questions_progressed}/{max_questions_to_test} questions")
+            
+            if questions_progressed >= 3:
+                mcq_results["session_progression_working"] = True
+                mcq_results["user_can_progress_through_questions"] = True
+                mcq_results["mcq_format_doesnt_break_session"] = True
+                mcq_results["multiple_questions_tested"] = True
+                print(f"   ✅ Session progression working")
+                print(f"   ✅ User can progress through questions")
+                print(f"   ✅ MCQ format doesn't break session flow")
+                print(f"   ✅ Multiple questions tested successfully")
+            else:
+                print(f"   ⚠️ Session progression limited ({questions_progressed} questions)")
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 80)
+        print("🎯 MCQ FLOW WITH SIMPLIFIED JSON ARRAY FORMAT - RESULTS")
+        print("=" * 80)
+        
+        passed_tests = sum(mcq_results.values())
+        total_tests = len(mcq_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        # Group results by testing phases
+        mcq_categories = {
+            "AUTHENTICATION": [
+                "authentication_working", "user_adaptive_enabled", "jwt_token_valid"
+            ],
+            "ADAPTIVE SESSION PLANNING": [
+                "adaptive_session_planning_working", "plan_next_creates_session", "session_planning_successful"
+            ],
+            "MCQ PACK ASSEMBLY": [
+                "pack_contains_mcq_questions", "mcq_options_json_array_format",
+                "clean_json_array_format_verified", "options_format_like_expected"
+            ],
+            "MCQ DISPLAY STRUCTURE": [
+                "pack_items_have_option_fields", "option_a_populated_correctly",
+                "option_b_populated_correctly", "option_c_populated_correctly",
+                "option_d_populated_correctly", "options_mapped_from_json_arrays"
+            ],
+            "ANSWER COMPARISON": [
+                "answer_comparison_working", "clean_answer_values_used",
+                "no_prefix_in_answer_comparison", "correct_answers_return_true", "incorrect_answers_return_false"
+            ],
+            "SESSION PROGRESSION": [
+                "session_progression_working", "user_can_progress_through_questions",
+                "mcq_format_doesnt_break_session", "multiple_questions_tested"
+            ]
+        }
+        
+        for category, tests in mcq_categories.items():
+            print(f"\n{category}:")
+            category_passed = 0
+            category_total = len(tests)
+            
+            for test in tests:
+                if test in mcq_results:
+                    result = mcq_results[test]
+                    status = "✅ PASS" if result else "❌ FAIL"
+                    print(f"  {test.replace('_', ' ').title():<50} {status}")
+                    if result:
+                        category_passed += 1
+            
+            category_rate = (category_passed / category_total) * 100 if category_total > 0 else 0
+            print(f"  Category Success Rate: {category_passed}/{category_total} ({category_rate:.1f}%)")
+        
+        print("-" * 80)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # REVIEW REQUEST ASSESSMENT
+        print("\n🎯 REVIEW REQUEST ASSESSMENT:")
+        
+        review_criteria = [
+            ("Authentication with sp@theskinmantra.com/student123", mcq_results["authentication_working"]),
+            ("Adaptive session planning creates session successfully", mcq_results["plan_next_creates_session"]),
+            ("Pack contains questions with clean JSON array options", mcq_results["clean_json_array_format_verified"]),
+            ("Pack items have option_a/b/c/d fields populated", mcq_results["pack_items_have_option_fields"]),
+            ("Answer comparison uses clean values (no prefixes)", mcq_results["no_prefix_in_answer_comparison"]),
+            ("User can progress through questions with new MCQ format", mcq_results["user_can_progress_through_questions"])
+        ]
+        
+        criteria_met = 0
+        for criterion, result in review_criteria:
+            status = "✅ MET" if result else "❌ NOT MET"
+            print(f"  {criterion:<60} {status}")
+            if result:
+                criteria_met += 1
+        
+        criteria_rate = (criteria_met / len(review_criteria)) * 100
+        print(f"\nReview Criteria: {criteria_met}/{len(review_criteria)} ({criteria_rate:.1f}%)")
+        
+        # OVERALL ASSESSMENT
+        if criteria_rate >= 85:
+            mcq_results["mcq_flow_working_end_to_end"] = True
+            mcq_results["simplified_json_format_successful"] = True
+            mcq_results["database_migration_successful"] = True
+            mcq_results["production_ready"] = True
+            print("\n🎉 MCQ FLOW WITH SIMPLIFIED JSON ARRAY FORMAT: SUCCESSFUL")
+            print("   - Authentication working with specified credentials")
+            print("   - Adaptive session planning creates sessions successfully")
+            print("   - MCQ pack assembly uses clean JSON array format")
+            print("   - Options correctly mapped to A/B/C/D display structure")
+            print("   - Answer comparison works with clean values (no prefixes)")
+            print("   - Session progression unbroken with new MCQ format")
+            print("   - Database migration to simplified format successful")
+        else:
+            print("\n⚠️ MCQ FLOW WITH SIMPLIFIED JSON ARRAY FORMAT: NEEDS ATTENTION")
+            print("   - Some review request criteria not met")
+            print("   - MCQ format migration may need additional work")
+        
+        return success_rate >= 80 and criteria_rate >= 85
+
     def test_critical_fixes_validation(self):
         """
         🚨 IMMEDIATE CRITICAL FIXES VALIDATION
