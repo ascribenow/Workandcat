@@ -354,22 +354,25 @@ async def get_questions(
 # User referral endpoints
 @app.get("/api/user/referral-code")
 async def get_user_referral_code(user_id: str = Depends(get_current_user)):
-    async for db in get_database():
-        result = await db.execute(select(User).where(User.id == user_id))
+    db = SessionLocal()
+    try:
+        result = db.execute(select(User).where(User.id == user_id))
         user = result.scalar_one_or_none()
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
         
         if not user.referral_code:
             # Generate referral code if not exists
-            referral_code = await referral_service.generate_referral_code(db)
+            referral_code = referral_service.generate_referral_code(db)
             user.referral_code = referral_code
-            await db.commit()
+            db.commit()
         
         return {
             "referral_code": user.referral_code,
             "share_message": f"Use my referral code {user.referral_code} and get ₹500 off on Twelvr Pro subscription!"
         }
+    finally:
+        db.close()
 
 # Referral validation
 @app.post("/api/referral/validate")
@@ -378,9 +381,12 @@ async def validate_referral_code(request: dict, user_id: str = Depends(get_curre
     if not referral_code:
         raise HTTPException(status_code=400, detail="Referral code is required")
     
-    async for db in get_database():
-        result = await referral_service.validate_referral_code(db, referral_code, user_id)
+    db = SessionLocal()
+    try:
+        result = referral_service.validate_referral_code(db, referral_code, user_id)
         return result
+    finally:
+        db.close()
 
 # Payment endpoints
 @app.get("/api/payments/config")
