@@ -12662,32 +12662,33 @@ class CATBackendTester:
 if __name__ == "__main__":
     tester = CATBackendTester()
     
-    print("🚀 STARTING PRIVILEGED USER & SESSION LIMITS TESTING")
+    print("🚀 STARTING FREE TIER SESSION LOGIC WITH CARRY FORWARD TESTING")
     print("=" * 80)
     
-    # Run the privileged user and session limits test as requested
+    # Run the Free Tier Session Logic comprehensive test as requested
     print("\n" + "=" * 80)
-    print("🎯 PRIVILEGED USER VERIFICATION & SESSION LIMITS TESTING")
+    print("🎯 FREE TIER SESSION LOGIC WITH CARRY FORWARD - COMPREHENSIVE TESTING")
     print("=" * 80)
     
-    success = tester.test_privileged_user_and_session_limits()
+    success = tester.test_free_tier_session_logic_comprehensive()
     
     # Final Summary
     print("\n" + "=" * 80)
-    print("🎯 PRIVILEGED USER & SESSION LIMITS TESTING - SUMMARY")
+    print("🎯 FREE TIER SESSION LOGIC TESTING - SUMMARY")
     print("=" * 80)
     
     if success:
-        print("🎉 PRIVILEGED USER & SESSION LIMITS TESTING: SUCCESS!")
-        print("   ✅ Privileged user system working correctly")
-        print("   ✅ Free tier session logic with carry forward functional")
-        print("   ✅ IST timezone conversion working")
-        print("   ✅ All tiers have correct Ask Twelvr access")
-        print("   ✅ No 'Pro Lite' references remain")
+        print("🎉 FREE TIER SESSION LOGIC TESTING: SUCCESS!")
+        print("   ✅ FreeTierSessionService import and functionality: WORKING")
+        print("   ✅ Session allocation logic (10 initial → 2/week): WORKING")
+        print("   ✅ Carry forward algorithm: WORKING")
+        print("   ✅ 7-day cycle calculations: WORKING")
+        print("   ✅ Upgrade prompt logic: WORKING")
+        print("   ✅ Backend API integration: WORKING")
         print("   ✅ System ready for production use")
     else:
-        print("❌ PRIVILEGED USER & SESSION LIMITS TESTING: ISSUES DETECTED")
-        print("   - Some critical systems need attention")
+        print("❌ FREE TIER SESSION LOGIC TESTING: ISSUES DETECTED")
+        print("   - Some critical components need attention")
         print("   - Review failing tests and implement fixes")
         print("   - Re-run validation after fixes")
     
