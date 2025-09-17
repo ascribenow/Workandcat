@@ -81,11 +81,8 @@ from api.adapt import router as adapt_router
 from api.session_lifecycle import router as session_lifecycle_router
 from api.doubts import router as doubts_router
 from api.session_progress import router as session_progress_router
-from middleware.adaptive_gate import ensure_adaptive_enabled
-app.include_router(
-    adapt_router,
-    dependencies=[Depends(ensure_adaptive_enabled)]
-)
+# REMOVED: adaptive_gate middleware - system is now adaptive-only
+app.include_router(adapt_router)  # No middleware needed - all users adaptive
 app.include_router(session_lifecycle_router, prefix="/api/sessions")
 app.include_router(doubts_router, prefix="/api")
 app.include_router(session_progress_router, prefix="/api")
