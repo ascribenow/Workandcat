@@ -319,36 +319,34 @@ export const SimpleDashboard = () => {
             </div>
           </div>
         </div>
-          </div>
-        </div>
 
-        {/* Summary Statistics */}
-        {dashboardData?.taxonomy_data && dashboardData.taxonomy_data.length > 0 && (
+        {/* Summary Statistics - Updated for Categorized Data */}
+        {categorizedData?.categorized_data && categorizedData.categorized_data.length > 0 && (
           <div className="mt-8 grid grid-cols-1 md:grid-cols-4 gap-6">
             <div className="bg-green-50 rounded-lg p-6 text-center">
               <div className="text-3xl font-bold text-green-600">
-                {dashboardData.taxonomy_data.reduce((sum, item) => sum + item.easy_attempts, 0)}
+                {categorizedData.categorized_data.reduce((sum, category) => sum + category.total_easy, 0)}
               </div>
               <div className="text-sm font-medium text-green-700">Easy Questions</div>
             </div>
             
             <div className="bg-yellow-50 rounded-lg p-6 text-center">
               <div className="text-3xl font-bold text-yellow-600">
-                {dashboardData.taxonomy_data.reduce((sum, item) => sum + item.medium_attempts, 0)}
+                {categorizedData.categorized_data.reduce((sum, category) => sum + category.total_medium, 0)}
               </div>
               <div className="text-sm font-medium text-yellow-700">Medium Questions</div>
             </div>
             
             <div className="bg-red-50 rounded-lg p-6 text-center">
               <div className="text-3xl font-bold text-red-600">
-                {dashboardData.taxonomy_data.reduce((sum, item) => sum + item.hard_attempts, 0)}
+                {categorizedData.categorized_data.reduce((sum, category) => sum + category.total_hard, 0)}
               </div>
               <div className="text-sm font-medium text-red-700">Hard Questions</div>
             </div>
             
             <div className="bg-blue-50 rounded-lg p-6 text-center">
               <div className="text-3xl font-bold text-blue-600">
-                {dashboardData.taxonomy_data.reduce((sum, item) => sum + item.total_attempts, 0)}
+                {categorizedData.categorized_data.reduce((sum, category) => sum + category.total_attempts, 0)}
               </div>
               <div className="text-sm font-medium text-blue-700">Total Questions</div>
             </div>
