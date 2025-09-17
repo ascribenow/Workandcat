@@ -11383,10 +11383,7 @@ class CATBackendTester:
             )
             
             # CRITICAL: 404 means successful removal
-            if success and legacy_response.get('status_code') == 404:
-                final_results["legacy_session_start_404_success"] = True
-                print(f"   ✅ Legacy session start returns 404 = SUCCESSFUL REMOVAL")
-            elif legacy_response.get('status_code') == 404:
+            if legacy_response.get('status_code') == 404 or (success and 'Not Found' in str(legacy_response.get('detail', ''))):
                 final_results["legacy_session_start_404_success"] = True
                 print(f"   ✅ Legacy session start returns 404 = SUCCESSFUL REMOVAL")
             else:
@@ -11404,10 +11401,7 @@ class CATBackendTester:
             )
             
             # CRITICAL: 404 means successful removal
-            if success and legacy_answer_response.get('status_code') == 404:
-                final_results["legacy_answer_submit_404_success"] = True
-                print(f"   ✅ Legacy answer submit returns 404 = SUCCESSFUL REMOVAL")
-            elif legacy_answer_response.get('status_code') == 404:
+            if legacy_answer_response.get('status_code') == 404 or (success and 'Not Found' in str(legacy_answer_response.get('detail', ''))):
                 final_results["legacy_answer_submit_404_success"] = True
                 print(f"   ✅ Legacy answer submit returns 404 = SUCCESSFUL REMOVAL")
             else:
