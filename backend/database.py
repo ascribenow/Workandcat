@@ -165,7 +165,7 @@ class PYQPaper(Base):
     year = Column(Integer, nullable=False)
     slot = Column(String(10), nullable=True)
     source_url = Column(Text, nullable=True)
-    ingested_at = Column(DateTime, default=datetime.utcnow)
+    ingested_at = Column(DateTime, default=lambda: ist_to_utc(now_ist()))
     ingestion_id = Column(String(36), ForeignKey('pyq_ingestions.id'), nullable=False)
     
     # Relationships
