@@ -101,12 +101,12 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
     setCurrentPack([]); // Only this path may set empty
   };
   
-  const fetchPackSafe = async (userId, sessionId) => {
+  const fetchPackSafe = async (userId, sessionId, retryCount = 0) => {
     const epoch = ++packEpochRef.current;
     setIsLoadingPack(true);
     
     try {
-      console.log(`[PACK-FETCH] Starting fetch epoch ${epoch} for session ${sessionId.substring(0, 8)}`);
+      console.log(`[PACK-FETCH] Starting fetch epoch ${epoch} for session ${sessionId.substring(0, 8)} (attempt ${retryCount + 1})`);
       
       const res = await fetch(`${API}/adapt/pack?user_id=${userId}&session_id=${sessionId}`, {
         headers: {
@@ -116,9 +116,17 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
       });
       
       if (!res.ok) {
-        console.warn('[PACK-FETCH] Non-OK response:', res.status);
+        console.warn(`[PACK-FETCH] Non-OK response: ${res.status} (attempt ${retryCount + 1})`);
+        
+        // RACE CONDITION FIX: Retry pack fetch for 404 errors (pack not persisted yet)
+        if (res.status === 404 && retryCount < 3) {
+          console.log(`[PACK-FETCH] Pack not ready yet, retrying in ${(retryCount + 1) * 1000}ms...`);
+          await new Promise(resolve => setTimeout(resolve, (retryCount + 1) * 1000)); // 1s, 2s, 3s delays
+          return await fetchPackSafe(userId, sessionId, retryCount + 1);
+        }
+        
         // SURGICAL FIX: Don't zero pack on error - keep current pack
-        setError(`Pack fetch failed (${res.status}). Current session preserved.`);
+        setError(`Pack fetch failed (${res.status}) after ${retryCount + 1} attempts. Current session preserved.`);
         return null;
       }
       
