@@ -290,6 +290,10 @@ export const AuthProvider = ({ children }) => {
 
   // Check if user is authenticated
   const isAuthenticated = () => {
+    // During loading, check localStorage for stored token to prevent race condition
+    if (loading && localStorage.getItem('cat_prep_token')) {
+      return true;
+    }
     return !!(token && user);
   };
 
