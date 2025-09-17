@@ -62,7 +62,7 @@ def execute_database_cleanup():
         
         result = db.execute(text("""
             UPDATE questions 
-            SET updated_at = NOW()
+            SET quality_verified = true
             WHERE is_active = false
         """))
         marked_questions = result.rowcount
