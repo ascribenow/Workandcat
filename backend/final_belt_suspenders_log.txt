@@ -71,3 +71,13 @@
 📊 TEST 7: Contract Parity (Response vs DB vs Pack)
 ------------------------------------------------------------
 📊 Testing contract parity across endpoints...
+   Plan pack size: 12 = Pack items: 12 = DB length: 12
+   Shape consistency: True
+   PYQ consistency: True
+   PYQ distribution present: True
+   ✅ Contract Parity: PASSED
+      Session: parity_t...
+
+⚡ TEST 8: Latency Spot-Check (Non-Blocking)
+------------------------------------------------------------
+⚡ Measuring performance baseline...
