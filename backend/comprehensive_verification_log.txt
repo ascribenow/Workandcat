@@ -10,3 +10,9 @@
 🔄 Processing batch 4/20 (20 questions)
 🔄 Processing batch 5/20 (20 questions)
 🔄 Processing batch 6/20 (20 questions)
+   ✅ Processed: 120, Failed: 0
+🔄 Processing batch 7/20 (20 questions)
+🔄 Processing batch 8/20 (20 questions)
+🔄 Processing batch 9/20 (20 questions)
+🔄 Processing batch 10/20 (20 questions)
+🔄 Processing batch 11/20 (20 questions)
