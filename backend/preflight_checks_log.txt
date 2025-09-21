@@ -45,3 +45,18 @@
 ⚠️ Coverage Planner LLM failed after retry, using default recipe: LLM returned invalid JSON after 1 retries. Reasons: (root): 'easy' is a required property
 ⚠️ Coverage Planner LLM failed after retry, using default recipe: LLM returned invalid JSON after 1 retries. Reasons: (root): 'easy' is a required property
 ⚠️ Coverage Planner LLM failed after retry, using default recipe: LLM returned invalid JSON after 1 retries. Reasons: (root): 'easy' is a required property
+⚠️ Coverage Planner LLM failed after retry, using default recipe: LLM returned invalid JSON after 1 retries. Reasons: Invalid JSON: Expecting property name enclosed in double quotes: line 60 column 10 (char 1093)
+   ✅ Performance: PASSED
+      P95 performance: 24944ms (target: 30000ms)
+🗄️ Check 7: Database Integrity...
+   ✅ Database Integrity: PASSED
+
+🎯 OVERALL READINESS ASSESSMENT:
+======================================================================
+   Production Ready: ❌ NO
+   Checks Passed: 5/7
+   Success Rate: 71.4%
+
+⚠️ Some pre-flight checks failed
+❌ System needs fixes before production deployment
+🎯 Pre-Flight Checks Completed!

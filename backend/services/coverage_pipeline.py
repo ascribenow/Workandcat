@@ -142,24 +142,22 @@ class CoveragePipeline:
             }
     
     def _normalize_pack_question_ids(self, pack: List[Dict]) -> List[Dict]:
-        """
-        FIXED: Ensure all pack items use canonical 'id' field only
-        Remove any item_id duplicates or fallbacks
-        """
+        """Canonicalize question id and add 1..N position for UI/reporting."""
         normalized = []
-        for item in pack:
-            normalized_item = item.copy()
-            
-            # FIXED: Standardize on 'id' as the ONLY question identifier
-            if 'item_id' in normalized_item:
-                if 'id' not in normalized_item:
-                    normalized_item['id'] = normalized_item.pop('item_id')
+        for idx, item in enumerate(pack, start=1):
+            it = item.copy()
+
+            # Canonical id only
+            if 'item_id' in it:
+                if 'id' not in it:
+                    it['id'] = it.pop('item_id')
                 else:
-                    # Remove duplicate, keep 'id' only
-                    normalized_item.pop('item_id')
-            
-            normalized.append(normalized_item)
-        
+                    it.pop('item_id')
+
+            # NEW: explicit 1..12 position (avoid reserved 'order')
+            it['position'] = idx
+
+            normalized.append(it)
         return normalized
     
     async def _save_pack_to_pack_json(self, user_id: str, session_id: str, pack: List[Dict], audit: Dict) -> bool:
