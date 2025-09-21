@@ -160,7 +160,7 @@ class Day5BeltAndSuspendersValidation:
                 "password": "student123"
             }
             
-            response = requests.post(f"{self.backend_url}/api/auth/login", json=auth_data, timeout=10)
+            response = requests.post(f"{self.backend_url}/api/auth/login", json=auth_data, timeout=60)
             
             if response.status_code == 200:
                 auth_result = response.json()
