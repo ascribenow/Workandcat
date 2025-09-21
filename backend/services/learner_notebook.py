@@ -119,12 +119,13 @@ class LearnerNotebookService:
             }
             
             cur.execute("""
-                INSERT INTO session_summary_llm (user_id, sess_seq, summary_json, model_used, generated_at)
-                VALUES (%s, %s, %s, 'coverage_notebook_backup', NOW())
-                ON CONFLICT (user_id, sess_seq) DO UPDATE SET
-                    summary_json = EXCLUDED.summary_json,
-                    generated_at = NOW()
-            """, (user_id, sess_seq, json.dumps(backup_data)))
+                INSERT INTO session_summary_llm (user_id, session_id, concept_alias_map, dominance, readiness_reasons, coverage_labels, llm_model_used, created_at)
+                VALUES (%s, %s, %s, '{}', '[]', '[]', 'coverage_notebook_backup', NOW())
+                ON CONFLICT (user_id, session_id) DO UPDATE SET
+                    concept_alias_map = EXCLUDED.concept_alias_map,
+                    llm_model_used = 'coverage_notebook_backup',
+                    created_at = NOW()
+            """, (user_id, f"coverage_session_{sess_seq}", json.dumps(backup_data)))
             
             conn.commit()
             cur.close()
