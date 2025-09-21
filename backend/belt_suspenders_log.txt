@@ -37,3 +37,59 @@
 🔄 TEST 4: Cap/Backfill Stress (Variety Scarcity)
 ------------------------------------------------------------
 🔄 Testing cap/backfill with variety constraints...
+   Final pack size: 12 (expect: 12)
+   Shape total: 12 (expect: 12)
+   Variety (distinct subtypes): 9
+   Borrow usage: 0
+   Force fill: 0
+   ✅ Cap/Backfill Stress: PASSED
+      Session: stress_t...
+
+🏷️ TEST 5: Mark-Served Idempotency (HTTP Level)
+------------------------------------------------------------
+🏷️ Testing mark-served idempotency...
+   First call result: True (first_serve: True)
+   Second call result: True (already_served: True)
+   Ledger counts: before=36, after_1st=48, after_2nd=48
+   ✅ Mark-Served Idempotency: PASSED
+      Session: mark_ser...
+
+📝 TEST 6: Attempt Logging Edges
+------------------------------------------------------------
+📝 Testing attempt logging edge cases...
+   Unknown question response: 422 (expect: 404/400)
+   ✅ Attempt Logging Edges: PASSED
+      Session: logging_...
+
+📊 TEST 7: Contract Parity (Response vs DB vs Pack)
+------------------------------------------------------------
+📊 Testing contract parity across endpoints...
+   Plan pack size: 12 = Pack items: 12 = DB length: 12
+   Shape consistency: True
+   PYQ consistency: True
+   PYQ distribution present: True
+   ✅ Contract Parity: PASSED
+      Session: parity_t...
+
+⚡ TEST 8: Latency Spot-Check (Non-Blocking)
+------------------------------------------------------------
+⚡ Measuring performance baseline...
+   Run 1: 20679ms request, 0ms processing
+   Run 2: 20904ms request, 0ms processing
+   Run 3: 20436ms request, 0ms processing
+   Run 4: 20335ms request, 0ms processing
+   Run 5: 20181ms request, 0ms processing
+   Performance baseline: avg=20507ms, min=20181ms, max=20904ms
+   Samples collected: 5/5
+   ✅ Latency Baseline: PASSED
+
+
+🎯 FINAL PRODUCTION READINESS ASSESSMENT
+================================================================================
+   Tests Passed: 6/8
+   Success Rate: 75.0%
+   Production Ready: ❌ NO
+
+⚠️ 2 tests failed: Test 1, Test 3
+❌ System needs fixes before production deployment
+🎯 Belt-and-Suspenders Validation Completed!
