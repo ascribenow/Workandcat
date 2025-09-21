@@ -197,15 +197,15 @@ class LearnerNotebookService:
             conn.close()
             
             history = []
-            for sess_seq, summary_json, generated_at in results:
-                if isinstance(summary_json, str):
-                    backup_data = json.loads(summary_json)
+            for session_id, concept_alias_map, created_at in results:
+                if isinstance(concept_alias_map, str):
+                    backup_data = json.loads(concept_alias_map)
                 else:
-                    backup_data = summary_json
+                    backup_data = concept_alias_map
                     
                 history.append({
-                    "sess_seq": sess_seq,
-                    "timestamp": generated_at.isoformat() if generated_at else None,
+                    "session_id": session_id,
+                    "timestamp": created_at.isoformat() if created_at else None,
                     "skill_changes": backup_data.get('skill_changes', []),
                     "notebook_after": backup_data.get('notebook_after', {})
                 })
