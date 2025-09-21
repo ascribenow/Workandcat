@@ -1,2 +1,39 @@
 📊 BEFORE - Integrated Quality Verification Status:
 ============================================================
+   total_active: 388
+   quality_verified: 388
+   quality_unverified: 0
+   has_anchors: 388
+   missing_anchors: 0
+   fully_verified: 388
+   extraction_completed: 388
+
+🚀 Running INTEGRATED QUALITY VERIFICATION on ALL 388 questions...
+📋 Checking ALL 24 comprehensive criteria:
+   • 22 existing quality criteria (from original enrichment)
+   • 1 anchor generation requirement
+   • 1 enhanced difficulty validation
+⏰ Processing with comprehensive database checks...
+
+
+📊 FINAL INTEGRATED VERIFICATION STATISTICS:
+============================================================
+   total_processed: 0
+   passed_existing_quality: 0
+   anchors_generated: 0
+   quality_verified_final: 0
+   failed_existing_quality: 0
+   failed_anchor_generation: 0
+   total_failed: 0
+
+📊 AFTER - Final Integrated Verification Status:
+   total_active: 388
+   quality_verified: 388
+   quality_unverified: 0
+   has_anchors: 388
+   missing_anchors: 0
+   fully_verified: 388
+   extraction_completed: 388
+
+🎉 INTEGRATED QUALITY VERIFICATION COMPLETED!
+✅ Only questions passing ALL 24 criteria now have quality_verified=TRUE
