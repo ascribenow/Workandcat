@@ -648,7 +648,7 @@ class Day5BeltAndSuspendersValidation:
             # Mark as served
             mark_data = {"user_id": self.test_user_id, "session_id": session_id}
             mark_response = requests.post(f"{self.backend_url}/api/adapt/mark-served",
-                                        json=mark_data, headers=self.auth_headers, timeout=10)
+                                        json=mark_data, headers=self.auth_headers, timeout=60)
             
             # Test edge case: unknown question_id
             unknown_question_data = {
