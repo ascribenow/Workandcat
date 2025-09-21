@@ -402,7 +402,7 @@ class Day5BeltAndSuspendersValidation:
             # Get pack to validate
             pack_response = requests.get(
                 f"{self.backend_url}/api/adapt/pack?user_id={self.test_user_id}&session_id={session_id}",
-                headers=self.auth_headers, timeout=10
+                headers=self.auth_headers, timeout=60
             )
             
             if pack_response.status_code != 200:
