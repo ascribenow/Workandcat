@@ -104,6 +104,10 @@ class CoverageSelector:
             audit["shape"] = self._shape_from_pack(final_pack)
             audit["pyq"] = self._pyq_from_pack(final_pack)
             
+            # NEW: merge per-caps audit
+            if hasattr(self, "_last_caps_backfill_audit"):
+                audit.update(self._last_caps_backfill_audit)
+            
             logger.info(f"✅ Coverage Selector completed: {len(final_pack)} questions selected")
             logger.info(f"📊 Final shape: {audit['shape']}")
             
