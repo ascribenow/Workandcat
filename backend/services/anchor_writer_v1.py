@@ -43,10 +43,11 @@ ANCHOR_WRITER_SCHEMA = {
 
 class AnchorWriterV1:
     def __init__(self):
-        # Verify Google API key exists (since OpenAI is invalid, use Google Gemini)
-        self.google_api_key = os.getenv('GOOGLE_API_KEY')
-        if not self.google_api_key:
-            raise ValueError("GOOGLE_API_KEY not found in environment variables")
+        # Verify OpenAI API key exists (primary) and Google API key (fallback)
+        self.openai_key = os.getenv('OPENAI_API_KEY')
+        self.google_key = os.getenv('GOOGLE_API_KEY')
+        if not self.openai_key:
+            raise ValueError("OPENAI_API_KEY not found in environment variables")
     
     async def generate_anchors(self, question_data: Dict) -> List[str]:
         """
