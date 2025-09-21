@@ -237,9 +237,9 @@ class LearnerNotebookService:
             cur.execute("""
                 SELECT 
                     COUNT(*) as total_backups,
-                    COUNT(*) FILTER (WHERE generated_at > NOW() - INTERVAL '24 hours') as recent_backups
+                    COUNT(*) FILTER (WHERE created_at > NOW() - INTERVAL '24 hours') as recent_backups
                 FROM session_summary_llm
-                WHERE model_used = 'coverage_notebook_backup'
+                WHERE llm_model_used = 'coverage_notebook_backup'
             """)
             
             backup_stats = cur.fetchone()
