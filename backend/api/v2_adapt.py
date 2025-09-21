@@ -6,6 +6,7 @@ Frontend unchanged. Backend completely Coverage V1 internally.
 """
 
 from fastapi import APIRouter, Request, HTTPException, Depends
+from fastapi.responses import JSONResponse
 import logging
 import time
 import uuid
