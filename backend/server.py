@@ -1119,16 +1119,18 @@ async def log_question_action(
                 sess_seq_row = sess_seq_result.fetchone()
                 sess_seq_at_serve = sess_seq_row.sess_seq if sess_seq_row else 1
                 
-                # Insert into attempt_events
+                # Insert into attempt_events with anchors snapshots from served pack
                 db.execute(text("""
                     INSERT INTO attempt_events (
                         id, user_id, session_id, question_id, was_correct, skipped,
                         response_time_ms, created_at, difficulty_band, subcategory,
-                        type_of_question, core_concepts, pyq_frequency_score, sess_seq_at_serve
+                        type_of_question, core_concepts, pyq_frequency_score, sess_seq_at_serve,
+                        anchors
                     ) VALUES (
                         :id, :user_id, :session_id, :question_id, :was_correct, :skipped,
                         :response_time_ms, :created_at, :difficulty_band, :subcategory,
-                        :type_of_question, :core_concepts, :pyq_frequency_score, :sess_seq_at_serve
+                        :type_of_question, :core_concepts, :pyq_frequency_score, :sess_seq_at_serve,
+                        :anchors
                     )
                 """), {
                     'id': str(uuid.uuid4()),
@@ -1144,7 +1146,8 @@ async def log_question_action(
                     'type_of_question': question.type_of_question,
                     'core_concepts': question.core_concepts,
                     'pyq_frequency_score': question.pyq_frequency_score,
-                    'sess_seq_at_serve': sess_seq_at_serve
+                    'sess_seq_at_serve': sess_seq_at_serve,
+                    'anchors': json.dumps(question.anchors)  # Snapshot anchors from served pack
                 })
                 
                 db.commit()
