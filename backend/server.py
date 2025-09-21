@@ -1153,6 +1153,73 @@ async def log_question_action(
                 db.commit()
                 logger.info(f"✅ Question action logged to database: {log_data.action} for question {log_data.question_id[:8]}")
                 
+                # FIXED: Run summarizer exactly once - check for exactly 12 attempts with idempotency
+                total_attempts = db.execute(text("""
+                    SELECT COUNT(*) FROM attempt_events 
+                    WHERE user_id = :user_id AND session_id = :session_id
+                """), {"user_id": user_id, "session_id": log_data.session_id}).scalar()
+                
+                if total_attempts == 12:  # FIXED: Exactly 12, not >=12
+                    # FIXED: Lightweight idempotency - skip if already backed up this sess_seq
+                    exists = db.execute(text("""
+                        SELECT 1 FROM session_summary_llm 
+                        WHERE user_id = :user_id AND session_id = :session_id 
+                        AND llm_model_used = 'coverage_notebook_backup'
+                    """), {"user_id": user_id, "session_id": log_data.session_id}).fetchone()
+                    
+                    if not exists:
+                        # Trigger post-session summarizer (exactly once)
+                        logger.info(f"🧠 Triggering Coverage Summarizer for user {user_id[:8]}, session {log_data.session_id[:8]}")
+                        
+                        # Get all attempts for this session
+                        session_attempts = db.execute(text("""
+                            SELECT question_id, was_correct, skipped, difficulty_band, 
+                                   subcategory, type_of_question, anchors, pyq_frequency_score
+                            FROM attempt_events
+                            WHERE user_id = :user_id AND session_id = :session_id
+                            ORDER BY created_at ASC
+                        """), {"user_id": user_id, "session_id": log_data.session_id}).fetchall()
+                        
+                        # Convert to format expected by summarizer
+                        attempts_data = []
+                        for attempt in session_attempts:
+                            # Parse anchors safely
+                            anchors = attempt.anchors
+                            if isinstance(anchors, str):
+                                try:
+                                    anchors = json.loads(anchors)
+                                except:
+                                    anchors = []
+                            
+                            attempts_data.append({
+                                'question_id': attempt.question_id,
+                                'was_correct': attempt.was_correct,
+                                'skipped': attempt.skipped,
+                                'difficulty_band': attempt.difficulty_band,
+                                'subcategory': attempt.subcategory,
+                                'type_of_question': attempt.type_of_question,
+                                'anchors': anchors,
+                                'pyq_frequency_score': float(attempt.pyq_frequency_score) if attempt.pyq_frequency_score else 0.0
+                            })
+                        
+                        # Trigger summarizer asynchronously (don't block response)
+                        from services.coverage_summarizer import coverage_summarizer
+                        import asyncio
+                        
+                        async def trigger_summarizer():
+                            try:
+                                await coverage_summarizer.summarize_session(user_id, sess_seq_at_serve, attempts_data)
+                                logger.info(f"✅ Coverage Summarizer completed for session {log_data.session_id[:8]}")
+                            except Exception as summ_error:
+                                logger.error(f"❌ Coverage Summarizer failed for session {log_data.session_id[:8]}: {summ_error}")
+                        
+                        # Start summarizer task but don't await (non-blocking)
+                        asyncio.create_task(trigger_summarizer())
+                        
+                        logger.info(f"🚀 Coverage Summarizer triggered for session completion")
+                    else:
+                        logger.info(f"⚠️ Coverage Summarizer already ran for session {log_data.session_id[:8]}")
+                
                 # If action is 'submit', return solution feedback
                 if log_data.action == "submit":
                     return {
