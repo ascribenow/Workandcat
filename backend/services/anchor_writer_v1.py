@@ -29,9 +29,9 @@ Return JSON only:
 
 class AnchorWriterV1:
     def __init__(self):
-        self.api_key = os.getenv('OPENAI_API_KEY')
+        self.api_key = os.getenv('EMERGENT_LLM_KEY') or os.getenv('OPENAI_API_KEY')
         if not self.api_key:
-            raise ValueError("OPENAI_API_KEY not found in environment variables")
+            raise ValueError("Neither EMERGENT_LLM_KEY nor OPENAI_API_KEY found in environment variables")
     
     async def generate_anchors(self, question_data: Dict) -> List[str]:
         """
