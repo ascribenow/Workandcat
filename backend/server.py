@@ -12,6 +12,7 @@ from typing import List, Dict, Any, Optional
 from datetime import datetime, timedelta
 # IST timezone imports
 from utils.timezone_utils import now_ist, utc_to_ist, ist_to_utc
+from utils.json_safe import as_json
 from decimal import Decimal
 
 import bcrypt
