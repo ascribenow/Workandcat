@@ -164,7 +164,7 @@ async def v2_get_pack_controller(user_id: str, session_id: str, auth_user_id: st
 @router.post("/mark-served") 
 async def v2_mark_served_controller(body: dict, auth_user_id: str = Depends(get_current_user)):
     """
-    Coverage Mark Served - Updates pack status with Coverage telemetry
+    FIXED: Optimized mark-served using session_id-only WHERE with atomic coverage_ledger updates
     """
     user_id = body.get("user_id")
     session_id = body.get("session_id")
@@ -179,22 +179,71 @@ async def v2_mark_served_controller(body: dict, auth_user_id: str = Depends(get_
     
     db = SessionLocal()
     try:
-        # Update status with Coverage telemetry
-        result = db.execute(text("""
-            UPDATE session_pack_plan 
-            SET status = 'served',
-                served_at = NOW()
-            WHERE user_id = :user_id AND session_id = :session_id AND status = 'planned'
-        """), {"user_id": user_id, "session_id": session_id})
+        # FIXED: Atomic transaction wrapper for race safety
+        db.begin()
         
-        if result.rowcount == 0:
-            raise HTTPException(status_code=409, detail="Pack not found or not in planned state")
+        # FIXED: Idempotent race guard - update status first, check affected rows
+        update_result = db.execute(text("""
+            UPDATE session_pack_plan
+            SET status='served', served_at=NOW()
+            WHERE session_id=:session_id AND status!='served'
+        """), {"session_id": session_id})
+        
+        # Check if update affected any rows (prevents double-counting)
+        if update_result.rowcount == 0:
+            # Already served - no-op
+            db.rollback()
+            logger.info(f"COVERAGE MARK-SERVED: Session {session_id[:8]} already served")
+            return {"ok": True, "already_served": True}
+        
+        # First serve confirmed - get pack using session_id only for performance
+        pack_data = db.execute(text("""
+            SELECT pack_json, user_id FROM session_pack_plan
+            WHERE session_id = :session_id
+        """), {"session_id": session_id}).fetchone()
+        
+        if not pack_data:
+            db.rollback()
+            raise HTTPException(status_code=404, detail="Pack data not found")
+        
+        pack_json = pack_data[0]
+        actual_user_id = pack_data[1]
+        
+        # Parse pack with safety
+        if isinstance(pack_json, str):
+            pack = json.loads(pack_json)
+        else:
+            pack = pack_json
+        
+        if not isinstance(pack, list):
+            pack = pack.get("items", []) if isinstance(pack, dict) else []
+        
+        # ATOMIC: Update coverage_ledger for each question in pack
+        for question in pack:
+            subcategory = question.get('subcategory', 'Unknown')
+            type_of_question = question.get('type_of_question', 'Unknown')
+            subcategory_type = f"{subcategory}|{type_of_question}"
+            
+            db.execute(text("""
+                INSERT INTO coverage_ledger (user_id, subcategory_type, served_count, last_served_at)
+                VALUES (:user_id, :subcategory_type, 1, NOW())
+                ON CONFLICT (user_id, subcategory_type) DO UPDATE SET
+                    served_count = coverage_ledger.served_count + 1,
+                    last_served_at = NOW()
+            """), {
+                "user_id": actual_user_id,
+                "subcategory_type": subcategory_type
+            })
         
         db.commit()
         
-        logger.info(f"COVERAGE MARK-SERVED: Successfully marked session {session_id[:8]} as served")
-        return {"ok": True, "version": "coverage_v1"}
+        logger.info(f"COVERAGE MARK-SERVED: Successfully marked session {session_id[:8]} as served, updated {len(pack)} coverage entries")
+        return {"ok": True, "served_questions": len(pack), "first_serve": True}
         
+    except Exception as e:
+        db.rollback()
+        logger.error(f"❌ COVERAGE MARK-SERVED: Failed for session {session_id[:8]}: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to mark session as served: {str(e)}")
     finally:
         db.close()
 
