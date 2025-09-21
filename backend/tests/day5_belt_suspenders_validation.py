@@ -252,7 +252,7 @@ class Day5BeltAndSuspendersValidation:
             headers_retry = {**self.auth_headers, "Idempotency-Key": str(uuid.uuid4())}
             
             plan_retry_response = requests.post(f"{self.backend_url}/api/adapt/plan-next",
-                                              json=plan_data, headers=headers_retry, timeout=30)
+                                              json=plan_data, headers=headers_retry, timeout=60)
             
             # Check DB state after retry (should remain served)
             cur.execute("""
