@@ -331,6 +331,172 @@ class CoverageSelector:
         self._last_caps_backfill_audit = audit
         return pack
     
+    def _backfill_band(
+        self,
+        target_band: str,
+        need: int,
+        pool: List[Dict],
+        recipe: Dict,
+        notebook: Dict,
+        subtype_counts: Dict[str,int],
+        used_ids: set,
+        user_id: str,
+        session_id: str,
+        audit: Dict
+    ) -> List[Dict]:
+        if need <= 0:
+            return []
+
+        bucket = recipe.get(target_band, {})
+        priority = set(bucket.get("priority_skills", []))
+        skill_sets = self._extract_skill_sets(notebook)
+        primary_view = PRIMARY_VIEW[target_band]
+
+        picked: List[Dict] = []
+
+        # Phase A: same-band + primary view (weak/moderate/strong)
+        picked += self._take_from_stream(
+            self._candidate_stream(pool, band=target_band, view=primary_view,
+                                   skill_sets=skill_sets, priority=priority,
+                                   user_id=user_id, session_id=session_id),
+            need - len(picked), subtype_counts, used_ids
+        )
+
+        # Phase B: borrow chain
+        for view_name, source_band in BORROW[target_band]:
+            if len(picked) >= need:
+                break
+            picked += self._take_from_stream(
+                self._candidate_stream(pool, band=source_band, view=view_name,
+                                       skill_sets=skill_sets, priority=priority,
+                                       user_id=user_id, session_id=session_id),
+                need - len(picked), subtype_counts, used_ids
+            )
+
+        # Phase C: same-band, any view
+        if len(picked) < need:
+            picked += self._take_from_stream(
+                self._candidate_stream(pool, band=target_band, view=None,
+                                       skill_sets=skill_sets, priority=priority,
+                                       user_id=user_id, session_id=session_id),
+                need - len(picked), subtype_counts, used_ids
+            )
+
+        # Phase D: soft cap relax (raise subtype cap to 3) as last resort
+        while len(picked) < need:
+            extra = self._take_from_stream(
+                self._candidate_stream(pool, band=target_band, view=None,
+                                       skill_sets=skill_sets, priority=priority,
+                                       user_id=user_id, session_id=session_id),
+                1, subtype_counts, used_ids, allow_soft_cap_relax=True
+            )
+            if not extra:
+                break
+            picked += extra
+            audit["cap_relaxations"][target_band] += 1
+
+        return picked[:need]
+
+    def _candidate_stream(
+        self,
+        pool: List[Dict],
+        band: str,
+        view: Optional[str],
+        skill_sets: Dict[str,set],
+        priority: set,
+        user_id: str,
+        session_id: str
+    ):
+        target_labels = skill_sets.get(view, set()) if view else None
+
+        # Filter
+        candidates = []
+        for q in pool:
+            qid = q.get("id")
+            if not qid:  # safety
+                continue
+            if q.get("difficulty_band") != band:
+                continue
+            if target_labels is not None and not (set(q.get("anchors", [])) & target_labels):
+                continue
+            candidates.append(q)
+
+        # Sort by our 4-tier priority (priority-hit, -pyq, served_count, stable hash)
+        def sort_key(c):
+            priority_hit = bool(set(c.get('anchors', [])) & priority)
+            pyq = float(c.get('pyq_frequency_score', 0.0))
+            subcat_type = f"{c.get('subcategory','')}|{c.get('type_of_question','')}"
+            served = self._get_served_count(user_id, subcat_type)
+            stable_hash = int(hashlib.md5(f"{user_id}|{session_id}|{c['id']}".encode('utf-8')).hexdigest()[:8], 16)
+            return (not priority_hit, -pyq, served, stable_hash)
+
+        candidates.sort(key=sort_key)
+        for c in candidates:
+            yield c
+
+    def _take_from_stream(
+        self,
+        stream: Iterable[Dict],
+        need: int,
+        subtype_counts: Dict[str,int],
+        used_ids: set,
+        allow_soft_cap_relax: bool = False
+    ) -> List[Dict]:
+        out = []
+        cap = 3 if allow_soft_cap_relax else 2
+
+        for c in stream:
+            if len(out) >= need:
+                break
+            qid = c.get("id")
+            if qid in used_ids:
+                continue
+            subtype = f"{c.get('subcategory','Unknown')}|{c.get('type_of_question','Unknown')}"
+            if subtype_counts.get(subtype, 0) < cap:
+                out.append(c)
+                used_ids.add(qid)
+                subtype_counts[subtype] = subtype_counts.get(subtype, 0) + 1
+
+        return out
+
+    def _force_fill_to_twelve(
+        self,
+        pack: List[Dict],
+        pool: List[Dict],
+        used_ids: set,
+        user_id: str,
+        session_id: str,
+        audit: Dict
+    ) -> List[Dict]:
+        remaining = 12 - len(pack)
+        if remaining <= 0:
+            return pack
+
+        unused = [q for q in pool if q.get("id") not in used_ids]
+        # Favor PYQ, then coverage variety, then stable
+        def sort_key(q):
+            pyq = float(q.get('pyq_frequency_score', 0.0))
+            subcat_type = f"{q.get('subcategory','')}|{q.get('type_of_question','')}"
+            served = self._get_served_count(user_id, subcat_type)
+            stable_hash = int(hashlib.md5(f"{user_id}|{session_id}|{q['id']}".encode('utf-8')).hexdigest()[:8], 16)
+            return (-pyq, served, stable_hash)
+
+        unused.sort(key=sort_key)
+        fill = unused[:remaining]
+        used_ids.update(q["id"] for q in fill)
+        audit["force_fill"] = remaining
+        return pack + fill
+
+    def _extract_skill_sets(self, notebook: Dict) -> Dict[str, Set[str]]:
+        """Extract weak/moderate/strong skill sets from notebook"""
+        skill_sets = {"weak": set(), "moderate": set(), "strong": set()}
+        for skill in notebook.get("skills", []):
+            label = skill.get("label", "").strip().lower()
+            status = skill.get("status", "moderate")
+            if label and status in skill_sets:
+                skill_sets[status].add(label)
+        return skill_sets
+
     def _apply_cap_to_band(self, band_questions: List[Dict], subtype_counts: Dict, used_question_ids: set) -> List[Dict]:
         """Apply ≤2 cap per subcategory|type within a band"""
         capped = []
