@@ -1,8 +1,8 @@
 """
-V2 Adaptive API - CLEAN IMPLEMENTATION
+Coverage-Based Adaptive API - COVERAGE V1 IMPLEMENTATION
 
-V2-only endpoints with no legacy paths. Clean contracts.
-Frontend unchanged. Backend completely V2 internally.
+Coverage-only endpoints with no legacy paths. Uses Coverage Pipeline.
+Frontend unchanged. Backend completely Coverage V1 internally.
 """
 
 from fastapi import APIRouter, Request, HTTPException, Depends
@@ -13,20 +13,20 @@ import json
 from datetime import datetime
 from typing import Dict, Any
 
-from services.v2_pipeline import v2_session_pipeline
+from services.coverage_pipeline import coverage_pipeline
 from auth import get_current_user
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/api/adapt", tags=["v2_adaptive_sessions"])
+router = APIRouter(prefix="/api/adapt", tags=["coverage_adaptive_sessions"])
 
 @router.post("/plan-next")
 async def v2_plan_next_controller(body: dict, request: Request, user_id: str = Depends(get_current_user)):
     """
-    V2 Plan-Next Endpoint - CLEAN IMPLEMENTATION
+    Coverage Plan-Next Endpoint - COVERAGE V1 IMPLEMENTATION
     
     External contract unchanged (session_id strings for frontend compatibility).
-    Internal: Pure V2 pipeline with sess_seq, deterministic selection, fast LLM.
+    Internal: Pure Coverage pipeline with deterministic selection.
     
     Target: p95 ≤ 6s (was 98.7s)
     """
@@ -35,7 +35,7 @@ async def v2_plan_next_controller(body: dict, request: Request, user_id: str = D
     t0 = time.perf_counter()
     start_ts = datetime.utcnow().isoformat() + 'Z'
     
-    logger.info(f"🚀 V2 PLAN-NEXT: request_id={rid}")
+    logger.info(f"🚀 COVERAGE PLAN-NEXT: request_id={rid}")
     
     try:
         # Extract and validate parameters
@@ -54,46 +54,46 @@ async def v2_plan_next_controller(body: dict, request: Request, user_id: str = D
         if not idem_key:
             raise HTTPException(status_code=400, detail={"code": "IDEMPOTENCY_KEY_REQUIRED"})
         
-        # V2 Pipeline execution
-        pipeline_result = v2_session_pipeline.plan_next_session(
+        # Coverage Pipeline execution
+        pipeline_result = await coverage_pipeline.plan_next_session(
             user_id=req_user_id,
-            session_id=next_session_id,
-            request_id=rid
+            session_id=next_session_id
         )
         
-        if not pipeline_result.get("success"):
-            error_msg = pipeline_result.get("error", "Unknown pipeline error")
-            logger.error(f"V2 PLAN-NEXT: Pipeline failed - {error_msg}")
-            raise HTTPException(status_code=502, detail={"code": "V2_PIPELINE_FAILED", "msg": error_msg})
+        # Coverage pipeline returns pack directly, not success/error structure
+        if not pipeline_result.get("pack"):
+            error_msg = pipeline_result.get("audit", {}).get("error", "Unknown pipeline error")
+            logger.error(f"COVERAGE PLAN-NEXT: Pipeline failed - {error_msg}")
+            raise HTTPException(status_code=502, detail={"code": "COVERAGE_PIPELINE_FAILED", "msg": error_msg})
         
         # Prepare response (frontend compatible)
         response = {
             "user_id": req_user_id,
             "session_id": next_session_id,
-            "status": pipeline_result.get("status", "planned"),
-            "constraint_report": pipeline_result.get("constraint_report", {})
+            "status": "planned",
+            "constraint_report": pipeline_result.get("audit", {})
         }
         
         # Log success with timing
         duration_ms = int((time.perf_counter() - t0) * 1000)
         end_ts = datetime.utcnow().isoformat() + 'Z'
         
-        logger.info(f"✅ V2 PLAN-NEXT: SUCCESS in {duration_ms}ms, request_id={rid}")
+        logger.info(f"✅ COVERAGE PLAN-NEXT: SUCCESS in {duration_ms}ms, request_id={rid}")
         
         # Detailed trace logging for diagnostics
         trace_data = {
             "request_id": rid,
-            "route": "POST /api/adapt/plan-next (V2)",
+            "route": "POST /api/adapt/plan-next (Coverage)",
             "start_ts": start_ts,
             "end_ts": end_ts,
             "dur_ms": duration_ms,
             "http_status": 200,
             "resp_bytes": len(json.dumps(response)),
-            "v2_telemetry": pipeline_result.get("v2_telemetry", {}),
+            "coverage_telemetry": pipeline_result.get("pipeline_telemetry", {}),
             "performance_target_met": duration_ms < 10000  # <10s target
         }
         
-        logger.info(f"🔍 V2 TRACE: {json.dumps(trace_data)}")
+        logger.info(f"🔍 COVERAGE TRACE: {json.dumps(trace_data)}")
         
         return response
         
@@ -101,26 +101,26 @@ async def v2_plan_next_controller(body: dict, request: Request, user_id: str = D
         raise
     except Exception as e:
         duration_ms = int((time.perf_counter() - t0) * 1000)
-        logger.error(f"❌ V2 PLAN-NEXT: ERROR after {duration_ms}ms, request_id={rid}, error={str(e)}")
-        raise HTTPException(status_code=502, detail={"code": "V2_EXECUTION_FAILED", "msg": str(e)})
+        logger.error(f"❌ COVERAGE PLAN-NEXT: ERROR after {duration_ms}ms, request_id={rid}, error={str(e)}")
+        raise HTTPException(status_code=502, detail={"code": "COVERAGE_EXECUTION_FAILED", "msg": str(e)})
 
 @router.get("/pack")
 async def v2_get_pack_controller(user_id: str, session_id: str, auth_user_id: str = Depends(get_current_user)):
     """
-    V2 Pack Fetch - Returns assembled pack from pack_json
+    Coverage Pack Fetch - Returns assembled pack from pack_json
     
-    Frontend unchanged. Backend reads from V2 pack_json column.
+    Frontend unchanged. Backend reads from Coverage pack_json column.
     """
     if user_id != auth_user_id:
         raise HTTPException(status_code=403, detail="Cannot access other users' packs")
     
-    logger.info(f"V2 PACK: Fetching pack for user {user_id[:8]}, session {session_id[:8]}")
+    logger.info(f"COVERAGE PACK: Fetching pack for user {user_id[:8]}, session {session_id[:8]}")
     
-    # Fetch from V2 pack_json column
+    # Fetch from Coverage pack_json column
     db = SessionLocal()
     try:
         result = db.execute(text("""
-            SELECT pack_json, status, planner_fallback, processing_time_ms
+            SELECT pack_json, status, selection_method, processing_time_ms
             FROM session_pack_plan
             WHERE user_id = :user_id AND session_id = :session_id
             LIMIT 1
@@ -131,7 +131,7 @@ async def v2_get_pack_controller(user_id: str, session_id: str, auth_user_id: st
         
         pack_json = result[0]
         pack_status = result[1]
-        planner_fallback = result[2]
+        selection_method = result[2]
         processing_time = result[3]
         
         if pack_status != "planned":
@@ -143,18 +143,18 @@ async def v2_get_pack_controller(user_id: str, session_id: str, auth_user_id: st
         else:
             pack_data = pack_json
         
-        logger.info(f"V2 PACK: Retrieved pack for session {session_id[:8]}, "
-                   f"fallback={planner_fallback}, processing={processing_time}ms")
+        logger.info(f"COVERAGE PACK: Retrieved pack for session {session_id[:8]}, "
+                   f"method={selection_method}, processing={processing_time}ms")
         
         return {
             "user_id": user_id,
             "session_id": session_id,
             "status": pack_status,
-            "pack": pack_data.get("items", []) if isinstance(pack_data, dict) else pack_data,
+            "pack": pack_data if isinstance(pack_data, list) else pack_data.get("items", []),
             "meta": {
-                "planner_fallback": planner_fallback,
+                "selection_method": selection_method,
                 "processing_time_ms": processing_time,
-                "version": "v2"
+                "version": "coverage_v1"
             }
         }
         
@@ -164,7 +164,7 @@ async def v2_get_pack_controller(user_id: str, session_id: str, auth_user_id: st
 @router.post("/mark-served") 
 async def v2_mark_served_controller(body: dict, auth_user_id: str = Depends(get_current_user)):
     """
-    V2 Mark Served - Updates pack status with V2 telemetry
+    Coverage Mark Served - Updates pack status with Coverage telemetry
     """
     user_id = body.get("user_id")
     session_id = body.get("session_id")
@@ -175,11 +175,11 @@ async def v2_mark_served_controller(body: dict, auth_user_id: str = Depends(get_
     if user_id != auth_user_id:
         raise HTTPException(status_code=403, detail="Cannot mark other users' sessions")
     
-    logger.info(f"V2 MARK-SERVED: Transitioning session {session_id[:8]} to served")
+    logger.info(f"COVERAGE MARK-SERVED: Transitioning session {session_id[:8]} to served")
     
     db = SessionLocal()
     try:
-        # Update status with V2 telemetry
+        # Update status with Coverage telemetry
         result = db.execute(text("""
             UPDATE session_pack_plan 
             SET status = 'served',
@@ -192,8 +192,8 @@ async def v2_mark_served_controller(body: dict, auth_user_id: str = Depends(get_
         
         db.commit()
         
-        logger.info(f"V2 MARK-SERVED: Successfully marked session {session_id[:8]} as served")
-        return {"ok": True, "version": "v2"}
+        logger.info(f"COVERAGE MARK-SERVED: Successfully marked session {session_id[:8]} as served")
+        return {"ok": True, "version": "coverage_v1"}
         
     finally:
         db.close()
@@ -201,7 +201,7 @@ async def v2_mark_served_controller(body: dict, auth_user_id: str = Depends(get_
 @router.post("/start-first")
 async def v2_start_first_controller(request: dict, auth_user_id: str = Depends(get_current_user)):
     """
-    V2 Start-First - Cold start convenience endpoint
+    Coverage Start-First - Cold start convenience endpoint
     
     Combines plan-next and pack fetching for immediate session start.
     Perfect for adaptive-only system where users always get adaptive sessions.
@@ -213,7 +213,7 @@ async def v2_start_first_controller(request: dict, auth_user_id: str = Depends(g
     if user_id != auth_user_id:
         raise HTTPException(status_code=403, detail="Cannot create session for other users")
     
-    logger.info(f"V2 START-FIRST: Cold start for user {user_id[:8]}")
+    logger.info(f"COVERAGE START-FIRST: Cold start for user {user_id[:8]}")
     
     try:
         # Generate session ID for cold start
@@ -221,16 +221,15 @@ async def v2_start_first_controller(request: dict, auth_user_id: str = Depends(g
         last_session_id = "S0"  # Cold start
         
         # Step 1: Plan the session
-        plan_result = v2_session_pipeline.plan_next_session(
+        plan_result = await coverage_pipeline.plan_next_session(
             user_id=user_id,
-            session_id=session_id,
-            request_id=f"start-first-{session_id[:8]}"
+            session_id=session_id
         )
         
-        if not plan_result.get("success"):
+        if not plan_result.get("pack"):
             raise HTTPException(status_code=502, detail="Session planning failed")
         
-        # Step 2: Fetch the pack
+        # Step 2: Fetch the pack (already saved by coverage pipeline)
         db = SessionLocal()
         try:
             result = db.execute(text("""
@@ -255,14 +254,14 @@ async def v2_start_first_controller(request: dict, auth_user_id: str = Depends(g
             
             db.commit()
             
-            logger.info(f"V2 START-FIRST: Successfully created and served session {session_id[:8]}")
+            logger.info(f"COVERAGE START-FIRST: Successfully created and served session {session_id[:8]}")
             
             return {
                 "success": True,
                 "session_id": session_id,
                 "pack": pack_data,
                 "status": "served",
-                "version": "v2",
+                "version": "coverage_v1",
                 "message": "Adaptive session ready to start"
             }
             
@@ -272,7 +271,7 @@ async def v2_start_first_controller(request: dict, auth_user_id: str = Depends(g
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"❌ V2 START-FIRST: Error for user {user_id[:8]}: {str(e)}")
+        logger.error(f"❌ COVERAGE START-FIRST: Error for user {user_id[:8]}: {str(e)}")
         raise HTTPException(status_code=502, detail=f"Start-first failed: {str(e)}")
 
 # Import for registration
