@@ -91,8 +91,8 @@ class CoverageSelector:
             all_selected = easy_selected + medium_selected + hard_selected
             logger.info(f"📦 Initial selection: {len(all_selected)} questions")
             
-            # Apply caps with band-aware backfill preserving bucket intent
-            capped_pack = self._apply_caps_with_band_aware_backfill(
+            # Apply caps with smart band-aware backfill preserving bucket intent
+            capped_pack = await self._apply_caps_with_smart_band_aware_backfill(
                 all_selected, eligible_questions, recipe, notebook, user_id, session_id
             )
             
