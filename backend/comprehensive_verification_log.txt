@@ -16,3 +16,5 @@
 🔄 Processing batch 9/20 (20 questions)
 🔄 Processing batch 10/20 (20 questions)
 🔄 Processing batch 11/20 (20 questions)
+   ✅ Processed: 220, Failed: 0
+🔄 Processing batch 12/20 (20 questions)
