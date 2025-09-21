@@ -1,66 +1,74 @@
 <analysis>
-The AI engineer successfully addressed multiple critical issues in the Twelvr adaptive learning platform. Initial work fixed a stale-closure + double-boot race in , resolving the Session pack is empty error by using  and state-driven effects, achieving 89.3% test success. Subsequent fixes clarified frontend state management and adapted backend responses for rich solution feedback and an Ask Twelvr AI tutor (Google Gemini), achieving 100% functionality. A critical  data loss was identified but not resolved by code. Further work implemented robust session completion and progress tracking, including resumption logic, fixing database logging and dashboard data display. Finally, the MCQ answer comparison logic was refined for 100% accuracy, ensuring only the  field is used. The analytics pipeline was architecturally improved with a dedicated LLM service, though full LLM summarization depends on proper environment configuration. The latest fixes addressed solution display and accurate answer sourcing from the  field, reaching a 100% functional and compliant state.
+The trajectory details the evolution of the Twelvr adaptive learning platform, moving from an initial MVP state to a refined, skill-based adaptive system. The AI engineer first summarized existing functionalities, addressing initial product requirements like MCQ storage, adaptive-only sessions, payment, and dashboard UI. A critical phase involved the user providing an assessment of perceived bugs, which the AI engineer largely refuted, confirming the existing system's stability. Subsequently, a major new feature, the Coverage System with AskTwelvr, was introduced, shifting the core adaptive logic from difficulty-based to skill-based. This new feature's specification underwent extensive iterative refinement between the user and the AI engineer, solidifying an all-in no-fallback architecture. The final plan incorporates numerous technical fixes and optimizations, ensuring robustness, performance, and data integrity.
 </analysis>
 <product_requirements>
-The Twelvr application is an adaptive CAT preparation platform that leverages LLMs for personalized question sets, cold-start user management, and high-quality content delivery, aiming to optimize learning paths. Key requirements include 12-item packs with a 3-6-3 difficulty distribution (Easy/Medium/Hard), minimum PYQ scores, and no mid-session adaptation. It features a hybrid frontend, dual-gate feature flags (, ), and guardrails.
-
-Previous work established API wiring, pack persistence, and frontend integration. Initial problems included  type mismatches, session persistence failures, and frontend deployment issues. Later, LLM planner timeouts and schema validation errors were resolved with a V2 redesign, reducing  times to 10-15s. However, the frontend experienced Session pack is empty errors. The user also explicitly requested: detailed solution feedback (snap read, approach, detailed solution, principle to remember), an Ask Twelvr AI prompt box with a 10-message counter using Google Gemini, accurate answer comparison (matching user selection to the  field), proper session completion recording, and session resumption from the last question. Critically, the  table was found to be empty, which is a high-integrity business concern.
+The Twelvr application is an adaptive CAT preparation platform that personalizes question sets using LLMs. Initial requirements included MCQ simplification, removal of legacy sessions for an adaptive-only system, payment system cleanup (Razorpay, Pro Lite removal, tier definitions), privileged user and free-tier logic, referral system verification, IST timezone conversion, and a collapsible student dashboard UI. The current work involved transitioning from a difficulty-based system to a **skill-based coverage adaptive learning system**. This includes:
+1.  **Anchor Writer v1**: An LLM job to populate  (1-2 precise skill phrases). This is a mandatory precondition, integrated into the existing  gate.
+2.  **Single Session Loop**: Exactly two LLM calls per session.
+    *   **Post-session Summarizer**: Updates a  (user skills, status: weak/moderate/strong).
+    *   **Pre-session Planner**: Generates a  (priority skills, borrow order, PYQ intent).
+3.  **Deterministic Picker**: Backend selects 12 questions (3 Easy, 6 Medium, 3 Hard) based on the recipe, enforcing PYQ minima, and applying caps with band-aware backfill.
+4.  **AskTwelvr**: Inline chat feature for step-by-step solution explanations and practice.
 </product_requirements>
 <key_technical_concepts>
 - Full-stack: React (Frontend), FastAPI (Backend), PostgreSQL
-- Adaptive Learning: LLM-powered planning (Summarizer, Planner), deterministic kernels
-- Database: SQLAlchemy, PostgreSQL (indexes, UUIDs, advisory locks), schema migrations
-- Deployment: Kubernetes, Nginx/Caddy, Service Workers
-- State Management: React , ,  (for stale closures)
-- LLM Integration: Google Gemini, OpenAI GPT-4o (via )
-- Testing: Playwright (UI), 
+- Adaptive Learning: LLM-powered planning (GPT-4o-mini), deterministic kernels
+- Database: SQLAlchemy, PostgreSQL (migrations, indexes, JSONB arrays, unique constraints, NOT NULL)
+- LLM Integration: Google Gemini, OpenAI GPT-4o-mini (via )
+- Payment Gateway: Razorpay
+- Timezones:  for IST conversion
+- Core Adaptive Concepts: Anchors (skill phrases), Learner Notebook, Inventory Digest, Coverage Ledger.
 </key_technical_concepts>
 <code_architecture>
 
--   ****: Main backend entry point, defines API routes and orchestrates services.
-    -   **Importance**: Central routing and logic.
-    -   **Changes**: Updated  to store attempts in DB, return detailed solution feedback, and handle adaptive pack questions. Modified dashboard endpoints to fetch real data. Integrated  and . Fixed  variable scope and answer comparison logic for MCQ.
--   ** (NEW)**: Handles Ask Twelvr AI interaction.
-    -   **Importance**: Provides endpoints for AI doubt resolution.
-    -   **Changes**: Created file; defines  and  using Google Gemini. Initialized , then included with  in  to fix double-prefixing.
--   ** (NEW)**: API for tracking user session progress.
-    -   **Importance**: Enables session resumption and progress persistence.
-    -   **Changes**: Created file; defines endpoints to update, retrieve, and detect current user session progress.
--   ** (NEW)**: SQL migration for session progress tracking table.
-    -   **Importance**: Persists user's session state.
-    -   **Changes**: Created table  with  (VARCHAR(50) fix).
--   ****: Orchestrates post-session LLM summarization and analytics.
-    -   **Importance**: Generates learning insights.
-    -   **Changes**: Fixed DB query errors (, column names , uid=0(root) gid=0(root) groups=0(root)). Corrected payload building (). Updated logic to only persist *actual* LLM analysis results, removing flawed fallback persistence. Configured to use a dedicated . Updated LLM prompt for schema compliance.
--   ** (NEW)**: Dedicated LLM service for summarization.
-    -   **Importance**: Encapsulates LLM interaction for summarizer.
-    -   **Changes**: Created file; implements  using GPT-4o primary and Gemini fallback. Includes  for environment variable access.
--   ****: Assembles question packs for V2 adaptive sessions.
-    -   **Importance**: Prepares question data for frontend.
-    -   **Changes**: Ensured  field (clean answer) is used instead of  (explanation) in . Included , , ,  in assembled pack items.
--   ****: Defines V2 LLM planner contract and  schema.
-    -   **Importance**: Standardizes data structures.
-    -   **Changes**: Updated  to include  (clean answer) and solution feedback fields (, etc.).
--   ****: Frontend interactive session logic.
-    -   **Importance**: Manages user interaction and displays questions/results.
-    -   **Changes**: Refactored to address stale-closure/double-boot: removed  calls, added  (React ref), implemented state-driven  for first question serving, gated  with . Added  function. Cleared state (, , , ) on . Updated  to handle rich solution feedback. Added  helper and used it in  and UI rendering. Implemented session progress tracking () and resumption logic. Added retry logic with exponential backoff to  to handle race conditions.
--   ****: Dashboard component for session management.
-    -   **Importance**: Displays user progress and allows session start/resumption.
-    -   **Changes**: Integrated with new session progress tracking for resumption.
+-   ** (NEW)**: Multiple SQL migrations to add new columns (, , , , , , ), new tables (, ), unique constraints (), composite indexes (, ), normalize  to lowercase and enforce  and  constraints.
+    -   **Importance**: Foundation for the new coverage system, ensuring data integrity and query performance.
+-   ** (NEW)**: LLM service to generate and normalize skill anchors for questions.
+    -   **Importance**: Populates the  field, a core component of the coverage system's eligibility logic. Anchors are normalized (lowercase, deduplicated, max 2).
+-   ** (NEW)**: Integrates anchor generation and validation into the existing quality verification pipeline.
+    -   **Importance**: Ensures  only if a question has valid anchors, making anchors mandatory for eligibility.
+-   ** (NEW)**: Manages a user's Learner Notebook (skill statuses).
+    -   **Importance**: Stores and retrieves a user's latest skill proficiencies. Includes a backup mechanism to .
+-   ** (NEW)**: LLM service that processes session attempts and updates the Learner Notebook.
+    -   **Importance**: Provides AI-driven insights into user skill status (weak/moderate/strong) based on session performance. Runs exactly once per session after 12 attempts.
+-   ** (NEW)**: Builds a summary of eligible questions grouped by skill view and difficulty band.
+    -   **Importance**: Provides the Planner LLM with statistics on available questions for selection. Handles no notebook by treating all eligible questions as Moderate.
+-   ** (NEW)**: LLM service that generates a Selection Recipe based on the Learner Notebook and Inventory Digest.
+    -   **Importance**: Creates a high-level plan for question selection, specifying priority skills and borrowing logic. Includes a default recipe fallback for LLM failures.
+-   ** (NEW)**: Deterministic service that selects exactly 12 questions based on the Planner's recipe.
+    -   **Importance**: Implements the core adaptive logic: PYQ-first, 4-tier priority (skill match, PYQ score, served count, seeded hash), band-aware backfill (preserves 3-6-3), pack-level PYQ top-up, and caps (≤2 per subcategory|type). Uses  for stable seeding and preloads served counts for performance.
+-   ** (NEW)**: Orchestrates the entire session planning flow using the new coverage services.
+    -   **Importance**: Main entry point for generating a coverage-based session, saving the final pack with audit details. Normalizes pack items to use a canonical uid=0(root) gid=0(root) groups=0(root) field.
+-   ****: Updated API endpoint for  and .
+    -   **Importance**:  now triggers the .  is made idempotent, atomic (transactional), and updates  based on the served pack, relying only on  for queries.
+-   ****: Updated for attempt logging.
+    -   **Importance**: Snapshots  from the *served pack* (not live question), uses canonical uid=0(root) gid=0(root) groups=0(root) lookup, and triggers the  exactly once per session (after 12 attempts, with idempotency).
+-   ****: Updated to emit metrics for the coverage system.
+    -   **Importance**: Tracks new metrics like , , ,  details (shape, PYQ, borrow), and . Audits are recomputed from the *final pack*.
+-   ** (NEW)**: Comprehensive script for pre-flight validation.
+    -   **Importance**: Ensures system readiness by testing eligible count, LLM reliability, pack generation consistency (size, shape, PYQ, audit accuracy), one-time summarizer, and mark-served idempotency.
 </code_architecture>
 <pending_tasks>
-- **Payment Data Recovery**: The  table was found to be empty. This is a business-critical issue requiring investigation into data reconstruction and a recovery plan.
+The core pending task is the **full implementation of the Twelvr Coverage System** as detailed in the final implementation plan. This includes:
+- Executing all database migrations.
+- Implementing the Enhanced Quality Verifier and running it to populate anchors.
+- Building and integrating all new backend services: Learner Notebook, Coverage Summarizer, Inventory Digest, Coverage Planner, Coverage Selector, and Coverage Pipeline.
+- Updating API endpoints (, , ) for coverage-only functionality.
+- Implementing minimal telemetry for the new system.
+- Developing frontend components for AskTwelvr (not detailed in the backend plan).
+- Conducting comprehensive pre-flight testing and smoke tests.
 </pending_tasks>
 <current_work>
-Immediately before this summary request, the AI engineer was focused on resolving critical issues identified through user feedback and deep investigation. This included ensuring the solution feedback structure was properly displayed, verifying that answer comparison logic used the correct clean answer field (not the full explanation), and solidifying the analytics pipeline.
+Immediately before the request for the new Coverage System, the previous AI engineer successfully stabilized the existing Twelvr application to a 100% functional state. This involved resolving several critical issues:
+-   **Security Fix**: Correcting the  user's unintended admin access by reverting their  status to , ensuring  is the *only* admin.
+-   **Student Dashboard Fix**: Rectifying an infinite  loop in  and an authentication race condition in  that caused auto-logout and disappearing dashboard data. The dashboard now correctly displays canonical CAT taxonomy with collapsible subcategories by fetching data from .
+-   **Payment Integration**: Resolving errors in  related to Razorpay response handling (correcting  to ) and removing an incorrect  check, allowing the Razorpay modal to open and the payment flow to function.
+-   **MCQ Formatting**: The AI engineer also analyzed user concerns about MCQ JSON formatting (e.g., Unicode escape sequences) and confirmed that the system correctly stores and parses these, rendering them properly for students and handling edge cases gracefully.
 
-The specific work involved:
-1.  **Restoring Solution Feedback Structure**: It was discovered that  in  and the  service were not including the , , , and  fields when assembling question packs. These were added back to the  model and the pack assembly logic.
-2.  **Ensuring Correct Answer Source**: The logic for comparing user answers against the correct answer was updated. The  was modified to explicitly use the  (clean answer) field for the  attribute in the generated pack items, moving away from  which contained full explanations. The frontend  also ensured it used  for display.
-3.  **Fixing Analytics Pipeline Database Column Access**: A column access error () was preventing the summarizer from building its payload for LLM analysis. The  was updated to safely access this field using .
-
-All these changes were successfully implemented, tested, and validated, resulting in a 100% functional and specification-compliant system.
+The system was verified to have accurate difficulty band ranges, a compatible pack schema, and correct answer field usage, effectively refuting earlier user-identified broken points. The current session planner uses a deterministic selector and an LLM for reordering, with a backup plan.
 </current_work>
 <optional_next_step>
-Ask user.
+The next step is to begin implementing the FINAL production-ready plan for the Twelvr Coverage System, starting with Day 1 tasks: database migrations and enhancing the quality verification system.
+
+Ask user to paste the implementation plan in the next session and adhere to that while implementing.
 </optional_next_step>

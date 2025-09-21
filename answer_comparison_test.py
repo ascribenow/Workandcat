@@ -24,7 +24,7 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 class AnswerComparisonValidator:
     def __init__(self):
-        self.base_url = "https://adaptive-cat-2.preview.emergentagent.com/api"
+        self.base_url = "https://skill-coverage.preview.emergentagent.com/api"
         self.auth_headers = None
         self.user_id = None
         
