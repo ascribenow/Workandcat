@@ -1047,7 +1047,7 @@ async def log_question_action(
             
             if pack_row and pack_row.pack_json:
                 # Look for the question in the pack data using CANONICAL ID ONLY
-                pack_data = pack_row.pack_json
+                pack_data = as_json(pack_row.pack_json)  # Safe JSON parsing to prevent 502
                 
                 # Handle both list and dict formats
                 if isinstance(pack_data, list):
