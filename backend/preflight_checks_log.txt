@@ -43,3 +43,4 @@
 ⚡ Check 6: Performance Benchmarks...
 ⚠️ Coverage Planner LLM failed after retry, using default recipe: LLM returned invalid JSON after 1 retries. Reasons: Invalid JSON: Expecting property name enclosed in double quotes: line 60 column 10 (char 1093)
 ⚠️ Coverage Planner LLM failed after retry, using default recipe: LLM returned invalid JSON after 1 retries. Reasons: (root): 'easy' is a required property
+⚠️ Coverage Planner LLM failed after retry, using default recipe: LLM returned invalid JSON after 1 retries. Reasons: (root): 'easy' is a required property
