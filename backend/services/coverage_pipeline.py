@@ -173,7 +173,7 @@ class CoveragePipeline:
                     pack_json = EXCLUDED.pack_json,
                     coverage_audit = EXCLUDED.coverage_audit,
                     selection_method = 'coverage_v1',
-                    status = 'planned'
+                    status = CASE WHEN session_pack_plan.status='served' THEN 'served' ELSE 'planned' END
             """, (session_id, user_id, json.dumps(pack), json.dumps(audit)))
             
             conn.commit()

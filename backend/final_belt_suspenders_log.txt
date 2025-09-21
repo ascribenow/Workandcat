@@ -27,3 +27,13 @@
 🧠 TEST 2: Planner/Summarizer Fallback Resilience
 ------------------------------------------------------------
 🧠 Testing LLM fallback mechanisms...
+❌ Coverage Summarizer failed for user fallback after 4.39s: LLM returned invalid JSON after 1 retries. Reasons: skills.0: 'relative speed' is not of type 'object'
+   Pack size from fallback: 12 (expect: 12)
+   Selection method: coverage_v1 (expect: coverage_v1)
+   Audit data present: True
+   ✅ Fallback Resilience: PASSED
+      Session: fallback...
+
+🆕 TEST 3: First-Session Behavior (Empty Notebook)
+------------------------------------------------------------
+🆕 Testing first session with empty notebook...
