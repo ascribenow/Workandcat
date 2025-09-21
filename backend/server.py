@@ -1037,30 +1037,36 @@ async def log_question_action(
             # Try to get question from pack data (for adaptive sessions)
             pack_result = db.execute(text("""
                 SELECT pack_json FROM session_pack_plan 
-                WHERE user_id = :user_id AND session_id = :session_id 
+                WHERE session_id = :session_id 
                 LIMIT 1
             """), {
-                'user_id': user_id,
                 'session_id': log_data.session_id
             })
             pack_row = pack_result.fetchone()
             
             if pack_row and pack_row.pack_json:
-                # Look for the question in the pack data
+                # Look for the question in the pack data using CANONICAL ID ONLY
                 pack_data = pack_row.pack_json
-                items = pack_data.get('items', [])
+                
+                # Handle both list and dict formats
+                if isinstance(pack_data, list):
+                    items = pack_data
+                else:
+                    items = pack_data.get('items', [])
                 
                 for item in items:
-                    if item.get('item_id') == log_data.question_id:
-                        # Found the question in pack data - use answer field only
+                    # FIXED: Find question using ONLY canonical 'id' field (no item_id fallback)
+                    if item.get('id') == log_data.question_id:
+                        # Found the question in pack data - use snapshots from SERVED PACK
                         question = type('Question', (), {
-                            'id': item.get('item_id'),
+                            'id': item.get('id'),
                             'answer': item.get('answer', ''),  # Use pack answer field only
-                            'difficulty_band': item.get('bucket', 'Medium'),
-                            'subcategory': item.get('subcategory', ''),
-                            'type_of_question': item.get('pair', '').split(':')[0] if item.get('pair') else '',
-                            'core_concepts': json.dumps(item.get('semantic_concepts', [])),
-                            'pyq_frequency_score': item.get('pyq_frequency_score', 0),
+                            'difficulty_band': item.get('difficulty_band', 'medium'),
+                            'subcategory': item.get('subcategory', 'Unknown'),
+                            'type_of_question': item.get('type_of_question', 'Unknown'),
+                            'core_concepts': json.dumps(item.get('core_concepts', [])),
+                            'pyq_frequency_score': item.get('pyq_frequency_score', 0.0),
+                            'anchors': item.get('anchors', []),  # Snapshot anchors from served pack
                             'snap_read': item.get('snap_read'),
                             'solution_approach': item.get('solution_approach'), 
                             'detailed_solution': item.get('detailed_solution'),
