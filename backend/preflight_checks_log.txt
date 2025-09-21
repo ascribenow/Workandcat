@@ -35,3 +35,5 @@
    ❌ One-Time Summarizer: FAILED
 🆔 Check 5: Canonical ID Usage Validation...
 ⚠️ Coverage Planner LLM failed after retry, using default recipe: LLM returned invalid JSON after 1 retries. Reasons: (root): 'easy' is a required property
+⚠️ Coverage Planner LLM failed after retry, using default recipe: LLM returned invalid JSON after 1 retries. Reasons: (root): 'easy' is a required property
+⚠️ Coverage Planner LLM failed after retry, using default recipe: LLM returned invalid JSON after 1 retries. Reasons: (root): 'easy' is a required property
