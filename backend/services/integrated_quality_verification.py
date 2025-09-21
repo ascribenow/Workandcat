@@ -300,15 +300,10 @@ class IntegratedQualityVerificationSystem:
             if concept_status != 'completed':
                 missing_or_invalid_fields.append('concept_extraction_status')
             
-            # STEP 3: Check difficulty band is valid
+            # STEP 3: Check difficulty band is valid  
             difficulty_band = verification_data.get('difficulty_band', '').lower()
             if difficulty_band not in ['easy', 'medium', 'hard']:
                 missing_or_invalid_fields.append('difficulty_band_invalid')
-            
-            # STEP 4: Check minimum stem length
-            stem = verification_data.get('stem', '')
-            if len(stem.strip()) < 20:
-                missing_or_invalid_fields.append('stem_too_short')
             
             if missing_or_invalid_fields:
                 logger.debug(f"Failed quality criteria - missing/invalid fields: {missing_or_invalid_fields}")
