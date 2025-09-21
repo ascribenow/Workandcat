@@ -60,8 +60,8 @@ async def v2_plan_next_controller(body: dict, request: Request, user_id: str = D
             session_id=next_session_id
         )
         
-        # Coverage pipeline returns pack directly, not success/error structure
-        if not pipeline_result.get("pack"):
+        # Coverage pipeline returns pack directly, check for errors in audit
+        if not pipeline_result.get("pack") or pipeline_result.get("audit", {}).get("error"):
             error_msg = pipeline_result.get("audit", {}).get("error", "Unknown pipeline error")
             logger.error(f"COVERAGE PLAN-NEXT: Pipeline failed - {error_msg}")
             raise HTTPException(status_code=502, detail={"code": "COVERAGE_PIPELINE_FAILED", "msg": error_msg})
