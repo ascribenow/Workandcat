@@ -115,6 +115,13 @@ class CoveragePipeline:
                 }
             }
             
+            # Emit coverage telemetry
+            try:
+                from services.telemetry import telemetry_service
+                telemetry_service.emit_coverage_session_metrics(user_id, response)
+            except Exception as telemetry_error:
+                logger.warning(f"⚠️ Failed to emit coverage telemetry: {telemetry_error}")
+            
             logger.info(f"✅ Coverage Pipeline completed ({total_time}ms)")
             return response
             
