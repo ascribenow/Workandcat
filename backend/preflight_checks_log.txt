@@ -10,3 +10,9 @@
 ❌ Coverage Summarizer failed for user test-0 after 6.62s: LLM returned invalid JSON after 1 retries. Reasons: skills.0: 'relative speed' is not of type 'object'
 ⚠️ Coverage Planner LLM failed after retry, using default recipe: LLM returned invalid JSON after 1 retries. Reasons: (root): 'easy' is a required property
 ❌ Coverage Summarizer failed for user test-1 after 4.45s: LLM returned invalid JSON after 1 retries. Reasons: skills.0: 'relative speed' is not of type 'object'
+⚠️ Coverage Planner LLM failed after retry, using default recipe: LLM returned invalid JSON after 1 retries. Reasons: (root): 'easy' is a required property
+❌ Coverage Summarizer failed for user test-2 after 4.90s: LLM returned invalid JSON after 1 retries. Reasons: skills.0: 'relative speed' is not of type 'object'
+⚠️ Coverage Planner LLM failed after retry, using default recipe: LLM returned invalid JSON after 1 retries. Reasons: (root): 'easy' is a required property
+❌ Coverage Summarizer failed for user test-3 after 4.74s: LLM returned invalid JSON after 1 retries. Reasons: skills.0: 'relative speed' is not of type 'object'
+⚠️ Coverage Planner LLM failed after retry, using default recipe: LLM returned invalid JSON after 1 retries. Reasons: Invalid JSON: Expecting value: line 55 column 17 (char 1160)
+❌ Coverage Summarizer failed for user test-4 after 4.76s: LLM returned invalid JSON after 1 retries. Reasons: skills.0: 'relative speed' is not of type 'object'
