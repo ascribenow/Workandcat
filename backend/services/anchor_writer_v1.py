@@ -126,7 +126,7 @@ class AnchorWriterV1:
 
 # Test function for anchor generation
 async def test_anchor_generation():
-    """Test the anchor writer with a sample question"""
+    """Test the anchor writer with a sample question using existing LLM infrastructure"""
     writer = AnchorWriterV1()
     
     sample_question = {
