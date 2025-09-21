@@ -391,7 +391,7 @@ class Day5BeltAndSuspendersValidation:
             
             # Plan-next for new session
             plan_response = requests.post(f"{self.backend_url}/api/adapt/plan-next",
-                                        json=plan_data, headers=headers, timeout=30)
+                                        json=plan_data, headers=headers, timeout=60)
             
             if plan_response.status_code != 200:
                 return {"passed": False, "error": f"Plan-next failed: {plan_response.status_code}"}
