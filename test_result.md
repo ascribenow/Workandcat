@@ -14,7 +14,7 @@
 # Main and testing agents must follow this exact format to maintain testing data. 
 # The testing data must be entered in yaml format Below is the data structure:
 # 
-## user_problem_statement: "The user requested to complete Phase 2 of the adaptive learning system implementation - specifically to fix the dry-run script query in /app/backend/dry_run_adaptive.py to correctly include users with 0 sessions for cold-start testing, and run comprehensive dry-run tests to validate cold-start user scenarios."
+## user_problem_statement: "Implement the Twelvr Coverage System - transitioning from difficulty-based to skill-based adaptive learning system. Complete implementation includes database migrations, Enhanced Quality Verifier with Anchor Writer V1, Coverage Services (Learner Notebook, Coverage Summarizer, Coverage Planner, Inventory Digest, Coverage Selector, Coverage Pipeline), API updates, and comprehensive testing. The system should guarantee exactly 12 questions per session with skill-based selection using anchors."
 
 ## backend:
 ## backend:
