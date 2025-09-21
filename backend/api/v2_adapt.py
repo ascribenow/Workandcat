@@ -68,12 +68,40 @@ async def v2_plan_next_controller(body: dict, request: Request, user_id: str = D
             logger.error(f"COVERAGE PLAN-NEXT: Pipeline failed - {error_msg}")
             raise HTTPException(status_code=502, detail={"code": "COVERAGE_PIPELINE_FAILED", "msg": error_msg})
         
+        pack = pipeline_result.get("pack", []) or []
+        audit = pipeline_result.get("audit", {}) or {}
+
+        # Safe defaults so the report mapper never sees missing keys
+        audit_defaults = {
+            "shape": {"easy": 0, "medium": 0, "hard": 0},
+            "pyq": {"1_5": 0, "1_0": 0},
+            "borrow": {"easy": 0, "medium": 0, "hard": 0},
+        }
+        merged_audit = {**audit_defaults, **audit}
+        merged_audit["shape"]  = {**audit_defaults["shape"],  **merged_audit.get("shape", {})}
+        merged_audit["pyq"]    = {**audit_defaults["pyq"],    **merged_audit.get("pyq", {})}
+        merged_audit["borrow"] = {**audit_defaults["borrow"], **merged_audit.get("borrow", {})}
+
+        # If you already had a minimal constraint_report, merge it here
+        base_constraint_report = {}  # replace with your existing dict if present
+
+        constraint_report = {
+            **base_constraint_report,
+            **merged_audit,  # full audit goes where frontend expects it
+            "pyq_distribution": {  # compatibility alias
+                "ge_1_5": merged_audit["pyq"].get("1_5", 0),
+                "ge_1_0": merged_audit["pyq"].get("1_0", 0),
+            },
+            "pack_size": len(pack),
+            "selection_method": "coverage_v1",
+        }
+
         # Prepare response (frontend compatible)
         response = {
             "user_id": req_user_id,
             "session_id": next_session_id,
             "status": "planned",
-            "constraint_report": pipeline_result.get("audit", {})
+            "constraint_report": constraint_report
         }
         
         # Log success with timing
