@@ -22,3 +22,5 @@
 🔄 Processing batch 14/20 (20 questions)
 🔄 Processing batch 15/20 (20 questions)
 🔄 Processing batch 16/20 (20 questions)
+   ✅ Processed: 320, Failed: 0
+🔄 Processing batch 17/20 (20 questions)
