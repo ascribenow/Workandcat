@@ -10,3 +10,20 @@
 
 🔐 SETUP: Authentication and User Selection
 ------------------------------------------------------------
+✅ Authentication successful
+   User ID: 2d2d43a9...
+   Token length: 175 characters
+✅ Setup successful: User 2d2d43a9...
+
+📋 TEST 1: Plan-Next Idempotence (Served-Row Protection)
+------------------------------------------------------------
+🔄 Testing idempotence with session: idempote...
+   Initial status: planned (expect: planned)
+   After mark-served: served (expect: served)
+   After retry plan: planned (expect: served)
+   Pack positions preserved: True
+   ❌ Plan-Next Idempotence: FAILED
+
+🧠 TEST 2: Planner/Summarizer Fallback Resilience
+------------------------------------------------------------
+🧠 Testing LLM fallback mechanisms...
