@@ -19,3 +19,5 @@
 ⚠️ Coverage Planner LLM failed after retry, using default recipe: LLM returned invalid JSON after 1 retries. Reasons: Invalid JSON: Expecting value: line 55 column 17 (char 1160)
    ✅ LLM Reliability: PASSED
 📦 Check 3: Pack Generation Consistency...
+⚠️ Coverage Planner LLM failed after retry, using default recipe: LLM returned invalid JSON after 1 retries. Reasons: (root): 'borrow_order' is a required property
+⚠️ Coverage Planner LLM failed after retry, using default recipe: LLM returned invalid JSON after 1 retries. Reasons: (root): 'borrow_order' is a required property
