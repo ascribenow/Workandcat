@@ -184,11 +184,11 @@ class LearnerNotebookService:
             cur = conn.cursor()
             
             cur.execute("""
-                SELECT sess_seq, summary_json, generated_at
+                SELECT session_id, concept_alias_map, created_at
                 FROM session_summary_llm
                 WHERE user_id = %s 
-                AND model_used = 'coverage_notebook_backup'
-                ORDER BY generated_at DESC
+                AND llm_model_used = 'coverage_notebook_backup'
+                ORDER BY created_at DESC
                 LIMIT %s
             """, (user_id, limit))
             
