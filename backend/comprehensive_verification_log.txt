@@ -2,3 +2,5 @@
 📋 This will verify ALL questions against 24 comprehensive criteria
 ⚠️ Some questions with quality_verified=TRUE might fail and be downgraded
 
+📊 Found 388 total active questions for comprehensive verification
+🔄 Processing batch 1/20 (20 questions)
