@@ -4,3 +4,5 @@
 
 📊 Found 388 total active questions for comprehensive verification
 🔄 Processing batch 1/20 (20 questions)
+   ✅ Processed: 20, Failed: 0
+🔄 Processing batch 2/20 (20 questions)
