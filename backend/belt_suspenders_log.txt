@@ -31,3 +31,9 @@
 🆕 TEST 3: First-Session Behavior (Empty Notebook)
 ------------------------------------------------------------
 🆕 Testing first session with empty notebook...
+   ❌ First-Session Behavior: FAILED
+      Error: HTTPSConnectionPool(host='skill-coverage.preview.emergentagent.com', port=443): Read timed out. (read timeout=30)
+
+🔄 TEST 4: Cap/Backfill Stress (Variety Scarcity)
+------------------------------------------------------------
+🔄 Testing cap/backfill with variety constraints...
