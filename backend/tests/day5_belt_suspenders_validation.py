@@ -847,17 +847,8 @@ class Day5BeltAndSuspendersValidation:
         
         print()
 
-# Add missing placeholder methods for tests 3 and 4 that weren't fully implemented above
-async def _placeholder_method():
-    """Placeholder for missing test methods"""
-    return {"passed": True, "note": "Placeholder - implement if needed"}
-
 # Global instance
 day5_validator = Day5BeltAndSuspendersValidation()
-
-# Add missing methods temporarily
-day5_validator._test_first_session_behavior = lambda: _placeholder_method()
-day5_validator._test_cap_backfill_stress = lambda: _placeholder_method()
 
 # Test runner
 async def run_belt_and_suspenders():
