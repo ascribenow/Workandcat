@@ -14353,78 +14353,41 @@ class CATBackendTester:
         return final_results["100_percent_success_achieved"]
 
 if __name__ == "__main__":
+    print("🚀 TWELVR COVERAGE SYSTEM BACKEND TESTING")
+    print("=" * 80)
+    print("Starting comprehensive backend testing for Twelvr Coverage System")
+    print("Focus: Coverage Pipeline, Session Flow, Question Logging, Database, LLM Services")
+    print("=" * 80)
+    
     tester = CATBackendTester()
-    
-    print("🚀 Starting FINAL 100% PRODUCTION SIGNOFF TEST")
-    print("=" * 80)
-    
-    # Run the comprehensive final test
-    print("\n" + "🎯" * 20)
-    final_result = tester.test_final_100_percent_production_signoff()
-    
-    # Final Summary
-    print("\n" + "=" * 80)
-    print("🎉 FINAL 100% PRODUCTION SIGNOFF TEST COMPLETE")
-    print("=" * 80)
-    
-    if final_result:
-        print("\n🎉 PRODUCTION SIGNOFF: ✅ ACHIEVED")
-        print("   - ALL tests passed (36/36)")
-        print("   - ALL requirements met (10/10)")
-        print("   - ZERO critical errors")
-        print("   - System ready for production deployment")
-        print("   - Admin panel fully functional")
-        print("   - Payment system 100% operational")
-        print("   - All fixes successfully applied")
-    else:
-        print("\n⚠️ PRODUCTION SIGNOFF: ❌ NOT ACHIEVED")
-        print("   - Some tests failed")
-        print("   - Some requirements not met")
-        print("   - Critical issues need resolution")
-        print("   - Additional fixes required")
-    
-    print("\n" + "=" * 80)
-    tester = CATBackendTester()
-    
-    print("🚀 STARTING FINAL COMPREHENSIVE VALIDATION")
-    print("=" * 80)
-    
-    # Run the final comprehensive validation test
-    print(f"\n{'='*80}")
-    print(f"🧪 RUNNING FINAL COMPREHENSIVE VALIDATION")
-    print(f"{'='*80}")
     
     try:
-        validation_success = tester.test_final_comprehensive_validation()
+        # Run the comprehensive coverage system test
+        print("\n🎯 RUNNING COMPREHENSIVE COVERAGE SYSTEM TEST")
+        success = tester.test_twelvr_coverage_system_comprehensive()
         
-        if validation_success:
-            print(f"\n✅ FINAL COMPREHENSIVE VALIDATION: PASSED")
+        print("\n" + "=" * 80)
+        print("🎯 FINAL TESTING SUMMARY")
+        print("=" * 80)
+        print(f"Tests Run: {tester.tests_run}")
+        print(f"Tests Passed: {tester.tests_passed}")
+        print(f"Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%" if tester.tests_run > 0 else "0%")
+        
+        if success:
+            print("\n🎉 TWELVR COVERAGE SYSTEM: COMPREHENSIVE TESTING PASSED")
+            print("✅ System is ready for production deployment")
+            print("✅ All critical coverage system components validated")
+            print("✅ Database integrity maintained")
+            print("✅ LLM services working with fallback")
         else:
-            print(f"\n❌ FINAL COMPREHENSIVE VALIDATION: FAILED")
-            
+            print("\n⚠️ TWELVR COVERAGE SYSTEM: TESTING INCOMPLETE")
+            print("❌ Some critical issues need attention")
+            print("❌ Review test results above for specific failures")
+        
+        print("=" * 80)
+        
     except Exception as e:
-        print(f"❌ FINAL COMPREHENSIVE VALIDATION: EXCEPTION - {e}")
-        validation_success = False
-    
-    # Final summary
-    print(f"\n{'='*80}")
-    print("🎯 FINAL VALIDATION SUMMARY")
-    print(f"{'='*80}")
-    
-    if validation_success:
-        print("\n🎉 ALL SYSTEMS VALIDATED - READY FOR PRODUCTION")
-        print("   - Free tier session logic with carry forward: ✅")
-        print("   - Privileged user system: ✅")
-        print("   - IST timezone conversion: ✅")
-        print("   - Payment system (Razorpay): ✅")
-        print("   - Dashboard API (categorized taxonomy): ✅")
-        print("   - Pro tier features (Ask Twelvr): ✅")
-    else:
-        print("\n⚠️ SOME SYSTEMS NEED ATTENTION - REVIEW REQUIRED")
-    
-    print(f"\nTotal API calls made: {tester.tests_run}")
-    print(f"Successful API calls: {tester.tests_passed}")
-    if tester.tests_run > 0:
-        print(f"API Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%")
-    
-    exit(0 if validation_success else 1)
+        print(f"\n❌ CRITICAL ERROR during testing: {e}")
+        print("Testing aborted due to unexpected error")
+        import traceback
+        traceback.print_exc()
