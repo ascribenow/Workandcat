@@ -215,39 +215,110 @@ class IntegratedQualityVerificationSystem:
     async def _check_existing_quality_criteria(self, question_data: Dict) -> bool:
         """
         Check if question meets existing quality criteria
-        This replicates the logic from existing enrichment services
+        This replicates the complete logic from regular_enrichment_service.py
+        
+        Checks 21 required fields + concept_extraction_status:
+        - CSV Upload Fields (7): stem, snap_read, solution_approach, detailed_solution, principle_to_remember, answer, mcq_options  
+        - LLM Generated Fields (14): right_answer, category, subcategory, type_of_question, difficulty_score, difficulty_band, core_concepts, concept_difficulty, operations_required, problem_structure, concept_keywords, solution_method, pyq_frequency_score, concept_extraction_status
         """
         try:
-            # Basic required fields check
-            required_fields = ['stem', 'subcategory', 'type_of_question', 'difficulty_band']
+            # Get additional fields from database for complete verification
+            conn = self._get_db_connection()
+            cur = conn.cursor()
+            
+            cur.execute("""
+                SELECT stem, snap_read, solution_approach, detailed_solution, 
+                       principle_to_remember, answer, mcq_options, right_answer, 
+                       category, subcategory, type_of_question, difficulty_score, 
+                       difficulty_band, core_concepts, concept_difficulty, 
+                       operations_required, problem_structure, concept_keywords, 
+                       solution_method, pyq_frequency_score, concept_extraction_status
+                FROM questions WHERE id = %s
+            """, (question_data['id'],))
+            
+            row = cur.fetchone()
+            cur.close()
+            conn.close()
+            
+            if not row:
+                return False
+            
+            # Map database fields to verification data
+            verification_data = {
+                # CSV Upload Fields (7 fields)
+                'stem': row[0],
+                'snap_read': row[1], 
+                'solution_approach': row[2],
+                'detailed_solution': row[3],
+                'principle_to_remember': row[4],
+                'answer': row[5],
+                'mcq_options': row[6],
+                
+                # LLM Generated Fields (14 fields)
+                'right_answer': row[7],
+                'category': row[8],
+                'subcategory': row[9],
+                'type_of_question': row[10],
+                'difficulty_score': row[11],
+                'difficulty_band': row[12],
+                'core_concepts': json.loads(row[13]) if row[13] else [],
+                'concept_difficulty': row[14],
+                'operations_required': json.loads(row[15]) if row[15] else [],
+                'problem_structure': row[16],
+                'concept_keywords': json.loads(row[17]) if row[17] else [],
+                'solution_method': row[18],
+                'pyq_frequency_score': row[19],
+                'concept_extraction_status': row[20]
+            }
+            
+            # STEP 1: Check all 21 required fields are present and meaningful
+            required_fields = [
+                # CSV Upload Fields (7 fields)
+                'stem', 'snap_read', 'solution_approach', 'detailed_solution', 
+                'principle_to_remember', 'answer', 'mcq_options',
+                
+                # LLM Generated Fields (14 fields)  
+                'right_answer', 'category', 'subcategory', 'type_of_question',
+                'difficulty_score', 'difficulty_band', 'core_concepts', 'concept_difficulty',
+                'operations_required', 'problem_structure', 'concept_keywords', 
+                'solution_method', 'pyq_frequency_score'
+            ]
+            
+            missing_or_invalid_fields = []
             for field in required_fields:
-                if not question_data.get(field):
-                    logger.debug(f"Missing required field: {field}")
-                    return False
+                value = verification_data.get(field)
+                
+                # Check: Not Null AND Not Empty String AND Not Placeholder
+                if (value is None or 
+                    value == '' or 
+                    value in ['To be classified by LLM', 'N/A', 'null', 'None'] or
+                    (isinstance(value, list) and len(value) == 0)):
+                    missing_or_invalid_fields.append(field)
             
-            # Check if stem has sufficient length (basic quality check)
-            stem = question_data.get('stem', '')
-            if len(stem.strip()) < 20:  # Minimum stem length
-                logger.debug(f"Stem too short: {len(stem)} chars")
-                return False
+            # STEP 2: Check concept_extraction_status = 'completed'
+            concept_status = verification_data.get('concept_extraction_status', '')
+            if concept_status != 'completed':
+                missing_or_invalid_fields.append('concept_extraction_status')
             
-            # Check if core concepts exist
-            core_concepts = question_data.get('core_concepts', [])
-            if not core_concepts or len(core_concepts) == 0:
-                logger.debug("Missing core concepts")
-                return False
-            
-            # Check difficulty band is valid
-            difficulty_band = question_data.get('difficulty_band', '').lower()
+            # STEP 3: Check difficulty band is valid
+            difficulty_band = verification_data.get('difficulty_band', '').lower()
             if difficulty_band not in ['easy', 'medium', 'hard']:
-                logger.debug(f"Invalid difficulty band: {difficulty_band}")
+                missing_or_invalid_fields.append('difficulty_band_invalid')
+            
+            # STEP 4: Check minimum stem length
+            stem = verification_data.get('stem', '')
+            if len(stem.strip()) < 20:
+                missing_or_invalid_fields.append('stem_too_short')
+            
+            if missing_or_invalid_fields:
+                logger.debug(f"Failed quality criteria - missing/invalid fields: {missing_or_invalid_fields}")
                 return False
             
-            # All basic quality checks passed
+            logger.debug("✅ All 21 fields + concept_extraction_status + validation checks passed")
             return True
             
         except Exception as e:
-            logger.error(f"Error in quality criteria check: {e}")
+            logger.error(f"Error in comprehensive quality criteria check: {e}")
             return False
     
     def get_integrated_verification_status(self) -> Dict[str, int]:
