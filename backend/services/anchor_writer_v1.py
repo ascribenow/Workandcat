@@ -50,11 +50,17 @@ class AnchorWriterV1:
     
     async def generate_anchors(self, question_data: Dict) -> List[str]:
         """
-        Generate anchors with belt-and-suspenders normalization using existing LLM infrastructure
+        Generate anchors using Google Gemini (since OpenAI key is invalid)
         """
         question_id = question_data.get('id') or question_data.get('question_id', 'unknown')
         
         try:
+            import google.generativeai as genai
+            
+            # Configure Gemini
+            genai.configure(api_key=os.getenv('GOOGLE_API_KEY'))
+            model = genai.GenerativeModel('gemini-1.5-pro')
+            
             # Prepare question data payload
             user_payload = {
                 "question_id": question_id,
@@ -72,19 +78,42 @@ class AnchorWriterV1:
                 "pyq_frequency_score": question_data.get('pyq_frequency_score', 0)
             }
             
-            # Use existing LLM infrastructure with schema validation
-            response = call_llm_json_with_retry(
-                system_prompt=ANCHOR_WRITER_SYSTEM_PROMPT,
-                user_payload=user_payload,
-                schema=ANCHOR_WRITER_SCHEMA,
-                model_primary="gpt-4o-mini",
-                model_fallback="gpt-3.5-turbo",
-                max_retries=1,
-                timeout_ms=10000
+            # Combine system prompt with user data
+            combined_prompt = f"{ANCHOR_WRITER_SYSTEM_PROMPT}\n\nQuestion Data:\n{json.dumps(user_payload, indent=2)}"
+            
+            # Generate content with Gemini
+            response = model.generate_content(
+                combined_prompt,
+                generation_config=genai.types.GenerationConfig(
+                    temperature=0.1,
+                    max_output_tokens=300
+                )
             )
             
-            # Extract anchors from response
-            anchors = response.get("anchors", [])
+            response_text = response.text.strip()
+            logger.info(f"Raw Gemini response for {question_id}: {response_text[:100]}...")
+            
+            # Parse JSON from response
+            try:
+                # Try direct JSON parse
+                response_json = json.loads(response_text)
+                anchors = response_json.get("anchors", [])
+            except json.JSONDecodeError:
+                # Try to extract JSON from markdown code blocks
+                import re
+                json_match = re.search(r'```(?:json)?\s*(\{.*?\})\s*```', response_text, re.DOTALL)
+                if json_match:
+                    response_json = json.loads(json_match.group(1))
+                    anchors = response_json.get("anchors", [])
+                else:
+                    # Try to find just the JSON part
+                    json_match = re.search(r'\{[^}]*"anchors"[^}]*\}', response_text)
+                    if json_match:
+                        response_json = json.loads(json_match.group(0))
+                        anchors = response_json.get("anchors", [])
+                    else:
+                        logger.warning(f"Could not parse JSON from response for {question_id}: {response_text}")
+                        return []
             
             # FIXED: Normalize anchors before save (belt-and-suspenders)
             anchors = [a.strip().lower() for a in anchors if a and isinstance(a, str)]
