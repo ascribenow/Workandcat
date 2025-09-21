@@ -95,10 +95,14 @@ UPDATE questions SET difficulty_band = 'medium' WHERE difficulty_band IS NULL;
 -- Make difficulty_band NOT NULL after backfilling for null safety
 ALTER TABLE questions ALTER COLUMN difficulty_band SET NOT NULL;
 
--- Add CHECK constraint to lock casing
-ALTER TABLE questions
-  ADD CONSTRAINT IF NOT EXISTS questions_difficulty_band_chk
-  CHECK (difficulty_band IN ('easy','medium','hard'));
+-- 12. Add CHECK constraint to lock casing  
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'questions_difficulty_band_chk') THEN
+        ALTER TABLE questions ADD CONSTRAINT questions_difficulty_band_chk 
+        CHECK (difficulty_band IN ('easy','medium','hard'));
+    END IF;
+END $$;
 
 -- 12. Add indexes for attempt_events performance (if not already exist)
 CREATE INDEX IF NOT EXISTS idx_attempt_events_user_session ON attempt_events(user_id, session_id);
