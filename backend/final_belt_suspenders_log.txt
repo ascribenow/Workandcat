@@ -64,3 +64,10 @@
 📝 TEST 6: Attempt Logging Edges
 ------------------------------------------------------------
 📝 Testing attempt logging edge cases...
+   Unknown question response: 422 (expect: 404/400)
+   ✅ Attempt Logging Edges: PASSED
+      Session: logging_...
+
+📊 TEST 7: Contract Parity (Response vs DB vs Pack)
+------------------------------------------------------------
+📊 Testing contract parity across endpoints...

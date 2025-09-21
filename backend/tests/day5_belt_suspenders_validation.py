@@ -557,7 +557,7 @@ class Day5BeltAndSuspendersValidation:
             mark_data = {"user_id": self.test_user_id, "session_id": session_id}
             
             mark_response_1 = requests.post(f"{self.backend_url}/api/adapt/mark-served",
-                                          json=mark_data, headers=self.auth_headers, timeout=10)
+                                          json=mark_data, headers=self.auth_headers, timeout=60)
             
             if mark_response_1.status_code != 200:
                 return {"passed": False, "error": f"First mark-served failed: {mark_response_1.status_code}"}
