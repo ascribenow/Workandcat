@@ -1,0 +1,4 @@
+🔍 FORCING COMPREHENSIVE VERIFICATION ON ALL 388 QUESTIONS...
+📋 This will verify ALL questions against 24 comprehensive criteria
+⚠️ Some questions with quality_verified=TRUE might fail and be downgraded
+
