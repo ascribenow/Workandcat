@@ -273,46 +273,63 @@ class CoverageSelector:
         
         return selected
     
-    def _apply_caps_with_band_aware_backfill(self, selected_questions: List[Dict],
-                                           eligible_questions: List[Dict], recipe: Dict,
-                                           notebook: Dict, user_id: str, session_id: str) -> List[Dict]:
-        """Apply ≤2 cap per subcategory|type with band-aware backfill"""
-        
-        # Apply caps by band to preserve bucket intent
-        capped_pack = []
-        subtype_counts = {}
-        used_question_ids = set()
-        
-        # Group by difficulty band
-        by_band = {"easy": [], "medium": [], "hard": []}
-        for q in selected_questions:
-            band = q.get("difficulty_band", "medium")
-            if band in by_band:
-                by_band[band].append(q)
-        
-        # Apply caps within each band
-        for band, band_questions in by_band.items():
-            capped_band = self._apply_cap_to_band(band_questions, subtype_counts, used_question_ids)
-            capped_pack.extend(capped_band)
-        
-        # If we lost questions due to caps, backfill from eligible questions
-        target_total = 12
-        if len(capped_pack) < target_total:
-            needed = target_total - len(capped_pack)
-            backfill_candidates = [q for q in eligible_questions if q["id"] not in used_question_ids]
-            
-            # Stable selection for backfill
-            random.seed(hashlib.md5(f"backfill_{session_id}".encode()).hexdigest()[:8])
-            random.shuffle(backfill_candidates)
-            
-            for candidate in backfill_candidates[:needed]:
-                subtype = f"{candidate.get('subcategory', 'Unknown')}|{candidate.get('type_of_question', 'Unknown')}"
-                if subtype_counts.get(subtype, 0) < 2:
-                    capped_pack.append(candidate)
-                    used_question_ids.add(candidate["id"])
-                    subtype_counts[subtype] = subtype_counts.get(subtype, 0) + 1
-        
-        return capped_pack[:12]  # Ensure exactly 12
+    async def _apply_caps_with_smart_band_aware_backfill(
+        self,
+        selected_questions: List[Dict],
+        eligible_pool: List[Dict],
+        recipe: Dict,
+        notebook: Dict,
+        user_id: str,
+        session_id: str,
+    ) -> List[Dict]:
+        """
+        Enforce ≤2 per subtype cap, then deterministically backfill to restore 3/6/3 and total=12.
+        If inventory under same-band/borrow cannot satisfy, allow a *soft* cap relax to 3 (audited).
+        As last resort, force-fill to 12 while flagging audit.
+        """
+        subtype_counts: Dict[str, int] = {}
+        used_ids: set = set()
+
+        # split by band
+        easy = [q for q in selected_questions if q.get("difficulty_band") == "easy"]
+        med  = [q for q in selected_questions if q.get("difficulty_band") == "medium"]
+        hard = [q for q in selected_questions if q.get("difficulty_band") == "hard"]
+
+        # enforce ≤2 cap inside each band
+        easy_c = self._apply_cap_to_band(easy,  subtype_counts, used_ids)
+        med_c  = self._apply_cap_to_band(med,   subtype_counts, used_ids)
+        hard_c = self._apply_cap_to_band(hard,  subtype_counts, used_ids)
+
+        # init audit holders if caller didn't
+        audit = {"cap_relaxations": {"easy":0,"medium":0,"hard":0}, "force_fill": 0, "shape_compromised_due_to_inventory": False}
+
+        # compute deficits
+        need_easy = max(0, 3 - len(easy_c))
+        need_med  = max(0, 6 - len(med_c))
+        need_hard = max(0, 3 - len(hard_c))
+
+        # fill deficits in priority order easy→medium→hard to stabilize ties
+        easy_c += self._backfill_band("easy", need_easy,  eligible_pool, recipe, notebook,
+                                      subtype_counts, used_ids, user_id, session_id, audit)
+        med_c  += self._backfill_band("medium", need_med, eligible_pool, recipe, notebook,
+                                      subtype_counts, used_ids, user_id, session_id, audit)
+        hard_c += self._backfill_band("hard", need_hard,  eligible_pool, recipe, notebook,
+                                      subtype_counts, used_ids, user_id, session_id, audit)
+
+        # assemble & enforce 3/6/3 slice and total <= 12
+        pack = (easy_c[:3] + med_c[:6] + hard_c[:3])[:12]
+
+        # If still short due to inventory, force-fill to 12 and flag audit
+        if len(pack) < 12:
+            pack = self._force_fill_to_twelve(pack, eligible_pool, used_ids, user_id, session_id, audit)
+            # If force-filled from other bands, shape might be off; mark it
+            shape = self._shape_from_pack(pack)
+            if not (shape.get("easy")==3 and shape.get("medium")==6 and shape.get("hard")==3):
+                audit["shape_compromised_due_to_inventory"] = True
+
+        # store audit on self so caller (select_pack) can merge it in its audit
+        self._last_caps_backfill_audit = audit
+        return pack
     
     def _apply_cap_to_band(self, band_questions: List[Dict], subtype_counts: Dict, used_question_ids: set) -> List[Dict]:
         """Apply ≤2 cap per subcategory|type within a band"""
