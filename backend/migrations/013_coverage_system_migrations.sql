@@ -49,8 +49,12 @@ BEGIN
 END $$;
 
 -- 4. Add unique constraint for session_id for upsert ON CONFLICT
-ALTER TABLE session_pack_plan
-  ADD CONSTRAINT IF NOT EXISTS session_pack_plan_session_id_key UNIQUE (session_id);
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'session_pack_plan_session_id_key') THEN
+        ALTER TABLE session_pack_plan ADD CONSTRAINT session_pack_plan_session_id_key UNIQUE (session_id);
+    END IF;
+END $$;
 
 -- 5. Add composite index for user_id + session_id performance
 CREATE INDEX IF NOT EXISTS idx_session_pack_plan_user_session 
