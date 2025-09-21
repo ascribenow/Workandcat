@@ -6,3 +6,5 @@
 🔄 Processing batch 1/20 (20 questions)
    ✅ Processed: 20, Failed: 0
 🔄 Processing batch 2/20 (20 questions)
+🔄 Processing batch 3/20 (20 questions)
+🔄 Processing batch 4/20 (20 questions)
