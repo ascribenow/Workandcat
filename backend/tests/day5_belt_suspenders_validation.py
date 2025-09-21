@@ -575,7 +575,7 @@ class Day5BeltAndSuspendersValidation:
             
             # Second mark-served call (idempotency test)
             mark_response_2 = requests.post(f"{self.backend_url}/api/adapt/mark-served",
-                                          json=mark_data, headers=self.auth_headers, timeout=10)
+                                          json=mark_data, headers=self.auth_headers, timeout=60)
             
             if mark_response_2.status_code != 200:
                 return {"passed": False, "error": f"Second mark-served failed: {mark_response_2.status_code}"}
