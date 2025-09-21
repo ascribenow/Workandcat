@@ -15,6 +15,8 @@ from typing import Dict, Any
 
 from services.coverage_pipeline import coverage_pipeline
 from auth import get_current_user
+from database import SessionLocal
+from sqlalchemy import text
 
 logger = logging.getLogger(__name__)
 
