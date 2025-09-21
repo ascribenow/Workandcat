@@ -9,7 +9,7 @@ import hashlib
 import json
 import logging
 import random
-from typing import Dict, List, Tuple, Set
+from typing import Dict, List, Tuple, Set, Optional, Iterable
 import psycopg2
 import os
 from dotenv import load_dotenv
@@ -17,6 +17,14 @@ from dotenv import load_dotenv
 load_dotenv()
 
 logger = logging.getLogger(__name__)
+
+# Constants for backfill logic
+PRIMARY_VIEW = {"easy": "weak", "medium": "moderate", "hard": "strong"}
+BORROW = {
+    "easy":   [("moderate","medium"), ("strong","hard")],
+    "medium": [("weak","easy"), ("strong","hard")],
+    "hard":   [("moderate","medium"), ("weak","easy")]
+}
 
 class CoverageSelector:
     """
