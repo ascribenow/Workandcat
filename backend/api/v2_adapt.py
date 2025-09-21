@@ -241,11 +241,8 @@ async def v2_mark_served_controller(body: dict, auth_user_id: str = Depends(get_
         pack_json = pack_data[0]
         actual_user_id = pack_data[1]
         
-        # Parse pack with safety
-        if isinstance(pack_json, str):
-            pack = json.loads(pack_json)
-        else:
-            pack = pack_json
+        # Parse pack with safe JSON handling (prevents 502 from double parsing)
+        pack = as_json(pack_json)
         
         if not isinstance(pack, list):
             pack = pack.get("items", []) if isinstance(pack, dict) else []
