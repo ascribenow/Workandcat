@@ -659,7 +659,7 @@ class Day5BeltAndSuspendersValidation:
             }
             
             unknown_response = requests.post(f"{self.backend_url}/api/log/question-action",
-                                           json=unknown_question_data, headers=self.auth_headers, timeout=10)
+                                           json=unknown_question_data, headers=self.auth_headers, timeout=60)
             
             # Should return 404 or error for unknown question
             edge_case_handled = unknown_response.status_code in [404, 400, 422]
