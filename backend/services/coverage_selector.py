@@ -544,45 +544,113 @@ class CoverageSelector:
     
     def _pack_level_pyq_topup(self, pack: List[Dict], eligible_questions: List[Dict],
                             pack_pyq_counters: Dict, user_id: str, session_id: str) -> List[Dict]:
-        """Perform pack-level PYQ top-up if targets not met"""
+        """
+        Enhanced pack-level PYQ top-up if targets not met
+        Ensures ≥2 questions with pyq=1.5 and ≥2 with pyq=1.0 at pack level
+        """
         
-        # Check current PYQ counts in pack
+        # Check current PYQ counts in FINAL pack (not counters, which may be from bucket phase)
         current_1_5 = sum(1 for q in pack if q.get("pyq_frequency_score", 0) >= 1.5)
         current_1_0 = sum(1 for q in pack if 1.0 <= q.get("pyq_frequency_score", 0) < 1.5)
+        total_pyq_qualifying = current_1_5 + current_1_0
         
-        # If targets already met, return as-is
-        if current_1_5 >= 2 and (current_1_5 + current_1_0) >= 4:
+        logger.debug(f"PYQ top-up check: {current_1_5} high-PYQ, {current_1_0} med-PYQ, {total_pyq_qualifying} total qualifying")
+        
+        # Check if targets are met
+        target_1_5 = 2  # Minimum 2 questions with PYQ >= 1.5
+        target_total_pyq = 4  # Minimum 4 questions with PYQ >= 1.0
+        
+        needs_high_pyq = max(0, target_1_5 - current_1_5)
+        needs_total_pyq = max(0, target_total_pyq - total_pyq_qualifying)
+        
+        if needs_high_pyq == 0 and needs_total_pyq == 0:
+            logger.debug("✅ PYQ targets already met, no top-up needed")
             return pack
         
-        # Find high-PYQ candidates not already in pack
+        logger.info(f"🎯 PYQ top-up needed: {needs_high_pyq} high-PYQ, {needs_total_pyq} total PYQ")
+        
+        # Find replacement candidates by PYQ priority
         used_ids = {q["id"] for q in pack}
+        
+        # Get high-PYQ candidates first (≥1.5)
         high_pyq_candidates = [
             q for q in eligible_questions 
             if q["id"] not in used_ids and q.get("pyq_frequency_score", 0) >= 1.5
         ]
         
-        # Stable selection for PYQ top-up
-        random.seed(hashlib.md5(f"pyq_topup_{session_id}".encode()).hexdigest()[:8])
-        random.shuffle(high_pyq_candidates)
+        # Get medium-PYQ candidates (1.0-1.5)
+        med_pyq_candidates = [
+            q for q in eligible_questions
+            if q["id"] not in used_ids and 1.0 <= q.get("pyq_frequency_score", 0) < 1.5
+        ]
         
-        # Replace lowest PYQ questions with high PYQ ones if beneficial
+        # Stable selection for PYQ top-up using deterministic seeding
+        def pyq_topup_key(q):
+            pyq_score = q.get("pyq_frequency_score", 0.0)
+            subcat_type = f"{q.get('subcategory', 'Unknown')}|{q.get('type_of_question', 'Unknown')}"
+            served_count = self._get_served_count(user_id, subcat_type)
+            stable_hash = int(hashlib.md5(f"pyq_topup_{session_id}_{q['id']}".encode()).hexdigest()[:8], 16)
+            return (-pyq_score, served_count, stable_hash)
+        
+        high_pyq_candidates.sort(key=pyq_topup_key)
+        med_pyq_candidates.sort(key=pyq_topup_key)
+        
+        # Prepare pack for replacement
         pack_with_pyq_scores = [(q, q.get("pyq_frequency_score", 0)) for q in pack]
-        pack_with_pyq_scores.sort(key=lambda x: x[1])  # Sort by PYQ score ascending
+        pack_with_pyq_scores.sort(key=lambda x: x[1])  # Sort by PYQ score ascending (lowest first)
         
         final_pack = pack.copy()
         replacements_made = 0
+        max_replacements = min(6, len(pack))  # Don't replace more than half the pack
         
-        for candidate in high_pyq_candidates[:2]:  # Limit replacements
+        # Phase 1: Replace lowest PYQ questions with high-PYQ candidates (≥1.5)
+        for candidate in high_pyq_candidates:
+            if needs_high_pyq <= 0 or replacements_made >= max_replacements:
+                break
+                
             if replacements_made < len(pack_with_pyq_scores):
-                # Replace lowest scoring question
                 lowest_q, lowest_score = pack_with_pyq_scores[replacements_made]
-                if candidate.get("pyq_frequency_score", 0) > lowest_score:
+                
+                # Only replace if candidate is significantly better
+                if candidate.get("pyq_frequency_score", 0) > lowest_score + 0.3:  # Require meaningful improvement
                     # Remove lowest and add candidate
                     final_pack = [q for q in final_pack if q["id"] != lowest_q["id"]]
                     final_pack.append(candidate)
                     replacements_made += 1
+                    needs_high_pyq -= 1
+                    needs_total_pyq = max(0, needs_total_pyq - 1)
+                    
+                    logger.debug(f"PYQ top-up: replaced {lowest_q['id'][:8]}... (PYQ {lowest_score:.1f}) with {candidate['id'][:8]}... (PYQ {candidate.get('pyq_frequency_score', 0):.1f})")
         
-        return final_pack[:12]  # Ensure exactly 12
+        # Phase 2: If we still need total PYQ count, add medium-PYQ candidates  
+        for candidate in med_pyq_candidates:
+            if needs_total_pyq <= 0 or replacements_made >= max_replacements:
+                break
+                
+            if replacements_made < len(pack_with_pyq_scores):
+                lowest_q, lowest_score = pack_with_pyq_scores[replacements_made]
+                
+                # Only replace if candidate is better and we need PYQ count
+                if candidate.get("pyq_frequency_score", 0) > lowest_score:
+                    final_pack = [q for q in final_pack if q["id"] != lowest_q["id"]]
+                    final_pack.append(candidate)
+                    replacements_made += 1
+                    needs_total_pyq -= 1
+                    
+                    logger.debug(f"PYQ top-up: replaced {lowest_q['id'][:8]}... (PYQ {lowest_score:.1f}) with {candidate['id'][:8]}... (PYQ {candidate.get('pyq_frequency_score', 0):.1f})")
+        
+        # Verify final pack still has exactly 12 questions
+        if len(final_pack) != 12:
+            logger.warning(f"⚠️ PYQ top-up resulted in {len(final_pack)} questions, fixing to 12")
+            final_pack = final_pack[:12]
+        
+        # Update final PYQ counters for audit
+        final_1_5 = sum(1 for q in final_pack if q.get("pyq_frequency_score", 0) >= 1.5)
+        final_1_0 = sum(1 for q in final_pack if 1.0 <= q.get("pyq_frequency_score", 0) < 1.5)
+        
+        logger.info(f"🎯 PYQ top-up completed: {final_1_5} high-PYQ, {final_1_0} med-PYQ, {replacements_made} replacements")
+        
+        return final_pack
     
     def _shape_from_pack(self, pack: List[Dict]) -> Dict:
         """Recompute shape from final pack for accurate audit"""
