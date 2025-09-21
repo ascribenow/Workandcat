@@ -234,7 +234,7 @@ class CoverageSelector:
     
     def _fill_bucket(self, band: str, target_count: int, tagged_questions: List[Dict],
                     recipe: Dict, pack_pyq_counters: Dict, audit: Dict, session_id: str) -> List[Dict]:
-        """Fill a difficulty band bucket with PYQ-first selection"""
+        """Fill a difficulty band bucket with PACK-LEVEL PYQ-FIRST selection"""
         
         # Filter questions for this band
         band_questions = [q for q in tagged_questions if q["difficulty_band"] == band]
@@ -245,13 +245,29 @@ class CoverageSelector:
         for skill in band_recipe.get("priority_skills", []):
             priority_skills.add(skill.lower())
         
-        # Sort questions by 4-tier priority with session-stable seeding
-        def priority_key(q):
+        # PACK-LEVEL PYQ ENFORCEMENT: Sort with PYQ-first priority
+        def pyq_first_priority_key(q):
+            # TIER 0: PACK-LEVEL PYQ enforcement (highest priority)
+            pyq_score = q.get("pyq_frequency_score", 0.0)
+            
+            # Check current pack-level PYQ status to prioritize high-PYQ questions
+            current_1_5 = pack_pyq_counters.get("1_5", 0)
+            current_1_0 = pack_pyq_counters.get("1_0", 0)
+            
+            # Priority boost for PYQ questions when pack needs them
+            pyq_priority = 0  # Default: no boost
+            if current_1_5 < 2 and pyq_score >= 1.5:
+                pyq_priority = -3  # Highest priority for high PYQ when needed
+            elif (current_1_5 + current_1_0) < 4 and pyq_score >= 1.0:
+                pyq_priority = -2  # Medium priority for medium PYQ when needed
+            elif pyq_score >= 1.5:
+                pyq_priority = -1  # Lower priority for excess high PYQ
+            
             # Tier 1: Skill match (0 = match, 1 = no match)
             skill_match = 0 if any(anchor.lower() in priority_skills for anchor in q.get("anchors", [])) else 1
             
             # Tier 2: PYQ score (negative for descending order)
-            pyq_score = -q.get("pyq_frequency_score", 0.0)
+            pyq_tier = -pyq_score
             
             # Tier 3: Served count (ascending order - prefer less served)
             subcat_type = f"{q.get('subcategory', 'Unknown')}|{q.get('type_of_question', 'Unknown')}"
@@ -261,15 +277,29 @@ class CoverageSelector:
             question_hash = hashlib.md5(f"{q['id']}_{session_id}".encode()).hexdigest()[:8]
             hash_value = int(question_hash, 16)
             
-            return (skill_match, pyq_score, served_count, hash_value)
+            return (pyq_priority, skill_match, pyq_tier, served_count, hash_value)
         
-        sorted_questions = sorted(band_questions, key=priority_key)
+        sorted_questions = sorted(band_questions, key=pyq_first_priority_key)
         
-        # Select up to target_count questions
-        selected = sorted_questions[:target_count]
+        # Select questions and update PACK-LEVEL PYQ counters
+        selected = []
+        for q in sorted_questions:
+            if len(selected) >= target_count:
+                break
+                
+            selected.append(q)
+            
+            # Update PACK-LEVEL PYQ counters for cross-band tracking
+            pyq_score = q.get("pyq_frequency_score", 0.0)
+            if pyq_score >= 1.5:
+                pack_pyq_counters["1_5"] += 1
+            elif pyq_score >= 1.0:
+                pack_pyq_counters["1_0"] += 1
         
         # Update audit
         audit["shape"][band] = len(selected)
+        
+        logger.debug(f"Filled {band} bucket: {len(selected)} questions, pack PYQ counters: {pack_pyq_counters}")
         
         return selected
     
