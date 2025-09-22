@@ -94,6 +94,11 @@ export const SimpleDashboard = () => {
       setDashboardData(simpleResponse.data);
       setCategorizedData(categorizedResponse.data);
       
+      // TELEMETRY: Log mismatch after state is set (slight delay for React state update)
+      setTimeout(() => {
+        logDashboardMismatch('post_data_fetch', simpleResponse.data, dashboardData);
+      }, 100);
+      
     } catch (error) {
       console.error('SimpleDashboard: Error fetching data:', error);
       console.error('SimpleDashboard: Error details:', {
