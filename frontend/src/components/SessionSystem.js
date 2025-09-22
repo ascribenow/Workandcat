@@ -498,26 +498,36 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
       if (!isLoadingPack && (pack == null || pack.length === 0) && !inProgressSession) {
         console.log('📋 No existing pack, triggering planning...');
         
-        // Plan session with proper headers
+        // ASYNC PATTERN: Trigger planning in background (202), then poll for readiness
         try {
-          console.log('🚀 Calling plan-next with headers:', planHeaders);
+          console.log('🚀 Triggering async session planning...');
+          
+          // 1. Trigger planning (expect 202, don't wait)
           const planResponse = await axios.post(`${API}/adapt/plan-next`, {
             user_id: user.id,
             last_session_id: lastSessionId,
             next_session_id: nextSessionId
           }, { 
             headers: planHeaders,
-            timeout: 25000  // V2 FIX: Reduced timeout since backend is now fast
+            timeout: 8000  // Short timeout - just triggering background job
           });
           
-          console.log('✅ Planning completed:', planResponse.status, planResponse.data);
+          if (planResponse.status === 202) {
+            console.log('✅ Session planning triggered in background');
+            
+            // 2. Poll for pack readiness
+            pack = await pollForPackReadiness(nextSessionId);
+            
+            console.log('✅ Pack received from polling:', pack?.length || 0, 'questions');
+            
+          } else {
+            throw new Error(`Unexpected plan-next response: ${planResponse.status}`);
+          }
           
         } catch (error) {
-          console.log('First planning attempt failed, retrying...', error.message);
+          console.log('Planning trigger failed, trying fallback...', error.message);
           
-          // Silent retry with jitter  
-          await new Promise(r => setTimeout(r, 400 + Math.random() * 400));
-          
+          // Fallback: retry once with longer timeout for backward compatibility
           try {
             const retryResponse = await axios.post(`${API}/adapt/plan-next`, {
               user_id: user.id,
@@ -525,25 +535,21 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
               next_session_id: nextSessionId
             }, { 
               headers: planHeaders,
-              timeout: 25000  // V2 FIX: Reduced timeout
+              timeout: 25000  // Fallback timeout
             });
             
-            console.log('✅ Planning retry completed:', retryResponse.status);
+            console.log('✅ Planning fallback completed:', retryResponse.status);
+            
+            // If fallback succeeded, fetch pack normally
+            await new Promise(r => setTimeout(r, 1000));
+            pack = await fetchPackSafe(user.id, nextSessionId);
             
           } catch (retryError) {
-            console.error('❌ Auto-plan guard failed after retry');
-            // V2 CRITICAL FIX: Don't use legacy fallback - it causes dashboard redirect
-            setError('Adaptive planning failed. Please refresh the page to try again.');
-            return;  // V2 FIX: Early return to prevent state issues
+            console.error('❌ Session planning failed after retry');
+            setError('Session planning failed. Please refresh the page to try again.');
+            return;
           }
         }
-        
-        // V2 FIX: Wait a moment for backend to persist the pack
-        console.log('⏳ Waiting for pack persistence...');
-        await new Promise(r => setTimeout(r, 1000));
-        
-        // Fetch pack after planning with safe fetching
-        pack = await fetchPackSafe(user.id, nextSessionId);
         
         // SURGICAL FIX: Safe guard after planning
         if (!isLoadingPack && (pack == null || pack.length === 0) && !inProgressSession) {
