@@ -28,64 +28,92 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/adapt", tags=["coverage_adaptive_sessions"])
 
 @router.post("/plan-next")
-async def async_plan_next_controller(body: dict, request: Request, user_id: str = Depends(get_current_user)):
+async def async_plan_next_controller(
+    body: dict, 
+    request: Request, 
+    user_id: str = Depends(get_current_user),
+    idempotency_key: str = Header(None, alias="Idempotency-Key")
+):
     """
-    Async Plan-Next: Returns 202 immediately, runs planning in background
-    NO MORE USER BLOCKING - triggers background job and returns instantly
+    Backend-canonical session_id with idempotency deduplication
+    Returns 202 immediately, runs planning in background
     """
     # Diagnostic timing setup
-    rid = request.headers.get("X-Request-Id") or request.headers.get("Idempotency-Key") or str(uuid.uuid4())
+    rid = request.headers.get("X-Request-Id") or idempotency_key or str(uuid.uuid4())
     t0 = time.perf_counter()
     
     logger.info(f"🚀 ASYNC PLAN-NEXT: request_id={rid}")
     
     try:
+        # Validate required headers
+        if not idempotency_key:
+            raise HTTPException(status_code=400, detail="Idempotency-Key header required")
+        
         # Extract and validate parameters
         req_user_id = body.get("user_id")
-        last_session_id = body.get("last_session_id") 
-        next_session_id = body.get("next_session_id")
+        proposed_session_id = body.get("next_session_id")
         
-        if not all([req_user_id, next_session_id]):
-            raise HTTPException(status_code=400, detail="user_id and next_session_id are required")
+        if not req_user_id:
+            raise HTTPException(status_code=400, detail="user_id is required")
         
         if req_user_id != user_id:
             raise HTTPException(status_code=403, detail="Cannot plan sessions for other users")
         
-        # Idempotency validation
-        idem_key = request.headers.get("Idempotency-Key")
-        if not idem_key:
-            raise HTTPException(status_code=400, detail={"code": "IDEMPOTENCY_KEY_REQUIRED"})
+        # Get canonical session_id (idempotent)
+        canonical_session_id = idempotency_service.get_or_create_session_id(
+            idempotency_key, proposed_session_id
+        )
         
-        # Create session row with 'planning' status (idempotent)
+        # Check if already processing
+        db = SessionLocal()
+        try:
+            existing_row = db.execute(text("""
+                SELECT status FROM session_pack_plan WHERE session_id = :session_id
+            """), {"session_id": canonical_session_id}).fetchone()
+            
+            if existing_row:
+                existing_status = existing_row[0]
+                
+                # Return current status (idempotent response)
+                duration_ms = int((time.perf_counter() - t0) * 1000)
+                logger.info(f"✅ IDEMPOTENT RESPONSE: {canonical_session_id[:8]} status={existing_status} in {duration_ms}ms")
+                
+                return JSONResponse({
+                    "session_id": canonical_session_id,
+                    "status": existing_status,
+                    "message": f"Session {existing_status} (idempotent response)",
+                    "id_source": "idempotency_cache",
+                    "response_type": "idempotent"
+                }, status_code=202)
+        finally:
+            db.close()
+        
+        # Create new planning row with canonical session_id
         db = SessionLocal()
         try:
             db.execute(text("""
                 INSERT INTO session_pack_plan (session_id, user_id, status, selection_method, created_at)
                 VALUES (:session_id, :user_id, 'planning', 'coverage_v1', NOW())
-                ON CONFLICT (session_id) DO UPDATE SET
-                    status = CASE 
-                        WHEN session_pack_plan.status = 'served' THEN 'served'
-                        WHEN session_pack_plan.status = 'planned' THEN 'planned'  
-                        ELSE 'planning' 
-                    END
-            """), {"session_id": next_session_id, "user_id": req_user_id})
+            """), {"session_id": canonical_session_id, "user_id": req_user_id})
             db.commit()
         finally:
             db.close()
         
         # Trigger background planning job (fire-and-forget)
-        asyncio.create_task(background_plan_next_session(req_user_id, next_session_id))
+        asyncio.create_task(background_plan_next_session(req_user_id, canonical_session_id))
         
         # Return 202 immediately - no waiting!
         duration_ms = int((time.perf_counter() - t0) * 1000)
         
-        logger.info(f"✅ ASYNC PLAN-NEXT: Triggered background job in {duration_ms}ms, request_id={rid}")
+        logger.info(f"✅ ASYNC PLAN-NEXT: Triggered background job in {duration_ms}ms, session={canonical_session_id[:8]}")
         
         return JSONResponse({
-            "session_id": next_session_id,
+            "session_id": canonical_session_id,
             "status": "planning",
             "message": "Session planning started in background",
-            "triggered_at": datetime.utcnow().isoformat() + 'Z'
+            "triggered_at": datetime.utcnow().isoformat() + 'Z',
+            "id_source": "backend_generated" if not proposed_session_id else "client_proposed",
+            "response_type": "new_session"
         }, status_code=202)
         
     except HTTPException:
