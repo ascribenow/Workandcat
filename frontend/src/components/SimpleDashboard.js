@@ -57,15 +57,16 @@ export const SimpleDashboard = () => {
     }
   };
 
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = async (retryCount = 0) => {
     try {
       setLoading(true);
       console.log('SimpleDashboard: Fetching categorized taxonomy data...');
       console.log('SimpleDashboard: API URL:', API);
       console.log('SimpleDashboard: Token length:', token?.length);
       console.log('SimpleDashboard: User ID:', user?.id);
+      console.log('SimpleDashboard: Retry attempt:', retryCount);
       
-      // Fetch both simple and categorized data
+      // Fetch both simple and categorized data with increased timeouts
       const [simpleResponse, categorizedResponse] = await Promise.all([
         axios.get(`${API}/dashboard/simple-taxonomy`, {
           headers: {
@@ -105,10 +106,24 @@ export const SimpleDashboard = () => {
         message: error.message,
         status: error.response?.status,
         statusText: error.response?.statusText,
-        data: error.response?.data
+        data: error.response?.data,
+        retryCount: retryCount
       });
       
-      // Set empty data to stop loading
+      // RETRY LOGIC: Retry up to 2 times with exponential backoff
+      if (retryCount < 2) {
+        const backoffDelay = Math.pow(2, retryCount) * 2000; // 2s, 4s delays
+        console.log(`SimpleDashboard: Retrying in ${backoffDelay}ms... (attempt ${retryCount + 1}/3)`);
+        
+        setTimeout(() => {
+          fetchDashboardData(retryCount + 1);
+        }, backoffDelay);
+        
+        return; // Don't set empty data yet, let retry happen
+      }
+      
+      // Set empty data to stop loading after all retries failed
+      console.log('SimpleDashboard: All retries failed, setting empty data');
       setDashboardData({ total_sessions: 0, taxonomy_data: [] });
       setCategorizedData({ total_sessions: 0, categorized_data: [], total_categories: 0 });
     } finally {
