@@ -153,59 +153,116 @@ async def background_plan_next_session(user_id: str, session_id: str):
             db.close()
 
 @router.get("/pack")
-async def v2_get_pack_controller(user_id: str, session_id: str, auth_user_id: str = Depends(get_current_user)):
+async def status_aware_pack_controller(user_id: str, session_id: str, auth_user_id: str = Depends(get_current_user)):
     """
-    Coverage Pack Fetch - Returns assembled pack from pack_json
-    
-    Frontend unchanged. Backend reads from Coverage pack_json column.
+    Status-aware pack endpoint: 200/202/500 based on planning state
+    Core polling endpoint for async planning pattern
     """
     if user_id != auth_user_id:
         raise HTTPException(status_code=403, detail="Cannot access other users' packs")
     
-    logger.info(f"COVERAGE PACK: Fetching pack for user {user_id[:8]}, session {session_id[:8]}")
+    logger.info(f"📦 PACK: Checking status for session {session_id[:8]}")
     
-    # Fetch from Coverage pack_json column
     db = SessionLocal()
     try:
         result = db.execute(text("""
-            SELECT pack_json, status, selection_method, processing_time_ms
+            SELECT pack_json, status, coverage_audit, selection_method, created_at
             FROM session_pack_plan
             WHERE user_id = :user_id AND session_id = :session_id
             LIMIT 1
         """), {"user_id": user_id, "session_id": session_id}).fetchone()
         
         if not result:
-            raise HTTPException(status_code=404, detail="Pack not found")
+            raise HTTPException(status_code=404, detail="Session not found")
         
-        pack_json = result[0]
-        pack_status = result[1]
-        selection_method = result[2]
-        processing_time = result[3]
+        pack_json, status, coverage_audit, selection_method, created_at = result
         
-        if pack_status != "planned":
-            raise HTTPException(status_code=409, detail=f"Pack not in planned state: {pack_status}")
-        
-        # Parse pack_json and return in frontend format
-        if isinstance(pack_json, str):
-            pack_data = json.loads(pack_json)
-        else:
-            pack_data = pack_json
-        
-        logger.info(f"COVERAGE PACK: Retrieved pack for session {session_id[:8]}, "
-                   f"method={selection_method}, processing={processing_time}ms")
-        
-        return {
-            "user_id": user_id,
-            "session_id": session_id,
-            "status": pack_status,
-            "pack": pack_data if isinstance(pack_data, list) else pack_data.get("items", []),
-            "meta": {
+        if status == "planned":
+            # Pack ready - return 200 with full data
+            pack = as_json(pack_json)
+            audit = as_json(coverage_audit)
+            
+            logger.info(f"✅ PACK: Session {session_id[:8]} ready with {len(pack)} questions")
+            
+            return JSONResponse({
+                "user_id": user_id,
+                "session_id": session_id,
+                "status": "planned",
+                "pack": pack,
+                "pack_ready": True,
+                "coverage_audit": audit,
+                "pack_size": len(pack),
                 "selection_method": selection_method,
-                "processing_time_ms": processing_time,
-                "version": "coverage_v1"
-            }
-        }
-        
+                "meta": {
+                    "selection_method": selection_method,
+                    "version": "coverage_v1"
+                }
+            }, status_code=200)
+            
+        elif status == "planning":
+            # Still processing - return 202 with polling info
+            logger.info(f"⏳ PACK: Session {session_id[:8]} still planning")
+            
+            return JSONResponse({
+                "user_id": user_id,
+                "session_id": session_id,
+                "status": "planning",
+                "pack_ready": False,
+                "message": "Session being prepared in background",
+                "poll_after_ms": 2000,
+                "created_at": created_at.isoformat() if created_at else None
+            }, status_code=202)
+            
+        elif status == "failed":
+            # Planning failed - return 500 with retry info
+            audit = as_json(coverage_audit)
+            error_msg = audit.get("error", "Unknown planning error")
+            
+            logger.warning(f"❌ PACK: Session {session_id[:8]} failed - {error_msg}")
+            
+            return JSONResponse({
+                "user_id": user_id,
+                "session_id": session_id,
+                "status": "failed", 
+                "pack_ready": False,
+                "error": error_msg,
+                "retry_available": True,
+                "error_type": audit.get("error_type", "unknown")
+            }, status_code=500)
+            
+        elif status == "served":
+            # Already served - return pack data (read-only)
+            pack = as_json(pack_json)
+            audit = as_json(coverage_audit)
+            
+            logger.info(f"📋 PACK: Session {session_id[:8]} already served")
+            
+            return JSONResponse({
+                "user_id": user_id,
+                "session_id": session_id,
+                "status": "served",
+                "pack": pack,
+                "pack_ready": True,
+                "coverage_audit": audit,
+                "pack_size": len(pack),
+                "selection_method": selection_method,
+                "meta": {
+                    "selection_method": selection_method,
+                    "version": "coverage_v1",
+                    "read_only": True
+                }
+            }, status_code=200)
+            
+        else:
+            # Unknown status
+            return JSONResponse({
+                "user_id": user_id,
+                "session_id": session_id,
+                "status": status,
+                "pack_ready": False,
+                "message": f"Session status: {status}"
+            }, status_code=200)
+            
     finally:
         db.close()
 
