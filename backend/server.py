@@ -1036,6 +1036,43 @@ async def prewarm_next_session(user_id: str):
     except Exception as e:
         logger.error(f"❌ Pre-warming failed for user {user_id[:8]}: {e}")
 
+# Legacy Endpoint Deprecation Guards
+@app.post("/api/sessions/start")
+async def deprecated_session_start():
+    """HARD DEPRECATION: Legacy session start endpoint"""
+    from services.telemetry import telemetry_service
+    
+    telemetry_service.emit_metric("legacy.endpoint.sessions_start_410", 1, {
+        "deprecated_at": datetime.utcnow().isoformat(),
+        "replacement": "/api/adapt/plan-next"
+    })
+    
+    raise HTTPException(
+        status_code=410,
+        detail={
+            "error": "Endpoint deprecated",
+            "message": "Use /api/adapt/plan-next with async polling pattern",
+            "replacement_endpoint": "/api/adapt/plan-next",
+            "documentation": "See Coverage System async pattern"
+        }
+    )
+
+@app.get("/api/sessions/current-status")
+async def deprecated_current_status():
+    """HARD DEPRECATION: Legacy session status endpoint"""
+    from services.telemetry import telemetry_service
+    
+    telemetry_service.emit_metric("legacy.endpoint.current_status_410", 1)
+    
+    raise HTTPException(
+        status_code=410,
+        detail={
+            "error": "Endpoint deprecated", 
+            "replacement": "/api/session-progress/current/{user_id}",
+            "message": "Use session progress tracking endpoints"
+        }
+    )
+
 # Question Action Logging Endpoints
 @app.post("/api/log/question-action")
 async def log_question_action(
