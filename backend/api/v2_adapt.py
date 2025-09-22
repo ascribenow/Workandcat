@@ -26,21 +26,16 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/adapt", tags=["coverage_adaptive_sessions"])
 
 @router.post("/plan-next")
-async def v2_plan_next_controller(body: dict, request: Request, user_id: str = Depends(get_current_user)):
+async def async_plan_next_controller(body: dict, request: Request, user_id: str = Depends(get_current_user)):
     """
-    Coverage Plan-Next Endpoint - COVERAGE V1 IMPLEMENTATION
-    
-    External contract unchanged (session_id strings for frontend compatibility).
-    Internal: Pure Coverage pipeline with deterministic selection.
-    
-    Target: p95 ≤ 6s (was 98.7s)
+    Async Plan-Next: Returns 202 immediately, runs planning in background
+    NO MORE USER BLOCKING - triggers background job and returns instantly
     """
     # Diagnostic timing setup
     rid = request.headers.get("X-Request-Id") or request.headers.get("Idempotency-Key") or str(uuid.uuid4())
     t0 = time.perf_counter()
-    start_ts = datetime.utcnow().isoformat() + 'Z'
     
-    logger.info(f"🚀 COVERAGE PLAN-NEXT: request_id={rid}")
+    logger.info(f"🚀 ASYNC PLAN-NEXT: request_id={rid}")
     
     try:
         # Extract and validate parameters
@@ -59,83 +54,103 @@ async def v2_plan_next_controller(body: dict, request: Request, user_id: str = D
         if not idem_key:
             raise HTTPException(status_code=400, detail={"code": "IDEMPOTENCY_KEY_REQUIRED"})
         
-        # Coverage Pipeline execution
-        pipeline_result = await coverage_pipeline.plan_next_session(
-            user_id=req_user_id,
-            session_id=next_session_id
-        )
+        # Create session row with 'planning' status (idempotent)
+        db = SessionLocal()
+        try:
+            db.execute(text("""
+                INSERT INTO session_pack_plan (session_id, user_id, status, selection_method, created_at)
+                VALUES (:session_id, :user_id, 'planning', 'coverage_v1', NOW())
+                ON CONFLICT (session_id) DO UPDATE SET
+                    status = CASE 
+                        WHEN session_pack_plan.status = 'served' THEN 'served'
+                        WHEN session_pack_plan.status = 'planned' THEN 'planned'  
+                        ELSE 'planning' 
+                    END
+            """), {"session_id": next_session_id, "user_id": req_user_id})
+            db.commit()
+        finally:
+            db.close()
         
-        # Coverage pipeline returns pack directly, check for errors in audit
-        if not pipeline_result.get("pack") or pipeline_result.get("audit", {}).get("error"):
-            error_msg = pipeline_result.get("audit", {}).get("error", "Unknown pipeline error")
-            logger.error(f"COVERAGE PLAN-NEXT: Pipeline failed - {error_msg}")
-            raise HTTPException(status_code=502, detail={"code": "COVERAGE_PIPELINE_FAILED", "msg": error_msg})
+        # Trigger background planning job (fire-and-forget)
+        asyncio.create_task(background_plan_next_session(req_user_id, next_session_id))
         
-        pack = pipeline_result.get("pack", []) or []
-        audit = pipeline_result.get("audit", {}) or {}
-
-        # Safe defaults so the report mapper never sees missing keys
-        audit_defaults = {
-            "shape": {"easy": 0, "medium": 0, "hard": 0},
-            "pyq": {"1_5": 0, "1_0": 0},
-            "borrow": {"easy": 0, "medium": 0, "hard": 0},
-        }
-        merged_audit = {**audit_defaults, **audit}
-        merged_audit["shape"]  = {**audit_defaults["shape"],  **merged_audit.get("shape", {})}
-        merged_audit["pyq"]    = {**audit_defaults["pyq"],    **merged_audit.get("pyq", {})}
-        merged_audit["borrow"] = {**audit_defaults["borrow"], **merged_audit.get("borrow", {})}
-
-        # If you already had a minimal constraint_report, merge it here
-        base_constraint_report = {}  # replace with your existing dict if present
-
-        constraint_report = {
-            **base_constraint_report,
-            **merged_audit,  # full audit goes where frontend expects it
-            "pyq_distribution": {  # compatibility alias
-                "ge_1_5": merged_audit["pyq"].get("1_5", 0),
-                "ge_1_0": merged_audit["pyq"].get("1_0", 0),
-            },
-            "pack_size": len(pack),
-            "selection_method": "coverage_v1",
-        }
-
-        # Prepare response (frontend compatible)
-        response = {
-            "user_id": req_user_id,
-            "session_id": next_session_id,
-            "status": "planned",
-            "constraint_report": constraint_report
-        }
-        
-        # Log success with timing
+        # Return 202 immediately - no waiting!
         duration_ms = int((time.perf_counter() - t0) * 1000)
-        end_ts = datetime.utcnow().isoformat() + 'Z'
         
-        logger.info(f"✅ COVERAGE PLAN-NEXT: SUCCESS in {duration_ms}ms, request_id={rid}")
+        logger.info(f"✅ ASYNC PLAN-NEXT: Triggered background job in {duration_ms}ms, request_id={rid}")
         
-        # Detailed trace logging for diagnostics
-        trace_data = {
-            "request_id": rid,
-            "route": "POST /api/adapt/plan-next (Coverage)",
-            "start_ts": start_ts,
-            "end_ts": end_ts,
-            "dur_ms": duration_ms,
-            "http_status": 200,
-            "resp_bytes": len(json.dumps(response)),
-            "coverage_telemetry": pipeline_result.get("pipeline_telemetry", {}),
-            "performance_target_met": duration_ms < 10000  # <10s target
-        }
-        
-        logger.info(f"🔍 COVERAGE TRACE: {json.dumps(trace_data)}")
-        
-        return response
+        return JSONResponse({
+            "session_id": next_session_id,
+            "status": "planning",
+            "message": "Session planning started in background",
+            "triggered_at": datetime.utcnow().isoformat() + 'Z'
+        }, status_code=202)
         
     except HTTPException:
         raise
     except Exception as e:
         duration_ms = int((time.perf_counter() - t0) * 1000)
-        logger.error(f"❌ COVERAGE PLAN-NEXT: ERROR after {duration_ms}ms, request_id={rid}, error={str(e)}")
-        raise HTTPException(status_code=502, detail={"code": "COVERAGE_EXECUTION_FAILED", "msg": str(e)})
+        logger.error(f"❌ ASYNC PLAN-NEXT: ERROR after {duration_ms}ms, request_id={rid}, error={str(e)}")
+        raise HTTPException(status_code=500, detail={"code": "PLAN_TRIGGER_FAILED", "msg": str(e)})
+
+async def background_plan_next_session(user_id: str, session_id: str):
+    """Background job: Run coverage pipeline without blocking user"""
+    try:
+        logger.info(f"🔄 Background planning started for session {session_id[:8]}")
+        
+        # Run coverage pipeline (existing logic, 60s timeout OK)
+        pipeline_result = await coverage_pipeline.plan_next_session(user_id, session_id)
+        
+        pack = pipeline_result.get("pack", [])
+        audit = pipeline_result.get("audit", {})
+        
+        # Validate pack before saving
+        if len(pack) != 12:
+            raise ValueError(f"Pack generation failed: {len(pack)} questions instead of 12")
+        
+        # Update session status to 'planned' with pack data
+        db = SessionLocal()
+        try:
+            db.execute(text("""
+                UPDATE session_pack_plan 
+                SET pack_json = :pack_json,
+                    coverage_audit = :coverage_audit,
+                    status = 'planned',
+                    served_at = NULL
+                WHERE session_id = :session_id
+            """), {
+                "session_id": session_id,
+                "pack_json": json.dumps(pack),
+                "coverage_audit": json.dumps(audit)
+            })
+            db.commit()
+        finally:
+            db.close()
+        
+        logger.info(f"✅ Background planning completed for session {session_id[:8]} - {len(pack)} questions ready")
+        
+    except Exception as e:
+        logger.error(f"❌ Background planning failed for session {session_id[:8]}: {e}")
+        
+        # Mark as failed so UI can show retry
+        db = SessionLocal()
+        try:
+            db.execute(text("""
+                UPDATE session_pack_plan 
+                SET status = 'failed',
+                    coverage_audit = :error_audit
+                WHERE session_id = :session_id
+            """), {
+                "session_id": session_id,
+                "error_audit": json.dumps({
+                    "error": str(e), 
+                    "failed_at": datetime.utcnow().isoformat(),
+                    "error_type": type(e).__name__
+                })
+            })
+            db.commit()
+        finally:
+            db.close()
 
 @router.get("/pack")
 async def v2_get_pack_controller(user_id: str, session_id: str, auth_user_id: str = Depends(get_current_user)):
