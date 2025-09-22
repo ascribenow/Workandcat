@@ -1005,6 +1005,37 @@ async def upload_image(
         "url": f"/uploads/images/{filename}"
     }
 
+async def prewarm_next_session(user_id: str):
+    """Pre-warm next session after current session completion"""
+    try:
+        logger.info(f"🔄 Pre-warming next session for user {user_id[:8]}")
+        
+        # Generate next session ID
+        next_session_id = str(uuid.uuid4())
+        
+        # Create planning row
+        from database import SessionLocal
+        from sqlalchemy import text
+        
+        db = SessionLocal()
+        try:
+            db.execute(text("""
+                INSERT INTO session_pack_plan (session_id, user_id, status, selection_method, created_at)
+                VALUES (:session_id, :user_id, 'planning', 'coverage_v1', NOW())
+            """), {"session_id": next_session_id, "user_id": user_id})
+            db.commit()
+        finally:
+            db.close()
+        
+        # Run background planning using the same function as plan-next
+        from api.v2_adapt import background_plan_next_session
+        await background_plan_next_session(user_id, next_session_id)
+        
+        logger.info(f"✅ Pre-warmed next session {next_session_id[:8]} for user {user_id[:8]}")
+        
+    except Exception as e:
+        logger.error(f"❌ Pre-warming failed for user {user_id[:8]}: {e}")
+
 # Question Action Logging Endpoints
 @app.post("/api/log/question-action")
 async def log_question_action(
