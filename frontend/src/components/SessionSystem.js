@@ -792,12 +792,18 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
         onSessionEnd(completionData);
       }
       
+      // NEW: Trigger pre-warming for next session (fire-and-forget)
+      triggerNextSessionPreWarming();
+      
     } catch (error) {
       console.error('❌ Session completion handshake failed:', error);
       // Still call session end
       if (onSessionEnd) {
         onSessionEnd(completionData);
       }
+      
+      // Still try pre-warming even if completion had issues
+      triggerNextSessionPreWarming();
     }
   };
 
