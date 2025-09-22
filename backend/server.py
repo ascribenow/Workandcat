@@ -55,13 +55,13 @@ logger = logging.getLogger(__name__)
 # Initialize FastAPI app
 app = FastAPI(title="Twelvr CAT Prep API - Cleaned Version", version="2.0.0")
 
-# CORS middleware
+# CORS middleware - Explicit headers for production compatibility
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["Authorization", "Idempotency-Key", "Content-Type", "Accept", "Origin", "X-Requested-With"],
 )
 
 # Security
