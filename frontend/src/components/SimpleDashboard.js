@@ -72,14 +72,14 @@ export const SimpleDashboard = () => {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
           },
-          timeout: 10000
+          timeout: 30000  // Increased from 10s to 30s for production stability
         }),
         axios.get(`${API}/dashboard/categorized-taxonomy`, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
           },
-          timeout: 10000
+          timeout: 30000  // Increased from 10s to 30s for production stability
         })
       ]);
       
