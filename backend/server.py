@@ -1036,6 +1036,31 @@ async def prewarm_next_session(user_id: str):
     except Exception as e:
         logger.error(f"❌ Pre-warming failed for user {user_id[:8]}: {e}")
 
+@app.post("/api/telemetry/ui-mismatch")
+async def log_ui_mismatch(mismatch_data: dict, user_id: str = Depends(get_current_user)):
+    """Log UI state mismatches for production debugging"""
+    
+    # Sanitize data (remove PII)
+    sanitized_data = {
+        "event": mismatch_data.get("event"),
+        "api_count": mismatch_data.get("api_count"),
+        "display_count": mismatch_data.get("display_count"),
+        "timestamp": mismatch_data.get("timestamp"),
+        "build_hash": mismatch_data.get("build_hash", "unknown"),
+        "user_id_prefix": user_id[:8] if user_id else "unknown"
+    }
+    
+    logger.warning(f"🚨 UI mismatch detected: {sanitized_data}")
+    
+    # Emit metric for monitoring
+    from services.telemetry import telemetry_service
+    telemetry_service.emit_metric("ui.dashboard.mismatch", 1, {
+        "event": sanitized_data["event"],
+        "build": sanitized_data["build_hash"]
+    })
+    
+    return {"logged": True}
+
 # Legacy Endpoint Deprecation Guards
 @app.post("/api/sessions/start")
 async def deprecated_session_start():
