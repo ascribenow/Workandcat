@@ -1,0 +1,36 @@
+# PRODUCTION TIMEOUT REQUIREMENTS FOR LAUNCH
+# MANDATORY FOR TWELVR COVERAGE SYSTEM DEPLOYMENT
+
+# =============================================================================
+# CRITICAL: Apply these exact timeout values for production launch
+# =============================================================================
+
+api_endpoint_timeouts:
+  "/api/adapt/pack": "10s"              # User-facing: Status checking - must be instant
+  "/api/adapt/mark-served": "10s"       # User-facing: Session transitions - fast feedback
+  "/api/log/question-action": "10s"     # User-facing: Question logging - immediate UX
+  "/api/adapt/plan-next": "8s"          # User-facing: Background job trigger - very fast
+
+gateway_upstream_timeouts:
+  read_timeout: "≥75s"                  # CRITICAL: Must allow 60s background jobs + 15s buffer
+  idle_timeout: "≥75s"                  # Connection idle timeout
+  write_timeout: "~20s"                 # Request writing timeout
+
+application_environment_variables:
+  PLANNING_JOB_TIMEOUT_MS: "60000"      # Background planning job internal timeout (60s)
+
+# =============================================================================
+# FALLBACK CONFIGURATION (if route-level timeouts not supported):
+# Set service/global timeout ≥75s + keep client-side timeouts ~10s
+# =============================================================================
+
+fallback_configuration:
+  service_global_timeout: "≥75s"
+  client_side_timeouts: "~10s for user-facing routes"
+  
+# =============================================================================
+# RATIONALE:
+# - User-facing APIs need fast response (8-10s) for good UX
+# - Background jobs need time to complete (60s + buffer = 75s)
+# - Gateway must not kill connections during background processing
+# =============================================================================
