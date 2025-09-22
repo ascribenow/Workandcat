@@ -398,7 +398,6 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
           
           if (errorData.retry_available) {
             setError('Session preparation failed. Please try again.');
-            // Could trigger retry here
           }
           
           throw new Error(`Session preparation failed: ${errorData.error}`);
