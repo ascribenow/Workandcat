@@ -38,6 +38,7 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
   const [result, setResult] = useState(null);
   const [answerSubmitted, setAnswerSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState('');
   const [error, setError] = useState('');
   const [imageZoomed, setImageZoomed] = useState(false);
   const [imageLoading, setImageLoading] = useState(false);
