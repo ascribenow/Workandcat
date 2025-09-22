@@ -239,18 +239,42 @@ export const Dashboard = () => {
         
         return true;
       } else {
-        console.log('Dashboard: No active session found, starting new session...');
-        const startResponse = await axios.post(`${API}/sessions/start`, {});
-        console.log('Dashboard: New session started:', startResponse.data);
+        console.log('Dashboard: No active session found, starting new adaptive session...');
         
-        setActiveSessionId(startResponse.data.session_id);
+        // NEW: Use async Coverage System pattern instead of legacy sessions/start
+        const nextSessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         
-        // For new sessions, use provided metadata
-        if (startResponse.data.metadata) {
-          setSessionMetadata(startResponse.data.metadata);
+        // Trigger async planning
+        const planResponse = await axios.post(`${API}/adapt/plan-next`, {
+          user_id: user.id,
+          last_session_id: null,
+          next_session_id: nextSessionId
+        }, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+            'Idempotency-Key': `dashboard_start_${Date.now()}`
+          },
+          timeout: 8000
+        });
+        
+        if (planResponse.status === 202) {
+          console.log('Dashboard: Async session planning triggered, session will be ready shortly');
+          
+          // Set active session immediately (polling will happen in SessionSystem)
+          setActiveSessionId(nextSessionId);
+          setSessionMetadata({
+            session_id: nextSessionId,
+            async_session: true,
+            phase_info: {
+              current_session: (dashboardData?.total_sessions || 0) + 1
+            }
+          });
+          
+          return true;
+        } else {
+          throw new Error(`Unexpected plan-next response: ${planResponse.status}`);
         }
-        
-        return true;
       }
       
     } catch (error) {
