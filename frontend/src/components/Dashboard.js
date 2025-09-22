@@ -209,14 +209,14 @@ export const Dashboard = () => {
         }
       }
       
-      // Check for existing legacy active session
-      const sessionStatusResponse = await axios.get(`${API}/sessions/current-status`);
-      console.log('Dashboard: Session status response:', sessionStatusResponse.data);
+      // Check for existing active session using new progress tracking
+      const sessionStatusResponse = await axios.get(`${API}/session-progress/current/${user.id}`);
+      console.log('Dashboard: Session progress response:', sessionStatusResponse.data);
       
-      if (sessionStatusResponse.data.active_session) {
-        console.log('Dashboard: Active legacy session found, resuming...');
+      if (sessionStatusResponse.data.has_current_session) {
+        console.log('Dashboard: Active session found, resuming...');
         const existingSessionId = sessionStatusResponse.data.session_id;
-        const progress = sessionStatusResponse.data.progress;
+        const progress = sessionStatusResponse.data;
         
         setActiveSessionId(existingSessionId);
         
