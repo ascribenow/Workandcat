@@ -32,6 +32,31 @@ export const SimpleDashboard = () => {
     return () => clearTimeout(fallbackTimeout);
   }, [user, token]);
 
+  // LIGHTWEIGHT TELEMETRY: Log dashboard state mismatches only
+  const logDashboardMismatch = (event, apiData, displayData) => {
+    const apiCount = apiData?.total_sessions || 0;
+    const displayCount = displayData?.total_sessions || 0;
+    const mismatch = apiCount !== displayCount;
+    
+    if (mismatch) {
+      const mismatchData = {
+        event: event,
+        api_count: apiCount,
+        display_count: displayCount,
+        timestamp: new Date().toISOString(),
+        build_hash: process.env.REACT_APP_BUILD_HASH || 'unknown'
+      };
+      
+      console.warn('🚨 Dashboard state mismatch detected:', mismatchData);
+      
+      // Send to telemetry (fire-and-forget, silent failure)
+      axios.post(`${API}/telemetry/ui-mismatch`, mismatchData, {
+        headers: { Authorization: `Bearer ${token}` },
+        timeout: 5000
+      }).catch(() => {}); // Silent failure - non-critical
+    }
+  };
+
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
