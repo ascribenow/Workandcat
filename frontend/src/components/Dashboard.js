@@ -14,7 +14,7 @@ export const Dashboard = () => {
   const { user, logout, isAdmin, token } = useAuth();
   const navigate = useNavigate();
   // Default view: admins go to dashboard, regular users go to session (immediately start active session)
-  const [currentView, setCurrentView] = useState(isAdmin() ? 'dashboard' : 'session');
+  const [currentView, setCurrentView] = useState(isAdmin() ? 'dashboard' : 'dashboard'); // FIXED: Default all users to dashboard first
   const [dashboardData, setDashboardData] = useState(null);
   const [masteryData, setMasteryData] = useState(null);
   const [progressData, setProgressData] = useState(null);
