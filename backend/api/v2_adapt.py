@@ -20,6 +20,8 @@ from auth import get_current_user
 from database import SessionLocal
 from sqlalchemy import text
 from utils.json_safe import as_json
+from services.idempotency import idempotency_service
+from fastapi import Header
 
 logger = logging.getLogger(__name__)
 
