@@ -82,18 +82,19 @@ export class SmartPoller {
         };
 
       } catch (error) {
-        // Network timeout - continue polling (expected behavior)
+        // Network timeout - continue polling (CRITICAL FIX: Don't fail on timeout)
         if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
-          console.log(`⏳ Poll ${attempt}: Network timeout, continuing... (${delay}ms delay)`);
+          console.log(`⏳ Poll ${attempt}: Network timeout (${this.timeout}ms), continuing... (${delay}ms delay)`);
           await new Promise(r => setTimeout(r, delay));
           delay = Math.min(delay * 1.5, this.maxDelay);
           continue;
         }
         
         // Other network errors - return for user decision
+        console.error(`❌ Poll ${attempt}: Network error:`, error.message);
         return {
           success: false,
-          error: error.message,
+          error: `Network error: ${error.message}`,
           retryAvailable: true,
           attempts: attempt,
           elapsed_ms: Date.now() - start,
