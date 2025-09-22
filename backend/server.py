@@ -1248,7 +1248,10 @@ async def log_question_action(
                         # Start summarizer task but don't await (non-blocking)
                         asyncio.create_task(trigger_summarizer())
                         
-                        logger.info(f"🚀 Coverage Summarizer triggered for session completion")
+                        # NEW: Pre-warm next session in background
+                        asyncio.create_task(prewarm_next_session(user_id))
+                        
+                        logger.info(f"🚀 Coverage Summarizer triggered + Next session pre-warming started")
                     else:
                         logger.info(f"⚠️ Coverage Summarizer already ran for session {log_data.session_id[:8]}")
                 
