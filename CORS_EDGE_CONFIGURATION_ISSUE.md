@@ -40,11 +40,45 @@ headers: {
 
 ## Evidence of Edge-Level Override
 
-Based on the investigation from current_work:
+**CONFIRMED via CORS Preflight Testing**:
 
-1. **Direct Backend Tests**: All API endpoints work correctly when tested directly against `adaptive-quant.emergent.host`
-2. **Browser Behavior**: `net::ERR_ABORTED` occurs specifically when browsers send CORS preflight requests
-3. **Header Analysis**: The edge layer at `www.twelvr.com` returns `Access-Control-Allow-Headers` that excludes `Idempotency-Key`
+### Direct Backend Test (WORKING):
+```bash
+curl -X OPTIONS https://adaptive-quant.emergent.host/api/adapt/plan-next \
+     -H "Origin: https://adaptive-quant.emergent.host" \
+     -H "Access-Control-Request-Headers: Authorization,Idempotency-Key,Content-Type"
+
+# Response includes:
+access-control-allow-headers: Authorization,Idempotency-Key,Content-Type
+```
+✅ **Backend correctly allows `Idempotency-Key`**
+
+### Production Edge Test (FAILING):
+```bash
+curl -X OPTIONS https://www.twelvr.com/api/adapt/plan-next \
+     -H "Origin: https://www.twelvr.com" \
+     -H "Access-Control-Request-Headers: Authorization,Idempotency-Key,Content-Type"
+
+# Response includes:
+Access-Control-Allow-Headers: Authorization, Content-Type, Accept
+```
+❌ **Edge strips out `Idempotency-Key` completely**
+
+### Cross-Origin Test (FAILING):
+```bash
+curl -X OPTIONS https://adaptive-quant.emergent.host/api/adapt/plan-next \
+     -H "Origin: https://www.twelvr.com" \
+     -H "Access-Control-Request-Headers: Authorization,Idempotency-Key,Content-Type"
+
+# Response includes:
+access-control-allow-headers: Authorization,Idempotency-Key,Content-Type
+```
+
+**Key Findings**:
+1. Backend application CORS configuration is **100% CORRECT**
+2. Edge proxy at `www.twelvr.com` is **OVERRIDING** backend headers
+3. `Idempotency-Key` is being **STRIPPED OUT** by the edge layer
+4. This is a **PLATFORM-LEVEL CONFIGURATION ISSUE**, not application code issue
 
 ## Technical Root Cause
 
