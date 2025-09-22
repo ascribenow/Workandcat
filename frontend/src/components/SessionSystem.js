@@ -1313,8 +1313,37 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-2 mx-auto" style={{ borderColor: '#9ac026' }}></div>
           <p className="mt-4" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
-            {isPlanning ? 'Preparing next session...' : 'Loading your session...'}
+            {loadingMessage || (isPlanning ? 'Preparing next session...' : 'Loading your session...')}
           </p>
+          
+          {/* Progress indicator for async preparation */}
+          {loadingMessage && loadingMessage.includes('Preparing your session') && (
+            <div className="mt-4 w-64 mx-auto">
+              <div className="bg-gray-200 rounded-full h-2">
+                <div 
+                  className="h-2 rounded-full transition-all duration-500" 
+                  style={{ 
+                    backgroundColor: '#9ac026',
+                    width: `${Math.min(parseInt(loadingMessage.match(/\((\d+)s\)/)?.[1] || '0') * 1.67, 100)}%`
+                  }}
+                ></div>
+              </div>
+              <p className="text-sm mt-2" style={{ color: '#888', fontFamily: 'Lato, sans-serif' }}>
+                Your adaptive session is being prepared...
+              </p>
+            </div>
+          )}
+          
+          {/* Retry button for failed states */}
+          {error && error.includes('preparation failed') && (
+            <button 
+              onClick={() => window.location.reload()}
+              className="mt-4 px-6 py-2 text-white rounded transition-colors"
+              style={{ backgroundColor: '#9ac026', fontFamily: 'Lato, sans-serif' }}
+            >
+              Try Again
+            </button>
+          )}
         </div>
       </div>
     );
