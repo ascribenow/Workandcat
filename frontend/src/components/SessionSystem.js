@@ -306,6 +306,63 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
     });
   };
 
+  // ASYNC POLLING: Poll for pack readiness (202 → 200 pattern)
+  const pollForPackReadiness = async (sessionId, maxAttempts = 30) => {
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        const elapsed = attempt * 2;
+        setLoadingMessage(`Preparing your session... (${elapsed}s)`);
+        
+        const packResponse = await axios.get(`${API}/adapt/pack`, {
+          params: { user_id: user.id, session_id: sessionId },
+          headers: { Authorization: `Bearer ${user.token}` },
+          timeout: 8000  // Short timeout for user-facing API
+        });
+        
+        if (packResponse.status === 200) {
+          // Pack ready!
+          setLoadingMessage('Session ready! Loading questions...');
+          const packData = packResponse.data;
+          
+          // Return pack in expected format for existing code
+          return packData.pack || packData;
+          
+        } else if (packResponse.status === 202) {
+          // Still processing, continue polling
+          console.log(`⏳ Poll ${attempt}: Session still preparing... (${elapsed}s)`);
+          await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2s
+          continue;
+          
+        } else if (packResponse.status === 500) {
+          // Planning failed
+          const errorData = packResponse.data;
+          console.error('❌ Session preparation failed:', errorData.error);
+          
+          if (errorData.retry_available) {
+            setError('Session preparation failed. Please try again.');
+            // Could trigger retry here
+          }
+          
+          throw new Error(`Session preparation failed: ${errorData.error}`);
+          
+        } else {
+          throw new Error(`Unexpected pack response: ${packResponse.status}`);
+        }
+        
+      } catch (error) {
+        if (attempt === maxAttempts) {
+          throw new Error('Session preparation timeout. Please try again.');
+        }
+        
+        // Continue polling on timeout (expected behavior)
+        console.log(`⏳ Poll ${attempt}: Timeout, continuing... (${attempt * 2}s)`);
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      }
+    }
+    
+    throw new Error('Session preparation timeout after 60s');
+  };
+
   const fetchSessionNumberFromDashboard = async () => {
     try {
       // Get total sessions from the dashboard API to calculate current session number
