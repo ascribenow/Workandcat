@@ -184,6 +184,13 @@ async def status_aware_pack_controller(user_id: str, session_id: str, auth_user_
             
             logger.info(f"✅ PACK: Session {session_id[:8]} ready with {len(pack)} questions")
             
+            # Add pyq_distribution compatibility alias
+            pyq_data = audit.get("pyq", {})
+            pyq_distribution = {
+                "ge_1_5": pyq_data.get("1_5", 0),
+                "ge_1_0": pyq_data.get("1_0", 0)
+            }
+            
             return JSONResponse({
                 "user_id": user_id,
                 "session_id": session_id,
@@ -191,6 +198,7 @@ async def status_aware_pack_controller(user_id: str, session_id: str, auth_user_
                 "pack": pack,
                 "pack_ready": True,
                 "coverage_audit": audit,
+                "pyq_distribution": pyq_distribution,  # Contract requirement
                 "pack_size": len(pack),
                 "selection_method": selection_method,
                 "meta": {
