@@ -8,7 +8,7 @@ import json
 import uuid
 
 # Test configuration
-BASE_URL = "https://skill-coverage.preview.emergentagent.com/api"
+BASE_URL = "https://skill-coverage-1.preview.emergentagent.com/api"
 
 def test_mark_served_endpoint():
     print("🎯 QUICK PHASE 4 MARK-SERVED ENDPOINT TEST")

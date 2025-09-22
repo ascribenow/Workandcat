@@ -10,7 +10,7 @@ import time
 
 class SessionDebugTester:
     def __init__(self):
-        self.base_url = "https://skill-coverage.preview.emergentagent.com/api"
+        self.base_url = "https://skill-coverage-1.preview.emergentagent.com/api"
         self.admin_token = None
         self.session_id = None
         

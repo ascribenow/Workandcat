@@ -7,7 +7,7 @@ import json
 import time
 
 def test_re_enrichment():
-    base_url = "https://skill-coverage.preview.emergentagent.com/api"
+    base_url = "https://skill-coverage-1.preview.emergentagent.com/api"
     
     print("🚨 CRITICAL RE-ENRICHMENT TEST")
     print("=" * 50)
