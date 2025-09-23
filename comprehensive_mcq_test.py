@@ -8,7 +8,7 @@ import time
 
 class ComprehensiveMCQTester:
     def __init__(self):
-        self.base_url = "https://skill-coverage-1.preview.emergentagent.com/api"
+        self.base_url = "https://smart-prep-1.preview.emergentagent.com/api"
         self.auth_headers = None
         self.user_id = None
         

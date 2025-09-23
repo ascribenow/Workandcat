@@ -12,7 +12,7 @@ import json
 def test_v2_core_objectives():
     """Test the core V2 objectives that are working"""
     
-    base_url = "https://skill-coverage-1.preview.emergentagent.com/api"
+    base_url = "https://smart-prep-1.preview.emergentagent.com/api"
     
     print("🚀 V2 CORE OBJECTIVES VALIDATION")
     print("=" * 60)

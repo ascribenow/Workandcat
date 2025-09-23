@@ -7,7 +7,7 @@ from datetime import datetime
 
 def test_review_request_scenarios():
     """Test the exact scenarios mentioned in the review request"""
-    base_url = "https://skill-coverage-1.preview.emergentagent.com/api"
+    base_url = "https://smart-prep-1.preview.emergentagent.com/api"
     
     # Authenticate
     auth_data = {
