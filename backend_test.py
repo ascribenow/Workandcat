@@ -15333,18 +15333,19 @@ class CATBackendTester:
         return final_results["100_percent_success_achieved"]
 
 if __name__ == "__main__":
-    print("🚀 TWELVR COVERAGE SYSTEM BACKEND TESTING")
+    print("🎯 SESSION LOADING 404 RACE CONDITION FIX VALIDATION")
     print("=" * 80)
-    print("Starting comprehensive backend testing for Twelvr Coverage System")
-    print("Focus: Coverage Pipeline, Session Flow, Question Logging, Database, LLM Services")
+    print("CRITICAL: Testing the IMPLEMENTED FIXES - validate if the 404 race condition has been resolved")
+    print("Focus: Enhanced SmartPoller, backend session ID authority, race condition handling")
+    print("Expected: Plan-next → pack retrieval works without 404 race conditions")
     print("=" * 80)
     
     tester = CATBackendTester()
     
     try:
-        # Run the comprehensive coverage system test
-        print("\n🎯 RUNNING COMPREHENSIVE COVERAGE SYSTEM TEST")
-        success = tester.test_twelvr_coverage_system_comprehensive()
+        # Run the session loading 404 race condition fix validation test
+        print("\n🎯 RUNNING SESSION LOADING 404 RACE CONDITION FIX VALIDATION")
+        success = tester.test_session_loading_404_race_condition_fix()
         
         print("\n" + "=" * 80)
         print("🎯 FINAL TESTING SUMMARY")
@@ -15354,14 +15355,16 @@ if __name__ == "__main__":
         print(f"Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%" if tester.tests_run > 0 else "0%")
         
         if success:
-            print("\n🎉 TWELVR COVERAGE SYSTEM: COMPREHENSIVE TESTING PASSED")
-            print("✅ System is ready for production deployment")
-            print("✅ All critical coverage system components validated")
-            print("✅ Database integrity maintained")
-            print("✅ LLM services working with fallback")
+            print("\n🎉 SESSION LOADING 404 RACE CONDITION FIX: VALIDATED")
+            print("✅ Race condition fix working correctly")
+            print("✅ Backend session ID authority established")
+            print("✅ Enhanced SmartPoller with 404 grace period functional")
+            print("✅ Session loading reliable within 75s budget")
+            print("✅ System ready for production deployment")
         else:
-            print("\n⚠️ TWELVR COVERAGE SYSTEM: TESTING INCOMPLETE")
-            print("❌ Some critical issues need attention")
+            print("\n⚠️ SESSION LOADING 404 RACE CONDITION FIX: NEEDS ATTENTION")
+            print("❌ Race condition may still exist")
+            print("❌ Session loading reliability concerns")
             print("❌ Review test results above for specific failures")
         
         print("=" * 80)
