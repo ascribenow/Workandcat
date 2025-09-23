@@ -241,39 +241,52 @@ export const Dashboard = () => {
       } else {
         console.log('Dashboard: No active session found, starting new adaptive session...');
         
-        // NEW: Use async Coverage System pattern instead of legacy sessions/start
-        const nextSessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        // NEW: Use enhanced session planning with backend ID authority
+        const { planSessionWithPolling } = await import('../utils/smartPolling');
         
-        // Trigger async planning
-        const planResponse = await axios.post(`${API}/adapt/plan-next`, {
-          user_id: user.id,
-          last_session_id: null,
-          next_session_id: nextSessionId
-        }, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-            'Idempotency-Key': `dashboard_start_${Date.now()}`
-          },
-          timeout: 8000
+        setSessionState({ phase: 'preparing', message: 'Preparing your session…' });
+        
+        // Generate idempotency key for dashboard session start
+        const idemKey = `dashboard_start:${user.id}:${new Date().toISOString().slice(0,10)}:${Date.now()}`;
+        
+        const result = await planSessionWithPolling({
+          api: axios,
+          userId: user.id,
+          lastSessionId: null,
+          idempotencyKey: idemKey,
+          budgetMs: 75000,
+          baseDelay: 1000,
+          maxDelay: 8000,
+          timeoutPerRequest: 8000,
+          treat404AsPreparingMs: 65000
         });
         
-        if (planResponse.status === 202) {
-          console.log('Dashboard: Async session planning triggered, session will be ready shortly');
+        if (result.ok) {
+          console.log('Dashboard: Session ready!', result.sessionId);
           
-          // Set active session immediately (polling will happen in SessionSystem)
-          setActiveSessionId(nextSessionId);
+          // Use backend's canonical session ID
+          setActiveSessionId(result.sessionId);
           setSessionMetadata({
-            session_id: nextSessionId,
+            session_id: result.sessionId,
             async_session: true,
             phase_info: {
               current_session: (dashboardData?.total_sessions || 0) + 1
-            }
+            },
+            pack: result.pack
           });
           
+          setSessionState({ phase: 'ready', message: 'Session ready!' });
           return true;
+          
         } else {
-          throw new Error(`Unexpected plan-next response: ${planResponse.status}`);
+          console.error('Dashboard: Session preparation failed:', result.error);
+          setSessionState({
+            phase: 'failed',
+            message: 'Session couldn\'t be prepared.',
+            error: result.error?.message || 'Unknown error',
+            canRetry: result.retryAvailable ?? true
+          });
+          return false;
         }
       }
       
