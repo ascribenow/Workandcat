@@ -19,15 +19,7 @@ export const SimpleDashboard = () => {
       console.log('SimpleDashboard: Waiting for user/token...', { user: !!user, token: !!token });
     }
     
-    // Fallback timeout - only trigger if we haven't received any data at all
-    const fallbackTimeout = setTimeout(() => {
-      if (loading && !dashboardData && !categorizedData) {
-        console.warn('SimpleDashboard: Fallback timeout triggered after 60 seconds - setting fallback data');
-        setLoading(false);
-        setDashboardData({ total_sessions: 0, taxonomy_data: [] });
-        setCategorizedData({ total_sessions: 0, categorized_data: [], total_categories: 0 });
-      }
-    }, 60000); // Increased to 60 seconds to prevent interference
+    // Removed aggressive fallback timeout - let actual API errors handle fallbacks
     
     return () => clearTimeout(fallbackTimeout);
   }, [user, token]);
