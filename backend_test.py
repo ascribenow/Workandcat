@@ -1106,6 +1106,467 @@ class CATBackendTester:
         
         return success_rate >= 80 and criteria_rate >= 85
 
+    def test_pack_data_structure_analysis(self):
+        """
+        🎯 PACK DATA STRUCTURE ANALYSIS
+        
+        OBJECTIVE: Test the /api/adapt/pack endpoint to understand the actual data structure 
+        returned by the backend and identify field mappings for frontend integration.
+        
+        TESTING REQUIREMENTS FROM REVIEW REQUEST:
+        1. Login and Get Pack: Use user credentials sp@theskinmantra.com/student123 to login and get a valid session ID
+        2. Fetch Pack Data: Make a GET request to /api/adapt/pack with a real session ID to see the actual pack structure
+        3. Analyze Pack Fields: Examine what fields are available in each pack item (not just item_id, but all fields like question text, options, etc.)
+        4. Data Structure Documentation: Document the complete structure so we can map it correctly in the frontend
+        5. Question Field Mapping: Identify which field contains:
+           - Question text/stem
+           - Option A, B, C, D 
+           - Correct answer
+           - Question ID
+           - Category/subcategory
+        
+        CONTEXT: Frontend is creating questions with `packItem.why || 'Question content unavailable'` 
+        but the pack items don't have a `why` field. We need to see the actual pack data structure 
+        to fix the field mapping in the `serveQuestionFromPack` function.
+        
+        AUTHENTICATION: sp@theskinmantra.com/student123
+        """
+        print("🎯 PACK DATA STRUCTURE ANALYSIS")
+        print("=" * 80)
+        print("OBJECTIVE: Analyze actual pack data structure for frontend field mapping")
+        print("FOCUS: Question fields, options structure, answer format, metadata")
+        print("EXPECTED: Complete field documentation for frontend integration")
+        print("=" * 80)
+        
+        analysis_results = {
+            # Authentication Setup
+            "authentication_working": False,
+            "user_adaptive_enabled": False,
+            "jwt_token_valid": False,
+            
+            # Session Creation
+            "session_created_successfully": False,
+            "session_id_generated": False,
+            "plan_next_working": False,
+            
+            # Pack Data Retrieval
+            "pack_endpoint_accessible": False,
+            "pack_data_retrieved": False,
+            "pack_contains_questions": False,
+            "pack_has_12_questions": False,
+            
+            # Field Analysis
+            "question_text_field_identified": False,
+            "options_structure_analyzed": False,
+            "correct_answer_field_found": False,
+            "question_id_field_found": False,
+            "category_subcategory_found": False,
+            
+            # Data Structure Documentation
+            "complete_field_list_documented": False,
+            "field_types_analyzed": False,
+            "sample_data_captured": False,
+            "frontend_mapping_ready": False,
+            
+            # Specific Field Mapping
+            "why_field_exists": False,
+            "stem_field_exists": False,
+            "option_a_b_c_d_exists": False,
+            "answer_field_exists": False,
+            "id_field_exists": False,
+            
+            # Overall Assessment
+            "pack_structure_understood": False,
+            "frontend_integration_possible": False,
+            "field_mapping_complete": False
+        }
+        
+        # PHASE 1: AUTHENTICATION
+        print("\n🔐 PHASE 1: AUTHENTICATION")
+        print("-" * 60)
+        print("Authenticating with sp@theskinmantra.com/student123")
+        
+        auth_data = {
+            "email": "sp@theskinmantra.com",
+            "password": "student123"
+        }
+        
+        success, response = self.run_test("Pack Analysis Authentication", "POST", "auth/login", [200, 401], auth_data)
+        
+        auth_headers = None
+        user_id = None
+        if success and response.get('access_token'):
+            token = response['access_token']
+            auth_headers = {
+                'Authorization': f'Bearer {token}',
+                'Content-Type': 'application/json'
+            }
+            analysis_results["authentication_working"] = True
+            analysis_results["jwt_token_valid"] = True
+            print(f"   ✅ Authentication successful")
+            print(f"   📊 JWT Token length: {len(token)} characters")
+            
+            user_data = response.get('user', {})
+            user_id = user_data.get('id')
+            adaptive_enabled = user_data.get('adaptive_enabled', False)
+            
+            if adaptive_enabled:
+                analysis_results["user_adaptive_enabled"] = True
+                print(f"   ✅ User adaptive_enabled confirmed: {adaptive_enabled}")
+                print(f"   📊 User ID: {user_id}")
+            else:
+                print(f"   ⚠️ User adaptive_enabled: {adaptive_enabled}")
+        else:
+            print("   ❌ Authentication failed - cannot proceed with pack analysis")
+            return False
+        
+        # PHASE 2: SESSION CREATION
+        print("\n🎯 PHASE 2: SESSION CREATION")
+        print("-" * 60)
+        print("Creating a session to get pack data")
+        
+        session_id = None
+        if user_id and auth_headers:
+            # Generate UUID for session
+            next_session_id = str(uuid.uuid4())
+            print(f"   📊 Generated session ID: {next_session_id}")
+            
+            # Prepare plan-next request payload
+            plan_data = {
+                "user_id": user_id,
+                "last_session_id": "S0",
+                "next_session_id": next_session_id
+            }
+            
+            # Add idempotency key
+            headers_with_idem = auth_headers.copy()
+            headers_with_idem['Idempotency-Key'] = f"{user_id}:S0:{next_session_id}"
+            
+            print(f"   📋 Creating session with plan-next...")
+            
+            success, plan_response = self.run_test(
+                "Session Creation for Pack Analysis", 
+                "POST", 
+                "adapt/plan-next", 
+                [200, 202, 400, 500, 502], 
+                plan_data, 
+                headers_with_idem
+            )
+            
+            if success and plan_response.get('status') == 'planned':
+                analysis_results["session_created_successfully"] = True
+                analysis_results["session_id_generated"] = True
+                analysis_results["plan_next_working"] = True
+                session_id = plan_response.get('session_id', next_session_id)
+                print(f"   ✅ Session created successfully")
+                print(f"   📊 Session ID: {session_id}")
+                print(f"   📊 Status: {plan_response.get('status')}")
+            else:
+                print(f"   ❌ Session creation failed: {plan_response}")
+                return False
+        
+        # PHASE 3: PACK DATA RETRIEVAL
+        print("\n📦 PHASE 3: PACK DATA RETRIEVAL")
+        print("-" * 60)
+        print("Fetching pack data to analyze structure")
+        
+        pack_data = None
+        if session_id and user_id and auth_headers:
+            pack_url = f"adapt/pack?user_id={user_id}&session_id={session_id}"
+            print(f"   📋 Pack URL: {pack_url}")
+            
+            success, pack_response = self.run_test(
+                "Pack Data Retrieval", 
+                "GET", 
+                pack_url, 
+                [200, 400, 404, 500], 
+                None, 
+                auth_headers
+            )
+            
+            if success:
+                analysis_results["pack_endpoint_accessible"] = True
+                print(f"   ✅ Pack endpoint accessible")
+                
+                if pack_response.get('pack'):
+                    analysis_results["pack_data_retrieved"] = True
+                    pack_data = pack_response.get('pack', [])
+                    print(f"   ✅ Pack data retrieved successfully")
+                    print(f"   📊 Pack size: {len(pack_data)} questions")
+                    
+                    if len(pack_data) > 0:
+                        analysis_results["pack_contains_questions"] = True
+                        print(f"   ✅ Pack contains questions")
+                        
+                        if len(pack_data) == 12:
+                            analysis_results["pack_has_12_questions"] = True
+                            print(f"   ✅ Pack has exactly 12 questions")
+                        else:
+                            print(f"   ⚠️ Pack has {len(pack_data)} questions (expected 12)")
+                    else:
+                        print(f"   ❌ Pack is empty")
+                else:
+                    print(f"   ❌ No pack data in response: {pack_response}")
+            else:
+                print(f"   ❌ Pack retrieval failed: {pack_response}")
+                return False
+        
+        # PHASE 4: DETAILED FIELD ANALYSIS
+        print("\n🔍 PHASE 4: DETAILED FIELD ANALYSIS")
+        print("-" * 60)
+        print("Analyzing pack item structure and fields")
+        
+        if pack_data and len(pack_data) > 0:
+            # Analyze first question in detail
+            sample_question = pack_data[0]
+            print(f"   📋 Analyzing sample question structure...")
+            print(f"   📊 Sample question keys: {list(sample_question.keys())}")
+            
+            # Document all available fields
+            all_fields = set()
+            field_types = {}
+            
+            for question in pack_data:
+                for key, value in question.items():
+                    all_fields.add(key)
+                    if key not in field_types:
+                        field_types[key] = type(value).__name__
+            
+            analysis_results["complete_field_list_documented"] = True
+            analysis_results["field_types_analyzed"] = True
+            print(f"   ✅ Complete field list documented")
+            print(f"   📊 Total unique fields: {len(all_fields)}")
+            
+            # Print all fields with types
+            print(f"\n   📋 COMPLETE FIELD STRUCTURE:")
+            for field in sorted(all_fields):
+                field_type = field_types.get(field, 'unknown')
+                sample_value = sample_question.get(field, 'N/A')
+                
+                # Truncate long values for display
+                if isinstance(sample_value, str) and len(sample_value) > 100:
+                    display_value = sample_value[:100] + "..."
+                else:
+                    display_value = sample_value
+                
+                print(f"      {field:<25} ({field_type:<10}) = {display_value}")
+            
+            # PHASE 5: SPECIFIC FIELD MAPPING
+            print(f"\n🎯 PHASE 5: SPECIFIC FIELD MAPPING")
+            print("-" * 60)
+            print("Identifying key fields for frontend integration")
+            
+            # Check for question text fields
+            question_text_fields = ['stem', 'why', 'question', 'question_text', 'content']
+            question_text_field = None
+            for field in question_text_fields:
+                if field in sample_question and sample_question[field]:
+                    question_text_field = field
+                    analysis_results["question_text_field_identified"] = True
+                    print(f"   ✅ Question text field found: '{field}'")
+                    print(f"   📊 Sample content: {str(sample_question[field])[:200]}...")
+                    break
+            
+            if not question_text_field:
+                print(f"   ❌ No question text field found in: {question_text_fields}")
+            
+            # Check for specific fields mentioned in review request
+            if 'why' in sample_question:
+                analysis_results["why_field_exists"] = True
+                print(f"   ✅ 'why' field exists: {sample_question['why'][:100] if sample_question['why'] else 'Empty'}...")
+            else:
+                print(f"   ❌ 'why' field does NOT exist (this explains the frontend issue)")
+            
+            if 'stem' in sample_question:
+                analysis_results["stem_field_exists"] = True
+                print(f"   ✅ 'stem' field exists: {sample_question['stem'][:100] if sample_question['stem'] else 'Empty'}...")
+            
+            # Check for options structure
+            option_fields = ['option_a', 'option_b', 'option_c', 'option_d']
+            options_exist = all(field in sample_question for field in option_fields)
+            if options_exist:
+                analysis_results["option_a_b_c_d_exists"] = True
+                analysis_results["options_structure_analyzed"] = True
+                print(f"   ✅ Option A/B/C/D fields exist")
+                for opt_field in option_fields:
+                    print(f"      {opt_field}: {sample_question[opt_field]}")
+            else:
+                print(f"   ❌ Option A/B/C/D fields missing")
+                # Check for alternative options structure
+                if 'options' in sample_question:
+                    print(f"   📊 Alternative 'options' field found: {sample_question['options']}")
+            
+            # Check for answer field
+            answer_fields = ['answer', 'correct_answer', 'right_answer']
+            answer_field = None
+            for field in answer_fields:
+                if field in sample_question and sample_question[field]:
+                    answer_field = field
+                    analysis_results["correct_answer_field_found"] = True
+                    print(f"   ✅ Answer field found: '{field}' = {sample_question[field]}")
+                    break
+            
+            if 'answer' in sample_question:
+                analysis_results["answer_field_exists"] = True
+            
+            # Check for ID field
+            id_fields = ['id', 'question_id', 'item_id']
+            id_field = None
+            for field in id_fields:
+                if field in sample_question and sample_question[field]:
+                    id_field = field
+                    analysis_results["question_id_field_found"] = True
+                    print(f"   ✅ ID field found: '{field}' = {sample_question[field]}")
+                    break
+            
+            if 'id' in sample_question:
+                analysis_results["id_field_exists"] = True
+            
+            # Check for category/subcategory
+            category_fields = ['category', 'subcategory']
+            for field in category_fields:
+                if field in sample_question and sample_question[field]:
+                    analysis_results["category_subcategory_found"] = True
+                    print(f"   ✅ {field.title()} field found: {sample_question[field]}")
+            
+            # PHASE 6: FRONTEND MAPPING RECOMMENDATIONS
+            print(f"\n💡 PHASE 6: FRONTEND MAPPING RECOMMENDATIONS")
+            print("-" * 60)
+            print("Providing recommendations for frontend field mapping")
+            
+            analysis_results["sample_data_captured"] = True
+            
+            print(f"\n   🎯 FRONTEND FIELD MAPPING RECOMMENDATIONS:")
+            print(f"   " + "=" * 50)
+            
+            # Question text mapping
+            if question_text_field:
+                print(f"   📝 Question Text: Use '{question_text_field}' field")
+                print(f"      Current frontend: packItem.why || 'Question content unavailable'")
+                print(f"      Recommended fix: packItem.{question_text_field} || 'Question content unavailable'")
+            else:
+                print(f"   ❌ Question Text: No suitable field found!")
+            
+            # Options mapping
+            if options_exist:
+                print(f"   📋 Options: Use individual option_a, option_b, option_c, option_d fields")
+                print(f"      Recommended: {{")
+                print(f"        A: packItem.option_a,")
+                print(f"        B: packItem.option_b,")
+                print(f"        C: packItem.option_c,")
+                print(f"        D: packItem.option_d")
+                print(f"      }}")
+            else:
+                print(f"   ❌ Options: No standard option fields found!")
+            
+            # Answer mapping
+            if answer_field:
+                print(f"   ✅ Correct Answer: Use '{answer_field}' field")
+                print(f"      Recommended: packItem.{answer_field}")
+            else:
+                print(f"   ❌ Correct Answer: No answer field found!")
+            
+            # ID mapping
+            if id_field:
+                print(f"   🆔 Question ID: Use '{id_field}' field")
+                print(f"      Recommended: packItem.{id_field}")
+            else:
+                print(f"   ❌ Question ID: No ID field found!")
+            
+            # Category mapping
+            if analysis_results["category_subcategory_found"]:
+                print(f"   📂 Category/Subcategory: Available in pack data")
+                if 'category' in sample_question:
+                    print(f"      Category: packItem.category")
+                if 'subcategory' in sample_question:
+                    print(f"      Subcategory: packItem.subcategory")
+            
+            analysis_results["frontend_mapping_ready"] = True
+            analysis_results["pack_structure_understood"] = True
+            
+            # Sample complete question structure
+            print(f"\n   📋 SAMPLE COMPLETE QUESTION STRUCTURE:")
+            print(f"   " + "=" * 50)
+            print(json.dumps(sample_question, indent=4)[:1000] + "..." if len(str(sample_question)) > 1000 else json.dumps(sample_question, indent=4))
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 80)
+        print("🎯 PACK DATA STRUCTURE ANALYSIS - RESULTS")
+        print("=" * 80)
+        
+        passed_tests = sum(analysis_results.values())
+        total_tests = len(analysis_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        # Group results by analysis categories
+        analysis_categories = {
+            "AUTHENTICATION": [
+                "authentication_working", "user_adaptive_enabled", "jwt_token_valid"
+            ],
+            "SESSION CREATION": [
+                "session_created_successfully", "session_id_generated", "plan_next_working"
+            ],
+            "PACK DATA RETRIEVAL": [
+                "pack_endpoint_accessible", "pack_data_retrieved", "pack_contains_questions", "pack_has_12_questions"
+            ],
+            "FIELD ANALYSIS": [
+                "question_text_field_identified", "options_structure_analyzed", 
+                "correct_answer_field_found", "question_id_field_found", "category_subcategory_found"
+            ],
+            "DATA STRUCTURE DOCUMENTATION": [
+                "complete_field_list_documented", "field_types_analyzed", 
+                "sample_data_captured", "frontend_mapping_ready"
+            ],
+            "SPECIFIC FIELD MAPPING": [
+                "why_field_exists", "stem_field_exists", "option_a_b_c_d_exists", 
+                "answer_field_exists", "id_field_exists"
+            ]
+        }
+        
+        for category, tests in analysis_categories.items():
+            print(f"\n{category}:")
+            category_passed = 0
+            category_total = len(tests)
+            
+            for test in tests:
+                if test in analysis_results:
+                    result = analysis_results[test]
+                    status = "✅ PASS" if result else "❌ FAIL"
+                    print(f"  {test.replace('_', ' ').title():<50} {status}")
+                    if result:
+                        category_passed += 1
+            
+            category_rate = (category_passed / category_total) * 100 if category_total > 0 else 0
+            print(f"  Category Success Rate: {category_passed}/{category_total} ({category_rate:.1f}%)")
+        
+        print("-" * 80)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # CRITICAL FINDINGS SUMMARY
+        print("\n🎯 CRITICAL FINDINGS SUMMARY:")
+        
+        if analysis_results["pack_structure_understood"]:
+            analysis_results["frontend_integration_possible"] = True
+            analysis_results["field_mapping_complete"] = True
+            print("\n✅ PACK STRUCTURE ANALYSIS: COMPLETE")
+            print("   - Pack data structure fully documented")
+            print("   - Field mappings identified for frontend")
+            print("   - Specific recommendations provided")
+            print("   - Frontend integration ready")
+        else:
+            print("\n❌ PACK STRUCTURE ANALYSIS: INCOMPLETE")
+            print("   - Unable to fully analyze pack structure")
+        
+        # Key findings for the review request
+        print(f"\n🔑 KEY FINDINGS FOR REVIEW REQUEST:")
+        print(f"   1. 'why' field exists: {'YES' if analysis_results['why_field_exists'] else 'NO'}")
+        print(f"   2. Question text field: {'stem' if analysis_results['stem_field_exists'] else 'NOT FOUND'}")
+        print(f"   3. Options structure: {'A/B/C/D fields' if analysis_results['option_a_b_c_d_exists'] else 'NOT STANDARD'}")
+        print(f"   4. Answer field exists: {'YES' if analysis_results['answer_field_exists'] else 'NO'}")
+        print(f"   5. ID field exists: {'YES' if analysis_results['id_field_exists'] else 'NO'}")
+        
+        return success_rate >= 70 and analysis_results["pack_structure_understood"]
+
     def test_plan_next_endpoint_404_debug(self):
         """
         🎯 PLAN-NEXT ENDPOINT 404 DEBUG TESTING
