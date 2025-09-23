@@ -538,7 +538,8 @@ export const Dashboard = () => {
         onClose={() => setShowUpgradeModal(false)} 
         completedSessions={sessionLimitStatus?.completed_sessions || 15}
       />
-    </div>
+      </div>
+    </DashboardErrorBoundary>
   );
 };
 
