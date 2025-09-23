@@ -585,8 +585,14 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
           if (planResponse.status === 202) {
             console.log('✅ Session planning triggered in background');
             
-            // 2. Poll for pack readiness
-            pack = await pollForPackReadiness(nextSessionId);
+            // CRITICAL: Use backend's canonical session ID for polling
+            const canonicalSessionId = planResponse.data?.session_id || nextSessionId;
+            if (canonicalSessionId !== nextSessionId) {
+              console.log(`📋 Backend returned canonical session ID: ${canonicalSessionId.substring(0, 8)}... (was: ${nextSessionId.substring(0, 8)}...)`);
+            }
+            
+            // 2. Poll for pack readiness using canonical ID
+            pack = await pollForPackReadiness(canonicalSessionId);
             
             console.log('✅ Pack received from polling:', pack?.length || 0, 'questions');
             
