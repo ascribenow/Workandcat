@@ -1531,7 +1531,9 @@ async def get_simple_taxonomy(user_id: str = Depends(get_current_user)):
             ORDER BY ae.subcategory, ae.difficulty_band
         """), {'user_id': user_id})
         taxonomy_rows = result.fetchall()
+        dt_taxonomy = int((time.perf_counter() - t_taxonomy) * 1000)
         
+        # Build response (FAST: in-memory processing)
         taxonomy_data = []
         for row in taxonomy_rows:
             taxonomy_data.append({
@@ -1543,10 +1545,29 @@ async def get_simple_taxonomy(user_id: str = Depends(get_current_user)):
                 "accuracy": round((row.correct / row.attempts * 100) if row.attempts > 0 else 0, 1)
             })
         
+        total_duration = int((time.perf_counter() - t0) * 1000)
+        
+        # PERFORMANCE MONITORING
+        if total_duration > 5000:
+            logger.error(f"🚨 CRITICAL SLOW DASHBOARD: {total_duration}ms (sessions: {dt_sessions}ms, taxonomy: {dt_taxonomy}ms)")
+        elif total_duration > 1000:
+            logger.warning(f"⚠️ SLOW DASHBOARD: {total_duration}ms (sessions: {dt_sessions}ms, taxonomy: {dt_taxonomy}ms)")
+        else:
+            logger.info(f"✅ DASHBOARD OK: {total_duration}ms (sessions: {dt_sessions}ms, taxonomy: {dt_taxonomy}ms)")
+        
         return {
             "total_sessions": completed_sessions.total_sessions if completed_sessions else 0,
-            "taxonomy_data": taxonomy_data
+            "taxonomy_data": taxonomy_data,
+            "debug_timing_ms": total_duration  # Include timing for debugging
         }
+    except Exception as e:
+        total_duration = int((time.perf_counter() - t0) * 1000)
+        if "statement timeout" in str(e).lower():
+            logger.error(f"🚨 DASHBOARD TIMEOUT: {total_duration}ms - {str(e)}")
+            raise HTTPException(status_code=500, detail="Dashboard query timeout - please try again")
+        else:
+            logger.error(f"❌ DASHBOARD ERROR: {total_duration}ms - {str(e)}")
+            raise HTTPException(status_code=500, detail="Dashboard error")
     finally:
         db.close()
 
