@@ -873,7 +873,30 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
     setAnswerSubmitted(true);
     
     try {
-      console.log(`[CRITICAL_DEBUG] ${requestId}: Making submit request...`);
+      // DEBUG: Log the payload before sending
+      const payload = {
+        session_id: sessionId,
+        question_id: currentQuestion?.id,
+        action: 'submit',
+        data: {
+          user_answer: userAnswer,
+          session_type: adaptiveEnabled ? 'adaptive' : 'legacy'
+        },
+        timestamp: new Date().toISOString()
+      };
+      
+      console.log(`[CRITICAL_DEBUG] ${requestId}: Making submit request with payload:`, payload);
+      console.log(`[CRITICAL_DEBUG] ${requestId}: currentQuestion object:`, currentQuestion);
+      
+      if (!currentQuestion?.id) {
+        console.error(`[CRITICAL_DEBUG] ${requestId}: ERROR - currentQuestion.id is missing!`, {
+          currentQuestion,
+          hasCurrentQuestion: !!currentQuestion,
+          questionId: currentQuestion?.id
+        });
+        setError('Question data is missing. Please refresh to restart the session.');
+        return;
+      }
       
       // Use fetch for better error control than axios
       const res = await fetch(`${API}/log/question-action`, {
@@ -883,16 +906,7 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
           'Authorization': `Bearer ${localStorage.getItem('cat_prep_token')}`,
           'X-Request-Id': requestId
         },
-        body: JSON.stringify({
-          session_id: sessionId,
-          question_id: currentQuestion?.id,
-          action: 'submit',
-          data: {
-            user_answer: userAnswer,
-            session_type: adaptiveEnabled ? 'adaptive' : 'legacy'
-          },
-          timestamp: new Date().toISOString()
-        })
+        body: JSON.stringify(payload)
       });
       
       console.log(`[CRITICAL_DEBUG] ${requestId}: Submit response status: ${res.status}`);
