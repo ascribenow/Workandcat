@@ -16123,40 +16123,39 @@ class CATBackendTester:
         return final_results["100_percent_success_achieved"]
 
 if __name__ == "__main__":
-    print("🎯 DASHBOARD API ENDPOINTS TESTING AFTER CONSOLE ERROR FIXES")
+    print("🎯 PLAN-NEXT ENDPOINT 404 DEBUG TESTING")
     print("=" * 80)
-    print("OBJECTIVE: Test key dashboard API endpoints to validate they're working correctly")
-    print("Focus: Authentication, dashboard data APIs, health check, response validation")
-    print("Expected: All endpoints working, proper JSON responses, under 5s response times")
+    print("OBJECTIVE: Debug 404 error on /api/adapt/plan-next endpoint")
+    print("Focus: Authentication, request format, response validation, full flow testing")
+    print("Expected: 202 status, session_id, status='planning', pack endpoint working")
     print("=" * 80)
     
     tester = CATBackendTester()
     
     try:
-        # Run the dashboard API endpoints test
-        print("\n🎯 RUNNING DASHBOARD API ENDPOINTS TESTING")
-        success = tester.test_dashboard_api_endpoints_after_console_fixes()
+        # Run the plan-next 404 debug test
+        print("\n🎯 RUNNING PLAN-NEXT 404 DEBUG TEST")
+        success = tester.test_plan_next_endpoint_404_debug()
         
         print("\n" + "=" * 80)
-        print("🎯 FINAL TESTING SUMMARY")
+        print("🎯 PLAN-NEXT 404 DEBUG TESTING SUMMARY")
         print("=" * 80)
         print(f"Tests Run: {tester.tests_run}")
         print(f"Tests Passed: {tester.tests_passed}")
         print(f"Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%" if tester.tests_run > 0 else "0%")
         
         if success:
-            print("\n🎉 DASHBOARD API ENDPOINTS: VALIDATED")
+            print("\n🎉 PLAN-NEXT ENDPOINT: Working correctly - 404 error resolved!")
             print("✅ Authentication working with sp@theskinmantra.com/student123")
-            print("✅ Dashboard data APIs returning proper JSON responses")
-            print("✅ Health check endpoints confirming backend routing")
-            print("✅ API response times under 5 seconds")
-            print("✅ Session data integrity confirmed (showing actual user progress)")
-            print("✅ Console error fixes validated - dashboard APIs are solid")
+            print("✅ Plan-next endpoint responds correctly")
+            print("✅ Response format matches frontend expectations")
+            print("✅ Full flow (plan-next → pack) functional")
+            print("✅ No 404 errors detected with proper authentication")
         else:
-            print("\n⚠️ DASHBOARD API ENDPOINTS: NEEDS ATTENTION")
-            print("❌ Some dashboard API endpoints have issues")
-            print("❌ Console error fixes may not be complete")
-            print("❌ Review test results above for specific failures")
+            print("\n⚠️ PLAN-NEXT ENDPOINT: Issues detected - 404 error investigation needed")
+            print("❌ Check endpoint routing and authentication")
+            print("❌ Verify request format and headers")
+            print("❌ Review backend logs for detailed error analysis")
         
         print("=" * 80)
         
