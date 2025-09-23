@@ -138,6 +138,7 @@ export class SmartPoller {
 
 /**
  * Enhanced session planning with backend session ID authority
+ * Includes retry logic for plan-next timeouts (ECONNABORTED)
  */
 export async function planSessionWithPolling({
   api,
@@ -145,63 +146,81 @@ export async function planSessionWithPolling({
   lastSessionId = null,
   idempotencyKey,
   planTimeout = 8000,
+  maxPlanRetries = 1,  // NEW: Retry plan-next once on timeout
   ...pollOptions
 }) {
   console.log(`🚀 Planning session with idempotency key: ${idempotencyKey}`);
   
-  try {
-    // Step 1: Trigger session planning
-    const planResp = await api.post('/adapt/plan-next', {
-      user_id: userId,
-      last_session_id: lastSessionId,
-      next_session_id: null // Let backend generate canonical ID
-    }, {
-      headers: { 'Idempotency-Key': idempotencyKey },
-      timeout: planTimeout
-    });
+  for (let attempt = 0; attempt <= maxPlanRetries; attempt++) {
+    try {
+      const isRetry = attempt > 0;
+      if (isRetry) {
+        console.log(`🔄 Retrying plan-next (attempt ${attempt + 1}/${maxPlanRetries + 1})`);
+      }
+      
+      // Step 1: Trigger session planning (with retry support)
+      const planResp = await api.post('/adapt/plan-next', {
+        user_id: userId,
+        last_session_id: lastSessionId,
+        next_session_id: null // Let backend generate canonical ID
+      }, {
+        headers: { 'Idempotency-Key': idempotencyKey }, // Same key for retries (safe)
+        timeout: planTimeout
+      });
 
-    if (planResp.status !== 202) {
-      throw new Error(`Unexpected plan response: ${planResp.status}`);
+      if (planResp.status !== 202) {
+        throw new Error(`Unexpected plan response: ${planResp.status}`);
+      }
+
+      const { session_id: canonicalSessionId } = planResp.data;
+      
+      if (!canonicalSessionId) {
+        throw new Error('Backend did not return session_id');
+      }
+
+      console.log(`✅ Session planning ${isRetry ? 'retry ' : ''}succeeded, canonical ID: ${canonicalSessionId.substring(0, 8)}...`);
+
+      // Step 2: Poll for pack using backend's canonical session ID
+      const poller = new SmartPoller(
+        api, 
+        '/adapt/pack', 
+        { user_id: userId, session_id: canonicalSessionId },
+        pollOptions
+      );
+      
+      const pollResult = await poller.poll();
+
+      if (pollResult.success) {
+        return {
+          ok: true,
+          sessionId: canonicalSessionId,
+          pack: pollResult.data.pack,
+          meta: pollResult.data
+        };
+      } else {
+        return {
+          ok: false,
+          sessionId: canonicalSessionId,
+          error: pollResult.error,
+          retryAvailable: pollResult.retryAvailable
+        };
+      }
+
+    } catch (planError) {
+      const isTimeout = planError.code === 'ECONNABORTED' || planError.message.includes('timeout');
+      
+      if (isTimeout && attempt < maxPlanRetries) {
+        console.log(`⏰ Plan-next timeout (${planError.message}), will retry with same idempotency key...`);
+        // Wait before retry (jitter)
+        await new Promise(r => setTimeout(r, 1000 + Math.random() * 1000));
+        continue; // Retry the planning step
+      }
+      
+      // Final failure or non-timeout error
+      console.log(`💥 Planning failed (attempt ${attempt + 1}):`, planError);
+      const error = new Error(`Failed to start session: ${planError.message}`);
+      return { ok: false, error, retryAvailable: isTimeout };
     }
-
-    const { session_id: canonicalSessionId } = planResp.data;
-    
-    if (!canonicalSessionId) {
-      throw new Error('Backend did not return session_id');
-    }
-
-    console.log(`✅ Session planning triggered, canonical ID: ${canonicalSessionId.substring(0, 8)}...`);
-
-    // Step 2: Poll for pack using backend's canonical session ID
-    const poller = new SmartPoller(
-      api, 
-      '/adapt/pack', 
-      { user_id: userId, session_id: canonicalSessionId },
-      pollOptions
-    );
-    
-    const pollResult = await poller.poll();
-
-    if (pollResult.success) {
-      return {
-        ok: true,
-        sessionId: canonicalSessionId,
-        pack: pollResult.data.pack,
-        meta: pollResult.data
-      };
-    } else {
-      return {
-        ok: false,
-        sessionId: canonicalSessionId,
-        error: pollResult.error,
-        retryAvailable: pollResult.retryAvailable
-      };
-    }
-
-  } catch (planError) {
-    console.log(`💥 Planning failed:`, planError);
-    const error = new Error(`Failed to start session: ${planError.message}`);
-    return { ok: false, error, retryAvailable: true };
   }
 }
 
