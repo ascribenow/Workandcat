@@ -64,17 +64,26 @@ async def async_plan_next_controller(
         if req_user_id != user_id:
             raise HTTPException(status_code=403, detail="Cannot plan sessions for other users")
         
-        # Get canonical session_id (idempotent)
+        # IDEMPOTENCY CHECK (FAST: target <50ms)
+        t_idem = time.perf_counter()
         canonical_session_id = idempotency_service.get_or_create_session_id(
             idempotency_key, proposed_session_id
         )
+        dt_idem = int((time.perf_counter() - t_idem) * 1000)
+        if dt_idem > 100:
+            logger.warning(f"⚠️ SLOW IDEMPOTENCY: {dt_idem}ms for request_id={rid}")
         
-        # Check if already processing
+        # DB CHECK (FAST: target <100ms)
+        t_db = time.perf_counter()
         db = SessionLocal()
         try:
             existing_row = db.execute(text("""
                 SELECT status FROM session_pack_plan WHERE session_id = :session_id
             """), {"session_id": canonical_session_id}).fetchone()
+            
+            dt_db_check = int((time.perf_counter() - t_db) * 1000)
+            if dt_db_check > 200:
+                logger.warning(f"⚠️ SLOW DB CHECK: {dt_db_check}ms for request_id={rid}")
             
             if existing_row:
                 existing_status = existing_row[0]
