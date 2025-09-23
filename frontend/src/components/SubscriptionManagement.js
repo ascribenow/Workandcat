@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import PauseSubscriptionModal from './PauseSubscriptionModal';
+import { useAuth } from './AuthProvider';
 
 const SubscriptionManagement = () => {
+  const { API } = useAuth();
   const [subscriptionInfo, setSubscriptionInfo] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isPauseModalOpen, setIsPauseModalOpen] = useState(false);
   const [error, setError] = useState('');
-
-  const API = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
 
   useEffect(() => {
     fetchSubscriptionInfo();
