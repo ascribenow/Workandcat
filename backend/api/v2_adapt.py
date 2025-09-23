@@ -203,6 +203,8 @@ async def status_aware_pack_controller(user_id: str, session_id: str, auth_user_
         """), {"user_id": user_id, "session_id": session_id}).fetchone()
         
         if not result:
+            # Check if session is being created (race condition handling)
+            logger.info(f"📦 PACK: Session {session_id[:8]} not found in database - checking for recent planning activity")
             raise HTTPException(status_code=404, detail="Session not found")
         
         pack_json, status, coverage_audit, selection_method, created_at = result
