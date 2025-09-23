@@ -358,7 +358,7 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
         next_session_id: nextSessionId
       }, { 
         headers: { 
-          Authorization: `Bearer ${user.token}`,
+          Authorization: `Bearer ${localStorage.getItem('cat_prep_token')}`,
           'Content-Type': 'application/json',
           'Idempotency-Key': `prewarm_${Date.now()}`
         },
