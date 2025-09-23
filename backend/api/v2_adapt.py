@@ -134,15 +134,22 @@ async def async_plan_next_controller(
         # RETURN 202 IMMEDIATELY
         duration_ms = int((time.perf_counter() - t0) * 1000)
         
-        logger.info(f"✅ ASYNC PLAN-NEXT: Triggered background job in {duration_ms}ms, session={canonical_session_id[:8]}")
+        # PERFORMANCE ALERT: plan-next should be <500ms p50, <1000ms p95
+        if duration_ms > 1000:
+            logger.error(f"🚨 CRITICAL SLOW PLAN-NEXT: {duration_ms}ms for request_id={rid} session={canonical_session_id[:8]}")
+        elif duration_ms > 500:
+            logger.warning(f"⚠️ SLOW PLAN-NEXT: {duration_ms}ms for request_id={rid} session={canonical_session_id[:8]}")
+        else:
+            logger.info(f"✅ PLAN-NEXT OK: {duration_ms}ms for request_id={rid} session={canonical_session_id[:8]}")
         
         return JSONResponse({
             "session_id": canonical_session_id,
-            "status": "planning",
+            "status": "planning", 
             "message": "Session planning started in background",
             "triggered_at": datetime.utcnow().isoformat() + 'Z',
             "id_source": "backend_generated" if not proposed_session_id else "client_proposed",
-            "response_type": "new_session"
+            "response_type": "new_session",
+            "dt_ms": duration_ms  # Include timing in response for debugging
         }, status_code=202)
         
     except HTTPException:
