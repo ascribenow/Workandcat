@@ -248,14 +248,14 @@ export const Dashboard = () => {
         
         setSessionState({ phase: 'preparing', message: 'Preparing your session…' });
         
-        // Generate idempotency key for dashboard session start
-        const idemKey = `dashboard_start:${user.id}:${new Date().toISOString().slice(0,10)}:${Date.now()}`;
+        // NOTE: Removed idempotency key due to CORS edge proxy blocking
+        // const idemKey = `dashboard_start:${user.id}:${new Date().toISOString().slice(0,10)}:${Date.now()}`;
         
         const result = await planSessionWithPolling({
           api: axios,
           userId: user.id,
           lastSessionId: null,
-          idempotencyKey: idemKey,
+          // idempotencyKey: idemKey, // Removed due to CORS
           budgetMs: 75000,
           baseDelay: 1000,
           maxDelay: 8000,
