@@ -245,7 +245,7 @@ export const Dashboard = () => {
         console.log('Dashboard: No active session found, starting new adaptive session...');
         
         // NEW: Use enhanced session planning with backend ID authority
-        const { planSessionWithPolling } = await import('../utils/smartPolling');
+        const { planSessionWithPolling } = require('../utils/smartPolling');
         
         setSessionState({ phase: 'preparing', message: 'Preparing your session…' });
         
