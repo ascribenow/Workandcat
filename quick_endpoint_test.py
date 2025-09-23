@@ -7,7 +7,7 @@ import json
 
 def test_endpoints():
     # API base from frontend .env (empty) - let's use the one from review request
-    base_url = "https://smart-prep-1.preview.emergentagent.com/api"
+    base_url = "https://twelvr-stable.preview.emergentagent.com/api"
     
     print("🚨 QUICK ENDPOINT TEST FOR 404 ERRORS")
     print("=" * 60)

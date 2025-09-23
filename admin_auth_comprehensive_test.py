@@ -11,7 +11,7 @@ from datetime import datetime
 
 class ComprehensiveAdminAuthTester:
     def __init__(self):
-        self.base_url = "https://smart-prep-1.preview.emergentagent.com/api"
+        self.base_url = "https://twelvr-stable.preview.emergentagent.com/api"
         self.tests_run = 0
         self.tests_passed = 0
         self.admin_token = None
