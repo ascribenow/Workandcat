@@ -885,7 +885,7 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
         },
         body: JSON.stringify({
           session_id: sessionId,
-          question_id: currentQuestion.id,
+          question_id: currentQuestion?.id,
           action: 'submit',
           data: {
             user_answer: userAnswer,
