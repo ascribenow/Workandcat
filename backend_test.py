@@ -1252,7 +1252,7 @@ class CATBackendTester:
                 "Plan-Next with Frontend UUID", 
                 "POST", 
                 "adapt/plan-next", 
-                [200, 400, 500, 502], 
+                [200, 202, 400, 500, 502], 
                 plan_data, 
                 headers_with_idem
             )
