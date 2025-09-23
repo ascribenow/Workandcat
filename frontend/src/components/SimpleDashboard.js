@@ -32,13 +32,14 @@ export const SimpleDashboard = () => {
     return () => clearTimeout(fallbackTimeout);
   }, [user, token]);
 
-  // LIGHTWEIGHT TELEMETRY: Log dashboard state mismatches only
+  // LIGHTWEIGHT TELEMETRY: Log dashboard state mismatches only when data is actually different
   const logDashboardMismatch = (event, apiData, displayData) => {
     const apiCount = apiData?.total_sessions || 0;
     const displayCount = displayData?.total_sessions || 0;
     const mismatch = apiCount !== displayCount;
     
-    if (mismatch) {
+    // Only log if there's an actual mismatch and the data is meaningful
+    if (mismatch && apiCount > 0) {
       const mismatchData = {
         event: event,
         api_count: apiCount,
