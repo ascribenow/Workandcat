@@ -18,8 +18,8 @@ const getBackendURL = () => {
     // Custom domain - use environment variable or relative path
     return process.env.REACT_APP_BACKEND_URL || '';
   } else if (currentDomain.includes('preview.emergentagent.com')) {
-    // Preview domain - use relative URLs
-    return '';
+    // Preview domain - use same domain for consistency
+    return `https://${currentDomain}`;
   } else {
     // Default fallback for other domains
     return '';
