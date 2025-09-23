@@ -21,7 +21,7 @@ export const SimpleDashboard = () => {
     
     // Removed aggressive fallback timeout - let actual API errors handle fallbacks
     
-    return () => clearTimeout(fallbackTimeout);
+    // Cleanup function removed since we removed the timeout
   }, [user, token]);
 
   // LIGHTWEIGHT TELEMETRY: Log dashboard state mismatches only when data is actually different
