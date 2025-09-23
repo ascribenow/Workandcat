@@ -3521,7 +3521,7 @@ agent_communication:
 
 test_plan:
   current_focus:
-    - "Final Payment Flow Validation - Complete End-to-End Test"
+    - "Session Loading 404 Race Condition Fix Validation"
   stuck_tasks: []
   test_all: false
   test_priority: "critical_first"
