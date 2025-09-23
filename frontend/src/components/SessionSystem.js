@@ -319,7 +319,8 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
     }, {
       budgetMs: 75000, // 75s budget aligned with backend timeout
       baseDelay: 1000,
-      maxDelay: 8000
+      maxDelay: 8000,
+      treat404AsPreparingMs: 65000 // NEW: Handle early 404 as preparing
     });
 
     const result = await poller.poll();
