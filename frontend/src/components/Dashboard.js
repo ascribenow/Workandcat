@@ -80,26 +80,52 @@ export const Dashboard = () => {
       console.log('Dashboard: API endpoint:', API);
       console.log('Dashboard: User:', user);
       
-      // Fetch mastery data with detailed progress
-      // Using global axios authorization header set by AuthProvider
-      console.log('Dashboard: Fetching mastery data...');
-      const masteryResponse = await axios.get(`${API}/dashboard/mastery`);
-      console.log('Dashboard: Mastery data received:', masteryResponse.data);
-      setMasteryData(masteryResponse.data);
-
-      // Fetch overall progress data
-      console.log('Dashboard: Fetching progress data...');
-      const progressResponse = await axios.get(`${API}/dashboard/progress`);
-      console.log('Dashboard: Progress data received:', progressResponse.data);
-      setProgressData(progressResponse.data);
-
-      // Fetch session limit status
-      console.log('Dashboard: Fetching session limit status...');
-      const limitResponse = await axios.get(`${API}/user/session-limit-status`);
-      console.log('Dashboard: Session limit status received:', limitResponse.data);
-      setSessionLimitStatus(limitResponse.data);
+      // Add timeout to prevent indefinite loading
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Dashboard fetch timeout')), 10000)
+      );
       
-      console.log('Dashboard: Data loading completed successfully');
+      try {
+        // Fetch mastery data with timeout
+        console.log('Dashboard: Fetching mastery data...');
+        const masteryResponse = await Promise.race([
+          axios.get(`${API}/dashboard/mastery`),
+          timeoutPromise
+        ]);
+        console.log('Dashboard: Mastery data received:', masteryResponse.data);
+        setMasteryData(masteryResponse.data);
+
+        // Fetch overall progress data with timeout
+        console.log('Dashboard: Fetching progress data...');
+        const progressResponse = await Promise.race([
+          axios.get(`${API}/dashboard/progress`),
+          timeoutPromise
+        ]);
+        console.log('Dashboard: Progress data received:', progressResponse.data);
+        setProgressData(progressResponse.data);
+
+        // Fetch session limit status with timeout
+        console.log('Dashboard: Fetching session limit status...');
+        const limitResponse = await Promise.race([
+          axios.get(`${API}/user/session-limit-status`),
+          timeoutPromise
+        ]);
+        console.log('Dashboard: Session limit status received:', limitResponse.data);
+        setSessionLimitStatus(limitResponse.data);
+        
+        console.log('Dashboard: Data loading completed successfully');
+        
+      } catch (fetchError) {
+        if (fetchError.message === 'Dashboard fetch timeout') {
+          console.warn('Dashboard: API fetch timeout, enabling session button anyway');
+          // Set minimal data so the session button works
+          setMasteryData({ mastery_by_topic: [], total_topics: 0, detailed_progress: [] });
+          setProgressData({ total_sessions: 0, total_minutes: 0, current_streak: 0, sessions_this_week: [] });
+          setSessionLimitStatus({ user_type: 'privileged', can_start_session: true });
+        } else {
+          throw fetchError; // Re-throw other errors
+        }
+      }
       
     } catch (error) {
       console.error('Dashboard: Error fetching dashboard data:', error);
@@ -116,9 +142,10 @@ export const Dashboard = () => {
         console.error('Dashboard: Network error - API server may be unreachable');
       }
       
-      // Set empty data to stop loading state
+      // Set empty data to stop loading state and enable session button
       setMasteryData({ mastery_by_topic: [], total_topics: 0, detailed_progress: [] });
       setProgressData({ total_sessions: 0, total_minutes: 0, current_streak: 0, sessions_this_week: [] });
+      setSessionLimitStatus({ user_type: 'privileged', can_start_session: true });
       
     } finally {
       console.log('Dashboard: Setting loading to false');
