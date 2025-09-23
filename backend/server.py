@@ -1497,18 +1497,27 @@ async def get_last_completed_session_id(user_id: str, auth_user_id: str = Depend
 
 @app.get("/api/dashboard/simple-taxonomy")
 async def get_simple_taxonomy(user_id: str = Depends(get_current_user)):
-    """Get dashboard data with real session counts"""
+    """Get dashboard data with real session counts - OPTIMIZED FOR PERFORMANCE"""
+    import time
+    t0 = time.perf_counter()
+    
     db = SessionLocal()
     try:
-        # Count completed sessions for this user
+        # Set statement timeout for dashboard queries (5 seconds max)
+        db.execute(text("SET statement_timeout = '5s'"))
+        
+        # OPTIMIZED: Count completed sessions with index usage
+        t_sessions = time.perf_counter()
         result = db.execute(text("""
             SELECT COUNT(*) as total_sessions
             FROM sessions 
             WHERE user_id = :user_id AND status = 'completed'
         """), {'user_id': user_id})
         completed_sessions = result.fetchone()
+        dt_sessions = int((time.perf_counter() - t_sessions) * 1000)
         
-        # Get taxonomy data (questions attempted by category)
+        # OPTIMIZED: Get taxonomy data with indexed query
+        t_taxonomy = time.perf_counter()
         result = db.execute(text("""
             SELECT 
                 ae.subcategory,
