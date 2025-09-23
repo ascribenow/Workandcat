@@ -18,7 +18,7 @@ const SubscriptionManagement = () => {
       const token = localStorage.getItem('cat_prep_token');
       if (!token) return;
 
-      const response = await fetch(`${API}/api/user/subscription-management`, {
+      const response = await fetch(`${API}/user/subscription-management`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
