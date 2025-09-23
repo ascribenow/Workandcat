@@ -88,7 +88,7 @@ export const Dashboard = () => {
       // Just fetch session limit status (essential for session button)
       console.log('Dashboard: Fetching session limit status...');
       try {
-        const limitResponse = await axios.get(`${API}/user/session-limit-status`, { timeout: 5000 });
+        const limitResponse = await axios.get(`${API}/user/session-limit-status`);
         console.log('Dashboard: Session limit status received:', limitResponse.data);
         setSessionLimitStatus(limitResponse.data);
       } catch (limitError) {
