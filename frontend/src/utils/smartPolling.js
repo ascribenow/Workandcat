@@ -164,7 +164,8 @@ export async function planSessionWithPolling({
         last_session_id: lastSessionId,
         next_session_id: null // Let backend generate canonical ID
       }, {
-        headers: { 'Idempotency-Key': idempotencyKey }, // Same key for retries (safe)
+        // NOTE: Removing Idempotency-Key header due to CORS blocking at edge proxy
+        // headers: { 'Idempotency-Key': idempotencyKey }, 
         timeout: planTimeout
       });
 
