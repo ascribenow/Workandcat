@@ -11,6 +11,7 @@ import Privileges from './Privileges';
 import SubscriptionManagement from './SubscriptionManagement';
 import { planSessionWithPolling } from '../utils/smartPolling';
 import SessionStatus from './SessionStatus';
+import DashboardErrorBoundary from './DashboardErrorBoundary';
 
 export const Dashboard = () => {
   const { user, logout, isAdmin, token } = useAuth();
