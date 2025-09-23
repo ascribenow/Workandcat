@@ -9,6 +9,7 @@ import PYQFilesTable from './PYQFilesTable';
 import UpgradeModal from './UpgradeModal';
 import Privileges from './Privileges';
 import SubscriptionManagement from './SubscriptionManagement';
+import { planSessionWithPolling } from '../utils/smartPolling';
 
 export const Dashboard = () => {
   const { user, logout, isAdmin, token } = useAuth();
