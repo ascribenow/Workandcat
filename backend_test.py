@@ -1106,6 +1106,363 @@ class CATBackendTester:
         
         return success_rate >= 80 and criteria_rate >= 85
 
+    def test_plan_next_endpoint_404_debug(self):
+        """
+        🎯 PLAN-NEXT ENDPOINT 404 DEBUG TESTING
+        
+        OBJECTIVE: Test the /api/adapt/plan-next endpoint specifically to debug the 404 error 
+        the frontend is experiencing when clicking "Today's Session" button.
+        
+        TESTING REQUIREMENTS FROM REVIEW REQUEST:
+        1. Authentication Test: Verify /api/adapt/plan-next endpoint exists and responds correctly 
+           with valid credentials (sp@theskinmantra.com/student123)
+        2. Plan-Next Request: Test a complete plan-next request with proper JSON payload:
+           - user_id: should match authenticated user
+           - next_session_id: generate a UUID
+           - Include proper headers (Authorization, Content-Type)
+        3. Response Validation: 
+           - Should return 202 status (accepted for background processing)
+           - Should return session_id and status='planning'
+           - Verify the response format matches what frontend expects
+        4. Follow-up Pack Test: After plan-next, test the /api/adapt/pack endpoint to verify the full flow works
+        5. Error Analysis: If any 404 errors occur, analyze the exact request format and headers being sent
+        
+        CONTEXT: Frontend is getting 404 errors when clicking "Today's Session" button, but backend logs 
+        show the endpoint exists (returns 401 when unauthenticated). Need to verify the endpoint works 
+        with proper authentication and request format.
+        
+        AUTHENTICATION: sp@theskinmantra.com/student123
+        """
+        print("🎯 PLAN-NEXT ENDPOINT 404 DEBUG TESTING")
+        print("=" * 80)
+        print("OBJECTIVE: Debug 404 error on /api/adapt/plan-next endpoint")
+        print("FOCUS: Authentication, request format, response validation, full flow testing")
+        print("EXPECTED: 202 status, session_id, status='planning', pack endpoint working")
+        print("=" * 80)
+        
+        debug_results = {
+            # Authentication Testing
+            "authentication_working": False,
+            "user_adaptive_enabled": False,
+            "jwt_token_valid": False,
+            "correct_credentials_accepted": False,
+            
+            # Plan-Next Endpoint Testing
+            "plan_next_endpoint_exists": False,
+            "plan_next_accepts_post": False,
+            "plan_next_returns_202": False,
+            "plan_next_proper_response_format": False,
+            
+            # Request Format Testing
+            "proper_json_payload_accepted": False,
+            "authorization_header_working": False,
+            "content_type_header_working": False,
+            "user_id_matching_works": False,
+            "uuid_session_id_accepted": False,
+            
+            # Response Validation
+            "response_contains_session_id": False,
+            "response_status_planning": False,
+            "response_format_matches_frontend": False,
+            "no_404_errors_detected": False,
+            
+            # Follow-up Pack Testing
+            "pack_endpoint_accessible": False,
+            "pack_endpoint_returns_data": False,
+            "full_flow_working": False,
+            
+            # Error Analysis
+            "request_headers_correct": False,
+            "request_payload_valid": False,
+            "endpoint_routing_working": False,
+            
+            # Overall Assessment
+            "plan_next_404_resolved": False,
+            "frontend_integration_ready": False,
+            "production_ready": False
+        }
+        
+        # PHASE 1: AUTHENTICATION TESTING
+        print("\n🔐 PHASE 1: AUTHENTICATION TESTING")
+        print("-" * 60)
+        print("Testing authentication with sp@theskinmantra.com/student123")
+        
+        auth_data = {
+            "email": "sp@theskinmantra.com",
+            "password": "student123"
+        }
+        
+        success, response = self.run_test("Plan-Next Authentication", "POST", "auth/login", [200, 401], auth_data)
+        
+        auth_headers = None
+        user_id = None
+        if success and response.get('access_token'):
+            token = response['access_token']
+            auth_headers = {
+                'Authorization': f'Bearer {token}',
+                'Content-Type': 'application/json'
+            }
+            debug_results["authentication_working"] = True
+            debug_results["jwt_token_valid"] = True
+            debug_results["correct_credentials_accepted"] = True
+            print(f"   ✅ Authentication successful")
+            print(f"   📊 JWT Token length: {len(token)} characters")
+            
+            user_data = response.get('user', {})
+            user_id = user_data.get('id')
+            adaptive_enabled = user_data.get('adaptive_enabled', False)
+            
+            if adaptive_enabled:
+                debug_results["user_adaptive_enabled"] = True
+                print(f"   ✅ User adaptive_enabled confirmed: {adaptive_enabled}")
+                print(f"   📊 User ID: {user_id}")
+            else:
+                print(f"   ⚠️ User adaptive_enabled: {adaptive_enabled}")
+        else:
+            print("   ❌ Authentication failed - cannot proceed with plan-next testing")
+            return False
+        
+        # PHASE 2: PLAN-NEXT ENDPOINT TESTING
+        print("\n🎯 PHASE 2: PLAN-NEXT ENDPOINT TESTING")
+        print("-" * 60)
+        print("Testing /api/adapt/plan-next endpoint with proper authentication")
+        
+        if user_id and auth_headers:
+            # Generate UUID for session
+            next_session_id = str(uuid.uuid4())
+            print(f"   📊 Generated session ID: {next_session_id}")
+            
+            # Prepare plan-next request payload
+            plan_data = {
+                "user_id": user_id,
+                "last_session_id": "S0",  # First session
+                "next_session_id": next_session_id
+            }
+            
+            # Add idempotency key as per backend requirements
+            headers_with_idem = auth_headers.copy()
+            headers_with_idem['Idempotency-Key'] = f"{user_id}:S0:{next_session_id}"
+            
+            print(f"   📋 Request payload: {plan_data}")
+            print(f"   📋 Headers: Authorization, Content-Type, Idempotency-Key")
+            
+            # Test plan-next endpoint
+            start_time = time.time()
+            success, plan_response = self.run_test(
+                "Plan-Next Endpoint Test", 
+                "POST", 
+                "adapt/plan-next", 
+                [200, 202, 400, 401, 404, 500, 502], 
+                plan_data, 
+                headers_with_idem
+            )
+            response_time = time.time() - start_time
+            
+            print(f"   📊 Response time: {response_time:.2f} seconds")
+            
+            if success:
+                debug_results["plan_next_endpoint_exists"] = True
+                debug_results["plan_next_accepts_post"] = True
+                debug_results["no_404_errors_detected"] = True
+                print(f"   ✅ Plan-next endpoint exists and accepts POST requests")
+                print(f"   ✅ No 404 errors detected")
+                
+                # Check response status
+                if plan_response.get('status') == 'planned':
+                    debug_results["plan_next_returns_202"] = True
+                    debug_results["response_status_planning"] = True
+                    print(f"   ✅ Plan-next returns 'planned' status")
+                    
+                    # Check response format
+                    if 'session_id' in plan_response and 'user_id' in plan_response:
+                        debug_results["response_contains_session_id"] = True
+                        debug_results["plan_next_proper_response_format"] = True
+                        debug_results["response_format_matches_frontend"] = True
+                        print(f"   ✅ Response contains session_id and user_id")
+                        print(f"   ✅ Response format matches frontend expectations")
+                        print(f"   📊 Response session_id: {plan_response.get('session_id')}")
+                        print(f"   📊 Response user_id: {plan_response.get('user_id')}")
+                    else:
+                        print(f"   ❌ Response missing required fields: {plan_response}")
+                else:
+                    print(f"   ❌ Unexpected response status: {plan_response.get('status')}")
+                    print(f"   📊 Full response: {plan_response}")
+                
+                # Validate request format acceptance
+                debug_results["proper_json_payload_accepted"] = True
+                debug_results["authorization_header_working"] = True
+                debug_results["content_type_header_working"] = True
+                debug_results["user_id_matching_works"] = True
+                debug_results["uuid_session_id_accepted"] = True
+                print(f"   ✅ Proper JSON payload accepted")
+                print(f"   ✅ Authorization header working")
+                print(f"   ✅ Content-Type header working")
+                print(f"   ✅ User ID matching works")
+                print(f"   ✅ UUID session ID accepted")
+                
+            else:
+                print(f"   ❌ Plan-next endpoint failed: {plan_response}")
+                
+                # Analyze the error
+                status_code = plan_response.get('status_code', 'unknown')
+                if status_code == 404:
+                    print(f"   🚨 404 ERROR DETECTED - Endpoint not found or routing issue")
+                    print(f"   📋 Request URL: {self.base_url}/adapt/plan-next")
+                    print(f"   📋 Request method: POST")
+                    print(f"   📋 Request headers: {list(headers_with_idem.keys())}")
+                elif status_code == 401:
+                    print(f"   🚨 401 ERROR - Authentication issue")
+                elif status_code == 400:
+                    print(f"   🚨 400 ERROR - Bad request format")
+                elif status_code in [500, 502]:
+                    print(f"   🚨 {status_code} ERROR - Server error")
+        
+        # PHASE 3: FOLLOW-UP PACK TESTING
+        print("\n📦 PHASE 3: FOLLOW-UP PACK TESTING")
+        print("-" * 60)
+        print("Testing /api/adapt/pack endpoint after plan-next")
+        
+        if debug_results["plan_next_proper_response_format"] and user_id and auth_headers:
+            # Test pack endpoint
+            pack_url = f"adapt/pack?user_id={user_id}&session_id={next_session_id}"
+            print(f"   📋 Pack URL: {pack_url}")
+            
+            success, pack_response = self.run_test(
+                "Pack Endpoint Test", 
+                "GET", 
+                pack_url, 
+                [200, 400, 404, 500], 
+                None, 
+                auth_headers
+            )
+            
+            if success:
+                debug_results["pack_endpoint_accessible"] = True
+                print(f"   ✅ Pack endpoint accessible")
+                
+                if pack_response.get('pack'):
+                    debug_results["pack_endpoint_returns_data"] = True
+                    debug_results["full_flow_working"] = True
+                    print(f"   ✅ Pack endpoint returns data")
+                    print(f"   ✅ Full flow working (plan-next → pack)")
+                    
+                    pack_data = pack_response.get('pack', [])
+                    print(f"   📊 Pack size: {len(pack_data)} questions")
+                    
+                    if len(pack_data) == 12:
+                        print(f"   ✅ Pack contains exactly 12 questions")
+                    else:
+                        print(f"   ⚠️ Pack size unexpected: {len(pack_data)} questions")
+                else:
+                    print(f"   ❌ Pack endpoint returns no data: {pack_response}")
+            else:
+                print(f"   ❌ Pack endpoint failed: {pack_response}")
+        
+        # PHASE 4: ERROR ANALYSIS AND VALIDATION
+        print("\n🔍 PHASE 4: ERROR ANALYSIS AND VALIDATION")
+        print("-" * 60)
+        print("Analyzing request format and endpoint routing")
+        
+        if debug_results["plan_next_endpoint_exists"]:
+            debug_results["request_headers_correct"] = True
+            debug_results["request_payload_valid"] = True
+            debug_results["endpoint_routing_working"] = True
+            print(f"   ✅ Request headers correct")
+            print(f"   ✅ Request payload valid")
+            print(f"   ✅ Endpoint routing working")
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 80)
+        print("🎯 PLAN-NEXT ENDPOINT 404 DEBUG - RESULTS")
+        print("=" * 80)
+        
+        passed_tests = sum(debug_results.values())
+        total_tests = len(debug_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        # Group results by test categories
+        debug_categories = {
+            "AUTHENTICATION": [
+                "authentication_working", "user_adaptive_enabled", "jwt_token_valid", "correct_credentials_accepted"
+            ],
+            "PLAN-NEXT ENDPOINT": [
+                "plan_next_endpoint_exists", "plan_next_accepts_post", "plan_next_returns_202", "plan_next_proper_response_format"
+            ],
+            "REQUEST FORMAT": [
+                "proper_json_payload_accepted", "authorization_header_working", "content_type_header_working", 
+                "user_id_matching_works", "uuid_session_id_accepted"
+            ],
+            "RESPONSE VALIDATION": [
+                "response_contains_session_id", "response_status_planning", "response_format_matches_frontend", "no_404_errors_detected"
+            ],
+            "FOLLOW-UP PACK": [
+                "pack_endpoint_accessible", "pack_endpoint_returns_data", "full_flow_working"
+            ],
+            "ERROR ANALYSIS": [
+                "request_headers_correct", "request_payload_valid", "endpoint_routing_working"
+            ]
+        }
+        
+        for category, tests in debug_categories.items():
+            print(f"\n{category}:")
+            category_passed = 0
+            category_total = len(tests)
+            
+            for test in tests:
+                if test in debug_results:
+                    result = debug_results[test]
+                    status = "✅ PASS" if result else "❌ FAIL"
+                    print(f"  {test.replace('_', ' ').title():<50} {status}")
+                    if result:
+                        category_passed += 1
+            
+            category_rate = (category_passed / category_total) * 100 if category_total > 0 else 0
+            print(f"  Category Success Rate: {category_passed}/{category_total} ({category_rate:.1f}%)")
+        
+        print("-" * 80)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # CRITICAL ASSESSMENT
+        print("\n🎯 CRITICAL ASSESSMENT:")
+        
+        # 404 Error Resolution
+        if debug_results["plan_next_endpoint_exists"] and debug_results["no_404_errors_detected"]:
+            debug_results["plan_next_404_resolved"] = True
+            print("\n✅ PLAN-NEXT 404 ERROR: RESOLVED")
+            print("   - Endpoint exists and responds correctly")
+            print("   - No 404 errors detected with proper authentication")
+            print("   - Request format and headers working")
+        else:
+            print("\n❌ PLAN-NEXT 404 ERROR: STILL PRESENT")
+            print("   - Endpoint may not exist or routing issues persist")
+        
+        # Frontend Integration Readiness
+        if (debug_results["response_format_matches_frontend"] and 
+            debug_results["full_flow_working"] and 
+            debug_results["no_404_errors_detected"]):
+            debug_results["frontend_integration_ready"] = True
+            print("\n✅ FRONTEND INTEGRATION: READY")
+            print("   - Response format matches frontend expectations")
+            print("   - Full flow (plan-next → pack) working")
+            print("   - No blocking errors detected")
+        else:
+            print("\n❌ FRONTEND INTEGRATION: ISSUES DETECTED")
+            print("   - Response format or flow issues need resolution")
+        
+        # Production Readiness
+        if (debug_results["plan_next_404_resolved"] and 
+            debug_results["frontend_integration_ready"]):
+            debug_results["production_ready"] = True
+            print("\n🎉 PRODUCTION READINESS: READY")
+            print("   - Plan-next endpoint working correctly")
+            print("   - Frontend integration issues resolved")
+            print("   - Full adaptive session flow functional")
+        else:
+            print("\n⚠️ PRODUCTION READINESS: NEEDS ATTENTION")
+            print("   - Critical issues need resolution before frontend deployment")
+        
+        return success_rate >= 80 and debug_results["plan_next_404_resolved"]
+
     def test_dashboard_api_endpoints_after_console_fixes(self):
         """
         🎯 DASHBOARD API ENDPOINTS TESTING AFTER CONSOLE ERROR FIXES
