@@ -45,14 +45,11 @@ async def async_plan_next_controller(
     logger.info(f"🚀 PLAN-NEXT START: request_id={rid}")
     
     try:
-        # Validate required headers (FAST: <1ms)
-        t_validation = time.perf_counter()
+        # TEMPORARY: Make Idempotency-Key optional due to CORS edge proxy blocking
         if not idempotency_key:
-            raise HTTPException(status_code=400, detail="Idempotency-Key header required")
-        
-        dt_validation = int((time.perf_counter() - t_validation) * 1000)
-        if dt_validation > 50:
-            logger.warning(f"⚠️ SLOW VALIDATION: {dt_validation}ms for request_id={rid}")
+            # Generate a fallback key based on user + timestamp for basic deduplication  
+            idempotency_key = f"fallback_{user_id}_{int(time.time())}"
+            logger.info(f"🔄 Using fallback idempotency key: {idempotency_key}")
         
         # Extract and validate parameters
         req_user_id = body.get("user_id")
