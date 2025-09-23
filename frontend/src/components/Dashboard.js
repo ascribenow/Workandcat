@@ -490,6 +490,25 @@ export const Dashboard = () => {
   return (
     <div className="min-h-screen bg-white" style={{ fontFamily: 'Manrope, sans-serif' }}>
       {renderNavigation()}
+      
+      {/* Session Status - Show loading/error states */}
+      {sessionState.phase !== 'idle' && (
+        <div className="bg-gray-50 border-b border-gray-200 px-4 py-3">
+          <div className="max-w-6xl mx-auto">
+            <SessionStatus 
+              state={sessionState} 
+              onRetry={async () => {
+                setSessionState({ phase: 'idle' });
+                const sessionStarted = await startOrResumeSession();
+                if (sessionStarted) {
+                  setCurrentView('session');
+                }
+              }} 
+            />
+          </div>
+        </div>
+      )}
+      
       {renderContent()}
       
       {/* Upgrade Modal */}
