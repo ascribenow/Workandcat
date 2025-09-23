@@ -82,7 +82,7 @@ export const Dashboard = () => {
       
       // Add timeout to prevent indefinite loading
       const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Dashboard fetch timeout')), 10000)
+        setTimeout(() => reject(new Error('Dashboard fetch timeout')), 5000)
       );
       
       try {
