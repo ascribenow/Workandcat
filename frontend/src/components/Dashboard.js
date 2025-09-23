@@ -105,6 +105,16 @@ export const Dashboard = () => {
       console.error('Dashboard: Error fetching dashboard data:', error);
       console.error('Dashboard: Error response:', error.response?.data);
       console.error('Dashboard: Error status:', error.response?.status);
+      console.error('Dashboard: Error config:', error.config?.url);
+      
+      // Check for specific authentication errors
+      if (error.response?.status === 401) {
+        console.error('Dashboard: Authentication failed - token may be invalid');
+      } else if (error.response?.status === 403) {
+        console.error('Dashboard: Access forbidden - user may not have permissions');
+      } else if (error.code === 'ERR_NETWORK') {
+        console.error('Dashboard: Network error - API server may be unreachable');
+      }
       
       // Set empty data to stop loading state
       setMasteryData({ mastery_by_topic: [], total_topics: 0, detailed_progress: [] });
