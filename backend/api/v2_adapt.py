@@ -102,7 +102,8 @@ async def async_plan_next_controller(
         finally:
             db.close()
         
-        # Create new planning row with canonical session_id
+        # CREATE PLANNING ROW (FAST: target <100ms)
+        t_insert = time.perf_counter()
         db = SessionLocal()
         try:
             db.execute(text("""
@@ -110,13 +111,27 @@ async def async_plan_next_controller(
                 VALUES (:session_id, :user_id, 'planning', 'coverage_v1', NOW())
             """), {"session_id": canonical_session_id, "user_id": req_user_id})
             db.commit()
+            dt_insert = int((time.perf_counter() - t_insert) * 1000)
+            if dt_insert > 200:
+                logger.warning(f"⚠️ SLOW DB INSERT: {dt_insert}ms for request_id={rid}")
+        except Exception as e:
+            logger.error(f"❌ DB INSERT FAILED: {str(e)} for request_id={rid}")
+            raise HTTPException(status_code=500, detail="Database error")
         finally:
             db.close()
         
-        # Trigger background planning job (fire-and-forget)
-        asyncio.create_task(background_plan_next_session(req_user_id, canonical_session_id))
+        # TRIGGER BACKGROUND JOB (FIRE-AND-FORGET: target <10ms)
+        t_bg = time.perf_counter()
+        try:
+            asyncio.create_task(background_plan_next_session(req_user_id, canonical_session_id))
+            dt_bg = int((time.perf_counter() - t_bg) * 1000)
+            if dt_bg > 50:
+                logger.warning(f"⚠️ SLOW BG TRIGGER: {dt_bg}ms for request_id={rid}")
+        except Exception as e:
+            logger.error(f"❌ BACKGROUND JOB FAILED: {str(e)} for request_id={rid}")
+            # Don't fail the request - job can be retried
         
-        # Return 202 immediately - no waiting!
+        # RETURN 202 IMMEDIATELY
         duration_ms = int((time.perf_counter() - t0) * 1000)
         
         logger.info(f"✅ ASYNC PLAN-NEXT: Triggered background job in {duration_ms}ms, session={canonical_session_id[:8]}")
