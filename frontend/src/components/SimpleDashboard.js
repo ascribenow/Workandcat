@@ -109,10 +109,12 @@ export const SimpleDashboard = () => {
         return; // Don't set empty data yet, let retry happen
       }
       
-      // Set empty data to stop loading after all retries failed
-      console.log('SimpleDashboard: All retries failed, setting empty data');
-      setDashboardData({ total_sessions: 0, taxonomy_data: [] });
-      setCategorizedData({ total_sessions: 0, categorized_data: [], total_categories: 0 });
+      // Only set fallback data if this is a real API error, not a timeout
+      if (error.response?.status >= 400) {
+        console.warn('SimpleDashboard: API error detected, using fallback data');
+        setDashboardData({ total_sessions: 0, taxonomy_data: [] });
+        setCategorizedData({ total_sessions: 0, categorized_data: [], total_categories: 0 });
+      }
     } finally {
       console.log('SimpleDashboard: Setting loading to false');
       setLoading(false);
