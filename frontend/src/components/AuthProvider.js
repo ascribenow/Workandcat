@@ -29,6 +29,14 @@ const getBackendURL = () => {
 const BACKEND_URL = getBackendURL();
 export const API = BACKEND_URL ? `${BACKEND_URL}/api` : '/api';
 
+// Debug logging
+console.log('🔧 AuthProvider Debug:', {
+  currentDomain: window.location.hostname,
+  envBackendURL: process.env.REACT_APP_BACKEND_URL,
+  detectedBackendURL: BACKEND_URL,
+  finalAPI: API
+});
+
 console.log(`🔗 API Configuration: Backend URL = "${BACKEND_URL}", API = "${API}"`);
 
 // Create Auth Context
