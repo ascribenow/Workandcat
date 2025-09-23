@@ -26,6 +26,9 @@ export const Dashboard = () => {
   const [sessionLimitStatus, setSessionLimitStatus] = useState(null);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   
+  // Session loading state  
+  const [sessionState, setSessionState] = useState({ phase: 'idle' });
+  
   // Enrich Checker states
   const [enriching, setEnriching] = useState(false);
   const [enrichResults, setEnrichResults] = useState(null);
