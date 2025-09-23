@@ -261,8 +261,14 @@ export const Dashboard = () => {
         // Generate idempotency key for dashboard session start
         const idemKey = `dashboard_start:${user.id}:${new Date().toISOString().slice(0,10)}:${Date.now()}`;
         
+        // Create a configured axios instance with the correct base URL
+        const configuredAxios = axios.create({
+          baseURL: API,
+          headers: axios.defaults.headers
+        });
+
         const result = await planSessionWithPolling({
-          api: axios,
+          api: configuredAxios,
           userId: user.id,
           lastSessionId: null,
           idempotencyKey: idemKey,
