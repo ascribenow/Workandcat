@@ -86,12 +86,8 @@ export const SimpleDashboard = () => {
       ]);
       
       console.log('SimpleDashboard: Data received successfully!');
-      console.log('SimpleDashboard: Simple response status:', simpleResponse.status);
-      console.log('SimpleDashboard: Categorized response status:', categorizedResponse.status);
       console.log('SimpleDashboard: Total sessions:', simpleResponse.data?.total_sessions);
       console.log('SimpleDashboard: Categories:', categorizedResponse.data?.total_categories);
-      console.log('SimpleDashboard: Simple data:', simpleResponse.data);
-      console.log('SimpleDashboard: Categorized data sample:', categorizedResponse.data?.categorized_data?.[0]);
       
       setDashboardData(simpleResponse.data);
       setCategorizedData(categorizedResponse.data);
