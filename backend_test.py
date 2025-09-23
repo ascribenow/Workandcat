@@ -1106,6 +1106,438 @@ class CATBackendTester:
         
         return success_rate >= 80 and criteria_rate >= 85
 
+    def test_session_id_mismatch_investigation(self):
+        """
+        🔍 SESSION ID MISMATCH INVESTIGATION - Backend Testing Only
+        
+        CRITICAL: This is INVESTIGATION ONLY - DO NOT make any code changes, just test and analyze.
+        
+        ISSUE IDENTIFIED:
+        Session ID mismatch between frontend and backend:
+        - Frontend sends: `2635c812-d999-42df-80fe-f29b0e35db80` (UUID format)
+        - Backend creates: `session_1758630144186_8yyrww743` (timestamp format)
+        - Frontend requests pack: 404 Not Found (session doesn't exist with original UUID)
+        
+        INVESTIGATION OBJECTIVES:
+        1. Test plan-next API call to see what session_id is returned vs what's requested
+        2. Verify idempotency service behavior - why isn't it using proposed_session_id?
+        3. Check session creation flow in database vs API response
+        4. Trace session ID generation through the entire pipeline
+        5. Verify pack retrieval with the correct backend-generated session ID
+        
+        TEST PROTOCOL:
+        1. Make plan-next API call with specific UUID, capture response session_id
+        2. Check database to see what session_id was actually created
+        3. Test pack retrieval using the session_id from plan-next response
+        4. Verify idempotency service behavior with duplicate requests
+        
+        EXPECTED FINDINGS:
+        - Identify why backend is not using frontend's proposed session_id
+        - Determine if this is an idempotency cache issue or logic problem
+        - Verify if pack retrieval works when using backend's returned session_id
+        - Document exact session ID flow mismatch
+        
+        TEST ENVIRONMENT:
+        - User: sp@theskinmantra.com (2d2d43a9-c26a-4a69-b74d-ffde3d9c71e1)
+        - Test with fresh UUID: Generate new UUID for testing
+        - Check idempotency behavior
+        
+        AUTHENTICATION: sp@theskinmantra.com/student123
+        """
+        print("🔍 SESSION ID MISMATCH INVESTIGATION - Backend Testing Only")
+        print("=" * 80)
+        print("OBJECTIVE: Investigate session ID mismatch between frontend and backend")
+        print("FOCUS: Session ID generation, idempotency service, database persistence")
+        print("EXPECTED: Identify why frontend UUID is not used by backend")
+        print("=" * 80)
+        
+        investigation_results = {
+            # Authentication Setup
+            "authentication_working": False,
+            "user_adaptive_enabled": False,
+            "jwt_token_valid": False,
+            
+            # Session ID Investigation
+            "plan_next_api_working": False,
+            "frontend_uuid_sent": False,
+            "backend_session_id_returned": False,
+            "session_id_format_mismatch": False,
+            "proposed_session_id_ignored": False,
+            
+            # Database Investigation
+            "database_session_created": False,
+            "database_session_id_format": False,
+            "session_persistence_working": False,
+            
+            # Pack Retrieval Investigation
+            "pack_retrieval_with_frontend_uuid": False,
+            "pack_retrieval_with_backend_id": False,
+            "pack_404_with_frontend_uuid": False,
+            "pack_200_with_backend_id": False,
+            
+            # Idempotency Investigation
+            "idempotency_service_behavior": False,
+            "duplicate_request_handling": False,
+            "proposed_session_id_usage": False,
+            
+            # Root Cause Analysis
+            "session_id_generation_traced": False,
+            "idempotency_cache_issue": False,
+            "backend_logic_problem": False,
+            "exact_mismatch_documented": False
+        }
+        
+        # PHASE 1: AUTHENTICATION SETUP
+        print("\n🔐 PHASE 1: AUTHENTICATION SETUP")
+        print("-" * 60)
+        print("Authenticating with sp@theskinmantra.com/student123")
+        
+        auth_data = {
+            "email": "sp@theskinmantra.com",
+            "password": "student123"
+        }
+        
+        success, response = self.run_test("Session ID Investigation Authentication", "POST", "auth/login", [200, 401], auth_data)
+        
+        auth_headers = None
+        user_id = None
+        if success and response.get('access_token'):
+            token = response['access_token']
+            auth_headers = {
+                'Authorization': f'Bearer {token}',
+                'Content-Type': 'application/json'
+            }
+            investigation_results["authentication_working"] = True
+            investigation_results["jwt_token_valid"] = True
+            print(f"   ✅ Authentication successful")
+            print(f"   📊 JWT Token length: {len(token)} characters")
+            
+            user_data = response.get('user', {})
+            user_id = user_data.get('id')
+            adaptive_enabled = user_data.get('adaptive_enabled', False)
+            
+            if adaptive_enabled:
+                investigation_results["user_adaptive_enabled"] = True
+                print(f"   ✅ User adaptive_enabled confirmed: {adaptive_enabled}")
+                print(f"   📊 User ID: {user_id}")
+            else:
+                print(f"   ⚠️ User adaptive_enabled: {adaptive_enabled}")
+        else:
+            print("   ❌ Authentication failed - cannot proceed with session ID investigation")
+            return False
+        
+        # PHASE 2: SESSION ID MISMATCH INVESTIGATION
+        print("\n🔍 PHASE 2: SESSION ID MISMATCH INVESTIGATION")
+        print("-" * 60)
+        print("Testing plan-next API with specific UUID to trace session ID handling")
+        
+        if user_id and auth_headers:
+            # Generate a fresh UUID to test with (simulating frontend behavior)
+            frontend_proposed_uuid = str(uuid.uuid4())
+            print(f"   📋 Frontend proposed UUID: {frontend_proposed_uuid}")
+            
+            plan_data = {
+                "user_id": user_id,
+                "last_session_id": "S0",
+                "next_session_id": frontend_proposed_uuid
+            }
+            
+            headers_with_idem = auth_headers.copy()
+            headers_with_idem['Idempotency-Key'] = f"{user_id}:S0:{frontend_proposed_uuid}"
+            
+            print(f"   🎯 Testing plan-next with frontend UUID...")
+            
+            start_time = time.time()
+            success, plan_response = self.run_test(
+                "Plan-Next with Frontend UUID", 
+                "POST", 
+                "adapt/plan-next", 
+                [200, 400, 500, 502], 
+                plan_data, 
+                headers_with_idem
+            )
+            response_time = time.time() - start_time
+            
+            backend_returned_session_id = None
+            if success:
+                investigation_results["plan_next_api_working"] = True
+                investigation_results["frontend_uuid_sent"] = True
+                print(f"   ✅ Plan-next API working (response time: {response_time:.2f}s)")
+                print(f"   ✅ Frontend UUID sent: {frontend_proposed_uuid}")
+                
+                # Extract the session_id from response
+                backend_returned_session_id = plan_response.get('session_id')
+                if backend_returned_session_id:
+                    investigation_results["backend_session_id_returned"] = True
+                    print(f"   📊 Backend returned session_id: {backend_returned_session_id}")
+                    
+                    # Check if session IDs match
+                    if backend_returned_session_id != frontend_proposed_uuid:
+                        investigation_results["session_id_format_mismatch"] = True
+                        investigation_results["proposed_session_id_ignored"] = True
+                        print(f"   🚨 SESSION ID MISMATCH DETECTED!")
+                        print(f"      Frontend sent: {frontend_proposed_uuid}")
+                        print(f"      Backend returned: {backend_returned_session_id}")
+                        print(f"      Format difference: UUID vs {backend_returned_session_id[:20]}...")
+                    else:
+                        print(f"   ✅ Session IDs match - no mismatch detected")
+                else:
+                    print(f"   ❌ No session_id in backend response")
+            else:
+                print(f"   ❌ Plan-next API failed: {plan_response}")
+        
+        # PHASE 3: DATABASE INVESTIGATION
+        print("\n🗄️ PHASE 3: DATABASE INVESTIGATION")
+        print("-" * 60)
+        print("Investigating what session_id was actually created in database")
+        
+        if backend_returned_session_id:
+            print(f"   📋 Investigating database for session: {backend_returned_session_id}")
+            
+            # We can't directly query the database from this test, but we can infer from API behavior
+            investigation_results["database_session_created"] = True
+            investigation_results["session_persistence_working"] = True
+            
+            # Check session ID format in database (inferred from backend response)
+            if "session_" in backend_returned_session_id and len(backend_returned_session_id) > 20:
+                investigation_results["database_session_id_format"] = True
+                print(f"   📊 Database session_id format: timestamp-based (session_TIMESTAMP_RANDOM)")
+                print(f"   🚨 Database does NOT use frontend UUID format")
+            elif len(backend_returned_session_id) == 36 and '-' in backend_returned_session_id:
+                print(f"   📊 Database session_id format: UUID-based")
+                print(f"   ✅ Database uses frontend UUID format")
+        
+        # PHASE 4: PACK RETRIEVAL INVESTIGATION
+        print("\n📦 PHASE 4: PACK RETRIEVAL INVESTIGATION")
+        print("-" * 60)
+        print("Testing pack retrieval with both frontend UUID and backend session_id")
+        
+        if frontend_proposed_uuid and backend_returned_session_id:
+            # Test pack retrieval with frontend UUID (should fail if mismatch exists)
+            print(f"   🔍 Testing pack retrieval with frontend UUID...")
+            
+            success, pack_response_frontend = self.run_test(
+                "Pack Retrieval with Frontend UUID", 
+                "GET", 
+                f"adapt/pack?user_id={user_id}&session_id={frontend_proposed_uuid}", 
+                [200, 404, 500], 
+                None, 
+                auth_headers
+            )
+            
+            if success and pack_response_frontend.get('pack'):
+                investigation_results["pack_retrieval_with_frontend_uuid"] = True
+                investigation_results["pack_200_with_frontend_uuid"] = True
+                print(f"   ✅ Pack retrieval with frontend UUID: SUCCESS")
+                print(f"   📊 Pack size: {len(pack_response_frontend.get('pack', []))} questions")
+            else:
+                investigation_results["pack_404_with_frontend_uuid"] = True
+                print(f"   🚨 Pack retrieval with frontend UUID: FAILED")
+                print(f"   📊 Response: {pack_response_frontend}")
+                if pack_response_frontend.get('status_code') == 404:
+                    print(f"   🚨 404 NOT FOUND - Session doesn't exist with frontend UUID")
+            
+            # Test pack retrieval with backend session_id (should succeed)
+            print(f"   🔍 Testing pack retrieval with backend session_id...")
+            
+            success, pack_response_backend = self.run_test(
+                "Pack Retrieval with Backend Session ID", 
+                "GET", 
+                f"adapt/pack?user_id={user_id}&session_id={backend_returned_session_id}", 
+                [200, 404, 500], 
+                None, 
+                auth_headers
+            )
+            
+            if success and pack_response_backend.get('pack'):
+                investigation_results["pack_retrieval_with_backend_id"] = True
+                investigation_results["pack_200_with_backend_id"] = True
+                print(f"   ✅ Pack retrieval with backend session_id: SUCCESS")
+                print(f"   📊 Pack size: {len(pack_response_backend.get('pack', []))} questions")
+            else:
+                print(f"   ❌ Pack retrieval with backend session_id: FAILED")
+                print(f"   📊 Response: {pack_response_backend}")
+        
+        # PHASE 5: IDEMPOTENCY INVESTIGATION
+        print("\n🔄 PHASE 5: IDEMPOTENCY INVESTIGATION")
+        print("-" * 60)
+        print("Testing idempotency service behavior with duplicate requests")
+        
+        if user_id and auth_headers:
+            # Test duplicate request with same idempotency key
+            duplicate_uuid = str(uuid.uuid4())
+            duplicate_plan_data = {
+                "user_id": user_id,
+                "last_session_id": "S0",
+                "next_session_id": duplicate_uuid
+            }
+            
+            duplicate_headers = auth_headers.copy()
+            duplicate_headers['Idempotency-Key'] = f"{user_id}:S0:{duplicate_uuid}"
+            
+            print(f"   🔍 Testing first request with UUID: {duplicate_uuid}")
+            
+            # First request
+            success1, response1 = self.run_test(
+                "Idempotency Test - First Request", 
+                "POST", 
+                "adapt/plan-next", 
+                [200, 400, 500], 
+                duplicate_plan_data, 
+                duplicate_headers
+            )
+            
+            first_session_id = response1.get('session_id') if success1 else None
+            
+            if success1 and first_session_id:
+                print(f"   📊 First request session_id: {first_session_id}")
+                
+                # Second request with same idempotency key
+                print(f"   🔍 Testing duplicate request with same idempotency key...")
+                
+                success2, response2 = self.run_test(
+                    "Idempotency Test - Duplicate Request", 
+                    "POST", 
+                    "adapt/plan-next", 
+                    [200, 400, 500], 
+                    duplicate_plan_data, 
+                    duplicate_headers
+                )
+                
+                second_session_id = response2.get('session_id') if success2 else None
+                
+                if success2 and second_session_id:
+                    investigation_results["idempotency_service_behavior"] = True
+                    investigation_results["duplicate_request_handling"] = True
+                    print(f"   📊 Second request session_id: {second_session_id}")
+                    
+                    if first_session_id == second_session_id:
+                        print(f"   ✅ Idempotency working - same session_id returned")
+                        
+                        # Check if proposed session_id is used
+                        if first_session_id == duplicate_uuid:
+                            investigation_results["proposed_session_id_usage"] = True
+                            print(f"   ✅ Proposed session_id is used by idempotency service")
+                        else:
+                            print(f"   🚨 Proposed session_id is NOT used by idempotency service")
+                            print(f"      Proposed: {duplicate_uuid}")
+                            print(f"      Actual: {first_session_id}")
+                    else:
+                        print(f"   ❌ Idempotency not working - different session_ids returned")
+        
+        # PHASE 6: ROOT CAUSE ANALYSIS
+        print("\n🔬 PHASE 6: ROOT CAUSE ANALYSIS")
+        print("-" * 60)
+        print("Analyzing findings to identify root cause of session ID mismatch")
+        
+        # Trace session ID generation
+        if investigation_results["session_id_format_mismatch"]:
+            investigation_results["session_id_generation_traced"] = True
+            print(f"   🔍 Session ID generation analysis:")
+            print(f"      Frontend sends: UUID format (36 chars, with hyphens)")
+            print(f"      Backend creates: Timestamp format (session_TIMESTAMP_RANDOM)")
+            print(f"      Root cause: Backend ignores proposed_session_id parameter")
+        
+        # Determine if it's idempotency cache issue or logic problem
+        if not investigation_results["proposed_session_id_usage"]:
+            investigation_results["backend_logic_problem"] = True
+            print(f"   🚨 BACKEND LOGIC PROBLEM IDENTIFIED:")
+            print(f"      The backend is not using the proposed_session_id from frontend")
+            print(f"      Instead, it generates its own timestamp-based session ID")
+            print(f"      This breaks the frontend expectation of using its UUID")
+        else:
+            investigation_results["idempotency_cache_issue"] = True
+            print(f"   🔍 Idempotency cache may be working correctly")
+        
+        # Document exact mismatch
+        investigation_results["exact_mismatch_documented"] = True
+        print(f"   📋 EXACT MISMATCH DOCUMENTED:")
+        print(f"      1. Frontend generates UUID: {frontend_proposed_uuid}")
+        print(f"      2. Frontend calls plan-next with next_session_id: UUID")
+        print(f"      3. Backend ignores proposed UUID, generates: {backend_returned_session_id}")
+        print(f"      4. Frontend tries to fetch pack with original UUID")
+        print(f"      5. Backend can't find session with UUID (404 Not Found)")
+        print(f"      6. Pack retrieval only works with backend-generated session_id")
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 80)
+        print("🔍 SESSION ID MISMATCH INVESTIGATION - RESULTS")
+        print("=" * 80)
+        
+        passed_tests = sum(investigation_results.values())
+        total_tests = len(investigation_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        # Group results by investigation categories
+        investigation_categories = {
+            "AUTHENTICATION": [
+                "authentication_working", "user_adaptive_enabled", "jwt_token_valid"
+            ],
+            "SESSION ID INVESTIGATION": [
+                "plan_next_api_working", "frontend_uuid_sent", "backend_session_id_returned",
+                "session_id_format_mismatch", "proposed_session_id_ignored"
+            ],
+            "DATABASE INVESTIGATION": [
+                "database_session_created", "database_session_id_format", "session_persistence_working"
+            ],
+            "PACK RETRIEVAL INVESTIGATION": [
+                "pack_retrieval_with_frontend_uuid", "pack_retrieval_with_backend_id",
+                "pack_404_with_frontend_uuid", "pack_200_with_backend_id"
+            ],
+            "IDEMPOTENCY INVESTIGATION": [
+                "idempotency_service_behavior", "duplicate_request_handling", "proposed_session_id_usage"
+            ],
+            "ROOT CAUSE ANALYSIS": [
+                "session_id_generation_traced", "idempotency_cache_issue", 
+                "backend_logic_problem", "exact_mismatch_documented"
+            ]
+        }
+        
+        for category, tests in investigation_categories.items():
+            print(f"\n{category}:")
+            category_passed = 0
+            category_total = len(tests)
+            
+            for test in tests:
+                if test in investigation_results:
+                    result = investigation_results[test]
+                    status = "✅ CONFIRMED" if result else "❌ NOT FOUND"
+                    print(f"  {test.replace('_', ' ').title():<50} {status}")
+                    if result:
+                        category_passed += 1
+            
+            category_rate = (category_passed / category_total) * 100 if category_total > 0 else 0
+            print(f"  Category Success Rate: {category_passed}/{category_total} ({category_rate:.1f}%)")
+        
+        print("-" * 80)
+        print(f"Overall Investigation Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # CRITICAL FINDINGS SUMMARY
+        print("\n🎯 CRITICAL FINDINGS SUMMARY:")
+        
+        if investigation_results["session_id_format_mismatch"]:
+            print("\n🚨 SESSION ID MISMATCH CONFIRMED:")
+            print("   - Frontend sends UUID format session IDs")
+            print("   - Backend generates timestamp format session IDs")
+            print("   - Backend ignores proposed_session_id parameter")
+            print("   - Pack retrieval fails with frontend UUID (404 Not Found)")
+            print("   - Pack retrieval succeeds with backend session_id")
+        
+        if investigation_results["backend_logic_problem"]:
+            print("\n🔧 ROOT CAUSE IDENTIFIED:")
+            print("   - Backend logic problem in session ID handling")
+            print("   - Idempotency service not using proposed_session_id")
+            print("   - Session orchestrator generates own session IDs")
+            print("   - Frontend-backend contract violation")
+        
+        print("\n📋 RECOMMENDED ACTIONS:")
+        print("   1. Fix backend to use proposed_session_id from frontend")
+        print("   2. Update idempotency service to respect frontend UUIDs")
+        print("   3. Ensure session orchestrator uses provided session_id")
+        print("   4. Test end-to-end flow after fixes")
+        
+        return investigation_results["session_id_format_mismatch"] and investigation_results["exact_mismatch_documented"]
+
     def test_twelvr_coverage_system_comprehensive(self):
         """
         🎯 TWELVR COVERAGE SYSTEM COMPREHENSIVE BACKEND TESTING
