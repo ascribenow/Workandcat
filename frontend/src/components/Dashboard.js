@@ -508,8 +508,9 @@ export const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white" style={{ fontFamily: 'Manrope, sans-serif' }}>
-      {renderNavigation()}
+    <DashboardErrorBoundary>
+      <div className="min-h-screen bg-white" style={{ fontFamily: 'Manrope, sans-serif' }}>
+        {renderNavigation()}
       
       {/* Session Status - Show loading/error states */}
       {sessionState.phase !== 'idle' && (
