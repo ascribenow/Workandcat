@@ -1102,16 +1102,28 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
     if (!sessionId || !user?.id) return;
     
     try {
-      await axios.post(`${API}/session-progress/update`, {
+      const progressPayload = {
         session_id: sessionId,
         current_question_index: questionIndex,
         total_questions: currentPackRef.current?.length || 12,
         last_question_id: questionId
-      });
+      };
+      
+      console.log(`[PROGRESS] Updating session progress with payload:`, progressPayload);
+      
+      if (!questionId) {
+        console.warn('[PROGRESS] Skipping progress update - questionId is missing');
+        return;
+      }
+      
+      await axios.post(`${API}/session-progress/update`, progressPayload);
       
       console.log(`[PROGRESS] Updated session progress: Q${questionIndex + 1}/${currentPackRef.current?.length || 12}`);
     } catch (error) {
       console.warn('[PROGRESS] Failed to update session progress:', error.message);
+      if (error.response?.status === 422) {
+        console.warn('[PROGRESS] 422 error details:', error.response?.data);
+      }
       // Don't fail the session flow for progress tracking issues
     }
   };
