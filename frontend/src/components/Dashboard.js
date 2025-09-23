@@ -85,13 +85,10 @@ export const Dashboard = () => {
         setTimeout(() => reject(new Error('Dashboard fetch timeout')), 5000)
       );
       
-      // Essential for session button: Fetch session limit status first
+      // Just fetch session limit status (essential for session button)
       console.log('Dashboard: Fetching session limit status...');
       try {
-        const limitResponse = await Promise.race([
-          axios.get(`${API}/user/session-limit-status`),
-          new Promise((_, reject) => setTimeout(() => reject(new Error('Limit status timeout')), 3000))
-        ]);
+        const limitResponse = await axios.get(`${API}/user/session-limit-status`, { timeout: 5000 });
         console.log('Dashboard: Session limit status received:', limitResponse.data);
         setSessionLimitStatus(limitResponse.data);
       } catch (limitError) {
@@ -99,33 +96,10 @@ export const Dashboard = () => {
         setSessionLimitStatus({ user_type: 'privileged', can_start_session: true, limit_reached: false });
       }
       
-      // Optional: Try to fetch mastery data (not essential for session button)
-      try {
-        console.log('Dashboard: Fetching mastery data...');
-        const masteryResponse = await Promise.race([
-          axios.get(`${API}/dashboard/mastery`),
-          new Promise((_, reject) => setTimeout(() => reject(new Error('Mastery timeout')), 3000))
-        ]);
-        console.log('Dashboard: Mastery data received:', masteryResponse.data);
-        setMasteryData(masteryResponse.data);
-      } catch (masteryError) {
-        console.warn('Dashboard: Mastery data fetch failed:', masteryError.message);
-        setMasteryData({ mastery_by_topic: [], total_topics: 0, detailed_progress: [] });
-      }
-
-      // Optional: Try to fetch progress data (not essential for session button)
-      try {
-        console.log('Dashboard: Fetching progress data...');
-        const progressResponse = await Promise.race([
-          axios.get(`${API}/dashboard/progress`),
-          new Promise((_, reject) => setTimeout(() => reject(new Error('Progress timeout')), 3000))
-        ]);
-        console.log('Dashboard: Progress data received:', progressResponse.data);
-        setProgressData(progressResponse.data);
-      } catch (progressError) {
-        console.warn('Dashboard: Progress data fetch failed:', progressError.message);
-        setProgressData({ total_sessions: 0, total_minutes: 0, current_streak: 0, sessions_this_week: [] });
-      }
+      // Set default data for other endpoints (not essential for session functionality)
+      console.log('Dashboard: Setting default data for mastery and progress');
+      setMasteryData({ mastery_by_topic: [], total_topics: 0, detailed_progress: [] });
+      setProgressData({ total_sessions: 0, total_minutes: 0, current_streak: 0, sessions_this_week: [] });
         
       console.log('Dashboard: Data loading completed (session button enabled)');
       
