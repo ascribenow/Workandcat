@@ -15766,19 +15766,19 @@ class CATBackendTester:
         return final_results["100_percent_success_achieved"]
 
 if __name__ == "__main__":
-    print("🎯 SESSION LOADING 404 RACE CONDITION FIX VALIDATION")
+    print("🎯 DASHBOARD API ENDPOINTS TESTING AFTER CONSOLE ERROR FIXES")
     print("=" * 80)
-    print("CRITICAL: Testing the IMPLEMENTED FIXES - validate if the 404 race condition has been resolved")
-    print("Focus: Enhanced SmartPoller, backend session ID authority, race condition handling")
-    print("Expected: Plan-next → pack retrieval works without 404 race conditions")
+    print("OBJECTIVE: Test key dashboard API endpoints to validate they're working correctly")
+    print("Focus: Authentication, dashboard data APIs, health check, response validation")
+    print("Expected: All endpoints working, proper JSON responses, under 5s response times")
     print("=" * 80)
     
     tester = CATBackendTester()
     
     try:
-        # Run the session loading 404 race condition fix validation test
-        print("\n🎯 RUNNING SESSION LOADING 404 RACE CONDITION FIX VALIDATION")
-        success = tester.test_session_loading_404_race_condition_fix()
+        # Run the dashboard API endpoints test
+        print("\n🎯 RUNNING DASHBOARD API ENDPOINTS TESTING")
+        success = tester.test_dashboard_api_endpoints_after_console_fixes()
         
         print("\n" + "=" * 80)
         print("🎯 FINAL TESTING SUMMARY")
@@ -15788,16 +15788,17 @@ if __name__ == "__main__":
         print(f"Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%" if tester.tests_run > 0 else "0%")
         
         if success:
-            print("\n🎉 SESSION LOADING 404 RACE CONDITION FIX: VALIDATED")
-            print("✅ Race condition fix working correctly")
-            print("✅ Backend session ID authority established")
-            print("✅ Enhanced SmartPoller with 404 grace period functional")
-            print("✅ Session loading reliable within 75s budget")
-            print("✅ System ready for production deployment")
+            print("\n🎉 DASHBOARD API ENDPOINTS: VALIDATED")
+            print("✅ Authentication working with sp@theskinmantra.com/student123")
+            print("✅ Dashboard data APIs returning proper JSON responses")
+            print("✅ Health check endpoints confirming backend routing")
+            print("✅ API response times under 5 seconds")
+            print("✅ Session data integrity confirmed (showing actual user progress)")
+            print("✅ Console error fixes validated - dashboard APIs are solid")
         else:
-            print("\n⚠️ SESSION LOADING 404 RACE CONDITION FIX: NEEDS ATTENTION")
-            print("❌ Race condition may still exist")
-            print("❌ Session loading reliability concerns")
+            print("\n⚠️ DASHBOARD API ENDPOINTS: NEEDS ATTENTION")
+            print("❌ Some dashboard API endpoints have issues")
+            print("❌ Console error fixes may not be complete")
             print("❌ Review test results above for specific failures")
         
         print("=" * 80)
