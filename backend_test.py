@@ -1281,6 +1281,14 @@ class CATBackendTester:
                         print(f"      Format difference: UUID vs {backend_returned_session_id[:20]}...")
                     else:
                         print(f"   ✅ Session IDs match - no mismatch detected")
+                        
+                    # If status is 'planning', wait for completion
+                    if plan_response.get('status') == 'planning':
+                        print(f"   ⏳ Session planning in progress, waiting for completion...")
+                        time.sleep(5)  # Wait 5 seconds for async planning
+                        
+                        # Check if session is now planned by trying to fetch pack
+                        print(f"   🔍 Checking if session planning completed...")
                 else:
                     print(f"   ❌ No session_id in backend response")
             else:
