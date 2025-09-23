@@ -245,9 +245,6 @@ export const Dashboard = () => {
       } else {
         console.log('Dashboard: No active session found, starting new adaptive session...');
         
-        // NEW: Use enhanced session planning with backend ID authority
-        const { planSessionWithPolling } = require('../utils/smartPolling');
-        
         setSessionState({ phase: 'preparing', message: 'Preparing your session…' });
         
         // Generate idempotency key for dashboard session start
