@@ -53,6 +53,21 @@ export const Dashboard = () => {
     };
     
     loadDashboard();
+    
+    // Global error handler for unhandled promise rejections
+    const handleUnhandledRejection = (event) => {
+      console.warn('Unhandled promise rejection caught:', event.reason);
+      if (event.reason?.message?.includes('Dashboard fetch timeout')) {
+        // Prevent the error from propagating to the UI
+        event.preventDefault();
+      }
+    };
+    
+    window.addEventListener('unhandledrejection', handleUnhandledRejection);
+    
+    return () => {
+      window.removeEventListener('unhandledrejection', handleUnhandledRejection);
+    };
   }, []); // FIXED: Remove currentView dependency to prevent infinite loop
 
   const getCategoryColor = (category) => {
