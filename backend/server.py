@@ -219,6 +219,11 @@ async def get_current_admin_user(user_id: str = Depends(get_current_user)):
 async def health_check():
     return {"status": "healthy", "message": "Twelvr API is running - cleaned version"}
 
+# API Health check (for ingress routing)
+@app.get("/api/health")
+async def api_health_check():
+    return {"status": "healthy", "message": "Twelvr API is running via /api route"}
+
 # Authentication endpoints
 @app.post("/api/auth/signup")
 async def signup(signup_data: SignupRequest):
