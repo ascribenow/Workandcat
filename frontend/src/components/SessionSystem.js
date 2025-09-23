@@ -711,8 +711,8 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
     
     // V2 FIX: Use actual question data from V2 pack structure
     const question = {
-      id: packItem.item_id,
-      stem: packItem.why || 'Question content unavailable',  // V2: Use actual stem
+      id: packItem.id,  // Use correct ID field
+      stem: packItem.stem || 'Question content unavailable',  // V2: Use correct stem field
       options: {
         a: packItem.option_a || 'Option A',  // V2: Use real options
         b: packItem.option_b || 'Option B',
