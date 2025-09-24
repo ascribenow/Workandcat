@@ -193,9 +193,8 @@ export const Dashboard = () => {
             
             // Show resume session UI
             setActiveSessionId(incompleteSession.session_id);
-            setShowSession(true);
-            setLoadingState('idle');
-            return; // Exit early since we found an incomplete session
+            setCurrentView('session');
+            return true; // Exit early since we found an incomplete session
           } else {
             console.log('Dashboard: No incomplete Blueprint sessions found');
           }
