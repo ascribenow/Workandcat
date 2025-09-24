@@ -14,6 +14,7 @@ import asyncpg
 from fastapi import APIRouter, HTTPException, Depends, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
+from sqlalchemy import text
 
 from auth import get_current_user
 from services.blueprint_planner import BlueprintSessionPlanner, create_blueprint_planner
