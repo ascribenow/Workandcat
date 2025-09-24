@@ -205,13 +205,16 @@ class BlueprintSessionPlanner:
                 
                 pool = []
                 for row in questions_data:
+                    # Row is a tuple, not a dict when using fetchall()
+                    # Access by index: row[0], row[1], etc.
+                    
                     # Parse MCQ options safely
                     try:
                         mcq_options = json.loads(row[2]) if isinstance(row[2], str) else (row[2] or {})
                     except (json.JSONDecodeError, TypeError):
                         mcq_options = {}
                     
-                    # Parse JSON fields safely
+                    # Parse JSON fields safely  
                     try:
                         core_concepts = json.loads(row[11]) if isinstance(row[11], str) else (row[11] or [])
                     except (json.JSONDecodeError, TypeError):
