@@ -1157,10 +1157,44 @@ async def legacy_pack_endpoint(user_id: str, session_id: str):
 
 ---
 
+## Compliance Verification Checklist
+
+### ✅ Deviation Fixes Implemented
+
+1. **✅ Per-pair cap enforcement**: Hard filtering with logged relaxations, not scoring penalties
+2. **✅ Position alignment**: 1-based positions in database, proper 0-based/1-based mapping in code  
+3. **✅ Advisory lock integration**: Core planning flow protected with user-specific locks
+4. **✅ Explicit idempotency**: Unique constraint on (session_id, position) in answers table
+5. **✅ Intentional question ordering**: E-M-M-E pattern applied before position assignment
+6. **✅ PYQ rebalancing verification**: Exact 3/6/3 distribution enforced after PYQ selection
+7. **✅ Pack-level constraint reporting**: Single report per session, not per-row duplication
+8. **✅ Standardized status naming**: 'planned/active/completed/abandoned' across all components
+9. **✅ Complete polling removal**: No websockets, polling, or async waiting logic
+10. **✅ Position equality guards**: Answer submission requires position = current_position + 1
+11. **✅ First session documentation**: Diagnostic pack behavior explicitly defined
+12. **✅ Clean endpoint contracts**: Only /session/* endpoints, complete legacy route removal
+
+### Critical Implementation Notes
+
+- **Hard Caps**: The system will REJECT questions that exceed subcategory+type limits, only relaxing with explicit logging
+- **Position Safety**: Out-of-sequence answer attempts will fail with clear error messages  
+- **Advisory Locks**: Multiple concurrent planning requests for same user will serialize properly
+- **Idempotency**: Duplicate answer submissions return existing results without state changes
+- **Ordering**: Questions follow E-M-M-E-M-H-M-E-H-M-H-M pattern for smooth difficulty progression
+- **Rebalancing**: PYQ selection is followed by mandatory rebalancing to exact 3/6/3 distribution
+
+---
+
 ## Conclusion
 
-The Blueprint represents a significant architectural improvement that addresses current system limitations while providing a much better user experience. The implementation requires careful planning and execution but will result in a more robust, scalable, and user-friendly session system.
+This revised implementation plan addresses all 12 identified deviations to ensure the system behaves exactly as intended. The Blueprint represents a significant architectural improvement with strict compliance requirements.
 
-The key success factor will be the migration strategy - maintaining system stability while transitioning to the new architecture. The proposed phased approach with backward compatibility should minimize disruption while delivering immediate benefits to users.
+**Critical Success Factors**:
+1. **Database constraints** must enforce the unique position and status requirements
+2. **Advisory locking** must be tested under concurrent load
+3. **Position synchronization** between frontend and backend must be bulletproof
+4. **Hard cap enforcement** must never be bypassed except with explicit relaxation logging
 
-**Recommendation**: Proceed with implementation following the outlined plan, with particular attention to the database migration and performance monitoring during rollout.
+**Recommendation**: Proceed with implementation following this revised plan, with mandatory testing of all 12 deviation fixes before deployment. Each compliance point should have dedicated test cases to verify exact behavior.
+
+**Next Phase**: Begin with database migration and advisory lock implementation, as these are foundational to all other features.
