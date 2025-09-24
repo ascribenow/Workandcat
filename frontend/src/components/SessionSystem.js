@@ -97,6 +97,104 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
   };
   
   // SURGICAL FIX: Dedicated clear function for explicit pack clearing
+  // Blueprint Session Functions (New System)
+  const fetchBlueprintSession = async (sessionId) => {
+    try {
+      console.log(`[BLUEPRINT] Fetching session data for ${sessionId.substring(0, 8)}`);
+      
+      // Get session questions from Blueprint system
+      const response = await axios.get(`${API}/session/list`);
+      const sessions = response.data.sessions || [];
+      const currentSession = sessions.find(s => s.session_id === sessionId);
+      
+      if (!currentSession) {
+        throw new Error('Session not found');
+      }
+      
+      console.log(`[BLUEPRINT] Session found: ${currentSession.answered_count}/${currentSession.total_questions} answered`);
+      
+      // Convert Blueprint session to pack format for compatibility
+      const pack = [];
+      const totalQuestions = currentSession.total_questions || 12;
+      
+      for (let position = 1; position <= totalQuestions; position++) {
+        try {
+          const questionResponse = await axios.get(`${API}/session/question/${sessionId}/${position}`);
+          const questionData = questionResponse.data;
+          
+          // Convert Blueprint question format to pack format
+          const packItem = {
+            item_id: questionData.question.id,
+            stem: questionData.question.stem,
+            option_a: questionData.question.option_a,
+            option_b: questionData.question.option_b,
+            option_c: questionData.question.option_c,
+            option_d: questionData.question.option_d,
+            difficulty_band: questionData.question.difficulty_band,
+            subcategory: questionData.question.subcategory,
+            type_of_question: questionData.question.type_of_question,
+            position: position,
+            session_type: 'blueprint'
+          };
+          
+          pack.push(packItem);
+        } catch (qError) {
+          console.warn(`[BLUEPRINT] Failed to fetch question at position ${position}:`, qError.message);
+          // Continue with other questions
+        }
+      }
+      
+      console.log(`[BLUEPRINT] Loaded ${pack.length} questions from Blueprint session`);
+      return pack;
+      
+    } catch (error) {
+      console.error('[BLUEPRINT] Error fetching session:', error);
+      throw error;
+    }
+  };
+
+  const submitBlueprintAnswer = async (sessionId, position, answer) => {
+    try {
+      console.log(`[BLUEPRINT] Submitting answer for position ${position}:`, answer);
+      
+      const response = await axios.post(`${API}/session/submit`, {
+        session_id: sessionId,
+        position: position,
+        answer: answer
+      });
+      
+      console.log(`[BLUEPRINT] Answer submitted successfully:`, response.data);
+      return {
+        success: response.data.success,
+        is_correct: response.data.is_correct,
+        correct_answer: response.data.correct_answer,
+        explanation: response.data.explanation,
+        is_complete: response.data.is_complete
+      };
+      
+    } catch (error) {
+      console.error('[BLUEPRINT] Error submitting answer:', error);
+      throw error;
+    }
+  };
+
+  const completeBlueprintSession = async (sessionId) => {
+    try {
+      console.log(`[BLUEPRINT] Completing session ${sessionId.substring(0, 8)}`);
+      
+      const response = await axios.post(`${API}/session/complete`, {
+        session_id: sessionId
+      });
+      
+      console.log(`[BLUEPRINT] Session completed:`, response.data);
+      return response.data.summary;
+      
+    } catch (error) {
+      console.error('[BLUEPRINT] Error completing session:', error);
+      throw error;
+    }
+  };
+
   const clearPack = () => {
     recordPackWrite([], 'explicit-clear-pack');
     setCurrentPack([]); // Only this path may set empty
