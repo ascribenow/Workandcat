@@ -65,22 +65,43 @@ ALTER TABLE sessions ADD COLUMN served_at TIMESTAMP;
 ALTER TABLE sessions ADD COLUMN abandoned_at TIMESTAMP;
 ```
 
-#### New Adaptive Packs Structure
+#### New Session Packs Structure (DEVIATION #2, #7 ADDRESSED)
 ```sql
--- Completely new structure vs current adaptive_packs
+-- Pack-level metadata table (addresses constraint report duplication)
 CREATE TABLE session_packs (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    session_id UUID REFERENCES sessions(id) UNIQUE,
+    session_id UUID PRIMARY KEY REFERENCES sessions(id),
     user_id UUID NOT NULL,
+    constraint_report JSONB NOT NULL, -- Single pack-level report
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Individual question positions (1-based as per CHECK constraint)
+CREATE TABLE session_pack_questions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    session_id UUID REFERENCES session_packs(session_id),
     position INTEGER NOT NULL CHECK (position BETWEEN 1 AND 12),
     question_id UUID NOT NULL,
     question_data JSONB NOT NULL, -- Complete question with options, answers, explanations
-    constraint_report JSONB, -- Planning constraints applied
     created_at TIMESTAMP DEFAULT NOW(),
-    INDEX idx_session_packs_session (session_id),
-    INDEX idx_session_packs_position (session_id, position),
-    UNIQUE(session_id, position)
+    UNIQUE(session_id, position) -- Ensures no duplicate positions
 );
+
+-- Answer tracking with explicit idempotency (DEVIATION #4 ADDRESSED)
+CREATE TABLE session_answers (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    session_id UUID REFERENCES sessions(id),
+    position INTEGER NOT NULL CHECK (position BETWEEN 1 AND 12),
+    question_id UUID NOT NULL,
+    user_answer TEXT NOT NULL,
+    is_correct BOOLEAN NOT NULL,
+    timestamp TIMESTAMP DEFAULT NOW(),
+    UNIQUE(session_id, position) -- CRITICAL: Prevents duplicate answers per position
+);
+
+-- Standardized status values (DEVIATION #8 ADDRESSED)
+ALTER TABLE sessions 
+ADD CONSTRAINT sessions_status_check 
+CHECK (status IN ('planned', 'active', 'completed', 'abandoned'));
 ```
 
 ### 3. **API Endpoint Transformation**
