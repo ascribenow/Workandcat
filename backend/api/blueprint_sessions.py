@@ -304,10 +304,10 @@ async def complete_session(
             # Update session status to completed
             db.execute(text("""
                 UPDATE sessions SET status = 'completed', abandoned_at = :completed_at 
-                WHERE id = :session_id
+                WHERE session_id = :session_id
             """), {
                 "completed_at": datetime.now(timezone.utc),
-                "session_id": uuid.UUID(request.session_id)
+                "session_id": request.session_id  # Use string directly
             })
             
             db.commit()
