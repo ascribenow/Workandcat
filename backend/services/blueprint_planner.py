@@ -171,38 +171,124 @@ class BlueprintSessionPlanner:
     async def _build_candidate_pools(self, user_id: uuid.UUID, user_state: Dict) -> Dict[str, List[Dict]]:
         """Build candidate pools for each difficulty, excluding recent questions"""
         
-        # For Phase 2A, create sample candidate pools
-        # In production, this would query the actual questions database
+        db = self.get_db_session()
+        try:
+            pools = {}
+            
+            for difficulty in ["Easy", "Medium", "Hard"]:
+                # Query real questions from database by difficulty
+                # Map difficulty to database values
+                db_difficulty = {
+                    "Easy": "easy", 
+                    "Medium": "medium", 
+                    "Hard": "hard"
+                }.get(difficulty, "medium")
+                
+                # Get questions for this difficulty level
+                questions_result = db.execute(text("""
+                    SELECT 
+                        id, stem, option_a, option_b, option_c, option_d, answer,
+                        right_answer, category, subcategory, type_of_question,
+                        difficulty_band, difficulty_score, pyq_frequency_score,
+                        core_concepts, concept_keywords, snap_read, solution_approach,
+                        detailed_solution, principle_to_remember
+                    FROM questions 
+                    WHERE is_active = true 
+                    AND quality_verified = true
+                    AND difficulty_band = :difficulty
+                    AND stem IS NOT NULL 
+                    AND option_a IS NOT NULL
+                    ORDER BY RANDOM()
+                    LIMIT 50
+                """), {"difficulty": db_difficulty})
+                
+                questions_data = questions_result.fetchall()
+                
+                pool = []
+                for row in questions_data:
+                    # Parse JSON fields safely
+                    try:
+                        core_concepts = json.loads(row[14]) if isinstance(row[14], str) else (row[14] or [])
+                    except (json.JSONDecodeError, TypeError):
+                        core_concepts = []
+                    
+                    try:
+                        concept_keywords = json.loads(row[15]) if isinstance(row[15], str) else (row[15] or [])
+                    except (json.JSONDecodeError, TypeError):
+                        concept_keywords = []
+                    
+                    question = {
+                        "id": str(row[0]),
+                        "stem": row[1] or "",
+                        "option_a": row[2] or "",
+                        "option_b": row[3] or "",
+                        "option_c": row[4] or "",
+                        "option_d": row[5] or "",
+                        "answer": row[6] or "",
+                        "explanation": row[7] or "",  # right_answer contains explanation
+                        "category": row[8] or "",
+                        "subcategory": row[9] or "Unknown",
+                        "type_of_question": row[10] or "Unknown",
+                        "difficulty_band": difficulty,  # Use normalized difficulty
+                        "difficulty_score": float(row[12] or 0.5),
+                        "pyq_frequency_score": float(row[13] or 0.5),
+                        "core_concepts": core_concepts,
+                        "concept_keywords": concept_keywords,
+                        "snap_read": row[16] or "",
+                        "solution_approach": row[17] or "",
+                        "detailed_solution": row[18] or "",
+                        "principle_to_remember": row[19] or ""
+                    }
+                    pool.append(question)
+                
+                pools[difficulty] = pool
+                logger.info(f"Built {difficulty} pool: {len(pool)} real questions from database")
+            
+            return pools
+            
+        except Exception as e:
+            logger.error(f"Failed to build candidate pools from database: {e}")
+            # Fallback to minimal sample data if database query fails
+            return self._build_fallback_pools()
+            
+        finally:
+            db.close()
+    
+    def _build_fallback_pools(self) -> Dict[str, List[Dict]]:
+        """Fallback method to create minimal sample pools if database query fails"""
         
         pools = {}
         
         for difficulty in ["Easy", "Medium", "Hard"]:
-            # Create sample questions for this difficulty
-            pool_size = 20  # Sample pool size
             pool = []
-            
-            for i in range(pool_size):
+            for i in range(5):  # Minimal fallback pool
                 question = {
                     "id": str(uuid.uuid4()),
-                    "stem": f"Sample {difficulty} question {i+1}",
-                    "option_a": f"Option A for {difficulty} Q{i+1}",
-                    "option_b": f"Option B for {difficulty} Q{i+1}",
-                    "option_c": f"Option C for {difficulty} Q{i+1}",
-                    "option_d": f"Option D for {difficulty} Q{i+1}",
-                    "answer": ["a", "b", "c", "d"][i % 4],
-                    "explanation": f"Explanation for {difficulty} question {i+1}",
+                    "stem": f"Fallback {difficulty} question {i+1}",
+                    "option_a": f"Option A",
+                    "option_b": f"Option B", 
+                    "option_c": f"Option C",
+                    "option_d": f"Option D",
+                    "answer": "a",
+                    "explanation": f"Fallback explanation",
+                    "category": "Arithmetic",
+                    "subcategory": "Basic",
+                    "type_of_question": "Conceptual",
                     "difficulty_band": difficulty,
-                    "subcategory": f"Category_{(i % 5) + 1}",
-                    "type_of_question": ["Conceptual", "Numerical", "Application"][i % 3],
-                    "pyq_frequency_score": 0.5 + (i % 3) * 0.4,  # 0.5, 0.9, 1.3, 0.5, ...
-                    "core_concepts": [f"concept_{(i % 3) + 1}", f"concept_{(i % 2) + 4}"],
-                    "difficulty_score": 0.3 + (i % 3) * 0.2
+                    "difficulty_score": 0.5,
+                    "pyq_frequency_score": 0.5,
+                    "core_concepts": ["basic"],
+                    "concept_keywords": ["fallback"],
+                    "snap_read": "",
+                    "solution_approach": "",
+                    "detailed_solution": "",
+                    "principle_to_remember": ""
                 }
                 pool.append(question)
             
             pools[difficulty] = pool
-        
-        logger.info(f"Built candidate pools: {[f'{k}: {len(v)}' for k, v in pools.items()]}")
+            
+        logger.warning("Using fallback pools - database query failed")
         return pools
     
     async def _reserve_pyq_questions(self, candidate_pools: Dict) -> List[Dict]:
