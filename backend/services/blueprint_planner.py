@@ -9,8 +9,8 @@ import uuid
 from collections import defaultdict
 from datetime import datetime, timezone
 from typing import Dict, List, Optional
-import psycopg2
-import psycopg2.extras
+from database import SessionLocal
+from sqlalchemy import text
 
 logger = logging.getLogger(__name__)
 
@@ -25,9 +25,7 @@ class BlueprintSessionPlanner:
     - Deviation #6: PYQ rebalancing to exact 3/6/3
     """
     
-    def __init__(self, database_url: str):
-        self.database_url = database_url
-        
+    def __init__(self):
         # Deviation #1: Hard caps, not penalties
         self.difficulty_distribution = {"Easy": 3, "Medium": 6, "Hard": 3}
         self.pyq_requirements = {"high_importance": 2, "medium_importance": 2}
@@ -43,9 +41,9 @@ class BlueprintSessionPlanner:
         self.constraint_relaxations = []
         self.rebalance_swaps = []
     
-    def get_connection(self):
-        """Get database connection"""
-        return psycopg2.connect(self.database_url, cursor_factory=psycopg2.extras.RealDictCursor)
+    def get_db_session(self):
+        """Get database session using existing SQLAlchemy setup"""
+        return SessionLocal()
     
     async def plan_session(self, user_id: str) -> Dict:
         """
