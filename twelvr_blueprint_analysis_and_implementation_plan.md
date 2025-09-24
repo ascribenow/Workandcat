@@ -227,15 +227,19 @@ class BlueprintSessionPlanner:
                                         "Medium", "Easy", "Hard", "Medium", "Hard", "Medium"]  # DEVIATION #5
     
     async def plan_session(self, user_id: str) -> dict:
-        """Main planning function following blueprint algorithm"""
+        """Main planning function with ADVISORY LOCK (DEVIATION #3)"""
         
-        # 1. Check if user already has planned session
-        existing = await self.get_planned_session(user_id)
-        if existing:
-            return existing
+        # DEVIATION #3: CRITICAL - Take advisory lock to prevent duplicate planning
+        lock_key = f"session_planning_{user_id}"
+        async with self.db.advisory_lock(lock_key):
             
-        # 2. Get user's learning state
-        user_state = await self.get_user_learning_state(user_id)
+            # 1. Check if user already has planned session (within lock)
+            existing = await self.get_planned_session(user_id)
+            if existing:
+                return existing
+                
+            # 2. Get user's learning state
+            user_state = await self.get_user_learning_state(user_id)
         
         # 3. Build candidate pools by difficulty
         candidate_pools = await self.build_candidate_pools(user_id, user_state)
