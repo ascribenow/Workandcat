@@ -168,31 +168,37 @@ async def get_question(
                 break
         
         if not question_at_position:
-            raise HTTPException(status_code=404, detail=f"Question at position {position} not found")
+            # Better error message for missing position
+            available_positions = sorted([q.get('position', 0) for q in questions])
+            raise HTTPException(
+                status_code=404, 
+                detail=f"Question at position {position} not found. Available positions: {available_positions}"
+            )
         
         return JSONResponse({
             "session_id": session_id,
             "position": position,
             "question": {
-                "id": question_at_position["id"],
-                "stem": question_at_position["stem"],
-                "option_a": question_at_position["option_a"],
-                "option_b": question_at_position["option_b"],
-                "option_c": question_at_position["option_c"],
-                "option_d": question_at_position["option_d"],
-                "difficulty_band": question_at_position["difficulty_band"],
-                "subcategory": question_at_position["subcategory"],
-                "type_of_question": question_at_position["type_of_question"]
+                "id": question_at_position.get("id", ""),
+                "stem": question_at_position.get("stem", ""),
+                "option_a": question_at_position.get("option_a", ""),
+                "option_b": question_at_position.get("option_b", ""),
+                "option_c": question_at_position.get("option_c", ""),
+                "option_d": question_at_position.get("option_d", ""),
+                "difficulty_band": question_at_position.get("difficulty_band", ""),
+                "subcategory": question_at_position.get("subcategory", ""),
+                "type_of_question": question_at_position.get("type_of_question", "")
                 # Note: Answer and explanation are not included in question retrieval for security
             },
-            "is_last": position == 12,
-            "next_position": position + 1 if position < 12 else None
+            "is_last": position == len(questions),
+            "next_position": position + 1 if position < len(questions) else None,
+            "total_questions": len(questions)
         }, status_code=200)
         
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Failed to get question {position} for session {session_id[:8]}: {e}")
+        logger.error(f"Failed to get question {position} for session {session_id[:8] if len(session_id) > 8 else session_id}: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to get question: {str(e)}")
 
 @router.post("/submit")
