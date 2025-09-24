@@ -96,9 +96,9 @@ export const Dashboard = () => {
       console.log('Dashboard: API endpoint:', API);
       console.log('Dashboard: User:', user);
       
-      // Add timeout to prevent indefinite loading
+      // Add timeout to prevent indefinite loading (increased from 5s to 15s)
       const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Dashboard fetch timeout')), 5000)
+        setTimeout(() => reject(new Error('Dashboard fetch timeout')), 15000)
       );
       
       // Just fetch session limit status (essential for session button)
