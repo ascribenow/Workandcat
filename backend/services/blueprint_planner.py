@@ -8,11 +8,9 @@ import logging
 import uuid
 from collections import defaultdict
 from datetime import datetime, timezone
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional
 import psycopg2
 import psycopg2.extras
-from pathlib import Path
-import os
 
 logger = logging.getLogger(__name__)
 
