@@ -44,10 +44,7 @@ async def get_blueprint_planner() -> BlueprintSessionPlanner:
     global _planner_instance
     
     if _planner_instance is None:
-        from database import engine
-        database_url = str(engine.url)
-        
-        _planner_instance = create_blueprint_planner(database_url)
+        _planner_instance = create_blueprint_planner()
         logger.info("Blueprint planner instance created successfully")
     
     return _planner_instance
