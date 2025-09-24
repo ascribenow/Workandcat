@@ -220,11 +220,22 @@ class BlueprintSessionPlanner:
                     # Row is a tuple, not a dict when using fetchall()
                     # Access by index: row[0], row[1], etc.
                     
-                    # Parse MCQ options safely
+                    # Parse MCQ options safely - mcq_options is a JSON array, not object
                     try:
-                        mcq_options = json.loads(row[2]) if isinstance(row[2], str) else (row[2] or {})
-                    except (json.JSONDecodeError, TypeError):
-                        mcq_options = {}
+                        mcq_options_raw = json.loads(row[2]) if isinstance(row[2], str) else (row[2] or [])
+                        if isinstance(mcq_options_raw, list) and len(mcq_options_raw) >= 4:
+                            # Convert list to A,B,C,D format
+                            mcq_options = {
+                                'A': mcq_options_raw[0] if len(mcq_options_raw) > 0 else '',
+                                'B': mcq_options_raw[1] if len(mcq_options_raw) > 1 else '',
+                                'C': mcq_options_raw[2] if len(mcq_options_raw) > 2 else '',
+                                'D': mcq_options_raw[3] if len(mcq_options_raw) > 3 else ''
+                            }
+                        else:
+                            # Fallback to empty options
+                            mcq_options = {'A': '', 'B': '', 'C': '', 'D': ''}
+                    except (json.JSONDecodeError, TypeError, IndexError):
+                        mcq_options = {'A': '', 'B': '', 'C': '', 'D': ''}
                     
                     # Parse JSON fields safely  
                     try:
