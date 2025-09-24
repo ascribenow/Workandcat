@@ -353,47 +353,53 @@ async def list_user_sessions(
     try:
         planner = await get_blueprint_planner()
         
-        # Build query with optional status filter
-        if status_filter:
-            query = """
-                SELECT s.id, s.status, s.created_at, s.served_at, s.abandoned_at,
-                       sp.constraint_report,
-                       (SELECT COUNT(*) FROM session_answers sa WHERE sa.session_id = s.id) as answered_count
-                FROM sessions s
-                LEFT JOIN session_packs sp ON s.id = sp.session_id
-                WHERE s.user_id = $1 AND s.status = $2
-                ORDER BY s.created_at DESC
-                LIMIT $3
-            """
-            params = [uuid.UUID(auth_user_id), status_filter, limit]
-        else:
-            query = """
-                SELECT s.id, s.status, s.created_at, s.served_at, s.abandoned_at,
-                       sp.constraint_report,
-                       (SELECT COUNT(*) FROM session_answers sa WHERE sa.session_id = s.id) as answered_count
-                FROM sessions s
-                LEFT JOIN session_packs sp ON s.id = sp.session_id
-                WHERE s.user_id = $1
-                ORDER BY s.created_at DESC
-                LIMIT $2
-            """
-            params = [uuid.UUID(auth_user_id), limit]
-        
-        sessions_result = await planner.connection.fetch(query, *params)
-        
-        sessions_list = []
-        for session in sessions_result:
-            sessions_list.append({
-                "session_id": str(session['id']),
-                "status": session['status'],
-                "answered_count": session['answered_count'] or 0,
-                "total_questions": 12,  # Blueprint sessions always have 12 questions
-                "created_at": session['created_at'].isoformat() if session['created_at'] else None,
-                "served_at": session['served_at'].isoformat() if session['served_at'] else None,
-                "completed_at": session['abandoned_at'].isoformat() if session['abandoned_at'] else None,
-                "progress_percentage": ((session['answered_count'] or 0) / 12) * 100,
-                "session_type": "blueprint"
-            })
+        conn = planner.get_connection()
+        try:
+            cursor = conn.cursor()
+            
+            # Build query with optional status filter
+            if status_filter:
+                query = """
+                    SELECT s.id, s.status, s.created_at, s.served_at, s.abandoned_at,
+                           sp.constraint_report,
+                           (SELECT COUNT(*) FROM session_answers sa WHERE sa.session_id = s.id) as answered_count
+                    FROM sessions s
+                    LEFT JOIN session_packs sp ON s.id = sp.session_id
+                    WHERE s.user_id = %s AND s.status = %s
+                    ORDER BY s.created_at DESC
+                    LIMIT %s
+                """
+                cursor.execute(query, (uuid.UUID(auth_user_id), status_filter, limit))
+            else:
+                query = """
+                    SELECT s.id, s.status, s.created_at, s.served_at, s.abandoned_at,
+                           sp.constraint_report,
+                           (SELECT COUNT(*) FROM session_answers sa WHERE sa.session_id = s.id) as answered_count
+                    FROM sessions s
+                    LEFT JOIN session_packs sp ON s.id = sp.session_id
+                    WHERE s.user_id = %s
+                    ORDER BY s.created_at DESC
+                    LIMIT %s
+                """
+                cursor.execute(query, (uuid.UUID(auth_user_id), limit))
+            
+            sessions_result = cursor.fetchall()
+            
+            sessions_list = []
+            for session in sessions_result:
+                sessions_list.append({
+                    "session_id": str(session['id']),
+                    "status": session['status'],
+                    "answered_count": session['answered_count'] or 0,
+                    "total_questions": 12,  # Blueprint sessions always have 12 questions
+                    "created_at": session['created_at'].isoformat() if session['created_at'] else None,
+                    "served_at": session['served_at'].isoformat() if session['served_at'] else None,
+                    "completed_at": session['abandoned_at'].isoformat() if session['abandoned_at'] else None,
+                    "progress_percentage": ((session['answered_count'] or 0) / 12) * 100,
+                    "session_type": "blueprint"
+                })
+        finally:
+            conn.close()
         
         return JSONResponse({
             "success": True,
