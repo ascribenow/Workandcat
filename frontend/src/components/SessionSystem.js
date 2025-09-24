@@ -390,6 +390,10 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
               
               console.log(`[BLUEPRINT] ⚡ setCurrentPackSafe called successfully`);
               
+              // CRITICAL FIX: Clear planning state to allow first question serving
+              setIsPlanning(false);
+              setLoading(false);
+              
               // For resumed sessions, set position based on answered_count
               const answeredCount = sessionMetadata.answered_count || 0;
               setCurrentQuestionIndex(answeredCount); // Resume from next unanswered question
