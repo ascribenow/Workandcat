@@ -263,41 +263,12 @@ export const Dashboard = () => {
       });
       
       setCurrentView('session');
-      console.log('Dashboard: Blueprint session ready, switching to session view');
-          const currentSession = totalSessions + 1; // Current session number is completed sessions + 1
-          
-          setSessionMetadata({
-            phase_info: {
-              current_session: currentSession
-            }
-          });
-          console.log(`Resuming session #${currentSession}: Question ${progress.next_question} of ${progress.total}`);
-        } catch (error) {
-          console.error('Failed to get session metadata for resumed session:', error);
-          setSessionMetadata(null);
-        }
-        
-        return true;
-      } else {
-        console.log('Dashboard: No active session found, starting new adaptive session...');
-        
-        setSessionState({ phase: 'preparing', message: 'Preparing your session…' });
-        
-        // Generate idempotency key for dashboard session start
-        const idemKey = `dashboard_start:${user.id}:${new Date().toISOString().slice(0,10)}:${Date.now()}`;
-        
-        // Create a configured axios instance with the correct base URL
-        const configuredAxios = axios.create({
-          baseURL: API,
-          headers: axios.defaults.headers
-        });
-
-        const result = await planSessionWithPolling({
-          api: configuredAxios,
-          userId: user.id,
-          lastSessionId: null,
-          idempotencyKey: idemKey,
-          budgetMs: 75000,
+    } catch (error) {
+      console.error('Dashboard: Error during session preparation:', error);
+      setSessionError('Unable to prepare session. Please try again.');
+      setLoadingState('idle');
+    }
+  };
           baseDelay: 1000,
           maxDelay: 8000,
           timeoutPerRequest: 8000,
