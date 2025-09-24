@@ -52,43 +52,48 @@ class BlueprintSessionPlanner:
         user_uuid = self._parse_uuid(user_id)
         
         # DEVIATION #3: CRITICAL - Take advisory lock
-        conn = None
+        db = None
         try:
-            conn = self.get_connection()
-            cursor = conn.cursor()
+            db = self.get_db_session()
             
-            cursor.execute("SELECT acquire_session_planning_lock(%s, %s)", (user_uuid, 30))
-            lock_acquired = cursor.fetchone()[0]
+            # Acquire advisory lock
+            lock_result = db.execute(
+                text("SELECT acquire_session_planning_lock(:user_id, :timeout)"),
+                {"user_id": user_uuid, "timeout": 30}
+            ).scalar()
             
-            if not lock_acquired:
+            if not lock_result:
                 raise Exception(f"Could not acquire planning lock for user {user_id}")
             
             logger.info(f"Acquired planning lock for user {user_id}")
             
             try:
                 # Check for existing planned session within lock
-                existing = await self._get_existing_planned_session(user_uuid, cursor)
+                existing = await self._get_existing_planned_session(user_uuid, db)
                 if existing:
                     logger.info(f"User {user_id} already has planned session: {existing['session_id']}")
                     return existing
                 
                 # Create new session plan
-                session_data = await self._create_new_session_plan(user_uuid, cursor, conn)
+                session_data = await self._create_new_session_plan(user_uuid, db)
                 
                 return session_data
                 
             finally:
                 # Always release lock
-                cursor.execute("SELECT release_session_planning_lock(%s)", (user_uuid,))
-                conn.commit()
+                db.execute(
+                    text("SELECT release_session_planning_lock(:user_id)"),
+                    {"user_id": user_uuid}
+                )
+                db.commit()
                 logger.info(f"Released planning lock for user {user_id}")
                 
         except Exception as e:
             logger.error(f"Session planning failed for user {user_id}: {e}")
             raise
         finally:
-            if conn:
-                conn.close()
+            if db:
+                db.close()
     
     async def _get_existing_planned_session(self, user_id: uuid.UUID, cursor) -> Optional[Dict]:
         """Check for existing planned session"""
