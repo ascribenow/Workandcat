@@ -204,9 +204,10 @@ export const Dashboard = () => {
           // Continue with session planning if check fails
         }
       }
-          
-          // Fallback: Check localStorage for any active session (legacy)
-          const storedSessionId = localStorage.getItem('currentSessionId') || localStorage.getItem('nextSessionId');
+      
+      // Fallback: Check localStorage for any active session (legacy)
+      try {
+        const storedSessionId = localStorage.getItem('currentSessionId') || localStorage.getItem('nextSessionId');
           
           if (storedSessionId) {
             console.log('Dashboard: Found stored session ID, checking if pack exists:', storedSessionId);
