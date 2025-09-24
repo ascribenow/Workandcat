@@ -95,34 +95,34 @@ class BlueprintSessionPlanner:
             if db:
                 db.close()
     
-    async def _get_existing_planned_session(self, user_id: uuid.UUID, cursor) -> Optional[Dict]:
+    async def _get_existing_planned_session(self, user_id: uuid.UUID, db) -> Optional[Dict]:
         """Check for existing planned session"""
         
-        cursor.execute("""
+        existing_pack_result = db.execute(text("""
             SELECT 
                 sp.session_id,
                 sp.constraint_report,
                 COUNT(spq.position) as question_count
             FROM session_packs sp
             LEFT JOIN session_pack_questions spq ON sp.session_id = spq.session_id
-            WHERE sp.user_id = %s
+            WHERE sp.user_id = :user_id
             GROUP BY sp.session_id, sp.constraint_report
             HAVING COUNT(spq.position) = 12
             ORDER BY sp.created_at DESC
             LIMIT 1
-        """, (user_id,))
+        """), {"user_id": user_id})
         
-        existing_pack = cursor.fetchone()
+        existing_pack = existing_pack_result.fetchone()
         
         if existing_pack:
             # Get the questions for this pack
-            questions = await self._get_session_questions(existing_pack['session_id'], cursor)
+            questions = await self._get_session_questions(existing_pack[0], db)
             
             return {
-                "session_id": str(existing_pack['session_id']),
+                "session_id": str(existing_pack[0]),
                 "status": "ready",
                 "questions": questions,
-                "constraint_report": json.loads(existing_pack['constraint_report']) if isinstance(existing_pack['constraint_report'], str) else existing_pack['constraint_report']
+                "constraint_report": json.loads(existing_pack[1]) if isinstance(existing_pack[1], str) else existing_pack[1]
             }
         
         return None
