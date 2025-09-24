@@ -281,36 +281,38 @@ async def complete_session(
         planner = await get_blueprint_planner()
         
         # Get session answers to calculate final score
-        conn = planner.get_connection()
+        db = planner.get_db_session()
         try:
-            cursor = conn.cursor()
-            cursor.execute("""
+            answers_result = db.execute(text("""
                 SELECT position, is_correct, question_id, user_answer
                 FROM session_answers
-                WHERE session_id = %s
+                WHERE session_id = :session_id
                 ORDER BY position ASC
-            """, (uuid.UUID(request.session_id),))
+            """), {"session_id": uuid.UUID(request.session_id)})
             
-            answers_result = cursor.fetchall()
+            answers_data = answers_result.fetchall()
             
-            if not answers_result:
+            if not answers_data:
                 raise HTTPException(status_code=404, detail="No answers found for this session")
             
             # Calculate session statistics
-            total_questions = len(answers_result)
-            correct_answers = sum(1 for answer in answers_result if answer['is_correct'])
+            total_questions = len(answers_data)
+            correct_answers = sum(1 for answer in answers_data if answer[1])  # is_correct is at index 1
             accuracy = (correct_answers / total_questions) * 100 if total_questions > 0 else 0
             
             # Update session status to completed
-            cursor.execute("""
-                UPDATE sessions SET status = 'completed', abandoned_at = %s 
-                WHERE id = %s
-            """, (datetime.now(timezone.utc), uuid.UUID(request.session_id)))
+            db.execute(text("""
+                UPDATE sessions SET status = 'completed', abandoned_at = :completed_at 
+                WHERE id = :session_id
+            """), {
+                "completed_at": datetime.now(timezone.utc),
+                "session_id": uuid.UUID(request.session_id)
+            })
             
-            conn.commit()
+            db.commit()
             
         finally:
-            conn.close()
+            db.close()
         
         logger.info(f"Blueprint session {request.session_id[:8]} completed with {correct_answers}/{total_questions} correct ({accuracy:.1f}%)")
         
