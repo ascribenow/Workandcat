@@ -80,17 +80,29 @@ class BlueprintSessionPlanner:
                 
                 return session_data
                 
+            except Exception as session_error:
+                # Rollback transaction on any error
+                db.rollback()
+                logger.error(f"Session creation error: {session_error}")
+                raise session_error
+                
             finally:
                 # Always release lock
-                db.execute(
-                    text("SELECT release_session_planning_lock(:user_id)"),
-                    {"user_id": user_uuid}
-                )
-                db.commit()
-                logger.info(f"Released planning lock for user {user_id}")
+                try:
+                    db.execute(
+                        text("SELECT release_session_planning_lock(:user_id)"),
+                        {"user_id": user_uuid}
+                    )
+                    db.commit()
+                    logger.info(f"Released planning lock for user {user_id}")
+                except Exception as lock_error:
+                    logger.error(f"Error releasing lock: {lock_error}")
+                    # Don't re-raise lock release errors
                 
         except Exception as e:
             logger.error(f"Session planning failed for user {user_id}: {e}")
+            if db:
+                db.rollback()
             raise
         finally:
             if db:
