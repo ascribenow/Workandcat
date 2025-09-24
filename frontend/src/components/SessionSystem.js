@@ -1205,16 +1205,8 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
         setShowResult(true);
         console.log(`[CRITICAL_DEBUG] ${requestId}: Blueprint answer submitted successfully`);
         
-        // Auto-advance after a delay (like the legacy system)
-        setTimeout(() => {
-          if (blueprintResult.is_complete) {
-            console.log(`[BLUEPRINT] Session complete, finishing...`);
-            finishSession();
-          } else {
-            console.log(`[BLUEPRINT] Moving to next question...`);
-            handleNextQuestion();
-          }
-        }, 3000);
+        // Let user manually control progression - no auto-advance
+        console.log(`[BLUEPRINT] ✅ Answer result displayed, waiting for user action`);
         
         return;
       }
