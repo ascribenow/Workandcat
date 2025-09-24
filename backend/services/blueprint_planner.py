@@ -572,13 +572,23 @@ class BlueprintSessionPlanner:
         """Create session and persist pack with positions"""
         
         # First create or get session in sessions table
+        # Get next session sequence for this user
+        seq_result = db.execute(text("""
+            SELECT COALESCE(MAX(sess_seq), 0) + 1 as next_seq
+            FROM sessions 
+            WHERE user_id = :user_id
+        """), {"user_id": str(user_id)})
+        
+        next_seq = seq_result.scalar() or 1
+        
         db.execute(text("""
-            INSERT INTO sessions (session_id, user_id, status, created_at)
-            VALUES (:session_id, :user_id, 'planned', :created_at)
+            INSERT INTO sessions (session_id, user_id, sess_seq, status, created_at)
+            VALUES (:session_id, :user_id, :sess_seq, 'planned', :created_at)
             ON CONFLICT (session_id) DO NOTHING
         """), {
             "session_id": str(session_id),  # Convert to string
             "user_id": str(user_id),        # Convert to string
+            "sess_seq": next_seq,           # Provide required sequence
             "created_at": datetime.now(timezone.utc)
         })
         
