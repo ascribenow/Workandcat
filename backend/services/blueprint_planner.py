@@ -111,7 +111,7 @@ class BlueprintSessionPlanner:
             HAVING COUNT(spq.position) = 12
             ORDER BY sp.created_at DESC
             LIMIT 1
-        """), {"user_id": user_id})
+        """), {"user_id": str(user_id)})  # Convert UUID to string
         
         existing_pack = existing_pack_result.fetchone()
         
