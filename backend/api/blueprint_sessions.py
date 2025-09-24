@@ -285,26 +285,36 @@ async def complete_session(
         planner = await get_blueprint_planner()
         
         # Get session answers to calculate final score
-        answers_result = await planner.connection.fetch("""
-            SELECT position, is_correct, question_id, user_answer
-            FROM session_answers
-            WHERE session_id = $1
-            ORDER BY position ASC
-        """, uuid.UUID(request.session_id))
-        
-        if not answers_result:
-            raise HTTPException(status_code=404, detail="No answers found for this session")
-        
-        # Calculate session statistics
-        total_questions = len(answers_result)
-        correct_answers = sum(1 for answer in answers_result if answer['is_correct'])
-        accuracy = (correct_answers / total_questions) * 100 if total_questions > 0 else 0
-        
-        # Update session status to completed
-        await planner.connection.execute("""
-            UPDATE sessions SET status = 'completed', abandoned_at = $1 
-            WHERE id = $2
-        """, datetime.now(timezone.utc), uuid.UUID(request.session_id))
+        conn = planner.get_connection()
+        try:
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT position, is_correct, question_id, user_answer
+                FROM session_answers
+                WHERE session_id = %s
+                ORDER BY position ASC
+            """, (uuid.UUID(request.session_id),))
+            
+            answers_result = cursor.fetchall()
+            
+            if not answers_result:
+                raise HTTPException(status_code=404, detail="No answers found for this session")
+            
+            # Calculate session statistics
+            total_questions = len(answers_result)
+            correct_answers = sum(1 for answer in answers_result if answer['is_correct'])
+            accuracy = (correct_answers / total_questions) * 100 if total_questions > 0 else 0
+            
+            # Update session status to completed
+            cursor.execute("""
+                UPDATE sessions SET status = 'completed', abandoned_at = %s 
+                WHERE id = %s
+            """, (datetime.now(timezone.utc), uuid.UUID(request.session_id)))
+            
+            conn.commit()
+            
+        finally:
+            conn.close()
         
         logger.info(f"Blueprint session {request.session_id[:8]} completed with {correct_answers}/{total_questions} correct ({accuracy:.1f}%)")
         
