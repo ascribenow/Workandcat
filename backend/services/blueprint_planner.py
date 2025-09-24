@@ -127,7 +127,7 @@ class BlueprintSessionPlanner:
         
         return None
     
-    async def _create_new_session_plan(self, user_id: uuid.UUID, cursor, conn) -> Dict:
+    async def _create_new_session_plan(self, user_id: uuid.UUID, db) -> Dict:
         """Create a new session plan with all deviation compliance"""
         
         session_id = uuid.uuid4()
