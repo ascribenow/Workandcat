@@ -371,7 +371,7 @@ async def list_user_sessions(
                 query = text("""
                     SELECT s.session_id, s.status, s.created_at, s.served_at, s.abandoned_at,
                            sp.constraint_report,
-                           (SELECT COUNT(*) FROM session_answers sa WHERE sa.session_id = s.session_id) as answered_count
+                           (SELECT COUNT(*) FROM session_answers sa WHERE sa.session_id::text = s.session_id) as answered_count
                     FROM sessions s
                     LEFT JOIN session_packs sp ON s.session_id = sp.session_id::text
                     WHERE s.user_id = :user_id AND s.status = :status_filter
@@ -379,7 +379,7 @@ async def list_user_sessions(
                     LIMIT :limit
                 """)
                 sessions_result = db.execute(query, {
-                    "user_id": auth_user_id,  # Use string directly
+                    "user_id": auth_user_id,
                     "status_filter": status_filter,
                     "limit": limit
                 })
@@ -387,7 +387,7 @@ async def list_user_sessions(
                 query = text("""
                     SELECT s.session_id, s.status, s.created_at, s.served_at, s.abandoned_at,
                            sp.constraint_report,
-                           (SELECT COUNT(*) FROM session_answers sa WHERE sa.session_id = s.session_id) as answered_count
+                           (SELECT COUNT(*) FROM session_answers sa WHERE sa.session_id::text = s.session_id) as answered_count
                     FROM sessions s
                     LEFT JOIN session_packs sp ON s.session_id = sp.session_id::text
                     WHERE s.user_id = :user_id
@@ -395,7 +395,7 @@ async def list_user_sessions(
                     LIMIT :limit
                 """)
                 sessions_result = db.execute(query, {
-                    "user_id": auth_user_id,  # Use string directly
+                    "user_id": auth_user_id,
                     "limit": limit
                 })
             
