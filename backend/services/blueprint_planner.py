@@ -538,8 +538,7 @@ class BlueprintSessionPlanner:
 
 
 # Factory function for creating planner instances
-async def create_blueprint_planner(database_url: str) -> BlueprintSessionPlanner:
+def create_blueprint_planner(database_url: str) -> BlueprintSessionPlanner:
     """Create BlueprintSessionPlanner instance with database connection"""
     
-    connection = await asyncpg.connect(database_url, statement_cache_size=0)
-    return BlueprintSessionPlanner(connection)
+    return BlueprintSessionPlanner(database_url)
