@@ -33,9 +33,10 @@ class BlueprintSessionPlanner:
         self.max_subcategory_type = 2  # HARD CAP
         
         # Deviation #5: Intentional ordering pattern (friendly progression)
+        # 3 Easy, 6 Medium, 3 Hard = 12 total questions
         self.question_ordering_pattern = [
-            "Easy", "Medium", "Medium", "Easy", "Medium", "Hard",
-            "Medium", "Easy", "Hard", "Medium", "Hard", "Medium"
+            "Easy", "Medium", "Medium", "Easy", "Medium", "Medium",
+            "Medium", "Easy", "Medium", "Hard", "Hard", "Hard"
         ]
         
         self.constraint_relaxations = []
