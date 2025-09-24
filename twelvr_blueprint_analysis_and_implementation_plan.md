@@ -1038,25 +1038,28 @@ async def legacy_pack_endpoint(user_id: str, session_id: str):
 
 ---
 
-## Expected Benefits
+## Expected Benefits (With Deviation Compliance)
 
-### User Experience
-- **Zero wait time**: Sessions start immediately
-- **Better reliability**: No timeout issues or planning failures
-- **Seamless resumption**: Mid-session interruptions handled gracefully
-- **Instant feedback**: Explanations available immediately
+### User Experience  
+- **Zero wait time**: Sessions start immediately (no polling/websockets)
+- **Perfect reliability**: Hard caps prevent constraint violations
+- **Seamless resumption**: Position guards prevent state corruption
+- **Consistent experience**: Intentional difficulty progression (E-M-M-E pattern)
+- **Idempotent actions**: Duplicate submissions handled gracefully
 
 ### System Performance
-- **Reduced API calls**: One call gets complete session
-- **Simplified frontend**: No polling or complex state management
-- **Better scalability**: Pre-planning distributes load
-- **Improved reliability**: Fewer moving parts and failure points
+- **Reduced API calls**: Single /session/next returns everything
+- **Simplified frontend**: No polling, timeouts, or complex state management  
+- **Advisory lock safety**: Only one planned session per user prevents races
+- **Better scalability**: Pre-planning distributes load evenly
+- **Exact compliance**: 3/6/3 distribution guaranteed, PYQ requirements enforced
 
 ### Developer Experience
-- **Simpler debugging**: Clear session lifecycle
-- **Easier testing**: Deterministic session behavior  
-- **Better monitoring**: Clear metrics at each stage
-- **Reduced complexity**: Elimination of async polling logic
+- **Deterministic behavior**: Clear position tracking and constraint enforcement
+- **Easier debugging**: Position equality guards catch synchronization issues
+- **Better testing**: Consistent ordering and hard caps make tests predictable
+- **Clean contracts**: Single constraint report per pack, standardized status values
+- **Reduced complexity**: Complete elimination of async polling and websocket logic
 
 ---
 
