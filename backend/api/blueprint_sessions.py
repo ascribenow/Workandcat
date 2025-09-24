@@ -289,7 +289,7 @@ async def complete_session(
                 FROM session_answers
                 WHERE session_id = :session_id
                 ORDER BY position ASC
-            """), {"session_id": uuid.UUID(request.session_id)})
+            """), {"session_id": request.session_id})  # Use string directly
             
             answers_data = answers_result.fetchall()
             
