@@ -412,40 +412,88 @@ class BlueprintSessionPlanner:
         
         logger.info(f"Current distribution before rebalancing: {distribution}")
         
-        rebalanced = list(selected_questions)
-        self.rebalance_swaps = []
+        # Target distribution: Easy=3, Medium=6, Hard=3
+        target_distribution = {"Easy": 3, "Medium": 6, "Hard": 3}
         
         # Check if rebalancing needed
         needs_rebalancing = any(
-            distribution[diff] != self.difficulty_distribution[diff] 
-            for diff in self.difficulty_distribution
+            distribution[diff] != target_distribution[diff] 
+            for diff in target_distribution
         )
         
-        if needs_rebalancing:
-            logger.info("Distribution needs rebalancing to enforce exact 3/6/3")
+        if not needs_rebalancing:
+            logger.info("Distribution already correct, no rebalancing needed")
+            return selected_questions
+        
+        logger.info("Distribution needs rebalancing to enforce exact 3/6/3")
+        
+        # Group questions by difficulty
+        by_difficulty = {
+            "Easy": [q for q in selected_questions if q['difficulty_band'] == "Easy"],
+            "Medium": [q for q in selected_questions if q['difficulty_band'] == "Medium"],
+            "Hard": [q for q in selected_questions if q['difficulty_band'] == "Hard"]
+        }
+        
+        # Create balanced selection
+        rebalanced = []
+        self.rebalance_swaps = []
+        
+        for difficulty, target_count in target_distribution.items():
+            available_questions = by_difficulty[difficulty]
+            current_count = len(available_questions)
             
-            # For simplicity in Phase 2A, we'll ensure we have at least the minimum in each category
-            # More sophisticated swapping can be implemented in Phase 2B
-            
-            for difficulty, target_count in self.difficulty_distribution.items():
-                current_count = distribution[difficulty]
+            if current_count >= target_count:
+                # Take exactly the target number
+                selected = available_questions[:target_count]
+                rebalanced.extend(selected)
                 
-                if current_count < target_count:
-                    # Need more of this difficulty
-                    deficit = target_count - current_count
+                if current_count > target_count:
                     self.rebalance_swaps.append({
                         "difficulty": difficulty,
-                        "action": "deficit",
-                        "count": deficit
+                        "action": "reduced",
+                        "from": current_count,
+                        "to": target_count
                     })
-                elif current_count > target_count:
-                    # Have too many of this difficulty
-                    excess = current_count - target_count
-                    self.rebalance_swaps.append({
-                        "difficulty": difficulty,
-                        "action": "excess", 
-                        "count": excess
-                    })
+            else:
+                # Not enough questions of this difficulty - take all and note deficit
+                rebalanced.extend(available_questions)
+                deficit = target_count - current_count
+                
+                self.rebalance_swaps.append({
+                    "difficulty": difficulty,
+                    "action": "deficit",
+                    "available": current_count,
+                    "needed": target_count,
+                    "deficit": deficit
+                })
+        
+        # If we have deficits, try to fill from other difficulties
+        total_selected = len(rebalanced)
+        if total_selected < 12:
+            # Need to add more questions to reach 12
+            remaining_needed = 12 - total_selected
+            
+            # Collect extra questions from difficulties that had excess
+            extra_questions = []
+            for difficulty in ["Easy", "Medium", "Hard"]:
+                current_in_rebalanced = len([q for q in rebalanced if q['difficulty_band'] == difficulty])
+                target = target_distribution[difficulty]
+                available = by_difficulty[difficulty]
+                
+                if len(available) > target:
+                    # Add the excess questions to extra pool
+                    extra_questions.extend(available[target:])
+            
+            # Add from extra pool to reach 12 questions
+            if extra_questions and remaining_needed > 0:
+                to_add = min(remaining_needed, len(extra_questions))
+                rebalanced.extend(extra_questions[:to_add])
+                
+                self.rebalance_swaps.append({
+                    "action": "backfill",
+                    "added": to_add,
+                    "total_after": len(rebalanced)
+                })
         
         # Final distribution check
         final_distribution = {"Easy": 0, "Medium": 0, "Hard": 0}
@@ -453,6 +501,7 @@ class BlueprintSessionPlanner:
             final_distribution[q['difficulty_band']] += 1
         
         logger.info(f"Final distribution after rebalancing: {final_distribution}")
+        logger.info(f"Rebalance operations: {self.rebalance_swaps}")
         
         return rebalanced
     
