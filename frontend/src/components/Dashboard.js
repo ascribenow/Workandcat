@@ -199,22 +199,11 @@ export const Dashboard = () => {
           } else {
             console.log('Dashboard: No incomplete Blueprint sessions found');
           }
-            setSessionMetadata({
-              resume_session: true,
-              session_id: sessionData.session_id,
-              current_question_index: sessionData.current_question_index,
-              total_questions: sessionData.total_questions,
-              last_question_id: sessionData.last_question_id,
-              phase_info: {
-                current_session: sessionData.current_question_index + 1
-              }
-            });
-            setCurrentView('session');
-            console.log('Dashboard: Set up session resumption, switching to session view');
-            return true;
-          } else {
-            console.log('Dashboard: No incomplete sessions found, proceeding with new session creation');
-          }
+        } catch (error) {
+          console.warn('Dashboard: Failed to check Blueprint session list:', error.message);
+          // Continue with session planning if check fails
+        }
+      }
           
           // Fallback: Check localStorage for any active session (legacy)
           const storedSessionId = localStorage.getItem('currentSessionId') || localStorage.getItem('nextSessionId');
