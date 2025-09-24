@@ -1,8 +1,24 @@
-# Twelvr Session System Blueprint - Analysis & Implementation Plan
+# Twelvr Session System Blueprint - Analysis & Implementation Plan (REVISED)
 
 ## Executive Summary
 
-The blueprint proposes a **fundamental architectural shift** from the current async session planning model to a **pre-generated session model** that eliminates wait times and simplifies the user experience. This represents a significant improvement in both system performance and user experience.
+The blueprint proposes a **fundamental architectural shift** from the current async session planning model to a **pre-generated session model** that eliminates wait times and simplifies the user experience. This revised plan addresses specific deviations to ensure exact compliance with intended behavior.
+
+## Critical Deviations Addressed
+
+This revision specifically addresses 12 key deviations identified in the requirements:
+1. **Hard cap enforcement** for per-pair limits (not just penalties)
+2. **Position alignment** between 0-based and 1-based systems
+3. **Advisory lock integration** in core planning flow
+4. **Explicit idempotency** with unique constraints
+5. **Intentional question ordering** with smooth difficulty progression
+6. **PYQ rebalancing** to maintain 3/6/3 distribution
+7. **Pack-level constraint reporting** (not per-row duplication)
+8. **Standardized status naming** across all components
+9. **Complete removal** of polling/websocket references
+10. **Position equality guards** and proper ordering
+11. **Explicit first session** behavior documentation
+12. **Clear endpoint contracts** with no legacy route dependencies
 
 ---
 
