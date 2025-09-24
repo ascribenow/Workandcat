@@ -44,11 +44,10 @@ async def get_blueprint_planner() -> BlueprintSessionPlanner:
     global _planner_instance
     
     if _planner_instance is None:
-        database_url = os.environ.get('DATABASE_URL')
-        if not database_url:
-            raise HTTPException(status_code=500, detail="DATABASE_URL environment variable not found")
+        from database import engine
+        database_url = str(engine.url)
         
-        _planner_instance = await create_blueprint_planner(database_url)
+        _planner_instance = create_blueprint_planner(database_url)
         logger.info("Blueprint planner instance created successfully")
     
     return _planner_instance
