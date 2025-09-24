@@ -265,8 +265,8 @@ export const Dashboard = () => {
       setCurrentView('session');
     } catch (error) {
       console.error('Dashboard: Error during session preparation:', error);
-      setSessionError('Unable to prepare session. Please try again.');
-      setLoadingState('idle');
+      setCurrentView('dashboard');
+      setLoading(false);
     }
   };
 
