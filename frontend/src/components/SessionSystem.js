@@ -76,6 +76,16 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
     }
   }, [currentPack]);
   
+  // CRITICAL DEBUG: Monitor currentQuestion state changes
+  useEffect(() => {
+    console.log(`[CURRENT_QUESTION_DEBUG] State changed:`, {
+      hasCurrentQuestion: !!currentQuestion,
+      questionId: currentQuestion?.id?.substring(0, 8),
+      questionStem: currentQuestion?.stem?.substring(0, 50),
+      timestamp: new Date().toISOString()
+    });
+  }, [currentQuestion]);
+  
   // V2 HARDENING: Track mark-served state to prevent duplicate calls
   const [packMarkedServed, setPackMarkedServed] = useState(false);
 
