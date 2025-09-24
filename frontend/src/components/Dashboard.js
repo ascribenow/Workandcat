@@ -243,21 +243,27 @@ export const Dashboard = () => {
         }
       }
       
-      // Check for existing active session using new progress tracking
-      const sessionStatusResponse = await axios.get(`${API}/session-progress/current/${user.id}`);
-      console.log('Dashboard: Session progress response:', sessionStatusResponse.data);
+      // Create new Blueprint session
+      console.log('Dashboard: Creating new Blueprint session...');
+      const sessionStartResponse = await axios.post(`${API}/session/start`, {
+        user_id: user.id
+      });
       
-      if (sessionStatusResponse.data.has_current_session) {
-        console.log('Dashboard: Active session found, resuming...');
-        const existingSessionId = sessionStatusResponse.data.session_id;
-        const progress = sessionStatusResponse.data;
-        
-        setActiveSessionId(existingSessionId);
-        
-        // For resumed sessions, create a minimal metadata object with session number calculation
-        try {
-          const dashboardResponse = await axios.get(`${API}/dashboard/simple-taxonomy`);
-          const totalSessions = dashboardResponse.data.total_sessions || 0;
+      console.log('Dashboard: Blueprint session created:', sessionStartResponse.data);
+      const newSessionId = sessionStartResponse.data.session_id;
+      
+      setActiveSessionId(newSessionId);
+      setSessionMetadata({
+        session_id: newSessionId,
+        status: sessionStartResponse.data.status,
+        total_questions: sessionStartResponse.data.total_questions || 12,
+        session_type: sessionStartResponse.data.session_type || 'blueprint',
+        questions: sessionStartResponse.data.questions || [],
+        current_position: 1
+      });
+      
+      setCurrentView('session');
+      console.log('Dashboard: Blueprint session ready, switching to session view');
           const currentSession = totalSessions + 1; // Current session number is completed sessions + 1
           
           setSessionMetadata({
