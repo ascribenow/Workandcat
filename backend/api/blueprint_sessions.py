@@ -357,33 +357,33 @@ async def list_user_sessions(
             # Build query with optional status filter
             if status_filter:
                 query = text("""
-                    SELECT s.id, s.status, s.created_at, s.served_at, s.abandoned_at,
+                    SELECT s.session_id, s.status, s.created_at, s.served_at, s.abandoned_at,
                            sp.constraint_report,
-                           (SELECT COUNT(*) FROM session_answers sa WHERE sa.session_id = s.id) as answered_count
+                           (SELECT COUNT(*) FROM session_answers sa WHERE sa.session_id = s.session_id) as answered_count
                     FROM sessions s
-                    LEFT JOIN session_packs sp ON s.id = sp.session_id
+                    LEFT JOIN session_packs sp ON s.session_id = sp.session_id
                     WHERE s.user_id = :user_id AND s.status = :status_filter
                     ORDER BY s.created_at DESC
                     LIMIT :limit
                 """)
                 sessions_result = db.execute(query, {
-                    "user_id": uuid.UUID(auth_user_id),
+                    "user_id": auth_user_id,  # Use string directly
                     "status_filter": status_filter,
                     "limit": limit
                 })
             else:
                 query = text("""
-                    SELECT s.id, s.status, s.created_at, s.served_at, s.abandoned_at,
+                    SELECT s.session_id, s.status, s.created_at, s.served_at, s.abandoned_at,
                            sp.constraint_report,
-                           (SELECT COUNT(*) FROM session_answers sa WHERE sa.session_id = s.id) as answered_count
+                           (SELECT COUNT(*) FROM session_answers sa WHERE sa.session_id = s.session_id) as answered_count
                     FROM sessions s
-                    LEFT JOIN session_packs sp ON s.id = sp.session_id
+                    LEFT JOIN session_packs sp ON s.session_id = sp.session_id
                     WHERE s.user_id = :user_id
                     ORDER BY s.created_at DESC
                     LIMIT :limit
                 """)
                 sessions_result = db.execute(query, {
-                    "user_id": uuid.UUID(auth_user_id),
+                    "user_id": auth_user_id,  # Use string directly
                     "limit": limit
                 })
             
