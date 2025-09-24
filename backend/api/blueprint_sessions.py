@@ -425,13 +425,11 @@ async def blueprint_health():
         planner = await get_blueprint_planner()
         
         # Test database connection
-        conn = planner.get_connection()
+        db = planner.get_db_session()
         try:
-            cursor = conn.cursor()
-            cursor.execute("SELECT 1")
-            result = cursor.fetchone()
+            result = db.execute(text("SELECT 1")).scalar()
             
-            if result and result[0] == 1:
+            if result == 1:
                 return JSONResponse({
                     "status": "healthy",
                     "blueprint_system": "operational",
@@ -441,7 +439,7 @@ async def blueprint_health():
             else:
                 raise Exception("Database test query failed")
         finally:
-            conn.close()
+            db.close()
             
     except Exception as e:
         logger.error(f"Blueprint health check failed: {e}")
