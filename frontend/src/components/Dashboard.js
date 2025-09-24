@@ -125,7 +125,6 @@ export const Dashboard = () => {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      setError(null);
       
       console.log('Dashboard: Loading Blueprint-ready dashboard...');
       console.log('Dashboard: API endpoint:', API);
@@ -166,7 +165,6 @@ export const Dashboard = () => {
         can_start_session: true, 
         limit_reached: false 
       });
-      setError('Dashboard loaded with minimal data for Blueprint sessions');
       
     } finally {
       setLoading(false);
