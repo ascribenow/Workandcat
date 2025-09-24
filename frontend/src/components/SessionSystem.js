@@ -1004,6 +1004,47 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
     setAnswerSubmitted(true);
     
     try {
+      // Check if this is a Blueprint session
+      const isBlueprintSession = sessionMetadata?.session_type === 'blueprint' || 
+                                sessionMetadata?.questions?.length > 0;
+      
+      if (isBlueprintSession) {
+        console.log(`[CRITICAL_DEBUG] ${requestId}: Submitting to Blueprint session`);
+        
+        // For Blueprint sessions, use the new submission API
+        const currentPosition = (currentQuestionIndex || 0) + 1; // Convert to 1-based position
+        
+        const blueprintResult = await submitBlueprintAnswer(sessionId, currentPosition, userAnswer);
+        
+        // Create result object compatible with existing UI
+        const result = {
+          correct: blueprintResult.is_correct,
+          correct_answer: blueprintResult.correct_answer,
+          explanation: blueprintResult.explanation,
+          user_answer: userAnswer
+        };
+        
+        setResult(result);
+        setShowResult(true);
+        console.log(`[CRITICAL_DEBUG] ${requestId}: Blueprint answer submitted successfully`);
+        
+        // Auto-advance after a delay (like the legacy system)
+        setTimeout(() => {
+          if (blueprintResult.is_complete) {
+            console.log(`[BLUEPRINT] Session complete, finishing...`);
+            finishSession();
+          } else {
+            console.log(`[BLUEPRINT] Moving to next question...`);
+            nextQuestion();
+          }
+        }, 3000);
+        
+        return;
+      }
+      
+      // Legacy adaptive session submission
+      console.log(`[CRITICAL_DEBUG] ${requestId}: Submitting to legacy adaptive session`);
+      
       // DEBUG: Log the payload before sending
       const payload = {
         session_id: sessionId,
