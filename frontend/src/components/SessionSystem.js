@@ -1197,6 +1197,7 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
           correct: blueprintResult.is_correct,
           correct_answer: blueprintResult.correct_answer,
           explanation: blueprintResult.explanation,
+          solution_feedback: blueprintResult.solution_feedback,
           user_answer: userAnswer
         };
         
