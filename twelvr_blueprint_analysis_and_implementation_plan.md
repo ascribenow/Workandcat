@@ -769,21 +769,33 @@ export const BlueprintSessionSystem = () => {
   
   const loadSession = async () => {
     try {
-      // First try to get current (resumable) session
-      let response = await axios.get(`${API}/session/current`);
+      // DEVIATION #9: NO POLLING - sessions are always ready
+      // DEVIATION #12: Use only new endpoints, no legacy /api/adapt/* routes
       
-      if (!response.data) {
-        // No current session, get next planned session
-        response = await axios.get(`${API}/session/next`);
+      // First try to get current (resumable) session
+      let response;
+      try {
+        response = await axios.get(`${API}/session/current`);
+      } catch (error) {
+        if (error.response?.status === 404) {
+          // No current session, get next planned session (always ready)
+          response = await axios.get(`${API}/session/next`);
+        } else {
+          throw error;
+        }
       }
       
       setSessionData(response.data);
+      
+      // DEVIATION #2: Handle position alignment (backend uses 0-based internally)
+      // Frontend can use 1-based for display but track backend's 0-based internally  
       setCurrentPosition(response.data.current_position);
       
-      console.log('Session loaded:', {
+      console.log('Session loaded instantly:', {
         sessionId: response.data.session_id,
         totalQuestions: response.data.questions.length,
-        currentPosition: response.data.current_position
+        currentPosition: response.data.current_position,
+        status: response.data.status
       });
       
     } catch (error) {
