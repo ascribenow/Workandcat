@@ -99,9 +99,9 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
   // SURGICAL FIX: Dedicated clear function for explicit pack clearing
   // Blueprint Session Functions (New System)
   const fetchBlueprintSession = async (sessionId) => {
+    console.log(`[BLUEPRINT] 🔍 Starting fetchBlueprintSession for ${sessionId.substring(0, 8)}`);
+    
     try {
-      console.log(`[BLUEPRINT] 🔍 Starting fetchBlueprintSession for ${sessionId.substring(0, 8)}`);
-      
       // Get session questions from Blueprint system
       const response = await axios.get(`${API}/session/list`);
       const sessions = response.data.sessions || [];
@@ -120,46 +120,76 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
       
       console.log(`[BLUEPRINT] 🔄 Fetching ${totalQuestions} questions from API...`);
       
+      // Use Promise.allSettled to handle individual question failures gracefully
+      const questionPromises = [];
       for (let position = 1; position <= totalQuestions; position++) {
-        try {
-          console.log(`[BLUEPRINT] 📝 Fetching question ${position}/${totalQuestions}...`);
+        questionPromises.push(
+          axios.get(`${API}/session/question/${sessionId}/${position}`)
+            .then(response => ({
+              position,
+              success: true, 
+              data: response.data
+            }))
+            .catch(error => ({
+              position,
+              success: false,
+              error: error.message
+            }))
+        );
+      }
+      
+      console.log(`[BLUEPRINT] 🚀 Executing ${questionPromises.length} parallel question fetches...`);
+      
+      const results = await Promise.allSettled(questionPromises);
+      
+      console.log(`[BLUEPRINT] 📊 Question fetch results:`, {
+        total: results.length,
+        fulfilled: results.filter(r => r.status === 'fulfilled').length,
+        rejected: results.filter(r => r.status === 'rejected').length
+      });
+      
+      // Process successful question fetches
+      let successCount = 0;
+      let failureCount = 0;
+      
+      for (const result of results) {
+        if (result.status === 'fulfilled') {
+          const questionResult = result.value;
           
-          const questionResponse = await axios.get(`${API}/session/question/${sessionId}/${position}`);
-          const questionData = questionResponse.data;
-          
-          console.log(`[BLUEPRINT] ✅ Question ${position} fetched successfully`);
-          
-          // Convert Blueprint question format to pack format
-          const packItem = {
-            id: questionData.question.id,  // Use 'id' not 'item_id' for compatibility
-            stem: questionData.question.stem,
-            option_a: questionData.question.option_a,
-            option_b: questionData.question.option_b,
-            option_c: questionData.question.option_c,
-            option_d: questionData.question.option_d,
-            difficulty_band: questionData.question.difficulty_band,
-            subcategory: questionData.question.subcategory,
-            type_of_question: questionData.question.type_of_question,
-            position: position,
-            session_type: 'blueprint',
-            answer: questionData.question.answer || ''  // Add answer field for compatibility
-          };
-          
-          console.log(`[BLUEPRINT] 📋 Question ${position} converted:`, {
-            id: packItem.id.substring(0, 8),
-            stemLength: packItem.stem.length,
-            hasOptions: !!(packItem.option_a && packItem.option_b),
-            difficulty: packItem.difficulty_band
-          });
-          
-          pack.push(packItem);
-        } catch (qError) {
-          console.error(`[BLUEPRINT] ❌ Failed to fetch question at position ${position}:`, qError.message);
-          console.error(`[BLUEPRINT] ❌ Question ${position} error details:`, qError.response?.status, qError.response?.data);
-          // Continue with other questions
+          if (questionResult.success) {
+            const questionData = questionResult.data;
+            const position = questionResult.position;
+            
+            // Convert Blueprint question format to pack format
+            const packItem = {
+              id: questionData.question.id,
+              stem: questionData.question.stem,
+              option_a: questionData.question.option_a,
+              option_b: questionData.question.option_b,
+              option_c: questionData.question.option_c,
+              option_d: questionData.question.option_d,
+              difficulty_band: questionData.question.difficulty_band,
+              subcategory: questionData.question.subcategory,
+              type_of_question: questionData.question.type_of_question,
+              position: position,
+              session_type: 'blueprint',
+              answer: questionData.question.answer || ''
+            };
+            
+            pack.push(packItem);
+            successCount++;
+            console.log(`[BLUEPRINT] ✅ Question ${position} converted successfully`);
+          } else {
+            failureCount++;
+            console.error(`[BLUEPRINT] ❌ Question ${questionResult.position} failed:`, questionResult.error);
+          }
+        } else {
+          failureCount++;
+          console.error(`[BLUEPRINT] ❌ Promise rejected:`, result.reason);
         }
       }
       
+      console.log(`[BLUEPRINT] 📈 Final results: ${successCount} success, ${failureCount} failures`);
       console.log(`[BLUEPRINT] ✅ Loaded ${pack.length}/${totalQuestions} questions from Blueprint session`);
       
       if (pack.length === 0) {
@@ -167,12 +197,25 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
         throw new Error(`Failed to load any questions from session ${sessionId}`);
       }
       
+      // Sort pack by position to ensure correct order
+      pack.sort((a, b) => a.position - b.position);
+      
       console.log(`[BLUEPRINT] 🎉 Returning pack with ${pack.length} questions`);
+      console.log(`[BLUEPRINT] 📋 Pack sample:`, {
+        firstQuestion: {
+          id: pack[0].id.substring(0, 8),
+          position: pack[0].position,
+          stemLength: pack[0].stem.length,
+          hasOptions: !!(pack[0].option_a && pack[0].option_b),
+          difficulty: pack[0].difficulty_band
+        }
+      });
+      
       return pack;
       
     } catch (error) {
       console.error('[BLUEPRINT] ❌ Error in fetchBlueprintSession:', error);
-      console.error('[BLUEPRINT] ❌ Error details:', error.response?.status, error.response?.data);
+      console.error('[BLUEPRINT] ❌ Error stack:', error.stack);
       throw error;
     }
   };
