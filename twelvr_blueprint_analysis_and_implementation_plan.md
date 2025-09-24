@@ -215,14 +215,16 @@ async def migrate_existing_sessions():
 # File: /app/backend/services/blueprint_planner.py
 
 class BlueprintSessionPlanner:
-    """New session planner following blueprint specifications"""
+    """New session planner following blueprint specifications with deviation fixes"""
     
     def __init__(self, db: Session):
         self.db = db
         self.difficulty_distribution = {"Easy": 3, "Medium": 6, "Hard": 3}
         self.pyq_requirements = {"high_importance": 2, "medium_importance": 2}
         self.recency_days = 28
-        self.max_subcategory_type = 2
+        self.max_subcategory_type = 2  # DEVIATION #1: Now HARD CAP, not penalty
+        self.question_ordering_pattern = ["Easy", "Medium", "Medium", "Easy", "Medium", "Hard", 
+                                        "Medium", "Easy", "Hard", "Medium", "Hard", "Medium"]  # DEVIATION #5
     
     async def plan_session(self, user_id: str) -> dict:
         """Main planning function following blueprint algorithm"""
