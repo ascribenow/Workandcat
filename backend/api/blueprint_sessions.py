@@ -278,6 +278,14 @@ async def submit_answer(
         
         logger.info(f"Answer submitted for session {request.session_id[:8]}, position {request.position}: {'correct' if is_correct else 'incorrect'}")
         
+        # Build solution feedback object from question data
+        solution_feedback = {
+            "snap_read": question_at_position.get('snap_read', ''),
+            "solution_approach": question_at_position.get('solution_approach', ''),
+            "detailed_solution": question_at_position.get('detailed_solution', ''),
+            "principle_to_remember": question_at_position.get('principle_to_remember', '')
+        }
+        
         return JSONResponse({
             "success": True,
             "session_id": request.session_id,
@@ -285,6 +293,7 @@ async def submit_answer(
             "is_correct": is_correct,
             "correct_answer": correct_answer,
             "explanation": question_at_position.get('explanation', ''),
+            "solution_feedback": solution_feedback,
             "next_position": request.position + 1 if request.position < 12 else None,
             "is_complete": request.position == 12
         }, status_code=200)
