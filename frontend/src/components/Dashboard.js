@@ -270,53 +270,6 @@ export const Dashboard = () => {
       setLoadingState('idle');
     }
   };
-          baseDelay: 1000,
-          maxDelay: 8000,
-          timeoutPerRequest: 8000,
-          treat404AsPreparingMs: 65000
-        });
-        
-        if (result.ok) {
-          console.log('Dashboard: Session ready!', result.sessionId);
-          
-          // Use backend's canonical session ID
-          setActiveSessionId(result.sessionId);
-          setSessionMetadata({
-            session_id: result.sessionId,
-            async_session: true,
-            phase_info: {
-              current_session: (dashboardData?.total_sessions || 0) + 1
-            },
-            pack: result.pack
-          });
-          
-          setSessionState({ phase: 'ready', message: 'Session ready!' });
-          return true;
-          
-        } else {
-          console.error('Dashboard: Session preparation failed:', result.error);
-          setSessionState({
-            phase: 'failed',
-            message: 'Session couldn\'t be prepared.',
-            error: result.error?.message || 'Unknown error',
-            canRetry: result.retryAvailable ?? true
-          });
-          return false;
-        }
-      }
-      
-    } catch (error) {
-      console.error('Dashboard: Error starting/resuming session:', error);
-      if (error.response?.status === 401) {
-        // Handle authentication error
-        logout();
-        return false;
-      }
-      // For other errors, redirect to dashboard
-      setCurrentView('dashboard');
-      return false;
-    }
-  };
 
   const handleSessionEnd = () => {
     setActiveSessionId(null);
