@@ -124,7 +124,7 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
           
           // Convert Blueprint question format to pack format
           const packItem = {
-            item_id: questionData.question.id,
+            id: questionData.question.id,  // Use 'id' not 'item_id' for compatibility
             stem: questionData.question.stem,
             option_a: questionData.question.option_a,
             option_b: questionData.question.option_b,
@@ -134,7 +134,8 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
             subcategory: questionData.question.subcategory,
             type_of_question: questionData.question.type_of_question,
             position: position,
-            session_type: 'blueprint'
+            session_type: 'blueprint',
+            answer: questionData.question.answer || ''  // Add answer field for compatibility
           };
           
           pack.push(packItem);
