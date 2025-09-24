@@ -384,17 +384,41 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
         } else {
           // Fetch Blueprint session data if no questions in metadata (resumed sessions)
           console.log(`[BLUEPRINT] ⚠️ No questions in metadata, fetching from API for resumed session`);
-          const pack = await fetchBlueprintSession(sessionId);
-          if (pack && pack.length > 0) {
-            console.log(`[BLUEPRINT] ✅ Fetched ${pack.length} questions from API`);
-            setCurrentPackSafe(pack, 'blueprint-api-load');
+          
+          try {
+            console.log(`[BLUEPRINT] 🚀 Calling fetchBlueprintSession...`);
+            const pack = await fetchBlueprintSession(sessionId);
             
-            // For resumed sessions, set position based on answered_count
-            const answeredCount = sessionMetadata.answered_count || 0;
-            setCurrentQuestionIndex(answeredCount); // Resume from next unanswered question
-            console.log(`[BLUEPRINT] ✅ Resumed session at position ${answeredCount + 1}`);
-          } else {
-            console.error(`[BLUEPRINT] ❌ Failed to fetch questions from API`);
+            console.log(`[BLUEPRINT] 📦 fetchBlueprintSession returned:`, {
+              packExists: !!pack,
+              packLength: pack ? pack.length : 0,
+              packType: typeof pack
+            });
+            
+            if (pack && pack.length > 0) {
+              console.log(`[BLUEPRINT] ✅ Pack validation successful - ${pack.length} questions`);
+              console.log(`[BLUEPRINT] 📋 Sample question:`, {
+                id: pack[0].id?.substring(0, 8),
+                stemLength: pack[0].stem?.length,
+                hasOptions: !!(pack[0].option_a && pack[0].option_b)
+              });
+              
+              console.log(`[BLUEPRINT] 🔧 Calling setCurrentPackSafe...`);
+              setCurrentPackSafe(pack, 'blueprint-api-load');
+              
+              console.log(`[BLUEPRINT] ⚡ setCurrentPackSafe called successfully`);
+              
+              // For resumed sessions, set position based on answered_count
+              const answeredCount = sessionMetadata.answered_count || 0;
+              setCurrentQuestionIndex(answeredCount); // Resume from next unanswered question
+              console.log(`[BLUEPRINT] ✅ Resumed session at position ${answeredCount + 1}`);
+              
+            } else {
+              console.error(`[BLUEPRINT] ❌ Invalid pack returned:`, pack);
+            }
+          } catch (fetchError) {
+            console.error(`[BLUEPRINT] ❌ fetchBlueprintSession failed:`, fetchError);
+            console.error(`[BLUEPRINT] ❌ Full error:`, fetchError.stack);
           }
         }
         return;
