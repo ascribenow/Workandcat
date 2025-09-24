@@ -809,9 +809,14 @@ export const BlueprintSessionSystem = () => {
       const response = await axios.post(`${API}/session/answer`, {
         session_id: sessionData.session_id,
         question_id: questionId,
-        position: position,
+        position: position,  // Send 1-based position as expected by backend
         answer: answer
       });
+      
+      // DEVIATION #4: Handle idempotent responses
+      if (response.data.duplicate) {
+        console.log('Duplicate answer submission detected - using existing result');
+      }
       
       // Store answer result
       setUserAnswers(prev => ({
@@ -819,12 +824,18 @@ export const BlueprintSessionSystem = () => {
         [position]: {
           answer: answer,
           correct: response.data.correct,
-          explanation: response.data.explanation
+          explanation: response.data.explanation,
+          duplicate: response.data.duplicate || false
         }
       }));
       
       // Show result UI
       setShowResult(true);
+      
+      // Update current position for next question
+      if (response.data.next_position) {
+        setCurrentPosition(response.data.next_position - 1); // Convert to 0-based for internal use
+      }
       
       // Check if session complete
       if (response.data.session_complete) {
@@ -833,7 +844,13 @@ export const BlueprintSessionSystem = () => {
       
     } catch (error) {
       console.error('Failed to submit answer:', error);
-      setError('Failed to submit answer. Please try again.');
+      
+      // DEVIATION #10: Handle position mismatch errors specifically
+      if (error.response?.status === 400 && error.response?.data?.detail?.includes('Invalid position')) {
+        setError('Question position mismatch. Please refresh to sync session state.');
+      } else {
+        setError('Failed to submit answer. Please try again.');
+      }
     }
   };
   
