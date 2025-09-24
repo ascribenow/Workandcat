@@ -187,9 +187,8 @@ class BlueprintSessionPlanner:
                 # Get questions for this difficulty level
                 questions_result = db.execute(text("""
                     SELECT 
-                        id, stem, option_a, option_b, option_c, option_d, answer,
-                        right_answer, category, subcategory, type_of_question,
-                        difficulty_band, difficulty_score, pyq_frequency_score,
+                        id, stem, mcq_options, answer, right_answer, category, subcategory, 
+                        type_of_question, difficulty_band, difficulty_score, pyq_frequency_score,
                         core_concepts, concept_keywords, snap_read, solution_approach,
                         detailed_solution, principle_to_remember
                     FROM questions 
@@ -197,7 +196,7 @@ class BlueprintSessionPlanner:
                     AND quality_verified = true
                     AND difficulty_band = :difficulty
                     AND stem IS NOT NULL 
-                    AND option_a IS NOT NULL
+                    AND mcq_options IS NOT NULL
                     ORDER BY RANDOM()
                     LIMIT 50
                 """), {"difficulty": db_difficulty})
@@ -206,38 +205,44 @@ class BlueprintSessionPlanner:
                 
                 pool = []
                 for row in questions_data:
+                    # Parse MCQ options safely
+                    try:
+                        mcq_options = json.loads(row[2]) if isinstance(row[2], str) else (row[2] or {})
+                    except (json.JSONDecodeError, TypeError):
+                        mcq_options = {}
+                    
                     # Parse JSON fields safely
                     try:
-                        core_concepts = json.loads(row[14]) if isinstance(row[14], str) else (row[14] or [])
+                        core_concepts = json.loads(row[11]) if isinstance(row[11], str) else (row[11] or [])
                     except (json.JSONDecodeError, TypeError):
                         core_concepts = []
                     
                     try:
-                        concept_keywords = json.loads(row[15]) if isinstance(row[15], str) else (row[15] or [])
+                        concept_keywords = json.loads(row[12]) if isinstance(row[12], str) else (row[12] or [])
                     except (json.JSONDecodeError, TypeError):
                         concept_keywords = []
                     
                     question = {
-                        "id": str(row[0]),
+                        "id": row[0],  # Already a string in this table
                         "stem": row[1] or "",
-                        "option_a": row[2] or "",
-                        "option_b": row[3] or "",
-                        "option_c": row[4] or "",
-                        "option_d": row[5] or "",
-                        "answer": row[6] or "",
-                        "explanation": row[7] or "",  # right_answer contains explanation
-                        "category": row[8] or "",
-                        "subcategory": row[9] or "Unknown",
-                        "type_of_question": row[10] or "Unknown",
+                        "option_a": mcq_options.get('A', ''),
+                        "option_b": mcq_options.get('B', ''),
+                        "option_c": mcq_options.get('C', ''),
+                        "option_d": mcq_options.get('D', ''),
+                        "answer": row[3] or "",
+                        "explanation": row[4] or "",  # right_answer contains explanation
+                        "category": row[5] or "",
+                        "subcategory": row[6] or "Unknown",
+                        "type_of_question": row[7] or "Unknown",
                         "difficulty_band": difficulty,  # Use normalized difficulty
-                        "difficulty_score": float(row[12] or 0.5),
-                        "pyq_frequency_score": float(row[13] or 0.5),
+                        "difficulty_score": float(row[9] or 0.5),
+                        "pyq_frequency_score": float(row[10] or 0.5),
                         "core_concepts": core_concepts,
                         "concept_keywords": concept_keywords,
-                        "snap_read": row[16] or "",
-                        "solution_approach": row[17] or "",
-                        "detailed_solution": row[18] or "",
-                        "principle_to_remember": row[19] or ""
+                        "snap_read": row[13] or "",
+                        "solution_approach": row[14] or "",
+                        "detailed_solution": row[15] or "",
+                        "principle_to_remember": row[16] or ""
                     }
                     pool.append(question)
                 
