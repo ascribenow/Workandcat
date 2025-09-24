@@ -892,6 +892,40 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
     }, 100);
   };
 
+  // Session Completion - Updated for Blueprint Sessions
+  const finishSession = async () => {
+    try {
+      console.log(`[SESSION] Finishing session ${sessionId.substring(0, 8)}`);
+      
+      // Check if this is a Blueprint session
+      const isBlueprintSession = sessionMetadata?.session_type === 'blueprint' || 
+                                sessionMetadata?.questions?.length > 0;
+      
+      if (isBlueprintSession) {
+        console.log(`[BLUEPRINT] Completing Blueprint session`);
+        
+        const summary = await completeBlueprintSession(sessionId);
+        console.log(`[BLUEPRINT] Session completed with summary:`, summary);
+        
+        // Show completion UI or navigate back
+        if (onSessionEnd) {
+          onSessionEnd(summary);
+        }
+        return;
+      }
+      
+      // Legacy adaptive session completion
+      await handleSessionCompletionWithHandshake();
+      
+    } catch (error) {
+      console.error('[SESSION] Error finishing session:', error);
+      // Still call onSessionEnd to allow navigation back
+      if (onSessionEnd) {
+        onSessionEnd(null);
+      }
+    }
+  };
+
   const handleSessionCompletionWithHandshake = async (completionData) => {
     try {
       console.log('🎯 Session completed, triggering end-of-session handshake...');
