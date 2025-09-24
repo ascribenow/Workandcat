@@ -550,7 +550,10 @@ class BlueprintSessionPlanner:
             for row in questions_data:
                 question_data = json.loads(row[2]) if isinstance(row[2], str) else row[2]
                 question_data['position'] = row[0]
-                question_data['question_id'] = row[1]
+                question_data['question_id'] = str(row[1])  # Convert UUID to string
+                # Ensure all UUID fields are strings
+                if 'id' in question_data and isinstance(question_data['id'], uuid.UUID):
+                    question_data['id'] = str(question_data['id'])
                 questions.append(question_data)
             
             return questions
