@@ -373,7 +373,7 @@ async def list_user_sessions(
                            sp.constraint_report,
                            (SELECT COUNT(*) FROM session_answers sa WHERE sa.session_id = s.session_id) as answered_count
                     FROM sessions s
-                    LEFT JOIN session_packs sp ON s.session_id = sp.session_id
+                    LEFT JOIN session_packs sp ON s.session_id = sp.session_id::text
                     WHERE s.user_id = :user_id AND s.status = :status_filter
                     ORDER BY s.created_at DESC
                     LIMIT :limit
@@ -389,7 +389,7 @@ async def list_user_sessions(
                            sp.constraint_report,
                            (SELECT COUNT(*) FROM session_answers sa WHERE sa.session_id = s.session_id) as answered_count
                     FROM sessions s
-                    LEFT JOIN session_packs sp ON s.session_id = sp.session_id
+                    LEFT JOIN session_packs sp ON s.session_id = sp.session_id::text
                     WHERE s.user_id = :user_id
                     ORDER BY s.created_at DESC
                     LIMIT :limit
