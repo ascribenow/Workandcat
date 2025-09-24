@@ -238,9 +238,9 @@ async def submit_answer(
                     is_correct = EXCLUDED.is_correct,
                     timestamp = EXCLUDED.timestamp
             """), {
-                "session_id": uuid.UUID(request.session_id),
+                "session_id": request.session_id,  # Use string directly
                 "position": request.position,
-                "question_id": uuid.UUID(question_at_position['id']),
+                "question_id": question_at_position['id'],  # Use string directly
                 "user_answer": request.answer,
                 "is_correct": is_correct,
                 "explanation": question_at_position.get('explanation', ''),
