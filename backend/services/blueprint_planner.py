@@ -3,7 +3,6 @@ Blueprint Session Planner - Phase 2A Implementation
 Addresses Deviations #1, #3, #5, #6 with hard cap enforcement and exact algorithms
 """
 
-import asyncio
 import json
 import logging
 import uuid
