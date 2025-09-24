@@ -17,7 +17,6 @@ from pydantic import BaseModel
 
 from auth import get_current_user
 from services.blueprint_planner import BlueprintSessionPlanner, create_blueprint_planner
-from services.advisory_locks import AdvisoryLockManager
 from database import get_async_compatible_db, get_database
 import os
 
