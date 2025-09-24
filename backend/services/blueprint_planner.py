@@ -10,7 +10,8 @@ import uuid
 from collections import defaultdict
 from datetime import datetime, timezone
 from typing import Dict, List, Optional, Tuple
-import asyncpg
+import psycopg2
+import psycopg2.extras
 from pathlib import Path
 import os
 
@@ -27,8 +28,8 @@ class BlueprintSessionPlanner:
     - Deviation #6: PYQ rebalancing to exact 3/6/3
     """
     
-    def __init__(self, connection: asyncpg.Connection):
-        self.connection = connection
+    def __init__(self, database_url: str):
+        self.database_url = database_url
         
         # Deviation #1: Hard caps, not penalties
         self.difficulty_distribution = {"Easy": 3, "Medium": 6, "Hard": 3}
@@ -45,6 +46,10 @@ class BlueprintSessionPlanner:
         self.constraint_relaxations = []
         self.rebalance_swaps = []
     
+    def get_connection(self):
+        """Get database connection"""
+        return psycopg2.connect(self.database_url, cursor_factory=psycopg2.extras.RealDictCursor)
+    
     async def plan_session(self, user_id: str) -> Dict:
         """
         Main planning function with ADVISORY LOCK (Deviation #3)
@@ -52,13 +57,16 @@ class BlueprintSessionPlanner:
         user_uuid = self._parse_uuid(user_id)
         
         # DEVIATION #3: CRITICAL - Take advisory lock
+        conn = None
         try:
+            conn = self.get_connection()
+            cursor = conn.cursor()
+            
             # Convert UUID to string for the function
             user_id_str = str(user_uuid)
             
-            lock_acquired = await self.connection.fetchval(
-                "SELECT acquire_session_planning_lock($1::uuid, 30)", user_uuid
-            )
+            cursor.execute("SELECT acquire_session_planning_lock(%s, %s)", (user_uuid, 30))
+            lock_acquired = cursor.fetchone()[0]
             
             if not lock_acquired:
                 raise Exception(f"Could not acquire planning lock for user {user_id}")
@@ -67,47 +75,51 @@ class BlueprintSessionPlanner:
             
             try:
                 # Check for existing planned session within lock
-                existing = await self._get_existing_planned_session(user_uuid)
+                existing = await self._get_existing_planned_session(user_uuid, cursor)
                 if existing:
                     logger.info(f"User {user_id} already has planned session: {existing['session_id']}")
                     return existing
                 
                 # Create new session plan
-                session_data = await self._create_new_session_plan(user_uuid)
+                session_data = await self._create_new_session_plan(user_uuid, cursor, conn)
                 
                 return session_data
                 
             finally:
                 # Always release lock
-                await self.connection.fetchval(
-                    "SELECT release_session_planning_lock($1::uuid)", user_uuid
-                )
+                cursor.execute("SELECT release_session_planning_lock(%s)", (user_uuid,))
+                conn.commit()
                 logger.info(f"Released planning lock for user {user_id}")
                 
         except Exception as e:
             logger.error(f"Session planning failed for user {user_id}: {e}")
             raise
+        finally:
+            if conn:
+                conn.close()
     
-    async def _get_existing_planned_session(self, user_id: uuid.UUID) -> Optional[Dict]:
+    async def _get_existing_planned_session(self, user_id: uuid.UUID, cursor) -> Optional[Dict]:
         """Check for existing planned session"""
         
-        existing_pack = await self.connection.fetchrow("""
+        cursor.execute("""
             SELECT 
                 sp.session_id,
                 sp.constraint_report,
                 COUNT(spq.position) as question_count
             FROM session_packs sp
             LEFT JOIN session_pack_questions spq ON sp.session_id = spq.session_id
-            WHERE sp.user_id = $1
+            WHERE sp.user_id = %s
             GROUP BY sp.session_id, sp.constraint_report
             HAVING COUNT(spq.position) = 12
             ORDER BY sp.created_at DESC
             LIMIT 1
-        """, user_id)
+        """, (user_id,))
+        
+        existing_pack = cursor.fetchone()
         
         if existing_pack:
             # Get the questions for this pack
-            questions = await self._get_session_questions(existing_pack['session_id'])
+            questions = await self._get_session_questions(existing_pack['session_id'], cursor)
             
             return {
                 "session_id": str(existing_pack['session_id']),
@@ -118,7 +130,7 @@ class BlueprintSessionPlanner:
         
         return None
     
-    async def _create_new_session_plan(self, user_id: uuid.UUID) -> Dict:
+    async def _create_new_session_plan(self, user_id: uuid.UUID, cursor, conn) -> Dict:
         """Create a new session plan with all deviation compliance"""
         
         session_id = uuid.uuid4()
@@ -146,7 +158,7 @@ class BlueprintSessionPlanner:
         ordered_questions = self._apply_difficulty_ordering(rebalanced_questions)
         
         # Step 7: Create session and persist pack with positions
-        await self._create_session_with_ordered_pack(user_id, session_id, ordered_questions)
+        await self._create_session_with_ordered_pack(user_id, session_id, ordered_questions, cursor, conn)
         
         # Step 8: Generate pack-level constraint report (Deviation #7)
         constraint_report = self._generate_pack_constraint_report(ordered_questions)
