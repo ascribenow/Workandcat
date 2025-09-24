@@ -230,22 +230,28 @@ async def submit_answer(
         is_correct = user_answer == correct_answer_clean
         
         # Store answer in session_answers table
-        await planner.connection.execute("""
-            INSERT INTO session_answers (session_id, position, question_id, user_answer, is_correct, explanation, timestamp)
-            VALUES ($1, $2, $3, $4, $5, $6, $7)
-            ON CONFLICT (session_id, position) DO UPDATE SET
-                user_answer = EXCLUDED.user_answer,
-                is_correct = EXCLUDED.is_correct,
-                timestamp = EXCLUDED.timestamp
-        """, 
-        uuid.UUID(request.session_id),
-        request.position,
-        uuid.UUID(question_at_position['id']),
-        request.answer,
-        is_correct,
-        question_at_position.get('explanation', ''),
-        datetime.now(timezone.utc)
-        )
+        conn = planner.get_connection()
+        try:
+            cursor = conn.cursor()
+            cursor.execute("""
+                INSERT INTO session_answers (session_id, position, question_id, user_answer, is_correct, explanation, timestamp)
+                VALUES (%s, %s, %s, %s, %s, %s, %s)
+                ON CONFLICT (session_id, position) DO UPDATE SET
+                    user_answer = EXCLUDED.user_answer,
+                    is_correct = EXCLUDED.is_correct,
+                    timestamp = EXCLUDED.timestamp
+            """, (
+                uuid.UUID(request.session_id),
+                request.position,
+                uuid.UUID(question_at_position['id']),
+                request.answer,
+                is_correct,
+                question_at_position.get('explanation', ''),
+                datetime.now(timezone.utc)
+            ))
+            conn.commit()
+        finally:
+            conn.close()
         
         logger.info(f"Answer submitted for session {request.session_id[:8]}, position {request.position}: {'correct' if is_correct else 'incorrect'}")
         
