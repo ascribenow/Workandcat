@@ -567,7 +567,7 @@ class BlueprintSessionPlanner:
 
 
 # Factory function for creating planner instances
-def create_blueprint_planner(database_url: str) -> BlueprintSessionPlanner:
-    """Create BlueprintSessionPlanner instance with database connection"""
+def create_blueprint_planner() -> BlueprintSessionPlanner:
+    """Create BlueprintSessionPlanner instance"""
     
-    return BlueprintSessionPlanner(database_url)
+    return BlueprintSessionPlanner()
