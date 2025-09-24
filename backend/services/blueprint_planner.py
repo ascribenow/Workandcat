@@ -504,12 +504,12 @@ class BlueprintSessionPlanner:
         
         # First create or get session in sessions table
         db.execute(text("""
-            INSERT INTO sessions (id, user_id, status, created_at)
+            INSERT INTO sessions (session_id, user_id, status, created_at)
             VALUES (:session_id, :user_id, 'planned', :created_at)
-            ON CONFLICT (id) DO NOTHING
+            ON CONFLICT (session_id) DO NOTHING
         """), {
-            "session_id": session_id,
-            "user_id": user_id,
+            "session_id": str(session_id),  # Convert to string
+            "user_id": str(user_id),        # Convert to string
             "created_at": datetime.now(timezone.utc)
         })
         
