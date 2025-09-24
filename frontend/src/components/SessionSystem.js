@@ -300,12 +300,45 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
     }
   }, [sessionId, sessionMetadata]);
 
-  // Session Resumption Logic
+  // Session Resumption Logic - Updated for Blueprint Sessions
   const checkAndResumeSession = async () => {
     if (!sessionId) return;
     
     try {
-      console.log(`[RESUME] Checking for existing progress in session: ${sessionId}`);
+      console.log(`[RESUME] Checking session type for: ${sessionId.substring(0, 8)}`);
+      
+      // Check if this is a Blueprint session by looking at sessionMetadata
+      const isBlueprintSession = sessionMetadata?.session_type === 'blueprint' || 
+                                sessionMetadata?.questions?.length > 0;
+      
+      if (isBlueprintSession) {
+        console.log(`[RESUME] Detected Blueprint session, loading directly from metadata`);
+        
+        // For Blueprint sessions, use the questions from metadata
+        const questions = sessionMetadata.questions || [];
+        if (questions.length > 0) {
+          console.log(`[BLUEPRINT] Loading ${questions.length} questions from metadata`);
+          setCurrentPackSafe(questions, 'blueprint-session-load');
+          
+          // Set up session progress
+          const currentPosition = sessionMetadata.current_position || 1;
+          setCurrentQuestionIndex(currentPosition - 1); // Convert to 0-based index
+          
+          console.log(`[BLUEPRINT] Session ready, starting at position ${currentPosition}`);
+        } else {
+          // Fallback: Fetch Blueprint session data
+          console.log(`[BLUEPRINT] No questions in metadata, fetching from API`);
+          const pack = await fetchBlueprintSession(sessionId);
+          if (pack && pack.length > 0) {
+            setCurrentPackSafe(pack, 'blueprint-api-load');
+            setCurrentQuestionIndex(0);
+          }
+        }
+        return;
+      }
+      
+      // Legacy adaptive session logic
+      console.log(`[RESUME] Checking for existing progress in adaptive session: ${sessionId}`);
       const progress = await getSessionProgress(sessionId);
       
       if (progress && progress.current_question_index > 0) {
