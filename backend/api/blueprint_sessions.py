@@ -129,6 +129,64 @@ async def get_session_status(
         logger.error(f"Failed to get session status for {session_id[:8]}: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to get session status: {str(e)}")
 
+@router.get("/questions/{session_id}")
+async def get_session_questions(
+    session_id: str,
+    auth_user_id: str = Depends(get_current_user)
+):
+    """
+    Get all questions for a Blueprint session at once (performance optimization)
+    """
+    
+    try:
+        planner = await get_blueprint_planner()
+        
+        # Validate session_id format
+        try:
+            session_uuid = uuid.UUID(session_id)
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Invalid session ID format")
+        
+        # Get session questions
+        questions = await planner._get_session_questions(session_uuid)
+        
+        if not questions:
+            raise HTTPException(status_code=404, detail="Session not found")
+        
+        # Format questions for frontend consumption
+        formatted_questions = []
+        for q in questions:
+            formatted_questions.append({
+                "id": q.get("id", ""),
+                "stem": q.get("stem", ""),
+                "option_a": q.get("option_a", ""),
+                "option_b": q.get("option_b", ""),
+                "option_c": q.get("option_c", ""),
+                "option_d": q.get("option_d", ""),
+                "difficulty_band": q.get("difficulty_band", ""),
+                "subcategory": q.get("subcategory", ""),
+                "type_of_question": q.get("type_of_question", ""),
+                "position": q.get("position", 1),
+                "answer": q.get("answer", "")
+            })
+        
+        # Sort by position to ensure correct order
+        formatted_questions.sort(key=lambda x: x["position"])
+        
+        logger.info(f"Retrieved {len(formatted_questions)} questions for session {session_id[:8]}")
+        
+        return JSONResponse({
+            "session_id": session_id,
+            "total_questions": len(formatted_questions),
+            "questions": formatted_questions
+        }, status_code=200)
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to get questions for session {session_id[:8]}: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to get session questions: {str(e)}")
+
 @router.get("/question/{session_id}/{position}")
 async def get_question(
     session_id: str,
