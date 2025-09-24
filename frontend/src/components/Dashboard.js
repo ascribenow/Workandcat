@@ -249,18 +249,25 @@ export const Dashboard = () => {
       
       console.log('Dashboard: Blueprint session created:', sessionStartResponse.data);
       const newSessionId = sessionStartResponse.data.session_id;
+      const sessionQuestions = sessionStartResponse.data.questions || [];
       
       setActiveSessionId(newSessionId);
       setSessionMetadata({
         session_id: newSessionId,
         status: sessionStartResponse.data.status,
         total_questions: sessionStartResponse.data.total_questions || 12,
-        session_type: sessionStartResponse.data.session_type || 'blueprint',
-        questions: sessionStartResponse.data.questions || [],
-        current_position: 1
+        session_type: 'blueprint',  // Explicitly set as Blueprint
+        questions: sessionQuestions,
+        current_position: 1,
+        // Add phase info for compatibility
+        phase_info: {
+          current_session: 1  // Will be updated later if needed
+        }
       });
       
+      console.log(`Dashboard: Blueprint session ready with ${sessionQuestions.length} questions`);
       setCurrentView('session');
+      console.log('Dashboard: Switching to session view for Blueprint session');
     } catch (error) {
       console.error('Dashboard: Error during session preparation:', error);
       setCurrentView('dashboard');
