@@ -947,23 +947,29 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
       real_options: Object.values(question.options).filter(opt => !opt.startsWith('Option '))
     });
 
+    // CRITICAL FIX: Force synchronous state updates to ensure React re-renders
+    console.log(`[STATE_UPDATE] ${requestId}: About to set current question: ${question.id}`);
+    
+    // Clear loading states first to ensure clean state
+    setLoading(false);
+    setIsPlanning(false);
+    setError('');
+    
+    // Set question and progress together
     setCurrentQuestion(question);
     setSessionProgress({
       current_question: questionIndex + 1,
       total_questions: livePack.length
     });
     
+    console.log(`[STATE_UPDATE] ${requestId}: State updates called, waiting for React to process...`);
+    
     // CRITICAL: Track session progress for resumption
     updateSessionProgress(questionIndex, question.id);
     
-    // CRITICAL: Explicitly clear loading states  
-    setLoading(false);
-    setIsPlanning(false);  // V2 FIX: Ensure planning state is cleared
-    setError('');          // V2 FIX: Clear any error states
-    
     console.log(`[DIAGNOSTIC] ${requestId}: V2 Adaptive question served successfully: ${question.id} (${questionIndex + 1}/${currentPack.length})`);
     
-    // DIAGNOSTIC: Verify state was set correctly
+    // DIAGNOSTIC: Verify state was set correctly with delay to allow React processing
     setTimeout(() => {
       console.log(`[STATE_VERIFY] ${requestId}: Post-serve state check`, {
         currentQuestionSet: !!currentQuestion,
