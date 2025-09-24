@@ -100,7 +100,7 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
   // Blueprint Session Functions (New System)
   const fetchBlueprintSession = async (sessionId) => {
     try {
-      console.log(`[BLUEPRINT] Fetching session data for ${sessionId.substring(0, 8)}`);
+      console.log(`[BLUEPRINT] 🔍 Starting fetchBlueprintSession for ${sessionId.substring(0, 8)}`);
       
       // Get session questions from Blueprint system
       const response = await axios.get(`${API}/session/list`);
@@ -108,19 +108,26 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
       const currentSession = sessions.find(s => s.session_id === sessionId);
       
       if (!currentSession) {
+        console.error(`[BLUEPRINT] ❌ Session ${sessionId.substring(0, 8)} not found in session list`);
         throw new Error('Session not found');
       }
       
-      console.log(`[BLUEPRINT] Session found: ${currentSession.answered_count}/${currentSession.total_questions} answered`);
+      console.log(`[BLUEPRINT] ✅ Session found: ${currentSession.answered_count}/${currentSession.total_questions} answered`);
       
       // Convert Blueprint session to pack format for compatibility
       const pack = [];
       const totalQuestions = currentSession.total_questions || 12;
       
+      console.log(`[BLUEPRINT] 🔄 Fetching ${totalQuestions} questions from API...`);
+      
       for (let position = 1; position <= totalQuestions; position++) {
         try {
+          console.log(`[BLUEPRINT] 📝 Fetching question ${position}/${totalQuestions}...`);
+          
           const questionResponse = await axios.get(`${API}/session/question/${sessionId}/${position}`);
           const questionData = questionResponse.data;
+          
+          console.log(`[BLUEPRINT] ✅ Question ${position} fetched successfully`);
           
           // Convert Blueprint question format to pack format
           const packItem = {
@@ -138,18 +145,34 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
             answer: questionData.question.answer || ''  // Add answer field for compatibility
           };
           
+          console.log(`[BLUEPRINT] 📋 Question ${position} converted:`, {
+            id: packItem.id.substring(0, 8),
+            stemLength: packItem.stem.length,
+            hasOptions: !!(packItem.option_a && packItem.option_b),
+            difficulty: packItem.difficulty_band
+          });
+          
           pack.push(packItem);
         } catch (qError) {
-          console.warn(`[BLUEPRINT] Failed to fetch question at position ${position}:`, qError.message);
+          console.error(`[BLUEPRINT] ❌ Failed to fetch question at position ${position}:`, qError.message);
+          console.error(`[BLUEPRINT] ❌ Question ${position} error details:`, qError.response?.status, qError.response?.data);
           // Continue with other questions
         }
       }
       
-      console.log(`[BLUEPRINT] Loaded ${pack.length} questions from Blueprint session`);
+      console.log(`[BLUEPRINT] ✅ Loaded ${pack.length}/${totalQuestions} questions from Blueprint session`);
+      
+      if (pack.length === 0) {
+        console.error(`[BLUEPRINT] ❌ CRITICAL: No questions loaded! All API calls failed.`);
+        throw new Error(`Failed to load any questions from session ${sessionId}`);
+      }
+      
+      console.log(`[BLUEPRINT] 🎉 Returning pack with ${pack.length} questions`);
       return pack;
       
     } catch (error) {
-      console.error('[BLUEPRINT] Error fetching session:', error);
+      console.error('[BLUEPRINT] ❌ Error in fetchBlueprintSession:', error);
+      console.error('[BLUEPRINT] ❌ Error details:', error.response?.status, error.response?.data);
       throw error;
     }
   };
