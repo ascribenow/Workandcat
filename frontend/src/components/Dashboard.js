@@ -172,22 +172,33 @@ export const Dashboard = () => {
         return false;
       }
       
-      // V2 HARDENING: Check for uncompleted adaptive sessions first
+      // V2 HARDENING: Check for uncompleted Blueprint sessions first  
       if (user?.adaptive_enabled) {
         try {
-          console.log('Dashboard: Checking for uncompleted adaptive sessions...');
-          console.log('Dashboard: About to call session-progress/current API...');
+          console.log('Dashboard: Checking for uncompleted Blueprint sessions...');
+          console.log('Dashboard: About to call Blueprint session list API...');
           
-          // Check for incomplete sessions using the new progress tracking system
-          const incompleteSessionResponse = await axios.get(`${API}/session-progress/current/${user.id}`);
-          console.log('Dashboard: Session progress response:', incompleteSessionResponse.data);
+          // Check for incomplete Blueprint sessions using the new system
+          const incompleteSessionResponse = await axios.get(`${API}/session/list`);
+          console.log('Dashboard: Blueprint session list response:', incompleteSessionResponse.data);
           
-          if (incompleteSessionResponse.data.has_current_session) {
-            const sessionData = incompleteSessionResponse.data;
-            console.log(`Dashboard: Found incomplete session: ${sessionData.session_id} at Q${sessionData.current_question_index + 1}/${sessionData.total_questions}`);
+          // Find incomplete sessions (not completed)
+          const sessions = incompleteSessionResponse.data.sessions || [];
+          const incompleteSession = sessions.find(session => 
+            session.status === 'planned' && session.answered_count < session.total_questions
+          );
+          
+          if (incompleteSession) {
+            console.log(`Dashboard: Found incomplete Blueprint session: ${incompleteSession.session_id} - ${incompleteSession.answered_count}/${incompleteSession.total_questions} answered`);
             
             // Show resume session UI
-            setActiveSessionId(sessionData.session_id);
+            setActiveSessionId(incompleteSession.session_id);
+            setShowSession(true);
+            setLoadingState('idle');
+            return; // Exit early since we found an incomplete session
+          } else {
+            console.log('Dashboard: No incomplete Blueprint sessions found');
+          }
             setSessionMetadata({
               resume_session: true,
               session_id: sessionData.session_id,
