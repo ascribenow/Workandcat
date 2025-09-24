@@ -351,53 +351,58 @@ async def list_user_sessions(
     try:
         planner = await get_blueprint_planner()
         
-        conn = planner.get_connection()
+        db = planner.get_db_session()
         try:
-            cursor = conn.cursor()
-            
             # Build query with optional status filter
             if status_filter:
-                query = """
+                query = text("""
                     SELECT s.id, s.status, s.created_at, s.served_at, s.abandoned_at,
                            sp.constraint_report,
                            (SELECT COUNT(*) FROM session_answers sa WHERE sa.session_id = s.id) as answered_count
                     FROM sessions s
                     LEFT JOIN session_packs sp ON s.id = sp.session_id
-                    WHERE s.user_id = %s AND s.status = %s
+                    WHERE s.user_id = :user_id AND s.status = :status_filter
                     ORDER BY s.created_at DESC
-                    LIMIT %s
-                """
-                cursor.execute(query, (uuid.UUID(auth_user_id), status_filter, limit))
+                    LIMIT :limit
+                """)
+                sessions_result = db.execute(query, {
+                    "user_id": uuid.UUID(auth_user_id),
+                    "status_filter": status_filter,
+                    "limit": limit
+                })
             else:
-                query = """
+                query = text("""
                     SELECT s.id, s.status, s.created_at, s.served_at, s.abandoned_at,
                            sp.constraint_report,
                            (SELECT COUNT(*) FROM session_answers sa WHERE sa.session_id = s.id) as answered_count
                     FROM sessions s
                     LEFT JOIN session_packs sp ON s.id = sp.session_id
-                    WHERE s.user_id = %s
+                    WHERE s.user_id = :user_id
                     ORDER BY s.created_at DESC
-                    LIMIT %s
-                """
-                cursor.execute(query, (uuid.UUID(auth_user_id), limit))
+                    LIMIT :limit
+                """)
+                sessions_result = db.execute(query, {
+                    "user_id": uuid.UUID(auth_user_id),
+                    "limit": limit
+                })
             
-            sessions_result = cursor.fetchall()
+            sessions_data = sessions_result.fetchall()
             
             sessions_list = []
-            for session in sessions_result:
+            for session in sessions_data:
                 sessions_list.append({
-                    "session_id": str(session['id']),
-                    "status": session['status'],
-                    "answered_count": session['answered_count'] or 0,
+                    "session_id": str(session[0]),  # id is at index 0
+                    "status": session[1],           # status is at index 1
+                    "answered_count": session[6] or 0,  # answered_count is at index 6
                     "total_questions": 12,  # Blueprint sessions always have 12 questions
-                    "created_at": session['created_at'].isoformat() if session['created_at'] else None,
-                    "served_at": session['served_at'].isoformat() if session['served_at'] else None,
-                    "completed_at": session['abandoned_at'].isoformat() if session['abandoned_at'] else None,
-                    "progress_percentage": ((session['answered_count'] or 0) / 12) * 100,
+                    "created_at": session[2].isoformat() if session[2] else None,  # created_at is at index 2
+                    "served_at": session[3].isoformat() if session[3] else None,   # served_at is at index 3
+                    "completed_at": session[4].isoformat() if session[4] else None, # abandoned_at is at index 4
+                    "progress_percentage": ((session[6] or 0) / 12) * 100,
                     "session_type": "blueprint"
                 })
         finally:
-            conn.close()
+            db.close()
         
         return JSONResponse({
             "success": True,
