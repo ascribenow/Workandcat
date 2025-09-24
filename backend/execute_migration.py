@@ -44,10 +44,21 @@ async def execute_sql_file(connection, file_path):
 async def main():
     """Main migration execution"""
     
+    # Load environment variables from .env file
+    env_path = Path(__file__).parent / '.env'
+    if env_path.exists():
+        with open(env_path, 'r') as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith('#') and '=' in line:
+                    key, value = line.split('=', 1)
+                    os.environ[key] = value
+    
     # Get database URL from environment
     database_url = os.getenv('DATABASE_URL')
     if not database_url:
         print("❌ DATABASE_URL not found in environment")
+        print("Available env vars:", [k for k in os.environ.keys() if 'URL' in k])
         sys.exit(1)
     
     print(f"🔗 Connecting to database...")
