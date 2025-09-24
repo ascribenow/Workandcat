@@ -228,6 +228,14 @@ async def submit_answer(
         if not questions:
             raise HTTPException(status_code=404, detail="Session not found")
         
+        # Check if position is valid for this session
+        available_positions = [q.get('position', 0) for q in questions]
+        if request.position not in available_positions:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Invalid position {request.position}. Available positions: {sorted(available_positions)}"
+            )
+        
         # Find question at specified position
         question_at_position = None
         for q in questions:
