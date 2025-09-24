@@ -1,74 +1,59 @@
 <analysis>
-The trajectory details the evolution of the Twelvr adaptive learning platform, moving from an initial MVP state to a refined, skill-based adaptive system. The AI engineer first summarized existing functionalities, addressing initial product requirements like MCQ storage, adaptive-only sessions, payment, and dashboard UI. A critical phase involved the user providing an assessment of perceived bugs, which the AI engineer largely refuted, confirming the existing system's stability. Subsequently, a major new feature, the Coverage System with AskTwelvr, was introduced, shifting the core adaptive logic from difficulty-based to skill-based. This new feature's specification underwent extensive iterative refinement between the user and the AI engineer, solidifying an all-in no-fallback architecture. The final plan incorporates numerous technical fixes and optimizations, ensuring robustness, performance, and data integrity.
+The AI engineer's work evolved significantly, starting with critical bug fixes and then transitioning to a major architectural overhaul. Initially, efforts focused on resolving frontend console errors, including dashboard state mismatches, persistent timeout issues,  inconsistencies, and JSX errors. This involved extensive debugging of , , , and , alongside adjustments to environment variables and API routing configurations (e.g., ensuring  prefix for backend calls due to Kubernetes ingress).
+
+Upon resolving these operational issues, the focus shifted to implementing a Blueprint Session System. This entailed a complete redesign of session planning from asynchronous polling to immediate pre-generated sessions. The AI successfully completed Phase 1 (Database Schema Migration and Data Migration) and started Phase 2A (Advisory Lock System and Blueprint Session Planner), addressing 12 specific deviations from the user's blueprint. The current work is creating and preparing to test the core session planning logic.
 </analysis>
+
 <product_requirements>
-The Twelvr application is an adaptive CAT preparation platform that personalizes question sets using LLMs. Initial requirements included MCQ simplification, removal of legacy sessions for an adaptive-only system, payment system cleanup (Razorpay, Pro Lite removal, tier definitions), privileged user and free-tier logic, referral system verification, IST timezone conversion, and a collapsible student dashboard UI. The current work involved transitioning from a difficulty-based system to a **skill-based coverage adaptive learning system**. This includes:
-1.  **Anchor Writer v1**: An LLM job to populate  (1-2 precise skill phrases). This is a mandatory precondition, integrated into the existing  gate.
-2.  **Single Session Loop**: Exactly two LLM calls per session.
-    *   **Post-session Summarizer**: Updates a  (user skills, status: weak/moderate/strong).
-    *   **Pre-session Planner**: Generates a  (priority skills, borrow order, PYQ intent).
-3.  **Deterministic Picker**: Backend selects 12 questions (3 Easy, 6 Medium, 3 Hard) based on the recipe, enforcing PYQ minima, and applying caps with band-aware backfill.
-4.  **AskTwelvr**: Inline chat feature for step-by-step solution explanations and practice.
+The Twelvr application is an adaptive CAT preparation platform using LLMs for personalized question sets. Initial requirements encompassed MCQ simplification, an adaptive-only system, payment system cleanup, privileged user/free-tier logic, referral verification, IST timezone conversion, and a collapsible student dashboard UI. The current primary objective is a skill-based coverage adaptive learning system. This system involves an LLM-driven Anchor Writer v1 for question tagging, a single session loop with post-session summarization (Learner Notebook) and pre-session planning (Selection Recipe), and a deterministic picker for 12 questions (3 Easy, 6 Medium, 3 Hard) with PYQ minima and caps. A future AskTwelvr feature is planned. Current development has focused on stabilizing session creation and dashboard data loading, resolving frontend environment inconsistencies and console errors. The latest task involves implementing a new Blueprint Session System for pre-generated, always-ready sessions.
 </product_requirements>
+
 <key_technical_concepts>
 - Full-stack: React (Frontend), FastAPI (Backend), PostgreSQL
-- Adaptive Learning: LLM-powered planning (GPT-4o-mini), deterministic kernels
-- Database: SQLAlchemy, PostgreSQL (migrations, indexes, JSONB arrays, unique constraints, NOT NULL)
-- LLM Integration: Google Gemini, OpenAI GPT-4o-mini (via )
-- Payment Gateway: Razorpay
-- Timezones:  for IST conversion
-- Core Adaptive Concepts: Anchors (skill phrases), Learner Notebook, Inventory Digest, Coverage Ledger.
+- Adaptive Learning: LLM-powered, deterministic kernels, pre-generated sessions
+- Database: SQLAlchemy, PostgreSQL (migrations, JSONB, indexes, advisory locks)
+- Asynchronous Processing: FastAPI BackgroundTasks, asyncio (for older system), frontend polling (removed)
+- Core Adaptive Concepts: Anchors, Learner Notebook, Session Packs, Idempotency-Key
 </key_technical_concepts>
+
 <code_architecture>
 
--   ** (NEW)**: Multiple SQL migrations to add new columns (, , , , , , ), new tables (, ), unique constraints (), composite indexes (, ), normalize  to lowercase and enforce  and  constraints.
-    -   **Importance**: Foundation for the new coverage system, ensuring data integrity and query performance.
--   ** (NEW)**: LLM service to generate and normalize skill anchors for questions.
-    -   **Importance**: Populates the  field, a core component of the coverage system's eligibility logic. Anchors are normalized (lowercase, deduplicated, max 2).
--   ** (NEW)**: Integrates anchor generation and validation into the existing quality verification pipeline.
-    -   **Importance**: Ensures  only if a question has valid anchors, making anchors mandatory for eligibility.
--   ** (NEW)**: Manages a user's Learner Notebook (skill statuses).
-    -   **Importance**: Stores and retrieves a user's latest skill proficiencies. Includes a backup mechanism to .
--   ** (NEW)**: LLM service that processes session attempts and updates the Learner Notebook.
-    -   **Importance**: Provides AI-driven insights into user skill status (weak/moderate/strong) based on session performance. Runs exactly once per session after 12 attempts.
--   ** (NEW)**: Builds a summary of eligible questions grouped by skill view and difficulty band.
-    -   **Importance**: Provides the Planner LLM with statistics on available questions for selection. Handles no notebook by treating all eligible questions as Moderate.
--   ** (NEW)**: LLM service that generates a Selection Recipe based on the Learner Notebook and Inventory Digest.
-    -   **Importance**: Creates a high-level plan for question selection, specifying priority skills and borrowing logic. Includes a default recipe fallback for LLM failures.
--   ** (NEW)**: Deterministic service that selects exactly 12 questions based on the Planner's recipe.
-    -   **Importance**: Implements the core adaptive logic: PYQ-first, 4-tier priority (skill match, PYQ score, served count, seeded hash), band-aware backfill (preserves 3-6-3), pack-level PYQ top-up, and caps (≤2 per subcategory|type). Uses  for stable seeding and preloads served counts for performance.
--   ** (NEW)**: Orchestrates the entire session planning flow using the new coverage services.
-    -   **Importance**: Main entry point for generating a coverage-based session, saving the final pack with audit details. Normalizes pack items to use a canonical uid=0(root) gid=0(root) groups=0(root) field.
--   ****: Updated API endpoint for  and .
-    -   **Importance**:  now triggers the .  is made idempotent, atomic (transactional), and updates  based on the served pack, relying only on  for queries.
--   ****: Updated for attempt logging.
-    -   **Importance**: Snapshots  from the *served pack* (not live question), uses canonical uid=0(root) gid=0(root) groups=0(root) lookup, and triggers the  exactly once per session (after 12 attempts, with idempotency).
--   ****: Updated to emit metrics for the coverage system.
-    -   **Importance**: Tracks new metrics like , , ,  details (shape, PYQ, borrow), and . Audits are recomputed from the *final pack*.
--   ** (NEW)**: Comprehensive script for pre-flight validation.
-    -   **Importance**: Ensures system readiness by testing eligible count, LLM reliability, pack generation consistency (size, shape, PYQ, audit accuracy), one-time summarizer, and mark-served idempotency.
+The codebase is a full-stack application with a React frontend and a FastAPI backend.
+- ****: New SQL script for defining the blueprint architecture's tables (e.g., , ) with specific constraints for 1-based positioning, unique question order, and standardized status.
+- ****: New SQL script for PostgreSQL advisory lock functions to manage session planning concurrency, ensuring only one planned session per user at a time.
+- ****: A new Python wrapper providing a context manager for safe acquisition and release of PostgreSQL advisory locks, implementing Deviation #3.
+- ****: A new service file being created to implement the core session planning logic according to the blueprint, including hard cap enforcement for subcategory/type limits, PYQ rebalancing, and intentional question ordering (Deviations #1, #5, #6).
+- ****: Central FastAPI server, includes CORS, authentication, and endpoint routing. It was modified to properly handle  prefixed routes and will integrate the new blueprint session endpoints.
+- ****: Stores , critical for frontend-backend communication. Has been a source of  and login issues due to inconsistent values or incorrect usage (e.g., full URL vs. relative  path).
+- ****: Main dashboard component. Modified extensively to fix loading states, dashboard fetch timeouts, and integrate . It will be updated to interact with the new  endpoints.
+- ****: Child dashboard component. Its aggressive 15-second/30-second fallback timeouts and state mismatch logging were a key source of console errors and data reverting, which were removed or refined.
+- ****: Manages the core session experience. Updated to correctly retrieve the user token from , fixed incorrect field mapping ( to ) for question display, and adjusted answer submission payload to include .
+- ****: Manages user authentication context. Ensures  defaults include authorization headers.
+- ****: Was fixed to correct a double  prefix in its API calls ().
+- ****: New React component created to gracefully catch and display runtime errors within the Dashboard, preventing crashes.
+- ****: Utility for robust polling, previously used for session planning. Its logic was adjusted to ensure API calls are made to correctly prefixed URLs. This will be removed in the new blueprint system.
 </code_architecture>
+
 <pending_tasks>
-The core pending task is the **full implementation of the Twelvr Coverage System** as detailed in the final implementation plan. This includes:
-- Executing all database migrations.
-- Implementing the Enhanced Quality Verifier and running it to populate anchors.
-- Building and integrating all new backend services: Learner Notebook, Coverage Summarizer, Inventory Digest, Coverage Planner, Coverage Selector, and Coverage Pipeline.
-- Updating API endpoints (, , ) for coverage-only functionality.
-- Implementing minimal telemetry for the new system.
-- Developing frontend components for AskTwelvr (not detailed in the backend plan).
-- Conducting comprehensive pre-flight testing and smoke tests.
+- Complete Phase 2 of the Blueprint Session System implementation, which includes:
+    - Implementing the core planning engine () with hard cap enforcement.
+    - Implementing PYQ rebalancing for exact 3/6/3 question distribution.
+    - Implementing intentional question ordering.
+- Proceed with Phase 3: New API Endpoints (replacing  with ).
+- Proceed with Phase 4: Frontend Integration (new session component without polling).
+- Proceed with Phase 5: Migration & Deployment.
 </pending_tasks>
+
 <current_work>
-Immediately before the request for the new Coverage System, the previous AI engineer successfully stabilized the existing Twelvr application to a 100% functional state. This involved resolving several critical issues:
--   **Security Fix**: Correcting the  user's unintended admin access by reverting their  status to , ensuring  is the *only* admin.
--   **Student Dashboard Fix**: Rectifying an infinite  loop in  and an authentication race condition in  that caused auto-logout and disappearing dashboard data. The dashboard now correctly displays canonical CAT taxonomy with collapsible subcategories by fetching data from .
--   **Payment Integration**: Resolving errors in  related to Razorpay response handling (correcting  to ) and removing an incorrect  check, allowing the Razorpay modal to open and the payment flow to function.
--   **MCQ Formatting**: The AI engineer also analyzed user concerns about MCQ JSON formatting (e.g., Unicode escape sequences) and confirmed that the system correctly stores and parses these, rendering them properly for students and handling edge cases gracefully.
+Immediately prior to this summary, the AI engineer was in **Phase 2A: Advisory Lock System & Blueprint Session Planner** of the Blueprint Session System implementation.
 
-The system was verified to have accurate difficulty band ranges, a compatible pack schema, and correct answer field usage, effectively refuting earlier user-identified broken points. The current session planner uses a deterministic selector and an LLM for reordering, with a backup plan.
+This phase aims to implement the core planning engine and ensure the advisory lock system is fully integrated. Specifically, the following actions were taken:
+1.  **Completed Advisory Lock System**: The AI addressed a minor data type issue in the advisory lock functions from Phase 1B, confirming the PostgreSQL advisory lock system is fully operational. This involved creating and executing .
+2.  **Created BlueprintSessionPlanner**: The AI created the file . This file is intended to house the logic for the core session planning engine, incorporating hard cap enforcement, PYQ rebalancing, and intentional question ordering as per the blueprint requirements (Deviations #1, #5, #6).
+
+The current state is that the  file has been created, and the next immediate step is to implement and test the logic within this file.
 </current_work>
-<optional_next_step>
-The next step is to begin implementing the FINAL production-ready plan for the Twelvr Coverage System, starting with Day 1 tasks: database migrations and enhancing the quality verification system.
 
-Ask user to paste the implementation plan in the next session and adhere to that while implementing.
+<optional_next_step>
+Implement the core logic within  and then proceed to test it.
 </optional_next_step>

@@ -8,7 +8,7 @@ import time
 
 class MCQAnswerComparisonTester:
     def __init__(self):
-        self.base_url = "https://twelvr-stable.preview.emergentagent.com/api"
+        self.base_url = "https://blueprint-sessions.preview.emergentagent.com/api"
         self.auth_headers = None
         self.user_id = None
         

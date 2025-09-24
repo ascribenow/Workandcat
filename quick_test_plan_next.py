@@ -8,7 +8,7 @@ import json
 import uuid
 
 # Test configuration
-BASE_URL = "https://twelvr-stable.preview.emergentagent.com/api"
+BASE_URL = "https://blueprint-sessions.preview.emergentagent.com/api"
 
 def test_plan_next_endpoint():
     print("🎯 QUICK PHASE 4 PLAN-NEXT ENDPOINT TEST")

@@ -7,7 +7,7 @@ import requests
 import json
 
 def check_pyq_enrichment():
-    base_url = "https://twelvr-stable.preview.emergentagent.com/api"
+    base_url = "https://blueprint-sessions.preview.emergentagent.com/api"
     
     # Login as admin
     login_data = {

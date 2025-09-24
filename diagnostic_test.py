@@ -217,7 +217,7 @@ def main():
     
     # Test both API bases
     api_bases = [
-        ("https://twelvr-stable.preview.emergentagent.com/api", "PRIMARY API BASE"),
+        ("https://blueprint-sessions.preview.emergentagent.com/api", "PRIMARY API BASE"),
         ("https://adaptive-quant.emergent.host/api", "SECONDARY API BASE")
     ]
     
