@@ -353,6 +353,10 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
           
           setCurrentPackSafe(pack, 'blueprint-session-load');
           
+          // CRITICAL FIX: Clear planning state to allow first question serving
+          setIsPlanning(false);
+          setLoading(false);
+          
           // Set up session progress
           const currentPosition = sessionMetadata.current_position || 1;
           setCurrentQuestionIndex(currentPosition - 1); // Convert to 0-based index
