@@ -592,22 +592,53 @@ async def submit_session_answer(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Submit answer and advance session"""
-    
-    session_manager = BlueprintSessionManager(db)
+    """Submit answer with POSITION EQUALITY GUARD (DEVIATION #10)"""
     
     # Validate session ownership
     session = await validate_session_ownership(db, request.session_id, current_user.id)
     
-    # Process answer
-    result = await session_manager.advance_session(request.session_id, {
-        "question_id": request.question_id,
-        "position": request.position,
-        "user_answer": request.answer,
-        "timestamp": datetime.now(timezone.utc)
-    })
+    # DEVIATION #10: CRITICAL - Position must equal current_position (prevent skipping)
+    if request.position != session.current_position + 1:  # +1 because positions are 1-based
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid position {request.position}. Expected {session.current_position + 1}"
+        )
     
-    return result
+    # DEVIATION #4: Idempotent answer storage with unique constraint
+    try:
+        # This will fail if (session_id, position) already exists
+        answer = await store_answer_idempotent(db, {
+            "session_id": request.session_id,
+            "position": request.position,
+            "question_id": request.question_id,
+            "user_answer": request.answer,
+            "is_correct": await check_answer_correctness(request.question_id, request.answer),
+            "timestamp": datetime.now(timezone.utc)
+        })
+        
+        # Increment position ONLY after successful answer storage
+        await increment_session_position(db, request.session_id)
+        
+        # Check completion (DEVIATION #2: 1-based positions, so check >= 12)
+        updated_session = await get_session(db, request.session_id)
+        session_complete = updated_session.current_position >= 12
+        
+        return {
+            "correct": answer.is_correct,
+            "explanation": await get_question_explanation(request.question_id),
+            "next_position": updated_session.current_position + 1 if not session_complete else None,
+            "session_complete": session_complete
+        }
+        
+    except IntegrityError:
+        # DEVIATION #4: Answer already exists for this position - return existing result
+        existing_answer = await get_existing_answer(db, request.session_id, request.position)
+        return {
+            "correct": existing_answer.is_correct,
+            "explanation": await get_question_explanation(request.question_id),
+            "duplicate": True,
+            "session_complete": session.current_position >= 12
+        }
 
 @router.post("/session/complete")
 async def complete_session(
