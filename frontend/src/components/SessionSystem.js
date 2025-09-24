@@ -236,6 +236,7 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
         is_correct: response.data.is_correct,
         correct_answer: response.data.correct_answer,
         explanation: response.data.explanation,
+        solution_feedback: response.data.solution_feedback,
         is_complete: response.data.is_complete
       };
       
