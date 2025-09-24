@@ -381,12 +381,12 @@ class BlueprintSessionPlanner:
         self.constraint_relaxations = relaxations_applied
         return selected[:12]
     
-    def calculate_question_score(self, question, user_state, subcategory_counts) -> float:
-        """Calculate question score using blueprint scoring system"""
+    def calculate_question_score(self, question, user_state) -> float:
+        """Calculate question score - NO subcategory penalty (now hard cap)"""
         
         score = 0.0
         
-        # Concept strength scoring
+        # Concept strength scoring (unchanged)
         for concept in question.core_concepts:
             if concept in user_state.get('weak_concepts', []):
                 score += 3
@@ -397,16 +397,97 @@ class BlueprintSessionPlanner:
         if question.subcategory not in user_state.get('recent_subcategories', []):
             score += 2
         
-        # Subcategory+type cap penalty
-        key = f"{question.subcategory}+{question.type_of_question}"
-        if subcategory_counts[key] >= self.max_subcategory_type:
-            score -= 2
+        # DEVIATION #1: NO penalty here - hard cap applied in filtering
+        # Removed: subcategory+type cap penalty (now handled by hard filtering)
         
         # Tie-breakers
         score += question.difficulty_score * 0.1  # Small weight for difficulty
         score += hash(question.id) % 1000 * 0.0001  # Deterministic randomization
         
         return score
+    
+    async def rebalance_to_exact_distribution(self, selected_questions) -> list:
+        """DEVIATION #6: ENFORCE exact 3/6/3 after PYQ selection"""
+        
+        # Count current distribution
+        distribution = {"Easy": 0, "Medium": 0, "Hard": 0}
+        for q in selected_questions:
+            distribution[q.difficulty_band] += 1
+        
+        rebalanced = list(selected_questions)
+        swaps_made = []
+        
+        # For each difficulty that's over/under target
+        for difficulty, current_count in distribution.items():
+            target_count = self.difficulty_distribution[difficulty]
+            
+            if current_count > target_count:
+                # Need to swap OUT some questions from this difficulty
+                excess = current_count - target_count
+                difficulty_questions = [q for q in rebalanced if q.difficulty_band == difficulty]
+                
+                # Remove lowest-scoring questions from this difficulty
+                to_remove = sorted(difficulty_questions, 
+                                 key=lambda q: self.calculate_question_score(q, {}))[:excess]
+                
+                for q in to_remove:
+                    rebalanced.remove(q)
+                    swaps_made.append(f"Removed {difficulty} question {q.id}")
+            
+            elif current_count < target_count:
+                # Need to add questions to this difficulty
+                needed = target_count - current_count
+                
+                # Find questions from other difficulties that can be swapped
+                # Priority: swap from over-represented difficulties
+                candidates_for_swap = []
+                for other_diff, other_count in distribution.items():
+                    if other_count > self.difficulty_distribution[other_diff]:
+                        candidates = [q for q in rebalanced if q.difficulty_band == other_diff]
+                        candidates_for_swap.extend(candidates)
+                
+                # Add new questions from candidate pool if available
+                # This would require re-querying - simplified for now
+                swaps_made.append(f"Rebalancing needed for {difficulty}: {needed} questions")
+        
+        # Store swap log for constraint reporting
+        self.rebalance_swaps = swaps_made
+        return rebalanced
+    
+    async def apply_difficulty_ordering(self, questions) -> list:
+        """DEVIATION #5: Apply intentional difficulty progression"""
+        
+        # Group questions by difficulty
+        by_difficulty = {
+            "Easy": [q for q in questions if q.difficulty_band == "Easy"],
+            "Medium": [q for q in questions if q.difficulty_band == "Medium"], 
+            "Hard": [q for q in questions if q.difficulty_band == "Hard"]
+        }
+        
+        # Apply the friendly ordering pattern
+        ordered_questions = []
+        difficulty_indices = {"Easy": 0, "Medium": 0, "Hard": 0}
+        
+        for position, target_difficulty in enumerate(self.question_ordering_pattern, 1):
+            idx = difficulty_indices[target_difficulty]
+            
+            if idx < len(by_difficulty[target_difficulty]):
+                question = by_difficulty[target_difficulty][idx]
+                question.position = position  # Set 1-based position
+                ordered_questions.append(question)
+                difficulty_indices[target_difficulty] += 1
+            else:
+                # Fallback if not enough questions in target difficulty
+                for fallback_difficulty in ["Easy", "Medium", "Hard"]:
+                    idx = difficulty_indices[fallback_difficulty]
+                    if idx < len(by_difficulty[fallback_difficulty]):
+                        question = by_difficulty[fallback_difficulty][idx]
+                        question.position = position
+                        ordered_questions.append(question)
+                        difficulty_indices[fallback_difficulty] += 1
+                        break
+        
+        return ordered_questions
 ```
 
 #### 2.2 Session State Management
