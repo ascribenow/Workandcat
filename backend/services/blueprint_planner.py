@@ -520,24 +520,38 @@ class BlueprintSessionPlanner:
             "avg_accuracy": 0.75
         }
     
-    async def _get_session_questions(self, session_id: uuid.UUID) -> List[Dict]:
+    async def _get_session_questions(self, session_id: uuid.UUID, cursor=None) -> List[Dict]:
         """Get ordered questions for a session"""
         
-        questions_data = await self.connection.fetch("""
-            SELECT position, question_id, question_data
-            FROM session_pack_questions
-            WHERE session_id = $1
-            ORDER BY position ASC
-        """, session_id)
+        if cursor is None:
+            conn = self.get_connection()
+            cursor = conn.cursor()
+            close_conn = True
+        else:
+            close_conn = False
+            conn = None
         
-        questions = []
-        for row in questions_data:
-            question_data = json.loads(row['question_data']) if isinstance(row['question_data'], str) else row['question_data']
-            question_data['position'] = row['position']
-            question_data['question_id'] = row['question_id']
-            questions.append(question_data)
-        
-        return questions
+        try:
+            cursor.execute("""
+                SELECT position, question_id, question_data
+                FROM session_pack_questions
+                WHERE session_id = %s
+                ORDER BY position ASC
+            """, (session_id,))
+            
+            questions_data = cursor.fetchall()
+            
+            questions = []
+            for row in questions_data:
+                question_data = json.loads(row['question_data']) if isinstance(row['question_data'], str) else row['question_data']
+                question_data['position'] = row['position']
+                question_data['question_id'] = row['question_id']
+                questions.append(question_data)
+            
+            return questions
+        finally:
+            if close_conn and conn:
+                conn.close()
     
     def _parse_uuid(self, id_str: str) -> uuid.UUID:
         """Parse string to UUID, generate new UUID if invalid"""
