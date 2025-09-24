@@ -19,7 +19,7 @@ def main():
     print("=" * 80)
     
     # Test the working API base
-    base_url = 'https://blueprint-sessions.preview.emergentagent.com/api'
+    base_url = 'https://smart-blueprint.preview.emergentagent.com/api'
     
     print(f"\n🌐 TESTING API BASE: {base_url}")
     print("-" * 60)

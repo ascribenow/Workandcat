@@ -13,7 +13,7 @@ import uuid
 import asyncio
 
 class DirectSummarizerTester:
-    def __init__(self, base_url="https://blueprint-sessions.preview.emergentagent.com/api"):
+    def __init__(self, base_url="https://smart-blueprint.preview.emergentagent.com/api"):
         self.base_url = base_url
         self.tests_run = 0
         self.tests_passed = 0

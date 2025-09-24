@@ -9,7 +9,7 @@ import json
 def test_critical_fixes():
     """Test the critical fixes for Phase 3B"""
     
-    base_url = "https://blueprint-sessions.preview.emergentagent.com/api"
+    base_url = "https://smart-blueprint.preview.emergentagent.com/api"
     
     print("🎯 FOCUSED PHASE 3B TEST - CRITICAL FIXES VALIDATION")
     print("=" * 60)
