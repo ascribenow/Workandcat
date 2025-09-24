@@ -1012,25 +1012,29 @@ async def legacy_pack_endpoint(user_id: str, session_id: str):
 
 #### 5.2 Deployment Strategy
 
-**Phase 5A: Database Migration (Off-peak)**
-1. Run database migrations during low traffic
-2. Migrate existing session data to new format
-3. Verify data integrity
+**Phase 5A: Database Migration with Deviation Fixes (Off-peak)**
+1. Run revised database migrations with proper constraints
+2. Create unique indexes for idempotency (session_answers table)
+3. Migrate data with position alignment (0-based to 1-based mapping)
+4. Verify constraint enforcement (advisory locks, hard caps)
 
-**Phase 5B: API Deployment (Blue-Green)**
-1. Deploy new APIs alongside existing ones
-2. Route new sessions to blueprint system
-3. Maintain legacy endpoints for existing sessions
+**Phase 5B: API Deployment with Compliance (Blue-Green)**
+1. Deploy APIs with all 12 deviations addressed
+2. Remove ALL polling/websocket logic (Deviation #9)
+3. Ensure advisory locks are active in core flow
+4. Test position equality guards and idempotency
 
-**Phase 5C: Frontend Rollout (Feature Flag)**
-1. Deploy new frontend with feature flag
-2. Gradually enable blueprint system for users
-3. Monitor performance and rollback if needed
+**Phase 5C: Frontend Rollout with Clean Contract (Feature Flag)**
+1. Deploy frontend using ONLY new endpoints (/session/*)
+2. Remove all references to /api/adapt/* routes
+3. Test position synchronization and edge cases
+4. Validate first-session behavior (diagnostic pack)
 
-**Phase 5D: Legacy Cleanup**
-1. Remove old API endpoints after migration complete
-2. Clean up unused database tables
-3. Update documentation
+**Phase 5D: Complete Legacy Elimination**
+1. Remove ALL old /api/adapt/* endpoints
+2. Remove polling utilities and websocket code
+3. Clean up database tables and constraints
+4. Document the exact 3/6/3 behavior and first-session flow
 
 ---
 
