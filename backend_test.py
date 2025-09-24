@@ -1166,48 +1166,52 @@ class CATBackendTester:
             "authentication_working": False,
             "jwt_token_valid": False,
             "user_adaptive_enabled": False,
-            "unauthorized_access_blocked": False,
             
-            # Blueprint Session Creation
-            "session_start_immediate": False,
-            "session_start_no_polling": False,
+            # Complete Session Workflow Testing
+            "session_creation_with_real_questions": False,
             "twelve_questions_generated": False,
-            "difficulty_distribution_3_6_3": False,
-            "advisory_lock_protection": False,
-            "session_structure_valid": False,
-            "session_metadata_complete": False,
+            "real_database_questions_used": False,
+            "question_retrieval_positions_1_12": False,
+            "answer_submission_correct_incorrect": False,
+            "session_completion_workflow": False,
+            "session_persistence_verified": False,
+            "data_integrity_maintained": False,
             
-            # Session Lifecycle
-            "question_retrieval_by_position": False,
-            "all_positions_1_to_12_work": False,
-            "answer_submission_working": False,
-            "correct_answer_detection": False,
-            "incorrect_answer_detection": False,
-            "session_completion_working": False,
-            "answer_persistence_working": False,
-            "scoring_calculation_correct": False,
+            # API Endpoint Validation
+            "session_start_endpoint_working": False,
+            "session_question_endpoint_working": False,
+            "session_submit_endpoint_working": False,
+            "session_complete_endpoint_working": False,
+            "session_list_endpoint_working": False,
+            "session_health_endpoint_working": False,
+            
+            # Data Quality & Distribution
+            "real_questions_not_fallback": False,
+            "difficulty_distribution_close_to_target": False,
+            "question_structure_complete": False,
+            "question_ordering_correct": False,
+            "stem_options_answers_present": False,
+            "explanations_available": False,
             
             # Database Integration
-            "advisory_lock_functions_work": False,
+            "sessions_table_populated": False,
             "session_packs_table_populated": False,
+            "session_pack_questions_table_populated": False,
             "session_answers_table_populated": False,
-            "session_listing_working": False,
-            "session_filtering_working": False,
+            "advisory_lock_functional": False,
+            "uuid_string_consistency": False,
             
-            # Health & Monitoring
-            "health_endpoint_working": False,
-            "system_operational_status": False,
-            "database_connection_verified": False,
-            
-            # Edge Cases
+            # Performance & Error Handling
+            "response_times_acceptable": False,
+            "system_stability_verified": False,
             "invalid_session_id_handled": False,
             "out_of_range_position_handled": False,
-            "duplicate_answer_submission_handled": False,
-            "concurrent_session_protection": False,
+            "proper_http_status_codes": False,
             
             # Overall Assessment
-            "blueprint_system_operational": False,
-            "immediate_availability_achieved": False,
+            "complete_workflow_functional": False,
+            "target_distribution_achieved": False,
+            "database_properly_populated": False,
             "production_ready": False
         }
         
