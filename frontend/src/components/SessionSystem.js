@@ -359,13 +359,17 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
           console.log(`[BLUEPRINT] ✅ Session ready with ${pack.length} questions, starting at position ${currentPosition}`);
           console.log(`[BLUEPRINT] ✅ Current question index set to: ${currentPosition - 1}`);
         } else {
-          // Fallback: Fetch Blueprint session data if no questions in metadata
-          console.log(`[BLUEPRINT] ⚠️ No questions in metadata, fetching from API`);
+          // Fetch Blueprint session data if no questions in metadata (resumed sessions)
+          console.log(`[BLUEPRINT] ⚠️ No questions in metadata, fetching from API for resumed session`);
           const pack = await fetchBlueprintSession(sessionId);
           if (pack && pack.length > 0) {
             console.log(`[BLUEPRINT] ✅ Fetched ${pack.length} questions from API`);
             setCurrentPackSafe(pack, 'blueprint-api-load');
-            setCurrentQuestionIndex(0);
+            
+            // For resumed sessions, set position based on answered_count
+            const answeredCount = sessionMetadata.answered_count || 0;
+            setCurrentQuestionIndex(answeredCount); // Resume from next unanswered question
+            console.log(`[BLUEPRINT] ✅ Resumed session at position ${answeredCount + 1}`);
           } else {
             console.error(`[BLUEPRINT] ❌ Failed to fetch questions from API`);
           }
