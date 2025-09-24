@@ -538,9 +538,9 @@ class BlueprintSessionPlanner:
                 VALUES (:session_id, :position, :question_id, :question_data, :created_at)
                 ON CONFLICT (session_id, position) DO NOTHING
             """), {
-                "session_id": session_id,
+                "session_id": str(session_id),  # Convert to string
                 "position": position,
-                "question_id": question['id'],
+                "question_id": str(question['id']),  # Ensure it's a string
                 "question_data": json.dumps(question_data),
                 "created_at": datetime.now(timezone.utc)
             })
