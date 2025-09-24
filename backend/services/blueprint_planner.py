@@ -59,9 +59,6 @@ class BlueprintSessionPlanner:
             conn = self.get_connection()
             cursor = conn.cursor()
             
-            # Convert UUID to string for the function
-            user_id_str = str(user_uuid)
-            
             cursor.execute("SELECT acquire_session_planning_lock(%s, %s)", (user_uuid, 30))
             lock_acquired = cursor.fetchone()[0]
             
