@@ -1116,7 +1116,7 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
             finishSession();
           } else {
             console.log(`[BLUEPRINT] Moving to next question...`);
-            nextQuestion();
+            handleNextQuestion();
           }
         }, 3000);
         
