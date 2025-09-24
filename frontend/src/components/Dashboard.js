@@ -207,40 +207,38 @@ export const Dashboard = () => {
       // Fallback: Check localStorage for any active session (legacy)
       try {
         const storedSessionId = localStorage.getItem('currentSessionId') || localStorage.getItem('nextSessionId');
+        
+        if (storedSessionId) {
+          console.log('Dashboard: Found stored session ID, checking if pack exists:', storedSessionId);
           
-          if (storedSessionId) {
-            console.log('Dashboard: Found stored session ID, checking if pack exists:', storedSessionId);
-            
-            // V2 HARDENING: ONLY call GET /pack (never re-plan)
-            const packResponse = await axios.get(`${API}/adapt/pack`, {
-              params: {
-                user_id: user.id,
-                session_id: storedSessionId
-              }
-            });
-            
-            if (packResponse.status === 200 && packResponse.data.pack) {
-              console.log('Dashboard: Uncompleted adaptive session found - showing RESUME option');
-              
-              // Show resume session UI instead of auto-starting
-              setActiveSessionId(storedSessionId);
-              setSessionMetadata({
-                resume_session: true,
-                session_id: storedSessionId,
-                pack_available: true,
-                questions_count: packResponse.data.pack.length
-              });
-              setCurrentView('session');
-              return true;
+          // V2 HARDENING: ONLY call GET /pack (never re-plan)
+          const packResponse = await axios.get(`${API}/adapt/pack`, {
+            params: {
+              user_id: user.id,
+              session_id: storedSessionId
             }
-          }
+          });
           
-        } catch (adaptiveCheckError) {
-          console.log('Dashboard: No uncompleted adaptive session or pack not found, proceeding with new session');
-          // Clear any stale session data
-          localStorage.removeItem('currentSessionId');
-          localStorage.removeItem('nextSessionId');
+          if (packResponse.status === 200 && packResponse.data.pack) {
+            console.log('Dashboard: Uncompleted adaptive session found - showing RESUME option');
+            
+            // Show resume session UI instead of auto-starting
+            setActiveSessionId(storedSessionId);
+            setSessionMetadata({
+              resume_session: true,
+              session_id: storedSessionId,
+              pack_available: true,
+              questions_count: packResponse.data.pack.length
+            });
+            setCurrentView('session');
+            return true;
+          }
         }
+      } catch (adaptiveCheckError) {
+        console.log('Dashboard: No uncompleted adaptive session or pack not found, proceeding with new session');
+        // Clear any stale session data
+        localStorage.removeItem('currentSessionId');
+        localStorage.removeItem('nextSessionId');
       }
       
       // Create new Blueprint session
