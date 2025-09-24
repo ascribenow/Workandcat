@@ -408,7 +408,15 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
     const notPlanning = !isPlanning;
     const notServedYet = !firstServeDoneRef.current;
     
-    console.log(`[BOOT_DEBUG] State check: pack=${packLength}, question=${hasCurrentQuestion}, session=${hasSessionId}, planning=${isPlanning}, served=${firstServeDoneRef.current}`);
+    console.log(`[BOOT_DEBUG] Question serving state check:`, {
+      packLength,
+      hasCurrentQuestion,
+      hasSessionId,
+      notPlanning,
+      notServedYet,
+      sessionType: sessionMetadata?.session_type,
+      firstServeDone: firstServeDoneRef.current
+    });
     
     if (
       currentPackRef.current?.length > 0 &&
@@ -417,11 +425,12 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
       !isPlanning &&
       !firstServeDoneRef.current
     ) {
-      console.log('[BOOT] Pack ready & no currentQuestion; serving Q1');
+      console.log('[BOOT] ✅ All conditions met - Pack ready & no currentQuestion; serving Q1');
+      console.log('[BOOT] Pack sample:', currentPackRef.current[0]);
       firstServeDoneRef.current = true;
       serveQuestionFromPack(0);
     } else {
-      console.log(`[BOOT_DEBUG] Conditions not met: pack=${packLength > 0}, noQuestion=${!hasCurrentQuestion}, session=${hasSessionId}, notPlanning=${notPlanning}, notServed=${notServedYet}`);
+      console.log(`[BOOT_DEBUG] ❌ Conditions not met: pack=${packLength > 0}, noQuestion=${!hasCurrentQuestion}, session=${hasSessionId}, notPlanning=${notPlanning}, notServed=${notServedYet}`);
     }
   }, [currentQuestion, sessionId, isPlanning, currentPack]);
 
