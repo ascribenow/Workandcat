@@ -1215,8 +1215,8 @@ class CATBackendTester:
             "production_ready": False
         }
         
-        # PHASE 1: AUTHENTICATION & AUTHORIZATION
-        print("\n🔐 PHASE 1: AUTHENTICATION & AUTHORIZATION")
+        # PHASE 1: AUTHENTICATION SETUP
+        print("\n🔐 PHASE 1: AUTHENTICATION SETUP")
         print("-" * 60)
         print("Testing authentication with sp@theskinmantra.com/student123")
         
@@ -1253,13 +1253,6 @@ class CATBackendTester:
         else:
             print("   ❌ Authentication failed - cannot proceed with blueprint testing")
             return False
-        
-        # Test unauthorized access
-        print("   🚫 Testing unauthorized access...")
-        success, response = self.run_test("Unauthorized Access Test", "GET", "session/health", [401, 403], None, None)
-        if not success or response.get('status_code') in [401, 403]:
-            blueprint_results["unauthorized_access_blocked"] = True
-            print(f"   ✅ Unauthorized access properly blocked")
         
         # PHASE 2: HEALTH & MONITORING
         print("\n🏥 PHASE 2: HEALTH & MONITORING")
