@@ -17214,38 +17214,39 @@ class CATBackendTester:
         return final_results["100_percent_success_achieved"]
 
 if __name__ == "__main__":
-    print("🎯 PLAN-NEXT ENDPOINT 404 DEBUG TESTING")
+    print("🎯 BLUEPRINT SESSION SYSTEM IMPLEMENTATION VALIDATION")
     print("=" * 80)
-    print("OBJECTIVE: Debug 404 error on /api/adapt/plan-next endpoint")
-    print("Focus: Authentication, request format, response validation, full flow testing")
-    print("Expected: 202 status, session_id, status='planning', pack endpoint working")
+    print("OBJECTIVE: Test new Blueprint Session System with immediate availability")
+    print("Focus: Session creation, lifecycle, database integration, edge cases")
+    print("Expected: Immediate sessions, 12 questions with 3/6/3 distribution, advisory locks")
     print("=" * 80)
     
     tester = CATBackendTester()
     
     try:
-        # Run the plan-next 404 debug test
-        print("\n🎯 RUNNING PLAN-NEXT 404 DEBUG TEST")
-        success = tester.test_plan_next_endpoint_404_debug()
+        # Run the Blueprint Session System test
+        print("\n🎯 RUNNING BLUEPRINT SESSION SYSTEM TEST")
+        success = tester.test_blueprint_session_system()
         
         print("\n" + "=" * 80)
-        print("🎯 PLAN-NEXT 404 DEBUG TESTING SUMMARY")
+        print("🎯 BLUEPRINT SESSION SYSTEM TESTING SUMMARY")
         print("=" * 80)
         print(f"Tests Run: {tester.tests_run}")
         print(f"Tests Passed: {tester.tests_passed}")
         print(f"Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%" if tester.tests_run > 0 else "0%")
         
         if success:
-            print("\n🎉 PLAN-NEXT ENDPOINT: Working correctly - 404 error resolved!")
+            print("\n🎉 BLUEPRINT SESSION SYSTEM: OPERATIONAL AND READY!")
             print("✅ Authentication working with sp@theskinmantra.com/student123")
-            print("✅ Plan-next endpoint responds correctly")
-            print("✅ Response format matches frontend expectations")
-            print("✅ Full flow (plan-next → pack) functional")
-            print("✅ No 404 errors detected with proper authentication")
+            print("✅ Immediate session creation without polling")
+            print("✅ 12 questions with 3/6/3 difficulty distribution")
+            print("✅ Session lifecycle (creation → questions → answers → completion)")
+            print("✅ Database integration and advisory locks")
+            print("✅ Health monitoring and edge case handling")
         else:
-            print("\n⚠️ PLAN-NEXT ENDPOINT: Issues detected - 404 error investigation needed")
-            print("❌ Check endpoint routing and authentication")
-            print("❌ Verify request format and headers")
+            print("\n⚠️ BLUEPRINT SESSION SYSTEM: ISSUES DETECTED")
+            print("❌ Some critical blueprint features need attention")
+            print("❌ Check session creation, question retrieval, or database integration")
             print("❌ Review backend logs for detailed error analysis")
         
         print("=" * 80)
