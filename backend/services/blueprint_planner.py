@@ -527,38 +527,36 @@ class BlueprintSessionPlanner:
             "avg_accuracy": 0.75
         }
     
-    async def _get_session_questions(self, session_id: uuid.UUID, cursor=None) -> List[Dict]:
+    async def _get_session_questions(self, session_id: uuid.UUID, db=None) -> List[Dict]:
         """Get ordered questions for a session"""
         
-        if cursor is None:
-            conn = self.get_connection()
-            cursor = conn.cursor()
-            close_conn = True
+        if db is None:
+            db = self.get_db_session()
+            close_db = True
         else:
-            close_conn = False
-            conn = None
+            close_db = False
         
         try:
-            cursor.execute("""
+            questions_result = db.execute(text("""
                 SELECT position, question_id, question_data
                 FROM session_pack_questions
-                WHERE session_id = %s
+                WHERE session_id = :session_id
                 ORDER BY position ASC
-            """, (session_id,))
+            """), {"session_id": session_id})
             
-            questions_data = cursor.fetchall()
+            questions_data = questions_result.fetchall()
             
             questions = []
             for row in questions_data:
-                question_data = json.loads(row['question_data']) if isinstance(row['question_data'], str) else row['question_data']
-                question_data['position'] = row['position']
-                question_data['question_id'] = row['question_id']
+                question_data = json.loads(row[2]) if isinstance(row[2], str) else row[2]
+                question_data['position'] = row[0]
+                question_data['question_id'] = row[1]
                 questions.append(question_data)
             
             return questions
         finally:
-            if close_conn and conn:
-                conn.close()
+            if close_db and db:
+                db.close()
     
     def _parse_uuid(self, id_str: str) -> uuid.UUID:
         """Parse string to UUID, generate new UUID if invalid"""
