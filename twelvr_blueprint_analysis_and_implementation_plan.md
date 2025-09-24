@@ -241,28 +241,34 @@ class BlueprintSessionPlanner:
             # 2. Get user's learning state
             user_state = await self.get_user_learning_state(user_id)
         
-        # 3. Build candidate pools by difficulty
-        candidate_pools = await self.build_candidate_pools(user_id, user_state)
-        
-        # 4. Reserve PYQ minima
-        pyq_reserved = await self.reserve_pyq_questions(candidate_pools)
-        
-        # 5. Fill remaining slots with scoring system
-        selected_questions = await self.fill_remaining_slots(
-            candidate_pools, pyq_reserved, user_state
-        )
-        
-        # 6. Rebalance if needed
-        final_questions = await self.rebalance_distribution(selected_questions)
-        
-        # 7. Create session and persist pack
-        session_id = await self.create_session_with_pack(user_id, final_questions)
-        
-        return {
-            "session_id": session_id,
-            "questions": final_questions,
-            "constraint_report": self.generate_constraint_report(final_questions)
-        }
+            # 3. Build candidate pools by difficulty
+            candidate_pools = await self.build_candidate_pools(user_id, user_state)
+            
+            # 4. Reserve PYQ minima
+            pyq_reserved = await self.reserve_pyq_questions(candidate_pools)
+            
+            # 5. Fill remaining slots with HARD CAPS (DEVIATION #1)
+            selected_questions = await self.fill_remaining_slots_with_hard_caps(
+                candidate_pools, pyq_reserved, user_state
+            )
+            
+            # 6. DEVIATION #6: Rebalance to ENFORCE 3/6/3 distribution
+            rebalanced_questions = await self.rebalance_to_exact_distribution(selected_questions)
+            
+            # 7. DEVIATION #5: Apply intentional ordering pattern
+            ordered_questions = await self.apply_difficulty_ordering(rebalanced_questions)
+            
+            # 8. Create session and persist pack with positions
+            session_id = await self.create_session_with_ordered_pack(user_id, ordered_questions)
+            
+            # DEVIATION #7: Single pack-level constraint report
+            constraint_report = self.generate_pack_constraint_report(ordered_questions)
+            
+            return {
+                "session_id": session_id,
+                "questions": ordered_questions,
+                "constraint_report": constraint_report
+            }
     
     async def build_candidate_pools(self, user_id: str, user_state: dict) -> dict:
         """Build pools for each difficulty, excluding recent questions"""
