@@ -1108,50 +1108,57 @@ class CATBackendTester:
 
     def test_blueprint_session_system(self):
         """
-        🎯 BLUEPRINT SESSION SYSTEM IMPLEMENTATION VALIDATION
+        🎯 BLUEPRINT SESSION SYSTEM FINAL VALIDATION TESTING
         
-        OBJECTIVE: Test the new Blueprint Session System implementation with immediate session availability
+        OBJECTIVE: Conduct final validation testing of the Blueprint Session System after resolving critical issues
         
         TESTING REQUIREMENTS FROM REVIEW REQUEST:
-        1. AUTHENTICATION & AUTHORIZATION:
-           - Test with user: sp@theskinmantra.com / student123
-           - Verify JWT token authentication for all endpoints
-           - Test unauthorized access attempts
+        1. COMPLETE SESSION WORKFLOW TESTING:
+           - Create new blueprint session (should use real DB questions)
+           - Test question retrieval for positions 1-12
+           - Submit answers for multiple questions (both correct/incorrect)
+           - Complete session workflow
+           - Verify session persistence and data integrity
         
-        2. BLUEPRINT SESSION CREATION:
-           - Test /session/start with immediate availability
-           - Verify 12 questions generated with proper difficulty distribution
-           - Test advisory lock behavior (concurrent planning protection)
-           - Validate session structure and metadata
+        2. API ENDPOINT VALIDATION:
+           - /session/start - Session creation with real questions
+           - /session/question/{session_id}/{position} - Question retrieval by position
+           - /session/submit - Answer submission workflow  
+           - /session/complete - Session completion
+           - /session/list - Session history listing
+           - /session/health - System health check
         
-        3. SESSION LIFECYCLE:
-           - Test question retrieval by position (1-12)
-           - Test answer submission with correct/incorrect answers
-           - Test session completion workflow
-           - Validate answer persistence and scoring
+        3. DATA QUALITY & DISTRIBUTION:
+           - Verify real questions from database (not sample/fallback data)
+           - Check difficulty distribution (target: 3 Easy, 6 Medium, 3 Hard)
+           - Validate question structure (stem, options, answers, explanations)
+           - Test question ordering and positioning
         
         4. DATABASE INTEGRATION:
-           - Test advisory lock functions work correctly
-           - Verify blueprint tables are populated (session_packs, session_pack_questions, session_answers)
-           - Test session listing and filtering
+           - Verify session persistence in sessions, session_packs, session_pack_questions tables
+           - Test answer submission to session_answers table  
+           - Check advisory lock functionality for concurrent sessions
+           - Validate UUID/string consistency across tables
         
-        5. HEALTH & MONITORING:
-           - Test /session/health endpoint
-           - Verify system operational status
+        5. PERFORMANCE & ERROR HANDLING:
+           - Test with user: sp@theskinmantra.com / student123
+           - Verify response times and system stability
+           - Test edge cases (invalid session IDs, out-of-range positions)
         
-        6. EDGE CASES:
-           - Test invalid session IDs
-           - Test out-of-range question positions
-           - Test duplicate answer submissions
-           - Test concurrent session requests
+        EXPECTED RESULTS:
+        - All endpoints should return proper HTTP status codes (200/400/404 as appropriate)
+        - Sessions should contain exactly 12 real database questions
+        - Difficulty distribution should be close to 3/6/3 target
+        - Complete session lifecycle should work end-to-end
+        - Database should be properly populated with session data
         
         AUTHENTICATION: sp@theskinmantra.com/student123
         """
-        print("🎯 BLUEPRINT SESSION SYSTEM IMPLEMENTATION VALIDATION")
+        print("🎯 BLUEPRINT SESSION SYSTEM FINAL VALIDATION TESTING")
         print("=" * 80)
-        print("OBJECTIVE: Test new Blueprint Session System with immediate availability")
-        print("FOCUS: Session creation, lifecycle, database integration, edge cases")
-        print("EXPECTED: Immediate sessions, 12 questions with 3/6/3 distribution, advisory locks")
+        print("OBJECTIVE: Final validation after resolving critical issues")
+        print("FOCUS: Complete workflow, real DB questions, proper distribution, data integrity")
+        print("EXPECTED: 12 real questions, 3/6/3 distribution, end-to-end functionality")
         print("=" * 80)
         
         blueprint_results = {
