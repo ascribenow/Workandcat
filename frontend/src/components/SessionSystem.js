@@ -307,18 +307,29 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
     
     try {
       console.log(`[RESUME] Checking session type for: ${sessionId.substring(0, 8)}`);
+      console.log(`[RESUME] SessionMetadata available:`, !!sessionMetadata);
+      console.log(`[RESUME] SessionMetadata content:`, sessionMetadata);
       
       // Check if this is a Blueprint session by looking at sessionMetadata
-      const isBlueprintSession = sessionMetadata?.session_type === 'blueprint' || 
-                                sessionMetadata?.questions?.length > 0;
+      const hasSessionType = sessionMetadata?.session_type === 'blueprint';
+      const hasQuestions = sessionMetadata?.questions?.length > 0;
+      const isBlueprintSession = hasSessionType || hasQuestions;
+      
+      console.log(`[RESUME] Blueprint session detection:`, {
+        hasSessionType,
+        hasQuestions,
+        sessionType: sessionMetadata?.session_type,
+        questionsLength: sessionMetadata?.questions?.length,
+        isBlueprintSession
+      });
       
       if (isBlueprintSession) {
-        console.log(`[RESUME] Detected Blueprint session, loading directly from metadata`);
+        console.log(`[RESUME] ✅ Detected Blueprint session, loading directly from metadata`);
         
         // For Blueprint sessions, use the questions from metadata
         const questions = sessionMetadata.questions || [];
         if (questions.length > 0) {
-          console.log(`[BLUEPRINT] Loading ${questions.length} questions from metadata`);
+          console.log(`[BLUEPRINT] ✅ Loading ${questions.length} questions from metadata`);
           
           // Convert Blueprint questions to pack format for compatibility with existing UI
           const pack = questions.map((question, index) => ({
@@ -336,27 +347,35 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
             answer: question.answer || ''
           }));
           
+          console.log(`[BLUEPRINT] ✅ Converted ${pack.length} questions to pack format`);
+          console.log(`[BLUEPRINT] Sample question:`, pack[0]);
+          
           setCurrentPackSafe(pack, 'blueprint-session-load');
           
           // Set up session progress
           const currentPosition = sessionMetadata.current_position || 1;
           setCurrentQuestionIndex(currentPosition - 1); // Convert to 0-based index
           
-          console.log(`[BLUEPRINT] Session ready with ${pack.length} questions, starting at position ${currentPosition}`);
+          console.log(`[BLUEPRINT] ✅ Session ready with ${pack.length} questions, starting at position ${currentPosition}`);
+          console.log(`[BLUEPRINT] ✅ Current question index set to: ${currentPosition - 1}`);
         } else {
           // Fallback: Fetch Blueprint session data if no questions in metadata
-          console.log(`[BLUEPRINT] No questions in metadata, fetching from API`);
+          console.log(`[BLUEPRINT] ⚠️ No questions in metadata, fetching from API`);
           const pack = await fetchBlueprintSession(sessionId);
           if (pack && pack.length > 0) {
+            console.log(`[BLUEPRINT] ✅ Fetched ${pack.length} questions from API`);
             setCurrentPackSafe(pack, 'blueprint-api-load');
             setCurrentQuestionIndex(0);
+          } else {
+            console.error(`[BLUEPRINT] ❌ Failed to fetch questions from API`);
           }
         }
         return;
       }
       
       // Legacy adaptive session logic
-      console.log(`[RESUME] Checking for existing progress in adaptive session: ${sessionId}`);
+      console.log(`[RESUME] Not a Blueprint session, checking for legacy adaptive session`);
+      
       const progress = await getSessionProgress(sessionId);
       
       if (progress && progress.current_question_index > 0) {
@@ -375,6 +394,7 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
       
     } catch (error) {
       console.warn('[RESUME] Error checking session progress, starting fresh:', error.message);
+      console.error('[RESUME] Full error details:', error);
       fetchNextQuestion();
     }
   };
