@@ -1254,10 +1254,10 @@ class CATBackendTester:
             print("   ❌ Authentication failed - cannot proceed with blueprint testing")
             return False
         
-        # PHASE 2: HEALTH & MONITORING
-        print("\n🏥 PHASE 2: HEALTH & MONITORING")
+        # PHASE 2: SYSTEM HEALTH CHECK
+        print("\n🏥 PHASE 2: SYSTEM HEALTH CHECK")
         print("-" * 60)
-        print("Testing blueprint system health endpoint")
+        print("Testing /session/health endpoint")
         
         if auth_headers:
             success, health_response = self.run_test(
@@ -1270,15 +1270,12 @@ class CATBackendTester:
             )
             
             if success:
-                blueprint_results["health_endpoint_working"] = True
-                print(f"   ✅ Health endpoint accessible")
+                blueprint_results["session_health_endpoint_working"] = True
+                print(f"   ✅ /session/health endpoint working")
                 
                 if health_response.get('status') == 'healthy':
-                    blueprint_results["system_operational_status"] = True
-                    blueprint_results["database_connection_verified"] = True
                     print(f"   ✅ System operational status: healthy")
-                    print(f"   ✅ Database connection verified")
-                    print(f"   📊 Blueprint system: {health_response.get('blueprint_system')}")
+                    print(f"   📊 Health details: {health_response}")
                 else:
                     print(f"   ⚠️ System status: {health_response.get('status')}")
             else:
