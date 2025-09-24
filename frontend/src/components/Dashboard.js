@@ -204,6 +204,11 @@ export const Dashboard = () => {
         }
       }
       
+      // Clear any stale legacy session data before creating Blueprint session
+      localStorage.removeItem('currentSessionId');
+      localStorage.removeItem('nextSessionId');
+      console.log('Dashboard: Cleared legacy session data');
+      
       // Create new Blueprint session
       console.log('Dashboard: Creating new Blueprint session...');
       const sessionStartResponse = await axios.post(`${API}/session/start`, {
