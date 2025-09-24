@@ -145,8 +145,14 @@ async def get_question(
     try:
         planner = await get_blueprint_planner()
         
+        # Validate session_id format
+        try:
+            session_uuid = uuid.UUID(session_id)
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Invalid session ID format")
+        
         # Get session questions
-        questions = await planner._get_session_questions(uuid.UUID(session_id))
+        questions = await planner._get_session_questions(session_uuid)
         
         if not questions:
             raise HTTPException(status_code=404, detail="Session not found")
