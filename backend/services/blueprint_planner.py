@@ -629,7 +629,7 @@ class BlueprintSessionPlanner:
                 FROM session_pack_questions
                 WHERE session_id = :session_id
                 ORDER BY position ASC
-            """), {"session_id": session_id})
+            """), {"session_id": str(session_id)})  # Convert UUID to string
             
             questions_data = questions_result.fetchall()
             
