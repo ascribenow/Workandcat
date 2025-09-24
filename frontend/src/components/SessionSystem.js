@@ -319,15 +319,32 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
         const questions = sessionMetadata.questions || [];
         if (questions.length > 0) {
           console.log(`[BLUEPRINT] Loading ${questions.length} questions from metadata`);
-          setCurrentPackSafe(questions, 'blueprint-session-load');
+          
+          // Convert Blueprint questions to pack format for compatibility with existing UI
+          const pack = questions.map((question, index) => ({
+            id: question.id,
+            stem: question.stem,
+            option_a: question.option_a,
+            option_b: question.option_b,
+            option_c: question.option_c,
+            option_d: question.option_d,
+            difficulty_band: question.difficulty_band,
+            subcategory: question.subcategory,
+            type_of_question: question.type_of_question,
+            position: question.position || (index + 1),
+            session_type: 'blueprint',
+            answer: question.answer || ''
+          }));
+          
+          setCurrentPackSafe(pack, 'blueprint-session-load');
           
           // Set up session progress
           const currentPosition = sessionMetadata.current_position || 1;
           setCurrentQuestionIndex(currentPosition - 1); // Convert to 0-based index
           
-          console.log(`[BLUEPRINT] Session ready, starting at position ${currentPosition}`);
+          console.log(`[BLUEPRINT] Session ready with ${pack.length} questions, starting at position ${currentPosition}`);
         } else {
-          // Fallback: Fetch Blueprint session data
+          // Fallback: Fetch Blueprint session data if no questions in metadata
           console.log(`[BLUEPRINT] No questions in metadata, fetching from API`);
           const pack = await fetchBlueprintSession(sessionId);
           if (pack && pack.length > 0) {
