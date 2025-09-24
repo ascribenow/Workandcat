@@ -155,7 +155,7 @@ class BlueprintSessionPlanner:
         ordered_questions = self._apply_difficulty_ordering(rebalanced_questions)
         
         # Step 7: Create session and persist pack with positions
-        await self._create_session_with_ordered_pack(user_id, session_id, ordered_questions, cursor, conn)
+        await self._create_session_with_ordered_pack(user_id, session_id, ordered_questions, db)
         
         # Step 8: Generate pack-level constraint report (Deviation #7)
         constraint_report = self._generate_pack_constraint_report(ordered_questions)
