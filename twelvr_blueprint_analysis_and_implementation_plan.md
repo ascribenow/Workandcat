@@ -568,21 +568,37 @@ async def get_current_session(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Get current session for resumption"""
+    """Get current session for resumption (DEVIATION #10: ORDERED questions)"""
     
     active_session = await get_active_session(db, current_user.id)
     
     if not active_session:
         raise HTTPException(404, "No active session found")
     
-    # Get questions with current position
-    questions = await get_session_questions(db, active_session.id)
+    # DEVIATION #10: Ensure questions are returned in ORDER BY position
+    questions = await db.execute("""
+        SELECT spq.position, spq.question_id, spq.question_data
+        FROM session_pack_questions spq
+        WHERE spq.session_id = :session_id
+        ORDER BY spq.position ASC
+    """, {"session_id": active_session.id})
+    
+    # Get any existing answers for context
+    answered_positions = await get_answered_positions(db, active_session.id)
     
     return {
         "session_id": active_session.id,
-        "current_position": active_session.current_position,
+        "current_position": active_session.current_position,  # 0-based internally
         "total_questions": 12,
-        "questions": questions,
+        "questions": [
+            {
+                "position": q.position,
+                "question_id": q.question_id,
+                **q.question_data,
+                "answered": q.position in answered_positions
+            }
+            for q in questions
+        ],
         "status": "active"
     }
 
