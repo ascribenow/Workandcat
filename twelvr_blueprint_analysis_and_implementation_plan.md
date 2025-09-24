@@ -325,18 +325,20 @@ class BlueprintSessionPlanner:
         
         return reserved
     
-    async def fill_remaining_slots(self, candidate_pools, pyq_reserved, user_state) -> list:
-        """Fill remaining slots using blueprint scoring system"""
+    async def fill_remaining_slots_with_hard_caps(self, candidate_pools, pyq_reserved, user_state) -> list:
+        """DEVIATION #1: Fill slots with HARD CAPS, not penalties"""
         
         selected = list(pyq_reserved)  # Start with reserved PYQs
         
-        # Track subcategory+type counts
+        # Track subcategory+type counts for HARD CAP enforcement
         subcategory_type_counts = defaultdict(int)
         for q in selected:
             key = f"{q.subcategory}+{q.type_of_question}"
             subcategory_type_counts[key] += 1
         
-        # Fill each difficulty band
+        relaxations_applied = []  # Track when caps are relaxed
+        
+        # Fill each difficulty band with hard caps
         for difficulty, target_count in self.difficulty_distribution.items():
             current_count = len([q for q in selected if q.difficulty_band == difficulty])
             remaining_needed = target_count - current_count
@@ -344,22 +346,40 @@ class BlueprintSessionPlanner:
             if remaining_needed > 0:
                 candidates = [q for q in candidate_pools[difficulty] if q not in selected]
                 
-                # Score each candidate
-                scored_candidates = []
+                # HARD CAP FILTERING: Remove candidates that would exceed cap
+                filtered_candidates = []
                 for candidate in candidates:
-                    score = self.calculate_question_score(
-                        candidate, user_state, subcategory_type_counts
-                    )
+                    key = f"{candidate.subcategory}+{candidate.type_of_question}"
+                    if subcategory_type_counts[key] < self.max_subcategory_type:
+                        filtered_candidates.append(candidate)
+                
+                # If not enough candidates, log relaxation and allow cap breach
+                if len(filtered_candidates) < remaining_needed:
+                    relaxations_applied.append({
+                        "type": "subcategory_type_cap_relaxed",
+                        "difficulty": difficulty,
+                        "needed": remaining_needed,
+                        "available_under_cap": len(filtered_candidates)
+                    })
+                    filtered_candidates = candidates  # Use all candidates
+                
+                # Score and select
+                scored_candidates = []
+                for candidate in filtered_candidates:
+                    score = self.calculate_question_score(candidate, user_state)
                     scored_candidates.append((candidate, score))
                 
-                # Sort by score and select top candidates
                 scored_candidates.sort(key=lambda x: x[1], reverse=True)
+                
+                # Select up to remaining needed
                 for candidate, score in scored_candidates[:remaining_needed]:
                     selected.append(candidate)
                     key = f"{candidate.subcategory}+{candidate.type_of_question}"
                     subcategory_type_counts[key] += 1
         
-        return selected[:12]  # Ensure exactly 12 questions
+        # Store relaxations for reporting
+        self.constraint_relaxations = relaxations_applied
+        return selected[:12]
     
     def calculate_question_score(self, question, user_state, subcategory_counts) -> float:
         """Calculate question score using blueprint scoring system"""
