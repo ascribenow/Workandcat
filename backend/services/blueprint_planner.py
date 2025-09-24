@@ -412,44 +412,53 @@ class BlueprintSessionPlanner:
         
         return ordered_questions
     
-    async def _create_session_with_ordered_pack(self, user_id: uuid.UUID, session_id: uuid.UUID, ordered_questions: List[Dict], cursor, conn):
+    async def _create_session_with_ordered_pack(self, user_id: uuid.UUID, session_id: uuid.UUID, ordered_questions: List[Dict], db):
         """Create session and persist pack with positions"""
         
         # First create or get session in sessions table
-        cursor.execute("""
+        db.execute(text("""
             INSERT INTO sessions (id, user_id, status, created_at)
-            VALUES (%s, %s, 'planned', %s)
+            VALUES (:session_id, :user_id, 'planned', :created_at)
             ON CONFLICT (id) DO NOTHING
-        """, (session_id, user_id, datetime.now(timezone.utc)))
+        """), {
+            "session_id": session_id,
+            "user_id": user_id,
+            "created_at": datetime.now(timezone.utc)
+        })
         
         # Create session_packs entry
         constraint_report = self._generate_pack_constraint_report(ordered_questions)
         
-        cursor.execute("""
+        db.execute(text("""
             INSERT INTO session_packs (session_id, user_id, constraint_report, created_at)
-            VALUES (%s, %s, %s, %s)
+            VALUES (:session_id, :user_id, :constraint_report, :created_at)
             ON CONFLICT (session_id) DO NOTHING
-        """, (session_id, user_id, json.dumps(constraint_report), datetime.now(timezone.utc)))
+        """), {
+            "session_id": session_id,
+            "user_id": user_id,
+            "constraint_report": json.dumps(constraint_report),
+            "created_at": datetime.now(timezone.utc)
+        })
         
         # Create session_pack_questions entries with positions
         for question in ordered_questions:
             position = question['position']
             question_data = {k: v for k, v in question.items() if k != 'position'}
             
-            cursor.execute("""
+            db.execute(text("""
                 INSERT INTO session_pack_questions 
                 (session_id, position, question_id, question_data, created_at)
-                VALUES (%s, %s, %s, %s, %s)
+                VALUES (:session_id, :position, :question_id, :question_data, :created_at)
                 ON CONFLICT (session_id, position) DO NOTHING
-            """, (
-                session_id,
-                position,
-                question['id'],
-                json.dumps(question_data),
-                datetime.now(timezone.utc)
-            ))
+            """), {
+                "session_id": session_id,
+                "position": position,
+                "question_id": question['id'],
+                "question_data": json.dumps(question_data),
+                "created_at": datetime.now(timezone.utc)
+            })
         
-        conn.commit()
+        db.commit()
         logger.info(f"Created session {session_id} with {len(ordered_questions)} ordered questions")
     
     def _generate_pack_constraint_report(self, questions: List[Dict]) -> Dict:
