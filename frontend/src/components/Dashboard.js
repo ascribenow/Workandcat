@@ -287,7 +287,7 @@ export const Dashboard = () => {
         current_position: 1,
         // Add phase info for compatibility
         phase_info: {
-          current_session: 1  // Will be updated later if needed
+          current_session: sessionStartResponse.data.session_number || 1  // FIX: Use actual session number from backend
         }
       });
       
