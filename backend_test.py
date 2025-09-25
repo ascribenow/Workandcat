@@ -4421,6 +4421,525 @@ class CATBackendTester:
         print("   4. Test end-to-end flow after fixes")
         
         return investigation_results["session_id_format_mismatch"] and investigation_results["exact_mismatch_documented"]
+    def test_blueprint_session_submit_answer_solution_feedback(self):
+        """
+        🎯 BLUEPRINT SESSION SUBMIT ANSWER API SOLUTION FEEDBACK TESTING
+        
+        OBJECTIVE: Test the Blueprint Session submit answer API to verify solution feedback data is being returned correctly.
+        
+        TESTING REQUIREMENTS FROM REVIEW REQUEST:
+        1. Login with sp@theskinmantra.com/student123
+        2. Create a new Blueprint session or use existing session
+        3. Submit an answer to any question  
+        4. **CRITICAL CHECK**: Verify the response contains complete solution_feedback object with:
+           - snap_read (should have content)
+           - solution_approach (should have content)  
+           - detailed_solution (should have content)
+           - principle_to_remember (should have content)
+        
+        EXPECTED RESPONSE FORMAT:
+        {
+          "success": true,
+          "session_id": "...",
+          "position": 1,
+          "is_correct": false,
+          "correct_answer": "B",
+          "explanation": "...",
+          "solution_feedback": {
+            "snap_read": "Content here...",
+            "solution_approach": "Content here...", 
+            "detailed_solution": "Content here...",
+            "principle_to_remember": "Content here..."
+          },
+          "next_position": 2,
+          "is_complete": false
+        }
+        
+        This will help determine if the issue is backend (not returning solution feedback) or frontend (not displaying it).
+        
+        AUTHENTICATION: sp@theskinmantra.com/student123
+        """
+        print("🎯 BLUEPRINT SESSION SUBMIT ANSWER API SOLUTION FEEDBACK TESTING")
+        print("=" * 80)
+        print("OBJECTIVE: Test Blueprint Session submit answer API solution feedback")
+        print("FOCUS: POST /session/submit response includes complete solution_feedback object")
+        print("EXPECTED: solution_feedback with snap_read, solution_approach, detailed_solution, principle_to_remember")
+        print("=" * 80)
+        
+        test_results = {
+            # Authentication Setup
+            "authentication_working": False,
+            "jwt_token_valid": False,
+            "user_adaptive_enabled": False,
+            
+            # Blueprint Session Creation
+            "session_start_endpoint_working": False,
+            "session_created_successfully": False,
+            "session_has_questions": False,
+            
+            # Answer Submission Testing
+            "submit_endpoint_working": False,
+            "response_has_success": False,
+            "response_has_session_id": False,
+            "response_has_position": False,
+            "response_has_is_correct": False,
+            "response_has_correct_answer": False,
+            "response_has_explanation": False,
+            "response_has_solution_feedback": False,
+            
+            # Solution Feedback Content Validation
+            "solution_feedback_has_snap_read": False,
+            "solution_feedback_has_solution_approach": False,
+            "solution_feedback_has_detailed_solution": False,
+            "solution_feedback_has_principle_to_remember": False,
+            "all_solution_feedback_sections_have_content": False,
+            
+            # Response Format Validation
+            "response_has_next_position": False,
+            "response_has_is_complete": False,
+            "response_format_matches_expected": False,
+            
+            # Multiple Answer Testing
+            "correct_answer_submission_working": False,
+            "incorrect_answer_submission_working": False,
+            
+            # Overall Assessment
+            "solution_feedback_backend_working": False,
+            "backend_returns_complete_solution_feedback": False,
+            "issue_is_not_backend": False,
+            "production_ready": False
+        }
+        
+        # PHASE 1: AUTHENTICATION SETUP
+        print("\n🔐 PHASE 1: AUTHENTICATION SETUP")
+        print("-" * 60)
+        print("Testing authentication with sp@theskinmantra.com/student123")
+        
+        auth_data = {
+            "email": "sp@theskinmantra.com",
+            "password": "student123"
+        }
+        
+        success, response = self.run_test("Blueprint Solution Feedback Authentication", "POST", "auth/login", [200, 401], auth_data)
+        
+        auth_headers = None
+        user_id = None
+        if success and response.get('access_token'):
+            token = response['access_token']
+            auth_headers = {
+                'Authorization': f'Bearer {token}',
+                'Content-Type': 'application/json'
+            }
+            test_results["authentication_working"] = True
+            test_results["jwt_token_valid"] = True
+            print(f"   ✅ Authentication successful")
+            print(f"   📊 JWT Token length: {len(token)} characters")
+            
+            user_data = response.get('user', {})
+            user_id = user_data.get('id')
+            adaptive_enabled = user_data.get('adaptive_enabled', False)
+            
+            if adaptive_enabled:
+                test_results["user_adaptive_enabled"] = True
+                print(f"   ✅ User adaptive_enabled confirmed: {adaptive_enabled}")
+                print(f"   📊 User ID: {user_id}")
+            else:
+                print(f"   ⚠️ User adaptive_enabled: {adaptive_enabled}")
+        else:
+            print("   ❌ Authentication failed - cannot proceed with blueprint testing")
+            return False
+        
+        # PHASE 2: BLUEPRINT SESSION CREATION
+        print("\n🚀 PHASE 2: BLUEPRINT SESSION CREATION")
+        print("-" * 60)
+        print("Creating Blueprint session using POST /session/start")
+        
+        session_id = None
+        session_questions = []
+        
+        if user_id and auth_headers:
+            session_start_data = {
+                "user_id": user_id
+            }
+            
+            print(f"   📋 Creating blueprint session for user {user_id[:8]}...")
+            
+            import time
+            start_time = time.time()
+            success, session_response = self.run_test(
+                "Blueprint Session Creation for Solution Feedback", 
+                "POST", 
+                "session/start", 
+                [200, 400, 500], 
+                session_start_data, 
+                auth_headers
+            )
+            response_time = time.time() - start_time
+            
+            if success and session_response.get('success'):
+                test_results["session_start_endpoint_working"] = True
+                test_results["session_created_successfully"] = True
+                session_id = session_response.get('session_id')
+                session_questions = session_response.get('questions', [])
+                
+                print(f"   ✅ Session created successfully")
+                print(f"   📊 Response time: {response_time:.2f} seconds")
+                print(f"   📊 Session ID: {session_id}")
+                print(f"   📊 Questions count: {len(session_questions)}")
+                
+                if len(session_questions) > 0:
+                    test_results["session_has_questions"] = True
+                    print(f"   ✅ Session has questions available for testing")
+                    
+                    # Show sample question structure
+                    if session_questions:
+                        sample_q = session_questions[0]
+                        print(f"   📊 Sample question structure:")
+                        print(f"      ID: {sample_q.get('id', 'N/A')}")
+                        print(f"      Has stem: {bool(sample_q.get('stem'))}")
+                        print(f"      Has answer: {bool(sample_q.get('answer'))}")
+                        print(f"      Position: {sample_q.get('position', 'N/A')}")
+                        print(f"      Difficulty: {sample_q.get('difficulty_band', 'N/A')}")
+                else:
+                    print(f"   ❌ Session created but no questions available")
+            else:
+                print(f"   ❌ Session creation failed: {session_response}")
+                return False
+        
+        # PHASE 3: ANSWER SUBMISSION TESTING
+        print("\n📝 PHASE 3: ANSWER SUBMISSION TESTING")
+        print("-" * 60)
+        print("Testing POST /session/submit with solution feedback validation")
+        
+        if session_id and session_questions and auth_headers:
+            # Test with first question
+            test_question = session_questions[0]
+            question_id = test_question.get('id')
+            correct_answer = test_question.get('answer', '')
+            
+            print(f"   📋 Testing answer submission for question {question_id[:8] if question_id else 'N/A'}...")
+            print(f"   📊 Correct answer: {correct_answer}")
+            
+            # Test 1: Submit correct answer
+            print(f"   ✅ Test 1: Submitting CORRECT answer...")
+            
+            correct_submit_data = {
+                "session_id": session_id,
+                "position": 1,  # First question
+                "answer": correct_answer
+            }
+            
+            success, correct_response = self.run_test(
+                "Submit Correct Answer for Solution Feedback", 
+                "POST", 
+                "session/submit", 
+                [200, 400, 500], 
+                correct_submit_data, 
+                auth_headers
+            )
+            
+            if success and correct_response.get('success'):
+                test_results["submit_endpoint_working"] = True
+                test_results["response_has_success"] = True
+                print(f"      ✅ Submit endpoint working")
+                print(f"      ✅ Response has success field")
+                
+                # Validate response structure according to expected format
+                session_id_resp = correct_response.get('session_id')
+                position_resp = correct_response.get('position')
+                is_correct = correct_response.get('is_correct')
+                returned_correct_answer = correct_response.get('correct_answer')
+                explanation = correct_response.get('explanation')
+                solution_feedback = correct_response.get('solution_feedback')
+                next_position = correct_response.get('next_position')
+                is_complete = correct_response.get('is_complete')
+                
+                print(f"      📊 Response analysis:")
+                print(f"         session_id: {session_id_resp}")
+                print(f"         position: {position_resp}")
+                print(f"         is_correct: {is_correct} (type: {type(is_correct)})")
+                print(f"         correct_answer: {returned_correct_answer}")
+                print(f"         explanation present: {bool(explanation)}")
+                print(f"         solution_feedback present: {bool(solution_feedback)}")
+                print(f"         next_position: {next_position}")
+                print(f"         is_complete: {is_complete}")
+                
+                # Validate required fields according to expected format
+                if session_id_resp:
+                    test_results["response_has_session_id"] = True
+                    print(f"      ✅ session_id field present")
+                
+                if position_resp is not None:
+                    test_results["response_has_position"] = True
+                    print(f"      ✅ position field present")
+                
+                if isinstance(is_correct, bool):
+                    test_results["response_has_is_correct"] = True
+                    print(f"      ✅ is_correct field present and boolean")
+                    
+                    if is_correct == True:
+                        test_results["correct_answer_submission_working"] = True
+                        print(f"      ✅ Correct answer properly identified as correct")
+                else:
+                    print(f"      ❌ is_correct field missing or not boolean")
+                
+                if returned_correct_answer:
+                    test_results["response_has_correct_answer"] = True
+                    print(f"      ✅ correct_answer field present")
+                else:
+                    print(f"      ❌ correct_answer field missing")
+                
+                if explanation:
+                    test_results["response_has_explanation"] = True
+                    print(f"      ✅ explanation field present")
+                else:
+                    print(f"      ⚠️ explanation field missing or empty")
+                
+                if next_position is not None:
+                    test_results["response_has_next_position"] = True
+                    print(f"      ✅ next_position field present")
+                
+                if is_complete is not None:
+                    test_results["response_has_is_complete"] = True
+                    print(f"      ✅ is_complete field present")
+                
+                # **CRITICAL CHECK**: Validate solution_feedback object
+                if solution_feedback and isinstance(solution_feedback, dict):
+                    test_results["response_has_solution_feedback"] = True
+                    print(f"      ✅ solution_feedback object present")
+                    
+                    # Validate solution feedback sections
+                    snap_read = solution_feedback.get('snap_read', '')
+                    solution_approach = solution_feedback.get('solution_approach', '')
+                    detailed_solution = solution_feedback.get('detailed_solution', '')
+                    principle_to_remember = solution_feedback.get('principle_to_remember', '')
+                    
+                    print(f"      📊 Solution feedback sections:")
+                    print(f"         snap_read: {len(snap_read)} chars")
+                    print(f"         solution_approach: {len(solution_approach)} chars")
+                    print(f"         detailed_solution: {len(detailed_solution)} chars")
+                    print(f"         principle_to_remember: {len(principle_to_remember)} chars")
+                    
+                    sections_with_content = 0
+                    
+                    if snap_read and snap_read.strip():
+                        test_results["solution_feedback_has_snap_read"] = True
+                        print(f"      ✅ snap_read section has content")
+                        sections_with_content += 1
+                    else:
+                        print(f"      ⚠️ snap_read section empty")
+                    
+                    if solution_approach and solution_approach.strip():
+                        test_results["solution_feedback_has_solution_approach"] = True
+                        print(f"      ✅ solution_approach section has content")
+                        sections_with_content += 1
+                    else:
+                        print(f"      ⚠️ solution_approach section empty")
+                    
+                    if detailed_solution and detailed_solution.strip():
+                        test_results["solution_feedback_has_detailed_solution"] = True
+                        print(f"      ✅ detailed_solution section has content")
+                        sections_with_content += 1
+                    else:
+                        print(f"      ⚠️ detailed_solution section empty")
+                    
+                    if principle_to_remember and principle_to_remember.strip():
+                        test_results["solution_feedback_has_principle_to_remember"] = True
+                        print(f"      ✅ principle_to_remember section has content")
+                        sections_with_content += 1
+                    else:
+                        print(f"      ⚠️ principle_to_remember section empty")
+                    
+                    if sections_with_content == 4:
+                        test_results["all_solution_feedback_sections_have_content"] = True
+                        print(f"      ✅ All 4 solution feedback sections have content")
+                    else:
+                        print(f"      ⚠️ Only {sections_with_content}/4 solution feedback sections have content")
+                        
+                else:
+                    print(f"      ❌ solution_feedback object missing or invalid")
+                
+                # Check if response format matches expected
+                expected_fields = ['success', 'session_id', 'position', 'is_correct', 'correct_answer', 'solution_feedback']
+                response_fields = list(correct_response.keys())
+                missing_fields = [field for field in expected_fields if field not in response_fields]
+                
+                if not missing_fields:
+                    test_results["response_format_matches_expected"] = True
+                    print(f"      ✅ Response format matches expected structure")
+                else:
+                    print(f"      ⚠️ Missing expected fields: {missing_fields}")
+                
+            else:
+                print(f"      ❌ Submit correct answer failed: {correct_response}")
+            
+            # Test 2: Submit incorrect answer to verify solution feedback is still provided
+            print(f"   ❌ Test 2: Submitting INCORRECT answer...")
+            
+            # Use a different answer than the correct one
+            incorrect_answer = "B" if correct_answer != "B" else "C"
+            
+            incorrect_submit_data = {
+                "session_id": session_id,
+                "position": 2,  # Second question (if available)
+                "answer": incorrect_answer
+            }
+            
+            # Only test if we have a second question
+            if len(session_questions) > 1:
+                success, incorrect_response = self.run_test(
+                    "Submit Incorrect Answer for Solution Feedback", 
+                    "POST", 
+                    "session/submit", 
+                    [200, 400, 500], 
+                    incorrect_submit_data, 
+                    auth_headers
+                )
+                
+                if success and incorrect_response.get('success'):
+                    is_correct_wrong = incorrect_response.get('is_correct')
+                    
+                    if isinstance(is_correct_wrong, bool) and is_correct_wrong == False:
+                        test_results["incorrect_answer_submission_working"] = True
+                        print(f"      ✅ Incorrect answer properly identified as incorrect")
+                        
+                        # Check if solution feedback is still provided for incorrect answers
+                        solution_feedback_wrong = incorrect_response.get('solution_feedback')
+                        if solution_feedback_wrong and isinstance(solution_feedback_wrong, dict):
+                            print(f"      ✅ Solution feedback provided even for incorrect answers")
+                            
+                            # Check if all sections are present for incorrect answers too
+                            sections_present = 0
+                            for section in ['snap_read', 'solution_approach', 'detailed_solution', 'principle_to_remember']:
+                                if solution_feedback_wrong.get(section):
+                                    sections_present += 1
+                            
+                            print(f"      📊 Solution feedback sections for incorrect answer: {sections_present}/4")
+                        else:
+                            print(f"      ⚠️ Solution feedback missing for incorrect answers")
+                    else:
+                        print(f"      ❌ Incorrect answer not properly identified: {is_correct_wrong}")
+                else:
+                    print(f"      ❌ Submit incorrect answer failed: {incorrect_response}")
+            else:
+                print(f"      ⚠️ Only one question available, skipping incorrect answer test")
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 80)
+        print("🎯 BLUEPRINT SESSION SUBMIT ANSWER SOLUTION FEEDBACK TESTING - RESULTS")
+        print("=" * 80)
+        
+        passed_tests = sum(test_results.values())
+        total_tests = len(test_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        # Group results by test categories
+        test_categories = {
+            "AUTHENTICATION": [
+                "authentication_working", "jwt_token_valid", "user_adaptive_enabled"
+            ],
+            "SESSION CREATION": [
+                "session_start_endpoint_working", "session_created_successfully", "session_has_questions"
+            ],
+            "ANSWER SUBMISSION": [
+                "submit_endpoint_working", "response_has_success", "response_has_session_id", 
+                "response_has_position", "response_has_is_correct", "response_has_correct_answer", 
+                "response_has_explanation", "response_has_solution_feedback"
+            ],
+            "SOLUTION FEEDBACK CONTENT": [
+                "solution_feedback_has_snap_read", "solution_feedback_has_solution_approach",
+                "solution_feedback_has_detailed_solution", "solution_feedback_has_principle_to_remember",
+                "all_solution_feedback_sections_have_content"
+            ],
+            "RESPONSE FORMAT": [
+                "response_has_next_position", "response_has_is_complete", "response_format_matches_expected"
+            ],
+            "ANSWER VALIDATION": [
+                "correct_answer_submission_working", "incorrect_answer_submission_working"
+            ]
+        }
+        
+        for category, tests in test_categories.items():
+            print(f"\n{category}:")
+            category_passed = 0
+            category_total = len(tests)
+            
+            for test in tests:
+                if test in test_results:
+                    result = test_results[test]
+                    status = "✅ PASS" if result else "❌ FAIL"
+                    print(f"  {test.replace('_', ' ').title():<50} {status}")
+                    if result:
+                        category_passed += 1
+            
+            category_rate = (category_passed / category_total) * 100 if category_total > 0 else 0
+            print(f"  Category Success Rate: {category_passed}/{category_total} ({category_rate:.1f}%)")
+        
+        print("-" * 80)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # CRITICAL ASSESSMENT
+        print("\n🎯 CRITICAL ASSESSMENT:")
+        
+        # Solution Feedback Backend Assessment
+        solution_feedback_backend_working = (
+            test_results["response_has_solution_feedback"] and
+            test_results["solution_feedback_has_snap_read"] and
+            test_results["solution_feedback_has_solution_approach"] and
+            test_results["solution_feedback_has_detailed_solution"] and
+            test_results["solution_feedback_has_principle_to_remember"]
+        )
+        
+        if solution_feedback_backend_working:
+            test_results["solution_feedback_backend_working"] = True
+            test_results["backend_returns_complete_solution_feedback"] = True
+            test_results["issue_is_not_backend"] = True
+            print("\n✅ SOLUTION FEEDBACK BACKEND: WORKING")
+            print("   - Backend returns complete solution_feedback object")
+            print("   - All 4 sections present: snap_read, solution_approach, detailed_solution, principle_to_remember")
+            print("   - All sections have content")
+            print("   - Issue is NOT with the backend - backend is working correctly")
+            print("   - If frontend is not showing solution feedback, the issue is in frontend display logic")
+        else:
+            print("\n❌ SOLUTION FEEDBACK BACKEND: ISSUES DETECTED")
+            print("   - Backend not returning complete solution feedback")
+            print("   - Some solution feedback sections missing or empty")
+            print("   - Issue IS with the backend - needs backend fixes")
+        
+        # Response Format Assessment
+        response_format_correct = (
+            test_results["response_has_success"] and
+            test_results["response_has_session_id"] and
+            test_results["response_has_position"] and
+            test_results["response_has_is_correct"] and
+            test_results["response_has_correct_answer"] and
+            test_results["response_format_matches_expected"]
+        )
+        
+        if response_format_correct:
+            print("\n✅ RESPONSE FORMAT: CORRECT")
+            print("   - Response matches expected format from review request")
+            print("   - All required fields present")
+            print("   - Frontend should be able to parse response correctly")
+        else:
+            print("\n❌ RESPONSE FORMAT: ISSUES DETECTED")
+            print("   - Response format doesn't match expected structure")
+        
+        # Overall Production Readiness
+        if (solution_feedback_backend_working and response_format_correct and 
+            test_results["session_created_successfully"]):
+            test_results["production_ready"] = True
+            print("\n🎉 PRODUCTION READINESS: READY")
+            print("   - Blueprint session creation working")
+            print("   - Answer submission with complete solution feedback working")
+            print("   - Backend returning all required solution feedback data")
+            print("   - Response format matches frontend expectations")
+            print("   - If users aren't seeing solution feedback, check frontend display logic")
+        else:
+            print("\n⚠️ PRODUCTION READINESS: NEEDS ATTENTION")
+            print("   - Backend solution feedback issues need fixes")
+        
+        return success_rate >= 75 and solution_feedback_backend_working
 
     def test_twelvr_coverage_system_comprehensive(self):
         """
