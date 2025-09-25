@@ -1153,6 +1153,8 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
         // Create result object compatible with existing UI
         const result = {
           correct: blueprintResult.is_correct,
+          status: blueprintResult.is_correct ? 'correct' : 'incorrect', // FIX: Add status field for UI display
+          message: blueprintResult.is_correct ? 'Well done!' : 'Not quite right, but keep learning!',
           correct_answer: blueprintResult.correct_answer,
           explanation: blueprintResult.explanation,
           solution_feedback: blueprintResult.solution_feedback,
