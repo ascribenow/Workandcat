@@ -113,9 +113,16 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
     
     try {
       // Use new bulk endpoint to get all questions at once
-      console.log(`[BLUEPRINT] 🚀 Fetching all questions via bulk endpoint...`);
+      console.log(`[BLUEPRINT] 🚀 Fetching all questions via bulk endpoint: ${API}/session/questions/${sessionId}`);
       
-      const response = await axios.get(`${API}/session/questions/${sessionId}`);
+      const response = await axios.get(`${API}/session/questions/${sessionId}`, {
+        timeout: 10000,  // 10 second timeout
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('cat_prep_token')}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
       console.log(`[BLUEPRINT] ✅ Bulk questions response:`, response.data);
       
       const questions = response.data.questions || [];
@@ -155,10 +162,17 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
         }
       });
       
+      console.log(`[BLUEPRINT] 📦 fetchBlueprintSession completed successfully, returning pack`);
       return pack;
       
     } catch (error) {
       console.error('[BLUEPRINT] ❌ Error in optimized fetchBlueprintSession:', error);
+      console.error('[BLUEPRINT] ❌ Error details:', {
+        message: error.message,
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data
+      });
       console.error('[BLUEPRINT] ❌ Error stack:', error.stack);
       throw error;
     }
