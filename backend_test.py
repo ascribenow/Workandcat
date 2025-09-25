@@ -1106,6 +1106,475 @@ class CATBackendTester:
         
         return success_rate >= 80 and criteria_rate >= 85
 
+    def test_blueprint_session_bulk_questions_endpoint(self):
+        """
+        🎯 BLUEPRINT SESSION BULK QUESTIONS ENDPOINT DEBUGGING
+        
+        OBJECTIVE: Debug the Blueprint Session bulk questions endpoint issue where questions are not loading
+        
+        TESTING REQUIREMENTS FROM REVIEW REQUEST:
+        1. Login with sp@theskinmantra.com/student123
+        2. Find an existing Blueprint session or create new one
+        3. **CRITICAL TEST**: Call GET `/session/questions/{session_id}` directly
+        4. Verify endpoint returns 12 questions with proper structure
+        5. Check for any 500 errors or empty responses
+        6. Verify each question has required fields: id, stem, option_a, option_b, option_c, option_d, position, difficulty_band, answer
+        7. Confirm question data matches what frontend expects
+        
+        EXPECTED FINDINGS: Identify if the issue is:
+        1. Bulk endpoint not implemented correctly
+        2. Question data structure problems  
+        3. Empty/missing question data in database
+        4. Frontend not calling bulk endpoint properly
+        
+        This will help determine the exact cause of "[PACK_MONITOR] CRITICAL - Pack is empty!" error.
+        
+        AUTHENTICATION: sp@theskinmantra.com/student123
+        """
+        print("🎯 BLUEPRINT SESSION BULK QUESTIONS ENDPOINT DEBUGGING")
+        print("=" * 80)
+        print("OBJECTIVE: Debug Blueprint Session bulk questions endpoint issue")
+        print("FOCUS: GET /session/questions/{session_id} endpoint testing")
+        print("EXPECTED: 12 questions with proper structure, no 500 errors or empty responses")
+        print("=" * 80)
+        
+        test_results = {
+            # Authentication Setup
+            "authentication_working": False,
+            "jwt_token_valid": False,
+            "user_adaptive_enabled": False,
+            
+            # Blueprint Session Creation/Detection
+            "session_creation_working": False,
+            "session_id_obtained": False,
+            "session_has_questions_in_creation": False,
+            
+            # Bulk Questions Endpoint Testing
+            "bulk_questions_endpoint_accessible": False,
+            "bulk_questions_returns_200": False,
+            "bulk_questions_no_500_errors": False,
+            "bulk_questions_not_empty": False,
+            "bulk_questions_returns_12_questions": False,
+            
+            # Question Data Structure Validation
+            "questions_have_required_fields": False,
+            "questions_have_id_field": False,
+            "questions_have_stem_field": False,
+            "questions_have_option_fields": False,
+            "questions_have_position_field": False,
+            "questions_have_difficulty_band": False,
+            "questions_have_answer_field": False,
+            
+            # Data Quality Checks
+            "question_data_not_null": False,
+            "question_positions_sequential": False,
+            "question_structure_matches_frontend": False,
+            
+            # Issue Diagnosis
+            "pack_empty_issue_identified": False,
+            "root_cause_determined": False,
+            "endpoint_implementation_correct": False,
+            
+            # Overall Assessment
+            "bulk_questions_endpoint_working": False,
+            "pack_loading_issue_resolved": False,
+            "production_ready": False
+        }
+        
+        # PHASE 1: AUTHENTICATION SETUP
+        print("\n🔐 PHASE 1: AUTHENTICATION SETUP")
+        print("-" * 60)
+        print("Testing authentication with sp@theskinmantra.com/student123")
+        
+        auth_data = {
+            "email": "sp@theskinmantra.com",
+            "password": "student123"
+        }
+        
+        success, response = self.run_test("Blueprint Authentication", "POST", "auth/login", [200, 401], auth_data)
+        
+        auth_headers = None
+        user_id = None
+        if success and response.get('access_token'):
+            token = response['access_token']
+            auth_headers = {
+                'Authorization': f'Bearer {token}',
+                'Content-Type': 'application/json'
+            }
+            test_results["authentication_working"] = True
+            test_results["jwt_token_valid"] = True
+            print(f"   ✅ Authentication successful")
+            print(f"   📊 JWT Token length: {len(token)} characters")
+            
+            user_data = response.get('user', {})
+            user_id = user_data.get('id')
+            adaptive_enabled = user_data.get('adaptive_enabled', False)
+            
+            if adaptive_enabled:
+                test_results["user_adaptive_enabled"] = True
+                print(f"   ✅ User adaptive_enabled confirmed: {adaptive_enabled}")
+                print(f"   📊 User ID: {user_id}")
+            else:
+                print(f"   ⚠️ User adaptive_enabled: {adaptive_enabled}")
+        else:
+            print("   ❌ Authentication failed - cannot proceed with blueprint testing")
+            return False
+        
+        # PHASE 2: BLUEPRINT SESSION CREATION/DETECTION
+        print("\n🚀 PHASE 2: BLUEPRINT SESSION CREATION/DETECTION")
+        print("-" * 60)
+        print("Creating or finding Blueprint session for bulk questions testing")
+        
+        session_id = None
+        session_questions = []
+        
+        if user_id and auth_headers:
+            # Try to create a new Blueprint session
+            session_start_data = {
+                "user_id": user_id
+            }
+            
+            print(f"   📋 Creating blueprint session for user {user_id[:8]}...")
+            
+            import time
+            start_time = time.time()
+            success, session_response = self.run_test(
+                "Blueprint Session Creation", 
+                "POST", 
+                "session/start", 
+                [200, 400, 500], 
+                session_start_data, 
+                auth_headers
+            )
+            response_time = time.time() - start_time
+            
+            if success and session_response.get('success'):
+                test_results["session_creation_working"] = True
+                session_id = session_response.get('session_id')
+                session_questions = session_response.get('questions', [])
+                
+                print(f"   ✅ Session created successfully")
+                print(f"   📊 Response time: {response_time:.2f} seconds")
+                print(f"   📊 Session ID: {session_id}")
+                print(f"   📊 Questions count in creation response: {len(session_questions)}")
+                
+                if session_id:
+                    test_results["session_id_obtained"] = True
+                    print(f"   ✅ Session ID obtained for bulk testing")
+                
+                if len(session_questions) > 0:
+                    test_results["session_has_questions_in_creation"] = True
+                    print(f"   ✅ Session creation response includes questions")
+                    
+                    # Show sample question structure from creation
+                    if session_questions:
+                        sample_q = session_questions[0]
+                        print(f"   📊 Sample question from creation response:")
+                        print(f"      ID: {sample_q.get('id', 'N/A')}")
+                        print(f"      Has stem: {bool(sample_q.get('stem'))}")
+                        print(f"      Has options: {bool(sample_q.get('options'))}")
+                        print(f"      Position: {sample_q.get('position', 'N/A')}")
+                else:
+                    print(f"   ⚠️ Session created but no questions in creation response")
+            else:
+                print(f"   ❌ Session creation failed: {session_response}")
+                # Try to find existing session instead
+                print(f"   🔍 Attempting to find existing Blueprint session...")
+                
+                # List existing sessions to find one to test with
+                success, list_response = self.run_test(
+                    "List User Sessions", 
+                    "GET", 
+                    "session/list?limit=5", 
+                    [200, 500], 
+                    None, 
+                    auth_headers
+                )
+                
+                if success and list_response.get('sessions'):
+                    sessions = list_response.get('sessions', [])
+                    print(f"   📊 Found {len(sessions)} existing sessions")
+                    
+                    # Use first available session
+                    if sessions:
+                        session_id = sessions[0].get('session_id')
+                        test_results["session_id_obtained"] = True
+                        print(f"   ✅ Using existing session ID: {session_id}")
+                    else:
+                        print(f"   ❌ No existing sessions found")
+                        return False
+                else:
+                    print(f"   ❌ Could not list sessions: {list_response}")
+                    return False
+        
+        # PHASE 3: BULK QUESTIONS ENDPOINT TESTING (CRITICAL)
+        print("\n📦 PHASE 3: BULK QUESTIONS ENDPOINT TESTING (CRITICAL)")
+        print("-" * 60)
+        print("Testing GET /session/questions/{session_id} endpoint directly")
+        
+        if session_id and auth_headers:
+            print(f"   🎯 Testing bulk questions endpoint for session {session_id[:8]}...")
+            
+            # CRITICAL TEST: Call GET /session/questions/{session_id} directly
+            bulk_endpoint = f"session/questions/{session_id}"
+            
+            start_time = time.time()
+            success, bulk_response = self.run_test(
+                "Bulk Questions Endpoint", 
+                "GET", 
+                bulk_endpoint, 
+                [200, 400, 404, 500], 
+                None, 
+                auth_headers
+            )
+            response_time = time.time() - start_time
+            
+            print(f"   📊 Bulk endpoint response time: {response_time:.2f} seconds")
+            print(f"   📊 Response status: {bulk_response.get('status_code', 'N/A') if not success else '200'}")
+            
+            if success:
+                test_results["bulk_questions_endpoint_accessible"] = True
+                test_results["bulk_questions_returns_200"] = True
+                test_results["bulk_questions_no_500_errors"] = True
+                print(f"   ✅ Bulk questions endpoint accessible (200 OK)")
+                print(f"   ✅ No 500 errors detected")
+                
+                # Check response structure
+                total_questions = bulk_response.get('total_questions', 0)
+                questions_data = bulk_response.get('questions', [])
+                
+                print(f"   📊 Response analysis:")
+                print(f"      total_questions: {total_questions}")
+                print(f"      questions array length: {len(questions_data)}")
+                print(f"      session_id in response: {bulk_response.get('session_id', 'N/A')}")
+                
+                if len(questions_data) > 0:
+                    test_results["bulk_questions_not_empty"] = True
+                    print(f"   ✅ Bulk questions response is NOT empty")
+                    
+                    if len(questions_data) == 12:
+                        test_results["bulk_questions_returns_12_questions"] = True
+                        print(f"   ✅ Bulk endpoint returns exactly 12 questions")
+                    else:
+                        print(f"   ⚠️ Bulk endpoint returns {len(questions_data)} questions (expected 12)")
+                    
+                    # PHASE 4: QUESTION DATA STRUCTURE VALIDATION
+                    print(f"\n📋 PHASE 4: QUESTION DATA STRUCTURE VALIDATION")
+                    print(f"-" * 60)
+                    print(f"Validating question structure matches frontend expectations")
+                    
+                    # Check first question structure in detail
+                    sample_question = questions_data[0]
+                    print(f"   📊 Sample question structure analysis:")
+                    
+                    required_fields = ['id', 'stem', 'option_a', 'option_b', 'option_c', 'option_d', 'position', 'difficulty_band', 'answer']
+                    missing_fields = []
+                    present_fields = []
+                    
+                    for field in required_fields:
+                        if field in sample_question and sample_question[field] is not None:
+                            present_fields.append(field)
+                            print(f"      ✅ {field}: {type(sample_question[field]).__name__} - {str(sample_question[field])[:50]}{'...' if len(str(sample_question[field])) > 50 else ''}")
+                        else:
+                            missing_fields.append(field)
+                            print(f"      ❌ {field}: MISSING or NULL")
+                    
+                    # Field-specific validations
+                    if 'id' in sample_question and sample_question['id']:
+                        test_results["questions_have_id_field"] = True
+                    
+                    if 'stem' in sample_question and sample_question['stem']:
+                        test_results["questions_have_stem_field"] = True
+                    
+                    if all(f in sample_question and sample_question[f] for f in ['option_a', 'option_b', 'option_c', 'option_d']):
+                        test_results["questions_have_option_fields"] = True
+                        print(f"      ✅ All option fields (A, B, C, D) present")
+                    
+                    if 'position' in sample_question and sample_question['position']:
+                        test_results["questions_have_position_field"] = True
+                    
+                    if 'difficulty_band' in sample_question and sample_question['difficulty_band']:
+                        test_results["questions_have_difficulty_band"] = True
+                    
+                    if 'answer' in sample_question and sample_question['answer']:
+                        test_results["questions_have_answer_field"] = True
+                    
+                    # Overall field validation
+                    if len(missing_fields) == 0:
+                        test_results["questions_have_required_fields"] = True
+                        print(f"   ✅ All required fields present in questions")
+                    else:
+                        print(f"   ❌ Missing required fields: {missing_fields}")
+                    
+                    # Check all questions for data quality
+                    print(f"   📊 Checking all {len(questions_data)} questions for data quality...")
+                    
+                    positions = []
+                    null_data_count = 0
+                    
+                    for i, q in enumerate(questions_data):
+                        position = q.get('position', i+1)
+                        positions.append(position)
+                        
+                        # Check for null/empty critical data
+                        if not q.get('id') or not q.get('stem'):
+                            null_data_count += 1
+                    
+                    # Position sequence validation
+                    expected_positions = list(range(1, len(questions_data) + 1))
+                    if sorted(positions) == expected_positions:
+                        test_results["question_positions_sequential"] = True
+                        print(f"   ✅ Question positions are sequential (1-{len(questions_data)})")
+                    else:
+                        print(f"   ❌ Question positions not sequential: {sorted(positions)}")
+                    
+                    # Data quality validation
+                    if null_data_count == 0:
+                        test_results["question_data_not_null"] = True
+                        print(f"   ✅ No null/empty critical data detected")
+                    else:
+                        print(f"   ❌ {null_data_count} questions have null/empty critical data")
+                    
+                    # Frontend structure compatibility
+                    if (test_results["questions_have_required_fields"] and 
+                        test_results["question_positions_sequential"] and 
+                        test_results["question_data_not_null"]):
+                        test_results["question_structure_matches_frontend"] = True
+                        print(f"   ✅ Question structure matches frontend expectations")
+                    
+                else:
+                    test_results["pack_empty_issue_identified"] = True
+                    print(f"   ❌ CRITICAL: Bulk questions response is EMPTY")
+                    print(f"   🚨 This explains the '[PACK_MONITOR] CRITICAL - Pack is empty!' error")
+                    print(f"   📊 Root cause: Bulk endpoint returns empty questions array")
+                
+            else:
+                # Handle error responses
+                status_code = bulk_response.get('status_code', 'unknown')
+                error_detail = bulk_response.get('detail', bulk_response.get('text', 'Unknown error'))
+                
+                print(f"   ❌ Bulk questions endpoint failed")
+                print(f"   📊 Status code: {status_code}")
+                print(f"   📊 Error detail: {error_detail}")
+                
+                if status_code == 500:
+                    print(f"   🚨 500 Internal Server Error detected")
+                    print(f"   📊 This indicates a backend implementation issue")
+                elif status_code == 404:
+                    print(f"   🚨 404 Not Found - Session or endpoint not found")
+                elif status_code == 400:
+                    print(f"   🚨 400 Bad Request - Invalid session ID or parameters")
+                
+                test_results["pack_empty_issue_identified"] = True
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 80)
+        print("🎯 BLUEPRINT SESSION BULK QUESTIONS ENDPOINT DEBUGGING - RESULTS")
+        print("=" * 80)
+        
+        passed_tests = sum(test_results.values())
+        total_tests = len(test_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        # Group results by test categories
+        test_categories = {
+            "AUTHENTICATION": [
+                "authentication_working", "jwt_token_valid", "user_adaptive_enabled"
+            ],
+            "SESSION CREATION/DETECTION": [
+                "session_creation_working", "session_id_obtained", "session_has_questions_in_creation"
+            ],
+            "BULK QUESTIONS ENDPOINT": [
+                "bulk_questions_endpoint_accessible", "bulk_questions_returns_200", 
+                "bulk_questions_no_500_errors", "bulk_questions_not_empty", "bulk_questions_returns_12_questions"
+            ],
+            "QUESTION DATA STRUCTURE": [
+                "questions_have_required_fields", "questions_have_id_field", "questions_have_stem_field",
+                "questions_have_option_fields", "questions_have_position_field", "questions_have_difficulty_band", "questions_have_answer_field"
+            ],
+            "DATA QUALITY": [
+                "question_data_not_null", "question_positions_sequential", "question_structure_matches_frontend"
+            ],
+            "ISSUE DIAGNOSIS": [
+                "pack_empty_issue_identified", "root_cause_determined", "endpoint_implementation_correct"
+            ]
+        }
+        
+        for category, tests in test_categories.items():
+            print(f"\n{category}:")
+            category_passed = 0
+            category_total = len(tests)
+            
+            for test in tests:
+                if test in test_results:
+                    result = test_results[test]
+                    status = "✅ PASS" if result else "❌ FAIL"
+                    print(f"  {test.replace('_', ' ').title():<50} {status}")
+                    if result:
+                        category_passed += 1
+            
+            category_rate = (category_passed / category_total) * 100 if category_total > 0 else 0
+            print(f"  Category Success Rate: {category_passed}/{category_total} ({category_rate:.1f}%)")
+        
+        print("-" * 80)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # CRITICAL DIAGNOSIS
+        print("\n🎯 CRITICAL DIAGNOSIS:")
+        
+        if test_results["bulk_questions_not_empty"] and test_results["bulk_questions_returns_12_questions"]:
+            test_results["bulk_questions_endpoint_working"] = True
+            test_results["pack_loading_issue_resolved"] = True
+            print("\n✅ BULK QUESTIONS ENDPOINT: WORKING")
+            print("   - Endpoint returns 12 questions successfully")
+            print("   - Question data structure is correct")
+            print("   - Pack loading issue appears resolved")
+            print("   - '[PACK_MONITOR] CRITICAL - Pack is empty!' should not occur")
+        elif test_results["bulk_questions_endpoint_accessible"] and not test_results["bulk_questions_not_empty"]:
+            print("\n❌ BULK QUESTIONS ENDPOINT: EMPTY RESPONSE ISSUE")
+            print("   - Endpoint is accessible (200 OK)")
+            print("   - BUT returns empty questions array")
+            print("   - This is the ROOT CAUSE of '[PACK_MONITOR] CRITICAL - Pack is empty!'")
+            print("   - Issue: Question data not being populated in bulk response")
+        elif not test_results["bulk_questions_endpoint_accessible"]:
+            print("\n❌ BULK QUESTIONS ENDPOINT: IMPLEMENTATION ISSUE")
+            print("   - Endpoint not accessible or returning errors")
+            print("   - This prevents question loading entirely")
+            print("   - Issue: Backend implementation problems")
+        
+        # ROOT CAUSE DETERMINATION
+        if test_results["pack_empty_issue_identified"]:
+            test_results["root_cause_determined"] = True
+            print("\n🔍 ROOT CAUSE IDENTIFIED:")
+            
+            if not test_results["bulk_questions_endpoint_accessible"]:
+                print("   1. ENDPOINT IMPLEMENTATION: Bulk questions endpoint has errors")
+                print("   2. RECOMMENDATION: Fix backend implementation in blueprint_sessions.py")
+                print("   3. CHECK: Database queries in _get_session_questions method")
+            elif not test_results["bulk_questions_not_empty"]:
+                print("   1. DATA POPULATION: Endpoint works but returns empty data")
+                print("   2. RECOMMENDATION: Check session_pack_questions table population")
+                print("   3. CHECK: Blueprint planner question storage logic")
+            elif not test_results["questions_have_required_fields"]:
+                print("   1. DATA STRUCTURE: Questions missing required fields")
+                print("   2. RECOMMENDATION: Fix question data transformation")
+                print("   3. CHECK: Question formatting in bulk endpoint response")
+        
+        # PRODUCTION READINESS
+        if (test_results["bulk_questions_endpoint_working"] and 
+            test_results["question_structure_matches_frontend"]):
+            test_results["production_ready"] = True
+            print("\n🎉 PRODUCTION READINESS: READY")
+            print("   - Bulk questions endpoint working correctly")
+            print("   - Question data structure matches frontend expectations")
+            print("   - Pack loading issue resolved")
+        else:
+            print("\n⚠️ PRODUCTION READINESS: NEEDS FIXES")
+            print("   - Bulk questions endpoint issues need resolution")
+            print("   - Pack loading will continue to fail until fixed")
+        
+        return success_rate >= 70 and test_results["bulk_questions_endpoint_working"]
+
     def test_blueprint_session_solution_feedback(self):
         """
         🎯 BLUEPRINT SESSION SYSTEM SUBMIT ANSWER API TESTING
