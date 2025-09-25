@@ -203,9 +203,17 @@ export const Dashboard = () => {
         try {
           console.log('Dashboard: Checking for uncompleted Blueprint sessions...');
           console.log('Dashboard: About to call Blueprint session list API...');
+          console.log('Dashboard: API URL:', `${API}/session/list`);
+          console.log('Dashboard: Auth headers:', !!localStorage.getItem('cat_prep_token'));
           
           // Check for incomplete Blueprint sessions using the new system
-          const incompleteSessionResponse = await axios.get(`${API}/session/list`);
+          const incompleteSessionResponse = await axios.get(`${API}/session/list`, {
+            timeout: 10000,  // 10 second timeout
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('cat_prep_token')}`,
+              'Content-Type': 'application/json'
+            }
+          });
           console.log('Dashboard: Blueprint session list response:', incompleteSessionResponse.data);
           
           // Find incomplete sessions (not completed)
