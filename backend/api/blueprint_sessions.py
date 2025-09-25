@@ -72,6 +72,17 @@ async def start_session(
         # Plan session with advisory lock protection
         session_data = await planner.plan_session(request.user_id)
         
+        # Get session sequence number from database for display
+        db = planner.get_db_session()
+        try:
+            seq_result = db.execute(text("""
+                SELECT sess_seq FROM sessions 
+                WHERE session_id = :session_id
+            """), {"session_id": session_data["session_id"]})
+            session_seq = seq_result.scalar() or 1
+        finally:
+            db.close()
+        
         logger.info(f"Blueprint session {session_data['session_id'][:8]} created successfully with {len(session_data.get('questions', []))} questions")
         
         return JSONResponse({
@@ -83,6 +94,7 @@ async def start_session(
             "total_questions": len(session_data.get("questions", [])),
             "current_position": 1,  # Blueprint sessions start at position 1
             "session_type": "blueprint",
+            "session_number": session_seq,  # FIX: Include actual session sequence
             "created_at": datetime.now(timezone.utc).isoformat()
         }, status_code=200)
         
