@@ -29,6 +29,16 @@ const getBackendURL = () => {
 const BACKEND_URL = getBackendURL();
 export const API = BACKEND_URL ? `${BACKEND_URL}/api` : '/api';
 
+console.log('AuthProvider: Backend URL configuration:', {
+  BACKEND_URL,
+  API,
+  currentDomain: window.location.hostname,
+  environmentVar: process.env.REACT_APP_BACKEND_URL
+});
+
+// Configure axios defaults
+axios.defaults.baseURL = BACKEND_URL || window.location.origin;
+
 // Debug logging
 console.log('🔧 AuthProvider Debug:', {
   currentDomain: window.location.hostname,
