@@ -88,14 +88,18 @@ export const SimpleDashboard = () => {
       logDashboardMismatch('post_data_fetch', simpleResponse.data, simpleResponse.data);
       
     } catch (error) {
-      console.error('SimpleDashboard: Error fetching data:', error);
-      console.error('SimpleDashboard: Error details:', {
-        message: error.message,
-        status: error.response?.status,
-        statusText: error.response?.statusText,
-        data: error.response?.data,
-        retryCount: retryCount
-      });
+      console.error('SimpleDashboard: Error fetching data:', error?.message || 'Unknown error');
+      
+      // Only log detailed error info if it's not a network timeout
+      if (error?.code !== 'ECONNABORTED' && error?.response?.status !== 408) {
+        console.error('SimpleDashboard: Error details:', {
+          message: error.message,
+          status: error.response?.status,
+          statusText: error.response?.statusText,
+          data: error.response?.data,
+          retryCount: retryCount
+        });
+      }
       
       // RETRY LOGIC: Retry up to 2 times with exponential backoff
       if (retryCount < 2) {
