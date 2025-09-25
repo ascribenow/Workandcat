@@ -385,10 +385,9 @@ export const Dashboard = () => {
                     if (sessionLimitStatus?.limit_reached) {
                       setShowUpgradeModal(true);
                     } else {
-                      const sessionStarted = await startOrResumeSession();
-                      if (sessionStarted) {
-                        setCurrentView('session');
-                      }
+                      // ROUTING FIX: Let startOrResumeSession handle view switching internally
+                      await startOrResumeSession();
+                      // Don't call setCurrentView here - it's handled in startOrResumeSession
                     }
                   }}
                   disabled={loading}
