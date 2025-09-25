@@ -278,10 +278,12 @@ export const Dashboard = () => {
       console.log(`Dashboard: Blueprint session ready with ${sessionQuestions.length} questions`);
       setCurrentView('session');
       console.log('Dashboard: Switching to session view for Blueprint session');
+      return true;  // CRITICAL FIX: Return true to indicate successful session start
     } catch (error) {
       console.error('Dashboard: Error during session preparation:', error);
       setCurrentView('dashboard');
       setLoading(false);
+      return false;  // CRITICAL FIX: Return false to indicate failed session start
     }
   };
 
