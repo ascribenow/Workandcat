@@ -261,8 +261,16 @@ export const Dashboard = () => {
       
       // Create new Blueprint session
       console.log('Dashboard: Creating new Blueprint session...');
+      console.log('Dashboard: Session start URL:', `${API}/session/start`);
+      
       const sessionStartResponse = await axios.post(`${API}/session/start`, {
         user_id: user.id
+      }, {
+        timeout: 15000,  // 15 second timeout
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('cat_prep_token')}`,
+          'Content-Type': 'application/json'
+        }
       });
       
       console.log('Dashboard: Blueprint session created:', sessionStartResponse.data);
