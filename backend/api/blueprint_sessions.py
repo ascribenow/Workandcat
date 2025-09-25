@@ -330,6 +330,36 @@ async def submit_answer(
                 "explanation": question_at_position.get('explanation', ''),
                 "timestamp": datetime.now(timezone.utc)
             })
+            
+            # DASHBOARD FIX: Create attempt_events record for dashboard category breakdown
+            db.execute(text("""
+                INSERT INTO attempt_events (
+                    id, user_id, session_id, question_id, was_correct, skipped,
+                    response_time_ms, created_at, difficulty_band, subcategory,
+                    type_of_question, core_concepts, pyq_frequency_score, sess_seq_at_serve
+                ) VALUES (
+                    :id, :user_id, :session_id, :question_id, :was_correct, :skipped,
+                    :response_time_ms, :created_at, :difficulty_band, :subcategory,
+                    :type_of_question, :core_concepts, :pyq_frequency_score, :sess_seq_at_serve
+                )
+                ON CONFLICT (id) DO NOTHING
+            """), {
+                "id": str(uuid.uuid4()),
+                "user_id": auth_user_id,
+                "session_id": request.session_id,
+                "question_id": question_at_position['id'],
+                "was_correct": is_correct,
+                "skipped": False,  # Blueprint answers are never skipped
+                "response_time_ms": 30000,  # Default response time for Blueprint answers
+                "created_at": datetime.now(timezone.utc),
+                "difficulty_band": question_at_position.get('difficulty_band', 'Medium'),
+                "subcategory": question_at_position.get('subcategory', 'General'),
+                "type_of_question": question_at_position.get('type_of_question', 'MCQ'),
+                "core_concepts": question_at_position.get('core_concepts', []),
+                "pyq_frequency_score": question_at_position.get('pyq_frequency_score', 0),
+                "sess_seq_at_serve": request.position  # Use position as sequence
+            })
+            
             db.commit()
         finally:
             db.close()
