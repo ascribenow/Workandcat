@@ -1164,6 +1164,14 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
         setResult(result);
         setShowResult(true);
         console.log(`[CRITICAL_DEBUG] ${requestId}: Blueprint answer submitted successfully`);
+        console.log(`[SOLUTION_FEEDBACK_DEBUG] Complete result object:`, result);
+        console.log(`[SOLUTION_FEEDBACK_DEBUG] Solution feedback data:`, {
+          hasSolutionFeedback: !!result.solution_feedback,
+          snapRead: result.solution_feedback?.snap_read?.substring(0, 50),
+          approach: result.solution_feedback?.solution_approach?.substring(0, 50),
+          detailedSolution: result.solution_feedback?.detailed_solution?.substring(0, 50),
+          principle: result.solution_feedback?.principle_to_remember?.substring(0, 50)
+        });
         
         // Let user manually control progression - no auto-advance
         console.log(`[BLUEPRINT] ✅ Answer result displayed, waiting for user action`);
