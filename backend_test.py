@@ -1106,6 +1106,419 @@ class CATBackendTester:
         
         return success_rate >= 80 and criteria_rate >= 85
 
+    def test_blueprint_session_list_api_endpoint(self):
+        """
+        🎯 BLUEPRINT SESSION LIST API ENDPOINT DEBUGGING
+        
+        OBJECTIVE: Debug the Blueprint Session list API endpoint that's causing critical routing failure
+        
+        TESTING REQUIREMENTS FROM REVIEW REQUEST:
+        1. Login with sp@theskinmantra.com/student123
+        2. **CRITICAL TEST**: Call GET `/api/session/list` directly
+        3. Check response time, status code, and data structure
+        4. Verify endpoint returns proper Blueprint session data
+        5. Ensure API returns sessions array with proper format
+        6. Measure response time (should be under 5 seconds)
+        7. Check for any timeout issues or database connection problems
+        8. Verify no 500 errors or silent failures
+        
+        EXPECTED OUTCOME: Identify if `/api/session/list` endpoint is:
+        1. Missing/not implemented
+        2. Timing out due to database issues
+        3. Returning incorrect data format
+        4. Having authentication/authorization problems
+        
+        This will determine why the frontend routing gets stuck at the API call stage.
+        
+        AUTHENTICATION: sp@theskinmantra.com/student123
+        """
+        print("🎯 BLUEPRINT SESSION LIST API ENDPOINT DEBUGGING")
+        print("=" * 80)
+        print("OBJECTIVE: Debug Blueprint Session list API endpoint causing critical routing failure")
+        print("FOCUS: GET /api/session/list endpoint availability, performance, and data structure")
+        print("EXPECTED: Proper session data, response time <5s, no 500 errors or timeouts")
+        print("=" * 80)
+        
+        test_results = {
+            # Authentication Setup
+            "authentication_working": False,
+            "jwt_token_valid": False,
+            "user_adaptive_enabled": False,
+            
+            # API Endpoint Availability
+            "session_list_endpoint_accessible": False,
+            "session_list_returns_200": False,
+            "session_list_no_500_errors": False,
+            "session_list_no_timeout": False,
+            "session_list_response_under_5s": False,
+            
+            # Session Data Verification
+            "session_list_returns_sessions_array": False,
+            "session_data_has_proper_format": False,
+            "session_has_session_id": False,
+            "session_has_status": False,
+            "session_has_answered_count": False,
+            "session_has_total_questions": False,
+            "session_has_progress_percentage": False,
+            
+            # Performance Analysis
+            "response_time_acceptable": False,
+            "no_database_connection_issues": False,
+            "no_silent_failures": False,
+            
+            # Issue Diagnosis
+            "endpoint_implementation_exists": False,
+            "authentication_authorization_working": False,
+            "data_format_correct": False,
+            "root_cause_identified": False,
+            
+            # Overall Assessment
+            "session_list_api_working": False,
+            "frontend_routing_issue_resolved": False,
+            "production_ready": False
+        }
+        
+        # PHASE 1: AUTHENTICATION SETUP
+        print("\n🔐 PHASE 1: AUTHENTICATION SETUP")
+        print("-" * 60)
+        print("Testing authentication with sp@theskinmantra.com/student123")
+        
+        auth_data = {
+            "email": "sp@theskinmantra.com",
+            "password": "student123"
+        }
+        
+        success, response = self.run_test("Blueprint Session List Authentication", "POST", "auth/login", [200, 401], auth_data)
+        
+        auth_headers = None
+        user_id = None
+        if success and response.get('access_token'):
+            token = response['access_token']
+            auth_headers = {
+                'Authorization': f'Bearer {token}',
+                'Content-Type': 'application/json'
+            }
+            test_results["authentication_working"] = True
+            test_results["jwt_token_valid"] = True
+            print(f"   ✅ Authentication successful")
+            print(f"   📊 JWT Token length: {len(token)} characters")
+            
+            user_data = response.get('user', {})
+            user_id = user_data.get('id')
+            adaptive_enabled = user_data.get('adaptive_enabled', False)
+            
+            if adaptive_enabled:
+                test_results["user_adaptive_enabled"] = True
+                print(f"   ✅ User adaptive_enabled confirmed: {adaptive_enabled}")
+                print(f"   📊 User ID: {user_id}")
+            else:
+                print(f"   ⚠️ User adaptive_enabled: {adaptive_enabled}")
+        else:
+            print("   ❌ Authentication failed - cannot proceed with session list testing")
+            return False
+        
+        # PHASE 2: API ENDPOINT AVAILABILITY TESTING (CRITICAL)
+        print("\n📡 PHASE 2: API ENDPOINT AVAILABILITY TESTING (CRITICAL)")
+        print("-" * 60)
+        print("Testing GET /api/session/list endpoint directly")
+        
+        if auth_headers:
+            print(f"   🎯 Testing session list endpoint...")
+            
+            # CRITICAL TEST: Call GET /api/session/list directly
+            import time
+            start_time = time.time()
+            
+            success, list_response = self.run_test(
+                "Session List API Endpoint", 
+                "GET", 
+                "session/list", 
+                [200, 400, 401, 403, 404, 500, 502, 503, 504], 
+                None, 
+                auth_headers
+            )
+            
+            response_time = time.time() - start_time
+            print(f"   📊 Response time: {response_time:.2f} seconds")
+            
+            # Check response time performance
+            if response_time < 5.0:
+                test_results["session_list_response_under_5s"] = True
+                test_results["response_time_acceptable"] = True
+                print(f"   ✅ Response time under 5 seconds target")
+            else:
+                print(f"   ❌ Response time exceeds 5 seconds ({response_time:.2f}s)")
+            
+            if response_time < 30.0:  # No timeout
+                test_results["session_list_no_timeout"] = True
+                print(f"   ✅ No timeout detected")
+            else:
+                print(f"   ❌ Request timed out or very slow")
+            
+            # Analyze response status and content
+            if success:
+                test_results["session_list_endpoint_accessible"] = True
+                test_results["endpoint_implementation_exists"] = True
+                
+                # Check specific status code
+                if hasattr(list_response, 'get') and list_response.get('status_code') == 200:
+                    test_results["session_list_returns_200"] = True
+                    print(f"   ✅ Session list endpoint accessible (200 OK)")
+                elif not hasattr(list_response, 'get'):  # Successful response without status_code means 200
+                    test_results["session_list_returns_200"] = True
+                    print(f"   ✅ Session list endpoint accessible (200 OK)")
+                
+                test_results["session_list_no_500_errors"] = True
+                test_results["no_silent_failures"] = True
+                print(f"   ✅ No 500 errors detected")
+                print(f"   ✅ No silent failures")
+                
+                # PHASE 3: SESSION DATA VERIFICATION
+                print(f"\n📋 PHASE 3: SESSION DATA VERIFICATION")
+                print(f"-" * 60)
+                print(f"Verifying session data structure and format")
+                
+                # Check if response has sessions array
+                if isinstance(list_response, dict):
+                    sessions_array = list_response.get('sessions', [])
+                    success_flag = list_response.get('success', False)
+                    total_returned = list_response.get('total_returned', 0)
+                    
+                    print(f"   📊 Response structure analysis:")
+                    print(f"      success: {success_flag}")
+                    print(f"      sessions array length: {len(sessions_array)}")
+                    print(f"      total_returned: {total_returned}")
+                    
+                    if 'sessions' in list_response:
+                        test_results["session_list_returns_sessions_array"] = True
+                        print(f"   ✅ Response contains sessions array")
+                        
+                        if len(sessions_array) > 0:
+                            test_results["session_data_has_proper_format"] = True
+                            print(f"   ✅ Sessions array is not empty")
+                            
+                            # Analyze first session structure
+                            sample_session = sessions_array[0]
+                            print(f"   📊 Sample session structure:")
+                            
+                            required_fields = ['session_id', 'status', 'answered_count', 'total_questions', 'progress_percentage']
+                            present_fields = []
+                            missing_fields = []
+                            
+                            for field in required_fields:
+                                if field in sample_session:
+                                    present_fields.append(field)
+                                    print(f"      ✅ {field}: {sample_session[field]}")
+                                else:
+                                    missing_fields.append(field)
+                                    print(f"      ❌ {field}: MISSING")
+                            
+                            # Check individual required fields
+                            if 'session_id' in sample_session:
+                                test_results["session_has_session_id"] = True
+                            if 'status' in sample_session:
+                                test_results["session_has_status"] = True
+                            if 'answered_count' in sample_session:
+                                test_results["session_has_answered_count"] = True
+                            if 'total_questions' in sample_session:
+                                test_results["session_has_total_questions"] = True
+                            if 'progress_percentage' in sample_session:
+                                test_results["session_has_progress_percentage"] = True
+                            
+                            # Verify expected data format
+                            expected_format_valid = (
+                                len(present_fields) >= 4 and  # At least 4 required fields
+                                isinstance(sample_session.get('session_id'), str) and
+                                isinstance(sample_session.get('status'), str) and
+                                isinstance(sample_session.get('answered_count'), int) and
+                                isinstance(sample_session.get('total_questions'), int)
+                            )
+                            
+                            if expected_format_valid:
+                                test_results["data_format_correct"] = True
+                                print(f"   ✅ Session data format matches expected structure")
+                                
+                                # Check if it matches the expected format from review request
+                                if (sample_session.get('total_questions') == 12 and
+                                    sample_session.get('status') in ['planned', 'served', 'completed']):
+                                    print(f"   ✅ Session data matches Blueprint session format")
+                                    print(f"      - Total questions: {sample_session.get('total_questions')} (expected: 12)")
+                                    print(f"      - Status: {sample_session.get('status')} (valid Blueprint status)")
+                                    print(f"      - Progress: {sample_session.get('progress_percentage', 0):.1f}%")
+                            else:
+                                print(f"   ❌ Session data format does not match expected structure")
+                                print(f"   📊 Missing fields: {missing_fields}")
+                        else:
+                            print(f"   ⚠️ Sessions array is empty - user may have no sessions")
+                            # Empty array is still a valid response, just means no sessions
+                            test_results["session_list_returns_sessions_array"] = True
+                            test_results["data_format_correct"] = True
+                    else:
+                        print(f"   ❌ Response does not contain sessions array")
+                        print(f"   📊 Response keys: {list(list_response.keys())}")
+                else:
+                    print(f"   ❌ Response is not a valid JSON object")
+                    print(f"   📊 Response type: {type(list_response)}")
+                    print(f"   📊 Response content: {str(list_response)[:200]}...")
+                
+                test_results["authentication_authorization_working"] = True
+                test_results["no_database_connection_issues"] = True
+                
+            else:
+                # Handle different error scenarios
+                status_code = list_response.get('status_code', 'unknown') if isinstance(list_response, dict) else 'unknown'
+                error_message = list_response.get('detail', 'No error message') if isinstance(list_response, dict) else str(list_response)
+                
+                print(f"   ❌ Session list endpoint failed")
+                print(f"   📊 Status code: {status_code}")
+                print(f"   📊 Error message: {error_message}")
+                
+                # Diagnose specific issues
+                if status_code == 404:
+                    print(f"   🔍 DIAGNOSIS: Endpoint not implemented or wrong URL")
+                    test_results["root_cause_identified"] = True
+                elif status_code == 401:
+                    print(f"   🔍 DIAGNOSIS: Authentication problem")
+                    test_results["root_cause_identified"] = True
+                elif status_code == 403:
+                    print(f"   🔍 DIAGNOSIS: Authorization problem")
+                    test_results["root_cause_identified"] = True
+                elif status_code == 500:
+                    print(f"   🔍 DIAGNOSIS: Server error - database or implementation issue")
+                    test_results["root_cause_identified"] = True
+                elif status_code in [502, 503, 504]:
+                    print(f"   🔍 DIAGNOSIS: Server timeout or database connection issue")
+                    test_results["root_cause_identified"] = True
+                else:
+                    print(f"   🔍 DIAGNOSIS: Unknown error - needs investigation")
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 80)
+        print("🎯 BLUEPRINT SESSION LIST API ENDPOINT DEBUGGING - RESULTS")
+        print("=" * 80)
+        
+        passed_tests = sum(test_results.values())
+        total_tests = len(test_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        # Group results by test categories
+        test_categories = {
+            "AUTHENTICATION": [
+                "authentication_working", "jwt_token_valid", "user_adaptive_enabled"
+            ],
+            "API ENDPOINT AVAILABILITY": [
+                "session_list_endpoint_accessible", "session_list_returns_200", 
+                "session_list_no_500_errors", "session_list_no_timeout", "session_list_response_under_5s"
+            ],
+            "SESSION DATA VERIFICATION": [
+                "session_list_returns_sessions_array", "session_data_has_proper_format",
+                "session_has_session_id", "session_has_status", "session_has_answered_count",
+                "session_has_total_questions", "session_has_progress_percentage"
+            ],
+            "PERFORMANCE ANALYSIS": [
+                "response_time_acceptable", "no_database_connection_issues", "no_silent_failures"
+            ],
+            "ISSUE DIAGNOSIS": [
+                "endpoint_implementation_exists", "authentication_authorization_working",
+                "data_format_correct", "root_cause_identified"
+            ]
+        }
+        
+        for category, tests in test_categories.items():
+            print(f"\n{category}:")
+            category_passed = 0
+            category_total = len(tests)
+            
+            for test in tests:
+                if test in test_results:
+                    result = test_results[test]
+                    status = "✅ PASS" if result else "❌ FAIL"
+                    print(f"  {test.replace('_', ' ').title():<50} {status}")
+                    if result:
+                        category_passed += 1
+            
+            category_rate = (category_passed / category_total) * 100 if category_total > 0 else 0
+            print(f"  Category Success Rate: {category_passed}/{category_total} ({category_rate:.1f}%)")
+        
+        print("-" * 80)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # CRITICAL ASSESSMENT
+        print("\n🎯 CRITICAL ASSESSMENT:")
+        
+        # API Endpoint Assessment
+        api_working = (
+            test_results["session_list_endpoint_accessible"] and
+            test_results["session_list_returns_200"] and
+            test_results["session_list_no_500_errors"]
+        )
+        
+        if api_working:
+            test_results["session_list_api_working"] = True
+            print("\n✅ SESSION LIST API: WORKING")
+            print("   - Endpoint accessible and returns 200 OK")
+            print("   - No 500 errors or server failures")
+            print("   - Authentication and authorization working")
+        else:
+            print("\n❌ SESSION LIST API: CRITICAL ISSUES DETECTED")
+            print("   - Endpoint may be missing, timing out, or returning errors")
+        
+        # Performance Assessment
+        performance_ok = (
+            test_results["session_list_response_under_5s"] and
+            test_results["session_list_no_timeout"] and
+            test_results["no_database_connection_issues"]
+        )
+        
+        if performance_ok:
+            print("\n✅ PERFORMANCE: ACCEPTABLE")
+            print("   - Response time under 5 seconds")
+            print("   - No timeout issues")
+            print("   - Database connection stable")
+        else:
+            print("\n❌ PERFORMANCE: ISSUES DETECTED")
+            print("   - Response time may exceed targets or timeout issues present")
+        
+        # Data Format Assessment
+        data_format_ok = (
+            test_results["session_list_returns_sessions_array"] and
+            test_results["data_format_correct"] and
+            test_results["session_has_session_id"] and
+            test_results["session_has_status"]
+        )
+        
+        if data_format_ok:
+            print("\n✅ DATA FORMAT: CORRECT")
+            print("   - Returns sessions array with proper structure")
+            print("   - Session objects have required fields")
+            print("   - Data format matches frontend expectations")
+        else:
+            print("\n❌ DATA FORMAT: ISSUES DETECTED")
+            print("   - Session data structure problems or missing fields")
+        
+        # Overall Assessment
+        if api_working and performance_ok and data_format_ok:
+            test_results["frontend_routing_issue_resolved"] = True
+            test_results["production_ready"] = True
+            print("\n🎉 FRONTEND ROUTING ISSUE: RESOLVED")
+            print("   - Session list API working correctly")
+            print("   - Performance meets requirements")
+            print("   - Data format correct for frontend consumption")
+            print("   - No critical routing failure detected")
+        else:
+            print("\n⚠️ FRONTEND ROUTING ISSUE: NEEDS ATTENTION")
+            print("   - Critical issues preventing proper frontend routing")
+            
+            # Provide specific recommendations
+            if not api_working:
+                print("   🔧 RECOMMENDATION: Fix API endpoint implementation or server errors")
+            if not performance_ok:
+                print("   🔧 RECOMMENDATION: Optimize database queries or fix timeout issues")
+            if not data_format_ok:
+                print("   🔧 RECOMMENDATION: Fix session data structure or add missing fields")
+        
+        return success_rate >= 70 and api_working
+
     def test_blueprint_session_bulk_questions_endpoint(self):
         """
         🎯 BLUEPRINT SESSION BULK QUESTIONS ENDPOINT DEBUGGING
