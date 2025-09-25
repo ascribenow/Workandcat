@@ -193,7 +193,7 @@
     implemented: true
     working: false
     file: "api/blueprint_sessions.py, services/blueprint_planner.py, frontend/src/components/SessionSystem.js, frontend/src/components/Dashboard.js"
-    stuck_count: 0
+    stuck_count: 1
     priority: "critical"
     needs_retesting: false
     status_history:
