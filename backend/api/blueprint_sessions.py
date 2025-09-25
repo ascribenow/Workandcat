@@ -492,7 +492,7 @@ async def list_user_sessions(
             # Build query with optional status filter
             if status_filter:
                 query = text("""
-                    SELECT s.session_id, s.status, s.created_at, s.served_at, s.abandoned_at,
+                    SELECT s.session_id, s.status, s.created_at, s.served_at, s.abandoned_at, s.sess_seq,
                            sp.constraint_report,
                            (SELECT COUNT(*) FROM session_answers sa WHERE sa.session_id::text = s.session_id) as answered_count
                     FROM sessions s
