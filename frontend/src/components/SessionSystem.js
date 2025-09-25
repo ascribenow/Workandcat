@@ -175,6 +175,13 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
       });
       
       console.log(`[BLUEPRINT] Answer submitted successfully:`, response.data);
+      console.log(`[SOLUTION_FEEDBACK_DEBUG] Backend response solution_feedback:`, {
+        hasSolutionFeedback: !!response.data.solution_feedback,
+        snapRead: response.data.solution_feedback?.snap_read?.substring(0, 100),
+        approach: response.data.solution_feedback?.solution_approach?.substring(0, 100),
+        detailedSolution: response.data.solution_feedback?.detailed_solution?.substring(0, 100),
+        principle: response.data.solution_feedback?.principle_to_remember?.substring(0, 100)
+      });
       return {
         success: response.data.success,
         is_correct: response.data.is_correct,
