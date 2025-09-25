@@ -238,7 +238,7 @@ export const Dashboard = () => {
               // Note: Questions will be loaded from API by SessionSystem when needed
               questions: [],  // Will be populated by SessionSystem
               phase_info: {
-                current_session: 1  // Default session number
+                current_session: incompleteSession.session_number || 1  // FIX: Use actual session number from backend
               }
             });
             
