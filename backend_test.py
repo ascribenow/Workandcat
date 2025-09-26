@@ -24138,84 +24138,86 @@ class CATBackendTester:
         return final_results["100_percent_success_achieved"]
 
 if __name__ == "__main__":
-    print("🎯 DATABASE AUDIT FOR LEGACY TABLES - COMPREHENSIVE ANALYSIS")
+    print("🚀 CAT BACKEND TESTING SUITE - COMPREHENSIVE VALIDATION")
     print("=" * 80)
-    print("OBJECTIVE: Audit database structure to identify all existing tables and determine")
-    print("which ones are legacy/unused in the current Blueprint-only system.")
-    print("Focus: Legacy table identification, usage validation, storage optimization")
-    print("Expected: Complete categorization of Active/Questionable/Legacy tables")
+    print("OBJECTIVE: Test all backend systems including new background job system")
+    print("Focus: Background jobs, session completion, health monitoring, database persistence")
+    print("Expected: All systems operational and ready for production")
     print("Authentication: sp@theskinmantra.com/student123")
     print("=" * 80)
     
     tester = CATBackendTester()
     
     try:
-        # Run the Database Audit for Legacy Tables (primary focus)
+        # Test 1: Background Job System (NEW - PRIMARY FOCUS)
+        print("\n🎯 RUNNING BACKGROUND JOB SYSTEM TESTING")
+        bg_success = tester.test_background_job_system()
+        
+        # Test 2: Database Audit for Legacy Tables
         print("\n🎯 RUNNING DATABASE AUDIT FOR LEGACY TABLES")
         audit_success = tester.test_database_audit_for_legacy_tables()
         
+        # Test 3: Privileged User and Session Limits
+        print("\n🎯 RUNNING PRIVILEGED USER & SESSION LIMITS VALIDATION")
+        privileged_success = tester.test_privileged_user_and_session_limits()
+        
+        # Test 4: V2 Implementation Validation
+        print("\n🚀 RUNNING V2 IMPLEMENTATION VALIDATION")
+        v2_success = tester.test_v2_implementation_validation()
+        
+        # Test 5: Blueprint Session Functionality
+        print("\n🎯 RUNNING BLUEPRINT SESSION FUNCTIONALITY POST-CLEANUP")
+        blueprint_success = tester.test_blueprint_session_functionality_post_cleanup()
+        
+        # FINAL SUMMARY
         print("\n" + "=" * 80)
-        print("🎯 DATABASE AUDIT FOR LEGACY TABLES - SUMMARY")
+        print("🏁 CAT BACKEND TESTING SUITE - FINAL RESULTS")
         print("=" * 80)
-        print(f"Tests Run: {tester.tests_run}")
-        print(f"Tests Passed: {tester.tests_passed}")
-        print(f"Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%" if tester.tests_run > 0 else "0%")
+        print(f"Total Tests Run: {tester.tests_run}")
+        print(f"Total Tests Passed: {tester.tests_passed}")
+        print(f"Overall Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%" if tester.tests_run > 0 else "0%")
         
-        if audit_success:
-            print("\n🎉 DATABASE AUDIT: SUCCESSFUL!")
-            print("✅ Complete database table inventory completed")
-            print("✅ Legacy tables identified for removal")
-            print("✅ Active tables confirmed as essential")
-            print("✅ Storage optimization recommendations ready")
-            print("✅ Blueprint-only system table usage validated")
-            print("✅ Database audit complete with actionable findings")
+        print("\n📊 INDIVIDUAL TEST RESULTS:")
+        print(f"Background Job System: {'✅ PASS' if bg_success else '❌ FAIL'}")
+        print(f"Database Audit: {'✅ PASS' if audit_success else '❌ FAIL'}")
+        print(f"Privileged User & Session Limits: {'✅ PASS' if privileged_success else '❌ FAIL'}")
+        print(f"V2 Implementation Validation: {'✅ PASS' if v2_success else '❌ FAIL'}")
+        print(f"Blueprint Session Functionality: {'✅ PASS' if blueprint_success else '❌ FAIL'}")
+        
+        overall_success = bg_success and audit_success and privileged_success and v2_success and blueprint_success
+        
+        if overall_success:
+            print("\n🎉 OVERALL RESULT: SUCCESS")
+            print("   - Background job system operational")
+            print("   - Database audit completed with legacy table identification")
+            print("   - Privileged user system validated")
+            print("   - V2 implementation performance confirmed")
+            print("   - Blueprint session system functional")
+            print("   - System ready for production use")
         else:
-            print("\n⚠️ DATABASE AUDIT: NEEDS ATTENTION")
-            print("❌ Some table analysis incomplete or inconclusive")
-            print("❌ Additional investigation may be required")
-            print("❌ Check detailed audit results above")
-            print("❌ Consider direct database queries for complete analysis")
+            print("\n⚠️ OVERALL RESULT: PARTIAL SUCCESS")
+            print("   - Some systems need attention")
+            print("   - Review individual test results for specific issues")
+            
+            if not bg_success:
+                print("   - ❌ Background job system needs fixes")
+            if not audit_success:
+                print("   - ❌ Database audit incomplete")
+            if not privileged_success:
+                print("   - ❌ Privileged user system issues")
+            if not v2_success:
+                print("   - ❌ V2 implementation problems")
+            if not blueprint_success:
+                print("   - ❌ Blueprint session functionality issues")
         
         print("=" * 80)
         
-        # Additional testing if audit is successful
-        if audit_success:
-            print("\n🎯 RUNNING ADDITIONAL BACKEND VALIDATION TESTS")
-            
-            # Run the Privileged User and Session Limits test
-            print("\n🎯 Running Privileged User & Session Limits Validation...")
-            privileged_success = tester.test_privileged_user_and_session_limits()
-            
-            # Run the V2 Implementation Validation test
-            print("\n🚀 Running V2 Implementation Validation...")
-            v2_success = tester.test_v2_implementation_validation()
-            
-            # Run the Blueprint Session Functionality test
-            print("\n🎯 Running Blueprint Session Functionality Post-Cleanup...")
-            blueprint_success = tester.test_blueprint_session_functionality_post_cleanup()
-            
-            print(f"\nPrivileged User & Session Limits: {'✅ PASS' if privileged_success else '❌ FAIL'}")
-            print(f"V2 Implementation Validation: {'✅ PASS' if v2_success else '❌ FAIL'}")
-            print(f"Blueprint Session Functionality: {'✅ PASS' if blueprint_success else '❌ FAIL'}")
-            
-            print("\n🏁 ALL TESTING COMPLETE!")
-            print("=" * 80)
-            
-            overall_success = audit_success and privileged_success and v2_success and blueprint_success
-            if overall_success:
-                print("🎉 OVERALL RESULT: SUCCESS")
-                print("   - Database audit completed with legacy table identification")
-                print("   - Privileged user system validated")
-                print("   - V2 implementation performance confirmed")
-                print("   - Blueprint session system functional")
-                print("   - System ready for production use with storage optimization")
-            else:
-                print("⚠️ OVERALL RESULT: PARTIAL SUCCESS")
-                print("   - Database audit completed but some systems need attention")
-                print("   - Review individual test results for specific issues")
+        # Exit with appropriate code
+        sys.exit(0 if overall_success else 1)
         
     except Exception as e:
         print(f"\n❌ CRITICAL ERROR during testing: {e}")
         print("Testing aborted due to unexpected error")
         import traceback
         traceback.print_exc()
+        sys.exit(1)
