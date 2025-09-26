@@ -1033,11 +1033,10 @@ async def prewarm_next_session(user_id: str):
         finally:
             db.close()
         
-        # Run background planning using the same function as plan-next
-        from api.v2_adapt import background_plan_next_session
-        await background_plan_next_session(user_id, next_session_id)
+        # Run background planning - REMOVED: Legacy adaptive planning no longer needed
+        # Blueprint sessions don't require pre-warming
         
-        logger.info(f"✅ Pre-warmed next session {next_session_id[:8]} for user {user_id[:8]}")
+        logger.info(f"✅ Background planning skipped for Blueprint-only system, user {user_id[:8]}")
         
     except Exception as e:
         logger.error(f"❌ Pre-warming failed for user {user_id[:8]}: {e}")
