@@ -1084,8 +1084,8 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
         // Don't fail the flow
       }
       
-      // End-of-session handshake: plan next session if adaptive enabled
-      if (adaptiveEnabled) {
+      // End-of-session handshake: plan next session if blueprint enabled
+      if (blueprintEnabled) {
         const lastSessionId = sessionId;
         const cached = loadNext(user.id);
         const nextSessionId = cached?.nextSessionId || generateSessionId();
