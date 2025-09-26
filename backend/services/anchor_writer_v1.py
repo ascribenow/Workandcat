@@ -79,7 +79,7 @@ class AnchorWriterV1:
                 user_payload=user_payload,
                 schema=ANCHOR_WRITER_SCHEMA,
                 model_primary="gpt-4o-mini",      # OpenAI primary as specified
-                model_fallback="gemini-1.5-pro", # Gemini fallback
+                model_fallback="gemini-2.5-pro", # Gemini fallback
                 max_retries=1,
                 timeout_ms=10000
             )
