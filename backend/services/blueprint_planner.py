@@ -48,56 +48,27 @@ class BlueprintSessionPlanner:
     
     async def plan_session(self, user_id: str) -> Dict:
         """
-        Main planning function with ADVISORY LOCK (Deviation #3)
+        Main planning function - SIMPLIFIED VERSION without advisory locks
         """
         user_uuid = self._parse_uuid(user_id)
         
-        # DEVIATION #3: CRITICAL - Take advisory lock
+        # Simplified version without advisory locks for now
         db = None
         try:
             db = self.get_db_session()
             
-            # Acquire advisory lock
-            lock_result = db.execute(
-                text("SELECT acquire_session_planning_lock(:user_id, :timeout)"),
-                {"user_id": user_uuid, "timeout": 30}
-            ).scalar()
+            logger.info(f"Starting session planning for user {user_id}")
             
-            if not lock_result:
-                raise Exception(f"Could not acquire planning lock for user {user_id}")
+            # Check for existing planned session
+            existing = await self._get_existing_planned_session(user_uuid, db)
+            if existing:
+                logger.info(f"User {user_id} already has planned session: {existing['session_id']}")
+                return existing
             
-            logger.info(f"Acquired planning lock for user {user_id}")
+            # Create new session plan
+            session_data = await self._create_new_session_plan(user_uuid, db)
             
-            try:
-                # Check for existing planned session within lock
-                existing = await self._get_existing_planned_session(user_uuid, db)
-                if existing:
-                    logger.info(f"User {user_id} already has planned session: {existing['session_id']}")
-                    return existing
-                
-                # Create new session plan
-                session_data = await self._create_new_session_plan(user_uuid, db)
-                
-                return session_data
-                
-            except Exception as session_error:
-                # Rollback transaction on any error
-                db.rollback()
-                logger.error(f"Session creation error: {session_error}")
-                raise session_error
-                
-            finally:
-                # Always release lock
-                try:
-                    db.execute(
-                        text("SELECT release_session_planning_lock(:user_id)"),
-                        {"user_id": user_uuid}
-                    )
-                    db.commit()
-                    logger.info(f"Released planning lock for user {user_id}")
-                except Exception as lock_error:
-                    logger.error(f"Error releasing lock: {lock_error}")
-                    # Don't re-raise lock release errors
+            return session_data
                 
         except Exception as e:
             logger.error(f"Session planning failed for user {user_id}: {e}")
