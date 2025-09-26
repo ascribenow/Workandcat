@@ -57,54 +57,26 @@ class SummarizerLLMService:
         """
         user_message = json.dumps(user_payload, indent=2)
         
-        # Try OpenAI first (GPT-4o) with Emergent LLM Key
+        # Use existing LLM utilities with proper fallback pattern
         try:
-            logger.info("🔄 Summarizer LLM: Trying OpenAI GPT-4o with Emergent LLM Key...")
+            from llm_utils import call_llm_with_fallback
             
-            client = openai.OpenAI(api_key=self.emergent_llm_key)
-            response = client.chat.completions.create(
-                model=self.primary_model,
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_message}
-                ],
-                temperature=0.1,
+            logger.info("🔄 Summarizer LLM: Using existing LLM utilities...")
+            
+            response_text, model_used = await call_llm_with_fallback(
+                service_instance=self,
+                system_message=system_prompt,
+                user_message=user_message,
                 max_tokens=2000,
-                timeout=30
+                temperature=0.1
             )
             
-            response_text = response.choices[0].message.content
-            logger.info("✅ Summarizer LLM: OpenAI GPT-4o successful with Emergent LLM Key")
-            return response_text, f"openai-{self.primary_model}"
+            logger.info(f"✅ Summarizer LLM: Success with {model_used}")
+            return response_text, model_used
             
-        except Exception as openai_error:
-            logger.warning(f"⚠️ Summarizer LLM: OpenAI failed: {str(openai_error)[:100]}...")
-            
-            # Try Gemini fallback
-            if self.google_api_key:
-                try:
-                    logger.info("🔄 Summarizer LLM: Falling back to Google Gemini...")
-                    
-                    model = genai.GenerativeModel(self.fallback_model)
-                    combined_prompt = f"SYSTEM: {system_prompt}\n\nUSER: {user_message}"
-                    
-                    response = model.generate_content(
-                        combined_prompt,
-                        generation_config=genai.types.GenerationConfig(
-                            temperature=0.1,
-                            max_output_tokens=2000
-                        )
-                    )
-                    
-                    response_text = response.text
-                    logger.info("✅ Summarizer LLM: Gemini fallback successful")
-                    return response_text, f"gemini-{self.fallback_model}"
-                    
-                except Exception as gemini_error:
-                    logger.error(f"❌ Summarizer LLM: Both OpenAI and Gemini failed")
-                    raise Exception(f"Summarizer LLM failed: OpenAI: {str(openai_error)[:50]}, Gemini: {str(gemini_error)[:50]}")
-            else:
-                raise Exception(f"Summarizer LLM failed: OpenAI: {str(openai_error)[:100]}, No Gemini fallback")
+        except Exception as llm_error:
+            logger.error(f"❌ Summarizer LLM failed with existing utilities: {str(llm_error)[:100]}...")
+            raise Exception(f"Summarizer LLM failed: {str(llm_error)}")
     
     def validate_json_response(self, response_text: str, schema: Dict[str, Any]) -> Tuple[bool, Dict[str, Any], List[str]]:
         """Validate LLM JSON response against schema"""
