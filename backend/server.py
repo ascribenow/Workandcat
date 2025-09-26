@@ -79,14 +79,13 @@ app.mount("/uploads", StaticFiles(directory="/app/backend/uploads"), name="uploa
 # Include routers  
 app.include_router(stages_router)
 
-# Import and include adaptive session router
-from api.adapt import router as adapt_router
+# Import Blueprint and other active routers
 from api.session_lifecycle import router as session_lifecycle_router
-from api.doubts import router as doubts_router
+from api.doubts import router as doubts_router  
 from api.session_progress import router as session_progress_router
 from api.blueprint_sessions import router as blueprint_sessions_router
-# REMOVED: adaptive_gate middleware - system is now adaptive-only
-app.include_router(adapt_router)  # No middleware needed - all users adaptive
+
+# Mount active routers
 app.include_router(session_lifecycle_router, prefix="/api/sessions")
 app.include_router(doubts_router, prefix="/api")
 app.include_router(session_progress_router, prefix="/api")
