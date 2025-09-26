@@ -1173,10 +1173,10 @@ async def log_question_action(
             # ADAPTIVE-ONLY: All questions must come from pack data
             # No fallback to database - ensures data consistency
             if not question:
-                logger.warning(f"⚠️ Question {log_data.question_id} not found in either Blueprint or Adaptive session data for session {log_data.session_id[:8]}")
+                logger.warning(f"⚠️ Question {log_data.question_id} not found in Blueprint session data for session {log_data.session_id[:8]}")
                 return {
                     "success": False,
-                    "message": "Question not found in current session (checked both Blueprint and Adaptive session types)",
+                    "message": "Question not found in current Blueprint session",
                     "error": "QUESTION_NOT_IN_SESSION"
                 }
             
