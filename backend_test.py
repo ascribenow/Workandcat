@@ -1127,11 +1127,11 @@ class CATBackendTester:
         
         AUTHENTICATION: sp@theskinmantra.com/student123
         """
-        print("🎯 BACKGROUND JOB SYSTEM TESTING - COMPREHENSIVE VALIDATION")
+        print("🎯 BACKGROUND JOB SYSTEM COMPREHENSIVE TESTING")
         print("=" * 80)
-        print("OBJECTIVE: Test new background job system with session completion integration")
-        print("FOCUS: Job enqueueing, health monitoring, user status tracking, database persistence")
-        print("EXPECTED: 3 background jobs enqueued per session completion, health monitoring working")
+        print("OBJECTIVE: Test complete background job system flow in Twelvr application")
+        print("FOCUS: Session completion → job enqueueing → worker processing → database updates")
+        print("EXPECTED: 3 background jobs per session, deduplication, monitoring, LLM integration")
         print("=" * 80)
         
         bg_results = {
