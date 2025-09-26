@@ -30,7 +30,7 @@ class SummarizerLLMService:
         # Model configuration (GPT-4o primary + Gemini fallback pattern)
         self.primary_model = "gpt-4o-mini"
         self.fallback_model = "gpt-3.5-turbo"
-        self.gemini_model = "gemini-1.5-pro"
+        self.gemini_model = "gemini-2.5-pro"
         
         # LLM utilities configuration
         self.timeout = 30
