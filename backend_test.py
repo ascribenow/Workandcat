@@ -1174,6 +1174,13 @@ class CATBackendTester:
             "learner_notebook_table_updated": False,
             "coverage_debt_table_updated": False,
             "job_metadata_populated": False,
+            "jobs_have_correct_status": False,
+            "jobs_linked_to_user_and_session": False,
+            
+            # Frontend Blueprint Experience
+            "blueprint_experience_unaffected": False,
+            "session_completion_response_format_maintained": False,
+            "no_breaking_changes_to_frontend": False,
             
             # LLM Integration
             "llm_integration_working": False,
