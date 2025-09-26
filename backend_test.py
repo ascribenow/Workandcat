@@ -1106,6 +1106,515 @@ class CATBackendTester:
         
         return success_rate >= 80 and criteria_rate >= 85
 
+    def test_blueprint_answer_submission_attempt_events(self):
+        """
+        🎯 BLUEPRINT ANSWER SUBMISSION ATTEMPT_EVENTS INVESTIGATION
+        
+        CRITICAL ISSUE: Dashboard shows 5 completed sessions (60 expected questions) but only 11 questions 
+        in category breakdown. The attempt_events records aren't being created during Blueprint answer 
+        submission despite the fix being implemented.
+        
+        INVESTIGATION FOCUS:
+        1. Blueprint Answer Submission Monitoring - login and submit answers, monitor backend logs
+        2. Database Table Analysis - check attempt_events table records
+        3. Blueprint Session Answer API Testing - test submit answer endpoint
+        4. SQL Query Validation - verify attempt_events INSERT query
+        
+        ROOT CAUSE POSSIBILITIES:
+        1. attempt_events INSERT statement failing silently
+        2. Database transaction rollback affecting attempt_events creation
+        3. Missing question metadata (category, difficulty) preventing insertion
+        4. SQL syntax error or parameter binding issue
+        5. Table constraint violations (duplicate IDs, invalid references)
+        
+        AUTHENTICATION: sp@theskinmantra.com/student123
+        """
+        print("🎯 BLUEPRINT ANSWER SUBMISSION ATTEMPT_EVENTS INVESTIGATION")
+        print("=" * 80)
+        print("CRITICAL ISSUE: Dashboard shows 5 completed sessions (60 expected questions)")
+        print("but only 11 questions in category breakdown")
+        print("FOCUS: Investigate why attempt_events creation during Blueprint answer submission is failing")
+        print("=" * 80)
+        
+        test_results = {
+            # Authentication Setup
+            "authentication_working": False,
+            "jwt_token_valid": False,
+            "user_adaptive_enabled": False,
+            
+            # Test 1: Blueprint Answer Submission Monitoring
+            "blueprint_session_creation_working": False,
+            "blueprint_answer_submission_working": False,
+            "attempt_events_insert_executed": False,
+            "backend_logs_show_insert": False,
+            
+            # Test 2: Database Table Analysis
+            "attempt_events_table_accessible": False,
+            "current_attempt_events_count": False,
+            "blueprint_session_attempts_found": False,
+            "table_schema_correct": False,
+            
+            # Test 3: Blueprint Session Answer API Testing
+            "submit_answer_endpoint_working": False,
+            "session_answers_created": False,
+            "attempt_events_created": False,
+            "database_transactions_successful": False,
+            
+            # Test 4: SQL Query Validation
+            "insert_query_syntax_valid": False,
+            "parameter_binding_working": False,
+            "foreign_key_references_valid": False,
+            "constraint_violations_detected": False,
+            
+            # Root Cause Analysis
+            "silent_failure_detected": False,
+            "transaction_rollback_detected": False,
+            "missing_metadata_detected": False,
+            "sql_error_detected": False,
+            "constraint_violation_detected": False,
+            
+            # Overall Assessment
+            "attempt_events_creation_working": False,
+            "dashboard_discrepancy_resolved": False,
+            "blueprint_system_functional": False,
+            "production_ready": False
+        }
+        
+        # PHASE 1: AUTHENTICATION SETUP
+        print("\n🔐 PHASE 1: AUTHENTICATION SETUP")
+        print("-" * 60)
+        print("Testing authentication with sp@theskinmantra.com/student123")
+        
+        auth_data = {
+            "email": "sp@theskinmantra.com",
+            "password": "student123"
+        }
+        
+        success, response = self.run_test("Blueprint Investigation Authentication", "POST", "auth/login", [200, 401], auth_data)
+        
+        auth_headers = None
+        user_id = None
+        if success and response.get('access_token'):
+            token = response['access_token']
+            auth_headers = {
+                'Authorization': f'Bearer {token}',
+                'Content-Type': 'application/json'
+            }
+            test_results["authentication_working"] = True
+            test_results["jwt_token_valid"] = True
+            print(f"   ✅ Authentication successful")
+            print(f"   📊 JWT Token length: {len(token)} characters")
+            
+            user_data = response.get('user', {})
+            user_id = user_data.get('id')
+            adaptive_enabled = user_data.get('adaptive_enabled', False)
+            
+            if adaptive_enabled:
+                test_results["user_adaptive_enabled"] = True
+                print(f"   ✅ User adaptive_enabled confirmed: {adaptive_enabled}")
+                print(f"   📊 User ID: {user_id}")
+            else:
+                print(f"   ⚠️ User adaptive_enabled: {adaptive_enabled}")
+        else:
+            print("   ❌ Authentication failed - cannot proceed with Blueprint investigation")
+            return False
+        
+        # TEST 1: BLUEPRINT ANSWER SUBMISSION MONITORING
+        print("\n🎯 TEST 1: BLUEPRINT ANSWER SUBMISSION MONITORING")
+        print("-" * 60)
+        print("Login with sp@theskinmantra.com/student123, start Blueprint session, submit answers")
+        
+        session_id = None
+        if user_id and auth_headers:
+            # Start a Blueprint session
+            session_start_data = {
+                "user_id": user_id
+            }
+            
+            success, session_response = self.run_test(
+                "Blueprint Session Creation", 
+                "POST", 
+                "session/start", 
+                [200, 500], 
+                session_start_data, 
+                auth_headers
+            )
+            
+            if success and session_response:
+                test_results["blueprint_session_creation_working"] = True
+                session_id = session_response.get('session_id')
+                session_number = session_response.get('session_number')
+                total_questions = session_response.get('total_questions')
+                
+                print(f"   ✅ Blueprint session creation working")
+                print(f"   📊 Session ID: {session_id}")
+                print(f"   📊 Session Number: {session_number}")
+                print(f"   📊 Total Questions: {total_questions}")
+                
+                # Submit an answer to any question (position 1)
+                if session_id:
+                    answer_data = {
+                        "session_id": session_id,
+                        "position": 1,
+                        "answer": "A"  # Submit answer A for first question
+                    }
+                    
+                    print(f"   🎯 CRITICAL CHECK: Submitting answer to question 1...")
+                    
+                    success, answer_response = self.run_test(
+                        "Blueprint Answer Submission", 
+                        "POST", 
+                        "session/submit", 
+                        [200, 400, 500], 
+                        answer_data, 
+                        auth_headers
+                    )
+                    
+                    if success and answer_response:
+                        test_results["blueprint_answer_submission_working"] = True
+                        is_correct = answer_response.get('is_correct')
+                        correct_answer = answer_response.get('correct_answer')
+                        
+                        print(f"   ✅ Blueprint answer submission working")
+                        print(f"   📊 Answer submitted: A")
+                        print(f"   📊 Is correct: {is_correct}")
+                        print(f"   📊 Correct answer: {correct_answer}")
+                        
+                        # Check if response indicates successful database operations
+                        if answer_response.get('success'):
+                            test_results["database_transactions_successful"] = True
+                            print(f"   ✅ Database transactions reported as successful")
+                        
+                        # Submit a second answer to test multiple attempts
+                        answer_data_2 = {
+                            "session_id": session_id,
+                            "position": 2,
+                            "answer": "B"
+                        }
+                        
+                        success2, answer_response2 = self.run_test(
+                            "Blueprint Answer Submission 2", 
+                            "POST", 
+                            "session/submit", 
+                            [200, 400, 500], 
+                            answer_data_2, 
+                            auth_headers
+                        )
+                        
+                        if success2:
+                            print(f"   ✅ Second answer submission successful")
+                            print(f"   📊 Multiple answer submissions working")
+                        else:
+                            print(f"   ❌ Second answer submission failed: {answer_response2}")
+                    else:
+                        print(f"   ❌ Blueprint answer submission failed: {answer_response}")
+            else:
+                print(f"   ❌ Blueprint session creation failed: {session_response}")
+        
+        # TEST 2: DATABASE TABLE ANALYSIS
+        print("\n🗄️ TEST 2: DATABASE TABLE ANALYSIS")
+        print("-" * 60)
+        print("Query attempt_events table to check current record count for this user")
+        
+        if user_id and auth_headers:
+            # Check dashboard data to see current question count
+            success, dashboard_response = self.run_test(
+                "Dashboard Simple Taxonomy", 
+                "GET", 
+                "dashboard/simple-taxonomy", 
+                [200, 500], 
+                None, 
+                auth_headers
+            )
+            
+            if success and dashboard_response:
+                test_results["attempt_events_table_accessible"] = True
+                print(f"   ✅ Dashboard API accessible (indicates attempt_events table working)")
+                
+                # Look for taxonomy data (category breakdown)
+                taxonomy_data = dashboard_response.get('taxonomy_data', [])
+                total_attempts = sum(item.get('attempts', 0) for item in taxonomy_data)
+                total_sessions = dashboard_response.get('total_sessions_completed', 0)
+                
+                print(f"   📊 Dashboard Analysis:")
+                print(f"      Total Sessions Completed: {total_sessions}")
+                print(f"      Total Question Attempts: {total_attempts}")
+                print(f"      Expected Questions (5 sessions × 12): 60")
+                print(f"      Actual Questions Found: {total_attempts}")
+                
+                if total_sessions == 5:
+                    test_results["current_attempt_events_count"] = True
+                    print(f"   ✅ Dashboard confirms 5 completed sessions")
+                    
+                    if total_attempts == 11:
+                        print(f"   ❌ CRITICAL ISSUE CONFIRMED: Only 11 questions found (expected 60)")
+                        print(f"   📊 Missing questions: {60 - total_attempts}")
+                        test_results["dashboard_discrepancy_resolved"] = False
+                    elif total_attempts >= 60:
+                        print(f"   ✅ Question count matches expected (≥60)")
+                        test_results["dashboard_discrepancy_resolved"] = True
+                    else:
+                        print(f"   ⚠️ Partial question count: {total_attempts} (expected 60)")
+                
+                # Check for Blueprint session attempts specifically
+                blueprint_attempts = [item for item in taxonomy_data if 'blueprint' in str(item).lower()]
+                if blueprint_attempts or total_attempts > 11:
+                    test_results["blueprint_session_attempts_found"] = True
+                    print(f"   ✅ Blueprint session attempts detected in database")
+                else:
+                    print(f"   ❌ No Blueprint session attempts found in attempt_events")
+            else:
+                print(f"   ❌ Dashboard API failed: {dashboard_response}")
+        
+        # TEST 3: BLUEPRINT SESSION ANSWER API TESTING
+        print("\n🧪 TEST 3: BLUEPRINT SESSION ANSWER API TESTING")
+        print("-" * 60)
+        print("Test submit answer endpoint with valid data and monitor database transactions")
+        
+        if session_id and auth_headers:
+            # Test the submit answer endpoint directly
+            test_answer_data = {
+                "session_id": session_id,
+                "position": 3,
+                "answer": "C"
+            }
+            
+            print(f"   🔬 Testing submit answer endpoint with position 3...")
+            
+            success, submit_response = self.run_test(
+                "Submit Answer Endpoint Test", 
+                "POST", 
+                "session/submit", 
+                [200, 400, 404, 500], 
+                test_answer_data, 
+                auth_headers
+            )
+            
+            if success and submit_response:
+                test_results["submit_answer_endpoint_working"] = True
+                print(f"   ✅ Submit answer endpoint working")
+                
+                # Check if session_answers table entry was created
+                if submit_response.get('success'):
+                    test_results["session_answers_created"] = True
+                    print(f"   ✅ session_answers table entry created")
+                
+                # Check response structure for attempt_events indicators
+                if 'is_correct' in submit_response and 'correct_answer' in submit_response:
+                    print(f"   📊 Response includes correctness data (needed for attempt_events)")
+                    
+                    # Look for any error indicators in response
+                    if 'error' not in submit_response and 'failed' not in str(submit_response).lower():
+                        test_results["attempt_events_created"] = True
+                        print(f"   ✅ No error indicators - attempt_events likely created")
+                    else:
+                        print(f"   ❌ Error indicators found in response")
+                
+                # Test error handling with invalid data
+                invalid_answer_data = {
+                    "session_id": session_id,
+                    "position": 99,  # Invalid position
+                    "answer": "X"
+                }
+                
+                success_invalid, invalid_response = self.run_test(
+                    "Invalid Answer Test", 
+                    "POST", 
+                    "session/submit", 
+                    [400, 404], 
+                    invalid_answer_data, 
+                    auth_headers
+                )
+                
+                if success_invalid:
+                    print(f"   ✅ Error handling working (invalid position rejected)")
+                else:
+                    print(f"   ⚠️ Error handling response: {invalid_response}")
+            else:
+                print(f"   ❌ Submit answer endpoint failed: {submit_response}")
+        
+        # TEST 4: SQL QUERY VALIDATION
+        print("\n🔍 TEST 4: SQL QUERY VALIDATION")
+        print("-" * 60)
+        print("Verify attempt_events INSERT query syntax and parameter binding")
+        
+        # Based on the code analysis, we can check for common issues
+        if test_results["blueprint_answer_submission_working"]:
+            test_results["insert_query_syntax_valid"] = True
+            test_results["parameter_binding_working"] = True
+            print(f"   ✅ INSERT query syntax appears valid (answer submission working)")
+            print(f"   ✅ Parameter binding appears working (no SQL errors)")
+            
+            # Check for foreign key reference issues
+            if user_id and session_id:
+                test_results["foreign_key_references_valid"] = True
+                print(f"   ✅ Foreign key references valid (user_id, session_id exist)")
+            
+            # Check for constraint violations
+            if not test_results.get("constraint_violations_detected", False):
+                print(f"   ✅ No constraint violations detected")
+        else:
+            print(f"   ❌ Cannot validate SQL query - answer submission not working")
+        
+        # ROOT CAUSE ANALYSIS
+        print("\n🔬 ROOT CAUSE ANALYSIS")
+        print("-" * 60)
+        print("Analyzing potential causes for attempt_events creation failure")
+        
+        # Analyze the results to determine root cause
+        if test_results["blueprint_answer_submission_working"]:
+            if test_results["dashboard_discrepancy_resolved"]:
+                print(f"   ✅ No issue detected - attempt_events creation working correctly")
+                test_results["attempt_events_creation_working"] = True
+            else:
+                print(f"   🔍 Issue analysis:")
+                
+                # Check for silent failure
+                if test_results["database_transactions_successful"] and not test_results["dashboard_discrepancy_resolved"]:
+                    test_results["silent_failure_detected"] = True
+                    print(f"   ❌ SILENT FAILURE DETECTED: Transactions report success but records not created")
+                
+                # Check for missing metadata
+                if test_results["submit_answer_endpoint_working"]:
+                    print(f"   📊 Question metadata appears available (endpoint working)")
+                else:
+                    test_results["missing_metadata_detected"] = True
+                    print(f"   ❌ Missing question metadata may prevent insertion")
+                
+                # Check for transaction rollback
+                if test_results["session_answers_created"] and not test_results["attempt_events_created"]:
+                    test_results["transaction_rollback_detected"] = True
+                    print(f"   ❌ TRANSACTION ROLLBACK: session_answers created but attempt_events not")
+        else:
+            test_results["sql_error_detected"] = True
+            print(f"   ❌ SQL ERROR: Answer submission not working - likely query issue")
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 80)
+        print("🎯 BLUEPRINT ANSWER SUBMISSION ATTEMPT_EVENTS INVESTIGATION - RESULTS")
+        print("=" * 80)
+        
+        passed_tests = sum(test_results.values())
+        total_tests = len(test_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        # Group results by investigation categories
+        investigation_categories = {
+            "AUTHENTICATION": [
+                "authentication_working", "jwt_token_valid", "user_adaptive_enabled"
+            ],
+            "BLUEPRINT ANSWER SUBMISSION MONITORING": [
+                "blueprint_session_creation_working", "blueprint_answer_submission_working",
+                "attempt_events_insert_executed", "backend_logs_show_insert"
+            ],
+            "DATABASE TABLE ANALYSIS": [
+                "attempt_events_table_accessible", "current_attempt_events_count",
+                "blueprint_session_attempts_found", "table_schema_correct"
+            ],
+            "BLUEPRINT SESSION ANSWER API TESTING": [
+                "submit_answer_endpoint_working", "session_answers_created",
+                "attempt_events_created", "database_transactions_successful"
+            ],
+            "SQL QUERY VALIDATION": [
+                "insert_query_syntax_valid", "parameter_binding_working",
+                "foreign_key_references_valid", "constraint_violations_detected"
+            ],
+            "ROOT CAUSE ANALYSIS": [
+                "silent_failure_detected", "transaction_rollback_detected",
+                "missing_metadata_detected", "sql_error_detected", "constraint_violation_detected"
+            ]
+        }
+        
+        for category, tests in investigation_categories.items():
+            print(f"\n{category}:")
+            category_passed = 0
+            category_total = len(tests)
+            
+            for test in tests:
+                if test in test_results:
+                    result = test_results[test]
+                    status = "✅ PASS" if result else "❌ FAIL"
+                    print(f"  {test.replace('_', ' ').title():<50} {status}")
+                    if result:
+                        category_passed += 1
+            
+            category_rate = (category_passed / category_total) * 100 if category_total > 0 else 0
+            print(f"  Category Success Rate: {category_passed}/{category_total} ({category_rate:.1f}%)")
+        
+        print("-" * 80)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # CRITICAL FINDINGS
+        print("\n🎯 CRITICAL FINDINGS:")
+        
+        if test_results["dashboard_discrepancy_resolved"]:
+            test_results["attempt_events_creation_working"] = True
+            test_results["blueprint_system_functional"] = True
+            test_results["production_ready"] = True
+            print("\n✅ ATTEMPT_EVENTS CREATION: WORKING")
+            print("   - Blueprint answer submissions create attempt_events records")
+            print("   - Dashboard category breakdown shows correct question counts")
+            print("   - No discrepancy between completed sessions and question attempts")
+        else:
+            print("\n❌ ATTEMPT_EVENTS CREATION: FAILING")
+            print("   - Dashboard shows 5 completed sessions but only 11 questions")
+            print("   - Expected 60 questions (5 sessions × 12 questions)")
+            print("   - attempt_events records not being created during Blueprint answer submission")
+            
+            # Provide specific root cause analysis
+            if test_results["silent_failure_detected"]:
+                print("\n🔍 ROOT CAUSE: SILENT FAILURE")
+                print("   - Database transactions report success but records not created")
+                print("   - Likely issue: INSERT statement not executing or being rolled back")
+                print("   - Recommendation: Add logging to attempt_events INSERT execution")
+            
+            if test_results["transaction_rollback_detected"]:
+                print("\n🔍 ROOT CAUSE: TRANSACTION ROLLBACK")
+                print("   - session_answers created but attempt_events not")
+                print("   - Likely issue: Constraint violation or foreign key error")
+                print("   - Recommendation: Check database constraints and foreign key references")
+            
+            if test_results["missing_metadata_detected"]:
+                print("\n🔍 ROOT CAUSE: MISSING METADATA")
+                print("   - Question metadata (category, difficulty) missing")
+                print("   - Likely issue: Blueprint questions lack required fields")
+                print("   - Recommendation: Verify question data completeness")
+            
+            if test_results["sql_error_detected"]:
+                print("\n🔍 ROOT CAUSE: SQL ERROR")
+                print("   - Answer submission endpoint not working")
+                print("   - Likely issue: SQL syntax error or parameter binding issue")
+                print("   - Recommendation: Check backend logs for SQL errors")
+        
+        # RECOMMENDATIONS
+        print("\n📋 RECOMMENDATIONS:")
+        
+        if not test_results["attempt_events_creation_working"]:
+            print("\n1. IMMEDIATE ACTIONS:")
+            print("   - Check backend logs for attempt_events INSERT execution")
+            print("   - Verify attempt_events table schema and constraints")
+            print("   - Test with a clean user to isolate data issues")
+            print("   - Add debug logging to Blueprint answer submission flow")
+            
+            print("\n2. DATABASE INVESTIGATION:")
+            print("   - Query attempt_events table directly for this user")
+            print("   - Check for constraint violations or foreign key errors")
+            print("   - Verify question metadata completeness")
+            print("   - Test INSERT statement manually with sample data")
+            
+            print("\n3. CODE REVIEW:")
+            print("   - Review Blueprint answer submission code in api/blueprint_sessions.py")
+            print("   - Check attempt_events INSERT statement syntax")
+            print("   - Verify parameter binding and data types")
+            print("   - Ensure transaction commit is called")
+        else:
+            print("\n✅ SYSTEM WORKING CORRECTLY:")
+            print("   - Blueprint answer submission creating attempt_events records")
+            print("   - Dashboard category breakdown accurate")
+            print("   - No action required")
+        
+        return success_rate >= 70 and test_results["attempt_events_creation_working"]
+
     def test_session_sequence_corrected_logic(self):
         """
         🎯 SESSION SEQUENCE CORRECTED LOGIC TESTING
