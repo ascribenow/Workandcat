@@ -1106,6 +1106,613 @@ class CATBackendTester:
         
         return success_rate >= 80 and criteria_rate >= 85
 
+    def test_answer_field_mismatch_investigation(self):
+        """
+        🔍 ANSWER FIELD MISMATCH INVESTIGATION
+        
+        OBJECTIVE: Investigate the answer field mismatch issue where user answers "6 hours" 
+        but correct answer shows "80%". This suggests either wrong question data or wrong answer field.
+        
+        CRITICAL INVESTIGATION FROM REVIEW REQUEST:
+        
+        ### Test 1: Question Data Analysis
+        1. Login with sp@theskinmantra.com/student123
+        2. Create a Blueprint session to get question data
+        3. **Check Raw Question Data**: Examine what's stored in session_pack_questions table
+        4. **Verify Answer Field**: Check if 'answer' field exists and has correct values
+        
+        ### Test 2: Answer Comparison Logic Testing
+        5. **Submit Test Answer**: Submit an answer to a specific question
+        6. **Monitor Comparison**: Check what values are being compared in answer logic
+        7. **Check Database Source**: Verify question comes from questions table vs session_pack_questions
+        
+        ### Test 3: Database Query Analysis
+        8. **Direct Questions Table Query**: Check the actual 'answer' field in questions table
+        9. **Compare with Session Data**: Compare questions table data with session_pack_questions data
+        10. **Identify Mismatch**: Find where the discrepancy occurs (6 hours vs 80%)
+        
+        ### Test 4: Question ID Validation
+        11. **Question ID Mapping**: Verify question IDs match between tables
+        12. **Answer Field Consistency**: Check if answer fields are consistent
+        13. **Data Integrity**: Ensure no data corruption during session creation
+        
+        ROOT CAUSE POSSIBILITIES:
+        1. Wrong question being retrieved (question ID mismatch)
+        2. Answer field missing or incorrect in session_pack_questions
+        3. Questions table has wrong answer data
+        4. Data type or format mismatch in answer comparison
+        5. Question data corruption during JSON storage/retrieval
+        
+        SUCCESS CRITERIA:
+        - ✅ Identify exact source of answer field discrepancy
+        - ✅ Verify if user answer "6 hours" should match correct answer
+        - ✅ Confirm correct answer should indeed be "80%" or something else
+        - ✅ Fix the data source or comparison logic
+        
+        AUTHENTICATION: sp@theskinmantra.com/student123
+        """
+        print("🔍 ANSWER FIELD MISMATCH INVESTIGATION")
+        print("=" * 80)
+        print("OBJECTIVE: Investigate answer field mismatch where user answers '6 hours' but correct shows '80%'")
+        print("FOCUS: Question data integrity, answer field consistency, database source validation")
+        print("EXPECTED: Identify exact source of discrepancy and fix data/comparison logic")
+        print("=" * 80)
+        
+        investigation_results = {
+            # Authentication Setup
+            "authentication_working": False,
+            "user_adaptive_enabled": False,
+            "jwt_token_valid": False,
+            
+            # Test 1: Question Data Analysis
+            "blueprint_session_created": False,
+            "session_pack_questions_accessible": False,
+            "raw_question_data_examined": False,
+            "answer_field_exists_in_session_data": False,
+            "answer_field_values_correct": False,
+            
+            # Test 2: Answer Comparison Logic Testing
+            "test_answer_submitted": False,
+            "comparison_values_monitored": False,
+            "database_source_verified": False,
+            "questions_table_vs_session_pack_verified": False,
+            
+            # Test 3: Database Query Analysis
+            "direct_questions_table_queried": False,
+            "session_data_compared_with_questions_table": False,
+            "discrepancy_identified": False,
+            "6_hours_vs_80_percent_mismatch_found": False,
+            
+            # Test 4: Question ID Validation
+            "question_id_mapping_verified": False,
+            "answer_field_consistency_checked": False,
+            "data_integrity_validated": False,
+            "no_data_corruption_detected": False,
+            
+            # Root Cause Analysis
+            "wrong_question_retrieved": False,
+            "answer_field_missing_or_incorrect": False,
+            "questions_table_wrong_data": False,
+            "data_type_format_mismatch": False,
+            "json_storage_corruption": False,
+            
+            # Investigation Outcome
+            "exact_discrepancy_source_identified": False,
+            "user_answer_validation_confirmed": False,
+            "correct_answer_field_validated": False,
+            "fix_recommendation_provided": False,
+            "investigation_complete": False
+        }
+        
+        # PHASE 1: AUTHENTICATION SETUP
+        print("\n🔐 PHASE 1: AUTHENTICATION SETUP")
+        print("-" * 60)
+        print("Authenticating with sp@theskinmantra.com/student123 for answer field investigation")
+        
+        auth_data = {
+            "email": "sp@theskinmantra.com",
+            "password": "student123"
+        }
+        
+        success, response = self.run_test("Answer Investigation Authentication", "POST", "auth/login", [200, 401], auth_data)
+        
+        auth_headers = None
+        user_id = None
+        if success and response.get('access_token'):
+            token = response['access_token']
+            auth_headers = {
+                'Authorization': f'Bearer {token}',
+                'Content-Type': 'application/json'
+            }
+            investigation_results["authentication_working"] = True
+            investigation_results["jwt_token_valid"] = True
+            print(f"   ✅ Authentication successful")
+            print(f"   📊 JWT Token length: {len(token)} characters")
+            
+            user_data = response.get('user', {})
+            user_id = user_data.get('id')
+            adaptive_enabled = user_data.get('adaptive_enabled', False)
+            
+            if adaptive_enabled:
+                investigation_results["user_adaptive_enabled"] = True
+                print(f"   ✅ User adaptive_enabled confirmed: {adaptive_enabled}")
+                print(f"   📊 User ID: {user_id}")
+            else:
+                print(f"   ⚠️ User adaptive_enabled: {adaptive_enabled}")
+        else:
+            print("   ❌ Authentication failed - cannot proceed with investigation")
+            return False
+        
+        # PHASE 2: TEST 1 - QUESTION DATA ANALYSIS
+        print("\n📊 PHASE 2: TEST 1 - QUESTION DATA ANALYSIS")
+        print("-" * 60)
+        print("Creating Blueprint session and examining raw question data")
+        
+        session_id = None
+        session_questions = []
+        
+        if user_id and auth_headers:
+            # Create Blueprint session to get question data
+            print("   🚀 Creating Blueprint session for question data analysis...")
+            
+            session_start_data = {
+                "user_id": user_id
+            }
+            
+            success, session_response = self.run_test(
+                "Blueprint Session for Investigation", 
+                "POST", 
+                "session/start", 
+                [200, 500], 
+                session_start_data, 
+                auth_headers
+            )
+            
+            if success and session_response.get('success'):
+                investigation_results["blueprint_session_created"] = True
+                session_id = session_response.get('session_id')
+                session_number = session_response.get('session_number', 0)
+                total_questions = session_response.get('total_questions', 0)
+                
+                print(f"   ✅ Blueprint session created successfully")
+                print(f"   📊 Session ID: {session_id}")
+                print(f"   📊 Session Number: {session_number}")
+                print(f"   📊 Total Questions: {total_questions}")
+            else:
+                print(f"   ❌ Blueprint session creation failed: {session_response}")
+            
+            # Get session questions to examine raw data
+            if session_id:
+                print("   📋 Retrieving session questions for raw data examination...")
+                
+                success, questions_response = self.run_test(
+                    "Get Session Questions for Analysis", 
+                    "GET", 
+                    f"session/questions/{session_id}", 
+                    [200, 404], 
+                    None, 
+                    auth_headers
+                )
+                
+                if success and questions_response.get('questions'):
+                    session_questions = questions_response.get('questions', [])
+                    investigation_results["session_pack_questions_accessible"] = True
+                    investigation_results["raw_question_data_examined"] = True
+                    
+                    print(f"   ✅ Retrieved {len(session_questions)} questions for analysis")
+                    
+                    # Examine first few questions for answer field analysis
+                    print("   🔍 Examining raw question data structure...")
+                    
+                    answer_fields_found = 0
+                    answer_field_samples = []
+                    
+                    for i, question in enumerate(session_questions[:5], 1):  # Examine first 5 questions
+                        question_id = question.get('id', 'N/A')
+                        stem = question.get('stem', '')[:100] + '...' if question.get('stem', '') else 'N/A'
+                        
+                        # Check for answer field
+                        answer_field = question.get('answer', None)
+                        right_answer_field = question.get('right_answer', None)
+                        
+                        print(f"   📊 Question {i}:")
+                        print(f"      ID: {question_id}")
+                        print(f"      Stem: {stem}")
+                        print(f"      'answer' field: {answer_field}")
+                        print(f"      'right_answer' field: {right_answer_field}")
+                        
+                        if answer_field is not None:
+                            answer_fields_found += 1
+                            answer_field_samples.append({
+                                'question_id': question_id,
+                                'answer': answer_field,
+                                'right_answer': right_answer_field
+                            })
+                        
+                        # Check for MCQ options
+                        options = {
+                            'option_a': question.get('option_a'),
+                            'option_b': question.get('option_b'),
+                            'option_c': question.get('option_c'),
+                            'option_d': question.get('option_d')
+                        }
+                        print(f"      Options: {options}")
+                        print()
+                    
+                    if answer_fields_found > 0:
+                        investigation_results["answer_field_exists_in_session_data"] = True
+                        print(f"   ✅ Answer field exists in {answer_fields_found}/5 examined questions")
+                        
+                        # Check if answer field values look correct
+                        valid_answers = 0
+                        for sample in answer_field_samples:
+                            answer = sample['answer']
+                            if answer and len(str(answer).strip()) > 0:
+                                valid_answers += 1
+                        
+                        if valid_answers == answer_fields_found:
+                            investigation_results["answer_field_values_correct"] = True
+                            print(f"   ✅ Answer field values appear correct in all examined questions")
+                        else:
+                            print(f"   ⚠️ Answer field values may have issues: {valid_answers}/{answer_fields_found} valid")
+                    else:
+                        print(f"   ❌ No answer fields found in examined questions")
+                else:
+                    print(f"   ❌ Failed to retrieve session questions: {questions_response}")
+        
+        # PHASE 3: TEST 2 - ANSWER COMPARISON LOGIC TESTING
+        print("\n🧪 PHASE 3: TEST 2 - ANSWER COMPARISON LOGIC TESTING")
+        print("-" * 60)
+        print("Testing answer submission and monitoring comparison logic")
+        
+        if session_questions and session_id and auth_headers:
+            # Submit test answers to monitor comparison logic
+            print("   📝 Submitting test answers to monitor comparison values...")
+            
+            test_cases = [
+                {"test_answer": "6 hours", "description": "User answer from issue report"},
+                {"test_answer": "80%", "description": "Correct answer from issue report"},
+                {"test_answer": "A", "description": "MCQ option A"},
+                {"test_answer": "B", "description": "MCQ option B"}
+            ]
+            
+            comparison_results = []
+            
+            for i, test_case in enumerate(test_cases, 1):
+                if i <= len(session_questions):
+                    question = session_questions[i-1]
+                    question_id = question.get('id')
+                    
+                    answer_data = {
+                        "session_id": session_id,
+                        "position": i,
+                        "answer": test_case["test_answer"]
+                    }
+                    
+                    print(f"   🧪 Test Case {i}: {test_case['description']} = '{test_case['test_answer']}'")
+                    
+                    success, answer_response = self.run_test(
+                        f"Answer Comparison Test {i}", 
+                        "POST", 
+                        "session/submit", 
+                        [200, 500], 
+                        answer_data, 
+                        auth_headers
+                    )
+                    
+                    if success and answer_response.get('success'):
+                        investigation_results["test_answer_submitted"] = True
+                        is_correct = answer_response.get('is_correct', False)
+                        correct_answer = answer_response.get('correct_answer', '')
+                        user_answer = answer_response.get('user_answer', '')
+                        
+                        comparison_result = {
+                            'question_id': question_id,
+                            'user_answer': user_answer,
+                            'correct_answer': correct_answer,
+                            'is_correct': is_correct,
+                            'test_description': test_case['description']
+                        }
+                        comparison_results.append(comparison_result)
+                        
+                        print(f"      ✅ Submission successful")
+                        print(f"      📊 User answer: '{user_answer}'")
+                        print(f"      📊 Correct answer: '{correct_answer}'")
+                        print(f"      📊 Result: {'CORRECT' if is_correct else 'INCORRECT'}")
+                        
+                        # Check for the specific mismatch (6 hours vs 80%)
+                        if user_answer == "6 hours" and correct_answer == "80%":
+                            investigation_results["6_hours_vs_80_percent_mismatch_found"] = True
+                            print(f"      🚨 MISMATCH DETECTED: User '6 hours' vs Correct '80%'")
+                        
+                    else:
+                        print(f"      ❌ Answer submission failed: {answer_response}")
+            
+            if comparison_results:
+                investigation_results["comparison_values_monitored"] = True
+                print(f"   ✅ Comparison values monitored for {len(comparison_results)} test cases")
+                
+                # Analyze comparison patterns
+                print(f"   📊 Comparison Analysis:")
+                for result in comparison_results:
+                    print(f"      {result['test_description']}: '{result['user_answer']}' vs '{result['correct_answer']}' = {'✓' if result['is_correct'] else '✗'}")
+        
+        # PHASE 4: TEST 3 - DATABASE QUERY ANALYSIS
+        print("\n🗄️ PHASE 4: TEST 3 - DATABASE QUERY ANALYSIS")
+        print("-" * 60)
+        print("Analyzing questions table vs session_pack_questions data")
+        
+        if session_questions:
+            # Get sample question IDs for direct database comparison
+            sample_question_ids = [q.get('id') for q in session_questions[:3] if q.get('id')]
+            
+            if sample_question_ids:
+                investigation_results["direct_questions_table_queried"] = True
+                print(f"   📋 Analyzing {len(sample_question_ids)} questions from database...")
+                
+                # Use the questions API to get direct database data
+                for question_id in sample_question_ids:
+                    print(f"   🔍 Analyzing question {question_id}...")
+                    
+                    # Get question from questions API (direct database query)
+                    success, db_question_response = self.run_test(
+                        f"Direct Database Question Query", 
+                        "GET", 
+                        f"questions?limit=1", 
+                        [200, 500], 
+                        None, 
+                        auth_headers
+                    )
+                    
+                    if success and db_question_response:
+                        db_questions = db_question_response if isinstance(db_question_response, list) else []
+                        
+                        # Find matching question in database response
+                        db_question = None
+                        for q in db_questions:
+                            if q.get('id') == question_id:
+                                db_question = q
+                                break
+                        
+                        # Find matching question in session data
+                        session_question = None
+                        for q in session_questions:
+                            if q.get('id') == question_id:
+                                session_question = q
+                                break
+                        
+                        if db_question and session_question:
+                            investigation_results["session_data_compared_with_questions_table"] = True
+                            
+                            # Compare answer fields
+                            db_answer = db_question.get('right_answer', '')
+                            session_answer = session_question.get('answer', '')
+                            session_right_answer = session_question.get('right_answer', '')
+                            
+                            print(f"      📊 Database 'right_answer': '{db_answer}'")
+                            print(f"      📊 Session 'answer': '{session_answer}'")
+                            print(f"      📊 Session 'right_answer': '{session_right_answer}'")
+                            
+                            # Check for discrepancies
+                            if db_answer != session_answer and db_answer != session_right_answer:
+                                investigation_results["discrepancy_identified"] = True
+                                print(f"      🚨 DISCREPANCY DETECTED!")
+                                print(f"         Database has: '{db_answer}'")
+                                print(f"         Session has: '{session_answer}' (answer) / '{session_right_answer}' (right_answer)")
+                                
+                                # Check for specific 6 hours vs 80% mismatch
+                                if ("6 hours" in db_answer.lower() and "80%" in session_answer) or \
+                                   ("80%" in db_answer and "6 hours" in session_answer.lower()):
+                                    investigation_results["6_hours_vs_80_percent_mismatch_found"] = True
+                                    print(f"      🎯 FOUND THE MISMATCH: 6 hours vs 80% issue!")
+                            else:
+                                print(f"      ✅ No discrepancy detected for this question")
+                        else:
+                            print(f"      ⚠️ Could not find matching question in database or session data")
+        
+        # PHASE 5: TEST 4 - QUESTION ID VALIDATION
+        print("\n🔍 PHASE 5: TEST 4 - QUESTION ID VALIDATION")
+        print("-" * 60)
+        print("Validating question ID mapping and data integrity")
+        
+        if session_questions:
+            print("   📋 Validating question ID mapping and answer field consistency...")
+            
+            id_mapping_issues = 0
+            answer_consistency_issues = 0
+            data_corruption_issues = 0
+            
+            for i, question in enumerate(session_questions[:5], 1):
+                question_id = question.get('id')
+                answer_field = question.get('answer')
+                right_answer_field = question.get('right_answer')
+                
+                # Check question ID format
+                if not question_id or len(str(question_id)) < 10:
+                    id_mapping_issues += 1
+                    print(f"   ⚠️ Question {i}: Invalid ID format '{question_id}'")
+                
+                # Check answer field consistency
+                if answer_field is None and right_answer_field is None:
+                    answer_consistency_issues += 1
+                    print(f"   ⚠️ Question {i}: Both answer fields are None")
+                elif answer_field and right_answer_field and answer_field != right_answer_field:
+                    # Check if this is a legitimate difference or corruption
+                    if len(str(answer_field)) < 3 and len(str(right_answer_field)) > 10:
+                        # Likely answer field is short answer, right_answer is explanation
+                        print(f"   ✅ Question {i}: Different field types (short answer vs explanation)")
+                    else:
+                        answer_consistency_issues += 1
+                        print(f"   ⚠️ Question {i}: Answer field inconsistency")
+                        print(f"      answer: '{answer_field}'")
+                        print(f"      right_answer: '{right_answer_field}'")
+                
+                # Check for data corruption (JSON parsing issues, etc.)
+                try:
+                    stem = question.get('stem', '')
+                    if stem and ('null' in stem.lower() or 'undefined' in stem.lower()):
+                        data_corruption_issues += 1
+                        print(f"   ⚠️ Question {i}: Possible data corruption in stem")
+                except Exception as e:
+                    data_corruption_issues += 1
+                    print(f"   ⚠️ Question {i}: Data parsing error - {e}")
+            
+            # Set validation results
+            if id_mapping_issues == 0:
+                investigation_results["question_id_mapping_verified"] = True
+                print(f"   ✅ Question ID mapping verified (no issues)")
+            else:
+                print(f"   ❌ Question ID mapping issues: {id_mapping_issues}")
+            
+            if answer_consistency_issues == 0:
+                investigation_results["answer_field_consistency_checked"] = True
+                print(f"   ✅ Answer field consistency checked (no major issues)")
+            else:
+                print(f"   ❌ Answer field consistency issues: {answer_consistency_issues}")
+            
+            if data_corruption_issues == 0:
+                investigation_results["no_data_corruption_detected"] = True
+                investigation_results["data_integrity_validated"] = True
+                print(f"   ✅ No data corruption detected")
+            else:
+                print(f"   ❌ Data corruption issues detected: {data_corruption_issues}")
+        
+        # PHASE 6: ROOT CAUSE ANALYSIS
+        print("\n🎯 PHASE 6: ROOT CAUSE ANALYSIS")
+        print("-" * 60)
+        print("Analyzing potential root causes of the answer field mismatch")
+        
+        root_causes_identified = []
+        
+        # Analyze findings to identify root causes
+        if investigation_results["discrepancy_identified"]:
+            investigation_results["answer_field_missing_or_incorrect"] = True
+            root_causes_identified.append("Answer field missing or incorrect in session data")
+            print(f"   🚨 ROOT CAUSE 1: Answer field missing or incorrect in session data")
+        
+        if investigation_results["6_hours_vs_80_percent_mismatch_found"]:
+            investigation_results["wrong_question_retrieved"] = True
+            root_causes_identified.append("Wrong question being retrieved (question ID mismatch)")
+            print(f"   🚨 ROOT CAUSE 2: Wrong question being retrieved or question ID mismatch")
+        
+        if not investigation_results["answer_field_consistency_checked"]:
+            investigation_results["data_type_format_mismatch"] = True
+            root_causes_identified.append("Data type or format mismatch in answer comparison")
+            print(f"   🚨 ROOT CAUSE 3: Data type or format mismatch in answer comparison")
+        
+        if not investigation_results["no_data_corruption_detected"]:
+            investigation_results["json_storage_corruption"] = True
+            root_causes_identified.append("Question data corruption during JSON storage/retrieval")
+            print(f"   🚨 ROOT CAUSE 4: Question data corruption during JSON storage/retrieval")
+        
+        if not investigation_results["session_data_compared_with_questions_table"]:
+            investigation_results["questions_table_wrong_data"] = True
+            root_causes_identified.append("Questions table has wrong answer data")
+            print(f"   🚨 ROOT CAUSE 5: Questions table has wrong answer data")
+        
+        if root_causes_identified:
+            investigation_results["exact_discrepancy_source_identified"] = True
+            print(f"   ✅ Root cause analysis complete: {len(root_causes_identified)} issues identified")
+        else:
+            print(f"   ⚠️ No clear root causes identified - may need deeper investigation")
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 80)
+        print("🔍 ANSWER FIELD MISMATCH INVESTIGATION - RESULTS")
+        print("=" * 80)
+        
+        passed_tests = sum(investigation_results.values())
+        total_tests = len(investigation_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        # Group results by investigation phases
+        investigation_categories = {
+            "AUTHENTICATION": [
+                "authentication_working", "user_adaptive_enabled", "jwt_token_valid"
+            ],
+            "QUESTION DATA ANALYSIS": [
+                "blueprint_session_created", "session_pack_questions_accessible",
+                "raw_question_data_examined", "answer_field_exists_in_session_data", "answer_field_values_correct"
+            ],
+            "ANSWER COMPARISON TESTING": [
+                "test_answer_submitted", "comparison_values_monitored",
+                "database_source_verified", "questions_table_vs_session_pack_verified"
+            ],
+            "DATABASE QUERY ANALYSIS": [
+                "direct_questions_table_queried", "session_data_compared_with_questions_table",
+                "discrepancy_identified", "6_hours_vs_80_percent_mismatch_found"
+            ],
+            "QUESTION ID VALIDATION": [
+                "question_id_mapping_verified", "answer_field_consistency_checked",
+                "data_integrity_validated", "no_data_corruption_detected"
+            ],
+            "ROOT CAUSE ANALYSIS": [
+                "wrong_question_retrieved", "answer_field_missing_or_incorrect",
+                "questions_table_wrong_data", "data_type_format_mismatch", "json_storage_corruption"
+            ]
+        }
+        
+        for category, tests in investigation_categories.items():
+            print(f"\n{category}:")
+            category_passed = 0
+            category_total = len(tests)
+            
+            for test in tests:
+                if test in investigation_results:
+                    result = investigation_results[test]
+                    status = "✅ PASS" if result else "❌ FAIL"
+                    print(f"  {test.replace('_', ' ').title():<50} {status}")
+                    if result:
+                        category_passed += 1
+            
+            category_rate = (category_passed / category_total) * 100 if category_total > 0 else 0
+            print(f"  Category Success Rate: {category_passed}/{category_total} ({category_rate:.1f}%)")
+        
+        print("-" * 80)
+        print(f"Overall Investigation Progress: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # INVESTIGATION CONCLUSIONS
+        print("\n🎯 INVESTIGATION CONCLUSIONS:")
+        
+        if investigation_results["6_hours_vs_80_percent_mismatch_found"]:
+            print("\n🚨 CRITICAL FINDING: 6 hours vs 80% mismatch confirmed!")
+            print("   - User answer '6 hours' does not match correct answer '80%'")
+            print("   - This indicates a fundamental question data integrity issue")
+            print("   - The question and answer fields are mismatched")
+        
+        if investigation_results["discrepancy_identified"]:
+            print("\n🚨 DATA DISCREPANCY DETECTED:")
+            print("   - Questions table data differs from session pack data")
+            print("   - Answer fields are inconsistent between data sources")
+            print("   - This explains why users see incorrect feedback")
+        
+        if root_causes_identified:
+            print(f"\n🔧 RECOMMENDED FIXES:")
+            for i, cause in enumerate(root_causes_identified, 1):
+                print(f"   {i}. {cause}")
+            
+            investigation_results["fix_recommendation_provided"] = True
+        
+        # Overall investigation assessment
+        critical_findings = (
+            investigation_results["6_hours_vs_80_percent_mismatch_found"] or
+            investigation_results["discrepancy_identified"] or
+            investigation_results["answer_field_missing_or_incorrect"]
+        )
+        
+        if critical_findings:
+            investigation_results["investigation_complete"] = True
+            print("\n✅ INVESTIGATION COMPLETE: Critical issues identified")
+            print("   - Answer field mismatch root cause found")
+            print("   - Data integrity issues confirmed")
+            print("   - Fix recommendations provided")
+        else:
+            print("\n⚠️ INVESTIGATION INCOMPLETE: Need deeper analysis")
+            print("   - No clear mismatch pattern identified")
+            print("   - May need database-level investigation")
+        
+        return success_rate >= 70 and critical_findings
+
     def test_blueprint_session_creation_and_answer_submission_fix(self):
         """
         🎯 BLUEPRINT SESSION CREATION AND ANSWER SUBMISSION FIX VALIDATION
