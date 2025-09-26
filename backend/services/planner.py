@@ -141,7 +141,7 @@ Return ONLY valid JSON matching the required schema. The constraint_report field
                 user_payload=simplified_payload,
                 schema=self._get_simplified_schema(),
                 model_primary="gpt-4o-mini",  # Faster model
-                model_fallback="gemini-1.5-flash",  # Faster fallback
+                model_fallback="gemini-2.5-flash",  # Faster fallback
                 max_retries=1,  # P0 FIX: Only 1 retry max
                 timeout_ms=llm_timeout_ms  # P0 FIX: 15s timeout
             )
