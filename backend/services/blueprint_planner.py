@@ -107,11 +107,17 @@ class BlueprintSessionPlanner:
             existing_pack = existing_pack_result.fetchone()
             
             if existing_pack:
-                # Get the questions for this pack
-                questions = await self._get_session_questions(uuid.UUID(existing_pack[0]), db)
+                # Get the questions for this pack - ensure session_id is properly converted
+                session_id_str = str(existing_pack[0])
+                try:
+                    session_uuid = uuid.UUID(session_id_str)
+                    questions = await self._get_session_questions(session_uuid, db)
+                except Exception as q_error:
+                    logger.error(f"Error getting questions for session {session_id_str}: {q_error}")
+                    questions = []
                 
                 return {
-                    "session_id": str(existing_pack[0]),
+                    "session_id": session_id_str,
                     "status": "ready",
                     "questions": questions,
                     "constraint_report": json.loads(existing_pack[1]) if isinstance(existing_pack[1], str) else existing_pack[1]
