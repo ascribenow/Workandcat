@@ -546,16 +546,20 @@ async def list_user_sessions(
             
             sessions_list = []
             for session in sessions_data:
+                answered_count = session[7] or 0
+                current_position = answered_count + 1 if answered_count < 12 else 12  # Calculate next question position
+                
                 sessions_list.append({
                     "session_id": str(session[0]),  # id is at index 0
                     "status": session[1],           # status is at index 1
                     "session_number": session[8] or 1,  # calculated_session_number is at index 8 (FIX: Use calculated number)
-                    "answered_count": session[7] or 0,  # answered_count is at index 7
+                    "answered_count": answered_count,  # answered_count is at index 7
+                    "current_position": current_position,  # FIX: Add current position for resumption
                     "total_questions": 12,  # Blueprint sessions always have 12 questions
                     "created_at": session[2].isoformat() if session[2] else None,  # created_at is at index 2
                     "served_at": session[3].isoformat() if session[3] else None,   # served_at is at index 3
                     "completed_at": session[4].isoformat() if session[4] else None, # abandoned_at is at index 4
-                    "progress_percentage": ((session[7] or 0) / 12) * 100,  # Use index 7 for answered_count
+                    "progress_percentage": ((answered_count) / 12) * 100,  # Use answered_count directly
                     "session_type": "blueprint"
                 })
         finally:
