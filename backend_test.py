@@ -1130,9 +1130,9 @@ class CATBackendTester:
         """
         print("🎯 BLUEPRINT ANSWER SUBMISSION ATTEMPT_EVENTS INVESTIGATION")
         print("=" * 80)
-        print("CRITICAL ISSUE: Dashboard shows 5 completed sessions (60 expected questions)")
-        print("but only 11 questions in category breakdown")
-        print("FOCUS: Investigate why attempt_events creation during Blueprint answer submission is failing")
+        print("UPDATED ANALYSIS: Dashboard shows 182 total question attempts (not 11)")
+        print("Session creation failing due to duplicate sess_seq constraint violation")
+        print("FOCUS: Investigate session sequence logic and verify attempt_events creation")
         print("=" * 80)
         
         test_results = {
@@ -1141,42 +1141,41 @@ class CATBackendTester:
             "jwt_token_valid": False,
             "user_adaptive_enabled": False,
             
-            # Test 1: Blueprint Answer Submission Monitoring
-            "blueprint_session_creation_working": False,
-            "blueprint_answer_submission_working": False,
-            "attempt_events_insert_executed": False,
-            "backend_logs_show_insert": False,
+            # Test 1: Dashboard Data Analysis
+            "dashboard_api_working": False,
+            "attempt_events_count_verified": False,
+            "actual_attempts_much_higher_than_expected": False,
+            "dashboard_discrepancy_in_reporting": False,
             
-            # Test 2: Database Table Analysis
-            "attempt_events_table_accessible": False,
-            "current_attempt_events_count": False,
-            "blueprint_session_attempts_found": False,
-            "table_schema_correct": False,
+            # Test 2: Session Sequence Logic Investigation
+            "session_creation_failing": False,
+            "duplicate_sess_seq_detected": False,
+            "session_sequence_calculation_flawed": False,
+            "constraint_violation_confirmed": False,
             
-            # Test 3: Blueprint Session Answer API Testing
-            "submit_answer_endpoint_working": False,
-            "session_answers_created": False,
-            "attempt_events_created": False,
-            "database_transactions_successful": False,
+            # Test 3: Existing Session Analysis
+            "existing_sessions_analyzed": False,
+            "completed_sessions_count_verified": False,
+            "session_status_distribution_checked": False,
+            "session_data_integrity_verified": False,
             
-            # Test 4: SQL Query Validation
-            "insert_query_syntax_valid": False,
-            "parameter_binding_working": False,
-            "foreign_key_references_valid": False,
-            "constraint_violations_detected": False,
+            # Test 4: Blueprint System Health Check
+            "blueprint_health_endpoint_working": False,
+            "database_connection_active": False,
+            "blueprint_system_operational": False,
+            "attempt_events_creation_likely_working": False,
             
             # Root Cause Analysis
-            "silent_failure_detected": False,
-            "transaction_rollback_detected": False,
-            "missing_metadata_detected": False,
-            "sql_error_detected": False,
-            "constraint_violation_detected": False,
+            "attempt_events_creation_actually_working": False,
+            "session_sequence_logic_broken": False,
+            "dashboard_reporting_accurate": False,
+            "blueprint_system_functional_except_session_creation": False,
             
             # Overall Assessment
-            "attempt_events_creation_working": False,
-            "dashboard_discrepancy_resolved": False,
-            "blueprint_system_functional": False,
-            "production_ready": False
+            "real_issue_identified": False,
+            "attempt_events_investigation_complete": False,
+            "blueprint_system_needs_session_fix": False,
+            "production_impact_assessed": False
         }
         
         # PHASE 1: AUTHENTICATION SETUP
