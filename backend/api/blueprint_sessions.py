@@ -393,6 +393,43 @@ async def submit_answer(
             "principle_to_remember": question_at_position.get('principle_to_remember', '')
         }
         
+        # VALIDATION: If solution feedback is missing, fetch from questions table directly
+        if not any(solution_feedback.values()):
+            logger.warning(f"Solution feedback missing for position {request.position}, fetching from questions table")
+            
+            try:
+                question_id = question_at_position.get('id')
+                if question_id:
+                    db_question_result = db.execute(text("""
+                        SELECT snap_read, solution_approach, detailed_solution, principle_to_remember, answer
+                        FROM questions
+                        WHERE id = :question_id
+                    """), {"question_id": question_id})
+                    
+                    db_question_row = db_question_result.fetchone()
+                    if db_question_row:
+                        solution_feedback = {
+                            "snap_read": db_question_row.snap_read or '',
+                            "solution_approach": db_question_row.solution_approach or '',
+                            "detailed_solution": db_question_row.detailed_solution or '',
+                            "principle_to_remember": db_question_row.principle_to_remember or ''
+                        }
+                        
+                        # Also update correct answer if different
+                        db_correct_answer = db_question_row.answer or ''
+                        if db_correct_answer != correct_answer:
+                            logger.warning(f"Answer mismatch found - session data: '{correct_answer}', questions table: '{db_correct_answer}'. Using questions table.")
+                            correct_answer = db_correct_answer
+                            correct_answer_clean = correct_answer.strip().lower()
+                            is_correct = user_answer == correct_answer_clean  # Recalculate correctness
+                        
+                        logger.info(f"Solution feedback retrieved from questions table for question {question_id[:8]}")
+                    
+            except Exception as fallback_error:
+                logger.error(f"Failed to fetch solution feedback from questions table: {fallback_error}")
+        
+        logger.info(f"Final solution feedback status: {[k for k, v in solution_feedback.items() if v]}")
+        
         return JSONResponse({
             "success": True,
             "session_id": request.session_id,
