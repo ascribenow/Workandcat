@@ -23631,67 +23631,81 @@ class CATBackendTester:
         return final_results["100_percent_success_achieved"]
 
 if __name__ == "__main__":
-    print("🔍 ANSWER FIELD MISMATCH INVESTIGATION")
+    print("🎯 DATABASE AUDIT FOR LEGACY TABLES - COMPREHENSIVE ANALYSIS")
     print("=" * 80)
-    print("OBJECTIVE: Investigate answer field mismatch where user answers '6 hours' but correct shows '80%'")
-    print("Focus: Question data integrity, answer field consistency, database source validation")
-    print("Expected: Identify exact source of discrepancy and fix data/comparison logic")
+    print("OBJECTIVE: Audit database structure to identify all existing tables and determine")
+    print("which ones are legacy/unused in the current Blueprint-only system.")
+    print("Focus: Legacy table identification, usage validation, storage optimization")
+    print("Expected: Complete categorization of Active/Questionable/Legacy tables")
     print("Authentication: sp@theskinmantra.com/student123")
     print("=" * 80)
     
     tester = CATBackendTester()
     
     try:
-        # Run the Answer Field Mismatch Investigation (primary focus)
-        print("\n🔍 RUNNING ANSWER FIELD MISMATCH INVESTIGATION")
-        investigation_success = tester.test_answer_field_mismatch_investigation()
+        # Run the Database Audit for Legacy Tables (primary focus)
+        print("\n🎯 RUNNING DATABASE AUDIT FOR LEGACY TABLES")
+        audit_success = tester.test_database_audit_for_legacy_tables()
         
         print("\n" + "=" * 80)
-        print("🔍 ANSWER FIELD MISMATCH INVESTIGATION SUMMARY")
+        print("🎯 DATABASE AUDIT FOR LEGACY TABLES - SUMMARY")
         print("=" * 80)
         print(f"Tests Run: {tester.tests_run}")
         print(f"Tests Passed: {tester.tests_passed}")
         print(f"Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%" if tester.tests_run > 0 else "0%")
         
-        if investigation_success:
-            print("\n🎉 INVESTIGATION: SUCCESSFUL!")
-            print("✅ Answer field mismatch root cause identified")
-            print("✅ Data integrity issues confirmed")
-            print("✅ Fix recommendations provided")
-            print("✅ Question data source validated")
-            print("✅ Database comparison completed")
-            print("✅ Investigation complete with actionable findings")
+        if audit_success:
+            print("\n🎉 DATABASE AUDIT: SUCCESSFUL!")
+            print("✅ Complete database table inventory completed")
+            print("✅ Legacy tables identified for removal")
+            print("✅ Active tables confirmed as essential")
+            print("✅ Storage optimization recommendations ready")
+            print("✅ Blueprint-only system table usage validated")
+            print("✅ Database audit complete with actionable findings")
         else:
-            print("\n⚠️ INVESTIGATION: NEEDS DEEPER ANALYSIS")
-            print("❌ Answer field mismatch requires further investigation")
-            print("❌ Database-level analysis may be needed")
-            print("❌ Check detailed investigation results above")
-            print("❌ Consider direct database queries for root cause")
+            print("\n⚠️ DATABASE AUDIT: NEEDS ATTENTION")
+            print("❌ Some table analysis incomplete or inconclusive")
+            print("❌ Additional investigation may be required")
+            print("❌ Check detailed audit results above")
+            print("❌ Consider direct database queries for complete analysis")
         
         print("=" * 80)
         
-        # Additional testing if investigation is successful
-        if investigation_success:
+        # Additional testing if audit is successful
+        if audit_success:
             print("\n🎯 RUNNING ADDITIONAL BACKEND VALIDATION TESTS")
             
-            # Run the Blueprint Session Creation and Answer Submission Fix test
-            print("\n🎯 Running Blueprint Session Creation Fix Validation...")
-            blueprint_success = tester.test_blueprint_session_creation_and_answer_submission_fix()
+            # Run the Privileged User and Session Limits test
+            print("\n🎯 Running Privileged User & Session Limits Validation...")
+            privileged_success = tester.test_privileged_user_and_session_limits()
             
-            print(f"\nBlueprint Session Fix: {'✅ PASS' if blueprint_success else '❌ FAIL'}")
+            # Run the V2 Implementation Validation test
+            print("\n🚀 Running V2 Implementation Validation...")
+            v2_success = tester.test_v2_implementation_validation()
+            
+            # Run the Blueprint Session Functionality test
+            print("\n🎯 Running Blueprint Session Functionality Post-Cleanup...")
+            blueprint_success = tester.test_blueprint_session_functionality_post_cleanup()
+            
+            print(f"\nPrivileged User & Session Limits: {'✅ PASS' if privileged_success else '❌ FAIL'}")
+            print(f"V2 Implementation Validation: {'✅ PASS' if v2_success else '❌ FAIL'}")
+            print(f"Blueprint Session Functionality: {'✅ PASS' if blueprint_success else '❌ FAIL'}")
             
             print("\n🏁 ALL TESTING COMPLETE!")
             print("=" * 80)
             
-            overall_success = investigation_success and blueprint_success
+            overall_success = audit_success and privileged_success and v2_success and blueprint_success
             if overall_success:
                 print("🎉 OVERALL RESULT: SUCCESS")
-                print("   - Answer field mismatch investigation completed")
-                print("   - Blueprint session system validated")
-                print("   - System ready for production use")
+                print("   - Database audit completed with legacy table identification")
+                print("   - Privileged user system validated")
+                print("   - V2 implementation performance confirmed")
+                print("   - Blueprint session system functional")
+                print("   - System ready for production use with storage optimization")
             else:
                 print("⚠️ OVERALL RESULT: PARTIAL SUCCESS")
-                print("   - Investigation completed but some systems need attention")
+                print("   - Database audit completed but some systems need attention")
+                print("   - Review individual test results for specific issues")
         
     except Exception as e:
         print(f"\n❌ CRITICAL ERROR during testing: {e}")
