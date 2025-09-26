@@ -312,12 +312,12 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
 
   // Add adaptive flag logging
   useEffect(() => {
-    console.log('🏁 Adaptive Feature Status: SYSTEM IS ADAPTIVE-ONLY', {
-      adaptiveEnabled: true,
+    console.log('🏁 Blueprint Feature Status: SYSTEM IS BLUEPRINT-ONLY', {
+      blueprintEnabled: true,
       userAdaptiveEnabled: user?.adaptive_enabled,
-      effectiveAdaptive: adaptiveEnabled
+      effectiveBlueprint: blueprintEnabled
     });
-  }, [user, adaptiveEnabled]);
+  }, [user, blueprintEnabled]);
 
   // V2 HARDENING: Check for uncompleted sessions on mount
   useEffect(() => {
