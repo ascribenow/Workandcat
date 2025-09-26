@@ -1106,15 +1106,17 @@ class CATBackendTester:
         
         return success_rate >= 80 and criteria_rate >= 85
 
-    def test_session_completion_background_jobs(self):
+    def test_simplified_background_job_system(self):
         """
-        🎯 SESSION COMPLETION & BACKGROUND JOBS TESTING
+        🎯 SIMPLIFIED BACKGROUND JOB SYSTEM TESTING
         
-        PRIORITY TESTS FROM REVIEW REQUEST:
-        1. Test POST /api/session/complete with a real existing session_id from the database
-        2. Verify job enqueueing - check that 3 jobs are created (session_summarization, personalized_planning, coverage_update)
-        3. Check worker processing - verify jobs move from queued → processing → completed
-        4. Test health endpoint - ensure active workers are now showing up
+        TESTING THE COMPLETELY SIMPLIFIED SYSTEM FROM REVIEW REQUEST:
+        1. Two Job Types Only: SUMMARIZE_SESSION → PLAN_NEXT_SESSION
+        2. Session completion enqueues only 1 job: SUMMARIZE_SESSION
+        3. Sequential pipeline: SUMMARIZE_SESSION completes → enqueues PLAN_NEXT_SESSION
+        4. Simplified database schema with ENUMs (job_type, job_status)
+        5. Job processing with proper status transitions: queued → running → succeeded/failed
+        6. Deduplication with dedupe_key for idempotency
         
         AUTHENTICATION: sp@theskinmantra.com/student123
         """
