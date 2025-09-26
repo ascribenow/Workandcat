@@ -20,16 +20,24 @@ class SummarizerLLMService:
         from dotenv import load_dotenv
         load_dotenv()
         
-        # Initialize API keys - Use Emergent LLM key as specified
-        self.emergent_llm_key = "sk-emergent-c6504797427BfB25c0"
-        
-        # Also try loading from environment for fallback
-        self.openai_api_key = os.getenv('OPENAI_API_KEY', self.emergent_llm_key)
+        # Initialize API keys using existing pattern
+        self.openai_api_key = os.getenv('OPENAI_API_KEY')
         self.google_api_key = os.getenv('GOOGLE_API_KEY')
+        
+        if not self.openai_api_key:
+            logger.warning("⚠️ Summarizer LLM: OpenAI API key not found")
         
         # Model configuration (GPT-4o primary + Gemini fallback pattern)
         self.primary_model = "gpt-4o-mini"
-        self.fallback_model = "gemini-1.5-pro"
+        self.fallback_model = "gpt-3.5-turbo"
+        self.gemini_model = "gemini-1.5-pro"
+        
+        # LLM utilities configuration
+        self.timeout = 30
+        self.max_failures_before_degradation = 3
+        self.max_openai_failures_before_gemini = 2
+        self.openai_consecutive_failures = 0
+        self.primary_model_failures = 0
         
         # Initialize Google AI if key available
         if self.google_api_key:
@@ -38,7 +46,7 @@ class SummarizerLLMService:
         else:
             logger.warning("⚠️ Summarizer LLM: Google API key not found - no Gemini fallback")
         
-        logger.info("✅ Summarizer LLM: Emergent LLM Key configured as primary")
+        logger.info("✅ Summarizer LLM: Configured with existing LLM utilities pattern")
     
     async def call_for_concept_analysis(self, system_prompt: str, user_payload: Dict[str, Any]) -> Tuple[str, str]:
         """
