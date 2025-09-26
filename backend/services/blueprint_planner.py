@@ -736,7 +736,7 @@ class BlueprintSessionPlanner:
         }
     
     async def _get_session_questions(self, session_id: uuid.UUID, db=None) -> List[Dict]:
-        """Get ordered questions for a session"""
+        """Get all questions for a session with validation checks"""
         
         if db is None:
             db = self.get_db_session()
@@ -746,25 +746,51 @@ class BlueprintSessionPlanner:
         
         try:
             questions_result = db.execute(text("""
-                SELECT position, question_id, question_data
-                FROM session_pack_questions
-                WHERE session_id = :session_id
-                ORDER BY position ASC
-            """), {"session_id": str(session_id)})  # Convert UUID to string
-            
-            questions_data = questions_result.fetchall()
+                SELECT spq.position, spq.question_id, spq.question_data, spq.created_at
+                FROM session_pack_questions spq
+                WHERE spq.session_id = :session_id
+                ORDER BY spq.position
+            """), {"session_id": str(session_id)})
             
             questions = []
-            for row in questions_data:
+            for row in questions_result:
                 question_data = json.loads(row[2]) if isinstance(row[2], str) else row[2]
-                question_data['position'] = row[0]
-                question_data['question_id'] = str(row[1])  # Convert UUID to string
+                
+                # INTEGRITY CHECK: Validate question data consistency
+                stored_position = row[0]
+                question_id = row[1]
+                validation_meta = question_data.get('_validation', {})
+                
+                # Check for position consistency
+                if validation_meta.get('stored_position') != stored_position:
+                    logger.warning(f"Position mismatch for question {question_id[:8]}: expected {stored_position}, metadata says {validation_meta.get('stored_position')}")
+                
+                # Check for question ID consistency  
+                if validation_meta.get('question_id') != question_id:
+                    logger.warning(f"Question ID mismatch at position {stored_position}: expected {question_id[:8]}, metadata says {validation_meta.get('question_id', 'N/A')[:8]}")
+                
+                # Add position back to question data
+                question_data['position'] = stored_position
+                question_data['question_id'] = str(question_id)  # Convert UUID to string
+                
                 # Ensure all UUID fields are strings
                 if 'id' in question_data:
                     question_data['id'] = str(question_data['id'])
+                
+                # VALIDATION: Log data integrity status
+                critical_fields = ['id', 'stem', 'answer', 'option_a', 'option_b', 'option_c', 'option_d']
+                missing_critical = [field for field in critical_fields if not question_data.get(field)]
+                if missing_critical:
+                    logger.error(f"Question at position {stored_position} missing critical fields: {missing_critical}")
+                
                 questions.append(question_data)
             
+            logger.info(f"Retrieved {len(questions)} questions for session {str(session_id)[:8]} with validation checks")
             return questions
+            
+        except Exception as e:
+            logger.error(f"Failed to get questions for session {str(session_id)[:8]}: {e}")
+            raise
         finally:
             if close_db and db:
                 db.close()
