@@ -1106,37 +1106,46 @@ class CATBackendTester:
         
         return success_rate >= 80 and criteria_rate >= 85
 
-    def test_data_flow_discrepancy_investigation(self):
+    def test_blueprint_session_data_flow_investigation(self):
         """
-        🔍 DATA FLOW DISCREPANCY INVESTIGATION
+        🔍 BLUEPRINT SESSION DATA FLOW INVESTIGATION
         
-        CRITICAL INVESTIGATION: Investigate the data flow discrepancy where questions table has 
-        correct answer "6 hours" but frontend receives "127.27%" for question ID b7005cd9-12a0-4a4c-a6d9-beb7020f1389.
-        
-        ### Test 1: Session Pack Questions Data
-        1. **Query session_pack_questions table**: Check what's stored in the `question_data` JSON field for this question
-        2. **Compare with questions table**: Verify if the data matches the source questions table
-        3. **JSON Data Integrity**: Check if the answer field in the JSON data is correct
-        
-        ### Test 2: Question ID Mapping Verification  
-        4. **Blueprint Session API**: Check which question ID is actually being retrieved during answer submission
-        5. **Position Mapping**: Verify if position mapping is correct (position → question_id → question_data)
-        6. **Session Data**: Check if the session is retrieving the correct question for that position
-        
-        ### Test 3: Data Retrieval Chain Analysis
-        7. **Direct Questions Table Query**: Confirm question b7005cd9-12a0-4a4c-a6d9-beb7020f1389 has answer "6 hours"
-        8. **Session Pack Storage**: Check how this question gets stored in session_pack_questions 
-        9. **API Response**: Check what the Blueprint submit API actually returns for this question
-        
-        ### Test 4: Alternative Question Search
-        10. **Search for "127.27%"**: Find which question actually has "127.27%" as the answer
-        11. **Cross-Reference**: Check if there's a question ID mix-up or wrong question being served
-        
+        CRITICAL INVESTIGATION: Investigate the Blueprint session data flow to identify where 
+        the question data mismatch occurs during fetch, storage, and display.
+
+        ## CRITICAL INVESTIGATION: Session Data Lifecycle
+
+        ### Phase 1: Session Creation Data Integrity
+        1. **Create New Blueprint Session**: Monitor what questions get selected from questions table
+        2. **Check Session Pack Storage**: Verify questions stored in session_pack_questions table have correct data
+        3. **Validate JSON Serialization**: Ensure solution feedback fields are properly stored in question_data JSON
+
+        ### Phase 2: Question Display Data Flow  
+        4. **Question Serving**: Check what question data is retrieved when serving questions to frontend
+        5. **Position Mapping**: Verify position → question_id → question_data mapping is consistent
+        6. **Frontend Question Display**: Confirm question shown to user matches stored data
+
+        ### Phase 3: Answer Submission Data Flow
+        7. **Answer Validation**: Check what question data is used during answer submission
+        8. **Solution Feedback Source**: Verify solution feedback comes from same question as displayed
+        9. **Question ID Consistency**: Ensure same question is used for display and validation
+
+        ### Phase 4: Data Mismatch Detection
+        10. **Position Cross-Check**: Verify question at position X is same across all operations
+        11. **Question ID Tracking**: Track if question IDs change between storage and retrieval  
+        12. **Solution Data Integrity**: Check if solution feedback belongs to correct question
+
         ## ROOT CAUSE POSSIBILITIES:
-        1. **session_pack_questions data corruption**: JSON data doesn't match questions table
-        2. **Question ID mix-up**: Wrong question being retrieved for that position
-        3. **Data transformation error**: Something corrupting data during Blueprint session creation
-        4. **Multiple questions confusion**: Frontend getting data from different question than expected
+        - **Position mapping error**: Wrong question retrieved for given position
+        - **Question ID mismatch**: Different questions in storage vs retrieval
+        - **JSON serialization corruption**: Data lost/corrupted during storage
+        - **Race condition**: Questions mixed up during concurrent session operations
+        - **Database constraint issue**: Foreign key mismatches causing wrong data retrieval
+
+        ## EXPECTED FINDINGS:
+        Identify exact point in data flow where question data becomes inconsistent - whether in storage, retrieval, or serving to frontend.
+
+        This will reveal the fundamental issue causing question mismatches instead of just patching symptoms.
         
         AUTHENTICATION: sp@theskinmantra.com/student123
         """
