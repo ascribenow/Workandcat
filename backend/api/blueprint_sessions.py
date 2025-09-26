@@ -545,76 +545,27 @@ async def complete_session(
         
         logger.info(f"Blueprint session {request.session_id[:8]} completed with {correct_answers}/{total_questions} correct ({accuracy:.1f}%)")
         
-        # BACKGROUND ADAPTIVE INTELLIGENCE: Enqueue background jobs for LLM processing
+        # BACKGROUND ADAPTIVE INTELLIGENCE: Two-job pipeline (SUMMARIZE → PLAN)
         bg_jobs_enqueued = False
         try:
             from services.bg_job_queue import job_queue
             
-            # Job 1: Session Summarization (LLM-powered concept analysis)
+            # Single job: SUMMARIZE_SESSION (which will enqueue PLAN_NEXT_SESSION)
             summarization_job_id = await job_queue.enqueue_job(
-                job_type="session_summarization",
-                job_data={
-                    "session_stats": {
-                        "total_questions": total_questions,
-                        "correct_answers": correct_answers,
-                        "accuracy": accuracy
-                    }
-                },
+                job_type="SUMMARIZE_SESSION",
                 user_id=auth_user_id,
-                session_id=request.session_id,
-                deduplicate=True
-            )
-            
-            # Job 2: Personalized Planning (next session recommendations)
-            planning_job_id = await job_queue.enqueue_job(
-                job_type="personalized_planning", 
-                job_data={
-                    "planning_context": {
-                        "trigger": "session_completion",
-                        "completed_session_id": request.session_id,
-                        "recent_accuracy": accuracy
-                    }
-                },
-                user_id=auth_user_id,
-                deduplicate=True
-            )
-            
-            # Job 3: Coverage Update (learning gap analysis)
-            coverage_job_id = await job_queue.enqueue_job(
-                job_type="coverage_update",
-                job_data={
-                    "update_scope": "session_based",
-                    "completed_session_id": request.session_id
-                },
-                user_id=auth_user_id,
-                deduplicate=True
+                session_id=request.session_id
             )
             
             bg_jobs_enqueued = True
-            logger.info(f"🚀 Background jobs enqueued for session {request.session_id[:8]}: summarization={summarization_job_id}, planning={planning_job_id}, coverage={coverage_job_id}")
+            logger.info(f"🚀 Enqueued SUMMARIZE_SESSION job {summarization_job_id[:8]} for session {request.session_id[:8]}")
             
         except Exception as bg_error:
-            # SYNCHRONOUS FALLBACK: If background jobs fail to enqueue, run essential processing synchronously
-            logger.warning(f"⚠️ Background jobs failed for session {request.session_id[:8]}: {bg_error}")
-            logger.info(f"🔄 Falling back to synchronous session summarization...")
-            
-            try:
-                # Run only the essential summarization synchronously as fallback
-                from services.summarizer import summarizer_service
-                
-                # Run synchronous summarization (limited scope to avoid blocking)
-                await summarizer_service.run(
-                    user_id=auth_user_id,
-                    session_id=request.session_id
-                )
-                
-                logger.info(f"✅ Synchronous fallback summarization completed for session {request.session_id[:8]}")
-                
-            except Exception as sync_error:
-                # Don't fail session completion if even fallback fails
-                logger.error(f"❌ Both background jobs and synchronous fallback failed for session {request.session_id[:8]}: {sync_error}")
+            # NO SYNCHRONOUS FALLBACK - trust the async pipeline
+            logger.error(f"❌ Failed to enqueue background jobs for session {request.session_id[:8]}: {bg_error}")
+            # Still return 200 - next session planning will use last-known signals
         
-        # Generate session summary
+        # Generate session summary (enhanced with adaptive processing indicator)
         session_summary = {
             "session_id": request.session_id,
             "total_questions": total_questions,
@@ -622,7 +573,7 @@ async def complete_session(
             "accuracy": round(accuracy, 1),
             "completed_at": datetime.now(timezone.utc).isoformat(),
             "session_type": "blueprint",
-            "adaptive_processing": "queued" if bg_jobs_enqueued else "fallback_completed"
+            "adaptive_processing": "queued" if bg_jobs_enqueued else "enqueue_failed"
         }
         
         return JSONResponse({
