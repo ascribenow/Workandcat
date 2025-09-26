@@ -27,11 +27,15 @@ logger = logging.getLogger(__name__)
 def get_database_connection():
     """Get database connection using the same config as the app"""
     from dotenv import load_dotenv
-    load_dotenv()
+    
+    # Load environment variables from backend directory
+    load_dotenv('/app/backend/.env')
     
     DATABASE_URL = os.getenv("DATABASE_URL")
     if not DATABASE_URL:
         raise ValueError("DATABASE_URL not found in environment variables")
+    
+    print(f"   📊 Database URL: {DATABASE_URL[:50]}...")
     
     engine = create_engine(DATABASE_URL)
     SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
