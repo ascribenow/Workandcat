@@ -1110,22 +1110,21 @@ class CATBackendTester:
         """
         🎯 BLUEPRINT ANSWER SUBMISSION ATTEMPT_EVENTS INVESTIGATION
         
-        CRITICAL ISSUE: Dashboard shows 5 completed sessions (60 expected questions) but only 11 questions 
-        in category breakdown. The attempt_events records aren't being created during Blueprint answer 
-        submission despite the fix being implemented.
+        CRITICAL ISSUE ANALYSIS: Based on backend logs and dashboard data, the investigation reveals:
+        - Dashboard shows 182 total question attempts (not 11 as initially reported)
+        - Session creation failing due to duplicate sess_seq constraint violation
+        - User already has sessions with sess_seq=6, system trying to create another with same seq
         
-        INVESTIGATION FOCUS:
-        1. Blueprint Answer Submission Monitoring - login and submit answers, monitor backend logs
-        2. Database Table Analysis - check attempt_events table records
-        3. Blueprint Session Answer API Testing - test submit answer endpoint
-        4. SQL Query Validation - verify attempt_events INSERT query
+        UPDATED INVESTIGATION FOCUS:
+        1. Dashboard Data Analysis - verify actual attempt_events count vs expected
+        2. Session Sequence Logic - investigate why sess_seq calculation is incorrect
+        3. Existing Session Analysis - check current session states
+        4. Blueprint System Health - verify if attempt_events creation is actually working
         
-        ROOT CAUSE POSSIBILITIES:
-        1. attempt_events INSERT statement failing silently
-        2. Database transaction rollback affecting attempt_events creation
-        3. Missing question metadata (category, difficulty) preventing insertion
-        4. SQL syntax error or parameter binding issue
-        5. Table constraint violations (duplicate IDs, invalid references)
+        ROOT CAUSE HYPOTHESIS:
+        1. Session sequence calculation logic is flawed (creating duplicate sess_seq)
+        2. attempt_events creation may actually be working (182 attempts found)
+        3. Dashboard discrepancy may be in reporting, not data creation
         
         AUTHENTICATION: sp@theskinmantra.com/student123
         """
