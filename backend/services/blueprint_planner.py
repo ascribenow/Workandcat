@@ -588,12 +588,12 @@ class BlueprintSessionPlanner:
         """Create session and persist pack with positions"""
         
         # First create or get session in sessions table
-        # Get next session sequence for this user with atomic increment (FIX: Prevent duplicate sess_seq)
+        # Get next session sequence for this user with atomic increment (FIX: Use corrected logic)
+        # NEW CORRECT LOGIC: Count only completed sessions + 1 (meaningful progression)
         seq_result = db.execute(text("""
-            SELECT COALESCE(MAX(sess_seq), 0) + 1 as next_seq
+            SELECT COUNT(*) + 1 as next_seq
             FROM sessions 
-            WHERE user_id = :user_id
-            FOR UPDATE
+            WHERE user_id = :user_id AND status = 'completed'
         """), {"user_id": str(user_id)})
         
         next_seq = seq_result.scalar() or 1
