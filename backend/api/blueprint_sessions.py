@@ -425,27 +425,46 @@ async def submit_answer(
             "principle_to_remember": question_at_position.get('principle_to_remember', '')
         }
         
-        # VALIDATION: If solution feedback is missing, fetch from questions table directly
-        if not any(solution_feedback.values()):
-            logger.warning(f"Solution feedback missing for position {request.position}, fetching from questions table")
+        # VALIDATION: If solution feedback is missing or questionable, fetch from questions table directly
+        feedback_quality_check = any(len(str(v)) > 50 for v in solution_feedback.values() if v)  # Check if feedback seems substantial
+        
+        if not feedback_quality_check:
+            logger.warning(f"Solution feedback appears insufficient for position {request.position}, fetching from questions table")
             
             try:
                 question_id = question_at_position.get('id')
                 if question_id:
                     db_question_result = db.execute(text("""
-                        SELECT snap_read, solution_approach, detailed_solution, principle_to_remember, answer
+                        SELECT snap_read, solution_approach, detailed_solution, principle_to_remember, answer, stem
                         FROM questions
                         WHERE id = :question_id
                     """), {"question_id": question_id})
                     
                     db_question_row = db_question_result.fetchone()
                     if db_question_row:
-                        solution_feedback = {
+                        # Cross-validate question consistency by checking stem
+                        db_stem = db_question_row.stem or ''
+                        session_stem = question_at_position.get('stem', '')
+                        
+                        if db_stem[:100] != session_stem[:100]:  # Compare first 100 chars
+                            logger.error(f"CRITICAL MISMATCH: Question stems don't match!")
+                            logger.error(f"DB stem: {db_stem[:100]}")
+                            logger.error(f"Session stem: {session_stem[:100]}")
+                        else:
+                            logger.info(f"✅ Question stem consistency validated")
+                        
+                        # Use database solution feedback if it's better
+                        db_solution_feedback = {
                             "snap_read": db_question_row.snap_read or '',
                             "solution_approach": db_question_row.solution_approach or '',
                             "detailed_solution": db_question_row.detailed_solution or '',
                             "principle_to_remember": db_question_row.principle_to_remember or ''
                         }
+                        
+                        db_feedback_quality = any(len(str(v)) > 50 for v in db_solution_feedback.values() if v)
+                        if db_feedback_quality:
+                            solution_feedback = db_solution_feedback
+                            logger.info(f"✅ Enhanced solution feedback retrieved from questions table")
                         
                         # Also update correct answer if different
                         db_correct_answer = db_question_row.answer or ''
@@ -454,13 +473,11 @@ async def submit_answer(
                             correct_answer = db_correct_answer
                             correct_answer_clean = correct_answer.strip().lower()
                             is_correct = user_answer == correct_answer_clean  # Recalculate correctness
-                        
-                        logger.info(f"Solution feedback retrieved from questions table for question {question_id[:8]}")
                     
             except Exception as fallback_error:
                 logger.error(f"Failed to fetch solution feedback from questions table: {fallback_error}")
         
-        logger.info(f"Final solution feedback status: {[k for k, v in solution_feedback.items() if v]}")
+        logger.info(f"Final solution feedback status: {[k for k, v in solution_feedback.items() if v and len(str(v)) > 10]}")
         
         return JSONResponse({
             "success": True,
