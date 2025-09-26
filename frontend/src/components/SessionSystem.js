@@ -1232,7 +1232,7 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
         action: 'submit',
         data: {
           user_answer: userAnswer,
-          session_type: adaptiveEnabled ? 'adaptive' : 'legacy'
+          session_type: blueprintEnabled ? 'blueprint' : 'legacy'
         },
         timestamp: new Date().toISOString()
       };
