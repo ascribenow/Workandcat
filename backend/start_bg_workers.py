@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Background Workers Startup Script
-Starts background workers for adaptive intelligence processing
+Simplified Background Workers - Two Jobs Only
+SUMMARIZE_SESSION → PLAN_NEXT_SESSION
 """
 
 import asyncio
@@ -9,31 +9,32 @@ import logging
 import sys
 import os
 
-# Add the backend directory to Python path
+# Add backend to path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from services.bg_worker_manager import run_standalone_workers
+from services.bg_job_queue import job_queue
 
-if __name__ == "__main__":
-    # Setup logging
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        handlers=[
-            logging.StreamHandler(sys.stdout),
-            logging.FileHandler('/var/log/bg_workers.log', mode='a')
-        ]
-    )
-    
+async def run_simplified_worker():
+    """Run simplified worker - no complex management, just process jobs"""
     logger = logging.getLogger(__name__)
-    logger.info("🚀 Starting Twelvr Background Adaptive Intelligence Workers...")
+    logger.info("🚀 Starting simplified background worker...")
     
     try:
-        asyncio.run(run_standalone_workers())
+        # Simple worker loop - just start processing
+        await job_queue.start_worker()
+        
     except KeyboardInterrupt:
-        logger.info("⌨️ Received keyboard interrupt, shutting down...")
+        logger.info("⌨️ Keyboard interrupt - stopping worker...")
+        job_queue.stop_worker()
     except Exception as e:
-        logger.error(f"❌ Critical error in background workers: {e}")
+        logger.error(f"❌ Worker error: {e}")
         sys.exit(1)
+
+if __name__ == "__main__":
+    # Simple logging setup
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
     
-    logger.info("✅ Background workers stopped gracefully")
+    asyncio.run(run_simplified_worker())
