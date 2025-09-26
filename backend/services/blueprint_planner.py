@@ -732,7 +732,7 @@ class BlueprintSessionPlanner:
                 question_data['position'] = row[0]
                 question_data['question_id'] = str(row[1])  # Convert UUID to string
                 # Ensure all UUID fields are strings
-                if 'id' in question_data and isinstance(question_data['id'], uuid.UUID):
+                if 'id' in question_data:
                     question_data['id'] = str(question_data['id'])
                 questions.append(question_data)
             
