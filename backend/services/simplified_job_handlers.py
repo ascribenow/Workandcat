@@ -310,17 +310,23 @@ async def persist_session_pack(user_id: str, session_pack: Dict[str, Any]) -> st
         pack_id = str(uuid.uuid4())
         
         # Insert into session_packs (using existing Blueprint schema)
-        # This is a placeholder - in full implementation would use actual planner integration
+        # Note: session_packs uses session_id as primary key, not id
         db.execute(text("""
             INSERT INTO session_packs (
-                id, user_id, pack_type, created_at, status
+                session_id, user_id, constraint_report, created_at
             ) VALUES (
-                :pack_id, :user_id, :pack_type, :created_at, 'ready'
+                :session_id, :user_id, :constraint_report, :created_at
             )
         """), {
-            "pack_id": pack_id,
+            "session_id": pack_id,  # Use pack_id as session_id
             "user_id": user_id, 
-            "pack_type": session_pack["pack_type"],
+            "constraint_report": json.dumps({
+                "pack_type": session_pack["pack_type"],
+                "difficulty_distribution": session_pack["difficulty_distribution"],
+                "planning_strategy": session_pack["planning_strategy"],
+                "weak_concepts_targeted": session_pack["weak_concepts_targeted"],
+                "high_debt_pairs_addressed": session_pack["high_debt_pairs_addressed"]
+            }),
             "created_at": datetime.now(timezone.utc)
         })
         
