@@ -1155,30 +1155,30 @@ class CATBackendTester:
             # Session Completion with Background Jobs
             "session_complete_endpoint_working": False,
             "session_completion_enqueues_jobs": False,
-            "adaptive_processing_queued_returned": False,
+            "three_background_jobs_enqueued": False,
             "session_completion_non_blocking": False,
             
-            # Background Job Types Validation
-            "session_summarization_job_enqueued": False,
-            "personalized_planning_job_enqueued": False,
-            "coverage_update_job_enqueued": False,
-            "job_data_properly_structured": False,
+            # Job Deduplication Testing
+            "job_deduplication_working": False,
+            "no_duplicate_jobs_for_same_session": False,
+            "unique_constraints_enforced": False,
             
-            # Database Persistence
-            "jobs_created_in_bg_jobs_table": False,
-            "jobs_have_correct_status": False,
-            "jobs_linked_to_user_and_session": False,
+            # Background Job Processing
+            "workers_are_running": False,
+            "jobs_being_processed_by_workers": False,
+            "job_status_transitions_working": False,
+            "job_results_stored_in_database": False,
+            
+            # Database Integration
+            "bg_jobs_table_has_correct_entries": False,
+            "learner_notebook_table_updated": False,
+            "coverage_debt_table_updated": False,
             "job_metadata_populated": False,
             
-            # Frontend Blueprint Experience
-            "blueprint_experience_unaffected": False,
-            "session_completion_response_format_maintained": False,
-            "no_breaking_changes_to_frontend": False,
-            
-            # LLM Integration Readiness
-            "llm_integration_configured": False,
-            "emergent_llm_key_available": False,
-            "fallback_system_ready": False,
+            # LLM Integration
+            "llm_integration_working": False,
+            "job_handlers_complete_successfully": False,
+            "fallback_mechanisms_working": False,
             
             # Overall Assessment
             "background_job_system_operational": False,
