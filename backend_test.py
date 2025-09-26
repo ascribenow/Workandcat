@@ -1158,6 +1158,12 @@ class CATBackendTester:
             "three_background_jobs_enqueued": False,
             "session_completion_non_blocking": False,
             
+            # Background Job Types Validation
+            "session_summarization_job_enqueued": False,
+            "personalized_planning_job_enqueued": False,
+            "coverage_update_job_enqueued": False,
+            "job_data_properly_structured": False,
+            
             # Job Deduplication Testing
             "job_deduplication_working": False,
             "no_duplicate_jobs_for_same_session": False,
