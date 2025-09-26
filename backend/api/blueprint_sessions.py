@@ -517,11 +517,20 @@ async def list_user_sessions(
                 })
             else:
                 query = text("""
+                    WITH completed_sessions AS (
+                        SELECT session_id, created_at,
+                               ROW_NUMBER() OVER (ORDER BY created_at) as display_session_number
+                        FROM sessions 
+                        WHERE user_id = :user_id AND status = 'completed'
+                    )
                     SELECT s.session_id, s.status, s.created_at, s.served_at, s.abandoned_at, s.sess_seq,
                            sp.constraint_report,
-                           (SELECT COUNT(*) FROM session_answers sa WHERE sa.session_id::text = s.session_id) as answered_count
+                           (SELECT COUNT(*) FROM session_answers sa WHERE sa.session_id::text = s.session_id) as answered_count,
+                           COALESCE(cs.display_session_number, 
+                                   (SELECT COUNT(*) FROM sessions WHERE user_id = :user_id AND status = 'completed') + 1) as calculated_session_number
                     FROM sessions s
                     LEFT JOIN session_packs sp ON s.session_id = sp.session_id::text
+                    LEFT JOIN completed_sessions cs ON s.session_id = cs.session_id
                     WHERE s.user_id = :user_id
                     ORDER BY s.created_at DESC
                     LIMIT :limit
