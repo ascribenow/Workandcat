@@ -696,7 +696,7 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
     // DIAGNOSTIC: Dump state before fetch
     console.log(`[STATE_DUMP] ${requestId}: Pre-fetch state`, {
       sessionId,
-      adaptiveEnabled,
+      blueprintEnabled,
       currentPackLength: currentPack.length,
       currentQuestionIndex,
       nextSessionId,
