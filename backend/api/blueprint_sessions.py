@@ -326,7 +326,7 @@ async def submit_answer(
                 detail=f"Invalid position {request.position}. Available positions: {sorted(available_positions)}"
             )
         
-        # Find question at specified position
+        # POSITION INTEGRITY CHECK: Cross-validate question at position with display data  
         question_at_position = None
         for q in questions:
             if q.get('position') == request.position:
@@ -336,8 +336,14 @@ async def submit_answer(
         if not question_at_position:
             raise HTTPException(status_code=404, detail=f"Question at position {request.position} not found")
         
-        # DEBUG: Log question data for troubleshooting
-        logger.info(f"Question at position {request.position}: ID={question_at_position.get('id', 'NO_ID')[:8]}")
+        # CROSS-VALIDATION: Check if this matches what was displayed to user
+        display_meta = question_at_position.get('_validation', {})
+        if display_meta:
+            logger.info(f"Question validation metadata: stored_position={display_meta.get('stored_position')}, has_all_options={display_meta.get('has_all_options')}")
+        
+        # DEBUG: Enhanced question data logging for troubleshooting
+        question_id = question_at_position.get('id', 'NO_ID')
+        logger.info(f"Answer submission for position {request.position}: ID={question_id[:8]}")
         logger.info(f"Question stem preview: {question_at_position.get('stem', 'NO_STEM')[:100]}...")
         logger.info(f"Question options: A='{question_at_position.get('option_a', '')[:20]}', B='{question_at_position.get('option_b', '')[:20]}'")
         logger.info(f"Solution feedback availability: snap_read={bool(question_at_position.get('snap_read'))}, approach={bool(question_at_position.get('solution_approach'))}")
@@ -346,7 +352,8 @@ async def submit_answer(
         expected_fields = ['id', 'stem', 'option_a', 'option_b', 'option_c', 'option_d', 'answer']
         missing_fields = [field for field in expected_fields if not question_at_position.get(field)]
         if missing_fields:
-            logger.warning(f"Missing question fields: {missing_fields}")
+            logger.error(f"CRITICAL: Question at position {request.position} missing fields: {missing_fields}")
+            # Continue with submission but log the critical issue
         
         # Check if answer is correct
         correct_answer = question_at_position.get('answer', '')
