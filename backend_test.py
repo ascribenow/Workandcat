@@ -1149,11 +1149,11 @@ class CATBackendTester:
         
         AUTHENTICATION: sp@theskinmantra.com/student123
         """
-        print("🔍 DATA FLOW DISCREPANCY INVESTIGATION")
+        print("🔍 BLUEPRINT SESSION DATA FLOW INVESTIGATION")
         print("=" * 80)
-        print("OBJECTIVE: Investigate discrepancy where questions table has '6 hours' but frontend gets '127.27%'")
-        print("FOCUS: Question ID b7005cd9-12a0-4a4c-a6d9-beb7020f1389 data flow analysis")
-        print("EXPECTED: Identify exact source of data discrepancy and fix the issue")
+        print("OBJECTIVE: Investigate Blueprint session data flow to identify question data mismatch")
+        print("FOCUS: Session creation → storage → display → submission data integrity")
+        print("EXPECTED: Identify exact point where question data becomes inconsistent")
         print("=" * 80)
         
         investigation_results = {
@@ -1162,41 +1162,40 @@ class CATBackendTester:
             "user_adaptive_enabled": False,
             "jwt_token_valid": False,
             
-            # Test 1: Session Pack Questions Data
-            "session_pack_questions_queried": False,
-            "target_question_found_in_session_pack": False,
-            "json_data_integrity_verified": False,
-            "answer_field_in_json_correct": False,
-            "questions_table_vs_session_pack_match": False,
-            
-            # Test 2: Question ID Mapping Verification
+            # Phase 1: Session Creation Data Integrity
             "blueprint_session_created": False,
-            "question_id_mapping_verified": False,
-            "position_mapping_correct": False,
-            "session_retrieves_correct_question": False,
-            "api_returns_expected_question": False,
-            
-            # Test 3: Data Retrieval Chain Analysis
-            "direct_questions_table_queried": False,
-            "target_question_has_6_hours_answer": False,
+            "questions_selected_from_db": False,
             "session_pack_storage_verified": False,
-            "blueprint_submit_api_tested": False,
-            "api_response_matches_expected": False,
+            "json_serialization_validated": False,
+            "solution_feedback_stored_correctly": False,
             
-            # Test 4: Alternative Question Search
-            "searched_for_127_27_percent": False,
-            "found_question_with_127_27_percent": False,
-            "question_id_mixup_detected": False,
-            "wrong_question_being_served": False,
+            # Phase 2: Question Display Data Flow
+            "question_serving_working": False,
+            "position_mapping_consistent": False,
+            "frontend_question_display_correct": False,
+            "question_data_matches_stored": False,
+            
+            # Phase 3: Answer Submission Data Flow
+            "answer_validation_working": False,
+            "solution_feedback_source_verified": False,
+            "question_id_consistency_maintained": False,
+            "same_question_used_display_validation": False,
+            
+            # Phase 4: Data Mismatch Detection
+            "position_cross_check_passed": False,
+            "question_id_tracking_consistent": False,
+            "solution_data_integrity_verified": False,
+            "data_flow_integrity_confirmed": False,
             
             # Root Cause Analysis
-            "session_pack_data_corruption": False,
-            "question_id_mixup": False,
-            "data_transformation_error": False,
-            "multiple_questions_confusion": False,
+            "position_mapping_error": False,
+            "question_id_mismatch": False,
+            "json_serialization_corruption": False,
+            "race_condition_detected": False,
+            "database_constraint_issue": False,
             
             # Investigation Outcome
-            "exact_discrepancy_source_identified": False,
+            "exact_mismatch_point_identified": False,
             "root_cause_determined": False,
             "fix_recommendation_provided": False,
             "investigation_complete": False
