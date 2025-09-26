@@ -318,6 +318,11 @@ async def submit_answer(
         if not question_at_position:
             raise HTTPException(status_code=404, detail=f"Question at position {request.position} not found")
         
+        # DEBUG: Log question data for troubleshooting
+        logger.info(f"Question at position {request.position}: ID={question_at_position.get('id', 'NO_ID')[:8]}")
+        logger.info(f"Question stem preview: {question_at_position.get('stem', 'NO_STEM')[:100]}...")
+        logger.info(f"Solution feedback availability: snap_read={bool(question_at_position.get('snap_read'))}, approach={bool(question_at_position.get('solution_approach'))}")
+        
         # Check if answer is correct
         correct_answer = question_at_position.get('answer', '')
         user_answer = request.answer.strip().lower()
