@@ -170,8 +170,18 @@ async def get_session_questions(
         # Format questions for frontend consumption
         formatted_questions = []
         for q in questions:
-            formatted_questions.append({
-                "id": q.get("id", ""),
+            # POSITION INTEGRITY CHECK: Ensure question position consistency
+            question_position = q.get('position', 0)
+            question_id = q.get('id', 'NO_ID')
+            
+            # Validate question data completeness
+            critical_fields = ['id', 'stem', 'option_a', 'option_b', 'option_c', 'option_d', 'answer']
+            missing_fields = [field for field in critical_fields if not q.get(field)]
+            if missing_fields:
+                logger.warning(f"Question {question_id[:8]} at position {question_position} missing fields: {missing_fields}")
+            
+            formatted_question = {
+                "id": question_id,
                 "stem": q.get("stem", ""),
                 "option_a": q.get("option_a", ""),
                 "option_b": q.get("option_b", ""),
@@ -180,9 +190,17 @@ async def get_session_questions(
                 "difficulty_band": q.get("difficulty_band", ""),
                 "subcategory": q.get("subcategory", ""),
                 "type_of_question": q.get("type_of_question", ""),
-                "position": q.get("position", 1),
-                "answer": q.get("answer", "")
-            })
+                "position": question_position,
+                "answer": q.get("answer", ""),
+                # Add validation metadata for frontend debugging
+                "_display_meta": {
+                    "has_all_options": all(q.get(f'option_{opt}') for opt in ['a', 'b', 'c', 'd']),
+                    "has_solution_feedback": any(q.get(field) for field in ['snap_read', 'solution_approach', 'detailed_solution', 'principle_to_remember']),
+                    "served_at": datetime.now(timezone.utc).isoformat()
+                }
+            }
+            
+            formatted_questions.append(formatted_question)
         
         # Sort by position to ensure correct order
         formatted_questions.sort(key=lambda x: x["position"])
