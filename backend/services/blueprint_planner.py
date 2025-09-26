@@ -108,8 +108,15 @@ class BlueprintSessionPlanner:
             if db:
                 db.close()
     
-    async def _get_existing_planned_session(self, user_id: uuid.UUID, db) -> Optional[Dict]:
+    async def _get_existing_planned_session(self, user_id: uuid.UUID, db=None) -> Optional[Dict]:
         """Check for existing planned session"""
+        
+        # Handle database session
+        if db is None:
+            db = self.get_db_session()
+            close_db = True
+        else:
+            close_db = False
         
         try:
             existing_pack_result = db.execute(text("""
@@ -144,6 +151,9 @@ class BlueprintSessionPlanner:
         except Exception as e:
             logger.error(f"Error checking existing planned session for user {user_id}: {e}")
             return None
+        finally:
+            if close_db and db:
+                db.close()
     
     async def _create_new_session_plan(self, user_id: uuid.UUID, db) -> Dict:
         """Create a new session plan with all deviation compliance"""
