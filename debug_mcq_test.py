@@ -7,7 +7,7 @@ from datetime import datetime
 
 # Test the MCQ answer comparison issue
 def test_mcq_debug():
-    base_url = "https://smart-blueprint.preview.emergentagent.com/api"
+    base_url = "https://cat-session-sys.preview.emergentagent.com/api"
     
     # Authenticate
     auth_data = {

@@ -7,7 +7,7 @@ import requests
 import json
 
 def test_pack_fetch_direct():
-    base_url = "https://smart-blueprint.preview.emergentagent.com/api"
+    base_url = "https://cat-session-sys.preview.emergentagent.com/api"
     
     # Step 1: Authenticate (with longer timeout)
     print("🔐 Step 1: Authentication")

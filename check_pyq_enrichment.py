@@ -7,7 +7,7 @@ import requests
 import json
 
 def check_pyq_enrichment():
-    base_url = "https://smart-blueprint.preview.emergentagent.com/api"
+    base_url = "https://cat-session-sys.preview.emergentagent.com/api"
     
     # Login as admin
     login_data = {

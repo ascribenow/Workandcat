@@ -2,7 +2,7 @@ import requests
 import json
 
 # Test the specific failing endpoints
-base_url = "https://smart-blueprint.preview.emergentagent.com/api"
+base_url = "https://cat-session-sys.preview.emergentagent.com/api"
 
 # Login as student first
 login_data = {
