@@ -26,8 +26,8 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
     };
   }, []);
   
-  // ADAPTIVE-ONLY: System is now purely adaptive learning platform
-  const adaptiveEnabled = true; // Always adaptive
+  // BLUEPRINT-ONLY: System is now purely Blueprint session platform
+  const blueprintEnabled = true; // Always Blueprint
   
   const [sessionId, setSessionId] = useState(propSessionId);
   const [sessionNumber, setSessionNumber] = useState(null);
