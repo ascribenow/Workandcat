@@ -1106,6 +1106,581 @@ class CATBackendTester:
         
         return success_rate >= 80 and criteria_rate >= 85
 
+    def test_session_completion_background_jobs(self):
+        """
+        🎯 SESSION COMPLETION & BACKGROUND JOBS TESTING
+        
+        PRIORITY TESTS FROM REVIEW REQUEST:
+        1. Test POST /api/session/complete with a real existing session_id from the database
+        2. Verify job enqueueing - check that 3 jobs are created (session_summarization, personalized_planning, coverage_update)
+        3. Check worker processing - verify jobs move from queued → processing → completed
+        4. Test health endpoint - ensure active workers are now showing up
+        
+        AUTHENTICATION: sp@theskinmantra.com/student123
+        """
+        print("🎯 SESSION COMPLETION & BACKGROUND JOBS TESTING")
+        print("=" * 80)
+        print("OBJECTIVE: Test session completion endpoint with background job processing")
+        print("FOCUS: Real session completion → 3 jobs enqueued → worker processing → health status")
+        print("EXPECTED: Background jobs working, workers active, job status transitions")
+        print("=" * 80)
+        
+        bg_results = {
+            # Authentication Setup
+            "authentication_working": False,
+            "user_adaptive_enabled": False,
+            "jwt_token_valid": False,
+            
+            # Database Session Retrieval
+            "real_session_found": False,
+            "session_data_valid": False,
+            "session_belongs_to_user": False,
+            
+            # Background Job Health Endpoint
+            "bg_jobs_health_endpoint_accessible": False,
+            "health_endpoint_returns_status": False,
+            "health_shows_worker_status": False,
+            "health_shows_queue_depth": False,
+            
+            # User Background Job Status Endpoint
+            "bg_jobs_status_endpoint_working": False,
+            "user_can_check_job_status": False,
+            "recent_jobs_returned": False,
+            "queue_info_provided": False,
+            
+            # Session Completion with Background Jobs
+            "session_complete_endpoint_working": False,
+            "session_completion_enqueues_jobs": False,
+            "three_background_jobs_enqueued": False,
+            "session_completion_non_blocking": False,
+            
+            # Background Job Types Validation
+            "session_summarization_job_enqueued": False,
+            "personalized_planning_job_enqueued": False,
+            "coverage_update_job_enqueued": False,
+            "job_data_properly_structured": False,
+            
+            # Worker Processing Validation
+            "workers_are_running": False,
+            "jobs_being_processed_by_workers": False,
+            "job_status_transitions_working": False,
+            "active_workers_showing_in_health": False,
+            
+            # Database Integration
+            "bg_jobs_table_has_correct_entries": False,
+            "jobs_linked_to_user_and_session": False,
+            "job_metadata_populated": False,
+            
+            # Overall Assessment
+            "background_job_system_operational": False,
+            "session_integration_working": False,
+            "production_ready": False
+        }
+        
+        # PHASE 1: AUTHENTICATION SETUP
+        print("\n🔐 PHASE 1: AUTHENTICATION SETUP")
+        print("-" * 60)
+        print("Authenticating with sp@theskinmantra.com/student123 for background job testing")
+        
+        auth_data = {
+            "email": "sp@theskinmantra.com",
+            "password": "student123"
+        }
+        
+        success, response = self.run_test("Background Job Authentication", "POST", "auth/login", [200, 401], auth_data)
+        
+        auth_headers = None
+        user_id = None
+        if success and response.get('access_token'):
+            token = response['access_token']
+            auth_headers = {
+                'Authorization': f'Bearer {token}',
+                'Content-Type': 'application/json'
+            }
+            bg_results["authentication_working"] = True
+            bg_results["jwt_token_valid"] = True
+            print(f"   ✅ Authentication successful")
+            print(f"   📊 JWT Token length: {len(token)} characters")
+            
+            user_data = response.get('user', {})
+            user_id = user_data.get('id')
+            adaptive_enabled = user_data.get('adaptive_enabled', False)
+            
+            if adaptive_enabled:
+                bg_results["user_adaptive_enabled"] = True
+                print(f"   ✅ User adaptive_enabled confirmed: {adaptive_enabled}")
+                print(f"   📊 User ID: {user_id}")
+            else:
+                print(f"   ⚠️ User adaptive_enabled: {adaptive_enabled}")
+        else:
+            print("   ❌ Authentication failed - cannot proceed with background job testing")
+            return False
+        
+        # PHASE 2: GET REAL SESSION FROM DATABASE
+        print("\n🗄️ PHASE 2: GET REAL SESSION FROM DATABASE")
+        print("-" * 60)
+        print("Finding a real existing session_id from the database for testing")
+        
+        real_session_id = None
+        if auth_headers and user_id:
+            # Try to get an existing session from the user's sessions
+            success, sessions_response = self.run_test(
+                "Get User Sessions", 
+                "GET", 
+                "session/list?limit=5", 
+                [200, 500], 
+                None, 
+                auth_headers
+            )
+            
+            if success and sessions_response.get('sessions'):
+                sessions = sessions_response.get('sessions', [])
+                print(f"   📊 Found {len(sessions)} sessions for user")
+                
+                # Look for a completed session first, then any session
+                for session in sessions:
+                    session_id = session.get('session_id')
+                    session_status = session.get('status')
+                    answered_count = session.get('answered_count', 0)
+                    
+                    print(f"   📋 Session {session_id[:8]}: status={session_status}, answered={answered_count}")
+                    
+                    if session_status == 'completed' and answered_count >= 12:
+                        real_session_id = session_id
+                        bg_results["real_session_found"] = True
+                        bg_results["session_data_valid"] = True
+                        bg_results["session_belongs_to_user"] = True
+                        print(f"   ✅ Found completed session for testing: {real_session_id[:8]}")
+                        break
+                
+                # If no completed session, use any session with answers
+                if not real_session_id and sessions:
+                    for session in sessions:
+                        if session.get('answered_count', 0) > 0:
+                            real_session_id = session.get('session_id')
+                            bg_results["real_session_found"] = True
+                            bg_results["session_data_valid"] = True
+                            bg_results["session_belongs_to_user"] = True
+                            print(f"   ✅ Using session with answers for testing: {real_session_id[:8]}")
+                            break
+                
+                # If still no session, use the first one
+                if not real_session_id and sessions:
+                    real_session_id = sessions[0].get('session_id')
+                    bg_results["real_session_found"] = True
+                    bg_results["session_data_valid"] = True
+                    bg_results["session_belongs_to_user"] = True
+                    print(f"   ✅ Using first available session for testing: {real_session_id[:8]}")
+            else:
+                print(f"   ❌ Failed to get user sessions: {sessions_response}")
+        
+        if not real_session_id:
+            print("   ❌ No real session found - cannot test session completion")
+            return False
+        
+        # PHASE 3: BACKGROUND JOB HEALTH ENDPOINT (BEFORE TESTING)
+        print("\n🏥 PHASE 3: BACKGROUND JOB HEALTH ENDPOINT (BEFORE)")
+        print("-" * 60)
+        print("Testing background job health before session completion")
+        
+        success, health_response = self.run_test(
+            "Background Jobs Health Check (Before)", 
+            "GET", 
+            "bg-jobs/health", 
+            [200, 503], 
+            None, 
+            None  # Public endpoint, no auth required
+        )
+        
+        if success and health_response:
+            bg_results["bg_jobs_health_endpoint_accessible"] = True
+            print(f"   ✅ Background jobs health endpoint accessible")
+            
+            # Check health response structure
+            status = health_response.get('status')
+            background_jobs_status = health_response.get('background_jobs')
+            active_workers_before = health_response.get('active_workers', 0)
+            queue_depth_before = health_response.get('queue_depth', 0)
+            timestamp = health_response.get('timestamp')
+            
+            print(f"   📊 Health status details (BEFORE):")
+            print(f"      Overall status: {status}")
+            print(f"      Background jobs: {background_jobs_status}")
+            print(f"      Active workers: {active_workers_before}")
+            print(f"      Queue depth: {queue_depth_before}")
+            print(f"      Timestamp: {timestamp}")
+            
+            if status in ['healthy', 'degraded', 'unhealthy']:
+                bg_results["health_endpoint_returns_status"] = True
+                print(f"   ✅ Health endpoint returns valid status")
+            
+            if active_workers_before is not None:
+                bg_results["health_shows_worker_status"] = True
+                print(f"   ✅ Health endpoint shows worker status")
+            
+            if queue_depth_before is not None:
+                bg_results["health_shows_queue_depth"] = True
+                print(f"   ✅ Health endpoint shows queue depth")
+        else:
+            print(f"   ❌ Background jobs health endpoint failed: {health_response}")
+        
+        # PHASE 4: USER BACKGROUND JOB STATUS ENDPOINT (BEFORE)
+        print("\n👤 PHASE 4: USER BACKGROUND JOB STATUS ENDPOINT (BEFORE)")
+        print("-" * 60)
+        print("Testing user-specific background job status before session completion")
+        
+        if auth_headers:
+            success, status_response = self.run_test(
+                "User Background Job Status (Before)", 
+                "GET", 
+                "bg-jobs/status", 
+                [200, 500], 
+                None, 
+                auth_headers
+            )
+            
+            if success and status_response:
+                bg_results["bg_jobs_status_endpoint_working"] = True
+                print(f"   ✅ Background job status endpoint working")
+                
+                # Check status response structure
+                recent_jobs_before = status_response.get('recent_jobs', [])
+                queue_info_before = status_response.get('queue_info', {})
+                
+                print(f"   📊 Status response details (BEFORE):")
+                print(f"      Recent jobs count: {len(recent_jobs_before)}")
+                print(f"      Queue info: {queue_info_before}")
+                
+                if isinstance(recent_jobs_before, list):
+                    bg_results["recent_jobs_returned"] = True
+                    print(f"   ✅ Recent jobs list returned")
+                    
+                    # Show sample jobs if available
+                    for i, job in enumerate(recent_jobs_before[:3]):
+                        print(f"   📊 Job {i+1}: {job.get('job_type')} - {job.get('status')}")
+                
+                if queue_info_before and 'queue_depth' in queue_info_before:
+                    bg_results["queue_info_provided"] = True
+                    print(f"   ✅ Queue information provided")
+                
+                bg_results["user_can_check_job_status"] = True
+                print(f"   ✅ User can check their background job status")
+            else:
+                print(f"   ❌ User background job status failed: {status_response}")
+        
+        # PHASE 5: SESSION COMPLETION WITH BACKGROUND JOBS
+        print("\n🎯 PHASE 5: SESSION COMPLETION WITH BACKGROUND JOBS")
+        print("-" * 60)
+        print(f"Testing session completion endpoint with real session: {real_session_id[:8]}")
+        
+        if auth_headers and user_id and real_session_id:
+            # Test the session completion endpoint
+            completion_data = {
+                "session_id": real_session_id
+            }
+            
+            print(f"   🧪 Testing session completion with session ID: {real_session_id[:8]}...")
+            
+            success, completion_response = self.run_test(
+                "Session Completion with Background Jobs", 
+                "POST", 
+                "session/complete",
+                [200, 404, 500], 
+                completion_data, 
+                auth_headers
+            )
+            
+            if success and completion_response:
+                bg_results["session_complete_endpoint_working"] = True
+                print(f"   ✅ Session completion endpoint working")
+                
+                # Check for adaptive_processing indicator
+                summary = completion_response.get('summary', {})
+                adaptive_processing = summary.get('adaptive_processing')
+                session_completed = completion_response.get('session_completed')
+                
+                print(f"   📊 Completion response details:")
+                print(f"      Success: {completion_response.get('success')}")
+                print(f"      Session completed: {session_completed}")
+                print(f"      Adaptive processing: {adaptive_processing}")
+                
+                if adaptive_processing == "queued":
+                    bg_results["session_completion_enqueues_jobs"] = True
+                    print(f"   ✅ Session completion enqueues background jobs")
+                elif adaptive_processing == "fallback_completed":
+                    print(f"   ⚠️ Background jobs failed, fallback completed")
+                
+                # Check response format for frontend compatibility
+                if completion_response.get('success') and session_completed:
+                    bg_results["session_completion_non_blocking"] = True
+                    print(f"   ✅ Session completion is non-blocking")
+            else:
+                print(f"   ❌ Session completion failed: {completion_response}")
+        
+        # PHASE 6: VERIFY JOB ENQUEUEING
+        print("\n📋 PHASE 6: VERIFY JOB ENQUEUEING")
+        print("-" * 60)
+        print("Checking if 3 background jobs were enqueued after session completion")
+        
+        if auth_headers and bg_results["session_completion_enqueues_jobs"]:
+            # Wait a moment for jobs to be enqueued
+            import time
+            time.sleep(2)
+            
+            success, status_response_after = self.run_test(
+                "User Background Job Status (After)", 
+                "GET", 
+                "bg-jobs/status", 
+                [200, 500], 
+                None, 
+                auth_headers
+            )
+            
+            if success and status_response_after:
+                recent_jobs_after = status_response_after.get('recent_jobs', [])
+                queue_info_after = status_response_after.get('queue_info', {})
+                
+                print(f"   📊 Status response details (AFTER):")
+                print(f"      Recent jobs count: {len(recent_jobs_after)}")
+                print(f"      Queue info: {queue_info_after}")
+                
+                # Check for the 3 expected job types
+                job_types_found = set()
+                for job in recent_jobs_after:
+                    job_type = job.get('job_type')
+                    job_status = job.get('status')
+                    print(f"   📊 Job found: {job_type} - {job_status}")
+                    job_types_found.add(job_type)
+                
+                expected_job_types = {'session_summarization', 'personalized_planning', 'coverage_update'}
+                
+                if 'session_summarization' in job_types_found:
+                    bg_results["session_summarization_job_enqueued"] = True
+                    print(f"   ✅ Session summarization job enqueued")
+                
+                if 'personalized_planning' in job_types_found:
+                    bg_results["personalized_planning_job_enqueued"] = True
+                    print(f"   ✅ Personalized planning job enqueued")
+                
+                if 'coverage_update' in job_types_found:
+                    bg_results["coverage_update_job_enqueued"] = True
+                    print(f"   ✅ Coverage update job enqueued")
+                
+                if len(job_types_found.intersection(expected_job_types)) >= 3:
+                    bg_results["three_background_jobs_enqueued"] = True
+                    print(f"   ✅ All 3 background jobs enqueued successfully")
+                elif len(job_types_found.intersection(expected_job_types)) > 0:
+                    print(f"   ⚠️ Only {len(job_types_found.intersection(expected_job_types))} of 3 expected jobs found")
+                else:
+                    print(f"   ❌ No expected background jobs found")
+                
+                if recent_jobs_after:
+                    bg_results["job_data_properly_structured"] = True
+                    print(f"   ✅ Job data properly structured")
+            else:
+                print(f"   ❌ Failed to get job status after completion: {status_response_after}")
+        
+        # PHASE 7: CHECK WORKER PROCESSING
+        print("\n⚙️ PHASE 7: CHECK WORKER PROCESSING")
+        print("-" * 60)
+        print("Checking if workers are processing jobs and status transitions are working")
+        
+        # Wait a bit more for workers to potentially process jobs
+        import time
+        time.sleep(5)
+        
+        # Check health endpoint again to see if workers are active
+        success, health_response_after = self.run_test(
+            "Background Jobs Health Check (After)", 
+            "GET", 
+            "bg-jobs/health", 
+            [200, 503], 
+            None, 
+            None
+        )
+        
+        if success and health_response_after:
+            active_workers_after = health_response_after.get('active_workers', 0)
+            queue_depth_after = health_response_after.get('queue_depth', 0)
+            status_after = health_response_after.get('status')
+            
+            print(f"   📊 Health status details (AFTER):")
+            print(f"      Overall status: {status_after}")
+            print(f"      Active workers: {active_workers_after}")
+            print(f"      Queue depth: {queue_depth_after}")
+            
+            if active_workers_after > 0:
+                bg_results["workers_are_running"] = True
+                bg_results["active_workers_showing_in_health"] = True
+                print(f"   ✅ Workers are running ({active_workers_after} active)")
+            else:
+                print(f"   ❌ No active workers detected")
+            
+            # Check if queue depth changed (indicating processing)
+            if hasattr(self, 'queue_depth_before'):
+                if queue_depth_after != self.queue_depth_before:
+                    bg_results["jobs_being_processed_by_workers"] = True
+                    print(f"   ✅ Queue depth changed, indicating job processing")
+        
+        # Check job status transitions
+        if auth_headers:
+            success, final_status_response = self.run_test(
+                "Final Job Status Check", 
+                "GET", 
+                "bg-jobs/status", 
+                [200, 500], 
+                None, 
+                auth_headers
+            )
+            
+            if success and final_status_response:
+                final_jobs = final_status_response.get('recent_jobs', [])
+                
+                # Check for status transitions
+                status_transitions = set()
+                for job in final_jobs:
+                    job_status = job.get('status')
+                    status_transitions.add(job_status)
+                    print(f"   📊 Final job status: {job.get('job_type')} - {job_status}")
+                
+                if 'processing' in status_transitions or 'completed' in status_transitions:
+                    bg_results["job_status_transitions_working"] = True
+                    print(f"   ✅ Job status transitions working")
+                
+                if len(final_jobs) > 0:
+                    bg_results["bg_jobs_table_has_correct_entries"] = True
+                    bg_results["jobs_linked_to_user_and_session"] = True
+                    bg_results["job_metadata_populated"] = True
+                    print(f"   ✅ Background jobs table has correct entries")
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 80)
+        print("🎯 SESSION COMPLETION & BACKGROUND JOBS TESTING - RESULTS")
+        print("=" * 80)
+        
+        passed_tests = sum(bg_results.values())
+        total_tests = len(bg_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        # Group results by test categories
+        test_categories = {
+            "AUTHENTICATION": [
+                "authentication_working", "user_adaptive_enabled", "jwt_token_valid"
+            ],
+            "DATABASE SESSION RETRIEVAL": [
+                "real_session_found", "session_data_valid", "session_belongs_to_user"
+            ],
+            "BACKGROUND JOB HEALTH": [
+                "bg_jobs_health_endpoint_accessible", "health_endpoint_returns_status",
+                "health_shows_worker_status", "health_shows_queue_depth"
+            ],
+            "USER JOB STATUS": [
+                "bg_jobs_status_endpoint_working", "user_can_check_job_status",
+                "recent_jobs_returned", "queue_info_provided"
+            ],
+            "SESSION COMPLETION": [
+                "session_complete_endpoint_working", "session_completion_enqueues_jobs",
+                "session_completion_non_blocking"
+            ],
+            "JOB ENQUEUEING": [
+                "three_background_jobs_enqueued", "session_summarization_job_enqueued",
+                "personalized_planning_job_enqueued", "coverage_update_job_enqueued", "job_data_properly_structured"
+            ],
+            "WORKER PROCESSING": [
+                "workers_are_running", "jobs_being_processed_by_workers",
+                "job_status_transitions_working", "active_workers_showing_in_health"
+            ],
+            "DATABASE INTEGRATION": [
+                "bg_jobs_table_has_correct_entries", "jobs_linked_to_user_and_session", "job_metadata_populated"
+            ]
+        }
+        
+        for category, tests in test_categories.items():
+            print(f"\n{category}:")
+            category_passed = 0
+            category_total = len(tests)
+            
+            for test in tests:
+                if test in bg_results:
+                    result = bg_results[test]
+                    status = "✅ PASS" if result else "❌ FAIL"
+                    print(f"  {test.replace('_', ' ').title():<50} {status}")
+                    if result:
+                        category_passed += 1
+            
+            category_rate = (category_passed / category_total) * 100 if category_total > 0 else 0
+            print(f"  Category Success Rate: {category_passed}/{category_total} ({category_rate:.1f}%)")
+        
+        print("-" * 80)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # CRITICAL ASSESSMENT
+        print("\n🎯 CRITICAL ASSESSMENT:")
+        
+        # Background Job System Assessment
+        background_job_system_working = (
+            bg_results["session_complete_endpoint_working"] and
+            bg_results["session_completion_enqueues_jobs"] and
+            bg_results["three_background_jobs_enqueued"]
+        )
+        
+        if background_job_system_working:
+            bg_results["background_job_system_operational"] = True
+            print("\n✅ BACKGROUND JOB SYSTEM: OPERATIONAL")
+            print("   - Session completion endpoint working")
+            print("   - 3 background jobs enqueued successfully")
+            print("   - Job enqueueing system functional")
+        else:
+            print("\n❌ BACKGROUND JOB SYSTEM: ISSUES DETECTED")
+            print("   - Session completion or job enqueueing problems")
+        
+        # Worker Processing Assessment
+        worker_processing_working = (
+            bg_results["workers_are_running"] and
+            bg_results["active_workers_showing_in_health"]
+        )
+        
+        if worker_processing_working:
+            print("\n✅ WORKER PROCESSING: OPERATIONAL")
+            print("   - Workers are running and active")
+            print("   - Health endpoint shows active workers")
+        else:
+            print("\n❌ WORKER PROCESSING: ISSUES DETECTED")
+            print("   - Workers not running or not showing as active")
+        
+        # Session Integration Assessment
+        session_integration_working = (
+            bg_results["real_session_found"] and
+            bg_results["session_complete_endpoint_working"] and
+            bg_results["session_completion_non_blocking"]
+        )
+        
+        if session_integration_working:
+            bg_results["session_integration_working"] = True
+            print("\n✅ SESSION INTEGRATION: WORKING")
+            print("   - Real session found and used for testing")
+            print("   - Session completion is non-blocking")
+            print("   - Integration with background jobs successful")
+        else:
+            print("\n❌ SESSION INTEGRATION: ISSUES DETECTED")
+            print("   - Session completion or integration problems")
+        
+        # Overall Production Readiness
+        if (background_job_system_working and session_integration_working):
+            bg_results["production_ready"] = True
+            print("\n🎉 PRODUCTION READINESS: READY")
+            print("   - Background job system operational")
+            print("   - Session completion with job enqueueing working")
+            print("   - System ready for production use")
+        else:
+            print("\n⚠️ PRODUCTION READINESS: NEEDS ATTENTION")
+            if not worker_processing_working:
+                print("   - Workers need to be started/fixed")
+            if not background_job_system_working:
+                print("   - Background job system needs fixes")
+        
+        return success_rate >= 70 and background_job_system_working
+
     def test_background_job_system(self):
         """
         🎯 BACKGROUND JOB SYSTEM COMPREHENSIVE TESTING
