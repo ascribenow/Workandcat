@@ -321,7 +321,14 @@ async def submit_answer(
         # DEBUG: Log question data for troubleshooting
         logger.info(f"Question at position {request.position}: ID={question_at_position.get('id', 'NO_ID')[:8]}")
         logger.info(f"Question stem preview: {question_at_position.get('stem', 'NO_STEM')[:100]}...")
+        logger.info(f"Question options: A='{question_at_position.get('option_a', '')[:20]}', B='{question_at_position.get('option_b', '')[:20]}'")
         logger.info(f"Solution feedback availability: snap_read={bool(question_at_position.get('snap_read'))}, approach={bool(question_at_position.get('solution_approach'))}")
+        
+        # VALIDATION: Cross-check question data integrity
+        expected_fields = ['id', 'stem', 'option_a', 'option_b', 'option_c', 'option_d', 'answer']
+        missing_fields = [field for field in expected_fields if not question_at_position.get(field)]
+        if missing_fields:
+            logger.warning(f"Missing question fields: {missing_fields}")
         
         # Check if answer is correct
         correct_answer = question_at_position.get('answer', '')
