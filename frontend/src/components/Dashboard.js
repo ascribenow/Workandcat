@@ -233,7 +233,7 @@ export const Dashboard = () => {
               status: incompleteSession.status,
               total_questions: incompleteSession.total_questions,
               answered_count: incompleteSession.answered_count,
-              current_position: (incompleteSession.answered_count || 0) + 1,
+              current_position: incompleteSession.current_position || ((incompleteSession.answered_count || 0) + 1),  // FIX: Use backend position
               progress_percentage: incompleteSession.progress_percentage,
               // Note: Questions will be loaded from API by SessionSystem when needed
               questions: [],  // Will be populated by SessionSystem
