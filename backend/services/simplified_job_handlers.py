@@ -3,6 +3,7 @@ Simplified Job Handlers
 Two job types: SUMMARIZE_SESSION → PLAN_NEXT_SESSION
 """
 
+import json
 import logging
 from typing import Dict, Any
 from datetime import datetime, timezone
