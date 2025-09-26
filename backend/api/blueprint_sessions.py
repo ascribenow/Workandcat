@@ -72,14 +72,16 @@ async def start_session(
         # Plan session with advisory lock protection
         session_data = await planner.plan_session(request.user_id)
         
-        # Get session sequence number from database for display
+        # Get calculated session number based on completed sessions (FIX: Use meaningful progression)
         db = planner.get_db_session()
         try:
-            seq_result = db.execute(text("""
-                SELECT sess_seq FROM sessions 
-                WHERE session_id = :session_id
-            """), {"session_id": session_data["session_id"]})
-            session_seq = seq_result.scalar() or 1
+            # Calculate session number based on completed sessions count
+            completed_count_result = db.execute(text("""
+                SELECT COUNT(*) FROM sessions 
+                WHERE user_id = :user_id AND status = 'completed'
+            """), {"user_id": request.user_id})
+            completed_count = completed_count_result.scalar() or 0
+            calculated_session_number = completed_count + 1
         finally:
             db.close()
         
@@ -94,7 +96,7 @@ async def start_session(
             "total_questions": len(session_data.get("questions", [])),
             "current_position": 1,  # Blueprint sessions start at position 1
             "session_type": "blueprint",
-            "session_number": session_seq,  # FIX: Include actual session sequence
+            "session_number": calculated_session_number,  # FIX: Use calculated number instead of stored sess_seq
             "created_at": datetime.now(timezone.utc).isoformat()
         }, status_code=200)
         
