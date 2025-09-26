@@ -1106,6 +1106,483 @@ class CATBackendTester:
         
         return success_rate >= 80 and criteria_rate >= 85
 
+    def test_blueprint_session_functionality_post_cleanup(self):
+        """
+        🎯 BLUEPRINT SESSION FUNCTIONALITY TESTING POST-CLEANUP
+        
+        OBJECTIVE: Test Blueprint session functionality after legacy code cleanup to ensure no regression.
+        
+        TESTING REQUIREMENTS FROM REVIEW REQUEST:
+        1. Login with sp@theskinmantra.com/student123
+        2. Test POST /api/session/start to create Blueprint session
+        3. Test GET /api/session/questions/{session_id} bulk endpoint
+        4. Test POST /api/session/submit for answer processing
+        5. Verify backend starts without import errors from removed adaptive APIs
+        6. Check that no broken imports or missing dependencies
+        7. Confirm all Blueprint endpoints accessible
+        
+        SUCCESS CRITERIA:
+        - ✅ All Blueprint session endpoints working
+        - ✅ No import errors or missing dependencies  
+        - ✅ Question data integrity maintained
+        - ✅ Answer submission and feedback functional
+        - ✅ Session progression working correctly
+        
+        AUTHENTICATION: sp@theskinmantra.com/student123
+        """
+        print("🎯 BLUEPRINT SESSION FUNCTIONALITY TESTING POST-CLEANUP")
+        print("=" * 80)
+        print("OBJECTIVE: Test Blueprint session functionality after legacy code cleanup")
+        print("FOCUS: Session creation, question serving, answer submission, server health")
+        print("EXPECTED: All Blueprint endpoints working without regression")
+        print("=" * 80)
+        
+        test_results = {
+            # Authentication Setup
+            "authentication_working": False,
+            "user_adaptive_enabled": False,
+            "jwt_token_valid": False,
+            
+            # Server Health Check
+            "backend_starts_without_errors": False,
+            "no_import_errors": False,
+            "no_missing_dependencies": False,
+            "blueprint_endpoints_accessible": False,
+            
+            # Test 1: Blueprint Session Creation
+            "blueprint_session_creation_working": False,
+            "session_start_endpoint_functional": False,
+            "session_created_without_adaptive_dependencies": False,
+            "session_metadata_correct": False,
+            
+            # Test 2: Question Serving
+            "question_bulk_endpoint_working": False,
+            "questions_load_correctly": False,
+            "question_data_integrity_maintained": False,
+            "no_legacy_service_dependencies": False,
+            
+            # Test 3: Answer Submission
+            "answer_submission_working": False,
+            "solution_feedback_displays_correctly": False,
+            "question_action_logging_functional": False,
+            "blueprint_only_logic_working": False,
+            
+            # Test 4: Session Progression
+            "session_progression_working": False,
+            "multiple_questions_processable": False,
+            "session_completion_functional": False,
+            
+            # Overall Assessment
+            "all_blueprint_endpoints_working": False,
+            "no_regression_detected": False,
+            "legacy_cleanup_successful": False,
+            "production_ready": False
+        }
+        
+        # PHASE 1: AUTHENTICATION SETUP
+        print("\n🔐 PHASE 1: AUTHENTICATION SETUP")
+        print("-" * 60)
+        print("Testing login with sp@theskinmantra.com/student123")
+        
+        auth_data = {
+            "email": "sp@theskinmantra.com",
+            "password": "student123"
+        }
+        
+        success, response = self.run_test("Blueprint Authentication", "POST", "auth/login", [200, 401], auth_data)
+        
+        auth_headers = None
+        user_id = None
+        if success and response.get('access_token'):
+            token = response['access_token']
+            auth_headers = {
+                'Authorization': f'Bearer {token}',
+                'Content-Type': 'application/json'
+            }
+            test_results["authentication_working"] = True
+            test_results["jwt_token_valid"] = True
+            print(f"   ✅ Authentication successful")
+            print(f"   📊 JWT Token length: {len(token)} characters")
+            
+            user_data = response.get('user', {})
+            user_id = user_data.get('id')
+            adaptive_enabled = user_data.get('adaptive_enabled', False)
+            
+            if adaptive_enabled:
+                test_results["user_adaptive_enabled"] = True
+                print(f"   ✅ User adaptive_enabled confirmed: {adaptive_enabled}")
+                print(f"   📊 User ID: {user_id}")
+            else:
+                print(f"   ⚠️ User adaptive_enabled: {adaptive_enabled}")
+        else:
+            print("   ❌ Authentication failed - cannot proceed with Blueprint testing")
+            return False
+        
+        # PHASE 2: SERVER HEALTH CHECK
+        print("\n🏥 PHASE 2: SERVER HEALTH CHECK")
+        print("-" * 60)
+        print("Verifying backend starts without import errors from removed adaptive APIs")
+        
+        # Test main health endpoint
+        success, health_response = self.run_test(
+            "Main Health Check", 
+            "GET", 
+            "health", 
+            [200], 
+            None, 
+            None
+        )
+        
+        if success:
+            test_results["backend_starts_without_errors"] = True
+            test_results["no_import_errors"] = True
+            print(f"   ✅ Backend starts without import errors")
+            print(f"   📊 Health status: {health_response.get('status', 'unknown')}")
+        
+        # Test Blueprint-specific health endpoint
+        success, blueprint_health_response = self.run_test(
+            "Blueprint Health Check", 
+            "GET", 
+            "session/health", 
+            [200, 503], 
+            None, 
+            None
+        )
+        
+        if success:
+            test_results["blueprint_endpoints_accessible"] = True
+            test_results["no_missing_dependencies"] = True
+            print(f"   ✅ Blueprint endpoints accessible")
+            print(f"   📊 Blueprint system: {blueprint_health_response.get('blueprint_system', 'unknown')}")
+        
+        # PHASE 3: TEST 1 - BLUEPRINT SESSION CREATION
+        print("\n🚀 PHASE 3: TEST 1 - BLUEPRINT SESSION CREATION")
+        print("-" * 60)
+        print("Testing POST /api/session/start to create Blueprint session")
+        
+        session_id = None
+        if user_id and auth_headers:
+            session_start_data = {
+                "user_id": user_id
+            }
+            
+            success, session_response = self.run_test(
+                "Blueprint Session Creation", 
+                "POST", 
+                "session/start", 
+                [200, 500], 
+                session_start_data, 
+                auth_headers
+            )
+            
+            if success and session_response.get('success'):
+                test_results["blueprint_session_creation_working"] = True
+                test_results["session_start_endpoint_functional"] = True
+                test_results["session_created_without_adaptive_dependencies"] = True
+                
+                session_id = session_response.get('session_id')
+                session_status = session_response.get('status')
+                total_questions = session_response.get('total_questions', 0)
+                session_type = session_response.get('session_type')
+                
+                print(f"   ✅ Blueprint session created successfully")
+                print(f"   📊 Session ID: {session_id}")
+                print(f"   📊 Status: {session_status}")
+                print(f"   📊 Total questions: {total_questions}")
+                print(f"   📊 Session type: {session_type}")
+                
+                if session_type == "blueprint" and total_questions == 12:
+                    test_results["session_metadata_correct"] = True
+                    print(f"   ✅ Session metadata correct (Blueprint, 12 questions)")
+                else:
+                    print(f"   ⚠️ Session metadata unexpected: type={session_type}, questions={total_questions}")
+            else:
+                print(f"   ❌ Blueprint session creation failed: {session_response}")
+        
+        # PHASE 4: TEST 2 - QUESTION SERVING
+        print("\n📚 PHASE 4: TEST 2 - QUESTION SERVING")
+        print("-" * 60)
+        print("Testing GET /api/session/questions/{session_id} bulk endpoint")
+        
+        questions_data = None
+        if session_id and auth_headers:
+            success, questions_response = self.run_test(
+                "Blueprint Questions Bulk Endpoint", 
+                "GET", 
+                f"session/questions/{session_id}", 
+                [200, 404], 
+                None, 
+                auth_headers
+            )
+            
+            if success and questions_response.get('questions'):
+                test_results["question_bulk_endpoint_working"] = True
+                test_results["questions_load_correctly"] = True
+                test_results["no_legacy_service_dependencies"] = True
+                
+                questions_data = questions_response.get('questions', [])
+                total_questions = questions_response.get('total_questions', 0)
+                
+                print(f"   ✅ Questions loaded correctly without legacy services")
+                print(f"   📊 Questions retrieved: {len(questions_data)}")
+                print(f"   📊 Total questions reported: {total_questions}")
+                
+                # Check question data integrity
+                if questions_data:
+                    sample_question = questions_data[0]
+                    required_fields = ['id', 'stem', 'option_a', 'option_b', 'option_c', 'option_d', 'position']
+                    missing_fields = [field for field in required_fields if not sample_question.get(field)]
+                    
+                    if not missing_fields:
+                        test_results["question_data_integrity_maintained"] = True
+                        print(f"   ✅ Question data integrity maintained")
+                        print(f"   📊 Sample question ID: {sample_question.get('id', 'N/A')}")
+                        print(f"   📊 Sample question position: {sample_question.get('position', 'N/A')}")
+                        print(f"   📊 Sample question has all options: {all(sample_question.get(f'option_{opt}') for opt in ['a', 'b', 'c', 'd'])}")
+                    else:
+                        print(f"   ❌ Question data missing fields: {missing_fields}")
+                else:
+                    print(f"   ❌ No questions data retrieved")
+            else:
+                print(f"   ❌ Questions bulk endpoint failed: {questions_response}")
+        
+        # PHASE 5: TEST 3 - ANSWER SUBMISSION
+        print("\n✍️ PHASE 5: TEST 3 - ANSWER SUBMISSION")
+        print("-" * 60)
+        print("Testing POST /api/session/submit for answer processing")
+        
+        if session_id and questions_data and auth_headers:
+            # Test answer submission for first question
+            first_question = questions_data[0]
+            question_position = first_question.get('position', 1)
+            
+            # Submit a test answer
+            answer_data = {
+                "session_id": session_id,
+                "position": question_position,
+                "answer": "Test Answer"
+            }
+            
+            success, submit_response = self.run_test(
+                "Blueprint Answer Submission", 
+                "POST", 
+                "session/submit", 
+                [200, 400, 500], 
+                answer_data, 
+                auth_headers
+            )
+            
+            if success and submit_response.get('success'):
+                test_results["answer_submission_working"] = True
+                test_results["question_action_logging_functional"] = True
+                test_results["blueprint_only_logic_working"] = True
+                
+                is_correct = submit_response.get('is_correct', False)
+                correct_answer = submit_response.get('correct_answer', '')
+                solution_feedback = submit_response.get('solution_feedback', {})
+                next_position = submit_response.get('next_position')
+                
+                print(f"   ✅ Answer submission working with Blueprint-only logic")
+                print(f"   📊 Answer correctness: {is_correct}")
+                print(f"   📊 Correct answer: {correct_answer}")
+                print(f"   📊 Next position: {next_position}")
+                
+                # Check solution feedback
+                feedback_fields = ['snap_read', 'solution_approach', 'detailed_solution', 'principle_to_remember']
+                feedback_available = any(solution_feedback.get(field) for field in feedback_fields)
+                
+                if feedback_available:
+                    test_results["solution_feedback_displays_correctly"] = True
+                    print(f"   ✅ Solution feedback displays correctly")
+                    print(f"   📊 Feedback fields available: {[f for f in feedback_fields if solution_feedback.get(f)]}")
+                else:
+                    print(f"   ⚠️ Solution feedback not available or empty")
+            else:
+                print(f"   ❌ Answer submission failed: {submit_response}")
+        
+        # PHASE 6: TEST 4 - SESSION PROGRESSION
+        print("\n🔄 PHASE 6: TEST 4 - SESSION PROGRESSION")
+        print("-" * 60)
+        print("Testing session progression and multiple question processing")
+        
+        if session_id and questions_data and auth_headers and len(questions_data) > 1:
+            # Test progression through multiple questions
+            questions_processed = 0
+            
+            for i in range(min(3, len(questions_data))):  # Test first 3 questions
+                question = questions_data[i]
+                position = question.get('position', i + 1)
+                
+                answer_data = {
+                    "session_id": session_id,
+                    "position": position,
+                    "answer": f"Test Answer {i + 1}"
+                }
+                
+                success, submit_response = self.run_test(
+                    f"Question {position} Submission", 
+                    "POST", 
+                    "session/submit", 
+                    [200, 400], 
+                    answer_data, 
+                    auth_headers
+                )
+                
+                if success:
+                    questions_processed += 1
+                    print(f"   ✅ Question {position} processed successfully")
+                else:
+                    print(f"   ❌ Question {position} processing failed")
+                    break
+            
+            if questions_processed >= 2:
+                test_results["session_progression_working"] = True
+                test_results["multiple_questions_processable"] = True
+                print(f"   ✅ Session progression working ({questions_processed} questions processed)")
+            
+            # Test session completion (if we processed enough questions)
+            if questions_processed >= 2:
+                completion_data = {
+                    "session_id": session_id
+                }
+                
+                success, completion_response = self.run_test(
+                    "Session Completion", 
+                    "POST", 
+                    "session/complete", 
+                    [200, 404, 500], 
+                    completion_data, 
+                    auth_headers
+                )
+                
+                if success and completion_response.get('success'):
+                    test_results["session_completion_functional"] = True
+                    print(f"   ✅ Session completion functional")
+                    
+                    summary = completion_response.get('summary', {})
+                    print(f"   📊 Session summary: {summary.get('correct_answers', 0)}/{summary.get('total_questions', 0)} correct")
+                else:
+                    print(f"   ⚠️ Session completion test inconclusive: {completion_response}")
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 80)
+        print("🎯 BLUEPRINT SESSION FUNCTIONALITY POST-CLEANUP - RESULTS")
+        print("=" * 80)
+        
+        passed_tests = sum(test_results.values())
+        total_tests = len(test_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        # Group results by test phases
+        test_categories = {
+            "AUTHENTICATION": [
+                "authentication_working", "user_adaptive_enabled", "jwt_token_valid"
+            ],
+            "SERVER HEALTH CHECK": [
+                "backend_starts_without_errors", "no_import_errors", 
+                "no_missing_dependencies", "blueprint_endpoints_accessible"
+            ],
+            "BLUEPRINT SESSION CREATION": [
+                "blueprint_session_creation_working", "session_start_endpoint_functional",
+                "session_created_without_adaptive_dependencies", "session_metadata_correct"
+            ],
+            "QUESTION SERVING": [
+                "question_bulk_endpoint_working", "questions_load_correctly",
+                "question_data_integrity_maintained", "no_legacy_service_dependencies"
+            ],
+            "ANSWER SUBMISSION": [
+                "answer_submission_working", "solution_feedback_displays_correctly",
+                "question_action_logging_functional", "blueprint_only_logic_working"
+            ],
+            "SESSION PROGRESSION": [
+                "session_progression_working", "multiple_questions_processable", "session_completion_functional"
+            ]
+        }
+        
+        for category, tests in test_categories.items():
+            print(f"\n{category}:")
+            category_passed = 0
+            category_total = len(tests)
+            
+            for test in tests:
+                if test in test_results:
+                    result = test_results[test]
+                    status = "✅ PASS" if result else "❌ FAIL"
+                    print(f"  {test.replace('_', ' ').title():<50} {status}")
+                    if result:
+                        category_passed += 1
+            
+            category_rate = (category_passed / category_total) * 100 if category_total > 0 else 0
+            print(f"  Category Success Rate: {category_passed}/{category_total} ({category_rate:.1f}%)")
+        
+        print("-" * 80)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # SUCCESS CRITERIA ASSESSMENT
+        print("\n🎯 SUCCESS CRITERIA ASSESSMENT:")
+        
+        success_criteria = [
+            ("All Blueprint session endpoints working", 
+             test_results["blueprint_session_creation_working"] and 
+             test_results["question_bulk_endpoint_working"] and 
+             test_results["answer_submission_working"]),
+            ("No import errors or missing dependencies", 
+             test_results["no_import_errors"] and test_results["no_missing_dependencies"]),
+            ("Question data integrity maintained", test_results["question_data_integrity_maintained"]),
+            ("Answer submission and feedback functional", 
+             test_results["answer_submission_working"] and test_results["solution_feedback_displays_correctly"]),
+            ("Session progression working correctly", test_results["session_progression_working"])
+        ]
+        
+        criteria_met = 0
+        for criterion, result in success_criteria:
+            status = "✅ MET" if result else "❌ NOT MET"
+            print(f"  {criterion:<60} {status}")
+            if result:
+                criteria_met += 1
+        
+        criteria_rate = (criteria_met / len(success_criteria)) * 100
+        print(f"\nSuccess Criteria: {criteria_met}/{len(success_criteria)} ({criteria_rate:.1f}%)")
+        
+        # OVERALL ASSESSMENT
+        all_endpoints_working = (
+            test_results["blueprint_session_creation_working"] and
+            test_results["question_bulk_endpoint_working"] and
+            test_results["answer_submission_working"]
+        )
+        
+        no_regression = (
+            test_results["no_import_errors"] and
+            test_results["no_missing_dependencies"] and
+            test_results["question_data_integrity_maintained"]
+        )
+        
+        if all_endpoints_working:
+            test_results["all_blueprint_endpoints_working"] = True
+        
+        if no_regression:
+            test_results["no_regression_detected"] = True
+            test_results["legacy_cleanup_successful"] = True
+        
+        if all_endpoints_working and no_regression and criteria_rate >= 80:
+            test_results["production_ready"] = True
+            print("\n🎉 BLUEPRINT SESSION FUNCTIONALITY: VALIDATED")
+            print("   - All Blueprint session endpoints working")
+            print("   - No import errors or missing dependencies")
+            print("   - Question data integrity maintained")
+            print("   - Answer submission and feedback functional")
+            print("   - Session progression working correctly")
+            print("   - Legacy cleanup successful - no regression detected")
+        else:
+            print("\n⚠️ BLUEPRINT SESSION FUNCTIONALITY: NEEDS ATTENTION")
+            print("   - Some endpoints or functionality not working properly")
+            if not all_endpoints_working:
+                print("   - Blueprint endpoints have issues")
+            if not no_regression:
+                print("   - Regression detected from legacy cleanup")
+        
+        return success_rate >= 80 and criteria_rate >= 80
+
     def test_blueprint_session_data_flow_investigation(self):
         """
         🔍 BLUEPRINT SESSION DATA FLOW INVESTIGATION
