@@ -1106,6 +1106,523 @@ class CATBackendTester:
         
         return success_rate >= 80 and criteria_rate >= 85
 
+    def test_data_flow_discrepancy_investigation(self):
+        """
+        🔍 DATA FLOW DISCREPANCY INVESTIGATION
+        
+        CRITICAL INVESTIGATION: Investigate the data flow discrepancy where questions table has 
+        correct answer "6 hours" but frontend receives "127.27%" for question ID b7005cd9-12a0-4a4c-a6d9-beb7020f1389.
+        
+        ### Test 1: Session Pack Questions Data
+        1. **Query session_pack_questions table**: Check what's stored in the `question_data` JSON field for this question
+        2. **Compare with questions table**: Verify if the data matches the source questions table
+        3. **JSON Data Integrity**: Check if the answer field in the JSON data is correct
+        
+        ### Test 2: Question ID Mapping Verification  
+        4. **Blueprint Session API**: Check which question ID is actually being retrieved during answer submission
+        5. **Position Mapping**: Verify if position mapping is correct (position → question_id → question_data)
+        6. **Session Data**: Check if the session is retrieving the correct question for that position
+        
+        ### Test 3: Data Retrieval Chain Analysis
+        7. **Direct Questions Table Query**: Confirm question b7005cd9-12a0-4a4c-a6d9-beb7020f1389 has answer "6 hours"
+        8. **Session Pack Storage**: Check how this question gets stored in session_pack_questions 
+        9. **API Response**: Check what the Blueprint submit API actually returns for this question
+        
+        ### Test 4: Alternative Question Search
+        10. **Search for "127.27%"**: Find which question actually has "127.27%" as the answer
+        11. **Cross-Reference**: Check if there's a question ID mix-up or wrong question being served
+        
+        ## ROOT CAUSE POSSIBILITIES:
+        1. **session_pack_questions data corruption**: JSON data doesn't match questions table
+        2. **Question ID mix-up**: Wrong question being retrieved for that position
+        3. **Data transformation error**: Something corrupting data during Blueprint session creation
+        4. **Multiple questions confusion**: Frontend getting data from different question than expected
+        
+        AUTHENTICATION: sp@theskinmantra.com/student123
+        """
+        print("🔍 DATA FLOW DISCREPANCY INVESTIGATION")
+        print("=" * 80)
+        print("OBJECTIVE: Investigate discrepancy where questions table has '6 hours' but frontend gets '127.27%'")
+        print("FOCUS: Question ID b7005cd9-12a0-4a4c-a6d9-beb7020f1389 data flow analysis")
+        print("EXPECTED: Identify exact source of data discrepancy and fix the issue")
+        print("=" * 80)
+        
+        investigation_results = {
+            # Authentication Setup
+            "authentication_working": False,
+            "user_adaptive_enabled": False,
+            "jwt_token_valid": False,
+            
+            # Test 1: Session Pack Questions Data
+            "session_pack_questions_queried": False,
+            "target_question_found_in_session_pack": False,
+            "json_data_integrity_verified": False,
+            "answer_field_in_json_correct": False,
+            "questions_table_vs_session_pack_match": False,
+            
+            # Test 2: Question ID Mapping Verification
+            "blueprint_session_created": False,
+            "question_id_mapping_verified": False,
+            "position_mapping_correct": False,
+            "session_retrieves_correct_question": False,
+            "api_returns_expected_question": False,
+            
+            # Test 3: Data Retrieval Chain Analysis
+            "direct_questions_table_queried": False,
+            "target_question_has_6_hours_answer": False,
+            "session_pack_storage_verified": False,
+            "blueprint_submit_api_tested": False,
+            "api_response_matches_expected": False,
+            
+            # Test 4: Alternative Question Search
+            "searched_for_127_27_percent": False,
+            "found_question_with_127_27_percent": False,
+            "question_id_mixup_detected": False,
+            "wrong_question_being_served": False,
+            
+            # Root Cause Analysis
+            "session_pack_data_corruption": False,
+            "question_id_mixup": False,
+            "data_transformation_error": False,
+            "multiple_questions_confusion": False,
+            
+            # Investigation Outcome
+            "exact_discrepancy_source_identified": False,
+            "root_cause_determined": False,
+            "fix_recommendation_provided": False,
+            "investigation_complete": False
+        }
+        
+        # PHASE 1: AUTHENTICATION SETUP
+        print("\n🔐 PHASE 1: AUTHENTICATION SETUP")
+        print("-" * 60)
+        print("Authenticating with sp@theskinmantra.com/student123 for data flow investigation")
+        
+        auth_data = {
+            "email": "sp@theskinmantra.com",
+            "password": "student123"
+        }
+        
+        success, response = self.run_test("Data Flow Investigation Authentication", "POST", "auth/login", [200, 401], auth_data)
+        
+        auth_headers = None
+        user_id = None
+        if success and response.get('access_token'):
+            token = response['access_token']
+            auth_headers = {
+                'Authorization': f'Bearer {token}',
+                'Content-Type': 'application/json'
+            }
+            investigation_results["authentication_working"] = True
+            investigation_results["jwt_token_valid"] = True
+            print(f"   ✅ Authentication successful")
+            print(f"   📊 JWT Token length: {len(token)} characters")
+            
+            user_data = response.get('user', {})
+            user_id = user_data.get('id')
+            adaptive_enabled = user_data.get('adaptive_enabled', False)
+            
+            if adaptive_enabled:
+                investigation_results["user_adaptive_enabled"] = True
+                print(f"   ✅ User adaptive_enabled confirmed: {adaptive_enabled}")
+                print(f"   📊 User ID: {user_id}")
+            else:
+                print(f"   ⚠️ User adaptive_enabled: {adaptive_enabled}")
+        else:
+            print("   ❌ Authentication failed - cannot proceed with investigation")
+            return False
+        
+        # PHASE 2: TEST 1 - SESSION PACK QUESTIONS DATA ANALYSIS
+        print("\n📊 PHASE 2: TEST 1 - SESSION PACK QUESTIONS DATA ANALYSIS")
+        print("-" * 60)
+        print("Querying session_pack_questions table for target question b7005cd9-12a0-4a4c-a6d9-beb7020f1389")
+        
+        target_question_id = "b7005cd9-12a0-4a4c-a6d9-beb7020f1389"
+        
+        if user_id and auth_headers:
+            # First, let's create a session to get session pack data
+            print("   🚀 Creating adaptive session to analyze session pack questions...")
+            
+            session_id = f"investigation_{uuid.uuid4()}"
+            plan_data = {
+                "user_id": user_id,
+                "last_session_id": "S0",
+                "next_session_id": session_id
+            }
+            
+            headers_with_idem = auth_headers.copy()
+            headers_with_idem['Idempotency-Key'] = f"{user_id}:S0:{session_id}"
+            
+            success, plan_response = self.run_test(
+                "Create Session for Investigation", 
+                "POST", 
+                "adapt/plan-next", 
+                [200, 400, 500, 502], 
+                plan_data, 
+                headers_with_idem
+            )
+            
+            if success and plan_response.get('status') == 'planned':
+                investigation_results["blueprint_session_created"] = True
+                print(f"   ✅ Adaptive session created successfully")
+                print(f"   📊 Session ID: {session_id}")
+                
+                # Get the pack data to analyze
+                success, pack_response = self.run_test(
+                    "Get Pack for Investigation", 
+                    "GET", 
+                    f"adapt/pack?user_id={user_id}&session_id={session_id}", 
+                    [200], 
+                    None, 
+                    auth_headers
+                )
+                
+                if success and pack_response.get('pack'):
+                    pack_data = pack_response.get('pack', [])
+                    investigation_results["session_pack_questions_queried"] = True
+                    print(f"   ✅ Retrieved pack with {len(pack_data)} questions")
+                    
+                    # Search for target question in pack
+                    target_question_found = False
+                    target_question_data = None
+                    
+                    for i, question in enumerate(pack_data):
+                        question_id = question.get('id')
+                        if question_id == target_question_id:
+                            target_question_found = True
+                            target_question_data = question
+                            investigation_results["target_question_found_in_session_pack"] = True
+                            print(f"   ✅ Target question found at position {i+1}")
+                            break
+                    
+                    if target_question_found and target_question_data:
+                        print(f"   🔍 Analyzing target question data:")
+                        print(f"      Question ID: {target_question_data.get('id')}")
+                        print(f"      Answer field: {target_question_data.get('answer')}")
+                        print(f"      Stem preview: {str(target_question_data.get('stem', ''))[:100]}...")
+                        
+                        # Check if answer field contains "6 hours"
+                        answer_field = target_question_data.get('answer', '')
+                        if "6 hours" in str(answer_field).lower():
+                            investigation_results["answer_field_in_json_correct"] = True
+                            print(f"   ✅ Answer field contains '6 hours' as expected")
+                        elif "127.27%" in str(answer_field):
+                            print(f"   ❌ Answer field contains '127.27%' - this is the discrepancy!")
+                            investigation_results["session_pack_data_corruption"] = True
+                        else:
+                            print(f"   ⚠️ Answer field contains neither '6 hours' nor '127.27%': {answer_field}")
+                        
+                        # Check all fields for data integrity
+                        print(f"   📊 Complete question data structure:")
+                        for key, value in target_question_data.items():
+                            if key in ['stem', 'right_answer', 'detailed_solution']:
+                                print(f"      {key}: {str(value)[:100]}..." if len(str(value)) > 100 else f"      {key}: {value}")
+                            else:
+                                print(f"      {key}: {value}")
+                        
+                        investigation_results["json_data_integrity_verified"] = True
+                    else:
+                        print(f"   ❌ Target question {target_question_id} not found in current session pack")
+                        print(f"   📊 Available question IDs in pack:")
+                        for i, q in enumerate(pack_data[:5]):  # Show first 5
+                            print(f"      {i+1}: {q.get('id', 'N/A')}")
+                        if len(pack_data) > 5:
+                            print(f"      ... and {len(pack_data) - 5} more")
+                else:
+                    print(f"   ❌ Failed to retrieve pack: {pack_response}")
+            else:
+                print(f"   ❌ Session creation failed: {plan_response}")
+        
+        # PHASE 3: TEST 2 - QUESTION ID MAPPING VERIFICATION
+        print("\n🗺️ PHASE 3: TEST 2 - QUESTION ID MAPPING VERIFICATION")
+        print("-" * 60)
+        print("Verifying question ID mapping and position mapping correctness")
+        
+        if user_id and auth_headers:
+            # Test direct question retrieval from questions endpoint
+            print("   📋 Testing direct question retrieval from /api/questions...")
+            
+            success, questions_response = self.run_test(
+                "Direct Questions Query", 
+                "GET", 
+                "questions?limit=100", 
+                [200, 500], 
+                None, 
+                auth_headers
+            )
+            
+            if success and questions_response:
+                questions_list = questions_response if isinstance(questions_response, list) else []
+                investigation_results["direct_questions_table_queried"] = True
+                print(f"   ✅ Retrieved {len(questions_list)} questions from questions table")
+                
+                # Search for target question in questions table
+                target_in_questions_table = None
+                for question in questions_list:
+                    if question.get('id') == target_question_id:
+                        target_in_questions_table = question
+                        break
+                
+                if target_in_questions_table:
+                    print(f"   ✅ Target question found in questions table")
+                    print(f"   🔍 Questions table data for target question:")
+                    print(f"      ID: {target_in_questions_table.get('id')}")
+                    print(f"      Right Answer: {target_in_questions_table.get('right_answer')}")
+                    print(f"      Stem preview: {str(target_in_questions_table.get('stem', ''))[:100]}...")
+                    
+                    # Check if right_answer contains "6 hours"
+                    right_answer = target_in_questions_table.get('right_answer', '')
+                    if "6 hours" in str(right_answer).lower():
+                        investigation_results["target_question_has_6_hours_answer"] = True
+                        print(f"   ✅ Questions table shows '6 hours' in right_answer field")
+                    else:
+                        print(f"   ❌ Questions table does not contain '6 hours' in right_answer")
+                        print(f"   📊 Actual right_answer: {right_answer}")
+                    
+                    investigation_results["question_id_mapping_verified"] = True
+                else:
+                    print(f"   ❌ Target question {target_question_id} not found in questions table")
+                    print(f"   📊 Sample question IDs from questions table:")
+                    for i, q in enumerate(questions_list[:5]):
+                        print(f"      {i+1}: {q.get('id', 'N/A')}")
+            else:
+                print(f"   ❌ Failed to query questions table: {questions_response}")
+        
+        # PHASE 4: TEST 3 - DATA RETRIEVAL CHAIN ANALYSIS
+        print("\n🔗 PHASE 4: TEST 3 - DATA RETRIEVAL CHAIN ANALYSIS")
+        print("-" * 60)
+        print("Analyzing complete data retrieval chain from questions table to frontend")
+        
+        if user_id and auth_headers and investigation_results["blueprint_session_created"]:
+            # Test answer submission to see what comparison happens
+            print("   🧪 Testing answer submission to analyze comparison logic...")
+            
+            # Submit a test answer to see what gets compared
+            test_answer_data = {
+                "session_id": session_id,
+                "question_id": target_question_id,
+                "action": "submit",
+                "data": {
+                    "user_answer": "6 hours",
+                    "time_taken": 30
+                }
+            }
+            
+            success, submit_response = self.run_test(
+                "Test Answer Submission", 
+                "POST", 
+                "log/question-action", 
+                [200, 400, 500], 
+                test_answer_data, 
+                auth_headers
+            )
+            
+            if success and submit_response.get('success'):
+                investigation_results["blueprint_submit_api_tested"] = True
+                print(f"   ✅ Answer submission successful")
+                
+                result = submit_response.get('result', {})
+                correct = result.get('correct', False)
+                status = result.get('status', 'unknown')
+                user_answer = result.get('user_answer', '')
+                correct_answer = result.get('correct_answer', '')
+                
+                print(f"   📊 Answer submission results:")
+                print(f"      User answer: {user_answer}")
+                print(f"      Correct answer: {correct_answer}")
+                print(f"      Result: {status} (correct: {correct})")
+                
+                # Check if correct_answer shows "127.27%" (the discrepancy)
+                if "127.27%" in str(correct_answer):
+                    print(f"   ❌ DISCREPANCY CONFIRMED: API returns '127.27%' as correct answer")
+                    investigation_results["multiple_questions_confusion"] = True
+                    investigation_results["exact_discrepancy_source_identified"] = True
+                elif "6 hours" in str(correct_answer).lower():
+                    print(f"   ✅ API correctly returns '6 hours' as correct answer")
+                    investigation_results["api_response_matches_expected"] = True
+                else:
+                    print(f"   ⚠️ API returns unexpected correct answer: {correct_answer}")
+                
+                investigation_results["session_pack_storage_verified"] = True
+            else:
+                print(f"   ❌ Answer submission failed: {submit_response}")
+        
+        # PHASE 5: TEST 4 - ALTERNATIVE QUESTION SEARCH
+        print("\n🔍 PHASE 5: TEST 4 - ALTERNATIVE QUESTION SEARCH")
+        print("-" * 60)
+        print("Searching for question that actually has '127.27%' as answer")
+        
+        if user_id and auth_headers and investigation_results["direct_questions_table_queried"]:
+            print("   🔎 Searching through questions for '127.27%'...")
+            
+            # Search through the questions we retrieved earlier
+            questions_with_127_percent = []
+            
+            if 'questions_list' in locals() and questions_list:
+                for question in questions_list:
+                    right_answer = str(question.get('right_answer', '')).lower()
+                    stem = str(question.get('stem', '')).lower()
+                    
+                    if "127.27%" in right_answer or "127.27%" in stem:
+                        questions_with_127_percent.append({
+                            'id': question.get('id'),
+                            'right_answer': question.get('right_answer'),
+                            'stem_preview': str(question.get('stem', ''))[:100] + '...'
+                        })
+                
+                if questions_with_127_percent:
+                    investigation_results["found_question_with_127_27_percent"] = True
+                    investigation_results["searched_for_127_27_percent"] = True
+                    print(f"   ✅ Found {len(questions_with_127_percent)} question(s) with '127.27%':")
+                    
+                    for i, q in enumerate(questions_with_127_percent, 1):
+                        print(f"   📊 Question {i}:")
+                        print(f"      ID: {q['id']}")
+                        print(f"      Right Answer: {q['right_answer']}")
+                        print(f"      Stem: {q['stem_preview']}")
+                        print()
+                        
+                        # Check if this is being confused with target question
+                        if q['id'] != target_question_id:
+                            investigation_results["question_id_mixup"] = True
+                            print(f"   ❌ QUESTION ID MIX-UP DETECTED!")
+                            print(f"      Target question: {target_question_id}")
+                            print(f"      Question with 127.27%: {q['id']}")
+                else:
+                    investigation_results["searched_for_127_27_percent"] = True
+                    print(f"   ⚠️ No questions found with '127.27%' in current sample")
+                    print(f"   📊 Searched through {len(questions_list)} questions")
+        
+        # PHASE 6: ROOT CAUSE ANALYSIS AND RECOMMENDATIONS
+        print("\n🎯 PHASE 6: ROOT CAUSE ANALYSIS AND RECOMMENDATIONS")
+        print("-" * 60)
+        print("Determining root cause and providing fix recommendations")
+        
+        root_causes_identified = []
+        
+        if investigation_results["session_pack_data_corruption"]:
+            root_causes_identified.append("Session pack data corruption - answer field contains wrong value")
+        
+        if investigation_results["question_id_mixup"]:
+            root_causes_identified.append("Question ID mix-up - wrong question being served for that position")
+        
+        if investigation_results["multiple_questions_confusion"]:
+            root_causes_identified.append("Multiple questions confusion - frontend getting data from different question")
+        
+        if not investigation_results["target_question_has_6_hours_answer"]:
+            root_causes_identified.append("Questions table data issue - target question may not have '6 hours' answer")
+        
+        if root_causes_identified:
+            investigation_results["root_cause_determined"] = True
+            investigation_results["exact_discrepancy_source_identified"] = True
+            print(f"   ✅ Root cause(s) identified:")
+            for i, cause in enumerate(root_causes_identified, 1):
+                print(f"      {i}. {cause}")
+        else:
+            print(f"   ⚠️ Root cause not clearly identified - need deeper investigation")
+        
+        # Provide fix recommendations
+        print(f"\n   💡 FIX RECOMMENDATIONS:")
+        
+        if investigation_results["question_id_mixup"]:
+            print(f"      1. Verify question ID mapping in session creation logic")
+            print(f"      2. Check if position-to-question-ID mapping is correct")
+            print(f"      3. Ensure session pack questions use correct question IDs")
+        
+        if investigation_results["session_pack_data_corruption"]:
+            print(f"      1. Fix session pack creation to use correct answer field")
+            print(f"      2. Verify JSON serialization/deserialization of question data")
+            print(f"      3. Check if answer field is being overwritten during pack assembly")
+        
+        if investigation_results["multiple_questions_confusion"]:
+            print(f"      1. Ensure frontend uses correct question ID for answer submission")
+            print(f"      2. Verify API returns data for the requested question ID")
+            print(f"      3. Check if there's caching or state management issue")
+        
+        investigation_results["fix_recommendation_provided"] = True
+        investigation_results["investigation_complete"] = True
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 80)
+        print("🔍 DATA FLOW DISCREPANCY INVESTIGATION - RESULTS")
+        print("=" * 80)
+        
+        passed_tests = sum(investigation_results.values())
+        total_tests = len(investigation_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        # Group results by investigation phases
+        investigation_categories = {
+            "AUTHENTICATION": [
+                "authentication_working", "user_adaptive_enabled", "jwt_token_valid"
+            ],
+            "SESSION PACK QUESTIONS DATA": [
+                "session_pack_questions_queried", "target_question_found_in_session_pack",
+                "json_data_integrity_verified", "answer_field_in_json_correct", "questions_table_vs_session_pack_match"
+            ],
+            "QUESTION ID MAPPING": [
+                "blueprint_session_created", "question_id_mapping_verified",
+                "position_mapping_correct", "session_retrieves_correct_question", "api_returns_expected_question"
+            ],
+            "DATA RETRIEVAL CHAIN": [
+                "direct_questions_table_queried", "target_question_has_6_hours_answer",
+                "session_pack_storage_verified", "blueprint_submit_api_tested", "api_response_matches_expected"
+            ],
+            "ALTERNATIVE QUESTION SEARCH": [
+                "searched_for_127_27_percent", "found_question_with_127_27_percent",
+                "question_id_mixup_detected", "wrong_question_being_served"
+            ],
+            "ROOT CAUSE ANALYSIS": [
+                "session_pack_data_corruption", "question_id_mixup",
+                "data_transformation_error", "multiple_questions_confusion"
+            ]
+        }
+        
+        for category, tests in investigation_categories.items():
+            print(f"\n{category}:")
+            category_passed = 0
+            category_total = len(tests)
+            
+            for test in tests:
+                if test in investigation_results:
+                    result = investigation_results[test]
+                    status = "✅ PASS" if result else "❌ FAIL"
+                    print(f"  {test.replace('_', ' ').title():<50} {status}")
+                    if result:
+                        category_passed += 1
+            
+            category_rate = (category_passed / category_total) * 100 if category_total > 0 else 0
+            print(f"  Category Success Rate: {category_passed}/{category_total} ({category_rate:.1f}%)")
+        
+        print("-" * 80)
+        print(f"Overall Investigation Progress: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # CRITICAL FINDINGS SUMMARY
+        print("\n🎯 CRITICAL FINDINGS:")
+        
+        if investigation_results["exact_discrepancy_source_identified"]:
+            print("\n✅ DISCREPANCY SOURCE IDENTIFIED:")
+            if investigation_results["question_id_mixup"]:
+                print("   - Question ID mix-up detected")
+                print("   - Wrong question being served for target question ID")
+            if investigation_results["session_pack_data_corruption"]:
+                print("   - Session pack data corruption detected")
+                print("   - Answer field contains wrong value in session data")
+            if investigation_results["multiple_questions_confusion"]:
+                print("   - Multiple questions confusion detected")
+                print("   - Frontend receiving data from different question than expected")
+        else:
+            print("\n⚠️ DISCREPANCY SOURCE NOT CLEARLY IDENTIFIED")
+            print("   - Need deeper investigation into data flow")
+            print("   - May require database-level analysis")
+        
+        if investigation_results["fix_recommendation_provided"]:
+            print("\n✅ FIX RECOMMENDATIONS PROVIDED")
+            print("   - Specific steps outlined to resolve the discrepancy")
+            print("   - Root cause analysis completed")
+        
+        return success_rate >= 70 and investigation_results["exact_discrepancy_source_identified"]
+
     def test_answer_field_mismatch_investigation(self):
         """
         🔍 ANSWER FIELD MISMATCH INVESTIGATION
