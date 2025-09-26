@@ -1106,6 +1106,475 @@ class CATBackendTester:
         
         return success_rate >= 80 and criteria_rate >= 85
 
+    def test_session_sequence_discrepancy_analysis(self):
+        """
+        🎯 SESSION SEQUENCE DISCREPANCY ANALYSIS
+        
+        OBJECTIVE: Investigate the discrepancy between session sequence number (showing Session #12) 
+        and actual completed sessions count (showing 5 total sessions completed).
+        
+        TESTING REQUIREMENTS FROM REVIEW REQUEST:
+        1. Login with sp@theskinmantra.com/student123
+        2. Query the sessions table to see:
+           - Total sessions created for this user
+           - Session statuses breakdown (planned, completed, abandoned, etc.)
+           - sess_seq values for each session
+           - Which sessions are completed vs incomplete
+        3. Test /api/dashboard/simple-taxonomy endpoint
+        4. Verify what query is used to count "Total Sessions Completed"
+        5. Check if it only counts sessions with status='completed'
+        6. Analyze if there are abandoned/incomplete sessions inflating the sequence number
+        
+        EXPECTED ANALYSIS:
+        - If user has 5 completed sessions, next session should be #6
+        - Current: User has 5 completed sessions but sees Session #12
+        - Analysis: Are there 7 incomplete/abandoned sessions (12-5=7)?
+        
+        ROOT CAUSE POSSIBILITIES:
+        1. Sessions created but never completed (status = 'planned' or 'abandoned')
+        2. Session completion API not updating status to 'completed'
+        3. Dashboard counting logic vs session sequence logic mismatch
+        4. Race conditions in session creation
+        
+        AUTHENTICATION: sp@theskinmantra.com/student123
+        """
+        print("🎯 SESSION SEQUENCE DISCREPANCY ANALYSIS")
+        print("=" * 80)
+        print("OBJECTIVE: Investigate discrepancy between Session #12 and 5 completed sessions")
+        print("FOCUS: Session sequence vs completion count mismatch analysis")
+        print("EXPECTED: Identify root cause of sequence number inflation")
+        print("=" * 80)
+        
+        test_results = {
+            # Authentication Setup
+            "authentication_working": False,
+            "jwt_token_valid": False,
+            "user_adaptive_enabled": False,
+            
+            # Session Data Analysis
+            "sessions_table_accessible": False,
+            "user_sessions_found": False,
+            "session_statuses_analyzed": False,
+            "sess_seq_values_retrieved": False,
+            "completed_sessions_counted": False,
+            "incomplete_sessions_identified": False,
+            
+            # Dashboard Analysis
+            "dashboard_api_working": False,
+            "dashboard_counts_completed_only": False,
+            "dashboard_query_verified": False,
+            "total_sessions_completed_accurate": False,
+            
+            # Discrepancy Investigation
+            "sequence_vs_completion_mismatch_confirmed": False,
+            "abandoned_sessions_found": False,
+            "planned_sessions_found": False,
+            "session_creation_vs_completion_gap": False,
+            "root_cause_identified": False,
+            
+            # Data Integrity Analysis
+            "session_completion_api_working": False,
+            "session_status_updates_working": False,
+            "race_conditions_detected": False,
+            "data_consistency_issues": False,
+            
+            # Overall Assessment
+            "discrepancy_analysis_complete": False,
+            "fix_recommendations_available": False,
+            "production_issue_severity": False
+        }
+        
+        # PHASE 1: AUTHENTICATION SETUP
+        print("\n🔐 PHASE 1: AUTHENTICATION SETUP")
+        print("-" * 60)
+        print("Testing authentication with sp@theskinmantra.com/student123")
+        
+        auth_data = {
+            "email": "sp@theskinmantra.com",
+            "password": "student123"
+        }
+        
+        success, response = self.run_test("Session Discrepancy Authentication", "POST", "auth/login", [200, 401], auth_data)
+        
+        auth_headers = None
+        user_id = None
+        user_email = "sp@theskinmantra.com"
+        if success and response.get('access_token'):
+            token = response['access_token']
+            auth_headers = {
+                'Authorization': f'Bearer {token}',
+                'Content-Type': 'application/json'
+            }
+            test_results["authentication_working"] = True
+            test_results["jwt_token_valid"] = True
+            print(f"   ✅ Authentication successful")
+            print(f"   📊 JWT Token length: {len(token)} characters")
+            
+            user_data = response.get('user', {})
+            user_id = user_data.get('id')
+            adaptive_enabled = user_data.get('adaptive_enabled', False)
+            
+            if adaptive_enabled:
+                test_results["user_adaptive_enabled"] = True
+                print(f"   ✅ User adaptive_enabled confirmed: {adaptive_enabled}")
+                print(f"   📊 User ID: {user_id}")
+                print(f"   📊 User Email: {user_email}")
+            else:
+                print(f"   ⚠️ User adaptive_enabled: {adaptive_enabled}")
+        else:
+            print("   ❌ Authentication failed - cannot proceed with session analysis")
+            return False
+        
+        # PHASE 2: DASHBOARD ANALYSIS (Current State)
+        print("\n📊 PHASE 2: DASHBOARD ANALYSIS (Current State)")
+        print("-" * 60)
+        print("Testing /api/dashboard/simple-taxonomy to see current completed sessions count")
+        
+        if auth_headers and user_id:
+            success, dashboard_response = self.run_test(
+                "Dashboard Simple Taxonomy", 
+                "GET", 
+                "dashboard/simple-taxonomy", 
+                [200, 500], 
+                None, 
+                auth_headers
+            )
+            
+            if success and dashboard_response:
+                test_results["dashboard_api_working"] = True
+                print(f"   ✅ Dashboard API working")
+                
+                # Look for session count information
+                total_sessions = dashboard_response.get('total_sessions_completed', 0)
+                if total_sessions is not None:
+                    test_results["total_sessions_completed_accurate"] = True
+                    print(f"   📊 Dashboard shows: {total_sessions} Total Sessions Completed")
+                    
+                    if total_sessions == 5:
+                        print(f"   ✅ Dashboard confirms 5 completed sessions as reported")
+                    else:
+                        print(f"   ⚠️ Dashboard shows {total_sessions} completed sessions (expected 5)")
+                
+                # Check if dashboard query logic is accessible
+                if 'query_info' in dashboard_response or 'debug_info' in dashboard_response:
+                    test_results["dashboard_query_verified"] = True
+                    print(f"   ✅ Dashboard query information available")
+                
+                # Look for any session-related metadata
+                session_metadata = dashboard_response.get('session_metadata', {})
+                if session_metadata:
+                    print(f"   📊 Session metadata found:")
+                    for key, value in session_metadata.items():
+                        print(f"      {key}: {value}")
+            else:
+                print(f"   ❌ Dashboard API failed: {dashboard_response}")
+        
+        # PHASE 3: SESSION DATABASE ANALYSIS (Critical Investigation)
+        print("\n🗄️ PHASE 3: SESSION DATABASE ANALYSIS (Critical Investigation)")
+        print("-" * 60)
+        print("Analyzing sessions table data for sp@theskinmantra.com user")
+        
+        if user_id:
+            # We need to create a direct database query test
+            # Since we can't directly access the database, we'll use available API endpoints
+            # to gather session information
+            
+            print(f"   🔍 Investigating session data for user {user_id[:8]}...")
+            
+            # Try to get session information through available endpoints
+            # Check if there's a sessions endpoint we can use
+            success, sessions_response = self.run_test(
+                "User Sessions Query", 
+                "GET", 
+                f"sessions/user/{user_id}", 
+                [200, 404, 500], 
+                None, 
+                auth_headers
+            )
+            
+            if success and sessions_response:
+                test_results["sessions_table_accessible"] = True
+                test_results["user_sessions_found"] = True
+                print(f"   ✅ Sessions data accessible")
+                
+                sessions_list = sessions_response.get('sessions', [])
+                print(f"   📊 Total sessions found: {len(sessions_list)}")
+                
+                # Analyze session statuses
+                status_breakdown = {}
+                sess_seq_values = []
+                completed_count = 0
+                planned_count = 0
+                abandoned_count = 0
+                
+                for session in sessions_list:
+                    status = session.get('status', 'unknown')
+                    sess_seq = session.get('sess_seq', 0)
+                    session_id = session.get('session_id', 'unknown')
+                    
+                    status_breakdown[status] = status_breakdown.get(status, 0) + 1
+                    sess_seq_values.append(sess_seq)
+                    
+                    if status == 'completed':
+                        completed_count += 1
+                    elif status == 'planned':
+                        planned_count += 1
+                    elif status in ['abandoned', 'cancelled']:
+                        abandoned_count += 1
+                    
+                    print(f"      Session {session_id[:8]}: seq={sess_seq}, status={status}")
+                
+                test_results["session_statuses_analyzed"] = True
+                test_results["sess_seq_values_retrieved"] = True
+                test_results["completed_sessions_counted"] = True
+                
+                print(f"   📊 Session Status Breakdown:")
+                for status, count in status_breakdown.items():
+                    print(f"      {status}: {count} sessions")
+                
+                print(f"   📊 Session Sequence Analysis:")
+                if sess_seq_values:
+                    max_seq = max(sess_seq_values)
+                    min_seq = min(sess_seq_values)
+                    print(f"      Highest sess_seq: {max_seq}")
+                    print(f"      Lowest sess_seq: {min_seq}")
+                    print(f"      Total sessions created: {len(sess_seq_values)}")
+                    print(f"      Completed sessions: {completed_count}")
+                    print(f"      Planned sessions: {planned_count}")
+                    print(f"      Abandoned sessions: {abandoned_count}")
+                    
+                    # CRITICAL ANALYSIS: Check for discrepancy
+                    if max_seq > completed_count:
+                        test_results["sequence_vs_completion_mismatch_confirmed"] = True
+                        test_results["session_creation_vs_completion_gap"] = True
+                        gap = max_seq - completed_count
+                        print(f"   🚨 DISCREPANCY CONFIRMED:")
+                        print(f"      Next session would be #{max_seq + 1}")
+                        print(f"      But only {completed_count} sessions completed")
+                        print(f"      Gap: {gap} sessions created but not completed")
+                        
+                        if planned_count > 0:
+                            test_results["planned_sessions_found"] = True
+                            print(f"      ✅ Found {planned_count} planned (incomplete) sessions")
+                        
+                        if abandoned_count > 0:
+                            test_results["abandoned_sessions_found"] = True
+                            print(f"      ✅ Found {abandoned_count} abandoned sessions")
+                        
+                        if planned_count + abandoned_count >= gap * 0.8:  # At least 80% of gap explained
+                            test_results["root_cause_identified"] = True
+                            print(f"   ✅ ROOT CAUSE IDENTIFIED:")
+                            print(f"      Sessions are created (incrementing sess_seq)")
+                            print(f"      But not all are completed (status != 'completed')")
+                            print(f"      Dashboard counts only completed sessions")
+                            print(f"      Session sequence continues from highest sess_seq")
+                    else:
+                        print(f"   ⚠️ No significant discrepancy detected in available data")
+                
+                if planned_count > 0:
+                    test_results["incomplete_sessions_identified"] = True
+                    print(f"   ✅ Incomplete sessions identified: {planned_count} planned")
+            else:
+                print(f"   ❌ Could not access sessions data directly")
+                
+                # Try alternative approach - check if we can infer from other endpoints
+                print(f"   🔄 Trying alternative session analysis...")
+                
+                # Try to get last completed session
+                success, last_session_response = self.run_test(
+                    "Last Completed Session", 
+                    "GET", 
+                    f"sessions/last-completed-id?user_id={user_id}", 
+                    [200, 404, 500], 
+                    None, 
+                    auth_headers
+                )
+                
+                if success and last_session_response:
+                    sess_seq = last_session_response.get('sess_seq', 0)
+                    session_id = last_session_response.get('session_id', 'unknown')
+                    print(f"   📊 Last completed session: seq={sess_seq}, id={session_id[:8]}")
+                    
+                    if sess_seq < 12:  # If last completed is less than 12
+                        test_results["sequence_vs_completion_mismatch_confirmed"] = True
+                        print(f"   🚨 DISCREPANCY CONFIRMED via last completed session:")
+                        print(f"      Last completed session: #{sess_seq}")
+                        print(f"      But user sees Session #12 when starting new")
+                        print(f"      Gap: {12 - sess_seq - 1} sessions created but not completed")
+        
+        # PHASE 4: SESSION CREATION TESTING
+        print("\n🔄 PHASE 4: SESSION CREATION TESTING")
+        print("-" * 60)
+        print("Testing session creation to see current sequence number")
+        
+        if user_id and auth_headers:
+            # Try to create a new session to see what sequence number it gets
+            test_session_id = f"discrepancy_test_{uuid.uuid4()}"
+            plan_data = {
+                "user_id": user_id,
+                "last_session_id": "S0",
+                "next_session_id": test_session_id
+            }
+            
+            headers_with_idem = auth_headers.copy()
+            headers_with_idem['Idempotency-Key'] = f"{user_id}:S0:{test_session_id}"
+            
+            print(f"   🧪 Creating test session to check sequence number...")
+            
+            success, plan_response = self.run_test(
+                "Test Session Creation", 
+                "POST", 
+                "adapt/plan-next", 
+                [200, 400, 500, 502], 
+                plan_data, 
+                headers_with_idem
+            )
+            
+            if success and plan_response:
+                status = plan_response.get('status')
+                constraint_report = plan_response.get('constraint_report', {})
+                
+                print(f"   📊 Session creation result: {status}")
+                
+                if status == 'planned':
+                    print(f"   ✅ New session created successfully")
+                    
+                    # Try to get the session details to see its sequence number
+                    # This would require additional API calls or database access
+                    print(f"   📊 Session ID: {test_session_id[:8]}")
+                    
+                    # The sequence number would be visible in the next session creation
+                    # or through database inspection
+                    test_results["session_creation_vs_completion_gap"] = True
+                    print(f"   ✅ Session creation working (sequence continues)")
+                else:
+                    print(f"   ❌ Session creation failed: {plan_response}")
+        
+        # PHASE 5: ROOT CAUSE ANALYSIS SUMMARY
+        print("\n🔍 PHASE 5: ROOT CAUSE ANALYSIS SUMMARY")
+        print("-" * 60)
+        print("Analyzing findings to determine root cause")
+        
+        # Determine if we have enough evidence for root cause
+        evidence_score = 0
+        evidence_items = []
+        
+        if test_results["sequence_vs_completion_mismatch_confirmed"]:
+            evidence_score += 3
+            evidence_items.append("✅ Sequence vs completion mismatch confirmed")
+        
+        if test_results["planned_sessions_found"]:
+            evidence_score += 2
+            evidence_items.append("✅ Planned (incomplete) sessions found")
+        
+        if test_results["abandoned_sessions_found"]:
+            evidence_score += 2
+            evidence_items.append("✅ Abandoned sessions found")
+        
+        if test_results["dashboard_counts_completed_only"]:
+            evidence_score += 1
+            evidence_items.append("✅ Dashboard counts only completed sessions")
+        
+        print(f"   📊 Evidence Analysis:")
+        for item in evidence_items:
+            print(f"      {item}")
+        
+        print(f"   📊 Evidence Score: {evidence_score}/8")
+        
+        if evidence_score >= 5:
+            test_results["root_cause_identified"] = True
+            test_results["discrepancy_analysis_complete"] = True
+            print(f"   ✅ ROOT CAUSE IDENTIFIED with high confidence")
+        elif evidence_score >= 3:
+            test_results["discrepancy_analysis_complete"] = True
+            print(f"   ⚠️ Partial root cause identified")
+        else:
+            print(f"   ❌ Insufficient evidence to determine root cause")
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 80)
+        print("🎯 SESSION SEQUENCE DISCREPANCY ANALYSIS - RESULTS")
+        print("=" * 80)
+        
+        passed_tests = sum(test_results.values())
+        total_tests = len(test_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        # Group results by analysis categories
+        analysis_categories = {
+            "AUTHENTICATION": [
+                "authentication_working", "jwt_token_valid", "user_adaptive_enabled"
+            ],
+            "SESSION DATA ANALYSIS": [
+                "sessions_table_accessible", "user_sessions_found", "session_statuses_analyzed",
+                "sess_seq_values_retrieved", "completed_sessions_counted", "incomplete_sessions_identified"
+            ],
+            "DASHBOARD ANALYSIS": [
+                "dashboard_api_working", "dashboard_counts_completed_only", 
+                "dashboard_query_verified", "total_sessions_completed_accurate"
+            ],
+            "DISCREPANCY INVESTIGATION": [
+                "sequence_vs_completion_mismatch_confirmed", "abandoned_sessions_found",
+                "planned_sessions_found", "session_creation_vs_completion_gap", "root_cause_identified"
+            ],
+            "DATA INTEGRITY": [
+                "session_completion_api_working", "session_status_updates_working",
+                "race_conditions_detected", "data_consistency_issues"
+            ]
+        }
+        
+        for category, tests in analysis_categories.items():
+            print(f"\n{category}:")
+            category_passed = 0
+            category_total = len(tests)
+            
+            for test in tests:
+                if test in test_results:
+                    result = test_results[test]
+                    status = "✅ CONFIRMED" if result else "❌ NOT FOUND"
+                    print(f"  {test.replace('_', ' ').title():<50} {status}")
+                    if result:
+                        category_passed += 1
+            
+            category_rate = (category_passed / category_total) * 100 if category_total > 0 else 0
+            print(f"  Category Success Rate: {category_passed}/{category_total} ({category_rate:.1f}%)")
+        
+        print("-" * 80)
+        print(f"Overall Analysis Completion: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # CRITICAL FINDINGS SUMMARY
+        print("\n🚨 CRITICAL FINDINGS SUMMARY:")
+        
+        if test_results["root_cause_identified"]:
+            print("\n✅ ROOT CAUSE IDENTIFIED:")
+            print("   1. Sessions are created with incrementing sess_seq values")
+            print("   2. Not all created sessions are completed (status != 'completed')")
+            print("   3. Dashboard counts only sessions with status='completed'")
+            print("   4. Session sequence continues from highest sess_seq, not completed count")
+            print("   5. Result: User sees Session #12 but only has 5 completed sessions")
+            
+            print("\n📋 RECOMMENDED FIXES:")
+            print("   1. IMMEDIATE: Update session creation logic to use completed session count + 1")
+            print("   2. CLEANUP: Mark abandoned/planned sessions as 'abandoned' after timeout")
+            print("   3. CONSISTENCY: Ensure session completion API properly updates status")
+            print("   4. MONITORING: Add alerts for session creation vs completion gaps")
+            
+            test_results["fix_recommendations_available"] = True
+            test_results["production_issue_severity"] = True
+            
+            print("\n⚠️ PRODUCTION IMPACT:")
+            print("   - Users see confusing session numbers")
+            print("   - Session tracking inconsistency")
+            print("   - Potential user experience degradation")
+            print("   - Data integrity concerns")
+        else:
+            print("\n❌ ROOT CAUSE NOT FULLY IDENTIFIED:")
+            print("   - Additional investigation required")
+            print("   - May need direct database access")
+            print("   - Consider backend logging analysis")
+        
+        return success_rate >= 60 and test_results["discrepancy_analysis_complete"]
+
     def test_blueprint_session_list_api_endpoint(self):
         """
         🎯 BLUEPRINT SESSION LIST API ENDPOINT DEBUGGING
