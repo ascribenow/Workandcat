@@ -1108,34 +1108,22 @@ class CATBackendTester:
 
     def test_background_job_system(self):
         """
-        🎯 BACKGROUND JOB SYSTEM TESTING - COMPREHENSIVE VALIDATION
+        🎯 BACKGROUND JOB SYSTEM COMPREHENSIVE TESTING
         
-        OBJECTIVE: Test the new background job system implementation including:
-        1. NEW ENDPOINTS TO TEST:
-           - GET /api/bg-jobs/status - Get user's background job status
-           - GET /api/bg-jobs/health - Health check for background job system (public)
-           - POST /api/session/complete (modified) - Now enqueues background jobs after session completion
+        OBJECTIVE: Test the complete background job system flow as requested:
+        1. Session Completion with Background Jobs (POST /api/session/complete)
+        2. Background Job Processing (workers running, job status transitions)
+        3. Job Deduplication (no duplicate jobs for same session)
+        4. Monitoring & Observability (GET /api/bg-jobs/health, GET /api/bg-jobs/status)
+        5. Database Integration (bg_jobs table, learner_notebook, coverage_debt tables)
         
-        2. BACKGROUND JOB SYSTEM COMPONENTS:
-           - Database tables: bg_jobs, learner_notebook, coverage_debt
-           - Job types: session_summarization, personalized_planning, concept_analysis, coverage_update
-           - LLM integration using Emergent LLM Key (GPT-4o primary, Gemini fallback)
-        
-        3. TEST SCENARIOS:
-           - Test session completion with background job enqueueing
-           - Test background job health endpoint
-           - Test user job status endpoint
-           - Verify jobs are properly created in database when session is completed
-           - Test that frontend Blueprint experience remains unaffected
-        
-        4. EXPECTED BEHAVIOR:
-           - When a user completes a session via /api/session/complete, it should:
-             - Complete the session normally
-             - Enqueue 3 background jobs (summarization, planning, coverage_update)
-             - Return success with adaptive_processing: "queued" indicator
-           - Background jobs should be created with status "queued" in bg_jobs table
-           - Health endpoint should show system status
-           - User can check their job processing status
+        KEY AREAS TO VALIDATE:
+        - Workers are actively processing jobs (not just queued)
+        - LLM integration works in background jobs
+        - Job handlers complete successfully
+        - Database updates occur from background processing
+        - No impact on Blueprint session completion performance
+        - Fallback mechanisms work if background processing fails
         
         AUTHENTICATION: sp@theskinmantra.com/student123
         """
