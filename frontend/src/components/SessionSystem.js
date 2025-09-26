@@ -720,8 +720,8 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
       console.error(`[DIAGNOSTIC] ${requestId}: Question flow ERROR:`, {
         error: err.message,
         stack: err.stack,
-        adaptiveEnabled,
-        currentFlow: adaptiveEnabled ? 'adaptive' : 'legacy'
+        blueprintEnabled,
+        currentFlow: blueprintEnabled ? 'blueprint' : 'legacy'
       });
       setError('Failed to load question');
       setLoading(false);
