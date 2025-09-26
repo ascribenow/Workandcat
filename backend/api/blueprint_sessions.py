@@ -511,6 +511,14 @@ async def complete_session(
     """
     
     try:
+        # INPUT VALIDATION: Ensure session_id is valid UUID format
+        try:
+            import uuid
+            uuid.UUID(request.session_id)
+        except ValueError:
+            logger.error(f"Invalid session_id format: {request.session_id}")
+            raise HTTPException(status_code=400, detail="Invalid session ID format")
+        
         planner = await get_blueprint_planner()
         
         # Get session answers to calculate final score
@@ -589,7 +597,7 @@ async def complete_session(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Failed to complete session {request.session_id[:8]}: {e}")
+        logger.error(f"Failed to complete session {request.session_id[:8] if hasattr(request, 'session_id') else 'UNKNOWN'}: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to complete session: {str(e)}")
 
 @router.get("/list")
