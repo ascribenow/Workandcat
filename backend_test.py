@@ -21508,42 +21508,41 @@ class CATBackendTester:
         return final_results["100_percent_success_achieved"]
 
 if __name__ == "__main__":
-    print("🎯 BLUEPRINT SESSION SYSTEM FINAL VALIDATION TESTING")
+    print("🎯 BLUEPRINT SESSION CREATION AND ANSWER SUBMISSION FIX VALIDATION")
     print("=" * 80)
-    print("OBJECTIVE: Final validation after resolving critical issues")
-    print("Focus: Complete workflow, real DB questions, proper distribution, data integrity")
-    print("Expected: 12 real questions, 3/6/3 distribution, end-to-end functionality")
+    print("OBJECTIVE: Test the fixed Blueprint session creation and answer submission")
+    print("Focus: Verify HTTP 500 errors are resolved after constraint violation fix")
+    print("Expected: Session creation works, answer submission returns 200 OK, no constraint violations")
     print("Authentication: sp@theskinmantra.com/student123")
     print("=" * 80)
     
     tester = CATBackendTester()
     
     try:
-        # Run the Blueprint Session System final validation test
-        print("\n🎯 RUNNING BLUEPRINT SESSION SYSTEM FINAL VALIDATION")
-        success = tester.test_blueprint_session_system()
+        # Run the Blueprint Session Creation and Answer Submission Fix test
+        print("\n🎯 RUNNING BLUEPRINT SESSION CREATION AND ANSWER SUBMISSION FIX VALIDATION")
+        success = tester.test_blueprint_session_creation_and_answer_submission_fix()
         
         print("\n" + "=" * 80)
-        print("🎯 BLUEPRINT SESSION SYSTEM FINAL VALIDATION SUMMARY")
+        print("🎯 BLUEPRINT SESSION FIX VALIDATION SUMMARY")
         print("=" * 80)
         print(f"Tests Run: {tester.tests_run}")
         print(f"Tests Passed: {tester.tests_passed}")
         print(f"Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%" if tester.tests_run > 0 else "0%")
         
         if success:
-            print("\n🎉 BLUEPRINT SESSION SYSTEM: FINAL VALIDATION SUCCESSFUL!")
-            print("✅ Authentication working with sp@theskinmantra.com/student123")
-            print("✅ Session creation with real database questions")
-            print("✅ Question retrieval for positions 1-12")
-            print("✅ Answer submission workflow (correct/incorrect)")
-            print("✅ Session completion workflow")
-            print("✅ Database integration and data persistence")
-            print("✅ Proper HTTP status codes and error handling")
+            print("\n🎉 BLUEPRINT SESSION FIX: VALIDATION SUCCESSFUL!")
+            print("✅ Session creation works without constraint violations")
+            print("✅ POST /api/session/submit returns 200 OK (not 500 error)")
+            print("✅ Answer submissions save successfully")
+            print("✅ attempt_events records created properly")
+            print("✅ End-to-end Blueprint session flow functional")
+            print("✅ No more 'Could not save your answer' errors")
             print("✅ System ready for production deployment")
         else:
-            print("\n⚠️ BLUEPRINT SESSION SYSTEM: VALIDATION ISSUES DETECTED")
-            print("❌ Some critical features need attention before production")
-            print("❌ Check API endpoints, data quality, or workflow completion")
+            print("\n⚠️ BLUEPRINT SESSION FIX: VALIDATION ISSUES DETECTED")
+            print("❌ Some constraint violations or 500 errors still occurring")
+            print("❌ Check session creation logic, answer submission endpoints")
             print("❌ Review detailed test results above for specific issues")
         
         print("=" * 80)
