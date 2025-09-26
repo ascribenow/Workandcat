@@ -754,11 +754,15 @@ class BlueprintSessionPlanner:
             
             questions = []
             for row in questions_result:
-                question_data = json.loads(row[2]) if isinstance(row[2], str) else row[2]
+                # Handle row data safely
+                stored_position = row.position if hasattr(row, 'position') else row[0]
+                question_id = str(row.question_id) if hasattr(row, 'question_id') else str(row[1])
+                question_data_raw = row.question_data if hasattr(row, 'question_data') else row[2]
+                
+                # Parse question data JSON
+                question_data = json.loads(question_data_raw) if isinstance(question_data_raw, str) else question_data_raw
                 
                 # INTEGRITY CHECK: Validate question data consistency
-                stored_position = row[0]
-                question_id = row[1]
                 validation_meta = question_data.get('_validation', {})
                 
                 # Check for position consistency
