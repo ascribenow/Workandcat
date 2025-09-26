@@ -50,16 +50,42 @@ class BackgroundJobQueue:
         job_data: Dict[str, Any],
         user_id: Optional[str] = None,
         session_id: Optional[str] = None,
-        max_attempts: int = 6
+        max_attempts: int = 6,
+        deduplicate: bool = True
     ) -> int:
         """
-        Enqueue a background job for processing
+        Enqueue a background job for processing with deduplication
         
+        Args:
+            deduplicate: If True, prevent duplicate jobs for same user/session/type
+            
         Returns:
             Job ID for tracking
         """
         db = SessionLocal()
         try:
+            # Check for existing jobs if deduplication is enabled
+            if deduplicate and user_id:
+                existing_check_sql = """
+                    SELECT id FROM bg_jobs 
+                    WHERE user_id = :user_id 
+                      AND job_type = :job_type 
+                      AND status IN ('queued', 'processing')
+                """
+                params = {"user_id": user_id, "job_type": job_type}
+                
+                if session_id:
+                    existing_check_sql += " AND session_id = :session_id"
+                    params["session_id"] = session_id
+                else:
+                    existing_check_sql += " AND session_id IS NULL"
+                
+                existing_job = db.execute(text(existing_check_sql), params).fetchone()
+                
+                if existing_job:
+                    logger.info(f"🔄 Duplicate job prevented for {job_type}, user {(user_id or 'N/A')[:8]}, existing job: {existing_job.id}")
+                    return existing_job.id
+            
             # Insert job with retry configuration
             result = db.execute(text("""
                 INSERT INTO bg_jobs (
@@ -85,6 +111,22 @@ class BackgroundJobQueue:
             logger.info(f"📋 Enqueued job {job_id}: {job_type} for user {(user_id or 'N/A')[:8]}")
             return job_id
             
+        except IntegrityError as e:
+            # Handle unique constraint violations gracefully
+            db.rollback()
+            if "unique" in str(e).lower():
+                logger.info(f"🔄 Duplicate job prevented by constraint for {job_type}, user {(user_id or 'N/A')[:8]}")
+                # Try to find the existing job
+                existing_job = db.execute(text("""
+                    SELECT id FROM bg_jobs 
+                    WHERE user_id = :user_id AND job_type = :job_type 
+                      AND status IN ('queued', 'processing')
+                    ORDER BY created_at DESC LIMIT 1
+                """), {"user_id": user_id, "job_type": job_type}).fetchone()
+                return existing_job.id if existing_job else -1
+            else:
+                logger.error(f"❌ Failed to enqueue job {job_type}: {e}")
+                raise
         except Exception as e:
             db.rollback()
             logger.error(f"❌ Failed to enqueue job {job_type}: {e}")
