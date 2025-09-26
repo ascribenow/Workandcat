@@ -28,6 +28,24 @@ async def test_bg_job_system():
     
     logger.info("🧪 Testing Background Job System...")
     
+    # Get a real user ID for testing
+    from database import SessionLocal
+    from sqlalchemy import text
+    
+    db = SessionLocal()
+    try:
+        result = db.execute(text('SELECT id FROM users LIMIT 1')).fetchone()
+        if not result:
+            logger.error("❌ No users found in database for testing")
+            return False
+        test_user_id = result[0]
+        logger.info(f"Using test user: {test_user_id[:8]}...")
+    except Exception as e:
+        logger.error(f"❌ Failed to get test user: {e}")
+        return False
+    finally:
+        db.close()
+    
     # Register handlers
     job_queue.register_handler("session_summarization", handle_session_summarization)
     job_queue.register_handler("personalized_planning", handle_personalized_planning)
@@ -43,7 +61,7 @@ async def test_bg_job_system():
                 "update_scope": "test",
                 "test_mode": True
             },
-            user_id="test-user-12345"
+            user_id=test_user_id
         )
         logger.info(f"✅ Test job enqueued successfully: {job_id}")
     except Exception as e:
