@@ -108,7 +108,7 @@ async def ask_doubt(
         # Generate AI response using Gemini
         if GOOGLE_API_KEY:
             try:
-                model = genai.GenerativeModel("gemini-1.5-flash")
+                model = genai.GenerativeModel("gemini-2.5-flash")
                 
                 # Prepare context for AI
                 conversation_history = doubt_conversations[conversation_key]
