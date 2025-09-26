@@ -425,10 +425,12 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
               setIsPlanning(false);
               setLoading(false);
               
-              // For resumed sessions, set position based on answered_count
-              const answeredCount = sessionMetadata.answered_count || 0;
-              setCurrentQuestionIndex(answeredCount); // Resume from next unanswered question
-              console.log(`[BLUEPRINT] ✅ Resumed session at position ${answeredCount + 1}`);
+              // For resumed sessions, set position based on current_position from backend
+              const currentPosition = sessionMetadata.current_position || ((sessionMetadata.answered_count || 0) + 1);
+              const questionIndex = currentPosition - 1; // Convert to 0-based index for question array
+              setCurrentQuestionIndex(questionIndex);
+              console.log(`[BLUEPRINT] ✅ Resumed session at position ${currentPosition} (question index ${questionIndex})`);
+              console.log(`[BLUEPRINT] 📊 Session progress: ${sessionMetadata.answered_count || 0} answered, resuming at position ${currentPosition}`);
               
             } else {
               console.error(`[BLUEPRINT] ❌ Invalid pack returned:`, pack);
