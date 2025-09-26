@@ -382,7 +382,8 @@ async def submit_answer(
                 "timestamp": datetime.now(timezone.utc)
             })
             
-            # DASHBOARD FIX: Create attempt_events record for dashboard category breakdown
+            # DASHBOARD FIX: Create attempt_events record for dashboard category breakdown  
+            # Use UPSERT to prevent duplicates based on session + position
             db.execute(text("""
                 INSERT INTO attempt_events (
                     id, user_id, session_id, question_id, was_correct, skipped,
@@ -393,7 +394,10 @@ async def submit_answer(
                     :response_time_ms, :created_at, :difficulty_band, :subcategory,
                     :type_of_question, :core_concepts, :pyq_frequency_score, :sess_seq_at_serve
                 )
-                ON CONFLICT (id) DO NOTHING
+                ON CONFLICT (user_id, session_id, sess_seq_at_serve) DO UPDATE SET
+                    was_correct = EXCLUDED.was_correct,
+                    response_time_ms = EXCLUDED.response_time_ms,
+                    created_at = EXCLUDED.created_at
             """), {
                 "id": str(uuid.uuid4()),
                 "user_id": auth_user_id,
