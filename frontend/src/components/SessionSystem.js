@@ -132,6 +132,14 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
         throw new Error(`No questions found for session ${sessionId}`);
       }
       
+      // VALIDATION: Log question consistency data for debugging
+      console.log(`[BLUEPRINT] 🔍 Question validation check:`, {
+        total_questions: questions.length,
+        first_question_meta: questions[0]?._display_meta,
+        position_sequence: questions.map(q => q.position).slice(0, 5),
+        question_ids: questions.map(q => q.id?.substring(0, 8)).slice(0, 5)
+      });
+      
       // Convert Blueprint questions to pack format for compatibility with existing UI
       const pack = questions.map((question) => ({
         id: question.id,
@@ -145,7 +153,9 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
         type_of_question: question.type_of_question,
         position: question.position,
         session_type: 'blueprint',
-        answer: question.answer || ''
+        answer: question.answer || '',
+        // Preserve validation metadata for debugging
+        _display_meta: question._display_meta
       }));
       
       // Sort pack by position to ensure correct order
