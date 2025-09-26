@@ -1135,45 +1135,81 @@ async def log_question_action(
             sess_seq_row = sess_seq_result.fetchone()
             sess_seq_at_serve = sess_seq_row.sess_seq if sess_seq_row else 1
             
-            # Try to get question from pack data (for adaptive sessions)
-            pack_result = db.execute(text("""
-                SELECT pack_json FROM session_pack_plan 
-                WHERE session_id = :session_id 
+            # ENHANCED: Detect session type and query appropriate table
+            # First check if it's a Blueprint session
+            blueprint_result = db.execute(text("""
+                SELECT spq.question_data, sp.session_id 
+                FROM session_pack_questions spq
+                JOIN session_packs sp ON spq.session_id = sp.session_id
+                WHERE spq.session_id = :session_id AND spq.question_id = :question_id
                 LIMIT 1
             """), {
-                'session_id': log_data.session_id
+                'session_id': log_data.session_id,
+                'question_id': log_data.question_id
             })
-            pack_row = pack_result.fetchone()
+            blueprint_row = blueprint_result.fetchone()
             
-            if pack_row and pack_row.pack_json:
-                # Look for the question in the pack data using CANONICAL ID ONLY
-                pack_data = as_json(pack_row.pack_json)  # Safe JSON parsing to prevent 502
+            if blueprint_row:
+                # This is a Blueprint session - use session_pack_questions data
+                logger.info(f"📋 Blueprint session detected for {log_data.session_id[:8]}")
+                question_data = as_json(blueprint_row.question_data)
                 
-                # Handle both list and dict formats
-                if isinstance(pack_data, list):
-                    items = pack_data
-                else:
-                    items = pack_data.get('items', [])
+                question = type('Question', (), {
+                    'id': question_data.get('id'),
+                    'answer': question_data.get('answer', ''),  # Correct answer from Blueprint data
+                    'difficulty_band': question_data.get('difficulty_band', 'medium'),
+                    'subcategory': question_data.get('subcategory', 'Unknown'),
+                    'type_of_question': question_data.get('type_of_question', 'Unknown'),
+                    'core_concepts': json.dumps(question_data.get('core_concepts', [])),
+                    'pyq_frequency_score': question_data.get('pyq_frequency_score', 0.0),
+                    'anchors': question_data.get('anchors', []),
+                    'snap_read': question_data.get('snap_read'),
+                    'solution_approach': question_data.get('solution_approach'), 
+                    'detailed_solution': question_data.get('detailed_solution'),
+                    'principle_to_remember': question_data.get('principle_to_remember')
+                })()
                 
-                for item in items:
-                    # FIXED: Find question using ONLY canonical 'id' field (no item_id fallback)
-                    if item.get('id') == log_data.question_id:
-                        # Found the question in pack data - use snapshots from SERVED PACK
-                        question = type('Question', (), {
-                            'id': item.get('id'),
-                            'answer': item.get('answer', ''),  # Use pack answer field only
-                            'difficulty_band': item.get('difficulty_band', 'medium'),
-                            'subcategory': item.get('subcategory', 'Unknown'),
-                            'type_of_question': item.get('type_of_question', 'Unknown'),
-                            'core_concepts': json.dumps(item.get('core_concepts', [])),
-                            'pyq_frequency_score': item.get('pyq_frequency_score', 0.0),
-                            'anchors': item.get('anchors', []),  # Snapshot anchors from served pack
-                            'snap_read': item.get('snap_read'),
-                            'solution_approach': item.get('solution_approach'), 
-                            'detailed_solution': item.get('detailed_solution'),
-                            'principle_to_remember': item.get('principle_to_remember')
-                        })()
-                        break
+            else:
+                # Try to get question from pack data (for adaptive sessions)
+                pack_result = db.execute(text("""
+                    SELECT pack_json FROM session_pack_plan 
+                    WHERE session_id = :session_id 
+                    LIMIT 1
+                """), {
+                    'session_id': log_data.session_id
+                })
+                pack_row = pack_result.fetchone()
+                
+                if pack_row and pack_row.pack_json:
+                    logger.info(f"📊 Adaptive session detected for {log_data.session_id[:8]}")
+                    # Look for the question in the pack data using CANONICAL ID ONLY
+                    pack_data = as_json(pack_row.pack_json)  # Safe JSON parsing to prevent 502
+                    
+                    # Handle both list and dict formats
+                    if isinstance(pack_data, list):
+                        items = pack_data
+                    else:
+                        items = pack_data.get('items', [])
+                    
+                    for item in items:
+                        # FIXED: Find question using ONLY canonical 'id' field (no item_id fallback)
+                        if item.get('id') == log_data.question_id:
+                            # Found the question in pack data - use snapshots from SERVED PACK
+                            question = type('Question', (), {
+                                'id': item.get('id'),
+                                'answer': item.get('answer', ''),  # Use pack answer field only
+                                'difficulty_band': item.get('difficulty_band', 'medium'),
+                                'subcategory': item.get('subcategory', 'Unknown'),
+                                'type_of_question': item.get('type_of_question', 'Unknown'),
+                                'core_concepts': json.dumps(item.get('core_concepts', [])),
+                                'pyq_frequency_score': item.get('pyq_frequency_score', 0.0),
+                                'anchors': item.get('anchors', []),  # Snapshot anchors from served pack
+                                'snap_read': item.get('snap_read'),
+                                'solution_approach': item.get('solution_approach'), 
+                                'detailed_solution': item.get('detailed_solution'),
+                                'principle_to_remember': item.get('principle_to_remember')
+                            })()
+                            break
             
             # ADAPTIVE-ONLY: All questions must come from pack data
             # No fallback to database - ensures data consistency
