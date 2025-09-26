@@ -369,7 +369,7 @@ async def submit_answer(
                 "difficulty_band": question_at_position.get('difficulty_band', 'Medium'),
                 "subcategory": question_at_position.get('subcategory', 'General'),
                 "type_of_question": question_at_position.get('type_of_question', 'MCQ'),
-                "core_concepts": question_at_position.get('core_concepts', []),
+                "core_concepts": json.dumps(question_at_position.get('core_concepts', [])),  # Convert to JSON string
                 "pyq_frequency_score": question_at_position.get('pyq_frequency_score', 0),
                 "sess_seq_at_serve": request.position  # Use position as sequence
             })
