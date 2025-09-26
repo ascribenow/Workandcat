@@ -66,7 +66,7 @@ class BackgroundJobQueue:
                     job_type, job_data, user_id, session_id, 
                     max_attempts, created_at, next_attempt_at
                 ) VALUES (
-                    :job_type, :job_data::jsonb, :user_id, :session_id,
+                    :job_type, :job_data, :user_id, :session_id,
                     :max_attempts, :created_at, :next_attempt_at
                 ) RETURNING id
             """), {
