@@ -161,7 +161,7 @@ class BackgroundJobQueue:
                 UPDATE bg_jobs 
                 SET status = 'completed',
                     completed_at = :completed_at,
-                    result = :result::jsonb,
+                    result = :result,
                     processing_duration_ms = :duration_ms
                 WHERE id = :job_id
             """), {
