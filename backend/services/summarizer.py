@@ -140,10 +140,15 @@ Return ONLY valid JSON matching this exact schema with the specified field names
                 # Use dedicated summarizer LLM service  
                 from services.summarizer_llm_service import summarizer_llm_service
                 
-                # Call LLM using dedicated service
-                raw_response, model_used = await summarizer_llm_service.call_for_concept_analysis(
-                    system_prompt=self.system_prompt,
-                    user_payload=payload
+                # Call LLM using existing utilities
+                from llm_utils import call_llm_with_fallback
+                
+                raw_response, model_used = await call_llm_with_fallback(
+                    service_instance=summarizer_llm_service,  # Reuse existing LLM configuration
+                    system_message=self.system_prompt,
+                    user_message=json.dumps(payload, indent=2),
+                    max_tokens=2000,
+                    temperature=0.1
                 )
                 
                 # Validate response using dedicated service
