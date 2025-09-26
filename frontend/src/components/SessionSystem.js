@@ -206,6 +206,16 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
         detailedSolution: response.data.solution_feedback?.detailed_solution?.substring(0, 100),
         principle: response.data.solution_feedback?.principle_to_remember?.substring(0, 100)
       });
+      
+      // VALIDATION: Cross-check answer consistency with current question
+      console.log(`[BLUEPRINT] 🔍 Answer consistency check:`, {
+        submitted_to_position: position,
+        current_question_id: currentQuestion?.id?.substring(0, 8),
+        backend_correct_answer: response.data.correct_answer,
+        user_answer: userAnswer,
+        is_correct: response.data.is_correct
+      });
+      
       return {
         success: response.data.success,
         is_correct: response.data.is_correct,
