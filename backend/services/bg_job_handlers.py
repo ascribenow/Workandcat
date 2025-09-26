@@ -86,8 +86,11 @@ async def handle_personalized_planning(job: Dict[str, Any]) -> Dict[str, Any]:
         # Get user's learning context
         planning_context = job_data.get("planning_context", {})
         
-        # Run the planner service for next session
-        result = await planner_service.run(
+        # Run the planner service for next session using existing planner
+        from services.planner import planner_service as existing_planner
+        
+        # Use the existing planner but with planning context
+        result = await existing_planner.run(
             user_id=user_id,
             planning_context=planning_context
         )
