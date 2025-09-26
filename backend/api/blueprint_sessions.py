@@ -503,7 +503,7 @@ async def complete_session(
     auth_user_id: str = Depends(get_current_user)
 ):
     """
-    Mark blueprint session as complete and generate summary
+    Mark blueprint session as complete and enqueue background adaptive intelligence jobs
     """
     
     try:
@@ -545,6 +545,53 @@ async def complete_session(
         
         logger.info(f"Blueprint session {request.session_id[:8]} completed with {correct_answers}/{total_questions} correct ({accuracy:.1f}%)")
         
+        # BACKGROUND ADAPTIVE INTELLIGENCE: Enqueue background jobs for LLM processing
+        try:
+            from services.bg_job_queue import job_queue
+            
+            # Job 1: Session Summarization (LLM-powered concept analysis)
+            summarization_job_id = await job_queue.enqueue_job(
+                job_type="session_summarization",
+                job_data={
+                    "session_stats": {
+                        "total_questions": total_questions,
+                        "correct_answers": correct_answers,
+                        "accuracy": accuracy
+                    }
+                },
+                user_id=auth_user_id,
+                session_id=request.session_id
+            )
+            
+            # Job 2: Personalized Planning (next session recommendations)
+            planning_job_id = await job_queue.enqueue_job(
+                job_type="personalized_planning", 
+                job_data={
+                    "planning_context": {
+                        "trigger": "session_completion",
+                        "completed_session_id": request.session_id,
+                        "recent_accuracy": accuracy
+                    }
+                },
+                user_id=auth_user_id
+            )
+            
+            # Job 3: Coverage Update (learning gap analysis)
+            coverage_job_id = await job_queue.enqueue_job(
+                job_type="coverage_update",
+                job_data={
+                    "update_scope": "session_based",
+                    "completed_session_id": request.session_id
+                },
+                user_id=auth_user_id
+            )
+            
+            logger.info(f"🚀 Background jobs enqueued for session {request.session_id[:8]}: summarization={summarization_job_id}, planning={planning_job_id}, coverage={coverage_job_id}")
+            
+        except Exception as bg_error:
+            # Don't fail session completion if background jobs fail to enqueue
+            logger.error(f"❌ Failed to enqueue background jobs for session {request.session_id[:8]}: {bg_error}")
+        
         # Generate session summary
         session_summary = {
             "session_id": request.session_id,
@@ -552,7 +599,8 @@ async def complete_session(
             "correct_answers": correct_answers,
             "accuracy": round(accuracy, 1),
             "completed_at": datetime.now(timezone.utc).isoformat(),
-            "session_type": "blueprint"
+            "session_type": "blueprint",
+            "adaptive_processing": "queued"  # Indicates background processing started
         }
         
         return JSONResponse({
