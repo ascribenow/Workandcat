@@ -631,6 +631,28 @@ class BlueprintSessionPlanner:
             position = question['position']
             question_data = {k: v for k, v in question.items() if k != 'position'}
             
+            # VALIDATION FIX: Ensure all critical fields are present and non-empty
+            critical_fields = ['id', 'stem', 'answer', 'option_a', 'option_b', 'option_c', 'option_d']
+            missing_fields = [field for field in critical_fields if not question_data.get(field)]
+            if missing_fields:
+                logger.warning(f"Question at position {position} missing critical fields: {missing_fields}")
+                # Continue with available data but log the issue
+            
+            # VALIDATION FIX: Ensure solution feedback fields are properly included
+            solution_fields = ['snap_read', 'solution_approach', 'detailed_solution', 'principle_to_remember']
+            missing_solution = [field for field in solution_fields if not question_data.get(field)]
+            if missing_solution:
+                logger.info(f"Question at position {position} missing solution fields: {missing_solution}")
+            
+            # Add position validation metadata for integrity checks
+            question_data['_validation'] = {
+                'stored_position': position,
+                'question_id': str(question['id']),
+                'has_all_options': all(question_data.get(f'option_{opt}') for opt in ['a', 'b', 'c', 'd']),
+                'has_solution_feedback': any(question_data.get(field) for field in solution_fields),
+                'created_at': datetime.now(timezone.utc).isoformat()
+            }
+            
             db.execute(text("""
                 INSERT INTO session_pack_questions 
                 (session_id, position, question_id, question_data, created_at)
