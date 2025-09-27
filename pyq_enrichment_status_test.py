@@ -10,7 +10,7 @@ from datetime import datetime
 import sys
 
 class PYQEnrichmentStatusTester:
-    def __init__(self, base_url="https://cat-session-sys.preview.emergentagent.com/api"):
+    def __init__(self, base_url="https://catprep-adapt.preview.emergentagent.com/api"):
         self.base_url = base_url
         self.admin_token = None
         self.tests_run = 0

@@ -12,7 +12,7 @@ import os
 import uuid
 
 class ComprehensiveSummarizerTester:
-    def __init__(self, base_url="https://cat-session-sys.preview.emergentagent.com/api"):
+    def __init__(self, base_url="https://catprep-adapt.preview.emergentagent.com/api"):
         self.base_url = base_url
         self.tests_run = 0
         self.tests_passed = 0

@@ -10,7 +10,7 @@ import time
 
 class DetailedSessionDebugger:
     def __init__(self):
-        self.base_url = "https://cat-session-sys.preview.emergentagent.com/api"
+        self.base_url = "https://catprep-adapt.preview.emergentagent.com/api"
         self.admin_token = None
         
     def authenticate_admin(self):

@@ -9,7 +9,7 @@ import uuid
 import time
 
 def test_quick_flow():
-    base_url = "https://cat-session-sys.preview.emergentagent.com/api"
+    base_url = "https://catprep-adapt.preview.emergentagent.com/api"
     
     # Step 1: Authenticate
     print("🔐 Step 1: Authentication")

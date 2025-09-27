@@ -12,7 +12,7 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 class DoubtsSystemTester:
     def __init__(self):
-        self.base_url = "https://cat-session-sys.preview.emergentagent.com/api"
+        self.base_url = "https://catprep-adapt.preview.emergentagent.com/api"
         self.auth_headers = None
         self.user_id = None
         
