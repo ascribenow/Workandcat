@@ -2251,7 +2251,7 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
                         color: message.role === 'user' ? 'white' : '#545454',
                         fontFamily: 'Lato, sans-serif' 
                       }}>
-                        {message.message}
+                        {message.content}
                       </div>
                       <div className={`text-xs mt-2`} style={{
                         color: message.role === 'user' ? 'rgba(255,255,255,0.8)' : '#999999',
