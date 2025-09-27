@@ -97,7 +97,7 @@ class BlueprintSessionPlanner:
                     COUNT(spq.position) as question_count
                 FROM session_packs sp
                 LEFT JOIN session_pack_questions spq ON sp.session_id = spq.session_id
-                LEFT JOIN sessions s ON sp.session_id = s.session_id
+                LEFT JOIN sessions s ON sp.session_id::varchar = s.session_id
                 WHERE sp.user_id = :user_id
                   AND (s.status != 'completed' OR s.status IS NULL)
                 GROUP BY sp.session_id, sp.constraint_report
