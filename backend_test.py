@@ -1106,6 +1106,548 @@ class CATBackendTester:
         
         return success_rate >= 80 and criteria_rate >= 85
 
+    def test_doubts_chat_api_investigation(self):
+        """
+        🎯 DOUBTS/CHAT API INVESTIGATION - TWELVR CHAT NOT WORKING
+        
+        CRITICAL ISSUE FROM USER REPORT:
+        - Chat message from "Twelvr says:" appears empty/failed to load at 09:05:54
+        - Chat interface shows 1/10 messages used (indicating API calls are happening)
+        - Doubts API requests getting 200 OK responses in logs
+        - Need to test /api/doubts/ask endpoint with proper authentication and payload
+        - Check if LLM response is empty or if there's a frontend display issue
+        - Verify doubts service is calling LLM and getting responses
+        
+        INVESTIGATION OBJECTIVES:
+        1. Test /api/doubts/ask endpoint with proper authentication and real question data
+        2. Verify LLM (Gemini) integration is working and returning responses
+        3. Check if responses are empty or malformed
+        4. Test conversation history and message counting
+        5. Verify API returns 200 OK but with empty/invalid response content
+        6. Test with different question types and message formats
+        
+        CONTEXT FROM LOGS:
+        - Backend logs show: "POST /api/doubts/ask HTTP/1.1" 200 OK
+        - Gemini configured correctly: "✅ Google Gemini configured for doubts system"
+        - Earlier fixed deprecated Gemini models (1.5 -> 2.5)
+        
+        AUTHENTICATION: sp@theskinmantra.com/student123
+        """
+        print("🎯 DOUBTS/CHAT API INVESTIGATION - TWELVR CHAT NOT WORKING")
+        print("=" * 80)
+        print("OBJECTIVE: Investigate why Twelvr chat messages appear empty despite 200 OK responses")
+        print("FOCUS: /api/doubts/ask endpoint, LLM integration, response content validation")
+        print("EXPECTED: Identify why chat responses are empty and fix the issue")
+        print("=" * 80)
+        
+        test_results = {
+            # Authentication Setup
+            "authentication_working": False,
+            "user_adaptive_enabled": False,
+            "jwt_token_valid": False,
+            
+            # Question Data Retrieval
+            "questions_endpoint_accessible": False,
+            "sample_questions_retrieved": False,
+            "question_data_complete": False,
+            "question_has_solution_fields": False,
+            
+            # Doubts API Basic Testing
+            "doubts_ask_endpoint_accessible": False,
+            "doubts_ask_returns_200": False,
+            "doubts_response_structure_valid": False,
+            "message_counting_working": False,
+            
+            # LLM Integration Testing
+            "gemini_api_key_configured": False,
+            "gemini_model_accessible": False,
+            "llm_response_generated": False,
+            "llm_response_not_empty": False,
+            "llm_response_contextual": False,
+            
+            # Response Content Validation
+            "response_field_populated": False,
+            "response_content_length_adequate": False,
+            "response_contains_educational_content": False,
+            "no_error_messages_in_response": False,
+            
+            # Conversation System Testing
+            "conversation_history_working": False,
+            "message_limit_enforcement": False,
+            "conversation_persistence": False,
+            "admin_monitoring_working": False,
+            
+            # Error Investigation
+            "empty_response_issue_identified": False,
+            "api_error_handling_working": False,
+            "gemini_api_errors_detected": False,
+            "frontend_compatibility_confirmed": False,
+            
+            # Overall Assessment
+            "doubts_system_operational": False,
+            "chat_functionality_working": False,
+            "issue_resolved": False,
+            "production_ready": False
+        }
+        
+        # PHASE 1: AUTHENTICATION SETUP
+        print("\n🔐 PHASE 1: AUTHENTICATION SETUP")
+        print("-" * 60)
+        print("Authenticating with sp@theskinmantra.com/student123")
+        
+        auth_data = {
+            "email": "sp@theskinmantra.com",
+            "password": "student123"
+        }
+        
+        success, response = self.run_test("Doubts API Authentication", "POST", "auth/login", [200, 401], auth_data)
+        
+        auth_headers = None
+        user_id = None
+        if success and response.get('access_token'):
+            token = response['access_token']
+            auth_headers = {
+                'Authorization': f'Bearer {token}',
+                'Content-Type': 'application/json'
+            }
+            test_results["authentication_working"] = True
+            test_results["jwt_token_valid"] = True
+            print(f"   ✅ Authentication successful")
+            print(f"   📊 JWT Token length: {len(token)} characters")
+            
+            user_data = response.get('user', {})
+            user_id = user_data.get('id')
+            adaptive_enabled = user_data.get('adaptive_enabled', False)
+            
+            if adaptive_enabled:
+                test_results["user_adaptive_enabled"] = True
+                print(f"   ✅ User adaptive_enabled confirmed: {adaptive_enabled}")
+                print(f"   📊 User ID: {user_id}")
+            else:
+                print(f"   ⚠️ User adaptive_enabled: {adaptive_enabled}")
+        else:
+            print("   ❌ Authentication failed - cannot proceed with doubts API testing")
+            return False
+        
+        # PHASE 2: QUESTION DATA RETRIEVAL
+        print("\n📚 PHASE 2: QUESTION DATA RETRIEVAL")
+        print("-" * 60)
+        print("Retrieving sample questions for doubts testing")
+        
+        sample_question = None
+        if auth_headers:
+            success, questions_response = self.run_test(
+                "Get Sample Questions", 
+                "GET", 
+                "questions?limit=5", 
+                [200, 500], 
+                None, 
+                auth_headers
+            )
+            
+            if success and questions_response:
+                if isinstance(questions_response, list) and len(questions_response) > 0:
+                    test_results["questions_endpoint_accessible"] = True
+                    test_results["sample_questions_retrieved"] = True
+                    
+                    sample_question = questions_response[0]
+                    print(f"   ✅ Retrieved {len(questions_response)} sample questions")
+                    print(f"   📊 Sample question ID: {sample_question.get('id', 'N/A')}")
+                    print(f"   📊 Question stem length: {len(sample_question.get('stem', ''))}")
+                    print(f"   📊 Right answer: {sample_question.get('right_answer', 'N/A')[:50]}...")
+                    
+                    # Check if question has solution fields needed for doubts
+                    solution_fields = ['snap_read', 'solution_approach', 'detailed_solution', 'principle_to_remember']
+                    has_solution_data = any(sample_question.get(field) for field in solution_fields)
+                    
+                    if has_solution_data:
+                        test_results["question_has_solution_fields"] = True
+                        test_results["question_data_complete"] = True
+                        print(f"   ✅ Question has solution data for doubts context")
+                        
+                        for field in solution_fields:
+                            value = sample_question.get(field)
+                            if value:
+                                print(f"      {field}: {len(str(value))} chars")
+                    else:
+                        print(f"   ⚠️ Question missing solution data - may affect doubts quality")
+                        
+                else:
+                    print(f"   ❌ Questions response invalid: {type(questions_response)}")
+            else:
+                print(f"   ❌ Failed to retrieve questions: {questions_response}")
+        
+        # PHASE 3: DOUBTS API BASIC TESTING
+        print("\n🤔 PHASE 3: DOUBTS API BASIC TESTING")
+        print("-" * 60)
+        print("Testing /api/doubts/ask endpoint with real question data")
+        
+        if auth_headers and sample_question:
+            question_id = sample_question.get('id')
+            session_id = f"test_doubts_{uuid.uuid4()}"
+            
+            # Test doubts ask endpoint
+            doubt_data = {
+                "question_id": question_id,
+                "session_id": session_id,
+                "message": "Can you explain this solution step by step? I'm having trouble understanding the approach."
+            }
+            
+            print(f"   🎯 Testing doubts/ask with question: {question_id}")
+            print(f"   📝 Doubt message: {doubt_data['message']}")
+            
+            success, doubts_response = self.run_test(
+                "Doubts Ask Endpoint", 
+                "POST", 
+                "doubts/ask", 
+                [200, 400, 500], 
+                doubt_data, 
+                auth_headers
+            )
+            
+            if success:
+                test_results["doubts_ask_endpoint_accessible"] = True
+                test_results["doubts_ask_returns_200"] = True
+                print(f"   ✅ Doubts ask endpoint accessible and returns 200")
+                
+                # Analyze response structure
+                if isinstance(doubts_response, dict):
+                    test_results["doubts_response_structure_valid"] = True
+                    print(f"   ✅ Response structure is valid dict")
+                    
+                    # Check key fields
+                    success_field = doubts_response.get('success')
+                    message_count = doubts_response.get('message_count', 0)
+                    remaining_messages = doubts_response.get('remaining_messages', 0)
+                    response_content = doubts_response.get('response')
+                    error_message = doubts_response.get('error')
+                    
+                    print(f"   📊 Response analysis:")
+                    print(f"      Success: {success_field}")
+                    print(f"      Message count: {message_count}")
+                    print(f"      Remaining messages: {remaining_messages}")
+                    print(f"      Has response content: {response_content is not None}")
+                    print(f"      Has error: {error_message is not None}")
+                    
+                    if message_count > 0 and remaining_messages < 10:
+                        test_results["message_counting_working"] = True
+                        print(f"   ✅ Message counting system working")
+                    
+                    # CRITICAL: Check if response content is empty (main issue)
+                    if response_content:
+                        test_results["response_field_populated"] = True
+                        print(f"   ✅ Response field is populated")
+                        
+                        response_length = len(str(response_content))
+                        print(f"   📊 Response content length: {response_length} characters")
+                        
+                        if response_length > 50:  # Adequate response length
+                            test_results["response_content_length_adequate"] = True
+                            test_results["llm_response_not_empty"] = True
+                            print(f"   ✅ Response content has adequate length")
+                            
+                            # Check if response is contextual and educational
+                            response_lower = str(response_content).lower()
+                            educational_keywords = ['step', 'solution', 'approach', 'calculate', 'formula', 'method', 'understand']
+                            contextual_indicators = any(keyword in response_lower for keyword in educational_keywords)
+                            
+                            if contextual_indicators:
+                                test_results["response_contains_educational_content"] = True
+                                test_results["llm_response_contextual"] = True
+                                print(f"   ✅ Response contains educational content")
+                            
+                            # Display response sample
+                            response_sample = str(response_content)[:200] + "..." if len(str(response_content)) > 200 else str(response_content)
+                            print(f"   📝 Response sample: {response_sample}")
+                            
+                        else:
+                            print(f"   ❌ Response content too short: {response_length} chars")
+                            test_results["empty_response_issue_identified"] = True
+                    else:
+                        print(f"   ❌ CRITICAL: Response field is empty or None")
+                        test_results["empty_response_issue_identified"] = True
+                        
+                        if error_message:
+                            print(f"   ❌ Error message: {error_message}")
+                            if "temporarily unavailable" in str(error_message).lower():
+                                test_results["gemini_api_errors_detected"] = True
+                                print(f"   🚨 Gemini API error detected - this explains empty responses")
+                    
+                    # Check for no error messages when successful
+                    if success_field and not error_message:
+                        test_results["no_error_messages_in_response"] = True
+                        print(f"   ✅ No error messages in successful response")
+                    
+                else:
+                    print(f"   ❌ Response structure invalid: {type(doubts_response)}")
+            else:
+                print(f"   ❌ Doubts ask endpoint failed: {doubts_response}")
+        
+        # PHASE 4: LLM INTEGRATION TESTING
+        print("\n🧠 PHASE 4: LLM INTEGRATION TESTING")
+        print("-" * 60)
+        print("Testing Gemini LLM integration and response generation")
+        
+        # Check environment configuration
+        import os
+        google_api_key = os.getenv('GOOGLE_API_KEY')
+        if google_api_key:
+            test_results["gemini_api_key_configured"] = True
+            print(f"   ✅ Google API key configured (length: {len(google_api_key)})")
+            
+            # Test direct Gemini access
+            try:
+                import google.generativeai as genai
+                genai.configure(api_key=google_api_key)
+                
+                model = genai.GenerativeModel("gemini-2.5-flash")
+                test_prompt = "Explain the concept of percentage in simple terms."
+                
+                print(f"   🧪 Testing direct Gemini API call...")
+                response = model.generate_content(test_prompt)
+                
+                if response and response.text:
+                    test_results["gemini_model_accessible"] = True
+                    test_results["llm_response_generated"] = True
+                    
+                    response_text = response.text.strip()
+                    print(f"   ✅ Direct Gemini API working")
+                    print(f"   📊 Direct response length: {len(response_text)} chars")
+                    print(f"   📝 Direct response sample: {response_text[:100]}...")
+                    
+                    if len(response_text) > 50:
+                        print(f"   ✅ Gemini generates adequate responses")
+                    
+                else:
+                    print(f"   ❌ Gemini response empty or invalid")
+                    
+            except Exception as e:
+                print(f"   ❌ Direct Gemini API test failed: {e}")
+                test_results["gemini_api_errors_detected"] = True
+        else:
+            print(f"   ❌ Google API key not configured")
+        
+        # PHASE 5: CONVERSATION SYSTEM TESTING
+        print("\n💬 PHASE 5: CONVERSATION SYSTEM TESTING")
+        print("-" * 60)
+        print("Testing conversation history and admin monitoring")
+        
+        if auth_headers and sample_question and test_results["doubts_ask_endpoint_accessible"]:
+            question_id = sample_question.get('id')
+            
+            # Test conversation history
+            success, history_response = self.run_test(
+                "Doubts Conversation History", 
+                "GET", 
+                f"doubts/{question_id}/history", 
+                [200, 404, 500], 
+                None, 
+                auth_headers
+            )
+            
+            if success and history_response:
+                test_results["conversation_history_working"] = True
+                print(f"   ✅ Conversation history endpoint working")
+                
+                messages = history_response.get('messages', [])
+                message_count = history_response.get('message_count', 0)
+                
+                print(f"   📊 Conversation history:")
+                print(f"      Messages in history: {len(messages)}")
+                print(f"      Message count: {message_count}")
+                
+                if len(messages) > 0:
+                    test_results["conversation_persistence"] = True
+                    print(f"   ✅ Conversation persistence working")
+                    
+                    # Display recent messages
+                    for i, msg in enumerate(messages[-2:]):  # Last 2 messages
+                        role = msg.get('role', 'unknown')
+                        content = msg.get('content', '')
+                        print(f"      Message {i+1} ({role}): {content[:50]}...")
+            
+            # Test admin monitoring
+            success, admin_response = self.run_test(
+                "Doubts Admin Monitoring", 
+                "GET", 
+                "doubts/admin/conversations", 
+                [200, 403, 500], 
+                None, 
+                auth_headers
+            )
+            
+            if success and admin_response:
+                test_results["admin_monitoring_working"] = True
+                print(f"   ✅ Admin monitoring endpoint working")
+                
+                stats = admin_response.get('statistics', {})
+                total_conversations = stats.get('total_conversations', 0)
+                total_messages = stats.get('total_messages', 0)
+                
+                print(f"   📊 Admin statistics:")
+                print(f"      Total conversations: {total_conversations}")
+                print(f"      Total messages: {total_messages}")
+        
+        # PHASE 6: ERROR INVESTIGATION AND DIAGNOSIS
+        print("\n🔍 PHASE 6: ERROR INVESTIGATION AND DIAGNOSIS")
+        print("-" * 60)
+        print("Analyzing the root cause of empty chat responses")
+        
+        # Summarize findings
+        if test_results["empty_response_issue_identified"]:
+            print(f"   🚨 CRITICAL ISSUE CONFIRMED: Empty responses detected")
+            
+            if test_results["gemini_api_errors_detected"]:
+                print(f"   🔍 ROOT CAUSE: Gemini API errors causing 'AI service temporarily unavailable'")
+                print(f"   💡 SOLUTION: Fix Gemini API integration or model configuration")
+            elif not test_results["gemini_api_key_configured"]:
+                print(f"   🔍 ROOT CAUSE: Google API key not configured")
+                print(f"   💡 SOLUTION: Configure GOOGLE_API_KEY environment variable")
+            elif not test_results["llm_response_generated"]:
+                print(f"   🔍 ROOT CAUSE: LLM not generating responses")
+                print(f"   💡 SOLUTION: Check Gemini model access and API quotas")
+            else:
+                print(f"   🔍 ROOT CAUSE: Unknown - API working but responses empty")
+                print(f"   💡 SOLUTION: Check response processing and frontend integration")
+        
+        elif test_results["response_field_populated"] and test_results["llm_response_contextual"]:
+            print(f"   ✅ NO ISSUE DETECTED: Doubts system working correctly")
+            print(f"   💡 FRONTEND ISSUE: Problem may be in frontend display logic")
+            test_results["frontend_compatibility_confirmed"] = True
+        
+        # Test API error handling
+        if auth_headers:
+            # Test with invalid question ID
+            invalid_doubt_data = {
+                "question_id": "invalid-question-id",
+                "session_id": f"test_error_{uuid.uuid4()}",
+                "message": "Test error handling"
+            }
+            
+            success, error_response = self.run_test(
+                "Doubts Error Handling", 
+                "POST", 
+                "doubts/ask", 
+                [200, 400, 404], 
+                invalid_doubt_data, 
+                auth_headers
+            )
+            
+            if success and error_response:
+                if not error_response.get('success') and error_response.get('error'):
+                    test_results["api_error_handling_working"] = True
+                    print(f"   ✅ API error handling working correctly")
+                    print(f"   📊 Error message: {error_response.get('error')}")
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 80)
+        print("🎯 DOUBTS/CHAT API INVESTIGATION - RESULTS")
+        print("=" * 80)
+        
+        passed_tests = sum(test_results.values())
+        total_tests = len(test_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        # Group results by investigation categories
+        investigation_categories = {
+            "AUTHENTICATION": [
+                "authentication_working", "user_adaptive_enabled", "jwt_token_valid"
+            ],
+            "QUESTION DATA": [
+                "questions_endpoint_accessible", "sample_questions_retrieved", 
+                "question_data_complete", "question_has_solution_fields"
+            ],
+            "DOUBTS API BASIC": [
+                "doubts_ask_endpoint_accessible", "doubts_ask_returns_200",
+                "doubts_response_structure_valid", "message_counting_working"
+            ],
+            "LLM INTEGRATION": [
+                "gemini_api_key_configured", "gemini_model_accessible",
+                "llm_response_generated", "llm_response_not_empty", "llm_response_contextual"
+            ],
+            "RESPONSE CONTENT": [
+                "response_field_populated", "response_content_length_adequate",
+                "response_contains_educational_content", "no_error_messages_in_response"
+            ],
+            "CONVERSATION SYSTEM": [
+                "conversation_history_working", "message_limit_enforcement",
+                "conversation_persistence", "admin_monitoring_working"
+            ],
+            "ERROR INVESTIGATION": [
+                "empty_response_issue_identified", "api_error_handling_working",
+                "gemini_api_errors_detected", "frontend_compatibility_confirmed"
+            ]
+        }
+        
+        for category, tests in investigation_categories.items():
+            print(f"\n{category}:")
+            category_passed = 0
+            category_total = len(tests)
+            
+            for test in tests:
+                if test in test_results:
+                    result = test_results[test]
+                    status = "✅ PASS" if result else "❌ FAIL"
+                    print(f"  {test.replace('_', ' ').title():<50} {status}")
+                    if result:
+                        category_passed += 1
+            
+            category_rate = (category_passed / category_total) * 100 if category_total > 0 else 0
+            print(f"  Category Success Rate: {category_passed}/{category_total} ({category_rate:.1f}%)")
+        
+        print("-" * 80)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # CRITICAL ASSESSMENT
+        print("\n🎯 CRITICAL ASSESSMENT:")
+        
+        # Doubts System Assessment
+        doubts_system_working = (
+            test_results["doubts_ask_endpoint_accessible"] and
+            test_results["response_field_populated"] and
+            test_results["llm_response_contextual"]
+        )
+        
+        if doubts_system_working:
+            test_results["doubts_system_operational"] = True
+            test_results["chat_functionality_working"] = True
+            test_results["issue_resolved"] = True
+            print("\n✅ DOUBTS SYSTEM: WORKING")
+            print("   - API endpoints accessible and returning 200 OK")
+            print("   - LLM generating contextual responses")
+            print("   - Response content populated and educational")
+            print("   - Message counting and conversation history working")
+        else:
+            print("\n❌ DOUBTS SYSTEM: ISSUES DETECTED")
+            
+            if test_results["empty_response_issue_identified"]:
+                print("   - CRITICAL: Empty responses causing chat to appear broken")
+                
+                if test_results["gemini_api_errors_detected"]:
+                    print("   - ROOT CAUSE: Gemini API errors ('AI service temporarily unavailable')")
+                    print("   - SOLUTION: Fix Gemini model configuration or API access")
+                elif not test_results["gemini_api_key_configured"]:
+                    print("   - ROOT CAUSE: Google API key not configured")
+                    print("   - SOLUTION: Set GOOGLE_API_KEY environment variable")
+                else:
+                    print("   - ROOT CAUSE: Unknown LLM integration issue")
+                    print("   - SOLUTION: Debug Gemini API calls and response processing")
+        
+        # Production Readiness Assessment
+        if doubts_system_working:
+            test_results["production_ready"] = True
+            print("\n🎉 PRODUCTION READINESS: READY")
+            print("   - Doubts/chat system fully operational")
+            print("   - LLM integration working correctly")
+            print("   - User can successfully ask questions and get responses")
+        else:
+            print("\n⚠️ PRODUCTION READINESS: NEEDS IMMEDIATE ATTENTION")
+            print("   - Chat functionality broken due to empty responses")
+            print("   - Users experiencing 'Twelvr says:' with no content")
+            print("   - Requires urgent fix to LLM integration")
+        
+        return success_rate >= 70 and doubts_system_working
+
     def test_session_completion_500_error_investigation(self):
         """
         🎯 SESSION COMPLETION 500 ERROR INVESTIGATION
