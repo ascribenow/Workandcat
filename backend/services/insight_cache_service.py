@@ -88,31 +88,59 @@ class InsightCacheService:
             db.close()
     
     def get_pre_session_insight(self, user_id: str, session_id: str) -> Dict[str, Any]:
-        """Get pre-session insight with cache-first strategy"""
+        """Get pre-session insight with ULTRA-FAST memory + DB cache strategy"""
+        from time import time
+        start_time = time()
+        
+        # Level 1: In-memory cache (TARGET: <50ms)
+        memory_key = f"pre_session:{user_id}"
+        if memory_key in _memory_cache:
+            memory_timestamp = _cache_timestamps.get(memory_key)
+            if memory_timestamp and (time() - memory_timestamp) < 600:  # 10 minutes in-memory TTL
+                memory_time = (time() - start_time) * 1000
+                self.logger.debug(f"Pre-session memory cache hit for user {user_id[:8]} in {memory_time:.1f}ms")
+                result = _memory_cache[memory_key].copy()
+                result["source"] = "memory"
+                result["cache_time_ms"] = memory_time
+                return result
+        
+        # Level 2: Database cache 
         db = SessionLocal()
         try:
-            # Check cache first
             cache_entry = db.query(UserPreSessionInsights).filter(
                 UserPreSessionInsights.user_id == user_id
             ).first()
             
             # For pre-session, refresh daily or if no cache exists
             if cache_entry and self._is_cache_fresh(cache_entry.last_updated_at, hours=24):
+                cache_time = (time() - start_time) * 1000
+                
                 insight_card = cache_entry.insight_card.copy()
                 insight_card["last_updated_at"] = cache_entry.last_updated_at.isoformat()
-                insight_card["source"] = "cache"
+                insight_card["source"] = "db_cache"
+                insight_card["cache_time_ms"] = cache_time
+                
+                # Store in memory cache
+                _memory_cache[memory_key] = insight_card.copy()
+                _cache_timestamps[memory_key] = time()
+                
+                self.logger.debug(f"Pre-session DB cache hit for user {user_id[:8]} in {cache_time:.1f}ms")
                 return insight_card
             
-            # Cache is stale or missing - refresh
+            # Level 3: Fresh generation
+            fresh_time = time()
             result = self.refresh_pre_session_cache(user_id, session_id)
-            result["source"] = "fresh"
+            result["generation_time_ms"] = (time() - fresh_time) * 1000
+            
+            # Store in memory cache
+            _memory_cache[memory_key] = result.copy()
+            _cache_timestamps[memory_key] = time()
+            
             return result
             
         except Exception as e:
             self.logger.error(f"Error getting pre-session insight for user {user_id[:8]}: {e}")
-            fallback = self._empty_pre_session_response()
-            fallback["source"] = "fallback"
-            return fallback
+            return self._empty_pre_session_response()
         finally:
             db.close()
     
