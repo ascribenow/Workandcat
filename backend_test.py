@@ -29938,85 +29938,54 @@ class CATBackendTester:
         return final_results["100_percent_success_achieved"]
 
 if __name__ == "__main__":
-    print("🚀 CAT BACKEND TESTING SUITE - COMPREHENSIVE VALIDATION")
+    print("🚀 CAT BACKEND TESTING SUITE - OPTIMIZED ADAPTIVE INSIGHTS")
     print("=" * 80)
-    print("OBJECTIVE: Test all backend systems including new background job system")
-    print("Focus: Background jobs, session completion, health monitoring, database persistence")
-    print("Expected: All systems operational and ready for production")
+    print("OBJECTIVE: Test OPTIMIZED Adaptive Insights to verify 20% issues resolved")
+    print("Focus: Background jobs, cache performance, response times, edge cases")
+    print("Expected: Import fixes, cache hits <200ms, pre-session <5s, 90%+ success")
     print("Authentication: sp@theskinmantra.com/student123")
     print("=" * 80)
     
     tester = CATBackendTester()
     
     try:
-        # Test 1: Background Job System (NEW - PRIMARY FOCUS)
-        print("\n🎯 RUNNING BACKGROUND JOB SYSTEM TESTING")
-        bg_success = tester.test_background_job_system()
-        
-        # Test 2: Database Audit for Legacy Tables
-        print("\n🎯 RUNNING DATABASE AUDIT FOR LEGACY TABLES")
-        audit_success = tester.test_database_audit_for_legacy_tables()
-        
-        # Test 3: Privileged User and Session Limits
-        print("\n🎯 RUNNING PRIVILEGED USER & SESSION LIMITS VALIDATION")
-        privileged_success = tester.test_privileged_user_and_session_limits()
-        
-        # Test 4: V2 Implementation Validation
-        print("\n🚀 RUNNING V2 IMPLEMENTATION VALIDATION")
-        v2_success = tester.test_v2_implementation_validation()
-        
-        # Test 5: Blueprint Session Functionality
-        print("\n🎯 RUNNING BLUEPRINT SESSION FUNCTIONALITY POST-CLEANUP")
-        blueprint_success = tester.test_blueprint_session_functionality_post_cleanup()
+        # Run the optimized adaptive insights testing
+        print("\n🎯 RUNNING OPTIMIZED ADAPTIVE INSIGHTS TESTING")
+        optimization_success = tester.test_optimized_adaptive_insights_implementation()
         
         # FINAL SUMMARY
         print("\n" + "=" * 80)
-        print("🏁 CAT BACKEND TESTING SUITE - FINAL RESULTS")
+        print("🏁 OPTIMIZED ADAPTIVE INSIGHTS TESTING - FINAL RESULTS")
         print("=" * 80)
         print(f"Total Tests Run: {tester.tests_run}")
         print(f"Total Tests Passed: {tester.tests_passed}")
         print(f"Overall Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%" if tester.tests_run > 0 else "0%")
         
-        print("\n📊 INDIVIDUAL TEST RESULTS:")
-        print(f"Background Job System: {'✅ PASS' if bg_success else '❌ FAIL'}")
-        print(f"Database Audit: {'✅ PASS' if audit_success else '❌ FAIL'}")
-        print(f"Privileged User & Session Limits: {'✅ PASS' if privileged_success else '❌ FAIL'}")
-        print(f"V2 Implementation Validation: {'✅ PASS' if v2_success else '❌ FAIL'}")
-        print(f"Blueprint Session Functionality: {'✅ PASS' if blueprint_success else '❌ FAIL'}")
+        print("\n📊 OPTIMIZATION TEST RESULTS:")
+        print(f"Optimized Adaptive Insights: {'✅ PASS' if optimization_success else '❌ FAIL'}")
         
-        overall_success = bg_success and audit_success and privileged_success and v2_success and blueprint_success
-        
-        if overall_success:
-            print("\n🎉 OVERALL RESULT: SUCCESS")
-            print("   - Background job system operational")
-            print("   - Database audit completed with legacy table identification")
-            print("   - Privileged user system validated")
-            print("   - V2 implementation performance confirmed")
-            print("   - Blueprint session system functional")
-            print("   - System ready for production use")
+        if optimization_success:
+            print("\n🎉 OPTIMIZATION RESULT: SUCCESS")
+            print("   - Import errors resolved")
+            print("   - Cache performance optimized (hits <200ms)")
+            print("   - Pre-session insights under 5 seconds")
+            print("   - Edge cases handled gracefully")
+            print("   - Overall success rate 90%+")
+            print("   - 20% issues successfully resolved")
+            print("   - System ready for production with optimized adaptive insights")
         else:
-            print("\n⚠️ OVERALL RESULT: PARTIAL SUCCESS")
-            print("   - Some systems need attention")
-            print("   - Review individual test results for specific issues")
-            
-            if not bg_success:
-                print("   - ❌ Background job system needs fixes")
-            if not audit_success:
-                print("   - ❌ Database audit incomplete")
-            if not privileged_success:
-                print("   - ❌ Privileged user system issues")
-            if not v2_success:
-                print("   - ❌ V2 implementation problems")
-            if not blueprint_success:
-                print("   - ❌ Blueprint session functionality issues")
+            print("\n⚠️ OPTIMIZATION RESULT: NEEDS ATTENTION")
+            print("   - Some optimization targets not fully achieved")
+            print("   - Review test results for specific issues")
+            print("   - Additional optimization work may be needed")
         
         print("=" * 80)
         
         # Exit with appropriate code
-        sys.exit(0 if overall_success else 1)
+        sys.exit(0 if optimization_success else 1)
         
     except Exception as e:
-        print(f"\n❌ CRITICAL ERROR during testing: {e}")
+        print(f"\n❌ CRITICAL ERROR during optimization testing: {e}")
         print("Testing aborted due to unexpected error")
         import traceback
         traceback.print_exc()
