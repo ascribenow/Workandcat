@@ -1578,33 +1578,41 @@ class CATBackendTester:
         
         # FINAL RESULTS SUMMARY
         print("\n" + "=" * 80)
-        print("🎯 OPTIMIZED ADAPTIVE INSIGHTS TESTING - RESULTS")
+        print("🎯 ULTRA-OPTIMIZED ADAPTIVE INSIGHTS CACHE PERFORMANCE - RESULTS")
         print("=" * 80)
         
         passed_tests = sum(test_results.values())
         total_tests = len(test_results)
         success_rate = (passed_tests / total_tests) * 100
         
-        # Group results by optimization categories
-        optimization_categories = {
+        # Group results by ultra-fast cache categories
+        cache_categories = {
             "AUTHENTICATION": [
                 "authentication_working", "user_adaptive_enabled", "jwt_token_valid"
             ],
-            "BACKGROUND JOB FIXES": [
-                "simplified_job_handlers_import_working", "run_simplified_summarizer_exists",
-                "run_simplified_summarizer_functional", "plan_next_session_enqueues_update_insights", "job_pipeline_working"
+            "3-LEVEL CACHE STRATEGY": [
+                "level_1_memory_cache_under_50ms", "level_2_db_cache_under_200ms", 
+                "level_3_fresh_generation_working", "cache_level_progression_correct", "memory_cache_ttl_working"
             ],
-            "CACHE PERFORMANCE": [
-                "dashboard_insights_first_call_working", "dashboard_insights_second_call_working",
-                "cache_hit_significantly_faster", "cache_time_ms_included", "generation_time_ms_included", "cache_performance_optimized"
+            "DASHBOARD INSIGHTS PERFORMANCE": [
+                "dashboard_first_call_populates_cache", "dashboard_second_call_memory_hit",
+                "dashboard_third_call_memory_hit", "dashboard_memory_cache_under_50ms", "dashboard_cache_source_tracking"
             ],
-            "PRE-SESSION PERFORMANCE": [
-                "pre_session_insight_under_5_seconds", "pre_session_response_time_improved",
-                "optimized_data_extraction_used", "pre_session_performance_target_met"
+            "PRE-SESSION INSIGHTS PERFORMANCE": [
+                "pre_session_memory_cache_working", "pre_session_10min_ttl_working",
+                "pre_session_under_target_threshold", "pre_session_cache_source_correct", "pre_session_performance_optimized"
             ],
-            "EDGE CASE HANDLING": [
-                "cache_freshness_edge_cases_handled", "unauthorized_access_properly_blocked",
-                "graceful_degradation_working", "error_handling_improved"
+            "CACHE SOURCE VERIFICATION": [
+                "cache_source_field_present", "cache_time_ms_metric_included",
+                "generation_time_ms_metric_included", "memory_db_fresh_sources_working", "cache_metrics_accurate"
+            ],
+            "MEMORY CACHE CLEANUP & TTL": [
+                "memory_cache_cleanup_functional", "memory_cache_prevents_leaks",
+                "ttl_expiration_working", "cache_invalidation_working"
+            ],
+            "PERFORMANCE IMPROVEMENT": [
+                "baseline_952ms_improved", "target_200ms_achieved",
+                "79_percent_improvement_achieved", "95_percent_calls_under_200ms", "ultra_fast_performance_validated"
             ]
         }
         
