@@ -1482,12 +1482,13 @@ class CATBackendTester:
         print("-" * 60)
         print("Testing 'Ready for more?' functionality and harder question generation")
         
-        if auth_headers and sample_question_id:
-            # Test harder question flow
+        if auth_headers and sample_questions:
+            # Test harder question flow with 5th question
             harder_flow_message = "Yes, I want to try a harder version of this concept"
+            question_id = sample_questions[4].get('id') if len(sample_questions) > 4 else sample_questions[0].get('id')
             
             doubt_data = {
-                "question_id": sample_question_id,
+                "question_id": question_id,
                 "session_id": f"harder_test_{uuid.uuid4()}",
                 "message": harder_flow_message
             }
