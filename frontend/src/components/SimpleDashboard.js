@@ -21,6 +21,7 @@ export const SimpleDashboard = () => {
     if (user && token) {
       console.log('SimpleDashboard: User and token available, fetching data...');
       fetchDashboardData();
+      fetchAdaptiveInsights();
     } else {
       console.log('SimpleDashboard: Waiting for user/token...', { user: !!user, token: !!token });
     }
