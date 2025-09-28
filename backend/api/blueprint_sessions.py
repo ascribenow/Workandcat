@@ -14,11 +14,13 @@ import asyncpg
 from fastapi import APIRouter, HTTPException, Depends, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
-from sqlalchemy import text
+from sqlalchemy import text, select
 
 from auth import get_current_user
 from services.blueprint_planner import BlueprintSessionPlanner, create_blueprint_planner
-from database import get_async_compatible_db, get_database
+from database import get_async_compatible_db, get_database, SessionLocal, User
+from subscription_access_service import subscription_access_service
+from free_tier_session_service import free_tier_service
 import os
 
 logger = logging.getLogger(__name__)
