@@ -9,6 +9,12 @@ export const SimpleDashboard = () => {
   const [dashboardData, setDashboardData] = useState(null);
   const [categorizedData, setCategorizedData] = useState(null);
   const [expandedCategories, setExpandedCategories] = useState({}); // Track which categories are expanded
+  
+  // Adaptive insights state
+  const [adaptiveInsights, setAdaptiveInsights] = useState(null);
+  const [insightsLoading, setInsightsLoading] = useState(false);
+  const [allTimeExpanded, setAllTimeExpanded] = useState(false);  // Collapsed by default
+  const [recentExpanded, setRecentExpanded] = useState(true);    // Expanded for active users
 
   useEffect(() => {
     // Only fetch data if user is authenticated and token exists
