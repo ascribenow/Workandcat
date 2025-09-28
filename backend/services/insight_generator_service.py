@@ -288,66 +288,53 @@ Data: {json.dumps(slice_dict, indent=2)}
         return "Your recent work shows good consistency and engagement with the material. That steady practice rhythm is building the foundation for bigger breakthroughs ahead."
     
     def _fallback_pre_session_card(self, slice_dict: Dict[str, Any]) -> Dict[str, Any]:
-        """Deterministic fallback for pre-session card"""
+        """Deterministic fallback for pre-session card (coach voice)"""
         accuracy_series = slice_dict.get("accuracy_series", [])
         today_preview = slice_dict.get("today_preview", {})
         concept_shifts = slice_dict.get("concept_shifts", [])
-        coverage_change = slice_dict.get("coverage_change", {})
         window = slice_dict.get("window", 5)
         
-        # Generate basic progress sentence
+        # Coach voice progress based on accuracy
         if len(accuracy_series) >= 2:
             start_acc = accuracy_series[0]
-            end_acc = accuracy_series[-1] 
-            progress = f"Last {len(accuracy_series)}: accuracy {start_acc:.0%}→{end_acc:.0%}."
+            end_acc = accuracy_series[-1]
+            start_human = self._percent_to_human(start_acc)
+            end_human = self._percent_to_human(end_acc)
+            progress = f"Last {len(accuracy_series)}: {start_human} to {end_human} — steady work."
         elif len(accuracy_series) == 1:
-            progress = f"Last session: {accuracy_series[0]:.0%} accuracy."
+            acc_human = self._percent_to_human(accuracy_series[0])
+            progress = f"Last session: {acc_human} — good effort."
         else:
-            progress = "Ready for your next session."
+            progress = "Ready to build on your preparation so far."
         
-        # Generate way forward bullets (max 2, avoid duplicates)
+        # Coach voice way forward (max 2 bullets)
         way_forward = []
-        concepts_mentioned = set()
         
-        # Add concept-based bullets
-        for shift in concept_shifts[:1]:
-            concept = shift.get("concept", "")
-            if concept and concept not in concepts_mentioned:
-                if shift.get("delta_ready", "").startswith("+"):
-                    way_forward.append(f"Build on {concept} progress")
-                else:
-                    way_forward.append(f"Focus on {concept} concepts")
-                concepts_mentioned.add(concept)
+        if concept_shifts:
+            concept = concept_shifts[0].get("concept", "key areas")
+            status = concept_shifts[0].get("status", "")
+            if status == "Strong":
+                way_forward.append(f"Keep {concept} momentum going")
+            else:
+                way_forward.append(f"Work on {concept} fundamentals")
         
-        # Add coverage-based bullets if space and no duplicates
-        if len(way_forward) < 2 and coverage_change:
-            pair = coverage_change.get("pair", "")
-            if pair:
-                pair_concept = pair.split(":")[0] if ":" in pair else pair
-                if pair_concept not in concepts_mentioned:
-                    way_forward.append(f"Address {pair_concept} gaps")
+        # Add a second encouraging bullet
+        if len(way_forward) < 2:
+            way_forward.append("Stay focused and trust the process")
         
-        # Default bullet if nothing specific
-        if not way_forward:
-            way_forward.append("Continue building on recent progress")
-        
-        # Generate today preview
-        focus_concepts = today_preview.get("focus_concepts", [])
-        pyq15_count = today_preview.get("pyq15_count", 0)
-        pyq10_count = today_preview.get("pyq10_count", 0)
-        
-        today_parts = ["3E/6M/3H"]
-        if focus_concepts:
-            concepts_text = ", ".join(focus_concepts[:2])
-            today_parts.append(f"with {concepts_text}")
-        if pyq15_count or pyq10_count:
-            today_parts.append(f"{pyq15_count}×PYQ-1.5, {pyq10_count}×PYQ-1.0")
+        # Today's session preview (coach style)
+        focus_concepts = today_preview.get("focus_concepts", ["Quantitative Practice"])
+        today = f"Today: Mixed practice with {', '.join(focus_concepts[:2])}"
+        if len(focus_concepts) > 2:
+            today += " + more"
         
         return {
-            "title": "Ready to Learn 📚",
+            "title": "Let's Focus 🎯",
             "progress": progress,
-            "way_forward": way_forward[:2],  # Cap at 2 bullets
-            "today": "; ".join(today_parts) + "."
+            "way_forward": way_forward[:2],
+            "today": today,
+            "source": "fallback",
+            "prompt_version": "v1.0_fallback"
         }
     
     def _validate_card_format(self, card_data: Any) -> bool:
