@@ -1899,9 +1899,24 @@ async def get_current_session_status(user_id: str = Depends(get_current_user)):
 
 @app.get("/api/dashboard/adaptive-insights")
 async def get_dashboard_adaptive_insights(user_id: str = Depends(get_current_user)):
-    """Get adaptive insights for dashboard (all-time + recent momentum)"""
+    """Get adaptive insights for dashboard - BACKGROUND JOB ARCHITECTURE"""
     try:
         insights = insight_cache_service.get_dashboard_insights(user_id)
+        
+        # If no pre-computed insights available, trigger background job to generate them
+        if insights.get("source") == "awaiting_background_job":
+            try:
+                from services.bg_job_queue import job_queue
+                job_id = await job_queue.enqueue_job(
+                    job_type="UPDATE_INSIGHTS",
+                    user_id=user_id,
+                    session_id="dashboard-refresh"  # Special flag for dashboard-triggered refresh
+                )
+                logger.info(f"🔄 Triggered UPDATE_INSIGHTS job {job_id[:8]} for user {user_id[:8]} dashboard access")
+                insights["job_triggered"] = job_id
+            except Exception as job_error:
+                logger.warning(f"Failed to trigger insights job for user {user_id[:8]}: {job_error}")
+        
         return insights
     except Exception as e:
         logger.error(f"Error getting dashboard insights for user {user_id[:8]}: {e}")
