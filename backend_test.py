@@ -1146,11 +1146,12 @@ class CATBackendTester:
         
         AUTHENTICATION: sp@theskinmantra.com/student123
         """
-        print("🎯 OPTIMIZED ADAPTIVE INSIGHTS IMPLEMENTATION TESTING")
+        print("🎯 ULTRA-OPTIMIZED ADAPTIVE INSIGHTS CACHE PERFORMANCE TESTING")
         print("=" * 80)
-        print("OBJECTIVE: Test OPTIMIZED Adaptive Insights to verify 20% issues resolved")
-        print("FOCUS: Background jobs, cache performance, response times, edge cases")
-        print("EXPECTED: Import fixes, cache hits <200ms, pre-session <5s, 90%+ success")
+        print("OBJECTIVE: Test ULTRA-FAST 3-level cache strategy for sub-200ms response times")
+        print("FOCUS: Memory cache <50ms, DB cache <200ms, cache source tracking, TTL behavior")
+        print("EXPECTED: 95%+ calls under 200ms, memory cache hits <50ms, proper cache cleanup")
+        print("BASELINE: 952ms → TARGET: <200ms (79% improvement)")
         print("=" * 80)
         
         test_results = {
