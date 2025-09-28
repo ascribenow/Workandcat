@@ -1106,50 +1106,50 @@ class CATBackendTester:
         
         return success_rate >= 80 and criteria_rate >= 85
 
-    def test_coach_voice_implementation(self):
+    def test_natural_ask_twelvr_conversation_system(self):
         """
-        🎯 COACH VOICE IMPLEMENTATION TESTING
+        🎯 NATURAL ASK TWELVR CONVERSATION SYSTEM TESTING
         
-        Testing the COACH VOICE implementation for Adaptive Insights to verify the human, motivating language:
+        Testing the NEW NATURAL ASK TWELVR CONVERSATION SYSTEM to verify the rigid framework has been replaced with intelligent conversation:
         
-        **COACH VOICE TESTING:**
+        **NATURAL CONVERSATION TESTING:**
         
-        1. **LLM Prompt Transformation**:
-           - Test dashboard insights (/api/dashboard/adaptive-insights) for coach voice tone
-           - Verify insights use "about 6 out of 10 correct" instead of "58%" 
-           - Check for encouraging, human language (no database log style)
-           - Verify removal of bullets, tables, technical formatting
+        1. **Rigid System Removal**:
+           - Verify old mode detection system (Mode 1/2/3) has been removed
+           - Test that complex pattern matching and forced response formats are gone
+           - Check that rigid headings and structured templates are eliminated
         
-        2. **Human Language Conversion**:
-           - Test that percentages are converted to human-friendly format
-           - Verify "x out of 10 correct" appears instead of decimals/percentages
-           - Check that technical deltas and scores are removed
-           - Test post-processing sanitization working
+        2. **Natural Conversation Implementation**:
+           - Test POST /api/doubts/ask endpoint with natural questions
+           - Verify responses use natural system prompt instead of rigid modes
+           - Check that LLM can intelligently determine conversation flow
+           - Test conversational context handling without forced categories
         
-        3. **Coach Voice Content**:
-           - Verify insights read like a coach talking to trainee (not robotic)
-           - Check for narrative storytelling instead of data dumps
-           - Test for encouragement, guidance, and recognition in language
-           - Verify concepts use human-readable labels (from concept mapping)
+        3. **Example Natural Conversations**:
+           - Test: "I'm confused about this problem. Can you help me understand what's going on?"
+           - Test: "Why did we use the formula V = (1/3)πr²h here?"
+           - Test: "Can you explain this step in simpler terms?"
+           - Test: "I got this wrong, what did I miss?"
         
-        4. **Fallback Methods**:
-           - Test fallback responses also use coach voice
-           - Verify deterministic fallbacks are encouraging and human
-           - Check that fallbacks avoid technical language
+        4. **Response Quality**:
+           - Verify responses sound natural and conversational (not templated)
+           - Check that LLM provides helpful explanations without rigid structure
+           - Test that context is used intelligently when relevant
+           - Verify no forced headings like "### What that step is doing"
         
-        5. **Pre-session Cards**:
-           - Test pre-session insight cards use coach voice JSON format
-           - Verify "progress", "way_forward", "today" fields are human-friendly
-           - Check title uses encouraging emoji and short phrase
+        5. **System Prompt Verification**:
+           - Confirm new natural system prompt is being used
+           - Test that responses are encouraging and supportive like a good teacher
+           - Verify explanations are clear without being condescending
         
         **Expected Results:**
-        - All insights should sound like a personal coach speaking
-        - No technical percentages, decimals, or database-style output
-        - Language should be encouraging, narrative, and motivating
-        - Human-readable concept labels throughout
-        - "About X out of 10 correct" format consistently used
+        - All rigid mode detection and structured responses removed
+        - Natural, intelligent conversation that adapts to student needs
+        - LLM-driven responses that are helpful and conversational
+        - Context awareness without forced categorization
+        - Encouraging, teacher-like personality in responses
         
-        Test with sp@theskinmantra.com/student123 and verify the transformation from robotic to coach voice is complete.
+        Test with sp@theskinmantra.com/student123 using a real question ID from the database.
         
         AUTHENTICATION: sp@theskinmantra.com/student123
         """
