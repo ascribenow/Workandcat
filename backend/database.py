@@ -407,7 +407,7 @@ class UserDashboardInsights(Base):
     user_id = Column(String(36), ForeignKey("users.id"), primary_key=True)
     all_time_insights = Column(JSON, nullable=False)
     recent_insights = Column(JSON, nullable=False)
-    last_updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    last_updated_at = Column(DateTime, default=lambda: ist_to_utc(now_ist()))
     
     # Relationship
     user = relationship("User", foreign_keys=[user_id])
@@ -419,7 +419,7 @@ class UserPreSessionInsights(Base):
     
     user_id = Column(String(36), ForeignKey("users.id"), primary_key=True)
     insight_card = Column(JSON, nullable=False)
-    last_updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    last_updated_at = Column(DateTime, default=lambda: ist_to_utc(now_ist()))
     
     # Relationship
     user = relationship("User", foreign_keys=[user_id])
