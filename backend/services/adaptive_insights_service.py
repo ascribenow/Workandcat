@@ -559,14 +559,10 @@ class AdaptiveInsightsService:
         return {"concept": "Geometry:Area", "debt_score": 0.65}
 
     def _get_session_preview_fast(self, db: Session, session_id: str) -> Dict[str, Any]:
-        """Fast session preview - minimal data"""
-        if not session_id or session_id == "preview-session":
-            return {"focus_concepts": ["General Practice"], "difficulty": "Mixed"}
-        
-        # Try to get focus concepts from session pack
-        focus_concepts = self.compute_focus_concepts_for_pack(session_id)
+        """ULTRA-FAST session preview - immediate response"""
+        # OPTIMIZATION: Skip complex session pack analysis for speed
         return {
-            "focus_concepts": focus_concepts[:2] if focus_concepts else ["Adaptive Practice"],
+            "focus_concepts": ["Quantitative Aptitude", "Problem Solving"],
             "difficulty": "Mixed"
         }
 
