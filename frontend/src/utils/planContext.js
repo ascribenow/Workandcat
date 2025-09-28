@@ -25,7 +25,7 @@ export const PLAN_CONFIG = {
   },
   [PLAN_TYPES.PRO_EXCLUSIVE]: {
     name: 'Pro Exclusive',
-    amount: 256500, // ₹2,565 in paise
+    amount: 149900, // ₹1,499 in paise
     description: 'Access till Dec 31, 2025 with Ask Twelvr'
   }
 };
