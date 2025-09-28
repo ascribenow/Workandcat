@@ -1218,7 +1218,7 @@ class CATBackendTester:
             "password": "student123"
         }
         
-        success, response = self.run_test("Optimization Authentication", "POST", "auth/login", [200, 401], auth_data)
+        success, response = self.run_test("Ultra-Fast Cache Authentication", "POST", "auth/login", [200, 401], auth_data)
         
         auth_headers = None
         user_id = None
