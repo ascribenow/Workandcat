@@ -316,8 +316,23 @@ Data: {json.dumps(slice_dict, indent=2)}
     
     def _fallback_all_time_markdown(self, slice_dict: Dict[str, Any]) -> str:
         """Deterministic fallback for all-time insights (coach voice)"""
-        sessions = slice_dict.get('total_sessions', 'several')
-        return f"""You've put in solid work across {sessions} sessions, and that consistency is your biggest win right now. The fundamentals are settling in, and you're getting comfortable with different question styles. This steady rhythm is exactly what builds CAT readiness—keep the momentum going."""
+        total_sessions = slice_dict.get('total_sessions', 0)
+        accuracy_series = slice_dict.get('accuracy_series', [])
+        
+        # Create coach voice based on actual data
+        if accuracy_series and len(accuracy_series) >= 2:
+            start_acc = accuracy_series[0]
+            end_acc = accuracy_series[-1]
+            start_human = self._percent_to_human(start_acc)
+            end_human = self._percent_to_human(end_acc)
+            
+            if end_acc > start_acc:
+                return f"Your journey has been impressive! You started around {start_human} and you're now hitting {end_human}. That upward trend shows your hard work is paying off. The concepts are clicking, and your problem-solving approach is getting sharper. Keep this momentum—you're building exactly the skills CAT demands."
+            else:
+                return f"You've tackled {total_sessions} sessions with determination, moving from {start_human} to {end_human}. While the numbers may look flat, you're actually working through tougher concepts now—that's growth. Your persistence through challenging material is exactly what separates good preparation from great preparation."
+        else:
+            sessions_text = f"{total_sessions} sessions" if total_sessions > 0 else "your practice sessions"
+            return f"You've built a solid foundation through {sessions_text} of consistent work. Every question you've tackled has taught you something new about problem-solving patterns. That steady rhythm you've established is your secret weapon—keep trusting the process."
     
     def _fallback_recent_markdown(self, slice_dict: Dict[str, Any]) -> str:
         """Deterministic fallback for recent insights (coach voice)"""
