@@ -56,7 +56,8 @@ class InsightGeneratorService:
             
             if response and len(response.strip()) > 10:
                 self._track_llm_usage(slice_dict.get("user_id", ""), "dashboard")
-                return response.strip()
+                # COACH VOICE: Sanitize any technical formatting
+                return self._sanitize_coach_response(response.strip())
             else:
                 return self._fallback_all_time_markdown(slice_dict)
                 
