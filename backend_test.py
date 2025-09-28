@@ -1257,30 +1257,28 @@ class CATBackendTester:
             print("   ❌ Authentication failed - cannot proceed with enhanced Ask Twelvr testing")
             return False
         
-        # Get a sample question for testing
-        print("\n📋 Getting sample question for enhanced context testing...")
-        sample_question_id = None
-        sample_question_data = None
+        # Get multiple sample questions for testing (to avoid message limits)
+        print("\n📋 Getting sample questions for enhanced context testing...")
+        sample_questions = []
         if auth_headers:
             success, questions_response = self.run_test(
                 "Sample Questions Retrieval", 
                 "GET", 
-                "questions?limit=1", 
+                "questions?limit=10", 
                 [200], 
                 None, 
                 auth_headers
             )
             
             if success and questions_response and len(questions_response) > 0:
-                sample_question_data = questions_response[0]
-                sample_question_id = sample_question_data.get('id')
+                sample_questions = questions_response[:6]  # Get 6 questions for different test phases
                 test_results["sample_question_retrieved"] = True
-                print(f"   ✅ Sample question retrieved: {sample_question_id}")
-                print(f"   📊 Question topic: {sample_question_data.get('subcategory', 'Unknown')}")
-                print(f"   📊 Question difficulty: {sample_question_data.get('difficulty_level', 'Unknown')}")
+                print(f"   ✅ Sample questions retrieved: {len(sample_questions)} questions")
+                for i, q in enumerate(sample_questions[:3]):
+                    print(f"   📊 Question {i+1}: {q.get('id')} - {q.get('subcategory', 'Unknown')}")
             else:
-                print("   ❌ Could not retrieve sample question - using fallback")
-                sample_question_id = "fallback-question-id"
+                print("   ❌ Could not retrieve sample questions - using fallbacks")
+                sample_questions = [{"id": f"fallback-question-{i}"} for i in range(6)]
         
         # PHASE 2: RICH CONTEXT PROVISION TESTING
         print("\n🧠 PHASE 2: RICH CONTEXT PROVISION TESTING")
