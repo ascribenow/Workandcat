@@ -398,6 +398,16 @@ async def validate_referral_code(request: dict, user_id: str = Depends(get_curre
         db.close()
 
 # Payment endpoints
+@app.get("/api/payments/plan-availability/{plan_type}")
+async def check_plan_availability(plan_type: str):
+    """Check if a subscription plan is available for purchase"""
+    try:
+        availability = subscription_service.check_plan_availability(plan_type)
+        return availability
+    except Exception as e:
+        logger.error(f"Plan availability check error: {e}")
+        raise HTTPException(status_code=500, detail="Plan availability check failed")
+
 @app.get("/api/payments/config")
 async def get_payment_config(user_id: str = Depends(get_current_user)):
     try:
