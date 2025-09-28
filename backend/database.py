@@ -433,7 +433,7 @@ class UserInsightDebug(Base):
     all_time_slice = Column(JSON, nullable=True)
     recent_slice = Column(JSON, nullable=True)
     pre_session_slice = Column(JSON, nullable=True)
-    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = Column(DateTime, default=lambda: ist_to_utc(now_ist()))
     
     # Relationship
     user = relationship("User", foreign_keys=[user_id])
