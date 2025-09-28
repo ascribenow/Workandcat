@@ -25,13 +25,46 @@ class InsightGeneratorService:
         return f"about {out_of_10} out of 10 correct"
     
     def _sanitize_coach_response(self, response: str) -> str:
-        """Remove any technical formatting that slipped through"""
+        """Remove any technical formatting that slipped through - ENHANCED"""
         if not response:
             return response
-        # Remove percentage signs and decimals
+            
         import re
-        response = re.sub(r'\d+\.\d+%?', lambda m: 'about half' if '.' in m.group() else m.group(), response)
-        response = re.sub(r'\d+%', lambda m: f"about {min(10, max(0, int(m.group()[:-1])//10))} out of 10", response)
+        
+        # Convert percentages to human format
+        def convert_percentage(match):
+            percent_str = match.group()
+            try:
+                if '.' in percent_str:
+                    # Handle decimals like "42.3%" or "0.42"
+                    num = float(percent_str.replace('%', ''))
+                    if num > 1:  # Assume it's already a percentage
+                        out_of_10 = max(0, min(10, round(num/10)))
+                    else:  # Assume it's a decimal like 0.42
+                        out_of_10 = max(0, min(10, round(num*10)))
+                else:
+                    # Handle whole percentages like "42%"
+                    num = int(percent_str.replace('%', ''))
+                    out_of_10 = max(0, min(10, round(num/10)))
+                return f"about {out_of_10} out of 10"
+            except:
+                return "about half"
+        
+        # Apply conversions
+        response = re.sub(r'\d+\.\d+%?', convert_percentage, response)
+        response = re.sub(r'\d+%', convert_percentage, response)
+        
+        # Remove bullet points and technical formatting
+        response = re.sub(r'^\s*[-*•]\s+', '', response, flags=re.MULTILINE)
+        response = re.sub(r'\*\*(.*?)\*\*', r'\1', response)  # Remove bold markdown
+        
+        # Remove technical deltas and scores
+        response = re.sub(r'\([+-]?\d+\.?\d*\s*(points?|delta?|score?)\)', '', response)
+        response = re.sub(r'[+-]?\d+\.?\d*\s*(points?|delta?|score?)', '', response)
+        
+        # Clean up extra whitespace
+        response = re.sub(r'\s+', ' ', response).strip()
+        
         return response
     
     def gen_all_time_markdown(self, slice_dict: Dict[str, Any]) -> str:
