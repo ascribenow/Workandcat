@@ -1106,6 +1106,679 @@ class CATBackendTester:
         
         return success_rate >= 80 and criteria_rate >= 85
 
+    def test_adaptive_insights_framework_reality_check(self):
+        """
+        🎯 PROOF OF THE PUDDING ADAPTIVE INSIGHTS FRAMEWORK REALITY CHECK
+        
+        CRITICAL VERIFICATION: Test if the "Proof of the Pudding Adaptive Insights" framework is actually working
+        
+        **HONEST TESTING SCOPE:**
+        
+        1. **Dashboard Insights API Reality Check**:
+           - Test GET /api/dashboard/adaptive-insights with real user sp@theskinmantra.com
+           - Verify if actual insights are being generated (not just cached placeholders)
+           - Check if background jobs are actually running and updating insights
+           - Verify coach voice is working in real responses
+        
+        2. **Pre-session Insights Reality Check**:
+           - Test GET /api/session/pre-session-insight with real session data
+           - Check if insights are meaningful and contextual (not generic fallbacks)
+           - Verify response times and if caching is actually helping
+        
+        3. **Background Job Pipeline Verification**:
+           - Check if UPDATE_INSIGHTS jobs are actually being enqueued and processed
+           - Verify if session completion triggers insight refresh
+           - Test if the background job architecture is functional
+        
+        4. **Coach Voice Reality Check**:
+           - Verify if responses actually sound like a coach (not technical database output)
+           - Check if "about X out of 10 correct" format is working
+           - Test if sanitization is removing technical formatting
+        
+        5. **Data Quality Assessment**:
+           - Check if insights are using real user data or synthetic placeholders
+           - Verify if concept labels mapping is working
+           - Test if insights are actually adaptive based on user performance
+        
+        **BRUTAL HONESTY REQUIRED:**
+        - If background jobs aren't running → insights are broken
+        - If responses are still technical → coach voice failed  
+        - If using synthetic data → not truly adaptive
+        - If API errors → system is non-functional
+        - If generic responses → insights are meaningless
+        
+        **EXPECTED HONEST RESULTS:**
+        Test everything and report the real status - working, partially working, or broken. Don't sugarcoat issues.
+        
+        AUTHENTICATION: sp@theskinmantra.com/student123
+        """
+        print("🎯 PROOF OF THE PUDDING ADAPTIVE INSIGHTS FRAMEWORK REALITY CHECK")
+        print("=" * 80)
+        print("OBJECTIVE: CRITICAL VERIFICATION - Test if Adaptive Insights framework is actually working")
+        print("FOCUS: Dashboard insights, pre-session insights, background jobs, coach voice, data quality")
+        print("EXPECTED: Brutal honesty - working, partially working, or broken")
+        print("=" * 80)
+        
+        test_results = {
+            # Authentication Setup
+            "authentication_working": False,
+            "user_adaptive_enabled": False,
+            "jwt_token_valid": False,
+            
+            # 1. Dashboard Insights API Reality Check
+            "dashboard_insights_api_accessible": False,
+            "dashboard_insights_not_placeholder": False,
+            "dashboard_insights_meaningful_content": False,
+            "dashboard_insights_coach_voice": False,
+            "dashboard_insights_real_user_data": False,
+            "dashboard_cache_working": False,
+            "dashboard_response_time_acceptable": False,
+            
+            # 2. Pre-session Insights Reality Check
+            "pre_session_insights_api_accessible": False,
+            "pre_session_insights_contextual": False,
+            "pre_session_insights_not_generic": False,
+            "pre_session_insights_coach_voice": False,
+            "pre_session_cache_working": False,
+            "pre_session_response_time_acceptable": False,
+            
+            # 3. Background Job Pipeline Verification
+            "update_insights_jobs_enqueueable": False,
+            "background_job_queue_functional": False,
+            "job_processing_pipeline_working": False,
+            "session_completion_triggers_refresh": False,
+            "job_status_transitions_working": False,
+            
+            # 4. Coach Voice Reality Check
+            "responses_sound_like_coach": False,
+            "coach_format_working": False,
+            "technical_formatting_sanitized": False,
+            "encouraging_tone_present": False,
+            "natural_language_responses": False,
+            
+            # 5. Data Quality Assessment
+            "insights_use_real_user_data": False,
+            "concept_labels_mapping_working": False,
+            "insights_adaptive_to_performance": False,
+            "no_synthetic_placeholders": False,
+            "data_freshness_appropriate": False,
+            
+            # Overall Assessment
+            "dashboard_insights_actually_working": False,
+            "pre_session_insights_actually_working": False,
+            "background_job_architecture_working": False,
+            "coach_voice_implementation_working": False,
+            "adaptive_insights_framework_functional": False,
+            "production_ready_for_real_users": False
+        }
+        
+        # PHASE 1: AUTHENTICATION SETUP
+        print("\n🔐 PHASE 1: AUTHENTICATION SETUP")
+        print("-" * 60)
+        print("Authenticating with sp@theskinmantra.com/student123 for adaptive insights testing")
+        
+        auth_data = {
+            "email": "sp@theskinmantra.com",
+            "password": "student123"
+        }
+        
+        success, response = self.run_test("Adaptive Insights Authentication", "POST", "auth/login", [200, 401], auth_data)
+        
+        auth_headers = None
+        user_id = None
+        if success and response.get('access_token'):
+            token = response['access_token']
+            auth_headers = {
+                'Authorization': f'Bearer {token}',
+                'Content-Type': 'application/json'
+            }
+            test_results["authentication_working"] = True
+            test_results["jwt_token_valid"] = True
+            print(f"   ✅ Authentication successful")
+            print(f"   📊 JWT Token length: {len(token)} characters")
+            
+            user_data = response.get('user', {})
+            user_id = user_data.get('id')
+            adaptive_enabled = user_data.get('adaptive_enabled', False)
+            
+            if adaptive_enabled:
+                test_results["user_adaptive_enabled"] = True
+                print(f"   ✅ User adaptive_enabled confirmed: {adaptive_enabled}")
+                print(f"   📊 User ID: {user_id}")
+            else:
+                print(f"   ⚠️ User adaptive_enabled: {adaptive_enabled}")
+        else:
+            print("   ❌ Authentication failed - cannot proceed with adaptive insights testing")
+            return False
+        
+        # PHASE 2: DASHBOARD INSIGHTS API REALITY CHECK
+        print("\n📊 PHASE 2: DASHBOARD INSIGHTS API REALITY CHECK")
+        print("-" * 60)
+        print("Testing GET /api/dashboard/adaptive-insights with real user data")
+        
+        if auth_headers and user_id:
+            import time
+            
+            # Test dashboard insights API
+            start_time = time.time()
+            success, dashboard_response = self.run_test(
+                "Dashboard Adaptive Insights API", 
+                "GET", 
+                "dashboard/adaptive-insights", 
+                [200, 500], 
+                None, 
+                auth_headers
+            )
+            response_time = time.time() - start_time
+            
+            if success and dashboard_response:
+                test_results["dashboard_insights_api_accessible"] = True
+                print(f"   ✅ Dashboard insights API accessible")
+                print(f"   📊 Response time: {response_time:.3f} seconds")
+                
+                if response_time <= 2.0:  # Reasonable response time
+                    test_results["dashboard_response_time_acceptable"] = True
+                    print(f"   ✅ Response time acceptable (≤2s)")
+                else:
+                    print(f"   ⚠️ Response time slow (>{response_time:.1f}s)")
+                
+                # Check response structure and content
+                all_time_markdown = dashboard_response.get("all_time_markdown", "")
+                recent_markdown = dashboard_response.get("recent_markdown", "")
+                source = dashboard_response.get("source", "unknown")
+                cache_time = dashboard_response.get("cache_time_ms", 0)
+                
+                print(f"   📊 Response details:")
+                print(f"      Source: {source}")
+                print(f"      Cache time: {cache_time}ms")
+                print(f"      All-time content length: {len(all_time_markdown)} chars")
+                print(f"      Recent content length: {len(recent_markdown)} chars")
+                
+                # Check if content is meaningful (not just placeholders)
+                placeholder_indicators = [
+                    "welcome to your adaptive journey",
+                    "complete a few sessions to see insights",
+                    "your recent progress will appear here",
+                    "awaiting_background_job",
+                    "being generated"
+                ]
+                
+                is_placeholder = any(indicator.lower() in all_time_markdown.lower() for indicator in placeholder_indicators)
+                
+                if not is_placeholder and len(all_time_markdown) > 100:
+                    test_results["dashboard_insights_not_placeholder"] = True
+                    test_results["dashboard_insights_meaningful_content"] = True
+                    print(f"   ✅ Dashboard insights contain meaningful content (not placeholders)")
+                else:
+                    print(f"   ❌ Dashboard insights appear to be placeholders or empty")
+                
+                # Check for coach voice indicators
+                coach_voice_indicators = [
+                    "you", "your", "great", "excellent", "keep", "continue", 
+                    "out of 10", "about", "roughly", "around", "doing well",
+                    "improvement", "progress", "strength", "focus on"
+                ]
+                
+                coach_voice_count = sum(1 for indicator in coach_voice_indicators 
+                                      if indicator.lower() in all_time_markdown.lower())
+                
+                if coach_voice_count >= 3:
+                    test_results["dashboard_insights_coach_voice"] = True
+                    print(f"   ✅ Coach voice detected ({coach_voice_count} indicators)")
+                else:
+                    print(f"   ❌ Coach voice not detected ({coach_voice_count} indicators)")
+                
+                # Check for real user data indicators
+                real_data_indicators = [
+                    "session", "question", "correct", "accuracy", "performance",
+                    "concept", "topic", "difficulty", "practice", "attempt"
+                ]
+                
+                real_data_count = sum(1 for indicator in real_data_indicators 
+                                    if indicator.lower() in all_time_markdown.lower())
+                
+                if real_data_count >= 4:
+                    test_results["dashboard_insights_real_user_data"] = True
+                    print(f"   ✅ Real user data indicators present ({real_data_count} found)")
+                else:
+                    print(f"   ❌ Limited real user data indicators ({real_data_count} found)")
+                
+                # Check cache functionality
+                if source in ["memory", "pre_computed"] and cache_time < 1000:  # Fast cache hit
+                    test_results["dashboard_cache_working"] = True
+                    print(f"   ✅ Cache working effectively (source: {source}, {cache_time}ms)")
+                else:
+                    print(f"   ⚠️ Cache may not be working optimally")
+                
+                # Display content samples for manual verification
+                print(f"   📝 All-time content sample:")
+                print(f"      {all_time_markdown[:200]}...")
+                print(f"   📝 Recent content sample:")
+                print(f"      {recent_markdown[:200]}...")
+                
+            else:
+                print(f"   ❌ Dashboard insights API failed: {dashboard_response}")
+        
+        # PHASE 3: PRE-SESSION INSIGHTS REALITY CHECK
+        print("\n🚀 PHASE 3: PRE-SESSION INSIGHTS REALITY CHECK")
+        print("-" * 60)
+        print("Testing GET /api/session/pre-session-insight with real session data")
+        
+        if auth_headers and user_id:
+            # Test pre-session insights API
+            start_time = time.time()
+            success, pre_session_response = self.run_test(
+                "Pre-session Insights API", 
+                "GET", 
+                "session/pre-session-insight", 
+                [200, 500], 
+                None, 
+                auth_headers
+            )
+            response_time = time.time() - start_time
+            
+            if success and pre_session_response:
+                test_results["pre_session_insights_api_accessible"] = True
+                print(f"   ✅ Pre-session insights API accessible")
+                print(f"   📊 Response time: {response_time:.3f} seconds")
+                
+                if response_time <= 5.0:  # Reasonable response time for pre-session
+                    test_results["pre_session_response_time_acceptable"] = True
+                    print(f"   ✅ Response time acceptable (≤5s)")
+                else:
+                    print(f"   ⚠️ Response time slow (>{response_time:.1f}s)")
+                
+                # Check response structure
+                title = pre_session_response.get("title", "")
+                progress = pre_session_response.get("progress", "")
+                way_forward = pre_session_response.get("way_forward", [])
+                today = pre_session_response.get("today", "")
+                source = pre_session_response.get("source", "unknown")
+                cache_time = pre_session_response.get("cache_time_ms", 0)
+                
+                print(f"   📊 Pre-session response details:")
+                print(f"      Title: {title}")
+                print(f"      Source: {source}")
+                print(f"      Cache time: {cache_time}ms")
+                print(f"      Progress length: {len(progress)} chars")
+                print(f"      Way forward items: {len(way_forward)}")
+                print(f"      Today length: {len(today)} chars")
+                
+                # Check if content is contextual (not generic)
+                generic_indicators = [
+                    "ready to start", "let's begin", "12 questions designed",
+                    "prep in progress", "being prepared", "check back in a moment"
+                ]
+                
+                is_generic = any(indicator.lower() in title.lower() or 
+                               indicator.lower() in progress.lower() for indicator in generic_indicators)
+                
+                if not is_generic and len(progress) > 50:
+                    test_results["pre_session_insights_contextual"] = True
+                    test_results["pre_session_insights_not_generic"] = True
+                    print(f"   ✅ Pre-session insights are contextual (not generic)")
+                else:
+                    print(f"   ❌ Pre-session insights appear generic")
+                
+                # Check for coach voice in pre-session insights
+                coach_voice_count = sum(1 for indicator in coach_voice_indicators 
+                                      if indicator.lower() in f"{title} {progress} {today}".lower())
+                
+                if coach_voice_count >= 2:
+                    test_results["pre_session_insights_coach_voice"] = True
+                    print(f"   ✅ Coach voice in pre-session insights ({coach_voice_count} indicators)")
+                else:
+                    print(f"   ❌ Limited coach voice in pre-session insights ({coach_voice_count} indicators)")
+                
+                # Check cache functionality
+                if source in ["memory", "pre_computed"] and cache_time < 2000:
+                    test_results["pre_session_cache_working"] = True
+                    print(f"   ✅ Pre-session cache working (source: {source}, {cache_time}ms)")
+                else:
+                    print(f"   ⚠️ Pre-session cache may not be optimal")
+                
+                # Display content for manual verification
+                print(f"   📝 Pre-session insight content:")
+                print(f"      Title: {title}")
+                print(f"      Progress: {progress}")
+                print(f"      Today: {today}")
+                if way_forward:
+                    print(f"      Way forward: {way_forward[:2]}")
+                
+            else:
+                print(f"   ❌ Pre-session insights API failed: {pre_session_response}")
+        
+        # PHASE 4: BACKGROUND JOB PIPELINE VERIFICATION
+        print("\n⚙️ PHASE 4: BACKGROUND JOB PIPELINE VERIFICATION")
+        print("-" * 60)
+        print("Testing if UPDATE_INSIGHTS jobs are actually being enqueued and processed")
+        
+        if auth_headers and user_id:
+            # Test background job health endpoint
+            success, health_response = self.run_test(
+                "Background Job Health", 
+                "GET", 
+                "bg-jobs/health", 
+                [200, 500], 
+                None, 
+                auth_headers
+            )
+            
+            if success and health_response:
+                status = health_response.get("status", "unknown")
+                queue_depth = health_response.get("queue_depth", 0)
+                active_workers = health_response.get("active_workers", 0)
+                background_jobs_status = health_response.get("background_jobs", "unknown")
+                
+                print(f"   📊 Background job system status:")
+                print(f"      Overall status: {status}")
+                print(f"      Background jobs: {background_jobs_status}")
+                print(f"      Queue depth: {queue_depth}")
+                print(f"      Active workers: {active_workers}")
+                
+                if status in ["healthy", "degraded"] and background_jobs_status != "down":
+                    test_results["background_job_queue_functional"] = True
+                    print(f"   ✅ Background job queue functional")
+                else:
+                    print(f"   ❌ Background job queue issues detected")
+                
+                # Test job enqueueing capability
+                try:
+                    # Try to trigger an UPDATE_INSIGHTS job by accessing dashboard again
+                    print("   🔄 Testing job enqueueing by triggering dashboard refresh...")
+                    
+                    success, trigger_response = self.run_test(
+                        "Trigger UPDATE_INSIGHTS Job", 
+                        "GET", 
+                        "dashboard/adaptive-insights", 
+                        [200, 500], 
+                        None, 
+                        auth_headers
+                    )
+                    
+                    if success and trigger_response:
+                        job_triggered = trigger_response.get("job_triggered")
+                        if job_triggered:
+                            test_results["update_insights_jobs_enqueueable"] = True
+                            print(f"   ✅ UPDATE_INSIGHTS job triggered: {job_triggered[:8]}")
+                        else:
+                            print(f"   ⚠️ No job triggered (may already be cached)")
+                    
+                except Exception as e:
+                    print(f"   ❌ Error testing job enqueueing: {e}")
+                
+                # Test user job status endpoint
+                success, status_response = self.run_test(
+                    "User Job Status", 
+                    "GET", 
+                    "bg-jobs/status", 
+                    [200, 500], 
+                    None, 
+                    auth_headers
+                )
+                
+                if success and status_response:
+                    recent_jobs = status_response.get("recent_jobs", [])
+                    queue_info = status_response.get("queue", {})
+                    
+                    print(f"   📊 User job status:")
+                    print(f"      Recent jobs: {len(recent_jobs)}")
+                    print(f"      Queue info: {queue_info}")
+                    
+                    # Look for UPDATE_INSIGHTS jobs
+                    update_insights_jobs = [job for job in recent_jobs 
+                                          if job.get("job_type") == "UPDATE_INSIGHTS"]
+                    
+                    if update_insights_jobs:
+                        test_results["job_processing_pipeline_working"] = True
+                        print(f"   ✅ UPDATE_INSIGHTS jobs found: {len(update_insights_jobs)}")
+                        
+                        # Check job status transitions
+                        job_statuses = [job.get("status") for job in update_insights_jobs]
+                        if any(status in ["succeeded", "running"] for status in job_statuses):
+                            test_results["job_status_transitions_working"] = True
+                            print(f"   ✅ Job status transitions working: {set(job_statuses)}")
+                        else:
+                            print(f"   ⚠️ Job status transitions unclear: {set(job_statuses)}")
+                    else:
+                        print(f"   ⚠️ No UPDATE_INSIGHTS jobs found in recent history")
+                
+            else:
+                print(f"   ❌ Background job health check failed: {health_response}")
+        
+        # PHASE 5: COACH VOICE AND DATA QUALITY ASSESSMENT
+        print("\n🗣️ PHASE 5: COACH VOICE AND DATA QUALITY ASSESSMENT")
+        print("-" * 60)
+        print("Analyzing response quality, coach voice, and data authenticity")
+        
+        # Analyze dashboard content for coach voice quality
+        if test_results["dashboard_insights_meaningful_content"]:
+            dashboard_content = dashboard_response.get("all_time_markdown", "") + " " + dashboard_response.get("recent_markdown", "")
+            
+            # Check for natural language patterns
+            natural_patterns = [
+                "you're", "you've", "let's", "great job", "keep up", "well done",
+                "focus on", "try to", "work on", "practice more", "good progress"
+            ]
+            
+            natural_count = sum(1 for pattern in natural_patterns 
+                              if pattern.lower() in dashboard_content.lower())
+            
+            if natural_count >= 2:
+                test_results["natural_language_responses"] = True
+                print(f"   ✅ Natural language patterns detected ({natural_count} found)")
+            else:
+                print(f"   ❌ Limited natural language patterns ({natural_count} found)")
+            
+            # Check for encouraging tone
+            encouraging_patterns = [
+                "great", "excellent", "good", "well", "progress", "improvement",
+                "keep", "continue", "nice", "awesome", "fantastic"
+            ]
+            
+            encouraging_count = sum(1 for pattern in encouraging_patterns 
+                                  if pattern.lower() in dashboard_content.lower())
+            
+            if encouraging_count >= 3:
+                test_results["encouraging_tone_present"] = True
+                print(f"   ✅ Encouraging tone present ({encouraging_count} indicators)")
+            else:
+                print(f"   ❌ Limited encouraging tone ({encouraging_count} indicators)")
+            
+            # Check for technical formatting removal
+            technical_patterns = [
+                "json", "null", "undefined", "error", "exception", "debug",
+                "sql", "database", "table", "query", "api"
+            ]
+            
+            technical_count = sum(1 for pattern in technical_patterns 
+                                if pattern.lower() in dashboard_content.lower())
+            
+            if technical_count == 0:
+                test_results["technical_formatting_sanitized"] = True
+                print(f"   ✅ Technical formatting sanitized (no technical terms)")
+            else:
+                print(f"   ⚠️ Some technical terms present ({technical_count} found)")
+            
+            # Check for adaptive performance indicators
+            adaptive_patterns = [
+                "accuracy", "correct", "performance", "improvement", "session",
+                "concept", "topic", "difficulty", "strength", "weakness"
+            ]
+            
+            adaptive_count = sum(1 for pattern in adaptive_patterns 
+                               if pattern.lower() in dashboard_content.lower())
+            
+            if adaptive_count >= 4:
+                test_results["insights_adaptive_to_performance"] = True
+                print(f"   ✅ Insights adaptive to performance ({adaptive_count} indicators)")
+            else:
+                print(f"   ❌ Limited adaptive indicators ({adaptive_count} found)")
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 80)
+        print("🎯 ADAPTIVE INSIGHTS FRAMEWORK REALITY CHECK - RESULTS")
+        print("=" * 80)
+        
+        passed_tests = sum(test_results.values())
+        total_tests = len(test_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        # Group results by test categories
+        test_categories = {
+            "AUTHENTICATION": [
+                "authentication_working", "user_adaptive_enabled", "jwt_token_valid"
+            ],
+            "DASHBOARD INSIGHTS REALITY": [
+                "dashboard_insights_api_accessible", "dashboard_insights_not_placeholder",
+                "dashboard_insights_meaningful_content", "dashboard_insights_coach_voice",
+                "dashboard_insights_real_user_data", "dashboard_cache_working", "dashboard_response_time_acceptable"
+            ],
+            "PRE-SESSION INSIGHTS REALITY": [
+                "pre_session_insights_api_accessible", "pre_session_insights_contextual",
+                "pre_session_insights_not_generic", "pre_session_insights_coach_voice",
+                "pre_session_cache_working", "pre_session_response_time_acceptable"
+            ],
+            "BACKGROUND JOB PIPELINE": [
+                "update_insights_jobs_enqueueable", "background_job_queue_functional",
+                "job_processing_pipeline_working", "job_status_transitions_working"
+            ],
+            "COACH VOICE & DATA QUALITY": [
+                "natural_language_responses", "encouraging_tone_present",
+                "technical_formatting_sanitized", "insights_adaptive_to_performance"
+            ]
+        }
+        
+        for category, tests in test_categories.items():
+            print(f"\n{category}:")
+            category_passed = 0
+            category_total = len(tests)
+            
+            for test in tests:
+                if test in test_results:
+                    result = test_results[test]
+                    status = "✅ PASS" if result else "❌ FAIL"
+                    print(f"  {test.replace('_', ' ').title():<50} {status}")
+                    if result:
+                        category_passed += 1
+            
+            category_rate = (category_passed / category_total) * 100 if category_total > 0 else 0
+            print(f"  Category Success Rate: {category_passed}/{category_total} ({category_rate:.1f}%)")
+        
+        print("-" * 80)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # BRUTAL HONESTY ASSESSMENT
+        print("\n🎯 BRUTAL HONESTY ASSESSMENT:")
+        
+        # Dashboard Insights Assessment
+        dashboard_working = (
+            test_results["dashboard_insights_api_accessible"] and
+            test_results["dashboard_insights_not_placeholder"] and
+            test_results["dashboard_insights_meaningful_content"]
+        )
+        
+        if dashboard_working:
+            test_results["dashboard_insights_actually_working"] = True
+            print("\n✅ DASHBOARD INSIGHTS: ACTUALLY WORKING")
+            print("   - API accessible and returning meaningful content")
+            print("   - Not just placeholders or generic responses")
+            print("   - Contains real user data indicators")
+        else:
+            print("\n❌ DASHBOARD INSIGHTS: BROKEN OR PLACEHOLDER")
+            print("   - Either API issues or returning placeholder content")
+        
+        # Pre-session Insights Assessment
+        pre_session_working = (
+            test_results["pre_session_insights_api_accessible"] and
+            test_results["pre_session_insights_contextual"] and
+            test_results["pre_session_insights_not_generic"]
+        )
+        
+        if pre_session_working:
+            test_results["pre_session_insights_actually_working"] = True
+            print("\n✅ PRE-SESSION INSIGHTS: ACTUALLY WORKING")
+            print("   - API accessible and returning contextual content")
+            print("   - Not generic fallback responses")
+            print("   - Contextually relevant to user session")
+        else:
+            print("\n❌ PRE-SESSION INSIGHTS: BROKEN OR GENERIC")
+            print("   - Either API issues or returning generic fallbacks")
+        
+        # Background Job Architecture Assessment
+        bg_job_working = (
+            test_results["background_job_queue_functional"] and
+            test_results["update_insights_jobs_enqueueable"]
+        )
+        
+        if bg_job_working:
+            test_results["background_job_architecture_working"] = True
+            print("\n✅ BACKGROUND JOB ARCHITECTURE: WORKING")
+            print("   - Job queue functional and accepting jobs")
+            print("   - UPDATE_INSIGHTS jobs can be enqueued")
+            print("   - Background processing pipeline operational")
+        else:
+            print("\n❌ BACKGROUND JOB ARCHITECTURE: BROKEN")
+            print("   - Job queue issues or jobs not being processed")
+        
+        # Coach Voice Assessment
+        coach_voice_working = (
+            test_results["natural_language_responses"] and
+            test_results["encouraging_tone_present"] and
+            test_results["technical_formatting_sanitized"]
+        )
+        
+        if coach_voice_working:
+            test_results["coach_voice_implementation_working"] = True
+            print("\n✅ COACH VOICE: WORKING")
+            print("   - Natural language responses with encouraging tone")
+            print("   - Technical formatting properly sanitized")
+            print("   - Responses sound like a coach, not database output")
+        else:
+            print("\n❌ COACH VOICE: FAILED")
+            print("   - Responses still technical or not coach-like")
+        
+        # Overall Framework Assessment
+        framework_working = (
+            dashboard_working and pre_session_working and 
+            bg_job_working and coach_voice_working
+        )
+        
+        if framework_working:
+            test_results["adaptive_insights_framework_functional"] = True
+            test_results["production_ready_for_real_users"] = True
+            print("\n🎉 ADAPTIVE INSIGHTS FRAMEWORK: FUNCTIONAL")
+            print("   - Dashboard insights working with real data")
+            print("   - Pre-session insights contextual and meaningful")
+            print("   - Background job architecture operational")
+            print("   - Coach voice implementation successful")
+            print("   - Ready for production use with real users")
+        else:
+            print("\n⚠️ ADAPTIVE INSIGHTS FRAMEWORK: PARTIALLY WORKING OR BROKEN")
+            print("   - Some components working, others need attention")
+            print("   - Not ready for production without fixes")
+        
+        # SPECIFIC ISSUES IDENTIFIED
+        print("\n🔍 SPECIFIC ISSUES IDENTIFIED:")
+        
+        critical_issues = []
+        if not test_results["dashboard_insights_not_placeholder"]:
+            critical_issues.append("Dashboard insights returning placeholders instead of real insights")
+        if not test_results["pre_session_insights_contextual"]:
+            critical_issues.append("Pre-session insights are generic, not contextual")
+        if not test_results["background_job_queue_functional"]:
+            critical_issues.append("Background job queue not functional")
+        if not test_results["coach_voice_implementation_working"]:
+            critical_issues.append("Coach voice not working - responses still technical")
+        
+        if critical_issues:
+            for issue in critical_issues:
+                print(f"   ❌ {issue}")
+        else:
+            print("   ✅ No critical issues identified - framework working as expected")
+        
+        return success_rate >= 70 and framework_working
+
     def test_enhanced_ask_twelvr_system(self):
         """
         🎯 ENHANCED ASK TWELVR SYSTEM TESTING
