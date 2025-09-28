@@ -3,6 +3,7 @@ import os
 import json
 import uuid
 import logging
+import re
 from typing import List, Dict, Any, Optional
 from datetime import datetime
 
@@ -40,6 +41,89 @@ if GOOGLE_API_KEY:
     logger.info("✅ Google Gemini configured for doubts system")
 else:
     logger.warning("⚠️ Google API key not found - doubts system will not work")
+
+router = APIRouter(prefix="/doubts")
+
+# Enhanced Ask Twelvr Mode Detection
+def detect_ask_twelvr_mode(user_message: str, has_context: bool) -> int:
+    """
+    Detect the mode for Ask Twelvr response:
+    1 = Session-Related Query
+    2 = Random/Off-Topic Query  
+    3 = Solution Step Explanation
+    """
+    text = user_message.lower().strip()
+    
+    # Mode 3: Solution Step Explanation patterns
+    SOLUTION_STEP_PATTERNS = [
+        r'[=≠≈≤≥<>]\s*[^?]*$',                    # equation-like line
+        r'[\d\w]\s*[\+\-×x\*/÷]\s*[\d\w]',        # arithmetic/algebra ops
+        r'(\bexplain\b|\bwhat does.*mean\b|\bwhy\b).*',
+        r'\bsubstitute|factor|expand|simplify|cross-?multiply|complete the square\b',
+        r'^\s*[a-zA-Z]\s*=.*\d',                  # variable equations
+        r'\bformula|equation|calculation|step\b',
+        r'\bi don\'t understand|help me with|what.*this.*mean\b'
+    ]
+    
+    # Mode 1: Session-Related patterns
+    SESSION_RELATED_PATTERNS = [
+        r'\b(this|current)\s+(question|problem|solution|approach)\b',
+        r'\boption\s+[A-D]\b|\bwhich option\b|\bright answer\b',
+        r'\bhow.*solve.*this\b|\bmethod.*this\b'
+    ]
+    
+    # Check for Mode 3 first (most specific)
+    if any(re.search(pattern, text) for pattern in SOLUTION_STEP_PATTERNS):
+        return 3
+    
+    # Check for Mode 1 (session-related)
+    if has_context and any(re.search(pattern, text) for pattern in SESSION_RELATED_PATTERNS):
+        return 1
+    
+    # Default to Mode 2 (off-topic)
+    return 2
+
+def get_enhanced_system_prompt() -> str:
+    """Get the enhanced Ask Twelvr system prompt"""
+    return """
+You are Ask Twelvr — a concise, friendly Quant tutor inside a modal for CAT prep.
+
+Your goals:
+1) Explain in simple terms first, then add the math explanation.
+2) Use layman analogies wherever possible (real-life parallels, everyday objects).
+3) Keep answers structured, encouraging, and easy to digest.
+4) Never alter session state; this modal is only a helper.
+
+RESPONSE MODES (detect automatically):
+
+MODE 1 — SESSION-RELATED QUERY
+Do:
+- Answer in context of that question.
+- Start with a plain-English explanation + simple analogy, then show the math.
+- Keep stepwise and structured.
+
+MODE 2 — RANDOM / OFF-TOPIC
+Do:
+- Give a very short, friendly answer.
+- Add a witty nudge back to the current question.
+
+MODE 3 — SOLUTION STEP EXPLANATION (PASTE & EXPLAIN)
+Hard rules:
+- Stay focused on that step.
+- Explain the step first in everyday language/analogy, then in math terms.
+- Tie to fundamental concept(s) — mention the "name" (e.g. distributive law).
+- Provide exactly one tiny practice item (non-MCQ, ~60s to solve) with its full solution.
+- This is **standalone in the modal**, not part of the main session.
+
+Output structure for Mode 3 (use these headings exactly):
+1) "### What that step is doing" — explain in layman terms first, then in math terms.
+2) "### The idea behind it" — 2–5 bullets, each with a simple analogy or tiny real-life example if possible.
+3) "### Try this (quick practice)" — one short, non-MCQ task.
+4) "### Solution (peek when ready)" — complete worked solution in 4–8 lines.
+5) "### Next?" — inviting line: "Want to try a slightly harder one?"
+
+Keep responses under 180 words for modal display.
+"""
 
 router = APIRouter(prefix="/doubts")
 
