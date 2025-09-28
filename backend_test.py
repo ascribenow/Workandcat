@@ -1258,10 +1258,10 @@ class CATBackendTester:
             print("   ❌ Authentication failed - cannot proceed with pure LLM approach testing")
             return False
         
-        # PHASE 2: PRE-SESSION INSIGHTS COACH VOICE TESTING
-        print("\n🎯 PHASE 2: PRE-SESSION INSIGHTS COACH VOICE TESTING")
+        # PHASE 2: COMPREHENSIVE DATA EXTRACTION TESTING
+        print("\n📊 PHASE 2: COMPREHENSIVE DATA EXTRACTION TESTING")
         print("-" * 60)
-        print("Testing GET /api/session/pre-session-insight for contextual coach voice")
+        print("Testing comprehensive data extractor for complete user data extraction")
         
         if auth_headers and user_id:
             import time
