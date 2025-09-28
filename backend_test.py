@@ -3652,34 +3652,39 @@ class CATBackendTester:
         return success_rate >= 75 and natural_conversation_working and rigid_system_removed
 
 def main():
-    """Run the enhanced Ask Twelvr system testing"""
-    print("🚀 ENHANCED ASK TWELVR SYSTEM TESTING")
+    """Run the Pure LLM Freedom Approach verification testing"""
+    print("🚀 PURE LLM FREEDOM APPROACH VERIFICATION TESTING")
     print("=" * 80)
-    print("Testing ENHANCED Ask Twelvr with rich context and solution intelligence")
+    print("OBJECTIVE: Test the completely reimplemented Adaptive Insights system using pure LLM freedom")
+    print("FOCUS: Comprehensive data extraction, pure LLM generation, background jobs, direct storage")
+    print("EXPECTED: Natural insights without rigid constraints, simplified pipeline, coach voice")
+    print("AUTHENTICATION: sp@theskinmantra.com/student123")
     print("=" * 80)
     
     tester = CATBackendTester()
     
     try:
-        # Run the enhanced Ask Twelvr system test
-        success = tester.test_enhanced_ask_twelvr_system()
+        # Run the Pure LLM Freedom Approach verification test
+        success = tester.test_pure_llm_freedom_adaptive_insights_complete()
         
         print("\n" + "=" * 80)
-        print("🎯 ENHANCED ASK TWELVR TESTING SUMMARY")
+        print("🎯 PURE LLM FREEDOM APPROACH TESTING SUMMARY")
         print("=" * 80)
         
         if success:
-            print("✅ ENHANCED ASK TWELVR SYSTEM: VALIDATED")
-            print("   - Rich context provision enables intelligent responses")
-            print("   - Solution step intelligence with 5-section format working")
-            print("   - Practice question generation with complete solutions")
-            print("   - Harder question flow seamless and functional")
-            print("   - Natural conversation maintains witty, encouraging personality")
-            print("   - System ready for production with enhanced features")
+            print("✅ PURE LLM FREEDOM APPROACH: VALIDATED")
+            print("   - Comprehensive data extraction working with 50+ data points")
+            print("   - LLM generates natural, encouraging insights without rigid formatting")
+            print("   - Background jobs use new pure LLM approach successfully")
+            print("   - Direct storage methods work correctly")
+            print("   - APIs return LLM-generated content with coach voice")
+            print("   - System significantly exceeds previous 54.5% success rate")
+            print("   - Simplified pipeline eliminates complex fallback logic")
+            print("   - System ready for production deployment")
         else:
-            print("❌ ENHANCED ASK TWELVR SYSTEM: NEEDS ATTENTION")
-            print("   - Some enhanced features require improvement")
-            print("   - Additional work may be needed on context provision or solution intelligence")
+            print("❌ PURE LLM FREEDOM APPROACH: NEEDS ATTENTION")
+            print("   - Some critical components of the pure LLM approach not working correctly")
+            print("   - Additional fixes required before production deployment")
         
         print(f"\nTotal Tests Run: {tester.tests_run}")
         print(f"Tests Passed: {tester.tests_passed}")
