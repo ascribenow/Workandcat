@@ -1640,6 +1640,49 @@ class CATBackendTester:
         
         return success_rate >= 75 and natural_conversation_working and rigid_system_removed
 
+def main():
+    """Run the natural Ask Twelvr conversation system testing"""
+    print("🚀 NATURAL ASK TWELVR CONVERSATION SYSTEM TESTING")
+    print("=" * 80)
+    print("Testing the NEW NATURAL conversation system replacing rigid Mode 1/2/3 framework")
+    print("=" * 80)
+    
+    tester = CATBackendTester()
+    
+    try:
+        # Run the natural conversation system test
+        success = tester.test_natural_ask_twelvr_conversation_system()
+        
+        print("\n" + "=" * 80)
+        print("🎯 NATURAL CONVERSATION TESTING SUMMARY")
+        print("=" * 80)
+        
+        if success:
+            print("✅ NATURAL ASK TWELVR CONVERSATION SYSTEM: WORKING")
+            print("   - Rigid Mode 1/2/3 framework successfully removed")
+            print("   - Natural conversation system implemented")
+            print("   - LLM intelligence working correctly")
+            print("   - Encouraging teacher personality confirmed")
+            print("   - System ready for production use")
+        else:
+            print("❌ NATURAL ASK TWELVR CONVERSATION SYSTEM: NEEDS ATTENTION")
+            print("   - Some aspects of natural conversation need improvement")
+            print("   - May require additional development work")
+        
+        print(f"\nTotal Tests Run: {tester.tests_run}")
+        print(f"Tests Passed: {tester.tests_passed}")
+        print(f"Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%")
+        
+        return success
+        
+    except Exception as e:
+        print(f"❌ Testing failed with error: {e}")
+        return False
+
+if __name__ == "__main__":
+    success = main()
+    exit(0 if success else 1)
+
     def test_coach_voice_implementation(self):
         """
         🎯 COACH VOICE IMPLEMENTATION TESTING
