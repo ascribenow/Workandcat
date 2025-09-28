@@ -193,6 +193,9 @@ export const SimpleDashboard = () => {
           </div>
         </div>
 
+        {/* Adaptive Insights Section */}
+        {renderAdaptiveInsights()}
+
         {/* Collapsible Categorized Taxonomy Table */}
         <div className="bg-white rounded-lg shadow">
           <div className="p-6">
