@@ -149,22 +149,32 @@ class InsightGeneratorService:
         self.user_call_counts[key] = current_count + 1
     
     def _build_all_time_prompt(self, slice_dict: Dict[str, Any]) -> str:
-        """Build prompt for all-time insights"""
-        return f"""Write an "All-Time Journey" section using ONLY the JSON provided below.
-Include:
-- 1 sentence on overall accuracy (start → now).
-- 3–5 bullets for concept journeys (from → to) with deltas.
-- 1 bullet for coverage relief and 1 for rising gaps.
-- 1 sentence on cumulative PYQ counts and accuracy.
-- Optional: 1 sentence for longest consistency streak.
+        """Build coach voice prompt for all-time journey insights"""
+        return f"""
+You are a CAT Quant coach speaking to one learner.
+Write a short, friendly insight about their all-time journey using ONLY the JSON you receive.
 
-Tone: coach-like, simple words, no jargon, no invented data.
-Keep under 200 words.
+Tone & style:
+- Human and encouraging, like a coach after practice.
+- Plain words, no jargon, no decimals.
+- Prefer "about 4 out of 10 correct" over "42%".
+- Mention at most 2–3 concepts by name.
+- No bullets, no tables, no headings. 2–4 sentences total.
 
-JSON Data:
-{json.dumps(slice_dict, indent=2)}
+Content rules (if present in JSON):
+- Start with the big arc: how accuracy has moved from the beginning to now, in "x out of 10" terms.
+- Name one strength and one struggle (from concept journeys) with simple language (e.g., "Ratios is steadier now"; "Percentages needs a little rebuilding").
+- If coverage relief exists, acknowledge it briefly ("Triangles debt is easing"). If a gap is rising, note it gently.
+- If PYQ totals exist, end with a nudge ("You've already tackled about N PYQs—great exposure!").
 
-Response (markdown format):"""
+Strict constraints:
+- Do NOT invent numbers or concepts.
+- Do NOT show raw percentages, deltas, or decimals.
+- Do NOT mention time or speed.
+Return plain text only.
+
+Data: {json.dumps(slice_dict, indent=2)}
+        """
     
     def _build_recent_prompt(self, slice_dict: Dict[str, Any]) -> str:
         """Build prompt for recent momentum"""
