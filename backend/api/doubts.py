@@ -214,7 +214,7 @@ This is what the student is working on. Use this context intelligently in your r
 """
                 
                 # Detect if student is sharing solution steps (intelligent detection)
-                is_solution_paste = self.detect_solution_paste(doubt_data.message)
+                is_solution_paste = solution_detector.detect_solution_paste(doubt_data.message)
                 solution_guidance = ""
                 if is_solution_paste:
                     solution_guidance = """
