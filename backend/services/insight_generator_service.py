@@ -160,6 +160,18 @@ class InsightGeneratorService:
                     # Parse JSON response
                     card_data = json.loads(response.strip())
                     if self._validate_card_format(card_data):
+                        # COACH VOICE: Sanitize each field in the JSON
+                        for field in ["progress", "today"]:
+                            if field in card_data and isinstance(card_data[field], str):
+                                card_data[field] = self._sanitize_coach_response(card_data[field])
+                        
+                        # Sanitize way_forward bullets
+                        if "way_forward" in card_data and isinstance(card_data["way_forward"], list):
+                            card_data["way_forward"] = [
+                                self._sanitize_coach_response(bullet) if isinstance(bullet, str) else bullet
+                                for bullet in card_data["way_forward"]
+                            ]
+                        
                         self._track_llm_usage(slice_dict.get("user_id", ""), "pre_session")
                         # Add source flag for debugging
                         card_data["source"] = "llm"
