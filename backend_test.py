@@ -1255,7 +1255,7 @@ class CATBackendTester:
             else:
                 print(f"   ⚠️ User adaptive_enabled: {adaptive_enabled}")
         else:
-            print("   ❌ Authentication failed - cannot proceed with final verification")
+            print("   ❌ Authentication failed - cannot proceed with pure LLM approach testing")
             return False
         
         # PHASE 2: PRE-SESSION INSIGHTS COACH VOICE TESTING
