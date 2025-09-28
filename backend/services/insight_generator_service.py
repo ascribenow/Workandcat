@@ -50,6 +50,11 @@ class InsightGeneratorService:
     def gen_recent_markdown(self, slice_dict: Dict[str, Any]) -> str:
         """Generate recent momentum markdown with LLM + fallback"""
         try:
+            # GLOBAL FALLBACK FEATURE FLAG
+            import os
+            if os.environ.get("INSIGHTS_FORCE_FALLBACK", "false").lower() == "true":
+                return self._fallback_recent_markdown(slice_dict)
+                
             # LLM cost control 
             if not self._should_use_llm(slice_dict.get("user_id", ""), "dashboard"):
                 return self._fallback_recent_markdown(slice_dict)
