@@ -1949,6 +1949,21 @@ async def get_pre_session_insight(
                 db.close()
         
         insight_card = insight_cache_service.get_pre_session_insight(user_id, session_id)
+        
+        # If no pre-computed insights available, trigger background job to generate them
+        if insight_card.get("source") == "awaiting_background_job":
+            try:
+                from services.bg_job_queue import job_queue
+                job_id = await job_queue.enqueue_job(
+                    job_type="UPDATE_INSIGHTS",
+                    user_id=user_id,
+                    session_id=session_id or "pre-session-refresh"
+                )
+                logger.info(f"🔄 Triggered UPDATE_INSIGHTS job {job_id[:8]} for user {user_id[:8]} pre-session access")
+                insight_card["job_triggered"] = job_id
+            except Exception as job_error:
+                logger.warning(f"Failed to trigger pre-session insights job for user {user_id[:8]}: {job_error}")
+        
         return insight_card
         
     except Exception as e:
