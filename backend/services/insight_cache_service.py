@@ -228,6 +228,9 @@ class InsightCacheService:
         except Exception as e:
             db.rollback()
             self.logger.error(f"Error refreshing dashboard cache for user {user_id[:8]}: {e}")
+            # Track failure for observability
+            from services.insights_metrics import insights_metrics
+            insights_metrics.increment_refresh_failures()
             return self._empty_dashboard_response()
         finally:
             db.close()
