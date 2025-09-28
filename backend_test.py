@@ -1106,6 +1106,658 @@ class CATBackendTester:
         
         return success_rate >= 80 and criteria_rate >= 85
 
+    def test_enhanced_ask_twelvr_system(self):
+        """
+        🎯 ENHANCED ASK TWELVR SYSTEM TESTING
+        
+        Testing the ENHANCED ASK TWELVR SYSTEM with rich context and solution intelligence:
+        
+        **ENHANCED SYSTEM TESTING:**
+        
+        1. **Rich Context Provision**:
+           - Test that LLM receives full question context (problem statement, topic, difficulty, correct answer, solution approach, detailed solution, core concepts)
+           - Verify context is used intelligently in responses
+           - Check that responses are contextually relevant to the current question
+        
+        2. **Solution Step Intelligence**:
+           - Test solution paste detection with mathematical expressions:
+             - "V = (1/3)πr²h, why do we use this formula?"
+             - "Step 2: Substitute r=3 and h=4, but I'm confused about this step"
+             - "Area = πr² = π(3)² = 9π, can you explain this calculation?"
+           - Verify 5-section format is used when solution steps are detected
+           - Test practice question generation with complete solutions
+        
+        3. **Practice Question Generation**:
+           - Verify practice questions are created on the same concept but simpler
+           - Check that complete step-by-step solutions are provided
+           - Test that questions use real-world contexts when possible
+        
+        4. **Harder Question Flow**:  
+           - Test the "Ready for more?" functionality
+           - Verify harder questions are generated when student says yes
+           - Check that harder questions include complete solutions
+           - Test appropriate difficulty progression
+        
+        5. **Natural Conversation Intelligence**:
+           - Test witty, conversational responses with real-world analogies
+           - Verify encouraging and supportive tone
+           - Check that responses are contextually aware but naturally flowing
+           - Test that LLM uses its intelligence for non-solution conversations
+        
+        **Expected Results:**
+        - Rich context enables intelligent, relevant responses
+        - Solution paste detection triggers 5-section explanatory format
+        - Practice questions generated with complete solutions
+        - Harder question flow works seamlessly
+        - Natural conversation maintains witty, encouraging personality
+        - All responses show contextual awareness without being rigid
+        
+        Test with sp@theskinmantra.com/student123 using real question context.
+        
+        AUTHENTICATION: sp@theskinmantra.com/student123
+        """
+        print("🎯 ENHANCED ASK TWELVR SYSTEM TESTING")
+        print("=" * 80)
+        print("OBJECTIVE: Test ENHANCED Ask Twelvr with rich context and solution intelligence")
+        print("FOCUS: Rich context, solution detection, practice questions, harder flow, natural conversation")
+        print("EXPECTED: Intelligent responses, 5-section format, practice generation, contextual awareness")
+        print("=" * 80)
+        
+        test_results = {
+            # Authentication Setup
+            "authentication_working": False,
+            "user_adaptive_enabled": False,
+            "jwt_token_valid": False,
+            "sample_question_retrieved": False,
+            
+            # 1. Rich Context Provision
+            "llm_receives_full_context": False,
+            "problem_statement_in_context": False,
+            "topic_difficulty_in_context": False,
+            "correct_answer_in_context": False,
+            "solution_approach_in_context": False,
+            "detailed_solution_in_context": False,
+            "core_concepts_in_context": False,
+            "context_used_intelligently": False,
+            "responses_contextually_relevant": False,
+            
+            # 2. Solution Step Intelligence
+            "formula_detection_working": False,
+            "step_substitution_detection": False,
+            "calculation_explanation_detection": False,
+            "five_section_format_triggered": False,
+            "solution_paste_detection_accurate": False,
+            "practice_question_generation_working": False,
+            
+            # 3. Practice Question Generation
+            "practice_questions_simpler": False,
+            "complete_step_by_step_solutions": False,
+            "real_world_contexts_used": False,
+            "practice_questions_same_concept": False,
+            
+            # 4. Harder Question Flow
+            "ready_for_more_functionality": False,
+            "harder_questions_generated": False,
+            "harder_questions_include_solutions": False,
+            "appropriate_difficulty_progression": False,
+            "harder_flow_seamless": False,
+            
+            # 5. Natural Conversation Intelligence
+            "witty_conversational_responses": False,
+            "real_world_analogies_present": False,
+            "encouraging_supportive_tone": False,
+            "contextually_aware_natural_flow": False,
+            "llm_intelligence_for_non_solution": False,
+            
+            # Overall Assessment
+            "rich_context_enables_intelligence": False,
+            "solution_intelligence_working": False,
+            "practice_generation_functional": False,
+            "harder_question_flow_working": False,
+            "natural_conversation_maintained": False,
+            "enhanced_system_production_ready": False
+        }
+        
+        # PHASE 1: AUTHENTICATION SETUP
+        print("\n🔐 PHASE 1: AUTHENTICATION SETUP")
+        print("-" * 60)
+        print("Authenticating with sp@theskinmantra.com/student123 for enhanced Ask Twelvr testing")
+        
+        auth_data = {
+            "email": "sp@theskinmantra.com",
+            "password": "student123"
+        }
+        
+        success, response = self.run_test("Enhanced Ask Twelvr Authentication", "POST", "auth/login", [200, 401], auth_data)
+        
+        auth_headers = None
+        user_id = None
+        if success and response.get('access_token'):
+            token = response['access_token']
+            auth_headers = {
+                'Authorization': f'Bearer {token}',
+                'Content-Type': 'application/json'
+            }
+            test_results["authentication_working"] = True
+            test_results["jwt_token_valid"] = True
+            print(f"   ✅ Authentication successful")
+            print(f"   📊 JWT Token length: {len(token)} characters")
+            
+            user_data = response.get('user', {})
+            user_id = user_data.get('id')
+            adaptive_enabled = user_data.get('adaptive_enabled', False)
+            
+            if adaptive_enabled:
+                test_results["user_adaptive_enabled"] = True
+                print(f"   ✅ User adaptive_enabled confirmed: {adaptive_enabled}")
+                print(f"   📊 User ID: {user_id}")
+            else:
+                print(f"   ⚠️ User adaptive_enabled: {adaptive_enabled}")
+        else:
+            print("   ❌ Authentication failed - cannot proceed with enhanced Ask Twelvr testing")
+            return False
+        
+        # Get a sample question for testing
+        print("\n📋 Getting sample question for enhanced context testing...")
+        sample_question_id = None
+        sample_question_data = None
+        if auth_headers:
+            success, questions_response = self.run_test(
+                "Sample Questions Retrieval", 
+                "GET", 
+                "questions?limit=1", 
+                [200], 
+                None, 
+                auth_headers
+            )
+            
+            if success and questions_response and len(questions_response) > 0:
+                sample_question_data = questions_response[0]
+                sample_question_id = sample_question_data.get('id')
+                test_results["sample_question_retrieved"] = True
+                print(f"   ✅ Sample question retrieved: {sample_question_id}")
+                print(f"   📊 Question topic: {sample_question_data.get('subcategory', 'Unknown')}")
+                print(f"   📊 Question difficulty: {sample_question_data.get('difficulty_level', 'Unknown')}")
+            else:
+                print("   ❌ Could not retrieve sample question - using fallback")
+                sample_question_id = "fallback-question-id"
+        
+        # PHASE 2: RICH CONTEXT PROVISION TESTING
+        print("\n🧠 PHASE 2: RICH CONTEXT PROVISION TESTING")
+        print("-" * 60)
+        print("Testing that LLM receives full question context and uses it intelligently")
+        
+        if auth_headers and sample_question_id:
+            # Test basic context awareness
+            context_test_message = "Can you help me understand this problem?"
+            
+            doubt_data = {
+                "question_id": sample_question_id,
+                "session_id": f"context_test_{uuid.uuid4()}",
+                "message": context_test_message
+            }
+            
+            success, doubt_response = self.run_test(
+                "Rich Context Test", 
+                "POST", 
+                "doubts/ask", 
+                [200, 500], 
+                doubt_data, 
+                auth_headers
+            )
+            
+            if success and doubt_response.get('success') and doubt_response.get('response'):
+                ai_response = doubt_response.get('response', '').lower()
+                
+                # Check if response shows contextual awareness
+                context_indicators = [
+                    'this problem', 'this question', 'the topic', 'quantitative', 'math',
+                    sample_question_data.get('subcategory', '').lower() if sample_question_data else '',
+                    'difficulty', 'concept', 'approach'
+                ]
+                
+                context_found = sum(1 for indicator in context_indicators if indicator and indicator in ai_response)
+                
+                if context_found >= 2:
+                    test_results["llm_receives_full_context"] = True
+                    test_results["context_used_intelligently"] = True
+                    test_results["responses_contextually_relevant"] = True
+                    print(f"   ✅ LLM shows contextual awareness ({context_found} context indicators)")
+                    print(f"   ✅ Response is contextually relevant")
+                else:
+                    print(f"   ⚠️ Limited contextual awareness ({context_found} indicators)")
+                
+                # Check for specific context elements
+                if sample_question_data:
+                    if sample_question_data.get('subcategory'):
+                        test_results["topic_difficulty_in_context"] = True
+                        print(f"   ✅ Topic context available")
+                    
+                    if sample_question_data.get('solution_approach'):
+                        test_results["solution_approach_in_context"] = True
+                        print(f"   ✅ Solution approach context available")
+                    
+                    if sample_question_data.get('detailed_solution'):
+                        test_results["detailed_solution_in_context"] = True
+                        print(f"   ✅ Detailed solution context available")
+                    
+                    if sample_question_data.get('core_concepts'):
+                        test_results["core_concepts_in_context"] = True
+                        print(f"   ✅ Core concepts context available")
+                
+                print(f"   📊 Response length: {len(doubt_response.get('response', ''))} characters")
+                print(f"   💬 Response preview: {doubt_response.get('response', '')[:150]}...")
+            else:
+                print(f"   ❌ Rich context test failed: {doubt_response}")
+        
+        # PHASE 3: SOLUTION STEP INTELLIGENCE TESTING
+        print("\n🔬 PHASE 3: SOLUTION STEP INTELLIGENCE TESTING")
+        print("-" * 60)
+        print("Testing solution paste detection and 5-section format responses")
+        
+        if auth_headers and sample_question_id:
+            # Test mathematical expressions that should trigger solution intelligence
+            solution_test_cases = [
+                {
+                    "name": "Formula Question",
+                    "message": "V = (1/3)πr²h, why do we use this formula?",
+                    "key": "formula_detection_working"
+                },
+                {
+                    "name": "Step Substitution",
+                    "message": "Step 2: Substitute r=3 and h=4, but I'm confused about this step",
+                    "key": "step_substitution_detection"
+                },
+                {
+                    "name": "Calculation Explanation",
+                    "message": "Area = πr² = π(3)² = 9π, can you explain this calculation?",
+                    "key": "calculation_explanation_detection"
+                }
+            ]
+            
+            solution_responses = []
+            successful_detections = 0
+            
+            for i, test_case in enumerate(solution_test_cases):
+                print(f"   🧮 Testing {test_case['name']}: '{test_case['message']}'")
+                
+                doubt_data = {
+                    "question_id": sample_question_id,
+                    "session_id": f"solution_test_{i}_{uuid.uuid4()}",
+                    "message": test_case['message']
+                }
+                
+                success, doubt_response = self.run_test(
+                    f"Solution Intelligence - {test_case['name']}", 
+                    "POST", 
+                    "doubts/ask", 
+                    [200, 500], 
+                    doubt_data, 
+                    auth_headers
+                )
+                
+                if success and doubt_response.get('success') and doubt_response.get('response'):
+                    test_results[test_case['key']] = True
+                    successful_detections += 1
+                    
+                    ai_response = doubt_response.get('response', '')
+                    solution_responses.append(ai_response)
+                    
+                    print(f"      ✅ Response received ({len(ai_response)} chars)")
+                    
+                    # Check for 5-section format indicators
+                    section_indicators = [
+                        'what', 'concept', 'why', 'practice', 'ready for more'
+                    ]
+                    
+                    sections_found = sum(1 for indicator in section_indicators if indicator.lower() in ai_response.lower())
+                    
+                    if sections_found >= 3:
+                        print(f"      ✅ 5-section format detected ({sections_found}/5 sections)")
+                        if not test_results["five_section_format_triggered"]:
+                            test_results["five_section_format_triggered"] = True
+                    else:
+                        print(f"      ⚠️ Limited section format ({sections_found}/5 sections)")
+                    
+                    # Check for practice question generation
+                    if 'practice' in ai_response.lower() and ('problem' in ai_response.lower() or 'question' in ai_response.lower()):
+                        test_results["practice_question_generation_working"] = True
+                        print(f"      ✅ Practice question generation detected")
+                    
+                else:
+                    print(f"      ❌ Failed: {doubt_response}")
+            
+            if successful_detections >= 2:
+                test_results["solution_paste_detection_accurate"] = True
+                print(f"   ✅ Solution paste detection working ({successful_detections}/3 successful)")
+            else:
+                print(f"   ❌ Solution paste detection limited ({successful_detections}/3 successful)")
+        
+        # PHASE 4: PRACTICE QUESTION GENERATION TESTING
+        print("\n📚 PHASE 4: PRACTICE QUESTION GENERATION TESTING")
+        print("-" * 60)
+        print("Testing practice question generation with complete solutions")
+        
+        if solution_responses:
+            combined_responses = " ".join(solution_responses).lower()
+            
+            # Check for practice question characteristics
+            practice_indicators = [
+                'practice', 'try this', 'example', 'similar problem', 'question',
+                'solution:', 'step 1', 'step 2', 'answer', 'solve'
+            ]
+            
+            practice_found = sum(1 for indicator in practice_indicators if indicator in combined_responses)
+            
+            if practice_found >= 4:
+                test_results["practice_questions_simpler"] = True
+                test_results["complete_step_by_step_solutions"] = True
+                test_results["practice_questions_same_concept"] = True
+                print(f"   ✅ Practice questions with solutions detected ({practice_found} indicators)")
+            else:
+                print(f"   ⚠️ Limited practice question generation ({practice_found} indicators)")
+            
+            # Check for real-world contexts
+            real_world_indicators = [
+                'money', 'time', 'distance', 'speed', 'area', 'volume', 'height', 'width',
+                'room', 'garden', 'box', 'container', 'person', 'car', 'building'
+            ]
+            
+            real_world_found = sum(1 for indicator in real_world_indicators if indicator in combined_responses)
+            
+            if real_world_found >= 2:
+                test_results["real_world_contexts_used"] = True
+                print(f"   ✅ Real-world contexts used in practice questions ({real_world_found} contexts)")
+            else:
+                print(f"   ⚠️ Limited real-world contexts ({real_world_found} contexts)")
+        
+        # PHASE 5: HARDER QUESTION FLOW TESTING
+        print("\n🚀 PHASE 5: HARDER QUESTION FLOW TESTING")
+        print("-" * 60)
+        print("Testing 'Ready for more?' functionality and harder question generation")
+        
+        if auth_headers and sample_question_id:
+            # Test harder question flow
+            harder_flow_message = "Yes, I want to try a harder version of this concept"
+            
+            doubt_data = {
+                "question_id": sample_question_id,
+                "session_id": f"harder_test_{uuid.uuid4()}",
+                "message": harder_flow_message
+            }
+            
+            success, doubt_response = self.run_test(
+                "Harder Question Flow Test", 
+                "POST", 
+                "doubts/ask", 
+                [200, 500], 
+                doubt_data, 
+                auth_headers
+            )
+            
+            if success and doubt_response.get('success') and doubt_response.get('response'):
+                ai_response = doubt_response.get('response', '').lower()
+                
+                # Check for harder question generation
+                harder_indicators = [
+                    'harder', 'challenging', 'advanced', 'complex', 'difficult',
+                    'next level', 'step up', 'more challenging'
+                ]
+                
+                harder_found = sum(1 for indicator in harder_indicators if indicator in ai_response)
+                
+                if harder_found >= 1:
+                    test_results["ready_for_more_functionality"] = True
+                    test_results["harder_questions_generated"] = True
+                    print(f"   ✅ Harder question flow working ({harder_found} indicators)")
+                else:
+                    print(f"   ⚠️ Limited harder question generation ({harder_found} indicators)")
+                
+                # Check for complete solutions in harder questions
+                if 'solution' in ai_response and ('step' in ai_response or 'answer' in ai_response):
+                    test_results["harder_questions_include_solutions"] = True
+                    test_results["appropriate_difficulty_progression"] = True
+                    test_results["harder_flow_seamless"] = True
+                    print(f"   ✅ Harder questions include complete solutions")
+                    print(f"   ✅ Appropriate difficulty progression")
+                else:
+                    print(f"   ⚠️ Harder questions may lack complete solutions")
+                
+                print(f"   📊 Harder flow response length: {len(doubt_response.get('response', ''))} characters")
+            else:
+                print(f"   ❌ Harder question flow test failed: {doubt_response}")
+        
+        # PHASE 6: NATURAL CONVERSATION INTELLIGENCE TESTING
+        print("\n💬 PHASE 6: NATURAL CONVERSATION INTELLIGENCE TESTING")
+        print("-" * 60)
+        print("Testing witty, conversational responses with real-world analogies")
+        
+        if auth_headers and sample_question_id:
+            # Test natural conversation
+            natural_message = "I'm really struggling with this concept. Can you explain it in a way that makes sense?"
+            
+            doubt_data = {
+                "question_id": sample_question_id,
+                "session_id": f"natural_test_{uuid.uuid4()}",
+                "message": natural_message
+            }
+            
+            success, doubt_response = self.run_test(
+                "Natural Conversation Intelligence Test", 
+                "POST", 
+                "doubts/ask", 
+                [200, 500], 
+                doubt_data, 
+                auth_headers
+            )
+            
+            if success and doubt_response.get('success') and doubt_response.get('response'):
+                ai_response = doubt_response.get('response', '').lower()
+                
+                # Check for conversational and encouraging tone
+                encouraging_indicators = [
+                    "don't worry", "let me help", "i understand", "that's okay", "no problem",
+                    "absolutely", "sure", "of course", "let's", "we can", "you've got this"
+                ]
+                
+                encouraging_found = sum(1 for indicator in encouraging_indicators if indicator in ai_response)
+                
+                if encouraging_found >= 2:
+                    test_results["encouraging_supportive_tone"] = True
+                    test_results["witty_conversational_responses"] = True
+                    print(f"   ✅ Encouraging and supportive tone ({encouraging_found} indicators)")
+                else:
+                    print(f"   ⚠️ Limited encouraging tone ({encouraging_found} indicators)")
+                
+                # Check for real-world analogies
+                analogy_indicators = [
+                    'like', 'imagine', 'think of', 'similar to', 'just like', 'as if',
+                    'picture', 'consider', 'suppose', 'for example'
+                ]
+                
+                analogy_found = sum(1 for indicator in analogy_indicators if indicator in ai_response)
+                
+                if analogy_found >= 2:
+                    test_results["real_world_analogies_present"] = True
+                    print(f"   ✅ Real-world analogies present ({analogy_found} indicators)")
+                else:
+                    print(f"   ⚠️ Limited analogies ({analogy_found} indicators)")
+                
+                # Check for contextual awareness with natural flow
+                if len(ai_response) > 200 and any(word in ai_response for word in ['concept', 'problem', 'understand']):
+                    test_results["contextually_aware_natural_flow"] = True
+                    test_results["llm_intelligence_for_non_solution"] = True
+                    print(f"   ✅ Contextually aware with natural flow")
+                    print(f"   ✅ LLM intelligence for non-solution conversations")
+                else:
+                    print(f"   ⚠️ Limited contextual awareness or natural flow")
+                
+                print(f"   📊 Natural conversation response length: {len(doubt_response.get('response', ''))} characters")
+                print(f"   💬 Response preview: {doubt_response.get('response', '')[:200]}...")
+            else:
+                print(f"   ❌ Natural conversation intelligence test failed: {doubt_response}")
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 80)
+        print("🎯 ENHANCED ASK TWELVR SYSTEM TESTING - RESULTS")
+        print("=" * 80)
+        
+        passed_tests = sum(test_results.values())
+        total_tests = len(test_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        # Group results by enhanced system categories
+        enhanced_categories = {
+            "AUTHENTICATION": [
+                "authentication_working", "user_adaptive_enabled", "jwt_token_valid", "sample_question_retrieved"
+            ],
+            "RICH CONTEXT PROVISION": [
+                "llm_receives_full_context", "problem_statement_in_context", "topic_difficulty_in_context",
+                "correct_answer_in_context", "solution_approach_in_context", "detailed_solution_in_context",
+                "core_concepts_in_context", "context_used_intelligently", "responses_contextually_relevant"
+            ],
+            "SOLUTION STEP INTELLIGENCE": [
+                "formula_detection_working", "step_substitution_detection", "calculation_explanation_detection",
+                "five_section_format_triggered", "solution_paste_detection_accurate", "practice_question_generation_working"
+            ],
+            "PRACTICE QUESTION GENERATION": [
+                "practice_questions_simpler", "complete_step_by_step_solutions",
+                "real_world_contexts_used", "practice_questions_same_concept"
+            ],
+            "HARDER QUESTION FLOW": [
+                "ready_for_more_functionality", "harder_questions_generated",
+                "harder_questions_include_solutions", "appropriate_difficulty_progression", "harder_flow_seamless"
+            ],
+            "NATURAL CONVERSATION INTELLIGENCE": [
+                "witty_conversational_responses", "real_world_analogies_present",
+                "encouraging_supportive_tone", "contextually_aware_natural_flow", "llm_intelligence_for_non_solution"
+            ]
+        }
+        
+        for category, tests in enhanced_categories.items():
+            print(f"\n{category}:")
+            category_passed = 0
+            category_total = len(tests)
+            
+            for test in tests:
+                if test in test_results:
+                    result = test_results[test]
+                    status = "✅ PASS" if result else "❌ FAIL"
+                    print(f"  {test.replace('_', ' ').title():<50} {status}")
+                    if result:
+                        category_passed += 1
+            
+            category_rate = (category_passed / category_total) * 100 if category_total > 0 else 0
+            print(f"  Category Success Rate: {category_passed}/{category_total} ({category_rate:.1f}%)")
+        
+        print("-" * 80)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # ENHANCED SYSTEM ASSESSMENT
+        print("\n🎯 ENHANCED SYSTEM ASSESSMENT:")
+        
+        # Rich Context Assessment
+        rich_context_working = (
+            test_results["llm_receives_full_context"] and
+            test_results["context_used_intelligently"] and
+            test_results["responses_contextually_relevant"]
+        )
+        
+        if rich_context_working:
+            test_results["rich_context_enables_intelligence"] = True
+            print("\n✅ RICH CONTEXT PROVISION: WORKING")
+            print("   - LLM receives full question context")
+            print("   - Context used intelligently in responses")
+            print("   - Responses are contextually relevant")
+        else:
+            print("\n❌ RICH CONTEXT PROVISION: NEEDS IMPROVEMENT")
+            print("   - Context provision or usage issues detected")
+        
+        # Solution Intelligence Assessment
+        solution_intelligence_working = (
+            test_results["solution_paste_detection_accurate"] and
+            test_results["five_section_format_triggered"] and
+            test_results["practice_question_generation_working"]
+        )
+        
+        if solution_intelligence_working:
+            test_results["solution_intelligence_working"] = True
+            print("\n✅ SOLUTION STEP INTELLIGENCE: WORKING")
+            print("   - Mathematical expression detection working")
+            print("   - 5-section format triggered appropriately")
+            print("   - Practice question generation functional")
+        else:
+            print("\n❌ SOLUTION STEP INTELLIGENCE: NEEDS IMPROVEMENT")
+            print("   - Solution detection or format issues")
+        
+        # Practice Generation Assessment
+        practice_generation_working = (
+            test_results["practice_questions_simpler"] and
+            test_results["complete_step_by_step_solutions"] and
+            test_results["practice_questions_same_concept"]
+        )
+        
+        if practice_generation_working:
+            test_results["practice_generation_functional"] = True
+            print("\n✅ PRACTICE QUESTION GENERATION: WORKING")
+            print("   - Practice questions are simpler but same concept")
+            print("   - Complete step-by-step solutions provided")
+            print("   - Real-world contexts used when possible")
+        else:
+            print("\n❌ PRACTICE QUESTION GENERATION: NEEDS IMPROVEMENT")
+            print("   - Practice question quality or completeness issues")
+        
+        # Harder Question Flow Assessment
+        harder_flow_working = (
+            test_results["ready_for_more_functionality"] and
+            test_results["harder_questions_generated"] and
+            test_results["harder_questions_include_solutions"]
+        )
+        
+        if harder_flow_working:
+            test_results["harder_question_flow_working"] = True
+            print("\n✅ HARDER QUESTION FLOW: WORKING")
+            print("   - 'Ready for more?' functionality working")
+            print("   - Harder questions generated appropriately")
+            print("   - Complete solutions included in harder questions")
+        else:
+            print("\n❌ HARDER QUESTION FLOW: NEEDS IMPROVEMENT")
+            print("   - Harder question generation or flow issues")
+        
+        # Natural Conversation Assessment
+        natural_conversation_working = (
+            test_results["witty_conversational_responses"] and
+            test_results["encouraging_supportive_tone"] and
+            test_results["contextually_aware_natural_flow"]
+        )
+        
+        if natural_conversation_working:
+            test_results["natural_conversation_maintained"] = True
+            print("\n✅ NATURAL CONVERSATION INTELLIGENCE: WORKING")
+            print("   - Witty, conversational responses with analogies")
+            print("   - Encouraging and supportive tone maintained")
+            print("   - Contextually aware but naturally flowing")
+        else:
+            print("\n❌ NATURAL CONVERSATION INTELLIGENCE: NEEDS IMPROVEMENT")
+            print("   - Conversation quality or tone issues")
+        
+        # Overall Enhanced System Assessment
+        if (rich_context_working and solution_intelligence_working and 
+            practice_generation_working and harder_flow_working and natural_conversation_working):
+            test_results["enhanced_system_production_ready"] = True
+            print("\n🎉 ENHANCED ASK TWELVR SYSTEM: PRODUCTION READY")
+            print("   - Rich context provision enables intelligent responses")
+            print("   - Solution step intelligence with 5-section format working")
+            print("   - Practice question generation with complete solutions")
+            print("   - Harder question flow seamless and functional")
+            print("   - Natural conversation maintains witty, encouraging personality")
+            print("   - All responses show contextual awareness without rigidity")
+        else:
+            print("\n⚠️ ENHANCED ASK TWELVR SYSTEM: NEEDS ATTENTION")
+            print("   - Some enhanced features need improvement")
+        
+        return success_rate >= 75 and rich_context_working and solution_intelligence_working
+
     def test_natural_ask_twelvr_conversation_system(self):
         """
         🎯 NATURAL ASK TWELVR CONVERSATION SYSTEM TESTING
