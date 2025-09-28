@@ -33498,19 +33498,19 @@ if __name__ == "__main__":
 
     def run_all_tests(self):
         """Run all available tests"""
-        print("🚀 STARTING FINAL VERIFICATION TESTING")
+        print("🚀 STARTING ADAPTIVE INSIGHTS FIXES VERIFICATION")
         print("=" * 80)
         
-        # Run the final verification test for the two specific tweaks
-        tweaks_success = self.test_session_record_creation_tweaks()
+        # Run the Adaptive Insights fixes verification test
+        insights_success = self.test_adaptive_insights_fixes_verification()
         
         print("\n" + "=" * 80)
-        print("🎯 FINAL VERIFICATION SUMMARY")
+        print("🎯 ADAPTIVE INSIGHTS FIXES VERIFICATION SUMMARY")
         print("=" * 80)
         
-        print(f"Session Record Creation & DateTime Usage Tweaks: {'✅ PASSED' if tweaks_success else '❌ FAILED'}")
+        print(f"Adaptive Insights Fixes Verification: {'✅ PASSED' if insights_success else '❌ FAILED'}")
         
-        overall_success = tweaks_success
+        overall_success = insights_success
         
         if overall_success:
             print("\n🎉 FINAL VERIFICATION PASSED - BOTH TWEAKS SUCCESSFULLY IMPLEMENTED!")
