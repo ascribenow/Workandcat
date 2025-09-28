@@ -1970,9 +1970,18 @@ async def get_pre_session_insight(
         logger.error(f"Error getting pre-session insight for user {user_id[:8]}: {e}")
         raise HTTPException(status_code=500, detail="Failed to load pre-session insight")
 
-@app.get("/api/dashboard/insights-metrics")  
-async def get_insights_cache_metrics(user_id: str = Depends(get_current_user)):
-    """Get cache metrics for observability (admin/debug use)"""
+@app.get("/api/insights/metrics")  
+async def get_insights_metrics():
+    """Minimal insights observability - two metrics only"""
+    try:
+        from services.insights_metrics import insights_metrics
+        return insights_metrics.get_metrics()
+    except Exception as e:
+        logger.error(f"Error getting insights metrics: {e}")
+        return {
+            "insights_cache_age_seconds": {"dashboard": 0, "pre_session": 0},
+            "insights_refresh_failures_total": 0
+        }
     try:
         metrics = insight_cache_service.get_cache_metrics()
         return metrics
