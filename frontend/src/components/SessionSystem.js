@@ -2345,11 +2345,14 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
                       {message.role === 'assistant' && (
                         <div className="text-sm font-medium mb-1" style={{ color: '#9ac026', fontFamily: 'Lato, sans-serif' }}>🤖 Twelvr says:</div>
                       )}
-                      <div className={`whitespace-pre-wrap`} style={{ 
+                      <div className={`${message.role === 'user' ? '' : ''}`} style={{ 
                         color: message.role === 'user' ? 'white' : '#545454',
                         fontFamily: 'Lato, sans-serif' 
                       }}>
-                        {message.content}
+                        {message.role === 'assistant' ? 
+                          renderEnhancedMessage(message.content) : 
+                          <div className="whitespace-pre-wrap">{message.content}</div>
+                        }
                       </div>
                       <div className={`text-xs mt-2`} style={{
                         color: message.role === 'user' ? 'rgba(255,255,255,0.8)' : '#999999',
