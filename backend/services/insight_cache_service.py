@@ -104,7 +104,7 @@ class InsightCacheService:
             db.close()
     
     def get_pre_session_insight(self, user_id: str, session_id: str) -> Dict[str, Any]:
-        """Get pre-session insight with ULTRA-FAST memory + DB cache strategy"""
+        """Get pre-session insight - BACKGROUND JOB ARCHITECTURE (fetch pre-computed JSON)"""
         from time import time
         start_time = time()
         
@@ -120,42 +120,39 @@ class InsightCacheService:
                 result["cache_time_ms"] = memory_time
                 return result
         
-        # Level 2: Database cache 
+        # Level 2: Database cache - FETCH PRE-COMPUTED INSIGHTS ONLY
         db = SessionLocal()
         try:
             cache_entry = db.query(UserPreSessionInsights).filter(
                 UserPreSessionInsights.user_id == user_id
             ).first()
             
-            # For pre-session, refresh daily or if no cache exists
-            if cache_entry and self._is_cache_fresh(cache_entry.last_updated_at, hours=24):
+            if cache_entry:
                 cache_time = (time() - start_time) * 1000
                 
                 insight_card = cache_entry.insight_card.copy()
                 insight_card["last_updated_at"] = cache_entry.last_updated_at.isoformat()
-                insight_card["source"] = "db_cache"
+                insight_card["source"] = "pre_computed"
                 insight_card["cache_time_ms"] = cache_time
                 
                 # Store in memory cache
                 _memory_cache[memory_key] = insight_card.copy()
                 _cache_timestamps[memory_key] = time()
                 
-                self.logger.debug(f"Pre-session DB cache hit for user {user_id[:8]} in {cache_time:.1f}ms")
+                self.logger.debug(f"Pre-computed pre-session insight fetched for user {user_id[:8]} in {cache_time:.1f}ms")
                 return insight_card
             
-            # Level 3: Fresh generation
-            fresh_time = time()
-            result = self.refresh_pre_session_cache(user_id, session_id)
-            result["generation_time_ms"] = (time() - fresh_time) * 1000
+            # No pre-computed insights available - return placeholder
+            # (Background job will eventually compute and store insights)
+            placeholder = self._empty_pre_session_response()
+            placeholder["source"] = "awaiting_background_job"
+            placeholder["message"] = "Your session insights are being prepared. Starting session now..."
             
-            # Store in memory cache
-            _memory_cache[memory_key] = result.copy()
-            _cache_timestamps[memory_key] = time()
-            
-            return result
+            self.logger.info(f"No pre-computed pre-session insight for user {user_id[:8]} - background job needed")
+            return placeholder
             
         except Exception as e:
-            self.logger.error(f"Error getting pre-session insight for user {user_id[:8]}: {e}")
+            self.logger.error(f"Error fetching pre-session insight for user {user_id[:8]}: {e}")
             return self._empty_pre_session_response()
         finally:
             db.close()
