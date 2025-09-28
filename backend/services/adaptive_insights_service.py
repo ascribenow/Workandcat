@@ -587,12 +587,20 @@ class AdaptiveInsightsService:
             return {"concept": "Practice Areas", "debt_score": 0.5}
 
     def _get_session_preview_fast(self, db: Session, session_id: str) -> Dict[str, Any]:
-        """ULTRA-FAST session preview - immediate response"""
-        # OPTIMIZATION: Skip complex session pack analysis for speed
-        return {
-            "focus_concepts": ["Quantitative Aptitude", "Problem Solving"],
-            "difficulty": "Mixed"
-        }
+        """Get real session preview for quality insights (background job context)"""
+        if not session_id or session_id == "preview-session":
+            return {"focus_concepts": ["General Practice"], "difficulty": "Mixed"}
+        
+        try:
+            # Get focus concepts from session pack questions
+            focus_concepts = self.compute_focus_concepts_for_pack(session_id)
+            return {
+                "focus_concepts": focus_concepts[:3] if focus_concepts else ["Adaptive Practice"],
+                "difficulty": "Mixed"
+            }
+        except Exception as e:
+            logger.warning(f"Session preview failed for {session_id}: {e}")
+            return {"focus_concepts": ["Quantitative Aptitude"], "difficulty": "Mixed"}
 
 # Global service instance
 adaptive_insights_service = AdaptiveInsightsService()
