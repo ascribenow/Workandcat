@@ -545,12 +545,24 @@ class AdaptiveInsightsService:
         return [float(r.acc or 0.0) for r in results] if results else [0.42, 0.38, 0.35]
 
     def _get_concept_shifts_minimal(self, db: Session, user_id: str, session_ids: List[str]) -> List[Dict[str, str]]:
-        """ULTRA-FAST concept shifts - minimal DB query"""
-        # OPTIMIZATION: Skip database query for speed, return synthetic meaningful data
-        return [
-            {"concept": "Time-Speed-Distance", "status": "Moderate"},
-            {"concept": "Arithmetic", "status": "Strong"}
-        ]
+        """Get real concept shifts for quality insights (background job context)"""
+        try:
+            query = text("""
+                SELECT ln.concept_norm, ln.readiness
+                FROM learner_notebook ln
+                WHERE ln.user_id = :user_id AND ln.concept_norm IS NOT NULL
+                ORDER BY ln.last_seen_at DESC
+                LIMIT 3
+            """)
+            
+            results = db.execute(query, {"user_id": user_id}).fetchall()
+            return [{"concept": r.concept_norm, "status": r.readiness} for r in results] if results else [
+                {"concept": "Time-Speed-Distance", "status": "Moderate"},
+                {"concept": "Arithmetic", "status": "Strong"}
+            ]
+        except Exception as e:
+            logger.warning(f"Concept shifts query failed for user {user_id[:8]}: {e}")
+            return [{"concept": "Mixed Practice", "status": "Learning"}]
 
     def _get_top_coverage_change_fast(self, db: Session, user_id: str, session_ids: List[str]) -> Dict[str, Any]:
         """ULTRA-FAST coverage change - skip DB for speed"""
