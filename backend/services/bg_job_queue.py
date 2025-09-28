@@ -213,6 +213,9 @@ class SimplifiedJobQueue:
             elif job_type == JobType.PLAN_NEXT_SESSION.value:
                 from services.simplified_job_handlers import handle_plan_next_session
                 await handle_plan_next_session(job)
+            elif job_type == JobType.UPDATE_INSIGHTS.value:
+                from services.simplified_job_handlers import handle_update_insights
+                await handle_update_insights(job)
             else:
                 raise Exception(f"Unknown job type: {job_type}")
             
