@@ -33018,55 +33018,54 @@ if __name__ == "__main__":
         return final_results["100_percent_success_achieved"]
 
 if __name__ == "__main__":
-    print("🚀 CAT BACKEND TESTING SUITE - NEW BACKGROUND JOB ARCHITECTURE")
+    print("🚀 ENHANCED ASK TWELVR SYSTEM TESTING")
     print("=" * 80)
-    print("OBJECTIVE: Test NEW BACKGROUND JOB ARCHITECTURE for Adaptive Insights")
-    print("Focus: Pre-computed JSON, ultra-fast responses <50ms, background job triggering")
-    print("Expected: Dramatic performance improvement, rich insights with restored token limits")
+    print("OBJECTIVE: Test ENHANCED Ask Twelvr with rich context and solution intelligence")
+    print("Focus: Rich context, solution detection, practice questions, harder flow, natural conversation")
+    print("Expected: Intelligent responses, 5-section format, practice generation, contextual awareness")
     print("Authentication: sp@theskinmantra.com/student123")
     print("=" * 80)
     
     tester = CATBackendTester()
     
     try:
-        # Run the new background job architecture testing
-        print("\n🎯 RUNNING NEW BACKGROUND JOB ARCHITECTURE TESTING")
-        architecture_success = tester.test_new_background_job_architecture_adaptive_insights()
+        # Run Enhanced Ask Twelvr System Test
+        print("\n🎯 RUNNING ENHANCED ASK TWELVR SYSTEM TESTING")
+        enhanced_test_passed = tester.test_enhanced_ask_twelvr_system()
         
         # FINAL SUMMARY
         print("\n" + "=" * 80)
-        print("🏁 NEW BACKGROUND JOB ARCHITECTURE TESTING - FINAL RESULTS")
+        print("🏁 ENHANCED ASK TWELVR TESTING - FINAL RESULTS")
         print("=" * 80)
         print(f"Total Tests Run: {tester.tests_run}")
         print(f"Total Tests Passed: {tester.tests_passed}")
         print(f"Overall Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%" if tester.tests_run > 0 else "0%")
         
-        print("\n📊 ARCHITECTURE TEST RESULTS:")
-        print(f"New Background Job Architecture: {'✅ PASS' if architecture_success else '❌ FAIL'}")
+        print("\n📊 ENHANCED SYSTEM TEST RESULTS:")
+        print(f"Enhanced Ask Twelvr System: {'✅ PASS' if enhanced_test_passed else '❌ FAIL'}")
         
-        if architecture_success:
-            print("\n🎉 ARCHITECTURE RESULT: SUCCESS")
-            print("   - ISSUE 1 RESOLVED: LLM token limits restored (400/350/200 tokens)")
-            print("   - ISSUE 2 IMPLEMENTED: Background job architecture working")
-            print("   - Ultra-fast responses <50ms achieved")
-            print("   - Pre-computed JSON fetching working")
-            print("   - Automatic UPDATE_INSIGHTS job triggering functional")
-            print("   - Dramatic performance improvement (95%+ from 960ms baseline)")
-            print("   - Rich, meaningful insights with restored token limits")
-            print("   - System ready for production with new architecture")
+        if enhanced_test_passed:
+            print("\n🎉 ENHANCED ASK TWELVR SYSTEM: VALIDATED")
+            print("   ✅ Rich context provision enables intelligent responses")
+            print("   ✅ Solution step intelligence with 5-section format working")
+            print("   ✅ Practice question generation with complete solutions")
+            print("   ✅ Harder question flow seamless and functional")
+            print("   ✅ Natural conversation maintains witty, encouraging personality")
+            print("   ✅ All responses show contextual awareness without rigidity")
+            print("   ✅ System ready for production with enhanced features")
         else:
-            print("\n⚠️ ARCHITECTURE RESULT: NEEDS ATTENTION")
-            print("   - Some architecture targets not fully achieved")
-            print("   - Review test results for specific issues")
-            print("   - Additional work may be needed on background jobs or token limits")
+            print("\n⚠️ ENHANCED ASK TWELVR SYSTEM: NEEDS ATTENTION")
+            print("   ❌ Some enhanced features require improvement")
+            print("   ❌ Review test results for specific issues")
+            print("   ❌ Additional work may be needed on context provision or solution intelligence")
         
         print("=" * 80)
         
         # Exit with appropriate code
-        sys.exit(0 if architecture_success else 1)
+        sys.exit(0 if enhanced_test_passed else 1)
         
     except Exception as e:
-        print(f"\n❌ CRITICAL ERROR during architecture testing: {e}")
+        print(f"\n❌ CRITICAL ERROR during enhanced Ask Twelvr testing: {e}")
         print("Testing aborted due to unexpected error")
         import traceback
         traceback.print_exc()
