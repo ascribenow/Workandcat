@@ -33513,15 +33513,15 @@ if __name__ == "__main__":
         overall_success = insights_success
         
         if overall_success:
-            print("\n🎉 FINAL VERIFICATION PASSED - BOTH TWEAKS SUCCESSFULLY IMPLEMENTED!")
-            print("✅ Session records created with race-safe sess_seq calculation using FOR UPDATE")
-            print("✅ All timestamps use server-side NOW() instead of Python datetime.utcnow()")
-            print("✅ ON CONFLICT preserves original created_at without overwriting")
-            print("✅ No race conditions in sess_seq assignment")
-            print("✅ Session lifecycle works end-to-end with both tweaks")
+            print("\n🎉 ADAPTIVE INSIGHTS FIXES VERIFICATION PASSED!")
+            print("✅ Pre-session insights return contextual coach voice instead of generic templates")
+            print("✅ Coach voice enhancements working with human-friendly language")
+            print("✅ Background job pipeline functional with UPDATE_INSIGHTS jobs")
+            print("✅ Real user data driving adaptive insights instead of synthetic placeholders")
+            print("✅ Overall system shows significant improvement from previous issues")
         else:
-            print("\n⚠️ FINAL VERIFICATION FAILED - REVIEW REQUIRED")
-            print("❌ One or both tweaks need additional work")
+            print("\n⚠️ ADAPTIVE INSIGHTS FIXES VERIFICATION FAILED - REVIEW REQUIRED")
+            print("❌ Some fixes need additional work or are not fully functional")
         
         return overall_success
 
