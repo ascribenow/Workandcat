@@ -432,6 +432,9 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
           console.log(`[BLUEPRINT] ✅ Converted ${pack.length} questions to pack format`);
           console.log(`[BLUEPRINT] Sample question:`, pack[0]);
           
+          // Fetch pre-session insights before starting
+          await fetchPreSessionInsight();
+          
           setCurrentPackSafe(pack, 'blueprint-session-load');
           
           // CRITICAL FIX: Clear planning state to allow first question serving
