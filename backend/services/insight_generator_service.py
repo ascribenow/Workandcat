@@ -205,18 +205,38 @@ Data: {json.dumps(slice_dict, indent=2)}
         """
     
     def _build_pre_session_prompt(self, slice_dict: Dict[str, Any]) -> str:
-        """Build prompt for pre-session card"""
-        return f"""Return JSON with keys: title, progress, way_forward (array of 1–2 bullets), today.
-- Title ≤ 40 chars with 1 emoji.
-- Progress: one sentence about last-{slice_dict.get('window', 5)} accuracy numbers.
-- Way forward: bullets derived from concept shifts / coverage change (max 2, no duplicates).
-- Today: clause about bands, focus concepts, and PYQ counts if present.
-Use ONLY the provided JSON. No invented data.
+        """Build coach voice prompt for pre-session card"""
+        return f"""
+You are a CAT Quant coach speaking to one learner before their session.
+Return valid JSON with these exact keys: title, progress, way_forward, today.
 
-JSON Data:
-{json.dumps(slice_dict, indent=2)}
+JSON Schema:
+{{
+  "title": "string (≤40 chars, 1 emoji, encouraging)",
+  "progress": "string (1 sentence about recent accuracy in 'x out of 10' terms)",
+  "way_forward": ["string", "string"] (max 2 bullets, coach voice, actionable),
+  "today": "string (session preview: difficulty bands + focus concepts + PYQ counts)"
+}}
 
-Response (valid JSON only):"""
+Coach voice rules:
+- Use plain words, no jargon, no decimals
+- Say "about 6 out of 10 correct" not "58%"
+- Be encouraging and specific
+- Use ONLY data from the JSON provided
+
+Content guidelines:
+- Title: Motivating phrase with emoji (e.g., "Ready to Build 🚀", "Let's Focus 🎯")
+- Progress: Recent accuracy trend in human terms
+- Way forward: 1-2 actionable bullets based on concept shifts or coverage changes
+- Today: Session structure like "3E/6M/3H with Ratios focus; 2×PYQ-1.5"
+
+Strict constraints:
+- Return ONLY valid JSON
+- Do NOT invent data not in the provided JSON
+- Do NOT use percentages or decimals
+
+Data: {json.dumps(slice_dict, indent=2)}
+        """
     
     def _fallback_all_time_markdown(self, slice_dict: Dict[str, Any]) -> str:
         """Deterministic fallback for all-time insights"""
