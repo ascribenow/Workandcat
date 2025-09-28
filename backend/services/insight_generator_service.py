@@ -569,5 +569,43 @@ Return ONLY valid JSON with all three sections.
         
         return True
 
+    
+    def _call_gemini_llm(self, prompt: str) -> str:
+        """Direct Gemini LLM call (same pattern as Ask Twelvr)"""
+        try:
+            import os
+            import google.generativeai as genai
+            
+            # Load environment variables
+            from dotenv import load_dotenv
+            load_dotenv()
+            
+            google_api_key = os.getenv('GOOGLE_API_KEY')
+            if not google_api_key:
+                raise Exception("Google API key not found")
+            
+            # Configure Gemini
+            genai.configure(api_key=google_api_key)
+            
+            # Initialize Gemini model
+            model = genai.GenerativeModel("gemini-2.5-flash")
+            
+            # Generate content
+            response = model.generate_content(
+                prompt,
+                generation_config=genai.types.GenerationConfig(
+                    max_output_tokens=800,
+                    temperature=0.1,
+                )
+            )
+            
+            if response and response.text:
+                return response.text.strip()
+            else:
+                raise Exception("Empty response from Gemini")
+                
+        except Exception as e:
+            self.logger.error(f"Gemini LLM call failed: {e}")
+            raise e
 # Global service instance
 insight_generator_service = InsightGeneratorService()
