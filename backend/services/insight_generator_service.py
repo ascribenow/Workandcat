@@ -184,12 +184,7 @@ IMPORTANT:
                 return self._fallback_all_time_markdown(slice_dict)
                 
             prompt = self._build_all_time_prompt(slice_dict)
-            response = call_llm_with_fallback(
-                prompt=prompt,
-                model_primary="gpt-4o",
-                model_fallback="gemini-2.5-flash",
-                max_tokens=400  # Generous tokens for comprehensive insights
-            )
+            response = self._call_gemini_llm(prompt)
             
             if response and len(response.strip()) > 10:
                 self._track_llm_usage(slice_dict.get("user_id", ""), "dashboard")
