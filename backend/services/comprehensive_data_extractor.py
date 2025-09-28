@@ -338,7 +338,7 @@ class ComprehensiveDataExtractor:
                     COUNT(DISTINCT DATE(ae.created_at)) as active_days
                 FROM sessions s
                 LEFT JOIN attempt_events ae ON ae.session_id = s.session_id
-                WHERE s.user_id = :user_id AND s.started_at >= :week_ago
+                WHERE s.user_id = :user_id AND s.served_at >= :week_ago
             """)
             
             result = db.execute(query, {"user_id": user_id, "week_ago": week_ago}).fetchone()
