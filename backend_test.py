@@ -1157,9 +1157,9 @@ class CATBackendTester:
         """
         print("🎯 PURE LLM FREEDOM APPROACH VERIFICATION: ADAPTIVE INSIGHTS SYSTEM TESTING")
         print("=" * 80)
-        print("OBJECTIVE: Test if ALL critical Adaptive Insights fixes are now working")
-        print("FOCUS: Pre-session coach voice, dashboard coach voice, background jobs, data quality")
-        print("EXPECTED: Significant improvement from 37.8% success rate to 80%+")
+        print("OBJECTIVE: Test the completely reimplemented Adaptive Insights system using pure LLM freedom")
+        print("FOCUS: Comprehensive data extraction, pure LLM generation, background jobs, direct storage")
+        print("EXPECTED: Significant improvement from previous 54.5% success rate with simplified approach")
         print("=" * 80)
         
         test_results = {
