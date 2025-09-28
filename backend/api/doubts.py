@@ -177,8 +177,6 @@ Student's latest message: {doubt_data.message}
 Respond naturally and helpfully:
 """
                 
-                full_prompt = system_prompt + "\n" + specific_prompt
-                
                 response = model.generate_content(full_prompt)
                 ai_response = response.text.strip()
                 
