@@ -40,7 +40,7 @@ class InsightCacheService:
         cleanup_memory_cache()
     
     def get_dashboard_insights(self, user_id: str) -> Dict[str, Any]:
-        """Get dashboard insights with ULTRA-FAST in-memory + DB cache strategy"""
+        """Get dashboard insights - BACKGROUND JOB ARCHITECTURE (fetch pre-computed JSON)"""
         from time import time
         start_time = time()
         
@@ -56,10 +56,10 @@ class InsightCacheService:
                 result["cache_time_ms"] = memory_time
                 return result
         
-        # Level 2: Database cache (TARGET: <200ms)
+        # Level 2: Database cache - FETCH PRE-COMPUTED INSIGHTS ONLY
         db = SessionLocal()
         try:
-            # Ultra-optimized query: minimal fields, indexed lookup
+            # Just fetch pre-computed insights (NO real-time computation)
             cache_entry = db.query(
                 UserDashboardInsights.all_time_insights,
                 UserDashboardInsights.recent_insights, 
@@ -68,15 +68,14 @@ class InsightCacheService:
                 UserDashboardInsights.user_id == user_id
             ).first()
             
-            # Fast cache freshness check
-            if cache_entry and self._is_cache_fresh(cache_entry.last_updated_at):
+            if cache_entry:
                 cache_time = (time() - start_time) * 1000
                 
                 result = {
                     "all_time_markdown": cache_entry.all_time_insights.get("markdown", ""),
                     "recent_markdown": cache_entry.recent_insights.get("markdown", ""),
                     "last_updated_at": cache_entry.last_updated_at.isoformat(),
-                    "source": "db_cache",
+                    "source": "pre_computed",
                     "cache_time_ms": cache_time
                 }
                 
@@ -84,25 +83,22 @@ class InsightCacheService:
                 _memory_cache[memory_key] = result.copy()
                 _cache_timestamps[memory_key] = time()
                 
-                self.logger.debug(f"DB cache hit for user {user_id[:8]} in {cache_time:.1f}ms")
+                self.logger.debug(f"Pre-computed insights fetched for user {user_id[:8]} in {cache_time:.1f}ms")
                 return result
             
-            # Level 3: Fresh generation (fallback)
-            fresh_time = time()
-            result = self.refresh_dashboard_cache(user_id)
-            result["source"] = "fresh"
-            result["generation_time_ms"] = (time() - fresh_time) * 1000
+            # No pre-computed insights available - return placeholder
+            # (Background job will eventually compute and store insights)
+            placeholder = self._empty_dashboard_response()
+            placeholder["source"] = "awaiting_background_job"
+            placeholder["message"] = "Your adaptive insights are being generated. Please check back in a few minutes."
             
-            # Store in memory cache
-            _memory_cache[memory_key] = result.copy()
-            _cache_timestamps[memory_key] = time()
-            
-            return result
+            self.logger.info(f"No pre-computed insights for user {user_id[:8]} - background job needed")
+            return placeholder
             
         except Exception as e:
-            self.logger.error(f"Error getting dashboard insights for user {user_id[:8]}: {e}")
+            self.logger.error(f"Error fetching dashboard insights for user {user_id[:8]}: {e}")
             fallback = self._empty_dashboard_response()
-            fallback["source"] = "fallback"
+            fallback["source"] = "error"
             return fallback
         finally:
             db.close()
