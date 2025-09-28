@@ -14,7 +14,7 @@ class InsightGeneratorService:
     def __init__(self):
         self.logger = logging.getLogger(__name__)
         # LLM cost control flags
-        self.max_calls_per_user_per_day = 3
+        self.max_calls_per_user_per_day = 50  # Increased for better coach voice coverage
         self.user_call_counts = {}  # In-memory cache for demo (use Redis in production)
         
     def _percent_to_human(self, accuracy: float) -> str:
