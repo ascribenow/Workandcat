@@ -100,7 +100,7 @@ class InsightGeneratorService:
                     num = int(percent_str.replace('%', ''))
                     out_of_10 = max(0, min(10, round(num/10)))
                 return f"about {out_of_10} out of 10"
-            except:
+            except (ValueError, TypeError):
                 return "about half"
         
         # Apply conversions - more aggressive
