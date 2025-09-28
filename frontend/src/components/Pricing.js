@@ -376,7 +376,7 @@ const Pricing = () => {
                 What's the difference between Pro Regular and Pro Exclusive?
               </h3>
               <p style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
-                Pro Regular gives you 30 days of unlimited sessions, perfect for focused monthly prep cycles. Pro Exclusive extends till Dec 31, 2025 23:59 IST with the exclusive Ask Twelvr feature for real-time doubt resolution, ideal for comprehensive CAT preparation.
+                Pro Regular gives you 30 days of unlimited sessions, perfect for focused monthly prep cycles. Pro Exclusive extends till Dec 31, 2025 23:59 IST with unlimited sessions for long-term CAT preparation. Both plans include Ask Twelvr for real-time doubt resolution. Pro Regular will be available from January 1, 2026.
               </p>
             </div>
 
