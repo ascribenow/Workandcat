@@ -72,7 +72,9 @@ class InsightGeneratorService:
         try:
             # LLM cost control
             if not self._should_use_llm(slice_dict.get("user_id", ""), "pre_session"):
-                return self._fallback_pre_session_card(slice_dict)
+                fallback = self._fallback_pre_session_card(slice_dict)
+                fallback["prompt_version"] = "v1.0_fallback"
+                return fallback
                 
             prompt = self._build_pre_session_prompt(slice_dict)
             response = call_llm_with_fallback(
