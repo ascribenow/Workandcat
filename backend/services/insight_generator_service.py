@@ -46,7 +46,7 @@ class InsightGeneratorService:
                     insights_data = json.loads(response.strip())
                     insights_data["source"] = "llm_comprehensive"
                     insights_data["generated_at"] = datetime.now(timezone.utc).isoformat()
-                    self.logger.info(f"Generated comprehensive insights via LLM")
+                    self.logger.info("Generated comprehensive insights via LLM")
                     return insights_data
                 except json.JSONDecodeError:
                     # If not JSON, treat as markdown and structure it
