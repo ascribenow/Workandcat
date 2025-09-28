@@ -399,46 +399,75 @@ async def persist_session_pack(user_id: str, session_pack: Dict[str, Any]) -> st
 
 async def handle_update_insights(job: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Job C: UPDATE_INSIGHTS
-    - Refresh dashboard insights cache
-    - Refresh pre-session insights cache
-    - Track timing and metrics
+    Job C: UPDATE_INSIGHTS - PURE LLM FREEDOM APPROACH
+    - Extract ALL user data as comprehensive JSON
+    - Let LLM generate all insights with complete creative freedom
+    - Store results directly in cache
     """
     user_id = job["user_id"]
-    session_id = job.get("session_id")  # Optional
+    session_id = job.get("session_id", "")
+    
+    logger.info(f"🔄 UPDATE_INSIGHTS (Pure LLM): user {user_id[:8]}")
     
     try:
-        logger.info(f"🔄 Starting UPDATE_INSIGHTS for user {user_id[:8]}")
+        # Step 1: Extract comprehensive user data
+        from services.comprehensive_data_extractor import comprehensive_data_extractor
+        comprehensive_data = comprehensive_data_extractor.extract_complete_user_data(user_id, session_id)
         
-        start_time = datetime.now(timezone.utc)
+        # Step 2: Let LLM generate all insights with complete freedom
+        from services.insight_generator_service import insight_generator_service
+        all_insights = insight_generator_service.generate_comprehensive_insights(comprehensive_data)
         
-        # Refresh dashboard cache
-        dashboard_result = insight_cache_service.refresh_dashboard_cache(user_id)
-        dashboard_success = bool(dashboard_result and dashboard_result.get("all_time_markdown"))
+        # Step 3: Store all insights in their respective caches
+        cache_results = await store_comprehensive_insights(user_id, session_id, all_insights)
         
-        # Refresh pre-session cache if session_id provided
-        pre_session_result = None
-        pre_session_success = False
-        
-        if session_id:
-            pre_session_result = insight_cache_service.refresh_pre_session_cache(user_id, session_id)
-            pre_session_success = bool(pre_session_result and pre_session_result.get("title"))
-        
-        # Track timing
-        total_time = (datetime.now(timezone.utc) - start_time).total_seconds()
-        
-        logger.info(f"✅ UPDATE_INSIGHTS completed for user {user_id[:8]} in {total_time:.3f}s")
+        logger.info(f"✅ UPDATE_INSIGHTS (Pure LLM) completed for user {user_id[:8]}")
         
         return {
-            "success": True,
-            "user_id": user_id,
-            "session_id": session_id,
-            "dashboard_updated": dashboard_success,
-            "pre_session_updated": pre_session_success,
-            "processing_time_seconds": total_time,
-            "completed_at": datetime.now(timezone.utc).isoformat()
+            "status": "success",
+            "approach": "pure_llm_freedom",
+            "insights_generated": bool(all_insights),
+            "cache_updates": cache_results.get("updates_count", 0),
+            "llm_source": all_insights.get("source", "unknown")
         }
         
     except Exception as e:
-        logger.error(f"❌ UPDATE_INSIGHTS failed for user {user_id[:8]}: {e}")
-        raise Exception(f"Insight update failed: {str(e)}")
+        logger.error(f"❌ UPDATE_INSIGHTS (Pure LLM) failed for user {user_id[:8]}: {e}")
+        raise Exception(f"Pure LLM insight update failed: {str(e)}")
+
+async def store_comprehensive_insights(user_id: str, session_id: str, all_insights: Dict[str, Any]) -> Dict[str, Any]:
+    """Store comprehensive insights in dashboard and pre-session caches"""
+    try:
+        updates_count = 0
+        
+        # Store dashboard insights
+        if "dashboard_all_time" in all_insights and "dashboard_recent" in all_insights:
+            dashboard_success = insight_cache_service.store_dashboard_insights_direct(
+                user_id=user_id,
+                all_time_markdown=all_insights["dashboard_all_time"],
+                recent_markdown=all_insights["dashboard_recent"],
+                source=all_insights.get("source", "llm_comprehensive")
+            )
+            if dashboard_success:
+                updates_count += 1
+        
+        # Store pre-session insights
+        if "pre_session_card" in all_insights:
+            presession_success = insight_cache_service.store_pre_session_insights_direct(
+                user_id=user_id,
+                session_id=session_id,
+                insight_card=all_insights["pre_session_card"],
+                source=all_insights.get("source", "llm_comprehensive")
+            )
+            if presession_success:
+                updates_count += 1
+        
+        return {
+            "updates_count": updates_count,
+            "dashboard_stored": "dashboard_all_time" in all_insights,
+            "presession_stored": "pre_session_card" in all_insights
+        }
+        
+    except Exception as e:
+        logger.error(f"Error storing comprehensive insights: {e}")
+        return {"updates_count": 0, "error": str(e)}
