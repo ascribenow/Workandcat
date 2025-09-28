@@ -141,87 +141,40 @@ async def ask_doubt(
         finally:
             db.close()
         
-        # Generate AI response using Gemini with enhanced mode detection
+        # Generate AI response using Gemini with natural conversation
         if GOOGLE_API_KEY:
             try:
                 model = genai.GenerativeModel("gemini-2.5-flash")
                 
-                # Prepare enhanced context for AI
+                # Prepare natural conversation context
                 conversation_history = doubt_conversations[conversation_key]
                 context_messages = "\n".join([
-                    f"{'User' if i % 2 == 0 else 'Twelvr'}: {msg['content']}"
+                    f"{'Student' if i % 2 == 0 else 'Twelvr'}: {msg['content']}"
                     for i, msg in enumerate(conversation_history)
                 ])
                 
-                # Detect response mode
-                has_question_context = bool(question.stem)
-                mode = detect_ask_twelvr_mode(doubt_data.message, has_question_context)
+                # Build question context if relevant
+                question_context = ""
+                if has_question_context(doubt_data.message) and question.stem:
+                    question_context = f"""
+Current Question Context:
+- Problem: {question.stem}
+- Topic: {question.subcategory or question.category or 'Quantitative Aptitude'}
+- Answer: {question.right_answer or 'Not available'}
+"""
                 
-                # Build enhanced context
-                context = {
-                    "current_question_stem": question.stem or "",
-                    "current_question_category": question.category or "",
-                    "current_question_subcategory": question.subcategory or "",
-                    "core_concepts": getattr(question, 'core_concepts', []) or [],
-                    "solution_approach": question.solution_approach or "",
-                    "detailed_solution": question.detailed_solution or "",
-                    "correct_answer": question.right_answer or "",
-                    "snap_read": question.snap_read or ""
-                }
-                
-                # Create mode-specific prompt
-                system_prompt = get_enhanced_system_prompt()
-                
-                if mode == 1:  # Session-Related
-                    specific_prompt = f"""
-CONTEXT (current question details):
-- Question: {context['current_question_stem']}
-- Category: {context['current_question_category']} → {context['current_question_subcategory']}
-- Core Concepts: {', '.join(context['core_concepts']) if context['core_concepts'] else 'Not specified'}
-- Solution Approach: {context['solution_approach']}
-- Correct Answer: {context['correct_answer']}
+                # Create natural conversation prompt
+                full_prompt = f"""
+{get_natural_system_prompt()}
 
-CONVERSATION HISTORY:
+{question_context}
+
+Previous Conversation:
 {context_messages}
 
-STUDENT'S QUESTION: {doubt_data.message}
+Student's latest message: {doubt_data.message}
 
-Use MODE 1 - SESSION-RELATED. Answer in context of the current question with simple explanations first, then math details.
-"""
-                elif mode == 2:  # Off-Topic
-                    specific_prompt = f"""
-STUDENT'S QUESTION: {doubt_data.message}
-CURRENT CONTEXT: Working on {context['current_question_subcategory'] or 'a Quant'} problem
-
-Use MODE 2 - OFF-TOPIC. Give a brief friendly answer, then wit back to their {context['current_question_subcategory'] or 'current'} problem.
-"""
-                else:  # mode == 3: Solution Step Explanation
-                    specific_prompt = f"""
-CONTEXT (may help with explanation):
-- Question Category: {context['current_question_category']} → {context['current_question_subcategory']}
-- Core Concepts: {', '.join(context['core_concepts']) if context['core_concepts'] else 'Mathematical concepts'}
-- Solution Available: {context['detailed_solution'][:200] + '...' if len(context['detailed_solution']) > 200 else context['detailed_solution']}
-
-STUDENT WANTS STEP EXPLAINED: {doubt_data.message}
-
-CRITICAL: Use MODE 3 - SOLUTION STEP EXPLANATION. You MUST follow this EXACT 5-heading structure:
-
-### What that step is doing
-[Explain in layman terms first with an everyday analogy, then in math terms]
-
-### The idea behind it  
-[2-5 bullet points with simple analogies or real-life examples]
-
-### Try this (quick practice)
-[One short, non-MCQ task that takes ~60 seconds to solve]
-
-### Solution (peek when ready)
-[Complete worked solution in 4-8 lines]
-
-### Next?
-[Inviting line: "Want to try a slightly harder one?"]
-
-IMPORTANT: Use these EXACT headings with ### markdown formatting. Start explanations with simple analogies before math details. Keep total response under 180 words.
+Respond naturally and helpfully:
 """
                 
                 full_prompt = system_prompt + "\n" + specific_prompt
