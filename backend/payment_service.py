@@ -1229,8 +1229,8 @@ class RazorpayService:
         # Check exact matches (no discount)
         if amount == 149500:  # ₹1,495
             return {"plan_type": "pro_regular", "discount_applied": False, "original_amount": 149500}
-        elif amount == 256500:  # ₹2,565
-            return {"plan_type": "pro_exclusive", "discount_applied": False, "original_amount": 256500}
+        elif amount == 149900:  # ₹1,499
+            return {"plan_type": "pro_exclusive", "discount_applied": False, "original_amount": 149900}
         
         # Check with referral discount applied
         elif amount == 149500 - referral_discount:  # ₹995 (₹1,495 - ₹500)
