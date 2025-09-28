@@ -252,7 +252,24 @@ CONTEXT (may help with explanation):
 
 STUDENT WANTS STEP EXPLAINED: {doubt_data.message}
 
-Use MODE 3 - SOLUTION STEP EXPLANATION. Follow the exact 5-heading structure. Start with simple analogies, then math. Generate one quick practice problem with full solution.
+CRITICAL: Use MODE 3 - SOLUTION STEP EXPLANATION. You MUST follow this EXACT 5-heading structure:
+
+### What that step is doing
+[Explain in layman terms first with an everyday analogy, then in math terms]
+
+### The idea behind it  
+[2-5 bullet points with simple analogies or real-life examples]
+
+### Try this (quick practice)
+[One short, non-MCQ task that takes ~60 seconds to solve]
+
+### Solution (peek when ready)
+[Complete worked solution in 4-8 lines]
+
+### Next?
+[Inviting line: "Want to try a slightly harder one?"]
+
+IMPORTANT: Use these EXACT headings with ### markdown formatting. Start explanations with simple analogies before math details. Keep total response under 180 words.
 """
                 
                 full_prompt = system_prompt + "\n" + specific_prompt
