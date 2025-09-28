@@ -1539,12 +1539,13 @@ class CATBackendTester:
         print("-" * 60)
         print("Testing witty, conversational responses with real-world analogies")
         
-        if auth_headers and sample_question_id:
-            # Test natural conversation
+        if auth_headers and sample_questions:
+            # Test natural conversation with 6th question
             natural_message = "I'm really struggling with this concept. Can you explain it in a way that makes sense?"
+            question_id = sample_questions[5].get('id') if len(sample_questions) > 5 else sample_questions[0].get('id')
             
             doubt_data = {
-                "question_id": sample_question_id,
+                "question_id": question_id,
                 "session_id": f"natural_test_{uuid.uuid4()}",
                 "message": natural_message
             }
