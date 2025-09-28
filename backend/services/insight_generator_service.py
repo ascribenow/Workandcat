@@ -70,6 +70,55 @@ class InsightGeneratorService:
         except Exception as e:
             self.logger.error(f"Error in comprehensive insights generation: {e}")
             return self._generate_simple_fallback_insights(comprehensive_data)
+    
+    def _build_comprehensive_insights_prompt(self, comprehensive_data: Dict[str, Any]) -> str:
+        """Build comprehensive insights prompt - Pure LLM Freedom"""
+        import json
+        
+        return f"""
+You are an encouraging CAT Quant coach analyzing a student's complete learning journey. 
+
+Here is ALL their data - sessions, accuracy patterns, concept progress, question attempts, timing, and more:
+
+{json.dumps(comprehensive_data, indent=2)}
+
+Generate comprehensive insights that help and motivate this student. Respond with JSON in this exact format:
+
+{{
+    "dashboard_all_time": "Write an encouraging all-time journey insight in coach voice. Use 'about X out of 10 correct' instead of percentages. Mention their progress arc, key concepts they've worked on, and what they've accomplished. 2-4 sentences, warm and motivating.",
+    "dashboard_recent": "Write about their recent momentum in coach voice. Focus on latest trends, what's improving or needs attention, recent concepts worked on. Use encouraging language and 'about X out of 10' format. 2-3 sentences.", 
+    "pre_session_card": {{
+        "title": "Motivating title with emoji (under 30 chars)",
+        "progress": "One sentence about their recent progress in encouraging terms",
+        "way_forward": ["First actionable tip", "Second encouraging guidance"],
+        "today": "What to expect in today's session based on their data"
+    }}
+}}
+
+IMPORTANT:
+- Be warm, encouraging, and coach-like
+- Use "about X out of 10 correct" instead of percentages  
+- Mention specific concepts from their data when relevant
+- Focus on growth, patterns, and guidance
+- Return ONLY the JSON, nothing else
+        """
+    
+    def _generate_simple_fallback_insights(self, comprehensive_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Simple fallback when LLM fails"""
+        sessions_count = len(comprehensive_data.get("sessions", []))
+        
+        return {
+            "dashboard_all_time": f"You've shown great consistency across {sessions_count} sessions. Your dedication to working through different problem types is building the solid foundation that CAT success requires. Keep up this steady rhythm!",
+            "dashboard_recent": "Your recent practice shows you're staying engaged with the material. Each session is teaching you something new about approaching quantitative problems effectively.",
+            "pre_session_card": {
+                "title": "Keep Building! 🏗️",
+                "progress": "Your consistent practice is creating strong foundations",
+                "way_forward": ["Focus on understanding over speed", "Trust your problem-solving process"],
+                "today": "Today's session will continue strengthening your quantitative skills"
+            },
+            "source": "simple_fallback",
+            "generated_at": datetime.now(timezone.utc).isoformat()
+        }
         
     def _percent_to_human(self, accuracy: float) -> str:
         """Convert 0.42 -> 'about 4 out of 10 correct'"""
