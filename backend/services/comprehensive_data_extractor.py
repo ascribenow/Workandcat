@@ -90,7 +90,7 @@ class ComprehensiveDataExtractor:
                     "session_id": r.session_id,
                     "status": r.status,
                     "completed_at": r.completed_at.isoformat() if r.completed_at else None,
-                    "started_at": r.started_at.isoformat() if r.started_at else None,
+                    "served_at": r.served_at.isoformat() if r.served_at else None,
                     "total_questions": int(r.total_questions or 0),
                     "accuracy": float(r.accuracy or 0.0),
                     "correct_answers": int(r.correct_answers or 0)
