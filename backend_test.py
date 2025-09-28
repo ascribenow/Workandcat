@@ -30596,54 +30596,55 @@ class CATBackendTester:
         return final_results["100_percent_success_achieved"]
 
 if __name__ == "__main__":
-    print("🚀 CAT BACKEND TESTING SUITE - OPTIMIZED ADAPTIVE INSIGHTS")
+    print("🚀 CAT BACKEND TESTING SUITE - NEW BACKGROUND JOB ARCHITECTURE")
     print("=" * 80)
-    print("OBJECTIVE: Test OPTIMIZED Adaptive Insights to verify 20% issues resolved")
-    print("Focus: Background jobs, cache performance, response times, edge cases")
-    print("Expected: Import fixes, cache hits <200ms, pre-session <5s, 90%+ success")
+    print("OBJECTIVE: Test NEW BACKGROUND JOB ARCHITECTURE for Adaptive Insights")
+    print("Focus: Pre-computed JSON, ultra-fast responses <50ms, background job triggering")
+    print("Expected: Dramatic performance improvement, rich insights with restored token limits")
     print("Authentication: sp@theskinmantra.com/student123")
     print("=" * 80)
     
     tester = CATBackendTester()
     
     try:
-        # Run the optimized adaptive insights testing
-        print("\n🎯 RUNNING OPTIMIZED ADAPTIVE INSIGHTS TESTING")
-        optimization_success = tester.test_ultra_optimized_adaptive_insights_cache_performance()
+        # Run the new background job architecture testing
+        print("\n🎯 RUNNING NEW BACKGROUND JOB ARCHITECTURE TESTING")
+        architecture_success = tester.test_new_background_job_architecture_adaptive_insights()
         
         # FINAL SUMMARY
         print("\n" + "=" * 80)
-        print("🏁 OPTIMIZED ADAPTIVE INSIGHTS TESTING - FINAL RESULTS")
+        print("🏁 NEW BACKGROUND JOB ARCHITECTURE TESTING - FINAL RESULTS")
         print("=" * 80)
         print(f"Total Tests Run: {tester.tests_run}")
         print(f"Total Tests Passed: {tester.tests_passed}")
         print(f"Overall Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%" if tester.tests_run > 0 else "0%")
         
-        print("\n📊 OPTIMIZATION TEST RESULTS:")
-        print(f"Optimized Adaptive Insights: {'✅ PASS' if optimization_success else '❌ FAIL'}")
+        print("\n📊 ARCHITECTURE TEST RESULTS:")
+        print(f"New Background Job Architecture: {'✅ PASS' if architecture_success else '❌ FAIL'}")
         
-        if optimization_success:
-            print("\n🎉 OPTIMIZATION RESULT: SUCCESS")
-            print("   - Import errors resolved")
-            print("   - Cache performance optimized (hits <200ms)")
-            print("   - Pre-session insights under 5 seconds")
-            print("   - Edge cases handled gracefully")
-            print("   - Overall success rate 90%+")
-            print("   - 20% issues successfully resolved")
-            print("   - System ready for production with optimized adaptive insights")
+        if architecture_success:
+            print("\n🎉 ARCHITECTURE RESULT: SUCCESS")
+            print("   - ISSUE 1 RESOLVED: LLM token limits restored (400/350/200 tokens)")
+            print("   - ISSUE 2 IMPLEMENTED: Background job architecture working")
+            print("   - Ultra-fast responses <50ms achieved")
+            print("   - Pre-computed JSON fetching working")
+            print("   - Automatic UPDATE_INSIGHTS job triggering functional")
+            print("   - Dramatic performance improvement (95%+ from 960ms baseline)")
+            print("   - Rich, meaningful insights with restored token limits")
+            print("   - System ready for production with new architecture")
         else:
-            print("\n⚠️ OPTIMIZATION RESULT: NEEDS ATTENTION")
-            print("   - Some optimization targets not fully achieved")
+            print("\n⚠️ ARCHITECTURE RESULT: NEEDS ATTENTION")
+            print("   - Some architecture targets not fully achieved")
             print("   - Review test results for specific issues")
-            print("   - Additional optimization work may be needed")
+            print("   - Additional work may be needed on background jobs or token limits")
         
         print("=" * 80)
         
         # Exit with appropriate code
-        sys.exit(0 if optimization_success else 1)
+        sys.exit(0 if architecture_success else 1)
         
     except Exception as e:
-        print(f"\n❌ CRITICAL ERROR during optimization testing: {e}")
+        print(f"\n❌ CRITICAL ERROR during architecture testing: {e}")
         print("Testing aborted due to unexpected error")
         import traceback
         traceback.print_exc()
