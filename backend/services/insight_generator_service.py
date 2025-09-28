@@ -16,6 +16,23 @@ class InsightGeneratorService:
         # LLM cost control flags
         self.max_calls_per_user_per_day = 3
         self.user_call_counts = {}  # In-memory cache for demo (use Redis in production)
+        
+    def _percent_to_human(self, accuracy: float) -> str:
+        """Convert 0.42 -> 'about 4 out of 10 correct'"""
+        if accuracy is None:
+            return "about half right"
+        out_of_10 = max(0, min(10, round(accuracy * 10)))
+        return f"about {out_of_10} out of 10 correct"
+    
+    def _sanitize_coach_response(self, response: str) -> str:
+        """Remove any technical formatting that slipped through"""
+        if not response:
+            return response
+        # Remove percentage signs and decimals
+        import re
+        response = re.sub(r'\d+\.\d+%?', lambda m: 'about half' if '.' in m.group() else m.group(), response)
+        response = re.sub(r'\d+%', lambda m: f"about {min(10, max(0, int(m.group()[:-1])//10))} out of 10", response)
+        return response
     
     def gen_all_time_markdown(self, slice_dict: Dict[str, Any]) -> str:
         """Generate all-time journey markdown with LLM + fallback"""
