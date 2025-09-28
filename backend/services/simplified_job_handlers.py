@@ -342,3 +342,49 @@ async def persist_session_pack(user_id: str, session_pack: Dict[str, Any]) -> st
         raise
     finally:
         db.close()
+
+async def handle_update_insights(job: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Job C: UPDATE_INSIGHTS
+    - Refresh dashboard insights cache
+    - Refresh pre-session insights cache
+    - Track timing and metrics
+    """
+    user_id = job["user_id"]
+    session_id = job.get("session_id")  # Optional
+    
+    try:
+        logger.info(f"🔄 Starting UPDATE_INSIGHTS for user {user_id[:8]}")
+        
+        start_time = datetime.now(timezone.utc)
+        
+        # Refresh dashboard cache
+        dashboard_result = insight_cache_service.refresh_dashboard_cache(user_id)
+        dashboard_success = bool(dashboard_result and dashboard_result.get("all_time_markdown"))
+        
+        # Refresh pre-session cache if session_id provided
+        pre_session_result = None
+        pre_session_success = False
+        
+        if session_id:
+            pre_session_result = insight_cache_service.refresh_pre_session_cache(user_id, session_id)
+            pre_session_success = bool(pre_session_result and pre_session_result.get("title"))
+        
+        # Track timing
+        total_time = (datetime.now(timezone.utc) - start_time).total_seconds()
+        
+        logger.info(f"✅ UPDATE_INSIGHTS completed for user {user_id[:8]} in {total_time:.3f}s")
+        
+        return {
+            "success": True,
+            "user_id": user_id,
+            "session_id": session_id,
+            "dashboard_updated": dashboard_success,
+            "pre_session_updated": pre_session_success,
+            "processing_time_seconds": total_time,
+            "completed_at": datetime.now(timezone.utc).isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"❌ UPDATE_INSIGHTS failed for user {user_id[:8]}: {e}")
+        raise Exception(f"Insight update failed: {str(e)}")
