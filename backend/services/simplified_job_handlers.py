@@ -70,6 +70,7 @@ async def handle_plan_next_session(job: Dict[str, Any]) -> Dict[str, Any]:
     - Use notebook + coverage + recency + PYQ constraints
     - Select 3E/6M/3H with Weak/Moderate preference
     - Persist prepack into session_packs + session_pack_questions
+    - Enqueue UPDATE_INSIGHTS job
     """
     user_id = job["user_id"]
     
@@ -85,14 +86,23 @@ async def handle_plan_next_session(job: Dict[str, Any]) -> Dict[str, Any]:
         # Step 3: Persist prepack to session_packs tables
         pack_id = await persist_session_pack(user_id, session_pack)
         
-        logger.info(f"✅ PLAN_NEXT_SESSION completed: pack {pack_id[:8]} for user {user_id[:8]}")
+        # Step 4: Enqueue UPDATE_INSIGHTS job to refresh adaptive insights
+        from services.bg_job_queue import job_queue
+        insights_job_id = await job_queue.enqueue_job(
+            job_type="UPDATE_INSIGHTS",
+            user_id=user_id,
+            session_id=pack_id  # Use the newly created pack_id for pre-session insights
+        )
+        
+        logger.info(f"✅ PLAN_NEXT_SESSION completed: pack {pack_id[:8]}, enqueued UPDATE_INSIGHTS: {insights_job_id[:8]}")
         
         return {
             "status": "success", 
             "session_pack_created": True,
             "pack_id": pack_id,
             "questions_selected": len(session_pack.get("questions", [])),
-            "difficulty_distribution": session_pack.get("difficulty_distribution", {})
+            "difficulty_distribution": session_pack.get("difficulty_distribution", {}),
+            "insights_job_enqueued": insights_job_id
         }
         
     except Exception as e:
