@@ -558,6 +558,8 @@ class AdaptiveInsightsService:
     def _get_concept_shifts_minimal(self, db: Session, user_id: str, session_ids: List[str]) -> List[Dict[str, str]]:
         """Get real concept shifts for quality insights (background job context)"""
         try:
+            from services.concept_labels import get_concept_label
+            
             query = text("""
                 SELECT ln.concept_norm, ln.readiness
                 FROM learner_notebook ln
@@ -567,10 +569,13 @@ class AdaptiveInsightsService:
             """)
             
             results = db.execute(query, {"user_id": user_id}).fetchall()
-            return [{"concept": r.concept_norm, "status": r.readiness} for r in results] if results else [
-                {"concept": "Time-Speed-Distance", "status": "Moderate"},
-                {"concept": "Arithmetic", "status": "Strong"}
-            ]
+            if results:
+                return [{"concept": get_concept_label(r.concept_norm), "status": r.readiness} for r in results]
+            else:
+                return [
+                    {"concept": get_concept_label("Time-Speed-Distance"), "status": "Moderate"},
+                    {"concept": get_concept_label("Arithmetic"), "status": "Strong"}
+                ]
         except Exception as e:
             logger.warning(f"Concept shifts query failed for user {user_id[:8]}: {e}")
             return [{"concept": "Mixed Practice", "status": "Learning"}]
