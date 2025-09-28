@@ -85,6 +85,35 @@ const PaymentComponent = ({ planType, amount, planName, description, onSuccess, 
 
       console.log('User authenticated:', user);
 
+      // Check plan availability
+      console.log('Checking plan availability for:', planType);
+      const availabilityResponse = await fetch(`${API}/payments/plan-availability/${planType}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!availabilityResponse.ok) {
+        throw new Error('Failed to check plan availability');
+      }
+
+      const availability = await availabilityResponse.json();
+      console.log('Plan availability result:', availability);
+
+      if (!availability.available) {
+        // Show availability message to user
+        if (availability.reason === 'not_yet_available') {
+          alert(availability.message || 'This plan is not yet available');
+        } else if (availability.reason === 'no_longer_available') {
+          alert(availability.message || 'This plan is no longer available');
+        } else {
+          alert(availability.message || 'This plan is not available');
+        }
+        setLoading(false);
+        return;
+      }
+
       // Load Razorpay script
       console.log('Loading Razorpay script...');
       const scriptLoaded = await loadRazorpayScript();
