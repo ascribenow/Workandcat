@@ -1244,7 +1244,7 @@ class CATBackendTester:
             else:
                 print(f"   ⚠️ User adaptive_enabled: {adaptive_enabled}")
         else:
-            print("   ❌ Authentication failed - cannot proceed with optimization testing")
+            print("   ❌ Authentication failed - cannot proceed with ultra-fast cache testing")
             return False
         
         # PHASE 2: BACKGROUND JOB IMPORT/ENQUEUEING ISSUES (FIXED)
