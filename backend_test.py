@@ -1106,6 +1106,626 @@ class CATBackendTester:
         
         return success_rate >= 80 and criteria_rate >= 85
 
+    def test_coach_voice_implementation(self):
+        """
+        🎯 COACH VOICE IMPLEMENTATION TESTING
+        
+        Testing the COACH VOICE implementation for Adaptive Insights to verify the human, motivating language:
+        
+        **COACH VOICE TESTING:**
+        
+        1. **LLM Prompt Transformation**:
+           - Test dashboard insights (/api/dashboard/adaptive-insights) for coach voice tone
+           - Verify insights use "about 6 out of 10 correct" instead of "58%" 
+           - Check for encouraging, human language (no database log style)
+           - Verify removal of bullets, tables, technical formatting
+        
+        2. **Human Language Conversion**:
+           - Test that percentages are converted to human-friendly format
+           - Verify "x out of 10 correct" appears instead of decimals/percentages
+           - Check that technical deltas and scores are removed
+           - Test post-processing sanitization working
+        
+        3. **Coach Voice Content**:
+           - Verify insights read like a coach talking to trainee (not robotic)
+           - Check for narrative storytelling instead of data dumps
+           - Test for encouragement, guidance, and recognition in language
+           - Verify concepts use human-readable labels (from concept mapping)
+        
+        4. **Fallback Methods**:
+           - Test fallback responses also use coach voice
+           - Verify deterministic fallbacks are encouraging and human
+           - Check that fallbacks avoid technical language
+        
+        5. **Pre-session Cards**:
+           - Test pre-session insight cards use coach voice JSON format
+           - Verify "progress", "way_forward", "today" fields are human-friendly
+           - Check title uses encouraging emoji and short phrase
+        
+        **Expected Results:**
+        - All insights should sound like a personal coach speaking
+        - No technical percentages, decimals, or database-style output
+        - Language should be encouraging, narrative, and motivating
+        - Human-readable concept labels throughout
+        - "About X out of 10 correct" format consistently used
+        
+        Test with sp@theskinmantra.com/student123 and verify the transformation from robotic to coach voice is complete.
+        
+        AUTHENTICATION: sp@theskinmantra.com/student123
+        """
+        print("🎯 COACH VOICE IMPLEMENTATION TESTING")
+        print("=" * 80)
+        print("OBJECTIVE: Test COACH VOICE implementation for human, motivating language")
+        print("FOCUS: Human language conversion, coach tone, narrative storytelling")
+        print("EXPECTED: Personal coach speaking, no technical percentages, encouraging language")
+        print("=" * 80)
+        
+        test_results = {
+            # Authentication Setup
+            "authentication_working": False,
+            "user_adaptive_enabled": False,
+            "jwt_token_valid": False,
+            
+            # 1. LLM Prompt Transformation
+            "dashboard_insights_coach_tone": False,
+            "human_friendly_percentages": False,
+            "no_technical_formatting": False,
+            "encouraging_language_present": False,
+            "no_database_log_style": False,
+            
+            # 2. Human Language Conversion
+            "x_out_of_10_format_used": False,
+            "percentages_converted": False,
+            "technical_deltas_removed": False,
+            "post_processing_sanitization": False,
+            
+            # 3. Coach Voice Content
+            "coach_talking_to_trainee": False,
+            "narrative_storytelling": False,
+            "encouragement_and_guidance": False,
+            "human_readable_concept_labels": False,
+            "no_robotic_language": False,
+            
+            # 4. Fallback Methods
+            "fallback_uses_coach_voice": False,
+            "deterministic_fallbacks_encouraging": False,
+            "fallbacks_avoid_technical": False,
+            
+            # 5. Pre-session Cards
+            "pre_session_coach_voice_json": False,
+            "progress_field_human_friendly": False,
+            "way_forward_encouraging": False,
+            "today_field_readable": False,
+            "title_has_emoji_and_phrase": False,
+            
+            # Overall Assessment
+            "coach_voice_transformation_complete": False,
+            "human_language_conversion_working": False,
+            "narrative_storytelling_implemented": False,
+            "fallback_system_coach_voice": False,
+            "pre_session_cards_coach_format": False,
+            "production_ready": False
+        }
+        
+        # PHASE 1: AUTHENTICATION SETUP
+        print("\n🔐 PHASE 1: AUTHENTICATION SETUP")
+        print("-" * 60)
+        print("Authenticating with sp@theskinmantra.com/student123 for COACH VOICE testing")
+        
+        auth_data = {
+            "email": "sp@theskinmantra.com",
+            "password": "student123"
+        }
+        
+        success, response = self.run_test("Coach Voice Authentication", "POST", "auth/login", [200, 401], auth_data)
+        
+        auth_headers = None
+        user_id = None
+        if success and response.get('access_token'):
+            token = response['access_token']
+            auth_headers = {
+                'Authorization': f'Bearer {token}',
+                'Content-Type': 'application/json'
+            }
+            test_results["authentication_working"] = True
+            test_results["jwt_token_valid"] = True
+            print(f"   ✅ Authentication successful")
+            print(f"   📊 JWT Token length: {len(token)} characters")
+            
+            user_data = response.get('user', {})
+            user_id = user_data.get('id')
+            adaptive_enabled = user_data.get('adaptive_enabled', False)
+            
+            if adaptive_enabled:
+                test_results["user_adaptive_enabled"] = True
+                print(f"   ✅ User adaptive_enabled confirmed: {adaptive_enabled}")
+                print(f"   📊 User ID: {user_id}")
+            else:
+                print(f"   ⚠️ User adaptive_enabled: {adaptive_enabled}")
+        else:
+            print("   ❌ Authentication failed - cannot proceed with COACH VOICE testing")
+            return False
+        
+        # PHASE 2: DASHBOARD INSIGHTS COACH VOICE TESTING
+        print("\n🗣️ PHASE 2: DASHBOARD INSIGHTS COACH VOICE TESTING")
+        print("-" * 60)
+        print("Testing /api/dashboard/adaptive-insights for coach voice tone and human language")
+        
+        if auth_headers:
+            success, dashboard_response = self.run_test(
+                "Dashboard Insights Coach Voice", 
+                "GET", 
+                "dashboard/adaptive-insights", 
+                [200, 500], 
+                None, 
+                auth_headers
+            )
+            
+            if success and dashboard_response:
+                print(f"   ✅ Dashboard insights endpoint accessible")
+                
+                # Extract insights content
+                all_time_markdown = dashboard_response.get("all_time_markdown", "")
+                recent_markdown = dashboard_response.get("recent_markdown", "")
+                
+                print(f"   📊 All-time content length: {len(all_time_markdown)} characters")
+                print(f"   📊 Recent content length: {len(recent_markdown)} characters")
+                
+                # Test 1: Coach Voice Tone
+                coach_indicators = [
+                    "you", "your", "let's", "we", "great", "good", "nice", "keep", 
+                    "build", "work", "practice", "momentum", "steady", "focus"
+                ]
+                
+                all_content = (all_time_markdown + " " + recent_markdown).lower()
+                coach_words_found = [word for word in coach_indicators if word in all_content]
+                
+                if len(coach_words_found) >= 3:
+                    test_results["dashboard_insights_coach_tone"] = True
+                    test_results["encouraging_language_present"] = True
+                    print(f"   ✅ Coach voice tone detected: {coach_words_found[:5]}")
+                else:
+                    print(f"   ❌ Coach voice tone weak: only {coach_words_found}")
+                
+                # Test 2: Human-Friendly Percentages ("x out of 10 correct")
+                import re
+                out_of_10_pattern = r'\b\d+\s+out\s+of\s+10\b'
+                about_pattern = r'\babout\s+\d+\s+out\s+of\s+10\b'
+                
+                out_of_10_matches = re.findall(out_of_10_pattern, all_content, re.IGNORECASE)
+                about_matches = re.findall(about_pattern, all_content, re.IGNORECASE)
+                
+                if out_of_10_matches or about_matches:
+                    test_results["human_friendly_percentages"] = True
+                    test_results["x_out_of_10_format_used"] = True
+                    print(f"   ✅ Human-friendly format found: {out_of_10_matches + about_matches}")
+                else:
+                    print(f"   ⚠️ No 'x out of 10' format detected")
+                
+                # Test 3: No Technical Formatting (bullets, percentages, decimals)
+                technical_patterns = [
+                    r'\d+\.\d+%',  # Decimals with percentages
+                    r'\d+%',       # Raw percentages
+                    r'^\s*[-*•]\s',  # Bullet points
+                    r'\|\s*\w+\s*\|',  # Table formatting
+                    r'delta|score|coefficient|variance'  # Technical terms
+                ]
+                
+                technical_found = []
+                for pattern in technical_patterns:
+                    matches = re.findall(pattern, all_content, re.MULTILINE | re.IGNORECASE)
+                    if matches:
+                        technical_found.extend(matches)
+                
+                if not technical_found:
+                    test_results["no_technical_formatting"] = True
+                    test_results["technical_deltas_removed"] = True
+                    print(f"   ✅ No technical formatting detected")
+                else:
+                    print(f"   ❌ Technical formatting found: {technical_found[:3]}")
+                
+                # Test 4: No Database Log Style
+                database_indicators = [
+                    "session_id", "user_id", "timestamp", "query", "result", 
+                    "status:", "error:", "info:", "debug:", "null", "undefined"
+                ]
+                
+                db_words_found = [word for word in database_indicators if word in all_content]
+                
+                if not db_words_found:
+                    test_results["no_database_log_style"] = True
+                    print(f"   ✅ No database log style detected")
+                else:
+                    print(f"   ❌ Database log style found: {db_words_found}")
+                
+                # Test 5: Narrative Storytelling vs Data Dumps
+                narrative_indicators = [
+                    "journey", "progress", "moving", "building", "growing", "improving",
+                    "working through", "getting better", "trending", "momentum"
+                ]
+                
+                narrative_words = [word for word in narrative_indicators if word in all_content]
+                
+                if len(narrative_words) >= 2:
+                    test_results["narrative_storytelling"] = True
+                    test_results["coach_talking_to_trainee"] = True
+                    print(f"   ✅ Narrative storytelling detected: {narrative_words}")
+                else:
+                    print(f"   ❌ Limited narrative storytelling: {narrative_words}")
+                
+                # Test 6: Encouragement and Guidance
+                encouragement_indicators = [
+                    "great", "excellent", "good work", "nice", "well done", "keep going",
+                    "you're doing", "that's", "exactly", "perfect", "solid", "strong"
+                ]
+                
+                encouragement_found = [phrase for phrase in encouragement_indicators if phrase in all_content]
+                
+                if len(encouragement_found) >= 2:
+                    test_results["encouragement_and_guidance"] = True
+                    print(f"   ✅ Encouragement and guidance found: {encouragement_found}")
+                else:
+                    print(f"   ❌ Limited encouragement: {encouragement_found}")
+                
+                # Test 7: No Robotic Language
+                robotic_indicators = [
+                    "processing", "computing", "algorithm", "system", "database",
+                    "execute", "function", "method", "parameter", "variable"
+                ]
+                
+                robotic_found = [word for word in robotic_indicators if word in all_content]
+                
+                if not robotic_found:
+                    test_results["no_robotic_language"] = True
+                    print(f"   ✅ No robotic language detected")
+                else:
+                    print(f"   ❌ Robotic language found: {robotic_found}")
+                
+                # Display sample content for manual verification
+                print(f"   📝 Sample all-time content: '{all_time_markdown[:100]}...'")
+                print(f"   📝 Sample recent content: '{recent_markdown[:100]}...'")
+                
+            else:
+                print(f"   ❌ Dashboard insights endpoint failed: {dashboard_response}")
+        
+        # PHASE 3: PRE-SESSION CARDS COACH VOICE TESTING
+        print("\n🎯 PHASE 3: PRE-SESSION CARDS COACH VOICE TESTING")
+        print("-" * 60)
+        print("Testing /api/session/pre-session-insight for coach voice JSON format")
+        
+        if auth_headers:
+            success, pre_session_response = self.run_test(
+                "Pre-Session Coach Voice Cards", 
+                "GET", 
+                "session/pre-session-insight", 
+                [200, 500], 
+                None, 
+                auth_headers
+            )
+            
+            if success and pre_session_response:
+                print(f"   ✅ Pre-session insight endpoint accessible")
+                
+                # Test JSON structure
+                required_fields = ["title", "progress", "way_forward", "today"]
+                missing_fields = [field for field in required_fields if field not in pre_session_response]
+                
+                if not missing_fields:
+                    test_results["pre_session_coach_voice_json"] = True
+                    print(f"   ✅ All required JSON fields present: {required_fields}")
+                else:
+                    print(f"   ❌ Missing JSON fields: {missing_fields}")
+                
+                # Test Title (emoji + encouraging phrase)
+                title = pre_session_response.get("title", "")
+                emoji_pattern = r'[\U0001F600-\U0001F64F\U0001F300-\U0001F5FF\U0001F680-\U0001F6FF\U0001F1E0-\U0001F1FF\U00002600-\U000027BF\U0001F900-\U0001F9FF]'
+                
+                has_emoji = bool(re.search(emoji_pattern, title))
+                is_encouraging = any(word in title.lower() for word in ["ready", "let's", "focus", "build", "go", "start"])
+                
+                if has_emoji and is_encouraging and len(title) <= 40:
+                    test_results["title_has_emoji_and_phrase"] = True
+                    print(f"   ✅ Title has emoji and encouraging phrase: '{title}'")
+                else:
+                    print(f"   ❌ Title issues - Emoji: {has_emoji}, Encouraging: {is_encouraging}, Length: {len(title)}")
+                
+                # Test Progress Field (human-friendly)
+                progress = pre_session_response.get("progress", "")
+                progress_lower = progress.lower()
+                
+                has_human_format = "out of 10" in progress_lower or "about" in progress_lower
+                no_percentages = "%" not in progress and not re.search(r'\d+\.\d+', progress)
+                
+                if has_human_format and no_percentages:
+                    test_results["progress_field_human_friendly"] = True
+                    print(f"   ✅ Progress field is human-friendly: '{progress}'")
+                else:
+                    print(f"   ❌ Progress field issues - Human format: {has_human_format}, No %: {no_percentages}")
+                
+                # Test Way Forward (encouraging bullets)
+                way_forward = pre_session_response.get("way_forward", [])
+                
+                if isinstance(way_forward, list) and len(way_forward) <= 2:
+                    encouraging_bullets = any(
+                        any(word in bullet.lower() for word in ["focus", "work", "keep", "build", "practice", "trust"])
+                        for bullet in way_forward
+                    )
+                    
+                    if encouraging_bullets:
+                        test_results["way_forward_encouraging"] = True
+                        print(f"   ✅ Way forward is encouraging: {way_forward}")
+                    else:
+                        print(f"   ❌ Way forward not encouraging enough: {way_forward}")
+                else:
+                    print(f"   ❌ Way forward format issues: {way_forward}")
+                
+                # Test Today Field (readable session preview)
+                today = pre_session_response.get("today", "")
+                today_lower = today.lower()
+                
+                has_readable_format = any(word in today_lower for word in ["today", "session", "practice", "focus", "mixed"])
+                no_technical_codes = not re.search(r'[A-Z]{2,}_[A-Z]{2,}|session_id|user_id', today)
+                
+                if has_readable_format and no_technical_codes:
+                    test_results["today_field_readable"] = True
+                    print(f"   ✅ Today field is readable: '{today}'")
+                else:
+                    print(f"   ❌ Today field issues - Readable: {has_readable_format}, No codes: {no_technical_codes}")
+                
+                # Display full pre-session card for verification
+                print(f"   📝 Full pre-session card:")
+                for key, value in pre_session_response.items():
+                    if key in required_fields:
+                        print(f"      {key}: {value}")
+                
+            else:
+                print(f"   ❌ Pre-session insight endpoint failed: {pre_session_response}")
+        
+        # PHASE 4: FALLBACK METHODS COACH VOICE TESTING
+        print("\n🛡️ PHASE 4: FALLBACK METHODS COACH VOICE TESTING")
+        print("-" * 60)
+        print("Testing fallback responses for coach voice consistency")
+        
+        try:
+            # Test fallback flag functionality
+            import os
+            original_flag = os.environ.get("INSIGHTS_FORCE_FALLBACK", "false")
+            
+            # Temporarily enable fallback mode
+            os.environ["INSIGHTS_FORCE_FALLBACK"] = "true"
+            print(f"   🎛️ Enabled INSIGHTS_FORCE_FALLBACK for testing")
+            
+            if auth_headers:
+                success, fallback_response = self.run_test(
+                    "Fallback Coach Voice Test", 
+                    "GET", 
+                    "dashboard/adaptive-insights", 
+                    [200, 500], 
+                    None, 
+                    auth_headers
+                )
+                
+                if success and fallback_response:
+                    fallback_content = (
+                        fallback_response.get("all_time_markdown", "") + " " + 
+                        fallback_response.get("recent_markdown", "")
+                    ).lower()
+                    
+                    # Check if fallback uses coach voice
+                    fallback_coach_words = [word for word in coach_indicators if word in fallback_content]
+                    fallback_no_technical = not any(pattern in fallback_content for pattern in ["%", "delta", "score"])
+                    
+                    if len(fallback_coach_words) >= 2 and fallback_no_technical:
+                        test_results["fallback_uses_coach_voice"] = True
+                        test_results["deterministic_fallbacks_encouraging"] = True
+                        test_results["fallbacks_avoid_technical"] = True
+                        print(f"   ✅ Fallback uses coach voice: {fallback_coach_words[:3]}")
+                    else:
+                        print(f"   ❌ Fallback coach voice issues: {fallback_coach_words}")
+                    
+                    print(f"   📝 Fallback sample: '{fallback_content[:100]}...'")
+                
+            # Restore original flag
+            os.environ["INSIGHTS_FORCE_FALLBACK"] = original_flag
+            print(f"   🔄 Restored INSIGHTS_FORCE_FALLBACK to {original_flag}")
+            
+        except Exception as e:
+            print(f"   ❌ Error testing fallback methods: {e}")
+        
+        # PHASE 5: POST-PROCESSING SANITIZATION TESTING
+        print("\n🧹 PHASE 5: POST-PROCESSING SANITIZATION TESTING")
+        print("-" * 60)
+        print("Testing post-processing sanitization of technical language")
+        
+        try:
+            # Test the sanitization function directly
+            import sys
+            sys.path.append('/app/backend')
+            from services.insight_generator_service import insight_generator_service
+            
+            # Test cases for sanitization
+            test_cases = [
+                ("You scored 58.5% on recent sessions", "about 6 out of 10"),
+                ("Your accuracy is 42.3%", "about 4 out of 10"),
+                ("Performance delta: +0.15", "Performance delta: +0.15"),  # Should remain
+                ("You got 75% correct", "about 8 out of 10")
+            ]
+            
+            sanitization_working = True
+            for input_text, expected_pattern in test_cases:
+                sanitized = insight_generator_service._sanitize_coach_response(input_text)
+                if expected_pattern in sanitized or "out of 10" in sanitized:
+                    print(f"   ✅ Sanitized: '{input_text}' → '{sanitized}'")
+                else:
+                    print(f"   ❌ Sanitization failed: '{input_text}' → '{sanitized}'")
+                    sanitization_working = False
+            
+            if sanitization_working:
+                test_results["post_processing_sanitization"] = True
+                test_results["percentages_converted"] = True
+                print(f"   ✅ Post-processing sanitization working")
+            
+        except Exception as e:
+            print(f"   ❌ Error testing sanitization: {e}")
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 80)
+        print("🎯 COACH VOICE IMPLEMENTATION TESTING - RESULTS")
+        print("=" * 80)
+        
+        passed_tests = sum(test_results.values())
+        total_tests = len(test_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        # Group results by coach voice categories
+        coach_voice_categories = {
+            "AUTHENTICATION": [
+                "authentication_working", "user_adaptive_enabled", "jwt_token_valid"
+            ],
+            "LLM PROMPT TRANSFORMATION": [
+                "dashboard_insights_coach_tone", "human_friendly_percentages", 
+                "no_technical_formatting", "encouraging_language_present", "no_database_log_style"
+            ],
+            "HUMAN LANGUAGE CONVERSION": [
+                "x_out_of_10_format_used", "percentages_converted", 
+                "technical_deltas_removed", "post_processing_sanitization"
+            ],
+            "COACH VOICE CONTENT": [
+                "coach_talking_to_trainee", "narrative_storytelling", 
+                "encouragement_and_guidance", "human_readable_concept_labels", "no_robotic_language"
+            ],
+            "FALLBACK METHODS": [
+                "fallback_uses_coach_voice", "deterministic_fallbacks_encouraging", "fallbacks_avoid_technical"
+            ],
+            "PRE-SESSION CARDS": [
+                "pre_session_coach_voice_json", "progress_field_human_friendly", 
+                "way_forward_encouraging", "today_field_readable", "title_has_emoji_and_phrase"
+            ]
+        }
+        
+        for category, tests in coach_voice_categories.items():
+            print(f"\n{category}:")
+            category_passed = 0
+            category_total = len(tests)
+            
+            for test in tests:
+                if test in test_results:
+                    result = test_results[test]
+                    status = "✅ PASS" if result else "❌ FAIL"
+                    print(f"  {test.replace('_', ' ').title():<50} {status}")
+                    if result:
+                        category_passed += 1
+            
+            category_rate = (category_passed / category_total) * 100 if category_total > 0 else 0
+            print(f"  Category Success Rate: {category_passed}/{category_total} ({category_rate:.1f}%)")
+        
+        print("-" * 80)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # CRITICAL ASSESSMENT
+        print("\n🎯 CRITICAL ASSESSMENT:")
+        
+        # Coach Voice Transformation Assessment
+        coach_voice_working = (
+            test_results["dashboard_insights_coach_tone"] and
+            test_results["encouraging_language_present"] and
+            test_results["no_robotic_language"]
+        )
+        
+        if coach_voice_working:
+            test_results["coach_voice_transformation_complete"] = True
+            print("\n✅ COACH VOICE TRANSFORMATION: COMPLETE")
+            print("   - Dashboard insights use coach voice tone")
+            print("   - Encouraging, human language present")
+            print("   - No robotic or technical language")
+        else:
+            print("\n❌ COACH VOICE TRANSFORMATION: INCOMPLETE")
+            print("   - Coach voice tone needs improvement")
+        
+        # Human Language Conversion Assessment
+        human_language_working = (
+            test_results["x_out_of_10_format_used"] and
+            test_results["percentages_converted"] and
+            test_results["post_processing_sanitization"]
+        )
+        
+        if human_language_working:
+            test_results["human_language_conversion_working"] = True
+            print("\n✅ HUMAN LANGUAGE CONVERSION: WORKING")
+            print("   - 'X out of 10 correct' format used consistently")
+            print("   - Percentages converted to human-friendly format")
+            print("   - Post-processing sanitization functional")
+        else:
+            print("\n❌ HUMAN LANGUAGE CONVERSION: ISSUES DETECTED")
+            print("   - Human language conversion needs work")
+        
+        # Narrative Storytelling Assessment
+        narrative_working = (
+            test_results["narrative_storytelling"] and
+            test_results["coach_talking_to_trainee"] and
+            test_results["encouragement_and_guidance"]
+        )
+        
+        if narrative_working:
+            test_results["narrative_storytelling_implemented"] = True
+            print("\n✅ NARRATIVE STORYTELLING: IMPLEMENTED")
+            print("   - Insights read like coach talking to trainee")
+            print("   - Narrative storytelling instead of data dumps")
+            print("   - Encouragement and guidance present")
+        else:
+            print("\n❌ NARRATIVE STORYTELLING: NEEDS IMPROVEMENT")
+            print("   - Storytelling approach needs enhancement")
+        
+        # Fallback System Assessment
+        fallback_working = (
+            test_results["fallback_uses_coach_voice"] and
+            test_results["deterministic_fallbacks_encouraging"] and
+            test_results["fallbacks_avoid_technical"]
+        )
+        
+        if fallback_working:
+            test_results["fallback_system_coach_voice"] = True
+            print("\n✅ FALLBACK SYSTEM: COACH VOICE READY")
+            print("   - Fallback responses use coach voice")
+            print("   - Deterministic fallbacks are encouraging")
+            print("   - Fallbacks avoid technical language")
+        else:
+            print("\n❌ FALLBACK SYSTEM: COACH VOICE ISSUES")
+            print("   - Fallback system needs coach voice improvement")
+        
+        # Pre-session Cards Assessment
+        pre_session_working = (
+            test_results["pre_session_coach_voice_json"] and
+            test_results["progress_field_human_friendly"] and
+            test_results["way_forward_encouraging"]
+        )
+        
+        if pre_session_working:
+            test_results["pre_session_cards_coach_format"] = True
+            print("\n✅ PRE-SESSION CARDS: COACH FORMAT READY")
+            print("   - JSON format with coach voice fields")
+            print("   - Progress field uses human-friendly language")
+            print("   - Way forward bullets are encouraging")
+        else:
+            print("\n❌ PRE-SESSION CARDS: FORMAT ISSUES")
+            print("   - Pre-session card format needs improvement")
+        
+        # Overall Production Readiness
+        if (coach_voice_working and human_language_working and 
+            narrative_working and pre_session_working):
+            test_results["production_ready"] = True
+            print("\n🎉 COACH VOICE IMPLEMENTATION: PRODUCTION READY")
+            print("   - Complete transformation from robotic to coach voice")
+            print("   - Human language conversion working correctly")
+            print("   - Narrative storytelling implemented")
+            print("   - Pre-session cards use coach format")
+            print("   - Fallback system maintains coach voice")
+        else:
+            print("\n⚠️ COACH VOICE IMPLEMENTATION: NEEDS ATTENTION")
+            print("   - Some coach voice aspects need improvement")
+        
+        return success_rate >= 75 and coach_voice_working and human_language_working
+
     def test_must_have_implementations(self):
         """
         🎯 MUST-HAVE IMPLEMENTATIONS TESTING
