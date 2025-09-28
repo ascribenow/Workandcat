@@ -1897,6 +1897,59 @@ async def get_current_session_status(user_id: str = Depends(get_current_user)):
             "message": "Error checking session status"
         }
 
+@app.get("/api/dashboard/adaptive-insights")
+async def get_dashboard_adaptive_insights(user_id: str = Depends(get_current_user)):
+    """Get adaptive insights for dashboard (all-time + recent momentum)"""
+    try:
+        insights = insight_cache_service.get_dashboard_insights(user_id)
+        return insights
+    except Exception as e:
+        logger.error(f"Error getting dashboard insights for user {user_id[:8]}: {e}")
+        raise HTTPException(status_code=500, detail="Failed to load adaptive insights")
+
+@app.get("/api/session/pre-session-insight")
+async def get_pre_session_insight(
+    session_id: Optional[str] = None,
+    user_id: str = Depends(get_current_user)
+):
+    """Get pre-session insight card"""
+    try:
+        # If no session_id provided, try to get the latest planned session
+        if not session_id:
+            # Get user's latest planned session from session_packs
+            db = SessionLocal()
+            try:
+                latest_pack = db.execute(text("""
+                    SELECT session_id FROM session_packs 
+                    WHERE user_id = :user_id 
+                    ORDER BY created_at DESC 
+                    LIMIT 1
+                """), {"user_id": user_id}).fetchone()
+                
+                if latest_pack:
+                    session_id = latest_pack.session_id
+                else:
+                    session_id = "preview-session"  # Fallback
+            finally:
+                db.close()
+        
+        insight_card = insight_cache_service.get_pre_session_insight(user_id, session_id)
+        return insight_card
+        
+    except Exception as e:
+        logger.error(f"Error getting pre-session insight for user {user_id[:8]}: {e}")
+        raise HTTPException(status_code=500, detail="Failed to load pre-session insight")
+
+@app.get("/api/dashboard/insights-metrics")  
+async def get_insights_cache_metrics(user_id: str = Depends(get_current_user)):
+    """Get cache metrics for observability (admin/debug use)"""
+    try:
+        metrics = insight_cache_service.get_cache_metrics()
+        return metrics
+    except Exception as e:
+        logger.error(f"Error getting insights metrics: {e}")
+        raise HTTPException(status_code=500, detail="Failed to get metrics")
+
 @app.get("/api/dashboard/progress")
 async def get_dashboard_progress(user_id: str = Depends(get_current_user)):
     """Temporary endpoint for dashboard progress"""
