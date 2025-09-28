@@ -36,6 +36,8 @@ class InsightCacheService:
     def __init__(self):
         self.cache_ttl_hours = 24
         self.logger = logging.getLogger(__name__)
+        # Clean up memory cache on initialization
+        cleanup_memory_cache()
     
     def get_dashboard_insights(self, user_id: str) -> Dict[str, Any]:
         """Get dashboard insights with ULTRA-FAST in-memory + DB cache strategy"""
