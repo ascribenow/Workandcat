@@ -6,6 +6,10 @@ from database import SessionLocal, UserDashboardInsights, UserPreSessionInsights
 from services.adaptive_insights_service import adaptive_insights_service
 from services.insight_generator_service import insight_generator_service
 
+# In-memory cache for ultra-fast responses (Redis alternative for small datasets)
+_memory_cache = {}
+_cache_timestamps = {}
+
 logger = logging.getLogger(__name__)
 
 class InsightCacheService:
