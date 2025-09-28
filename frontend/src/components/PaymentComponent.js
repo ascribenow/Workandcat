@@ -104,14 +104,15 @@ const PaymentComponent = ({ planType, amount, planName, description, onSuccess, 
       console.log('Plan availability result:', availability);
 
       if (!availability.available) {
-        // Show availability message to user
-        if (availability.reason === 'not_yet_available') {
-          alert(availability.message || 'This plan is not yet available');
-        } else if (availability.reason === 'no_longer_available') {
-          alert(availability.message || 'This plan is no longer available');
-        } else {
-          alert(availability.message || 'This plan is not available');
-        }
+        // Show availability modal instead of alert
+        setAvailabilityInfo({
+          planType,
+          planName,
+          reason: availability.reason,
+          message: availability.message,
+          availableDate: availability.available_date
+        });
+        setShowAvailabilityModal(true);
         setLoading(false);
         return;
       }
