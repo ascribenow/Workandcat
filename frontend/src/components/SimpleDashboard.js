@@ -166,6 +166,104 @@ export const SimpleDashboard = () => {
     }));
   };
 
+  // Simple markdown to HTML converter (basic)
+  const markdownToHtml = (markdown) => {
+    if (!markdown) return '';
+    return markdown
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')  // Bold
+      .replace(/^\* (.*)/gm, '<li>$1</li>')              // List items
+      .replace(/\n/g, '<br>')                            // Line breaks
+      .replace(/(<li>.*<\/li>)/gs, '<ul>$1</ul>');       // Wrap lists
+  };
+
+  const renderAdaptiveInsights = () => {
+    if (insightsLoading) {
+      return (
+        <div className="bg-white rounded-lg shadow p-6 mb-8">
+          <div className="animate-pulse">
+            <div className="h-6 bg-gray-200 rounded w-1/3 mb-4"></div>
+            <div className="space-y-2">
+              <div className="h-4 bg-gray-200 rounded w-full"></div>
+              <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+              <div className="h-4 bg-gray-200 rounded w-4/6"></div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    if (!adaptiveInsights) return null;
+
+    return (
+      <div className="bg-white rounded-lg shadow p-6 mb-8">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-2xl font-semibold text-gray-900">Adaptive Insights</h2>
+          <span className="text-xs text-gray-500">
+            Updated {new Date(adaptiveInsights.last_updated_at).toLocaleDateString()}
+          </span>
+        </div>
+        
+        {/* All-Time Journey Section */}
+        <div className="mb-6">
+          <button 
+            className="flex items-center justify-between w-full text-left p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+            onClick={() => setAllTimeExpanded(!allTimeExpanded)}
+          >
+            <h3 className="text-lg font-medium text-gray-800 flex items-center">
+              <span className="mr-2">🏁</span>
+              All-Time Journey
+            </h3>
+            <svg 
+              className={`w-5 h-5 transform transition-transform ${allTimeExpanded ? 'rotate-180' : ''}`}
+              fill="none" stroke="currentColor" viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          
+          {allTimeExpanded && (
+            <div className="mt-3 p-4 bg-blue-50 rounded-lg">
+              <div className="prose prose-sm max-w-none text-gray-700">
+                <div dangerouslySetInnerHTML={{ 
+                  __html: markdownToHtml(adaptiveInsights.all_time_markdown) 
+                }} />
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Recent Momentum Section */}
+        <div>
+          <button 
+            className="flex items-center justify-between w-full text-left p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+            onClick={() => setRecentExpanded(!recentExpanded)}
+          >
+            <h3 className="text-lg font-medium text-gray-800 flex items-center">
+              <span className="mr-2">📈</span>
+              Recent Momentum
+            </h3>
+            <svg 
+              className={`w-5 h-5 transform transition-transform ${recentExpanded ? 'rotate-180' : ''}`}
+              fill="none" stroke="currentColor" viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          
+          {recentExpanded && (
+            <div className="mt-3 p-4 bg-green-50 rounded-lg">
+              <div className="prose prose-sm max-w-none text-gray-700">
+                <div dangerouslySetInnerHTML={{ 
+                  __html: markdownToHtml(adaptiveInsights.recent_markdown) 
+                }} />
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   // Show loading while user/token is not available
   if (!user || !token || loading) {
     return (
