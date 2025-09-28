@@ -79,6 +79,11 @@ class AdaptiveInsightsService:
         try:
             # Get recent session data for quality insights
             recent_sessions = self._get_recent_session_ids(db, user_id, window)
+            actual_window = len(recent_sessions)
+            
+            # LOW DATA GUARD: Handle 0-2 sessions gracefully
+            is_low_data = actual_window <= 2
+            is_new_user = actual_window == 0
             
             # Extract quality data for meaningful insights
             accuracy_series = self._get_accuracy_series_fast(db, user_id, recent_sessions)
@@ -87,12 +92,15 @@ class AdaptiveInsightsService:
             today_preview = self._get_session_preview_fast(db, session_id)
             
             return {
-                "window": len(recent_sessions) or window,
+                "window": actual_window,
                 "accuracy_series": accuracy_series,
                 "concept_shifts": concept_shifts,
                 "coverage_change": coverage_change,
                 "today_preview": today_preview,
-                "optimization": "background_job_quality"
+                "optimization": "background_job_quality",
+                "is_low_data": is_low_data,
+                "is_new_user": is_new_user,
+                "data_quality": "welcome" if is_new_user else "learning" if is_low_data else "established"
             }
         finally:
             db.close()
