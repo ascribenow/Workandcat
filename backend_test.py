@@ -1369,7 +1369,16 @@ class CATBackendTester:
             
             # Analyze pre-session response for token limits
             if 'presession_response' in locals() and presession_response:
-                presession_content = presession_response.get("way_forward", "") + presession_response.get("today", "")
+                way_forward = presession_response.get("way_forward", "")
+                today = presession_response.get("today", "")
+                
+                # Handle both string and list formats
+                if isinstance(way_forward, list):
+                    way_forward = " ".join(way_forward)
+                if isinstance(today, list):
+                    today = " ".join(today)
+                
+                presession_content = str(way_forward) + str(today)
                 
                 # Check Pre-session insights (target: 200 tokens ≈ 800 characters)
                 if len(presession_content) > 600:  # Generous threshold for 200 tokens
