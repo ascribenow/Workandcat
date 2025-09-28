@@ -272,18 +272,29 @@ class InsightCacheService:
         }
     
     def _is_cache_fresh(self, last_updated: datetime, hours: int = None) -> bool:
-        """Check if cache is within TTL"""
+        """Check if cache is still fresh based on TTL - OPTIMIZED with edge case handling"""
         if not last_updated:
             return False
-        
-        ttl_hours = hours or self.cache_ttl_hours
-        cutoff = datetime.now(timezone.utc) - timedelta(hours=ttl_hours)
-        
-        # Handle timezone-naive datetimes
-        if last_updated.tzinfo is None:
-            last_updated = last_updated.replace(tzinfo=timezone.utc)
-        
-        return last_updated > cutoff
+            
+        try:
+            ttl_hours = hours or self.cache_ttl_hours
+            
+            # Handle timezone-aware datetime properly
+            if last_updated.tzinfo is None:
+                last_updated = last_updated.replace(tzinfo=timezone.utc)
+            
+            cache_age = datetime.now(timezone.utc) - last_updated
+            is_fresh = cache_age.total_seconds() < (ttl_hours * 3600)
+            
+            # Log cache age for debugging
+            age_minutes = cache_age.total_seconds() / 60
+            self.logger.debug(f"Cache age: {age_minutes:.1f}min, TTL: {ttl_hours}h, Fresh: {is_fresh}")
+            
+            return is_fresh
+            
+        except Exception as e:
+            self.logger.warning(f"Cache freshness check failed: {e}")
+            return False  # Treat as stale if calculation fails
     
     def _store_debug_slices(self, db: Session, user_id: str, all_time_slice: Dict = None, 
                            recent_slice: Dict = None, pre_session_slice: Dict = None):
