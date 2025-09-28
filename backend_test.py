@@ -1616,7 +1616,7 @@ class CATBackendTester:
             ]
         }
         
-        for category, tests in optimization_categories.items():
+        for category, tests in cache_categories.items():
             print(f"\n{category}:")
             category_passed = 0
             category_total = len(tests)
