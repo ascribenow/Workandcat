@@ -2293,17 +2293,17 @@ class CATBackendTester:
         return success_rate >= 75 and natural_conversation_working and rigid_system_removed
 
 def main():
-    """Run the natural Ask Twelvr conversation system testing"""
-    print("🚀 NATURAL ASK TWELVR CONVERSATION SYSTEM TESTING")
+    """Run the enhanced Ask Twelvr system testing"""
+    print("🚀 ENHANCED ASK TWELVR SYSTEM TESTING")
     print("=" * 80)
-    print("Testing the NEW NATURAL conversation system replacing rigid Mode 1/2/3 framework")
+    print("Testing ENHANCED Ask Twelvr with rich context and solution intelligence")
     print("=" * 80)
     
     tester = CATBackendTester()
     
     try:
-        # Run the natural conversation system test
-        success = tester.test_natural_ask_twelvr_conversation_system()
+        # Run the enhanced Ask Twelvr system test
+        success = tester.test_enhanced_ask_twelvr_system()
         
         print("\n" + "=" * 80)
         print("🎯 NATURAL CONVERSATION TESTING SUMMARY")
