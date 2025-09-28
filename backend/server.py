@@ -1986,6 +1986,29 @@ async def get_insights_metrics():
             "insights_cache_age_seconds": {"dashboard": 0, "pre_session": 0},
             "insights_refresh_failures_total": 0
         }
+
+@app.post("/api/insights/force-refresh")
+async def force_insights_refresh(user_id: str = Depends(get_current_user)):
+    """Force refresh insights for current user - TESTING ENDPOINT"""
+    try:
+        from services.bg_job_queue import job_queue
+        job_id = await job_queue.enqueue_job(
+            job_type="UPDATE_INSIGHTS",
+            user_id=user_id,
+            session_id="force-refresh"
+        )
+        logger.info(f"🔄 Force triggered UPDATE_INSIGHTS job {job_id[:8]} for user {user_id[:8]}")
+        return {
+            "success": True,
+            "job_id": job_id,
+            "message": f"Insights refresh triggered for user {user_id[:8]}"
+        }
+    except Exception as e:
+        logger.error(f"Failed to force refresh insights for user {user_id[:8]}: {e}")
+        return {
+            "success": False,
+            "error": str(e)
+        }
     try:
         metrics = insight_cache_service.get_cache_metrics()
         return metrics
