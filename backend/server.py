@@ -428,6 +428,16 @@ async def create_subscription_payment(
         plan_type = request.get("plan_type", "pro_regular")
         referral_code = request.get("referral_code")
         
+        # Check if plan is available for subscription
+        availability = subscription_service.check_plan_availability(plan_type)
+        if not availability["available"]:
+            return {
+                "success": False,
+                "error": "plan_not_available",
+                "message": availability.get("message", "Plan is not available"),
+                "availability": availability
+            }
+        
         # Get user details
         user_result = db.execute(select(User).where(User.id == user_id))
         user = user_result.scalar_one_or_none()
