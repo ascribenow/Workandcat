@@ -335,6 +335,13 @@ class ReferralService:
         """Generate a UUID for database records"""
         import uuid
         return str(uuid.uuid4())
+    
+    def generate_referral_code(self, db: Session) -> str:
+        """
+        Generate a unique referral code for a new user.
+        This is an alias for generate_unique_referral_code for backward compatibility.
+        """
+        return self.generate_unique_referral_code(db)
 
 # Global service instance
 referral_service = ReferralService()
