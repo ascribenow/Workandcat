@@ -241,13 +241,7 @@ IMPORTANT:
                 return fallback
                 
             prompt = self._build_pre_session_prompt(slice_dict)
-            response = call_llm_with_fallback(
-                prompt=prompt,
-                model_primary="gpt-4o",  # Best model for quality insights
-                model_fallback="gemini-2.5-flash", 
-                max_tokens=200,  # Generous tokens for rich insights  
-                timeout=15  # Adequate timeout for quality
-            )
+            response = self._call_gemini_llm(prompt)
             
             if response:
                 try:
