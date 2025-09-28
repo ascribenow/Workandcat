@@ -32,13 +32,8 @@ class InsightGeneratorService:
             # Pure LLM freedom prompt - no restrictions, complete creative control
             prompt = self._build_comprehensive_insights_prompt(comprehensive_data)
             
-            response = call_llm_with_fallback(
-                prompt=prompt,
-                model_primary="gpt-4o",  # Best model for comprehensive analysis
-                model_fallback="gemini-2.5-flash",
-                max_tokens=800,  # Generous tokens for comprehensive insights
-                timeout=20  # Adequate time for analysis
-            )
+            # Use actual LLM implementation (same as Ask Twelvr)
+            response = self._call_gemini_llm(prompt)
             
             if response and len(response.strip()) > 50:
                 # Parse LLM response (expecting JSON with all insights)
