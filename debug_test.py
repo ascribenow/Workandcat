@@ -2,7 +2,7 @@ import requests
 import json
 
 # Test the specific failing endpoints
-base_url = "https://catprep-adapt.preview.emergentagent.com/api"
+base_url = "https://insight-engine-16.preview.emergentagent.com/api"
 
 # Login as student first
 login_data = {

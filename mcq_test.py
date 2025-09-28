@@ -8,7 +8,7 @@ import time
 
 class MCQAnswerComparisonTester:
     def __init__(self):
-        self.base_url = "https://catprep-adapt.preview.emergentagent.com/api"
+        self.base_url = "https://insight-engine-16.preview.emergentagent.com/api"
         self.auth_headers = None
         self.user_id = None
         

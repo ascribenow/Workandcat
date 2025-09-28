@@ -11,7 +11,7 @@ import sys
 def comprehensive_session_analysis():
     """Comprehensive analysis of session sequence logic"""
     
-    base_url = "https://catprep-adapt.preview.emergentagent.com/api"
+    base_url = "https://insight-engine-16.preview.emergentagent.com/api"
     
     print("🎯 COMPREHENSIVE SESSION SEQUENCE ANALYSIS")
     print("=" * 70)
