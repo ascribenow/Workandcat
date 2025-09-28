@@ -1229,7 +1229,7 @@ class CATBackendTester:
             "password": "student123"
         }
         
-        success, response = self.run_test("Final Verification Authentication", "POST", "auth/login", [200, 401], auth_data)
+        success, response = self.run_test("Pure LLM Approach Authentication", "POST", "auth/login", [200, 401], auth_data)
         
         auth_headers = None
         user_id = None
