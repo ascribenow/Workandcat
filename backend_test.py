@@ -34807,27 +34807,28 @@ if __name__ == "__main__":
 
     def run_all_tests(self):
         """Run all available tests"""
-        print("🚀 STARTING ADAPTIVE INSIGHTS FIXES VERIFICATION")
+        print("🚀 STARTING PURE LLM FREEDOM APPROACH VERIFICATION")
         print("=" * 80)
         
-        # Run the Adaptive Insights fixes verification test
-        insights_success = self.test_adaptive_insights_fixes_verification()
+        # Run the Pure LLM Freedom Approach verification test
+        pure_llm_success = self.test_pure_llm_freedom_adaptive_insights_complete()
         
         print("\n" + "=" * 80)
-        print("🎯 ADAPTIVE INSIGHTS FIXES VERIFICATION SUMMARY")
+        print("🎯 PURE LLM FREEDOM APPROACH VERIFICATION SUMMARY")
         print("=" * 80)
         
-        print(f"Adaptive Insights Fixes Verification: {'✅ PASSED' if insights_success else '❌ FAILED'}")
+        print(f"Pure LLM Freedom Approach Verification: {'✅ PASSED' if pure_llm_success else '❌ FAILED'}")
         
-        overall_success = insights_success
+        overall_success = pure_llm_success
         
         if overall_success:
-            print("\n🎉 ADAPTIVE INSIGHTS FIXES VERIFICATION PASSED!")
-            print("✅ Pre-session insights return contextual coach voice instead of generic templates")
-            print("✅ Coach voice enhancements working with human-friendly language")
-            print("✅ Background job pipeline functional with UPDATE_INSIGHTS jobs")
-            print("✅ Real user data driving adaptive insights instead of synthetic placeholders")
-            print("✅ Overall system shows significant improvement from previous issues")
+            print("\n🎉 PURE LLM FREEDOM APPROACH VERIFICATION PASSED!")
+            print("✅ Comprehensive data extraction working with 50+ data points")
+            print("✅ LLM generates natural, encouraging insights without rigid formatting")
+            print("✅ Background jobs use new pure LLM approach successfully")
+            print("✅ Direct storage methods work correctly")
+            print("✅ APIs return LLM-generated content with coach voice")
+            print("✅ System significantly exceeds previous 54.5% success rate")
         else:
             print("\n⚠️ ADAPTIVE INSIGHTS FIXES VERIFICATION FAILED - REVIEW REQUIRED")
             print("❌ Some fixes need additional work or are not fully functional")
