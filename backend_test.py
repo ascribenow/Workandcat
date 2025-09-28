@@ -1285,9 +1285,11 @@ class CATBackendTester:
         print("-" * 60)
         print("Testing that LLM receives full question context and uses it intelligently")
         
-        if auth_headers and sample_question_id:
-            # Test basic context awareness
+        if auth_headers and sample_questions:
+            # Test basic context awareness with first question
             context_test_message = "Can you help me understand this problem?"
+            sample_question_data = sample_questions[0]
+            sample_question_id = sample_question_data.get('id')
             
             doubt_data = {
                 "question_id": sample_question_id,
