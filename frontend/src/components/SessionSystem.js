@@ -48,6 +48,10 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
   // Doubt conversation states
   const [showDoubtModal, setShowDoubtModal] = useState(false);
   const [doubtMessage, setDoubtMessage] = useState('');
+  
+  // Pre-session insight states
+  const [preSessionInsight, setPreSessionInsight] = useState(null);
+  const [showPreSessionModal, setShowPreSessionModal] = useState(false);
   const [doubtHistory, setDoubtHistory] = useState([]);
   const [doubtLoading, setDoubtLoading] = useState(false);
   const [messageCount, setMessageCount] = useState(0);
