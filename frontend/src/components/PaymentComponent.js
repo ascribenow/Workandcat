@@ -158,6 +158,13 @@ const PaymentComponent = ({ planType, amount, planName, description, onSuccess, 
       const result = await response.json();
       console.log('Payment data received:', result);
       
+      // Check if backend returned plan availability error
+      if (result.success === false && result.error === 'plan_not_available') {
+        alert(result.message || 'This plan is not available');
+        setLoading(false);
+        return;
+      }
+      
       // For all payment types, open Razorpay checkout modal
       console.log('Opening Razorpay checkout with payment data:', result);
 
