@@ -30,11 +30,8 @@ async def handle_summarize_session(job: Dict[str, Any]) -> Dict[str, Any]:
     logger.info(f"🧠 SUMMARIZE_SESSION: user {user_id[:8]}, session {session_id[:8] if session_id else 'N/A'}")
     
     try:
-        # Step 1: Run existing summarizer service for LLM analysis
-        summarizer_result = await summarizer_service.run(
-            user_id=user_id,
-            session_id=session_id
-        )
+        # Step 1: Run simplified summarizer for concept analysis
+        summarizer_result = await run_simplified_summarizer(user_id, session_id)
         
         # Step 2: Update learner notebook with session insights
         await update_learner_notebook_from_session(user_id, session_id, summarizer_result)
