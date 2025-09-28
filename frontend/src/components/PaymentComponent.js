@@ -163,7 +163,14 @@ const PaymentComponent = ({ planType, amount, planName, description, onSuccess, 
       
       // Check if backend returned plan availability error
       if (result.success === false && result.error === 'plan_not_available') {
-        alert(result.message || 'This plan is not available');
+        setAvailabilityInfo({
+          planType,
+          planName,
+          reason: result.availability?.reason || 'unavailable',
+          message: result.message,
+          availableDate: result.availability?.available_date
+        });
+        setShowAvailabilityModal(true);
         setLoading(false);
         return;
       }
