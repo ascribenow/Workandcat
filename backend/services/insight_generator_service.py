@@ -263,48 +263,29 @@ Data: {json.dumps(slice_dict, indent=2)}
         return f"""You've put in solid work across {sessions} sessions, and that consistency is your biggest win right now. The fundamentals are settling in, and you're getting comfortable with different question styles. This steady rhythm is exactly what builds CAT readiness—keep the momentum going."""
     
     def _fallback_recent_markdown(self, slice_dict: Dict[str, Any]) -> str:
-        """Deterministic fallback for recent insights"""
+        """Deterministic fallback for recent insights (coach voice)"""
         accuracy_series = slice_dict.get("accuracy_series", [])
         concept_shifts = slice_dict.get("concept_shifts_recent", [])
-        coverage_recent = slice_dict.get("coverage_recent", {})
-        pyq_recent = slice_dict.get("pyq_recent", {})
-        range_sessions = slice_dict.get("range_sessions", 20)
         
-        lines = []
-        
-        # Accuracy trend
+        # Simple coach voice based on data
         if len(accuracy_series) >= 2:
             start_acc = accuracy_series[0]
             end_acc = accuracy_series[-1]
-            trend = "improving" if end_acc > start_acc else "steady"
-            lines.append(f"Last {len(accuracy_series)} sessions show {trend} accuracy from {start_acc:.0%} to {end_acc:.0%}.")
-        elif len(accuracy_series) == 1:
-            lines.append(f"Recent accuracy: {accuracy_series[0]:.0%}.")
-        else:
-            lines.append("Building momentum with recent sessions.")
+            start_human = self._percent_to_human(start_acc)
+            end_human = self._percent_to_human(end_acc)
+            
+            if end_acc > start_acc:
+                return f"Your recent sessions are trending upward, moving from {start_human} to {end_human}. That upward momentum is exactly what we want to see—let's keep it rolling."
+            else:
+                return f"Recent accuracy has dipped a bit, going from {start_human} to {end_human}. This happens when questions get tougher—we'll steady the ship and build back up."
         
-        # Concept shifts
+        # If no series data, focus on concepts
         if concept_shifts:
-            lines.append("\n**Recent Changes:**")
-            for shift in concept_shifts[:2]:
-                lines.append(f"• {shift.get('concept', 'Unknown')}: {shift.get('note', 'Updated')}")
+            concept = concept_shifts[0].get('concept', 'key areas')
+            return f"You're working through adjustments in {concept} and similar areas. This kind of focused practice is exactly how improvement happens—stay with it."
         
-        # Coverage changes
-        relief = coverage_recent.get("relief", [])
-        rising = coverage_recent.get("rising", [])
-        
-        if relief:
-            lines.append(f"• **Progress:** Relief in {relief[0].get('pair', 'key areas')}")
-        if rising:
-            lines.append(f"• **Focus:** Rising challenge in {rising[0].get('pair', 'some areas')}")
-        
-        # PYQ recent
-        count15 = pyq_recent.get("count15", 0)
-        if count15 > 0:
-            acc15 = pyq_recent.get("acc15", 0.0)
-            lines.append(f"\nRecent PYQ: {count15} high-frequency questions at {acc15:.0%} accuracy.")
-        
-        return "\n".join(lines)
+        # Generic encouraging fallback
+        return "Your recent work shows good consistency and engagement with the material. That steady practice rhythm is building the foundation for bigger breakthroughs ahead."
     
     def _fallback_pre_session_card(self, slice_dict: Dict[str, Any]) -> Dict[str, Any]:
         """Deterministic fallback for pre-session card"""
