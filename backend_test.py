@@ -1352,80 +1352,70 @@ class CATBackendTester:
         else:
             print("   ❌ Cannot test cache strategy without authentication")
         
-        # PHASE 3: CACHE HIT PERFORMANCE (OPTIMIZED)
-        print("\n⚡ PHASE 3: CACHE HIT PERFORMANCE (OPTIMIZED)")
+        # PHASE 3: DASHBOARD INSIGHTS PERFORMANCE TESTING
+        print("\n📊 PHASE 3: DASHBOARD INSIGHTS PERFORMANCE TESTING")
         print("-" * 60)
-        print("Testing dashboard insights cache performance - target: cache hits <200ms")
+        print("Testing dashboard insights: First call populates cache, subsequent calls hit memory cache")
         
         if auth_headers and user_id:
-            # First call - should generate fresh insights
-            print("   🔄 First call (fresh generation)...")
-            start_time = time.time()
-            success1, response1 = self.run_test(
-                "Dashboard Insights First Call", 
-                "GET", 
-                "dashboard/adaptive-insights", 
-                [200, 500], 
-                None, 
-                auth_headers
-            )
-            first_call_time = (time.time() - start_time) * 1000  # Convert to ms
+            # Test multiple calls to verify memory cache behavior
+            dashboard_times = []
+            dashboard_sources = []
             
-            if success1 and response1:
-                test_results["dashboard_insights_first_call_working"] = True
-                print(f"   ✅ First call successful: {first_call_time:.1f}ms")
-                
-                # Check for generation_time_ms metric
-                if "generation_time_ms" in response1:
-                    test_results["generation_time_ms_included"] = True
-                    print(f"   ✅ generation_time_ms metric included: {response1['generation_time_ms']:.1f}ms")
-                
-                # Wait a moment then make second call for cache hit
-                print("   🔄 Second call (cache hit test)...")
-                time.sleep(0.5)  # Brief pause
-                
+            for i in range(3):
+                print(f"   🔄 Dashboard call {i+1}/3...")
                 start_time = time.time()
-                success2, response2 = self.run_test(
-                    "Dashboard Insights Second Call", 
+                success, response = self.run_test(
+                    f"Dashboard Insights Call {i+1}", 
                     "GET", 
                     "dashboard/adaptive-insights", 
                     [200, 500], 
                     None, 
                     auth_headers
                 )
-                second_call_time = (time.time() - start_time) * 1000  # Convert to ms
+                call_time = (time.time() - start_time) * 1000
+                dashboard_times.append(call_time)
                 
-                if success2 and response2:
-                    test_results["dashboard_insights_second_call_working"] = True
-                    print(f"   ✅ Second call successful: {second_call_time:.1f}ms")
+                if success and response:
+                    source = response.get("source", "unknown")
+                    dashboard_sources.append(source)
+                    print(f"   📊 Call {i+1}: {call_time:.1f}ms, Source: {source}")
                     
-                    # Check for cache_time_ms metric
-                    if "cache_time_ms" in response2:
-                        test_results["cache_time_ms_included"] = True
-                        print(f"   ✅ cache_time_ms metric included: {response2['cache_time_ms']:.1f}ms")
+                    # Check metrics
+                    if "cache_time_ms" in response or "generation_time_ms" in response:
+                        test_results["dashboard_cache_source_tracking"] = True
                     
-                    # Check if cache hit is significantly faster
-                    if response2.get("source") == "cache" and second_call_time < 200:
-                        test_results["cache_hit_significantly_faster"] = True
-                        print(f"   ✅ Cache hit significantly faster: {second_call_time:.1f}ms < 200ms target")
-                        
-                        # Calculate performance improvement
-                        if first_call_time > 0:
-                            improvement = ((first_call_time - second_call_time) / first_call_time) * 100
-                            print(f"   📊 Cache performance improvement: {improvement:.1f}%")
+                    if i == 0:  # First call
+                        if source in ["fresh", "db_cache"]:
+                            test_results["dashboard_first_call_populates_cache"] = True
+                    elif i == 1:  # Second call
+                        if source == "memory" and call_time < 50:
+                            test_results["dashboard_second_call_memory_hit"] = True
+                            test_results["dashboard_memory_cache_under_50ms"] = True
+                    elif i == 2:  # Third call
+                        if source == "memory" and call_time < 50:
+                            test_results["dashboard_third_call_memory_hit"] = True
+                else:
+                    print(f"   ❌ Dashboard call {i+1} failed: {response}")
+                
+                # Small delay between calls
+                if i < 2:
+                    time.sleep(0.3)
+            
+            # Analyze dashboard performance
+            if len(dashboard_times) >= 2:
+                avg_memory_time = sum(dashboard_times[1:]) / len(dashboard_times[1:])  # Average of calls 2+
+                print(f"   📊 Dashboard performance summary:")
+                print(f"      First call: {dashboard_times[0]:.1f}ms ({dashboard_sources[0] if dashboard_sources else 'unknown'})")
+                if len(dashboard_times) > 1:
+                    print(f"      Memory cache avg: {avg_memory_time:.1f}ms")
+                    
+                    if avg_memory_time < 50:
+                        print(f"   ✅ Dashboard memory cache consistently under 50ms")
                     else:
-                        print(f"   ⚠️ Cache hit not fast enough: {second_call_time:.1f}ms (target: <200ms)")
-                        print(f"   📊 Source: {response2.get('source', 'unknown')}")
-                
-                # Overall cache performance assessment
-                if (test_results["cache_hit_significantly_faster"] and 
-                    test_results["cache_time_ms_included"] and 
-                    test_results["generation_time_ms_included"]):
-                    test_results["cache_performance_optimized"] = True
-                    test_results["cache_performance_targets_met"] = True
-                    print(f"   ✅ Cache performance optimization successful")
-            else:
-                print(f"   ❌ First call failed: {response1}")
+                        print(f"   ⚠️ Dashboard memory cache above 50ms target: {avg_memory_time:.1f}ms")
+        else:
+            print("   ❌ Cannot test dashboard performance without authentication")
         
         # PHASE 4: PRE-SESSION INSIGHT RESPONSE TIME (OPTIMIZED)
         print("\n🚀 PHASE 4: PRE-SESSION INSIGHT RESPONSE TIME (OPTIMIZED)")
