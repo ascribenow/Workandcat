@@ -297,6 +297,82 @@ class InsightCacheService:
         finally:
             db.close()
     
+    def store_dashboard_insights_direct(self, user_id: str, all_time_markdown: str, recent_markdown: str, source: str = "llm_comprehensive") -> bool:
+        """Direct storage method for comprehensive insights - Pure LLM Freedom approach"""
+        db = SessionLocal()
+        try:
+            now = datetime.now(timezone.utc)
+            
+            # Upsert dashboard insights
+            existing = db.query(UserDashboardInsights).filter(
+                UserDashboardInsights.user_id == user_id
+            ).first()
+            
+            if existing:
+                existing.all_time_insights = {"markdown": all_time_markdown, "source": source}
+                existing.recent_insights = {"markdown": recent_markdown, "source": source}
+                existing.last_updated_at = now
+            else:
+                cache_entry = UserDashboardInsights(
+                    user_id=user_id,
+                    all_time_insights={"markdown": all_time_markdown, "source": source},
+                    recent_insights={"markdown": recent_markdown, "source": source},
+                    last_updated_at=now
+                )
+                db.add(cache_entry)
+            
+            db.commit()
+            self.logger.info(f"Stored dashboard insights directly for user {user_id[:8]}")
+            return True
+            
+        except Exception as e:
+            db.rollback()
+            self.logger.error(f"Error storing dashboard insights directly for user {user_id[:8]}: {e}")
+            return False
+        finally:
+            db.close()
+    
+    def store_pre_session_insights_direct(self, user_id: str, session_id: str, insight_card: Dict[str, Any], source: str = "llm_comprehensive") -> bool:
+        """Direct storage method for pre-session insights - Pure LLM Freedom approach"""
+        db = SessionLocal()
+        try:
+            now = datetime.now(timezone.utc)
+            
+            # Add metadata to insight card
+            insight_card_with_meta = insight_card.copy()
+            insight_card_with_meta.update({
+                "session_id": session_id,
+                "source": source,
+                "last_updated_at": now.isoformat()
+            })
+            
+            # Upsert pre-session insights
+            existing = db.query(UserPreSessionInsights).filter(
+                UserPreSessionInsights.user_id == user_id
+            ).first()
+            
+            if existing:
+                existing.insight_card = insight_card_with_meta
+                existing.last_updated_at = now
+            else:
+                cache_entry = UserPreSessionInsights(
+                    user_id=user_id,
+                    insight_card=insight_card_with_meta,
+                    last_updated_at=now
+                )
+                db.add(cache_entry)
+            
+            db.commit()
+            self.logger.info(f"Stored pre-session insights directly for user {user_id[:8]}")
+            return True
+            
+        except Exception as e:
+            db.rollback()
+            self.logger.error(f"Error storing pre-session insights directly for user {user_id[:8]}: {e}")
+            return False
+        finally:
+            db.close()
+    
     def invalidate_pre_session_cache_for_new_pack(self, user_id: str, session_id: str):
         """Invalidate pre-session cache when new pack is created"""
         db = SessionLocal()
