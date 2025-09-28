@@ -435,11 +435,11 @@ class InsightCacheService:
             
             if end_acc > start_acc:
                 title = "On the Rise! ⬆️"
-                progress = f"Your accuracy is improving - that's exactly what we want to see!"
+                progress = "Your accuracy is improving - that's exactly what we want to see!"
                 way_forward = ["Keep this momentum going", "Focus on speed along with accuracy"]
             else:
                 title = "Steady Progress 💪"
-                progress = f"Working through some challenging concepts - that's how you grow!"
+                progress = "Working through some challenging concepts - that's how you grow!"
                 way_forward = ["Don't worry about recent dips", "Focus on understanding over speed"]
             
             today = "Today: Questions tailored to your learning patterns"
