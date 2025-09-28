@@ -48,7 +48,7 @@ class InsightCacheService:
         memory_key = f"dashboard:{user_id}"
         if memory_key in _memory_cache:
             memory_timestamp = _cache_timestamps.get(memory_key)
-            if memory_timestamp and (time() - memory_timestamp) < 300:  # 5 minutes in-memory TTL
+            if memory_timestamp and (time() - memory_timestamp) < 120:  # 120s in-memory TTL per checklist
                 memory_time = (time() - start_time) * 1000
                 self.logger.debug(f"Memory cache hit for user {user_id[:8]} in {memory_time:.1f}ms")
                 result = _memory_cache[memory_key].copy()
