@@ -2329,6 +2329,65 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
         </div>
       )}
 
+      {/* Pre-Session Insight Modal */}
+      {showPreSessionModal && preSessionInsight && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-6">
+            <div className="text-center mb-4">
+              <h2 className="text-xl font-bold text-gray-900 mb-2">
+                {preSessionInsight.title}
+              </h2>
+            </div>
+            
+            <div className="space-y-4 mb-6">
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                <p className="text-blue-800 text-sm">
+                  {preSessionInsight.progress}
+                </p>
+              </div>
+              
+              {preSessionInsight.way_forward && preSessionInsight.way_forward.length > 0 && (
+                <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                  <p className="text-green-800 text-sm font-medium mb-2">Way Forward:</p>
+                  <ul className="text-green-700 text-sm space-y-1">
+                    {preSessionInsight.way_forward.map((item, index) => (
+                      <li key={index}>• {item}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                <p className="text-yellow-800 text-sm">
+                  <strong>Today:</strong> {preSessionInsight.today}
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex space-x-3">
+              <button
+                onClick={() => {
+                  setShowPreSessionModal(false);
+                  // Don't start session - just dismiss modal
+                }}
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  setShowPreSessionModal(false);
+                  // Session will continue loading automatically
+                }}
+                className="flex-1 px-4 py-2 bg-[#9ac026] text-white rounded-lg hover:bg-[#8bb024]"
+              >
+                Start Session
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Doubt Conversation Modal - ChatGPT Style */}
       {showDoubtModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
