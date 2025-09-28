@@ -29,7 +29,7 @@ class InsightGeneratorService:
                 prompt=prompt,
                 model_primary="gpt-4o",
                 model_fallback="gemini-2.5-flash",
-                max_tokens=300
+                max_tokens=400  # Generous tokens for comprehensive insights
             )
             
             if response and len(response.strip()) > 10:
