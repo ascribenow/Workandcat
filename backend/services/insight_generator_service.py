@@ -258,47 +258,9 @@ Data: {json.dumps(slice_dict, indent=2)}
         """
     
     def _fallback_all_time_markdown(self, slice_dict: Dict[str, Any]) -> str:
-        """Deterministic fallback for all-time insights"""
-        overall = slice_dict.get("overall", {})
-        acc_start = overall.get("acc_start", 0.0)
-        acc_now = overall.get("acc_now", 0.0)
-        
-        concepts = slice_dict.get("concepts_journey", [])
-        pyq_totals = slice_dict.get("pyq_totals", {})
-        coverage = slice_dict.get("coverage_alltime", {})
-        
-        lines = []
-        
-        # Overall accuracy
-        if acc_start > 0:
-            acc_change = ((acc_now - acc_start) * 100)
-            lines.append(f"Your accuracy improved from {acc_start:.0%} to {acc_now:.0%} ({acc_change:+.0f} points).")
-        else:
-            lines.append(f"Current accuracy stands at {acc_now:.0%}.")
-        
-        # Concept journeys
-        if concepts:
-            lines.append("\n**Concept Progress:**")
-            for concept in concepts[:3]:
-                delta_str = f"{concept.get('delta', 0):+.2f}"
-                lines.append(f"• {concept.get('concept', 'Unknown')}: {concept.get('from', 'Unknown')} → {concept.get('to', 'Unknown')} ({delta_str})")
-        
-        # Coverage
-        relief_pairs = coverage.get("relief", [])
-        rising_pairs = coverage.get("rising", [])
-        
-        if relief_pairs:
-            lines.append(f"\n• **Coverage Relief:** Improved in {relief_pairs[0].get('pair', 'key areas')}")
-        if rising_pairs:
-            lines.append(f"• **Focus Areas:** Need attention in {rising_pairs[0].get('pair', 'some areas')}")
-        
-        # PYQ totals
-        total15 = pyq_totals.get("total15", 0)
-        acc15 = pyq_totals.get("acc15", 0.0)
-        if total15 > 0:
-            lines.append(f"\nCompleted {total15} high-frequency PYQ questions with {acc15:.0%} accuracy.")
-        
-        return "\n".join(lines)
+        """Deterministic fallback for all-time insights (coach voice)"""
+        sessions = slice_dict.get('total_sessions', 'several')
+        return f"""You've put in solid work across {sessions} sessions, and that consistency is your biggest win right now. The fundamentals are settling in, and you're getting comfortable with different question styles. This steady rhythm is exactly what builds CAT readiness—keep the momentum going."""
     
     def _fallback_recent_markdown(self, slice_dict: Dict[str, Any]) -> str:
         """Deterministic fallback for recent insights"""
