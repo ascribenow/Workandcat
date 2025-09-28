@@ -2,6 +2,9 @@
 
 import sys
 import os
+import warnings
+warnings.filterwarnings("ignore", message="Unverified HTTPS request")
+
 sys.path.append('/app')
 
 from backend_test import CATBackendTester
