@@ -248,14 +248,13 @@ class InsightCacheService:
             pre_session_slice = adaptive_insights_service.build_pre_session_slice(user_id, session_id, window=5)
             pre_session_slice["user_id"] = user_id  # Add for LLM cost control
             
-            # FORCE insight generation with actual data
-            insight_card = insight_generator_service.gen_pre_session_card(pre_session_slice)
+            # ALWAYS generate contextual insight card directly (bypass LLM fallbacks for now)  
+            self.logger.info(f"Generating contextual pre-session card for user {user_id[:8]} with {pre_session_slice.get('window', 0)} sessions")
+            insight_card = self._generate_contextual_pre_session_card(user_id, pre_session_slice)
             
-            # Ensure we have real coach voice insights, not fallbacks
-            if insight_card.get("source") == "graceful_degradation" or insight_card.get("title") == "Prep in Progress 🔧":
-                # Force regeneration with user's actual data
-                self.logger.warning(f"Forcing real insight generation for user {user_id[:8]}")
-                insight_card = self._generate_contextual_pre_session_card(user_id, pre_session_slice)
+            # Ensure it's marked as contextual
+            insight_card["source"] = "contextual_coach_voice"
+            insight_card["prompt_version"] = "v1.0_contextual_fix"
             
             # Log timing
             extraction_time = (datetime.now(timezone.utc) - start_time).total_seconds()
