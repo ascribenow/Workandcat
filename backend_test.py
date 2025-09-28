@@ -1355,23 +1355,26 @@ class CATBackendTester:
         print("-" * 60)
         print("Testing solution paste detection and 5-section format responses")
         
-        if auth_headers and sample_question_id:
+        if auth_headers and sample_questions:
             # Test mathematical expressions that should trigger solution intelligence
             solution_test_cases = [
                 {
                     "name": "Formula Question",
                     "message": "V = (1/3)πr²h, why do we use this formula?",
-                    "key": "formula_detection_working"
+                    "key": "formula_detection_working",
+                    "question_index": 1
                 },
                 {
                     "name": "Step Substitution",
                     "message": "Step 2: Substitute r=3 and h=4, but I'm confused about this step",
-                    "key": "step_substitution_detection"
+                    "key": "step_substitution_detection",
+                    "question_index": 2
                 },
                 {
                     "name": "Calculation Explanation",
                     "message": "Area = πr² = π(3)² = 9π, can you explain this calculation?",
-                    "key": "calculation_explanation_detection"
+                    "key": "calculation_explanation_detection",
+                    "question_index": 3
                 }
             ]
             
@@ -1381,8 +1384,11 @@ class CATBackendTester:
             for i, test_case in enumerate(solution_test_cases):
                 print(f"   🧮 Testing {test_case['name']}: '{test_case['message']}'")
                 
+                # Use different question for each test to avoid message limits
+                question_id = sample_questions[test_case['question_index']].get('id') if test_case['question_index'] < len(sample_questions) else sample_questions[0].get('id')
+                
                 doubt_data = {
-                    "question_id": sample_question_id,
+                    "question_id": question_id,
                     "session_id": f"solution_test_{i}_{uuid.uuid4()}",
                     "message": test_case['message']
                 }
