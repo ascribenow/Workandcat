@@ -1,6 +1,6 @@
 """
 Simplified Background Job Queue System
-Two job types: SUMMARIZE_SESSION → PLAN_NEXT_SESSION
+Three job types: SUMMARIZE_SESSION → PLAN_NEXT_SESSION → UPDATE_INSIGHTS
 """
 
 import asyncio
