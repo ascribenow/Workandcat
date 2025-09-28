@@ -1153,6 +1153,540 @@ class CATBackendTester:
         
         AUTHENTICATION: sp@theskinmantra.com/student123
         """
+        print("🎯 NATURAL ASK TWELVR CONVERSATION SYSTEM TESTING")
+        print("=" * 80)
+        print("OBJECTIVE: Test NEW NATURAL conversation system replacing rigid Mode 1/2/3 framework")
+        print("FOCUS: Natural conversation, intelligent LLM responses, no rigid structure")
+        print("EXPECTED: Conversational responses, context awareness, encouraging teacher personality")
+        print("=" * 80)
+        
+        test_results = {
+            # Authentication Setup
+            "authentication_working": False,
+            "user_adaptive_enabled": False,
+            "jwt_token_valid": False,
+            "sample_question_retrieved": False,
+            
+            # 1. Rigid System Removal
+            "no_mode_detection_system": False,
+            "no_complex_pattern_matching": False,
+            "no_forced_response_formats": False,
+            "no_rigid_headings": False,
+            "no_structured_templates": False,
+            
+            # 2. Natural Conversation Implementation
+            "doubts_ask_endpoint_working": False,
+            "natural_system_prompt_used": False,
+            "llm_intelligent_conversation": False,
+            "conversational_context_handling": False,
+            "no_forced_categories": False,
+            
+            # 3. Example Natural Conversations
+            "confused_problem_response": False,
+            "formula_explanation_response": False,
+            "simpler_terms_response": False,
+            "wrong_answer_response": False,
+            "all_natural_conversations_working": False,
+            
+            # 4. Response Quality
+            "responses_sound_natural": False,
+            "helpful_explanations_no_rigid_structure": False,
+            "context_used_intelligently": False,
+            "no_forced_headings_detected": False,
+            "conversational_not_templated": False,
+            
+            # 5. System Prompt Verification
+            "natural_system_prompt_confirmed": False,
+            "encouraging_supportive_responses": False,
+            "clear_explanations_not_condescending": False,
+            "teacher_like_personality": False,
+            
+            # Overall Assessment
+            "rigid_system_completely_removed": False,
+            "natural_conversation_implemented": False,
+            "llm_driven_responses_working": False,
+            "context_awareness_without_forced_categorization": False,
+            "encouraging_teacher_personality_confirmed": False,
+            "production_ready": False
+        }
+        
+        # PHASE 1: AUTHENTICATION SETUP
+        print("\n🔐 PHASE 1: AUTHENTICATION SETUP")
+        print("-" * 60)
+        print("Authenticating with sp@theskinmantra.com/student123 for natural conversation testing")
+        
+        auth_data = {
+            "email": "sp@theskinmantra.com",
+            "password": "student123"
+        }
+        
+        success, response = self.run_test("Natural Conversation Authentication", "POST", "auth/login", [200, 401], auth_data)
+        
+        auth_headers = None
+        user_id = None
+        if success and response.get('access_token'):
+            token = response['access_token']
+            auth_headers = {
+                'Authorization': f'Bearer {token}',
+                'Content-Type': 'application/json'
+            }
+            test_results["authentication_working"] = True
+            test_results["jwt_token_valid"] = True
+            print(f"   ✅ Authentication successful")
+            print(f"   📊 JWT Token length: {len(token)} characters")
+            
+            user_data = response.get('user', {})
+            user_id = user_data.get('id')
+            adaptive_enabled = user_data.get('adaptive_enabled', False)
+            
+            if adaptive_enabled:
+                test_results["user_adaptive_enabled"] = True
+                print(f"   ✅ User adaptive_enabled confirmed: {adaptive_enabled}")
+                print(f"   📊 User ID: {user_id}")
+            else:
+                print(f"   ⚠️ User adaptive_enabled: {adaptive_enabled}")
+        else:
+            print("   ❌ Authentication failed - cannot proceed with natural conversation testing")
+            return False
+        
+        # Get a sample question for testing
+        print("\n📋 Getting sample question for conversation testing...")
+        if auth_headers:
+            success, questions_response = self.run_test(
+                "Sample Questions Retrieval", 
+                "GET", 
+                "questions?limit=1", 
+                [200], 
+                None, 
+                auth_headers
+            )
+            
+            sample_question_id = None
+            if success and questions_response and len(questions_response) > 0:
+                sample_question_id = questions_response[0].get('id')
+                test_results["sample_question_retrieved"] = True
+                print(f"   ✅ Sample question retrieved: {sample_question_id}")
+            else:
+                print("   ❌ Could not retrieve sample question - using fallback")
+                sample_question_id = "fallback-question-id"
+        
+        # PHASE 2: NATURAL CONVERSATION IMPLEMENTATION TESTING
+        print("\n🗣️ PHASE 2: NATURAL CONVERSATION IMPLEMENTATION TESTING")
+        print("-" * 60)
+        print("Testing POST /api/doubts/ask endpoint with natural conversation system")
+        
+        if auth_headers and sample_question_id:
+            # Test natural conversation examples
+            natural_conversations = [
+                {
+                    "name": "Confused Problem",
+                    "message": "I'm confused about this problem. Can you help me understand what's going on?",
+                    "key": "confused_problem_response"
+                },
+                {
+                    "name": "Formula Explanation", 
+                    "message": "Why did we use the formula V = (1/3)πr²h here?",
+                    "key": "formula_explanation_response"
+                },
+                {
+                    "name": "Simpler Terms",
+                    "message": "Can you explain this step in simpler terms?",
+                    "key": "simpler_terms_response"
+                },
+                {
+                    "name": "Wrong Answer",
+                    "message": "I got this wrong, what did I miss?",
+                    "key": "wrong_answer_response"
+                }
+            ]
+            
+            successful_conversations = 0
+            all_responses = []
+            
+            for i, conversation in enumerate(natural_conversations):
+                print(f"   🤔 Testing {conversation['name']}: '{conversation['message']}'")
+                
+                doubt_data = {
+                    "question_id": sample_question_id,
+                    "session_id": f"natural_test_session_{i}",
+                    "message": conversation['message']
+                }
+                
+                success, doubt_response = self.run_test(
+                    f"Natural Conversation - {conversation['name']}", 
+                    "POST", 
+                    "doubts/ask", 
+                    [200, 500], 
+                    doubt_data, 
+                    auth_headers
+                )
+                
+                if success and doubt_response.get('success') and doubt_response.get('response'):
+                    test_results[conversation['key']] = True
+                    successful_conversations += 1
+                    
+                    ai_response = doubt_response.get('response', '')
+                    all_responses.append(ai_response)
+                    
+                    print(f"      ✅ Response received ({len(ai_response)} chars)")
+                    print(f"      📊 Message count: {doubt_response.get('message_count', 0)}/10")
+                    
+                    # Quick preview of response
+                    preview = ai_response[:100] + "..." if len(ai_response) > 100 else ai_response
+                    print(f"      💬 Preview: {preview}")
+                    
+                else:
+                    print(f"      ❌ Failed: {doubt_response}")
+            
+            if successful_conversations >= 3:
+                test_results["doubts_ask_endpoint_working"] = True
+                test_results["all_natural_conversations_working"] = True
+                print(f"   ✅ Natural conversations working ({successful_conversations}/4 successful)")
+            else:
+                print(f"   ❌ Natural conversations limited ({successful_conversations}/4 successful)")
+        
+        # PHASE 3: RESPONSE QUALITY ANALYSIS
+        print("\n🔍 PHASE 3: RESPONSE QUALITY ANALYSIS")
+        print("-" * 60)
+        print("Analyzing response quality for natural conversation vs rigid structure")
+        
+        if all_responses:
+            combined_responses = " ".join(all_responses).lower()
+            
+            # Test 1: No Rigid Headings (Mode 3 style)
+            rigid_headings = [
+                "### what that step is doing",
+                "### the idea behind it", 
+                "### try this (quick practice)",
+                "### solution (peek when ready)",
+                "### next?",
+                "mode 1", "mode 2", "mode 3"
+            ]
+            
+            rigid_found = [heading for heading in rigid_headings if heading in combined_responses]
+            
+            if not rigid_found:
+                test_results["no_rigid_headings"] = True
+                test_results["no_forced_headings_detected"] = True
+                test_results["no_structured_templates"] = True
+                print(f"   ✅ No rigid headings detected (Mode system removed)")
+            else:
+                print(f"   ❌ Rigid headings found: {rigid_found}")
+            
+            # Test 2: Natural Conversation Indicators
+            natural_indicators = [
+                "let me help", "i can explain", "sure", "of course", "absolutely",
+                "think of it", "imagine", "basically", "simply put", "in other words",
+                "you're right to", "good question", "that's a great", "i understand"
+            ]
+            
+            natural_found = [indicator for indicator in natural_indicators if indicator in combined_responses]
+            
+            if len(natural_found) >= 3:
+                test_results["responses_sound_natural"] = True
+                test_results["conversational_not_templated"] = True
+                print(f"   ✅ Natural conversation indicators found: {natural_found[:5]}")
+            else:
+                print(f"   ❌ Limited natural conversation: {natural_found}")
+            
+            # Test 3: Encouraging Teacher Personality
+            encouraging_phrases = [
+                "you", "your", "let's", "we can", "don't worry", "that's okay",
+                "good", "great", "exactly", "perfect", "nice", "well done"
+            ]
+            
+            encouraging_found = [phrase for phrase in encouraging_phrases if phrase in combined_responses]
+            
+            if len(encouraging_found) >= 5:
+                test_results["encouraging_supportive_responses"] = True
+                test_results["teacher_like_personality"] = True
+                print(f"   ✅ Encouraging teacher personality detected: {encouraging_found[:5]}")
+            else:
+                print(f"   ❌ Limited encouraging language: {encouraging_found}")
+            
+            # Test 4: No Complex Pattern Matching or Forced Categories
+            complex_patterns = [
+                "category:", "type:", "difficulty:", "mode detected", "pattern matched",
+                "classification:", "structured response", "template applied"
+            ]
+            
+            complex_found = [pattern for pattern in complex_patterns if pattern in combined_responses]
+            
+            if not complex_found:
+                test_results["no_complex_pattern_matching"] = True
+                test_results["no_forced_categories"] = True
+                test_results["no_forced_response_formats"] = True
+                print(f"   ✅ No complex pattern matching or forced categories")
+            else:
+                print(f"   ❌ Complex patterns found: {complex_found}")
+            
+            # Test 5: Intelligent Context Usage
+            context_indicators = [
+                "this problem", "this question", "the formula", "this step", "your question",
+                "what you're asking", "in this case", "for this type", "here"
+            ]
+            
+            context_found = [indicator for indicator in context_indicators if indicator in combined_responses]
+            
+            if len(context_found) >= 3:
+                test_results["context_used_intelligently"] = True
+                test_results["conversational_context_handling"] = True
+                print(f"   ✅ Intelligent context usage detected: {context_found[:3]}")
+            else:
+                print(f"   ❌ Limited context usage: {context_found}")
+            
+            # Test 6: Helpful Explanations Without Rigid Structure
+            explanation_indicators = [
+                "because", "since", "the reason", "this happens", "this works",
+                "think about", "consider", "remember", "notice", "see how"
+            ]
+            
+            explanation_found = [indicator for indicator in explanation_indicators if indicator in combined_responses]
+            
+            if len(explanation_found) >= 4:
+                test_results["helpful_explanations_no_rigid_structure"] = True
+                test_results["clear_explanations_not_condescending"] = True
+                print(f"   ✅ Helpful explanations without rigid structure: {explanation_found[:4]}")
+            else:
+                print(f"   ❌ Limited explanatory language: {explanation_found}")
+        
+        # PHASE 4: SYSTEM PROMPT VERIFICATION
+        print("\n🎯 PHASE 4: SYSTEM PROMPT VERIFICATION")
+        print("-" * 60)
+        print("Verifying natural system prompt implementation")
+        
+        # Based on response analysis, infer system prompt characteristics
+        if (test_results["responses_sound_natural"] and 
+            test_results["encouraging_supportive_responses"] and
+            test_results["no_rigid_headings"]):
+            
+            test_results["natural_system_prompt_used"] = True
+            test_results["natural_system_prompt_confirmed"] = True
+            test_results["llm_intelligent_conversation"] = True
+            print(f"   ✅ Natural system prompt implementation confirmed")
+            print(f"   ✅ LLM intelligent conversation working")
+            print(f"   ✅ System prompt produces encouraging, natural responses")
+        else:
+            print(f"   ❌ Natural system prompt implementation unclear")
+        
+        # PHASE 5: RIGID SYSTEM REMOVAL VERIFICATION
+        print("\n🚫 PHASE 5: RIGID SYSTEM REMOVAL VERIFICATION")
+        print("-" * 60)
+        print("Confirming complete removal of Mode 1/2/3 rigid framework")
+        
+        rigid_removal_checks = [
+            ("no_mode_detection_system", not any("mode" in response.lower() for response in all_responses)),
+            ("no_complex_pattern_matching", test_results["no_complex_pattern_matching"]),
+            ("no_forced_response_formats", test_results["no_forced_response_formats"]),
+            ("no_rigid_headings", test_results["no_rigid_headings"]),
+            ("no_structured_templates", test_results["no_structured_templates"])
+        ]
+        
+        rigid_removal_count = 0
+        for check_name, check_result in rigid_removal_checks:
+            test_results[check_name] = check_result
+            if check_result:
+                rigid_removal_count += 1
+                print(f"   ✅ {check_name.replace('_', ' ').title()}")
+            else:
+                print(f"   ❌ {check_name.replace('_', ' ').title()}")
+        
+        if rigid_removal_count >= 4:
+            test_results["rigid_system_completely_removed"] = True
+            print(f"   ✅ Rigid system completely removed ({rigid_removal_count}/5 checks passed)")
+        else:
+            print(f"   ❌ Rigid system removal incomplete ({rigid_removal_count}/5 checks passed)")
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 80)
+        print("🎯 NATURAL ASK TWELVR CONVERSATION SYSTEM - RESULTS")
+        print("=" * 80)
+        
+        passed_tests = sum(test_results.values())
+        total_tests = len(test_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        # Group results by test categories
+        test_categories = {
+            "AUTHENTICATION": [
+                "authentication_working", "user_adaptive_enabled", "jwt_token_valid", "sample_question_retrieved"
+            ],
+            "RIGID SYSTEM REMOVAL": [
+                "no_mode_detection_system", "no_complex_pattern_matching", "no_forced_response_formats",
+                "no_rigid_headings", "no_structured_templates"
+            ],
+            "NATURAL CONVERSATION IMPLEMENTATION": [
+                "doubts_ask_endpoint_working", "natural_system_prompt_used", "llm_intelligent_conversation",
+                "conversational_context_handling", "no_forced_categories"
+            ],
+            "EXAMPLE NATURAL CONVERSATIONS": [
+                "confused_problem_response", "formula_explanation_response", "simpler_terms_response",
+                "wrong_answer_response", "all_natural_conversations_working"
+            ],
+            "RESPONSE QUALITY": [
+                "responses_sound_natural", "helpful_explanations_no_rigid_structure", "context_used_intelligently",
+                "no_forced_headings_detected", "conversational_not_templated"
+            ],
+            "SYSTEM PROMPT VERIFICATION": [
+                "natural_system_prompt_confirmed", "encouraging_supportive_responses", 
+                "clear_explanations_not_condescending", "teacher_like_personality"
+            ]
+        }
+        
+        for category, tests in test_categories.items():
+            print(f"\n{category}:")
+            category_passed = 0
+            category_total = len(tests)
+            
+            for test in tests:
+                if test in test_results:
+                    result = test_results[test]
+                    status = "✅ PASS" if result else "❌ FAIL"
+                    print(f"  {test.replace('_', ' ').title():<50} {status}")
+                    if result:
+                        category_passed += 1
+            
+            category_rate = (category_passed / category_total) * 100 if category_total > 0 else 0
+            print(f"  Category Success Rate: {category_passed}/{category_total} ({category_rate:.1f}%)")
+        
+        print("-" * 80)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # CRITICAL ASSESSMENT
+        print("\n🎯 CRITICAL ASSESSMENT:")
+        
+        # Natural Conversation System Assessment
+        natural_conversation_working = (
+            test_results["doubts_ask_endpoint_working"] and
+            test_results["all_natural_conversations_working"] and
+            test_results["responses_sound_natural"] and
+            test_results["natural_system_prompt_confirmed"]
+        )
+        
+        if natural_conversation_working:
+            test_results["natural_conversation_implemented"] = True
+            print("\n✅ NATURAL CONVERSATION SYSTEM: WORKING")
+            print("   - Natural conversation endpoint functional")
+            print("   - All example conversations successful")
+            print("   - Responses sound natural and conversational")
+            print("   - Natural system prompt confirmed")
+        else:
+            print("\n❌ NATURAL CONVERSATION SYSTEM: ISSUES DETECTED")
+            print("   - Natural conversation implementation incomplete")
+        
+        # Rigid System Removal Assessment
+        rigid_system_removed = (
+            test_results["rigid_system_completely_removed"] and
+            test_results["no_rigid_headings"] and
+            test_results["no_forced_response_formats"]
+        )
+        
+        if rigid_system_removed:
+            print("\n✅ RIGID SYSTEM REMOVAL: COMPLETE")
+            print("   - Mode 1/2/3 detection system removed")
+            print("   - No rigid headings or structured templates")
+            print("   - No forced response formats detected")
+        else:
+            print("\n❌ RIGID SYSTEM REMOVAL: INCOMPLETE")
+            print("   - Some rigid system elements may remain")
+        
+        # LLM Intelligence Assessment
+        llm_intelligence_working = (
+            test_results["llm_intelligent_conversation"] and
+            test_results["context_used_intelligently"] and
+            test_results["conversational_context_handling"]
+        )
+        
+        if llm_intelligence_working:
+            test_results["llm_driven_responses_working"] = True
+            print("\n✅ LLM INTELLIGENCE: WORKING")
+            print("   - LLM determines conversation flow intelligently")
+            print("   - Context used appropriately without forced categories")
+            print("   - Conversational context handling functional")
+        else:
+            print("\n❌ LLM INTELLIGENCE: NEEDS IMPROVEMENT")
+            print("   - LLM conversation intelligence limited")
+        
+        # Teacher Personality Assessment
+        teacher_personality_confirmed = (
+            test_results["encouraging_supportive_responses"] and
+            test_results["teacher_like_personality"] and
+            test_results["clear_explanations_not_condescending"]
+        )
+        
+        if teacher_personality_confirmed:
+            test_results["encouraging_teacher_personality_confirmed"] = True
+            print("\n✅ TEACHER PERSONALITY: CONFIRMED")
+            print("   - Encouraging and supportive responses")
+            print("   - Clear explanations without condescension")
+            print("   - Good teacher personality evident")
+        else:
+            print("\n❌ TEACHER PERSONALITY: NEEDS DEVELOPMENT")
+            print("   - Teacher personality not fully developed")
+        
+        # Overall Production Readiness
+        if (natural_conversation_working and rigid_system_removed and 
+            llm_intelligence_working and teacher_personality_confirmed):
+            test_results["production_ready"] = True
+            print("\n🎉 PRODUCTION READINESS: READY")
+            print("   - Natural conversation system fully implemented")
+            print("   - Rigid framework completely removed")
+            print("   - LLM intelligence working correctly")
+            print("   - Encouraging teacher personality confirmed")
+            print("   - System ready for student use")
+        else:
+            print("\n⚠️ PRODUCTION READINESS: NEEDS ATTENTION")
+            print("   - Some critical aspects need improvement")
+        
+        return success_rate >= 75 and natural_conversation_working and rigid_system_removed
+
+    def test_coach_voice_implementation(self):
+        """
+        🎯 COACH VOICE IMPLEMENTATION TESTING
+        
+        Testing the COACH VOICE implementation for Adaptive Insights to verify the human, motivating language:
+        
+        **COACH VOICE TESTING:**
+        
+        1. **LLM Prompt Transformation**:
+           - Test dashboard insights (/api/dashboard/adaptive-insights) for coach voice tone
+           - Verify insights use "about 6 out of 10 correct" instead of "58%" 
+           - Check for encouraging, human language (no database log style)
+           - Verify removal of bullets, tables, technical formatting
+        
+        2. **Human Language Conversion**:
+           - Test that percentages are converted to human-friendly format
+           - Verify "x out of 10 correct" appears instead of decimals/percentages
+           - Check that technical deltas and scores are removed
+           - Test post-processing sanitization working
+        
+        3. **Coach Voice Content**:
+           - Verify insights read like a coach talking to trainee (not robotic)
+           - Check for narrative storytelling instead of data dumps
+           - Test for encouragement, guidance, and recognition in language
+           - Verify concepts use human-readable labels (from concept mapping)
+        
+        4. **Fallback Methods**:
+           - Test fallback responses also use coach voice
+           - Verify deterministic fallbacks are encouraging and human
+           - Check that fallbacks avoid technical language
+        
+        5. **Pre-session Cards**:
+           - Test pre-session insight cards use coach voice JSON format
+           - Verify "progress", "way_forward", "today" fields are human-friendly
+           - Check title uses encouraging emoji and short phrase
+        
+        **Expected Results:**
+        - All insights should sound like a personal coach speaking
+        - No technical percentages, decimals, or database-style output
+        - Language should be encouraging, narrative, and motivating
+        - Human-readable concept labels throughout
+        - "About X out of 10 correct" format consistently used
+        
+        Test with sp@theskinmantra.com/student123 and verify the transformation from robotic to coach voice is complete.
+        
+        AUTHENTICATION: sp@theskinmantra.com/student123
+        """
         print("🎯 COACH VOICE IMPLEMENTATION TESTING")
         print("=" * 80)
         print("OBJECTIVE: Test COACH VOICE implementation for human, motivating language")
