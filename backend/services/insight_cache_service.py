@@ -16,26 +16,39 @@ class InsightCacheService:
         self.logger = logging.getLogger(__name__)
     
     def get_dashboard_insights(self, user_id: str) -> Dict[str, Any]:
-        """Get dashboard insights with cache-first strategy"""
+        """Get dashboard insights with cache-first strategy - OPTIMIZED"""
+        from time import time
+        start_time = time()
+        
         db = SessionLocal()
         try:
-            # Check cache first
-            cache_entry = db.query(UserDashboardInsights).filter(
+            # Optimized query: select only needed fields and use index
+            cache_entry = db.query(
+                UserDashboardInsights.all_time_insights,
+                UserDashboardInsights.recent_insights, 
+                UserDashboardInsights.last_updated_at
+            ).filter(
                 UserDashboardInsights.user_id == user_id
             ).first()
             
-            # Determine if cache is fresh
+            # Fast cache freshness check
             if cache_entry and self._is_cache_fresh(cache_entry.last_updated_at):
+                cache_time = (time() - start_time) * 1000
+                self.logger.debug(f"Cache hit for user {user_id[:8]} in {cache_time:.1f}ms")
+                
                 return {
                     "all_time_markdown": cache_entry.all_time_insights.get("markdown", ""),
                     "recent_markdown": cache_entry.recent_insights.get("markdown", ""),
                     "last_updated_at": cache_entry.last_updated_at.isoformat(),
-                    "source": "cache"  # Added source flag for debugging
+                    "source": "cache",
+                    "cache_time_ms": cache_time
                 }
             
             # Cache is stale or missing - refresh synchronously
+            fresh_time = time()
             result = self.refresh_dashboard_cache(user_id)
             result["source"] = "fresh"
+            result["generation_time_ms"] = (time() - fresh_time) * 1000
             return result
             
         except Exception as e:
