@@ -70,6 +70,14 @@ class InsightGeneratorService:
     def gen_pre_session_card(self, slice_dict: Dict[str, Any]) -> Dict[str, Any]:
         """Generate pre-session card with LLM + fallback"""
         try:
+            # GLOBAL FALLBACK FEATURE FLAG
+            import os
+            if os.environ.get("INSIGHTS_FORCE_FALLBACK", "false").lower() == "true":
+                fallback = self._fallback_pre_session_card(slice_dict)
+                fallback["prompt_version"] = "v1.0_fallback_forced"
+                fallback["source"] = "fallback_forced"
+                return fallback
+                
             # LLM cost control
             if not self._should_use_llm(slice_dict.get("user_id", ""), "pre_session"):
                 fallback = self._fallback_pre_session_card(slice_dict)
