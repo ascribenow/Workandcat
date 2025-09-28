@@ -56,6 +56,33 @@ export const SimpleDashboard = () => {
     }
   };
 
+  // Function to fetch adaptive insights
+  const fetchAdaptiveInsights = async () => {
+    if (!user || !token) return;
+    
+    setInsightsLoading(true);
+    try {
+      console.log('SimpleDashboard: Fetching adaptive insights...');
+      const response = await axios.get(`${API}/dashboard/adaptive-insights`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        timeout: 15000  // 15 second timeout
+      });
+      
+      if (response.data) {
+        setAdaptiveInsights(response.data);
+        console.log('SimpleDashboard: Adaptive insights loaded successfully');
+      }
+    } catch (error) {
+      console.error('SimpleDashboard: Error fetching adaptive insights:', error);
+      // Silently fail - not critical for dashboard functionality
+    } finally {
+      setInsightsLoading(false);
+    }
+  };
+
   const fetchDashboardData = async (retryCount = 0) => {
     try {
       setLoading(true);
