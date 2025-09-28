@@ -58,20 +58,92 @@ async def start_session(
     auth_user_id: str = Depends(get_current_user)
 ):
     """
-    Start a new blueprint session - immediate availability, no polling needed
+    Start a new blueprint session - with session limit enforcement
     
-    This replaces the old plan-next + pack polling pattern with immediate session creation
+    Serves pre-packed sessions when user has access, blocks when limits exceeded
     """
     
     if request.user_id != auth_user_id:
         raise HTTPException(status_code=403, detail="Cannot start session for other users")
     
-    logger.info(f"Starting blueprint session for user {request.user_id[:8]}")
+    logger.info(f"Starting blueprint session for user {request.user_id[:8]} - checking access limits")
     
+    # SESSION ACCESS CONTROL - Check limits before serving pre-packed session
+    db = SessionLocal()
+    try:
+        # Get user details for access checking
+        user_result = db.execute(select(User).where(User.id == request.user_id))
+        user = user_result.scalar_one_or_none()
+        
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        # Check user's subscription access level
+        access_level = subscription_access_service.get_user_access_level(
+            request.user_id, user.email, db
+        )
+        
+        logger.info(f"User {request.user_id[:8]} access level: {access_level['plan_type']} - unlimited: {access_level['unlimited_sessions']}")
+        
+        # For users with unlimited sessions (Pro Regular, Pro Exclusive, Privileged)
+        if access_level["unlimited_sessions"]:
+            logger.info(f"User {request.user_id[:8]} has unlimited access - proceeding to serve session")
+        else:
+            # Free tier users - check session limits using FreeTierSessionService
+            logger.info(f"User {request.user_id[:8]} is free tier - checking session availability")
+            
+            try:
+                session_status = free_tier_service.get_user_session_status(
+                    request.user_id, user.email, db
+                )
+                
+                sessions_available = session_status.get("sessions_available", 0)
+                is_initial_period = session_status.get("is_initial_period", True)
+                cycle_end_date = session_status.get("cycle_end_date")
+                
+                logger.info(f"Free tier status - Available: {sessions_available}, Initial period: {is_initial_period}")
+                
+                if sessions_available <= 0:
+                    # No sessions available - return detailed error
+                    if is_initial_period:
+                        error_msg = f"You've used all {free_tier_service.initial_sessions} initial sessions. Upgrade to Pro for unlimited sessions."
+                    else:
+                        error_msg = f"Weekly session limit reached. Next sessions available: {cycle_end_date}. Upgrade to Pro for unlimited access."
+                    
+                    logger.info(f"Session access denied for user {request.user_id[:8]}: {error_msg}")
+                    raise HTTPException(
+                        status_code=403, 
+                        detail={
+                            "error": "session_limit_exceeded",
+                            "message": error_msg,
+                            "user_type": "free_tier",
+                            "sessions_available": 0,
+                            "next_allocation_date": cycle_end_date,
+                            "upgrade_required": True
+                        }
+                    )
+                
+                logger.info(f"Free tier user {request.user_id[:8]} has {sessions_available} sessions available - proceeding")
+                
+            except Exception as e:
+                logger.error(f"Error checking free tier limits for user {request.user_id[:8]}: {e}")
+                # If free tier service fails, allow session but log the error
+                logger.warning("Free tier service error - allowing session to prevent service disruption")
+        
+    except HTTPException:
+        raise  # Re-raise HTTP exceptions
+    except Exception as e:
+        logger.error(f"Error checking session access for user {request.user_id[:8]}: {e}")
+        # If access check fails completely, allow session to prevent service disruption
+        logger.warning("Session access check failed - allowing session to prevent service disruption")
+    finally:
+        db.close()
+    
+    # ACCESS GRANTED - Proceed to serve pre-packed session
     try:
         planner = await get_blueprint_planner()
         
-        # Plan session with advisory lock protection
+        # Plan/serve session (will use pre-packed if available, create new if not)
         session_data = await planner.plan_session(request.user_id)
         
         # Get calculated session number based on completed sessions (FIX: Use meaningful progression)
