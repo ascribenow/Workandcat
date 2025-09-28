@@ -55,6 +55,37 @@ def has_question_context(user_message: str) -> bool:
     ]
     return any(indicator in text for indicator in context_indicators)
 
+# Enhanced solution paste detection - let LLM intelligence handle the explanation
+class SolutionPasteDetector:
+    def detect_solution_paste(self, message: str) -> bool:
+        """Intelligent detection of solution steps or mathematical expressions"""
+        text = message.strip()
+        
+        # Mathematical expressions and solution indicators
+        math_patterns = [
+            r'[=≠≈≤≥<>]\s*[^?]*',  # Contains mathematical operators
+            r'[\d\w]\s*[\+\-×x\*/÷]\s*[\d\w]',  # Arithmetic operations
+            r'^\s*[a-zA-Z]\s*=.*\d',  # Variable equations like "x = 5"
+            r'\b(step|formula|equation|substitute|solve|calculate)\b',  # Solution keywords
+            r'Volume\s*=|Area\s*=|Perimeter\s*=',  # Common formula starts
+            r'\d+π|\d+/\d+|√\d+',  # Mathematical expressions with π, fractions, roots
+            r'why.*=|how.*=|what.*mean',  # Questions about mathematical expressions
+        ]
+        
+        # Check if message contains solution-like content
+        for pattern in math_patterns:
+            if re.search(pattern, text, re.IGNORECASE):
+                return True
+                
+        # Check message length and complexity (longer messages might be solution pastes)
+        if len(text) > 50 and ('=' in text or any(op in text for op in ['+', '-', '×', '÷', '*', '/'])):
+            return True
+            
+        return False
+
+# Global detector instance
+solution_detector = SolutionPasteDetector()
+
 def get_enhanced_context_prompt() -> str:
     """Get the enhanced Ask Twelvr system prompt with rich context and solution intelligence"""
     return """
