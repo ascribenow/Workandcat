@@ -221,9 +221,11 @@ Content rules (if present in JSON):
 
 Strict constraints:
 - Do NOT invent numbers or concepts.
-- Do NOT show raw percentages, deltas, or decimals.
+- Do NOT show raw percentages like "42%" or decimals like "0.42" - use "about X out of 10" instead.
+- Do NOT use bullets (•), technical deltas (+/-), or database formatting.
 - Do NOT mention time or speed.
-Return plain text only.
+- ALWAYS convert accuracy numbers to "about X out of 10 correct" format.
+Return plain text only - no markdown, no bullets, no technical formatting.
 
 Data: {json.dumps(slice_dict, indent=2)}
         """
