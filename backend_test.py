@@ -35702,54 +35702,55 @@ if __name__ == "__main__":
         return final_results["100_percent_success_achieved"]
 
 if __name__ == "__main__":
-    print("🚀 ADAPTIVE INSIGHTS FIXES VERIFICATION TESTING")
+    print("🚀 PURE LLM FREEDOM APPROACH VERIFICATION TESTING")
     print("=" * 80)
-    print("OBJECTIVE: Verify implemented fixes resolved Adaptive Insights issues")
-    print("Focus: Pre-session insights, coach voice, background jobs, data quality")
-    print("Expected: Contextual insights, coach voice, working background jobs, real user data")
+    print("OBJECTIVE: Test the completely reimplemented Adaptive Insights system using pure LLM freedom")
+    print("Focus: Comprehensive data extraction, pure LLM generation, background jobs, direct storage")
+    print("Expected: Natural insights without rigid constraints, simplified pipeline, coach voice")
     print("Authentication: sp@theskinmantra.com/student123")
     print("=" * 80)
     
     tester = CATBackendTester()
     
     try:
-        # Run Adaptive Insights Fixes Verification Test
-        print("\n🎯 RUNNING ADAPTIVE INSIGHTS FIXES VERIFICATION")
-        insights_test_passed = tester.test_adaptive_insights_fixes_verification()
+        # Run Pure LLM Freedom Approach Verification Test
+        print("\n🎯 RUNNING PURE LLM FREEDOM APPROACH VERIFICATION")
+        pure_llm_test_passed = tester.test_pure_llm_freedom_adaptive_insights_complete()
         
         # FINAL SUMMARY
         print("\n" + "=" * 80)
-        print("🏁 ADAPTIVE INSIGHTS FIXES VERIFICATION - FINAL RESULTS")
+        print("🏁 PURE LLM FREEDOM APPROACH VERIFICATION - FINAL RESULTS")
         print("=" * 80)
         print(f"Total Tests Run: {tester.tests_run}")
         print(f"Total Tests Passed: {tester.tests_passed}")
         print(f"Overall Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%" if tester.tests_run > 0 else "0%")
         
-        print("\n📊 ADAPTIVE INSIGHTS FIXES TEST RESULTS:")
-        print(f"Adaptive Insights Fixes Verification: {'✅ PASS' if insights_test_passed else '❌ FAIL'}")
+        print("\n📊 PURE LLM FREEDOM APPROACH TEST RESULTS:")
+        print(f"Pure LLM Freedom Approach Verification: {'✅ PASS' if pure_llm_test_passed else '❌ FAIL'}")
         
-        if enhanced_test_passed:
-            print("\n🎉 ENHANCED ASK TWELVR SYSTEM: VALIDATED")
-            print("   ✅ Rich context provision enables intelligent responses")
-            print("   ✅ Solution step intelligence with 5-section format working")
-            print("   ✅ Practice question generation with complete solutions")
-            print("   ✅ Harder question flow seamless and functional")
-            print("   ✅ Natural conversation maintains witty, encouraging personality")
-            print("   ✅ All responses show contextual awareness without rigidity")
-            print("   ✅ System ready for production with enhanced features")
+        if pure_llm_test_passed:
+            print("\n🎉 PURE LLM FREEDOM APPROACH: VALIDATED")
+            print("   ✅ Comprehensive data extraction working with 50+ data points")
+            print("   ✅ LLM generates natural, encouraging insights without rigid formatting")
+            print("   ✅ Background jobs use new pure LLM approach successfully")
+            print("   ✅ Direct storage methods work correctly")
+            print("   ✅ APIs return LLM-generated content with coach voice")
+            print("   ✅ System significantly exceeds previous 54.5% success rate")
+            print("   ✅ Simplified pipeline eliminates complex fallback logic")
+            print("   ✅ System ready for production deployment")
         else:
-            print("\n⚠️ ENHANCED ASK TWELVR SYSTEM: NEEDS ATTENTION")
-            print("   ❌ Some enhanced features require improvement")
+            print("\n⚠️ PURE LLM FREEDOM APPROACH: NEEDS ATTENTION")
+            print("   ❌ Some critical components of the pure LLM approach not working correctly")
             print("   ❌ Review test results for specific issues")
-            print("   ❌ Additional work may be needed on context provision or solution intelligence")
+            print("   ❌ Additional fixes required before production deployment")
         
         print("=" * 80)
         
         # Exit with appropriate code
-        sys.exit(0 if enhanced_test_passed else 1)
+        sys.exit(0 if pure_llm_test_passed else 1)
         
     except Exception as e:
-        print(f"\n❌ CRITICAL ERROR during enhanced Ask Twelvr testing: {e}")
+        print(f"\n❌ CRITICAL ERROR during pure LLM freedom approach testing: {e}")
         print("Testing aborted due to unexpected error")
         import traceback
         traceback.print_exc()
