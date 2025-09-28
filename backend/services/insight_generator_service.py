@@ -14,6 +14,8 @@ class InsightGeneratorService:
     def __init__(self):
         self.logger = logging.getLogger(__name__)
         # Removed call tracking - let LLM run free!
+        self.user_call_counts = {}  # Track LLM usage per user per day
+        self.max_calls_per_user_per_day = 10  # Reasonable limit
     
     def generate_comprehensive_insights(self, comprehensive_data: Dict[str, Any]) -> Dict[str, Any]:
         """
