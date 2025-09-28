@@ -514,27 +514,35 @@ class AdaptiveInsightsService:
         finally:
             db.close()
 
-    # ULTRA-FAST METHODS FOR PRE-SESSION INSIGHTS - OPTIMIZED FOR <200ms
+    # BACKGROUND JOB OPTIMIZED METHODS - QUALITY DATA EXTRACTION  
     def _get_accuracy_series_fast(self, db: Session, user_id: str, session_ids: List[str]) -> List[float]:
-        """ULTRA-FAST accuracy series - single optimized query"""
+        """Get real accuracy series for quality insights (runs in background job)"""
         if not session_ids:
-            return [0.42, 0.38, 0.35]  # Fallback data for speed
+            # Get last 5 completed sessions for trend analysis
+            session_query = text("""
+                SELECT session_id FROM sessions 
+                WHERE user_id = :user_id AND status = 'completed'
+                ORDER BY completed_at DESC
+                LIMIT 5
+            """)
+            session_results = db.execute(session_query, {"user_id": user_id}).fetchall()
+            session_ids = [r.session_id for r in session_results]
         
-        # OPTIMIZATION: Single query with minimal processing
+        if not session_ids:
+            return [0.42, 0.38, 0.35]  # Fallback for new users
+            
+        # Get real accuracy data for meaningful insights
         query = text("""
-            SELECT AVG(CASE WHEN ae.was_correct THEN 1 ELSE 0 END)::float as acc
+            SELECT s.session_id, AVG(CASE WHEN ae.was_correct THEN 1 ELSE 0 END)::float as acc
             FROM sessions s
             JOIN attempt_events ae ON ae.session_id = s.session_id
-            WHERE s.user_id = :user_id AND s.status = 'completed'
-            ORDER BY s.completed_at DESC
-            LIMIT 3
+            WHERE s.session_id = ANY(:session_ids) AND s.user_id = :user_id
+            GROUP BY s.session_id, s.completed_at
+            ORDER BY s.completed_at ASC
         """)
         
-        result = db.execute(query, {"user_id": user_id}).fetchone()
-        avg_acc = float(result.acc or 0.42) if result else 0.42
-        
-        # Return synthetic series for speed (based on real average)
-        return [max(0.0, avg_acc - 0.1), avg_acc, min(1.0, avg_acc + 0.05)]
+        results = db.execute(query, {"session_ids": session_ids, "user_id": user_id}).fetchall()
+        return [float(r.acc or 0.0) for r in results] if results else [0.42, 0.38, 0.35]
 
     def _get_concept_shifts_minimal(self, db: Session, user_id: str, session_ids: List[str]) -> List[Dict[str, str]]:
         """ULTRA-FAST concept shifts - minimal DB query"""
