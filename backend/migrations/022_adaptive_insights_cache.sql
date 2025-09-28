@@ -3,7 +3,7 @@
 
 -- Cache table for dashboard insights (two sections)
 CREATE TABLE IF NOT EXISTS user_dashboard_insights (
-    user_id uuid PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    user_id varchar(36) PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
     all_time_insights jsonb NOT NULL,
     recent_insights jsonb NOT NULL, 
     last_updated_at timestamptz NOT NULL DEFAULT now()
@@ -11,14 +11,14 @@ CREATE TABLE IF NOT EXISTS user_dashboard_insights (
 
 -- Cache table for pre-session insight cards
 CREATE TABLE IF NOT EXISTS user_pre_session_insights (
-    user_id uuid PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    user_id varchar(36) PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
     insight_card jsonb NOT NULL,
     last_updated_at timestamptz NOT NULL DEFAULT now()
 );
 
 -- Debug table (optional) for storing raw slices
 CREATE TABLE IF NOT EXISTS user_insight_debug (
-    user_id uuid PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    user_id varchar(36) PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
     all_time_slice jsonb,
     recent_slice jsonb,
     pre_session_slice jsonb,
