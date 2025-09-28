@@ -1106,49 +1106,54 @@ class CATBackendTester:
         
         return success_rate >= 80 and criteria_rate >= 85
 
-    def test_adaptive_insights_final_verification(self):
+    def test_pure_llm_freedom_adaptive_insights(self):
         """
-        🎯 FINAL VERIFICATION: Test if ALL critical Adaptive Insights fixes are now working
+        🎯 PURE LLM FREEDOM APPROACH VERIFICATION: Test the completely reimplemented Adaptive Insights system
         
-        **COMPREHENSIVE FINAL TEST:**
+        **CORE SYSTEM TESTING:**
         
-        1. **Pre-session Insights Coach Voice**:
-           - Test GET /api/session/pre-session-insight 
-           - Verify contextual generation is working (not "Ready to Learn 📚")
-           - Check for encouraging, coach-like language
-           - Verify source="contextual_coach_voice" 
+        1. **Comprehensive Data Extraction**:
+           - Test the new comprehensive data extractor with sp@theskinmantra.com
+           - Verify it extracts ALL user data (sessions, accuracy trends, concept journey, question attempts, PYQ performance, difficulty patterns, coverage analysis, time patterns)
+           - Check data richness and completeness
         
-        2. **Dashboard Insights Coach Voice**:
-           - Test GET /api/dashboard/adaptive-insights
-           - Verify technical formatting is sanitized ("42% to 0% (-42 points)" should be gone)
-           - Check for "about X out of 10 correct" human-friendly format
-           - Verify encouraging coach voice throughout
+        2. **Pure LLM Generation**:
+           - Test the new `generate_comprehensive_insights()` method
+           - Verify LLM receives complete user data JSON
+           - Check if LLM generates natural, comprehensive insights without rigid constraints
+           - Test JSON response parsing for dashboard_all_time, dashboard_recent, and pre_session_card
         
-        3. **Background Job System**:
-           - Test POST /api/insights/force-refresh to ensure jobs trigger
-           - Verify UPDATE_INSIGHTS jobs are enqueued successfully
-           - Check that background processing works
+        3. **Background Job Pipeline**:
+           - Test the updated `handle_update_insights` job with pure LLM approach
+           - Verify it uses comprehensive data extraction → LLM generation → direct storage
+           - Check if UPDATE_INSIGHTS jobs process successfully
         
-        4. **Data Quality and Contextual Generation**:
-           - Verify insights use real user data patterns
-           - Check concept labels mapping is functional
-           - Test that insights adapt to user performance
+        4. **Direct Storage System**:
+           - Test `store_dashboard_insights_direct()` and `store_pre_session_insights_direct()` methods
+           - Verify insights are stored correctly in database
+           - Check that stored insights are meaningful and coach-voiced
         
-        5. **Overall System Assessment**:
-           - Compare to previous 37.8% success rate
-           - Verify all critical components are now functional
-           - Check production readiness
+        5. **End-to-End API Testing**:
+           - Test GET /api/dashboard/adaptive-insights for LLM-generated insights
+           - Test GET /api/session/pre-session-insight for LLM-generated cards
+           - Verify force refresh triggers the new pure LLM approach
         
         **SUCCESS CRITERIA:**
-        - Pre-session insights should be contextual with coach voice (not generic templates)
-        - Dashboard insights should use human-friendly language (no technical percentages/deltas)
-        - Background jobs should trigger and process successfully  
-        - Real user data should drive adaptive responses
-        - Overall success rate should be significantly improved (target: 80%+)
+        - Comprehensive data extraction working (50+ data points)
+        - LLM generates natural, encouraging insights without rigid formatting
+        - Background jobs use new pure LLM approach successfully
+        - Direct storage methods work correctly
+        - APIs return LLM-generated content with coach voice
+        - Overall system should significantly exceed previous 54.5% success rate
         
-        **BRUTAL HONESTY REQUIRED:** Report actual working status, not aspirational. If still broken, identify remaining issues clearly.
+        **EXPECTED OUTCOME:**
+        This pure LLM freedom approach should resolve all previous issues by:
+        - Eliminating complex fallback logic
+        - Providing rich context for natural insights
+        - Allowing LLM creative freedom for coach voice
+        - Simplifying the entire pipeline
         
-        Test with sp@theskinmantra.com/student123 and provide definitive assessment of fix effectiveness.
+        Test thoroughly and report if this simpler approach achieves better results than the previous complex system.
         """
         print("🎯 FINAL VERIFICATION: ADAPTIVE INSIGHTS FIXES TESTING")
         print("=" * 80)
