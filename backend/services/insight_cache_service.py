@@ -10,6 +10,24 @@ from services.insight_generator_service import insight_generator_service
 _memory_cache = {}
 _cache_timestamps = {}
 
+def cleanup_memory_cache():
+    """Clean up expired memory cache entries to prevent memory leaks"""
+    from time import time
+    current_time = time()
+    expired_keys = []
+    
+    for key, timestamp in _cache_timestamps.items():
+        # Remove entries older than 1 hour
+        if current_time - timestamp > 3600:
+            expired_keys.append(key)
+    
+    for key in expired_keys:
+        _memory_cache.pop(key, None)
+        _cache_timestamps.pop(key, None)
+    
+    if expired_keys:
+        logger.info(f"Cleaned up {len(expired_keys)} expired memory cache entries")
+
 logger = logging.getLogger(__name__)
 
 class InsightCacheService:
