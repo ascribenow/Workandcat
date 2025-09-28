@@ -73,23 +73,26 @@ class AdaptiveInsightsService:
         finally:
             db.close()
     
-    def build_pre_session_slice(self, user_id: str, session_id: str, window: int = 3) -> Dict[str, Any]:
-        """Build pre-session insight data slice (ULTRA-FAST: <50ms target)"""
+    def build_pre_session_slice(self, user_id: str, session_id: str, window: int = 5) -> Dict[str, Any]:
+        """Build pre-session insight data slice (BACKGROUND JOB QUALITY EXTRACTION)"""
         db = SessionLocal()
         try:
-            # ULTRA-OPTIMIZATION: Minimal DB interaction for maximum speed
-            accuracy_series = self._get_accuracy_series_fast(db, user_id, [])
-            concept_shifts = self._get_concept_shifts_minimal(db, user_id, [])
-            coverage_change = self._get_top_coverage_change_fast(db, user_id, [])
+            # Get recent session data for quality insights
+            recent_sessions = self._get_recent_session_ids(db, user_id, window)
+            
+            # Extract quality data for meaningful insights
+            accuracy_series = self._get_accuracy_series_fast(db, user_id, recent_sessions)
+            concept_shifts = self._get_concept_shifts_minimal(db, user_id, recent_sessions)
+            coverage_change = self._get_top_coverage_change_fast(db, user_id, recent_sessions)
             today_preview = self._get_session_preview_fast(db, session_id)
             
             return {
-                "window": 3,  # Fixed for speed
+                "window": len(recent_sessions) or window,
                 "accuracy_series": accuracy_series,
                 "concept_shifts": concept_shifts,
                 "coverage_change": coverage_change,
                 "today_preview": today_preview,
-                "optimization": "ultra_fast_mode"
+                "optimization": "background_job_quality"
             }
         finally:
             db.close()
