@@ -1168,45 +1168,55 @@ class CATBackendTester:
             "user_adaptive_enabled": False,
             "jwt_token_valid": False,
             
-            # 1. Pre-session Insights Coach Voice
-            "pre_session_api_accessible": False,
-            "pre_session_contextual_generation": False,
-            "pre_session_not_generic_template": False,
-            "pre_session_coach_voice_detected": False,
-            "pre_session_encouraging_language": False,
-            "pre_session_source_contextual": False,
-            "pre_session_response_time_good": False,
+            # 1. Comprehensive Data Extraction
+            "comprehensive_data_extractor_working": False,
+            "all_user_data_extracted": False,
+            "data_richness_sufficient": False,
+            "sessions_data_extracted": False,
+            "accuracy_trends_extracted": False,
+            "concept_journey_extracted": False,
+            "question_attempts_extracted": False,
+            "pyq_performance_extracted": False,
+            "difficulty_patterns_extracted": False,
+            "coverage_analysis_extracted": False,
+            "time_patterns_extracted": False,
             
-            # 2. Dashboard Insights Coach Voice  
-            "dashboard_api_accessible": False,
-            "dashboard_technical_formatting_sanitized": False,
-            "dashboard_human_friendly_format": False,
-            "dashboard_about_x_out_of_10_format": False,
-            "dashboard_encouraging_coach_voice": False,
-            "dashboard_no_technical_percentages": False,
-            "dashboard_response_time_good": False,
+            # 2. Pure LLM Generation
+            "llm_generation_working": False,
+            "comprehensive_insights_generated": False,
+            "natural_insights_without_constraints": False,
+            "json_response_parsing_working": False,
+            "dashboard_all_time_generated": False,
+            "dashboard_recent_generated": False,
+            "pre_session_card_generated": False,
+            "coach_voice_natural": False,
             
-            # 3. Background Job System
-            "force_refresh_api_working": False,
-            "update_insights_jobs_enqueued": False,
-            "background_job_processing_working": False,
-            "job_queue_functional": False,
-            "job_status_tracking_working": False,
+            # 3. Background Job Pipeline
+            "update_insights_job_working": False,
+            "pure_llm_approach_used": False,
+            "background_job_processing_successful": False,
+            "job_pipeline_functional": False,
+            "job_enqueueing_working": False,
             
-            # 4. Data Quality and Contextual Generation
-            "insights_use_real_user_data": False,
-            "concept_labels_mapping_working": False,
-            "insights_adaptive_to_performance": False,
-            "contextual_generation_working": False,
-            "no_synthetic_placeholders": False,
+            # 4. Direct Storage System
+            "direct_storage_working": False,
+            "dashboard_insights_stored_correctly": False,
+            "pre_session_insights_stored_correctly": False,
+            "stored_insights_meaningful": False,
+            "stored_insights_coach_voiced": False,
             
-            # 5. Overall System Assessment
-            "pre_session_insights_fixed": False,
-            "dashboard_insights_fixed": False,
-            "background_jobs_fixed": False,
-            "coach_voice_implemented": False,
-            "system_production_ready": False,
-            "success_rate_improved": False
+            # 5. End-to-End API Testing
+            "dashboard_api_working": False,
+            "pre_session_api_working": False,
+            "force_refresh_triggers_pure_llm": False,
+            "apis_return_llm_content": False,
+            "response_times_acceptable": False,
+            
+            # Overall Assessment
+            "pure_llm_approach_successful": False,
+            "system_exceeds_previous_success_rate": False,
+            "simplified_pipeline_working": False,
+            "production_ready": False
         }
         
         # PHASE 1: AUTHENTICATION SETUP
