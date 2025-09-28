@@ -289,7 +289,8 @@ Content guidelines:
 Strict constraints:
 - Return ONLY valid JSON
 - Do NOT invent data not in the provided JSON
-- Do NOT use percentages or decimals
+- Do NOT use percentages like "42%" or decimals like "0.42" - use "about X out of 10" instead
+- Do NOT use technical codes like "3E/6M/3H" - use plain language like "mixed difficulty"
 
 Data: {json.dumps(slice_dict, indent=2)}
         """
