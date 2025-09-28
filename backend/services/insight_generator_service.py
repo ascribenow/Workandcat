@@ -292,7 +292,6 @@ Data: {json.dumps(slice_dict, indent=2)}
         accuracy_series = slice_dict.get("accuracy_series", [])
         today_preview = slice_dict.get("today_preview", {})
         concept_shifts = slice_dict.get("concept_shifts", [])
-        window = slice_dict.get("window", 5)
         
         # Coach voice progress based on accuracy
         if len(accuracy_series) >= 2:
