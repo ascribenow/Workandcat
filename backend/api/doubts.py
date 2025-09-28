@@ -164,28 +164,49 @@ async def ask_doubt(
                     for i, msg in enumerate(conversation_history)
                 ])
                 
-                # Build question context if relevant
-                question_context = ""
-                if has_question_context(doubt_data.message) and question.stem:
-                    question_context = f"""
-Current Question Context:
-- Problem: {question.stem}
-- Topic: {question.subcategory or question.category or 'Quantitative Aptitude'}
-- Answer: {question.right_answer or 'Not available'}
+                # Build rich question context for LLM
+                rich_context = f"""
+## CURRENT QUESTION CONTEXT:
+**Problem Statement**: {question.stem or 'Not available'}
+**Topic**: {question.subcategory or question.category or 'Quantitative Aptitude'}
+**Difficulty**: {getattr(question, 'difficulty', 'Medium')}
+**Correct Answer**: {question.right_answer or 'Not provided'}
+
+**Available Solutions**:
+- Approach: {question.solution_approach or 'Standard method'}
+- Detailed Solution: {question.detailed_solution or 'Solution steps available'}
+- Key Insight: {question.snap_read or 'Apply fundamental concepts'}
+
+**Core Concepts**: {getattr(question, 'core_concepts', []) or ['Mathematical reasoning']}
+
+This is what the student is working on. Use this context intelligently in your responses.
 """
                 
-                # Create natural conversation prompt
+                # Detect if student is sharing solution steps (intelligent detection)
+                is_solution_paste = self.detect_solution_paste(doubt_data.message)
+                solution_guidance = ""
+                if is_solution_paste:
+                    solution_guidance = """
+## SOLUTION STEP DETECTED:
+The student appears to be asking about a specific solution step. Use the 5-section format:
+1) What's happening here, 2) The concept behind it, 3) Why this approach, 4) Practice question, 5) Ready for more?
+"""
+                
+                # Create enhanced conversation prompt
                 full_prompt = f"""
-{get_natural_system_prompt()}
+{get_enhanced_context_prompt()}
 
-{question_context}
+{rich_context}
 
-Previous Conversation:
+{solution_guidance}
+
+## CONVERSATION HISTORY:
 {context_messages}
 
-Student's latest message: {doubt_data.message}
+## STUDENT'S MESSAGE:
+{doubt_data.message}
 
-Respond naturally and helpfully:
+Respond with your full intelligence - be witty, use analogies, and help them understand:
 """
                 
                 response = model.generate_content(full_prompt)
