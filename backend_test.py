@@ -1155,7 +1155,7 @@ class CATBackendTester:
         
         Test thoroughly and report if this simpler approach achieves better results than the previous complex system.
         """
-        print("🎯 FINAL VERIFICATION: ADAPTIVE INSIGHTS FIXES TESTING")
+        print("🎯 PURE LLM FREEDOM APPROACH VERIFICATION: ADAPTIVE INSIGHTS SYSTEM TESTING")
         print("=" * 80)
         print("OBJECTIVE: Test if ALL critical Adaptive Insights fixes are now working")
         print("FOCUS: Pre-session coach voice, dashboard coach voice, background jobs, data quality")
