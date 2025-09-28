@@ -187,14 +187,12 @@ Respond naturally and helpfully:
                     {
                         "role": "user",
                         "content": doubt_data.message,
-                        "timestamp": datetime.utcnow().isoformat(),
-                        "mode_detected": mode
+                        "timestamp": datetime.utcnow().isoformat()
                     },
                     {
                         "role": "assistant", 
                         "content": ai_response,
-                        "timestamp": datetime.utcnow().isoformat(),
-                        "response_mode": mode
+                        "timestamp": datetime.utcnow().isoformat()
                     }
                 ])
                 
