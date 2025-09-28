@@ -189,59 +189,94 @@ async def ask_doubt(
         finally:
             db.close()
         
-        # Generate AI response using Gemini
+        # Generate AI response using Gemini with enhanced mode detection
         if GOOGLE_API_KEY:
             try:
                 model = genai.GenerativeModel("gemini-2.5-flash")
                 
-                # Prepare context for AI
+                # Prepare enhanced context for AI
                 conversation_history = doubt_conversations[conversation_key]
                 context_messages = "\n".join([
                     f"{'User' if i % 2 == 0 else 'Twelvr'}: {msg['content']}"
                     for i, msg in enumerate(conversation_history)
                 ])
                 
-                # Create comprehensive prompt
-                prompt = f"""
-You are Twelvr, an expert CAT preparation tutor. A student has a doubt about this question:
-
-QUESTION: {question.stem}
-CORRECT ANSWER: {question.right_answer}
-
-SOLUTION DETAILS:
-- Snap Read: {question.snap_read or 'Not available'}
-- Approach: {question.solution_approach or 'Not available'}  
-- Detailed Solution: {question.detailed_solution or 'Not available'}
-- Principle: {question.principle_to_remember or 'Not available'}
+                # Detect response mode
+                has_question_context = bool(question.stem)
+                mode = detect_ask_twelvr_mode(doubt_data.message, has_question_context)
+                
+                # Build enhanced context
+                context = {
+                    "current_question_stem": question.stem or "",
+                    "current_question_category": question.category or "",
+                    "current_question_subcategory": question.subcategory or "",
+                    "core_concepts": getattr(question, 'core_concepts', []) or [],
+                    "solution_approach": question.solution_approach or "",
+                    "detailed_solution": question.detailed_solution or "",
+                    "correct_answer": question.right_answer or "",
+                    "snap_read": question.snap_read or ""
+                }
+                
+                # Create mode-specific prompt
+                system_prompt = get_enhanced_system_prompt()
+                
+                if mode == 1:  # Session-Related
+                    specific_prompt = f"""
+CONTEXT (current question details):
+- Question: {context['current_question_stem']}
+- Category: {context['current_question_category']} → {context['current_question_subcategory']}
+- Core Concepts: {', '.join(context['core_concepts']) if context['core_concepts'] else 'Not specified'}
+- Solution Approach: {context['solution_approach']}
+- Correct Answer: {context['correct_answer']}
 
 CONVERSATION HISTORY:
 {context_messages}
 
-STUDENT'S DOUBT: {doubt_data.message}
+STUDENT'S QUESTION: {doubt_data.message}
 
-Please provide a helpful, concise response that:
-1. Directly addresses the student's specific doubt
-2. Uses simple, clear language
-3. Provides step-by-step explanations when needed
-4. Encourages the student's learning
-5. Keeps response under 200 words
+Use MODE 1 - SESSION-RELATED. Answer in context of the current question with simple explanations first, then math details.
+"""
+                elif mode == 2:  # Off-Topic
+                    specific_prompt = f"""
+STUDENT'S QUESTION: {doubt_data.message}
+CURRENT CONTEXT: Working on {context['current_question_subcategory'] or 'a Quant'} problem
 
-Response:"""
+Use MODE 2 - OFF-TOPIC. Give a brief friendly answer, then wit back to their {context['current_question_subcategory'] or 'current'} problem.
+"""
+                else:  # mode == 3: Solution Step Explanation
+                    specific_prompt = f"""
+CONTEXT (may help with explanation):
+- Question Category: {context['current_question_category']} → {context['current_question_subcategory']}
+- Core Concepts: {', '.join(context['core_concepts']) if context['core_concepts'] else 'Mathematical concepts'}
+- Solution Available: {context['detailed_solution'][:200] + '...' if len(context['detailed_solution']) > 200 else context['detailed_solution']}
 
-                response = model.generate_content(prompt)
+STUDENT WANTS STEP EXPLAINED: {doubt_data.message}
+
+Use MODE 3 - SOLUTION STEP EXPLANATION. Follow the exact 5-heading structure. Start with simple analogies, then math. Generate one quick practice problem with full solution.
+"""
+                
+                full_prompt = system_prompt + "\n" + specific_prompt
+                
+                response = model.generate_content(full_prompt)
                 ai_response = response.text.strip()
+                
+                logger.info(f"Ask Twelvr Mode {mode} response generated for user {user_id[:8]}")
                 
                 # Store conversation
                 doubt_conversations[conversation_key].extend([
                     {
                         "role": "user",
                         "content": doubt_data.message,
-                        "timestamp": datetime.utcnow().isoformat()
+                        "timestamp": datetime.utcnow().isoformat(),
+                        "mode_detected": mode
                     },
                     {
                         "role": "assistant", 
                         "content": ai_response,
-                        "timestamp": datetime.utcnow().isoformat()
+                        "timestamp": datetime.utcnow().isoformat(),
+                        "response_mode": mode
+                    }
+                ])
                     }
                 ])
                 
