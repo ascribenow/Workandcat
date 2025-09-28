@@ -335,15 +335,59 @@ class InsightCacheService:
             self.logger.error(f"Error checking session pack existence: {e}")
             return False
     
-    def _graceful_no_pack_response(self) -> Dict[str, Any]:
-        """Return graceful response when no session pack exists"""
+    def _generate_contextual_pre_session_card(self, user_id: str, slice_dict: Dict[str, Any]) -> Dict[str, Any]:
+        """Generate contextual pre-session card with coach voice"""
+        accuracy_series = slice_dict.get("accuracy_series", [])
+        concept_shifts = slice_dict.get("concept_shifts", [])
+        window = slice_dict.get("window", 0)
+        is_new_user = slice_dict.get("is_new_user", False)
+        is_low_data = slice_dict.get("is_low_data", False)
+        
+        # Coach voice titles based on data
+        if is_new_user:
+            title = "Let's Begin! 🚀"
+            progress = "Ready to start your CAT preparation journey."
+            way_forward = ["Focus on understanding concepts clearly", "Take your time with each question"] 
+            today = "Today: Mixed difficulty to gauge your current level"
+        elif is_low_data:
+            title = "Building Momentum 📈"
+            progress = f"You've completed {window} sessions so far - great start!"
+            way_forward = ["Keep practicing consistently", "Focus on your problem-solving approach"]
+            today = "Today: Continuing to build your foundation"
+        elif accuracy_series and len(accuracy_series) >= 2:
+            start_acc = accuracy_series[0]
+            end_acc = accuracy_series[-1]
+            
+            if end_acc > start_acc:
+                title = "On the Rise! ⬆️"
+                progress = f"Your accuracy is improving - that's exactly what we want to see!"
+                way_forward = ["Keep this momentum going", "Focus on speed along with accuracy"]
+            else:
+                title = "Steady Progress 💪"
+                progress = f"Working through some challenging concepts - that's how you grow!"
+                way_forward = ["Don't worry about recent dips", "Focus on understanding over speed"]
+            
+            today = "Today: Questions tailored to your learning patterns"
+        else:
+            title = "Ready to Learn 🎯"
+            progress = "Your consistent practice is building strong foundations."
+            way_forward = ["Stay focused on the process", "Each question teaches something new"]
+            today = "Today: Adaptive questions based on your progress"
+        
+        # Add concept context if available
+        if concept_shifts:
+            concept = concept_shifts[0].get("concept", "")
+            if concept:
+                today += f" with focus on {concept}"
+        
         return {
-            "title": "Prep in Progress 🔧",
-            "progress": "We're preparing your personalized session.",
-            "way_forward": ["Your adaptive session is being generated", "Check back in a moment"],
-            "today": "Customized questions are being selected for your level.",
+            "title": title,
+            "progress": progress,
+            "way_forward": way_forward,
+            "today": today,
             "last_updated_at": datetime.now(timezone.utc).isoformat(),
-            "source": "graceful_degradation"
+            "source": "contextual_coach_voice",
+            "prompt_version": "v1.0_contextual"
         }
     
     def _is_cache_fresh(self, last_updated: datetime, hours: int = None) -> bool:
