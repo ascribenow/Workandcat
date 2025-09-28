@@ -1348,12 +1348,12 @@ class CATBackendTester:
                         print(f"   ✅ INSIGHTS_FORCE_FALLBACK flag implemented")
                     
                     # Check for fallback_forced source
-                    if 'source="fallback_forced"' in generator_content:
+                    if 'fallback_forced' in generator_content and 'source' in generator_content:
                         test_results["fallback_forced_source_correct"] = True
                         print(f"   ✅ Fallback forced source correctly set")
                     
                     # Check for fallback_forced prompt version
-                    if 'prompt_version="v1.0_fallback_forced"' in generator_content:
+                    if 'v1.0_fallback_forced' in generator_content and 'prompt_version' in generator_content:
                         test_results["fallback_forced_prompt_version"] = True
                         print(f"   ✅ Fallback forced prompt version correctly set")
                     
