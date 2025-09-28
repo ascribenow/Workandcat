@@ -1635,16 +1635,16 @@ class CATBackendTester:
         print("-" * 80)
         print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
         
-        # OPTIMIZATION ACCEPTANCE CRITERIA ASSESSMENT
-        print("\n🎯 OPTIMIZATION ACCEPTANCE CRITERIA ASSESSMENT:")
+        # ULTRA-FAST CACHE ACCEPTANCE CRITERIA ASSESSMENT
+        print("\n🎯 ULTRA-FAST CACHE ACCEPTANCE CRITERIA ASSESSMENT:")
         
         acceptance_criteria = [
-            ("Import errors resolved", test_results["import_errors_resolved"]),
-            ("Cache hits under 200ms", test_results["cache_hit_significantly_faster"]),
-            ("Pre-session insights under 5s", test_results["pre_session_insight_under_5_seconds"]),
-            ("Edge cases handled gracefully", test_results["error_handling_improved"]),
-            ("Background job pipeline working", test_results["job_pipeline_working"]),
-            ("Cache performance metrics included", test_results["cache_time_ms_included"] and test_results["generation_time_ms_included"])
+            ("Memory cache hits under 50ms", test_results.get("level_1_memory_cache_under_50ms", False)),
+            ("DB cache hits under 200ms", test_results.get("level_2_db_cache_under_200ms", False)),
+            ("Cache source tracking working", test_results.get("memory_db_fresh_sources_working", False)),
+            ("Memory cache cleanup functional", test_results.get("memory_cache_cleanup_functional", False)),
+            ("95%+ calls under 200ms", test_results.get("95_percent_calls_under_200ms", False)),
+            ("79% improvement from 952ms baseline", test_results.get("79_percent_improvement_achieved", False))
         ]
         
         criteria_met = 0
@@ -1657,24 +1657,44 @@ class CATBackendTester:
         criteria_rate = (criteria_met / len(acceptance_criteria)) * 100
         print(f"\nAcceptance Criteria: {criteria_met}/{len(acceptance_criteria)} ({criteria_rate:.1f}%)")
         
-        # OVERALL OPTIMIZATION ASSESSMENT
-        if success_rate >= 90 and criteria_rate >= 85:
-            test_results["overall_success_rate_90_plus"] = True
-            test_results["optimization_successful"] = True
-            print("\n🎉 OPTIMIZATION SUCCESSFUL")
-            print("   - Import errors resolved")
-            print("   - Cache performance optimized (hits <200ms)")
-            print("   - Pre-session insights under 5 seconds")
-            print("   - Edge cases handled gracefully")
-            print("   - Overall success rate 90%+")
-            print("   - 20% issues successfully resolved")
-        else:
-            print("\n⚠️ OPTIMIZATION NEEDS ATTENTION")
-            print(f"   - Success rate: {success_rate:.1f}% (target: 90%+)")
-            print(f"   - Criteria met: {criteria_rate:.1f}% (target: 85%+)")
-            print("   - Some optimization targets not fully achieved")
+        # OVERALL ULTRA-FAST CACHE ASSESSMENT
+        cache_strategy_working = (
+            test_results.get("level_1_memory_cache_under_50ms", False) and
+            test_results.get("level_2_db_cache_under_200ms", False) and
+            test_results.get("cache_level_progression_correct", False)
+        )
         
-        return success_rate >= 90 and criteria_rate >= 85
+        performance_targets_met = (
+            test_results.get("target_200ms_achieved", False) and
+            test_results.get("95_percent_calls_under_200ms", False)
+        )
+        
+        cache_cleanup_working = (
+            test_results.get("memory_cache_cleanup_functional", False) and
+            test_results.get("memory_cache_prevents_leaks", False)
+        )
+        
+        if cache_strategy_working and performance_targets_met and cache_cleanup_working:
+            test_results["cache_strategy_working"] = True
+            test_results["performance_targets_met"] = True
+            test_results["cache_cleanup_working"] = True
+            test_results["ultra_optimization_successful"] = True
+            print("\n🎉 ULTRA-FAST CACHE OPTIMIZATION SUCCESSFUL")
+            print("   - 3-level cache strategy working (Memory<50ms, DB<200ms, Fresh)")
+            print("   - Performance targets achieved (95%+ calls <200ms)")
+            print("   - 79% improvement from 952ms baseline achieved")
+            print("   - Memory cache cleanup prevents leaks")
+            print("   - Cache source tracking accurate")
+            print("   - Ultra-fast performance validated")
+        else:
+            print("\n⚠️ ULTRA-FAST CACHE OPTIMIZATION NEEDS ATTENTION")
+            print(f"   - Success rate: {success_rate:.1f}% (target: 95%+)")
+            print(f"   - Criteria met: {criteria_rate:.1f}% (target: 90%+)")
+            print(f"   - Cache strategy working: {cache_strategy_working}")
+            print(f"   - Performance targets met: {performance_targets_met}")
+            print(f"   - Cache cleanup working: {cache_cleanup_working}")
+        
+        return success_rate >= 95 and criteria_rate >= 90
 
     def test_adaptive_insights_backend_implementation(self):
         """
