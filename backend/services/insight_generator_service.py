@@ -21,7 +21,6 @@ class InsightGeneratorService:
         Give LLM complete user data and let it generate all insights naturally
         """
         try:
-            from llm_utils import call_llm_with_fallback
             import os
             
             # Check for global fallback flag
