@@ -583,6 +583,8 @@ class AdaptiveInsightsService:
     def _get_top_coverage_change_fast(self, db: Session, user_id: str, session_ids: List[str]) -> Dict[str, Any]:
         """Get real coverage change for quality insights (background job context)"""
         try:
+            from services.concept_labels import get_concept_label
+            
             query = text("""
                 SELECT subcategory, type_of_question, debt_score
                 FROM coverage_debt
@@ -593,8 +595,9 @@ class AdaptiveInsightsService:
             
             result = db.execute(query, {"user_id": user_id}).fetchone()
             if result:
+                concept_norm = f"{result.subcategory}:{result.type_of_question}"
                 return {
-                    "concept": f"{result.subcategory}:{result.type_of_question}",
+                    "concept": get_concept_label(concept_norm),
                     "debt_score": float(result.debt_score)
                 }
             return {"concept": "Balanced Coverage", "debt_score": 0.2}
