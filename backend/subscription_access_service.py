@@ -172,6 +172,64 @@ class SubscriptionAccessService:
             "subscription_status": access_level["subscription_status"]
         }
     
+    def check_plan_availability(self, plan_type: str) -> Dict[str, Any]:
+        """Check if a plan is available for subscription based on current date"""
+        try:
+            from datetime import datetime, timezone
+            
+            if plan_type not in self.plan_features:
+                return {
+                    "available": False,
+                    "error": "Invalid plan type",
+                    "plan_type": plan_type
+                }
+            
+            plan_config = self.plan_features[plan_type]
+            now = datetime.now(timezone.utc)
+            
+            # Check if plan has availability restrictions
+            if "available_after" in plan_config:
+                available_after = datetime.fromisoformat(plan_config["available_after"].replace("Z", "+00:00"))
+                if available_after.tzinfo is None:
+                    available_after = available_after.replace(tzinfo=timezone.utc)
+                
+                if now < available_after:
+                    return {
+                        "available": False,
+                        "reason": "not_yet_available",
+                        "message": f"This plan will be available from {available_after.strftime('%B %d, %Y')}",
+                        "available_date": available_after.isoformat(),
+                        "plan_type": plan_type
+                    }
+            
+            if "available_until" in plan_config:
+                available_until = datetime.fromisoformat(plan_config["available_until"].replace("Z", "+00:00"))
+                if available_until.tzinfo is None:
+                    available_until = available_until.replace(tzinfo=timezone.utc)
+                
+                if now > available_until:
+                    return {
+                        "available": False,
+                        "reason": "no_longer_available", 
+                        "message": f"This plan was available until {available_until.strftime('%B %d, %Y')}",
+                        "expired_date": available_until.isoformat(),
+                        "plan_type": plan_type
+                    }
+            
+            return {
+                "available": True,
+                "plan_type": plan_type,
+                "message": "Plan is available for subscription"
+            }
+            
+        except Exception as e:
+            logger.error(f"Error checking plan availability for {plan_type}: {e}")
+            return {
+                "available": False,
+                "error": str(e),
+                "plan_type": plan_type
+            }
+    
     def expire_subscriptions(self, db: Session) -> Dict[str, Any]:
         """Expire subscriptions that have passed their end date (run as background job)"""
         try:
