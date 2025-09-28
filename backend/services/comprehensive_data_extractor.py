@@ -72,14 +72,14 @@ class ComprehensiveDataExtractor:
                     s.session_id,
                     s.status,
                     s.completed_at,
-                    s.started_at,
+                    s.served_at,
                     COUNT(ae.id) as total_questions,
                     AVG(CASE WHEN ae.was_correct THEN 1 ELSE 0 END)::float as accuracy,
                     COUNT(CASE WHEN ae.was_correct THEN 1 END) as correct_answers
                 FROM sessions s
                 LEFT JOIN attempt_events ae ON ae.session_id = s.session_id  
                 WHERE s.user_id = :user_id
-                GROUP BY s.session_id, s.status, s.completed_at, s.started_at
+                GROUP BY s.session_id, s.status, s.completed_at, s.served_at
                 ORDER BY s.completed_at DESC NULLS LAST
                 LIMIT 50
             """)
