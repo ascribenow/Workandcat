@@ -325,11 +325,11 @@ const Pricing = () => {
                   Full syllabus coverage in 90 sessions (only for Quantitative Ability section)
                 </span>
               </div>
-              <div className="flex items-center border-l-4 border-[#9ac026] pl-2 bg-gray-50 rounded-r-md py-2">
+              <div className="flex items-center">
                 <svg className="w-5 h-5 text-[#9ac026] mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
-                <span className="text-left font-medium" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
+                <span className="text-left" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
                   Ask Twelvr: Real-time doubt resolution per question
                 </span>
               </div>
