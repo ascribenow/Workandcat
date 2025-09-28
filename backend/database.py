@@ -400,6 +400,45 @@ class PaymentTransaction(Base):
     user = relationship("User", foreign_keys=[user_id])
 
 
+class UserDashboardInsights(Base):
+    """Cache for adaptive insights displayed on dashboard"""
+    __tablename__ = "user_dashboard_insights"
+    
+    user_id = Column(String(36), ForeignKey("users.id"), primary_key=True)
+    all_time_insights = Column(JSON, nullable=False)
+    recent_insights = Column(JSON, nullable=False)
+    last_updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    
+    # Relationship
+    user = relationship("User", foreign_keys=[user_id])
+
+
+class UserPreSessionInsights(Base):
+    """Cache for pre-session insight cards"""
+    __tablename__ = "user_pre_session_insights"
+    
+    user_id = Column(String(36), ForeignKey("users.id"), primary_key=True)
+    insight_card = Column(JSON, nullable=False)
+    last_updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    
+    # Relationship
+    user = relationship("User", foreign_keys=[user_id])
+
+
+class UserInsightDebug(Base):
+    """Debug storage for raw insight data slices (optional)"""
+    __tablename__ = "user_insight_debug"
+    
+    user_id = Column(String(36), ForeignKey("users.id"), primary_key=True)
+    all_time_slice = Column(JSON, nullable=True)
+    recent_slice = Column(JSON, nullable=True)
+    pre_session_slice = Column(JSON, nullable=True)
+    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    
+    # Relationship
+    user = relationship("User", foreign_keys=[user_id])
+
+
 # Diagnostic System Tables
 
 # DELETED TABLE: DiagnosticSet model removed as part of database cleanup
