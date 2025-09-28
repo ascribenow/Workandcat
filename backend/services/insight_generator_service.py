@@ -14,6 +14,61 @@ class InsightGeneratorService:
     def __init__(self):
         self.logger = logging.getLogger(__name__)
         # Removed call tracking - let LLM run free!
+    
+    def generate_comprehensive_insights(self, comprehensive_data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        PURE LLM FREEDOM APPROACH
+        Give LLM complete user data and let it generate all insights naturally
+        """
+        try:
+            from services.llm_utils import call_llm_with_fallback
+            import os
+            
+            # Check for global fallback flag
+            if os.environ.get("INSIGHTS_FORCE_FALLBACK", "false").lower() == "true":
+                return self._generate_simple_fallback_insights(comprehensive_data)
+            
+            # Pure LLM freedom prompt - no restrictions, complete creative control
+            prompt = self._build_comprehensive_insights_prompt(comprehensive_data)
+            
+            response = call_llm_with_fallback(
+                prompt=prompt,
+                model_primary="gpt-4o",  # Best model for comprehensive analysis
+                model_fallback="gemini-2.5-flash",
+                max_tokens=800,  # Generous tokens for comprehensive insights
+                timeout=20  # Adequate time for analysis
+            )
+            
+            if response and len(response.strip()) > 50:
+                # Parse LLM response (expecting JSON with all insights)
+                try:
+                    import json
+                    insights_data = json.loads(response.strip())
+                    insights_data["source"] = "llm_comprehensive"
+                    insights_data["generated_at"] = datetime.now(timezone.utc).isoformat()
+                    self.logger.info(f"Generated comprehensive insights via LLM")
+                    return insights_data
+                except json.JSONDecodeError:
+                    # If not JSON, treat as markdown and structure it
+                    self.logger.warning("LLM returned non-JSON, structuring response")
+                    return {
+                        "dashboard_all_time": response.strip(),
+                        "dashboard_recent": "Your recent progress continues to build on your foundations.",
+                        "pre_session_card": {
+                            "title": "Ready to Learn 🎯",
+                            "progress": "Building on your consistent preparation",
+                            "way_forward": ["Stay focused", "Trust the process"],
+                            "today": "Today's session will continue your growth"
+                        },
+                        "source": "llm_comprehensive_markdown",
+                        "generated_at": datetime.now(timezone.utc).isoformat()
+                    }
+            else:
+                return self._generate_simple_fallback_insights(comprehensive_data)
+                
+        except Exception as e:
+            self.logger.error(f"Error in comprehensive insights generation: {e}")
+            return self._generate_simple_fallback_insights(comprehensive_data)
         
     def _percent_to_human(self, accuracy: float) -> str:
         """Convert 0.42 -> 'about 4 out of 10 correct'"""
