@@ -1,6 +1,6 @@
 """
 Simplified Job Handlers
-Two job types: SUMMARIZE_SESSION → PLAN_NEXT_SESSION
+Three job types: SUMMARIZE_SESSION → PLAN_NEXT_SESSION → UPDATE_INSIGHTS
 """
 
 import json
@@ -11,6 +11,7 @@ from datetime import datetime, timezone
 from database import SessionLocal
 from sqlalchemy import text
 from services.summarizer import summarizer_service
+from services.insight_cache_service import insight_cache_service
 
 logger = logging.getLogger(__name__)
 
