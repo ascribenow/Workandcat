@@ -236,26 +236,26 @@ class InsightCacheService:
             db.close()
     
     def refresh_pre_session_cache(self, user_id: str, session_id: str) -> Dict[str, Any]:
-        """Refresh pre-session insights cache"""
+        """Refresh pre-session insights cache - ALWAYS GENERATE REAL INSIGHTS"""
         db = SessionLocal()
         try:
             self.logger.info(f"Refreshing pre-session cache for user {user_id[:8]}")
             
-            # Check if session pack exists - graceful degradation
-            pack_exists = self._check_session_pack_exists(db, session_id)
-            if not pack_exists:
-                # Return graceful card when no pack exists
-                return self._graceful_no_pack_response()
-            
             # Track timing
             start_time = datetime.now(timezone.utc)
             
-            # Extract pre-session data slice
+            # ALWAYS extract data and generate insights (no graceful degradation)
             pre_session_slice = adaptive_insights_service.build_pre_session_slice(user_id, session_id, window=5)
             pre_session_slice["user_id"] = user_id  # Add for LLM cost control
             
-            # Generate insight card with LLM + fallback
+            # FORCE insight generation with actual data
             insight_card = insight_generator_service.gen_pre_session_card(pre_session_slice)
+            
+            # Ensure we have real coach voice insights, not fallbacks
+            if insight_card.get("source") == "graceful_degradation" or insight_card.get("title") == "Prep in Progress 🔧":
+                # Force regeneration with user's actual data
+                self.logger.warning(f"Forcing real insight generation for user {user_id[:8]}")
+                insight_card = self._generate_contextual_pre_session_card(user_id, pre_session_slice)
             
             # Log timing
             extraction_time = (datetime.now(timezone.utc) - start_time).total_seconds()
