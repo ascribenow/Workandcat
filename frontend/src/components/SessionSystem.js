@@ -52,6 +52,32 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
   // Pre-session insight states
   const [preSessionInsight, setPreSessionInsight] = useState(null);
   const [showPreSessionModal, setShowPreSessionModal] = useState(false);
+
+  // Function to fetch pre-session insights
+  const fetchPreSessionInsight = async () => {
+    try {
+      const token = localStorage.getItem('cat_prep_token');
+      const response = await axios.get(`${API}/session/pre-session-insight`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        params: {
+          session_id: sessionId
+        },
+        timeout: 10000  // 10 second timeout
+      });
+      
+      if (response.data) {
+        setPreSessionInsight(response.data);
+        setShowPreSessionModal(true);
+        console.log('Pre-session insight loaded:', response.data);
+      }
+    } catch (error) {
+      console.error('Error fetching pre-session insight:', error);
+      // Don't block session start if insights fail to load
+    }
+  };
   const [doubtHistory, setDoubtHistory] = useState([]);
   const [doubtLoading, setDoubtLoading] = useState(false);
   const [messageCount, setMessageCount] = useState(0);
