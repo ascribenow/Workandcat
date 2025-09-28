@@ -20,13 +20,26 @@ class InsightCacheService:
         self.logger = logging.getLogger(__name__)
     
     def get_dashboard_insights(self, user_id: str) -> Dict[str, Any]:
-        """Get dashboard insights with cache-first strategy - OPTIMIZED"""
+        """Get dashboard insights with ULTRA-FAST in-memory + DB cache strategy"""
         from time import time
         start_time = time()
         
+        # Level 1: In-memory cache (TARGET: <50ms)
+        memory_key = f"dashboard:{user_id}"
+        if memory_key in _memory_cache:
+            memory_timestamp = _cache_timestamps.get(memory_key)
+            if memory_timestamp and (time() - memory_timestamp) < 300:  # 5 minutes in-memory TTL
+                memory_time = (time() - start_time) * 1000
+                self.logger.debug(f"Memory cache hit for user {user_id[:8]} in {memory_time:.1f}ms")
+                result = _memory_cache[memory_key].copy()
+                result["source"] = "memory"
+                result["cache_time_ms"] = memory_time
+                return result
+        
+        # Level 2: Database cache (TARGET: <200ms)
         db = SessionLocal()
         try:
-            # Optimized query: select only needed fields and use index
+            # Ultra-optimized query: minimal fields, indexed lookup
             cache_entry = db.query(
                 UserDashboardInsights.all_time_insights,
                 UserDashboardInsights.recent_insights, 
@@ -38,21 +51,32 @@ class InsightCacheService:
             # Fast cache freshness check
             if cache_entry and self._is_cache_fresh(cache_entry.last_updated_at):
                 cache_time = (time() - start_time) * 1000
-                self.logger.debug(f"Cache hit for user {user_id[:8]} in {cache_time:.1f}ms")
                 
-                return {
+                result = {
                     "all_time_markdown": cache_entry.all_time_insights.get("markdown", ""),
                     "recent_markdown": cache_entry.recent_insights.get("markdown", ""),
                     "last_updated_at": cache_entry.last_updated_at.isoformat(),
-                    "source": "cache",
+                    "source": "db_cache",
                     "cache_time_ms": cache_time
                 }
+                
+                # Store in memory cache for next time
+                _memory_cache[memory_key] = result.copy()
+                _cache_timestamps[memory_key] = time()
+                
+                self.logger.debug(f"DB cache hit for user {user_id[:8]} in {cache_time:.1f}ms")
+                return result
             
-            # Cache is stale or missing - refresh synchronously
+            # Level 3: Fresh generation (fallback)
             fresh_time = time()
             result = self.refresh_dashboard_cache(user_id)
             result["source"] = "fresh"
             result["generation_time_ms"] = (time() - fresh_time) * 1000
+            
+            # Store in memory cache
+            _memory_cache[memory_key] = result.copy()
+            _cache_timestamps[memory_key] = time()
+            
             return result
             
         except Exception as e:
