@@ -10,7 +10,7 @@ from datetime import datetime, timezone
 
 from database import SessionLocal
 from sqlalchemy import text
-from services.summarizer import summarizer_service
+from services.summarizer_llm_service import summarizer_service
 from services.insight_cache_service import insight_cache_service
 
 logger = logging.getLogger(__name__)
