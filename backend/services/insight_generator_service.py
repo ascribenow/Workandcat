@@ -77,9 +77,10 @@ class InsightGeneratorService:
             prompt = self._build_pre_session_prompt(slice_dict)
             response = call_llm_with_fallback(
                 prompt=prompt,
-                model_primary="gpt-4o",
+                model_primary="gpt-4o-mini",  # Faster model
                 model_fallback="gemini-2.5-flash", 
-                max_tokens=150
+                max_tokens=120,  # Reduced tokens for faster response
+                timeout=8  # Reduced timeout
             )
             
             if response:
