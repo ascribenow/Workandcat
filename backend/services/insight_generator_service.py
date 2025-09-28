@@ -177,20 +177,32 @@ Data: {json.dumps(slice_dict, indent=2)}
         """
     
     def _build_recent_prompt(self, slice_dict: Dict[str, Any]) -> str:
-        """Build prompt for recent momentum"""
-        return f"""Write a "Recent Momentum (Last {slice_dict.get('range_sessions', 20)})" section using ONLY the JSON provided below.
-Include:
-- 1 sentence describing the accuracy trend.
-- 2–3 bullets on concept readiness shifts in this period.
-- 2 bullets on coverage (relief and rising).
-- 1 sentence on PYQ exposure & accuracy in this window.
+        """Build coach voice prompt for recent momentum insights"""
+        return f"""
+You are a CAT Quant coach speaking to one learner.
+Write a short, friendly insight about their recent momentum using ONLY the JSON you receive.
 
-Keep it compact and motivating. Under 150 words.
+Tone & style:
+- Human and encouraging, like a coach reviewing recent practice.
+- Plain words, no jargon, no decimals.
+- Prefer "about 6 out of 10 correct lately" over "58%".
+- Mention at most 1–2 concepts by name.
+- No bullets, no tables, no headings. 2–3 sentences total.
 
-JSON Data:
-{json.dumps(slice_dict, indent=2)}
+Content rules (if present in JSON):
+- Start with recent accuracy trend in "x out of 10" terms over the last few sessions.
+- Name one concept that's improving or one that needs work (from recent shifts) with simple language.
+- If coverage changes exist, acknowledge briefly ("Algebra gaps are shrinking" or "Geometry needs some attention").
+- If recent PYQ data exists, end with encouragement ("Nice work on those recent PYQs!").
 
-Response (markdown format):"""
+Strict constraints:
+- Do NOT invent numbers or concepts.
+- Do NOT show raw percentages, deltas, or decimals.
+- Do NOT mention specific session counts or time periods.
+Return plain text only.
+
+Data: {json.dumps(slice_dict, indent=2)}
+        """
     
     def _build_pre_session_prompt(self, slice_dict: Dict[str, Any]) -> str:
         """Build prompt for pre-session card"""
