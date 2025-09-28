@@ -277,8 +277,6 @@ Use MODE 3 - SOLUTION STEP EXPLANATION. Follow the exact 5-heading structure. St
                         "response_mode": mode
                     }
                 ])
-                    }
-                ])
                 
                 # Update message count
                 doubt_message_counts[conversation_key] += 1
