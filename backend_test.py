@@ -1160,40 +1160,52 @@ class CATBackendTester:
             "user_adaptive_enabled": False,
             "jwt_token_valid": False,
             
-            # 1. Background Job Import/Enqueueing Issues (FIXED)
-            "simplified_job_handlers_import_working": False,
-            "run_simplified_summarizer_exists": False,
-            "run_simplified_summarizer_functional": False,
-            "plan_next_session_enqueues_update_insights": False,
-            "job_pipeline_working": False,
+            # 1. 3-Level Cache Strategy Testing
+            "level_1_memory_cache_under_50ms": False,
+            "level_2_db_cache_under_200ms": False,
+            "level_3_fresh_generation_working": False,
+            "cache_level_progression_correct": False,
+            "memory_cache_ttl_working": False,
             
-            # 2. Cache Hit Performance (OPTIMIZED)
-            "dashboard_insights_first_call_working": False,
-            "dashboard_insights_second_call_working": False,
-            "cache_hit_significantly_faster": False,
-            "cache_time_ms_included": False,
-            "generation_time_ms_included": False,
-            "cache_performance_optimized": False,
+            # 2. Dashboard Insights Performance
+            "dashboard_first_call_populates_cache": False,
+            "dashboard_second_call_memory_hit": False,
+            "dashboard_third_call_memory_hit": False,
+            "dashboard_memory_cache_under_50ms": False,
+            "dashboard_cache_source_tracking": False,
             
-            # 3. Pre-session Insight Response Time (OPTIMIZED)
-            "pre_session_insight_under_5_seconds": False,
-            "pre_session_response_time_improved": False,
-            "optimized_data_extraction_used": False,
-            "pre_session_performance_target_met": False,
+            # 3. Pre-session Insights Performance
+            "pre_session_memory_cache_working": False,
+            "pre_session_10min_ttl_working": False,
+            "pre_session_under_target_threshold": False,
+            "pre_session_cache_source_correct": False,
+            "pre_session_performance_optimized": False,
             
-            # 4. Edge Cases and Error Handling (IMPROVED)
-            "cache_freshness_edge_cases_handled": False,
-            "unauthorized_access_properly_blocked": False,
-            "graceful_degradation_working": False,
-            "error_handling_improved": False,
+            # 4. Cache Source Verification
+            "cache_source_field_present": False,
+            "cache_time_ms_metric_included": False,
+            "generation_time_ms_metric_included": False,
+            "memory_db_fresh_sources_working": False,
+            "cache_metrics_accurate": False,
+            
+            # 5. Memory Cache Cleanup & TTL
+            "memory_cache_cleanup_functional": False,
+            "memory_cache_prevents_leaks": False,
+            "ttl_expiration_working": False,
+            "cache_invalidation_working": False,
+            
+            # 6. Performance Improvement Verification
+            "baseline_952ms_improved": False,
+            "target_200ms_achieved": False,
+            "79_percent_improvement_achieved": False,
+            "95_percent_calls_under_200ms": False,
+            "ultra_fast_performance_validated": False,
             
             # Overall Assessment
-            "import_errors_resolved": False,
-            "cache_performance_targets_met": False,
-            "response_time_targets_met": False,
-            "edge_case_handling_improved": False,
-            "overall_success_rate_90_plus": False,
-            "optimization_successful": False
+            "cache_strategy_working": False,
+            "performance_targets_met": False,
+            "cache_cleanup_working": False,
+            "ultra_optimization_successful": False
         }
         
         # PHASE 1: AUTHENTICATION SETUP
