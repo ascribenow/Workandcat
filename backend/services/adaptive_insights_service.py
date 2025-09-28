@@ -501,14 +501,14 @@ class AdaptiveInsightsService:
             db.close()
     
     def extract_pyq_counts_for_pack(self, session_id: str) -> Dict[str, int]:
-        """Get PYQ counts from session pack questions using optimized generated column"""
+        """Get PYQ counts from session pack questions"""
         db = SessionLocal()
         try:
-            # Fixed: Use optimized generated column for better performance
             query = text("""
                 SELECT 
-                    SUM(CASE WHEN spq.pyq_score_num >= 1.5 THEN 1 ELSE 0 END) AS pyq15_count,
-                    SUM(CASE WHEN spq.pyq_score_num >= 1.0 AND spq.pyq_score_num < 1.5 THEN 1 ELSE 0 END) AS pyq10_count
+                    SUM(CASE WHEN (spq.question_data->>'pyq_frequency_score')::float >= 1.5 THEN 1 ELSE 0 END) AS pyq15_count,
+                    SUM(CASE WHEN (spq.question_data->>'pyq_frequency_score')::float >= 1.0 
+                                  AND (spq.question_data->>'pyq_frequency_score')::float < 1.5 THEN 1 ELSE 0 END) AS pyq10_count
                 FROM session_pack_questions spq
                 WHERE spq.session_id = :session_id
             """)
@@ -522,6 +522,71 @@ class AdaptiveInsightsService:
             
         finally:
             db.close()
+
+    # PERFORMANCE OPTIMIZED METHODS FOR PRE-SESSION INSIGHTS
+    def _get_accuracy_series_fast(self, db: Session, user_id: str, session_ids: List[str]) -> List[float]:
+        """Fast accuracy series - simplified calculation"""
+        if not session_ids:
+            return []
+        
+        query = text("""
+            SELECT s.session_id, AVG(CASE WHEN ae.was_correct THEN 1 ELSE 0 END)::float as acc
+            FROM sessions s
+            JOIN attempt_events ae ON ae.session_id = s.session_id
+            WHERE s.session_id = ANY(:session_ids) AND s.user_id = :user_id
+            GROUP BY s.session_id, s.completed_at
+            ORDER BY s.completed_at ASC
+            LIMIT 3
+        """)
+        
+        results = db.execute(query, {"session_ids": session_ids, "user_id": user_id}).fetchall()
+        return [float(r.acc or 0.0) for r in results]
+
+    def _get_concept_shifts_minimal(self, db: Session, user_id: str, session_ids: List[str]) -> List[Dict[str, str]]:
+        """Get minimal concept shifts - top 2 only"""
+        if not session_ids:
+            return []
+        
+        query = text("""
+            SELECT ln.concept_norm, ln.readiness
+            FROM learner_notebook ln
+            WHERE ln.user_id = :user_id
+            ORDER BY ln.last_seen_at DESC
+            LIMIT 2
+        """)
+        
+        results = db.execute(query, {"user_id": user_id}).fetchall()
+        return [{"concept": r.concept_norm, "status": r.readiness} for r in results]
+
+    def _get_top_coverage_change_fast(self, db: Session, user_id: str, session_ids: List[str]) -> Dict[str, Any]:
+        """Get top coverage change - single result"""
+        query = text("""
+            SELECT subcategory, type_of_question, debt_score
+            FROM coverage_debt
+            WHERE user_id = :user_id
+            ORDER BY debt_score DESC
+            LIMIT 1
+        """)
+        
+        result = db.execute(query, {"user_id": user_id}).fetchone()
+        if result:
+            return {
+                "concept": f"{result.subcategory}:{result.type_of_question}",
+                "debt_score": float(result.debt_score)
+            }
+        return {"concept": "No coverage data", "debt_score": 0.0}
+
+    def _get_session_preview_fast(self, db: Session, session_id: str) -> Dict[str, Any]:
+        """Fast session preview - minimal data"""
+        if not session_id or session_id == "preview-session":
+            return {"focus_concepts": ["General Practice"], "difficulty": "Mixed"}
+        
+        # Try to get focus concepts from session pack
+        focus_concepts = self.compute_focus_concepts_for_pack(session_id)
+        return {
+            "focus_concepts": focus_concepts[:2] if focus_concepts else ["Adaptive Practice"],
+            "difficulty": "Mixed"
+        }
 
 # Global service instance
 adaptive_insights_service = AdaptiveInsightsService()
