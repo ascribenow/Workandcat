@@ -50,20 +50,27 @@ class InsightGeneratorService:
             except:
                 return "about half"
         
-        # Apply conversions
+        # Apply conversions - more aggressive
         response = re.sub(r'\d+\.\d+%?', convert_percentage, response)
         response = re.sub(r'\d+%', convert_percentage, response)
         
-        # Remove bullet points and technical formatting
+        # Remove technical formatting more aggressively
         response = re.sub(r'^\s*[-*•]\s+', '', response, flags=re.MULTILINE)
         response = re.sub(r'\*\*(.*?)\*\*', r'\1', response)  # Remove bold markdown
         
-        # Remove technical deltas and scores
-        response = re.sub(r'\([+-]?\d+\.?\d*\s*(points?|delta?|score?)\)', '', response)
+        # Remove technical deltas, scores, and parenthetical technical info
+        response = re.sub(r'\([+-]?\d+\.?\d*\s*(points?|delta?|score?|%)\)', '', response)
         response = re.sub(r'[+-]?\d+\.?\d*\s*(points?|delta?|score?)', '', response)
+        response = re.sub(r'\([+-]?\d+\s*points?\)', '', response)  # Remove "(+42 points)" type
+        response = re.sub(r'[+-]\d+\s*points?', '', response)  # Remove "+42 points" type
         
-        # Clean up extra whitespace
+        # Convert remaining technical patterns to coach voice
+        response = re.sub(r'accuracy.*from.*\d+%.*to.*\d+%', 'your performance has been changing', response, flags=re.IGNORECASE)
+        response = re.sub(r'\d+%.*to.*\d+%', 'your progress has been developing', response, flags=re.IGNORECASE)
+        
+        # Clean up extra whitespace and punctuation
         response = re.sub(r'\s+', ' ', response).strip()
+        response = re.sub(r'\s*:\s*', ': ', response)  # Clean up colons
         
         return response
     
