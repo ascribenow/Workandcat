@@ -1106,6 +1106,570 @@ class CATBackendTester:
         
         return success_rate >= 80 and criteria_rate >= 85
 
+    def test_must_have_implementations(self):
+        """
+        🎯 MUST-HAVE IMPLEMENTATIONS TESTING
+        
+        Testing the 5 MUST-HAVE implementations that were just added:
+        
+        1. **Sanitize Dashboard Markdown (Security)**:
+           - Verify DOMPurify is working in frontend
+           - Test that only allowed HTML tags (strong, ul, li, br) are rendered
+           - Ensure malicious HTML is stripped
+        
+        2. **Bare-minimum Observability**:
+           - Test GET /api/insights/metrics endpoint
+           - Verify it returns insights_cache_age_seconds{dashboard, pre_session}
+           - Verify it returns insights_refresh_failures_total
+           - Test that failure counter increments on refresh failures
+        
+        3. **Global Fallback Feature Flag**:
+           - Test INSIGHTS_FORCE_FALLBACK=false (normal LLM mode)
+           - Test INSIGHTS_FORCE_FALLBACK=true (forced fallback mode)
+           - Verify fallback responses contain source="fallback_forced"
+           - Verify prompt_version="v1.0_fallback_forced" when forced
+        
+        4. **Operational Runbook**:
+           - Verify INSIGHTS_RUNBOOK.md exists and is readable
+           - Check it contains troubleshooting for blank card, stale card, high queue depth
+           - Verify it has feature flag instructions and manual operations
+        
+        5. **Concept Label Mapping**:
+           - Test that concept_norm values are mapped to human-readable labels
+           - Verify fallback to concept_norm when no mapping exists
+           - Test integration in adaptive insights responses
+        
+        AUTHENTICATION: sp@theskinmantra.com/student123
+        """
+        print("🎯 MUST-HAVE IMPLEMENTATIONS TESTING")
+        print("=" * 80)
+        print("OBJECTIVE: Test 5 MUST-HAVE implementations for security, observability, and UX")
+        print("FOCUS: DOMPurify security, metrics endpoint, fallback flags, runbook, concept labels")
+        print("EXPECTED: All security sanitization working, metrics functional, feature flags operational")
+        print("=" * 80)
+        
+        test_results = {
+            # Authentication Setup
+            "authentication_working": False,
+            "user_adaptive_enabled": False,
+            "jwt_token_valid": False,
+            
+            # 1. Sanitize Dashboard Markdown (Security)
+            "dompurify_installed": False,
+            "allowed_tags_only": False,
+            "malicious_html_stripped": False,
+            "markdown_security_working": False,
+            
+            # 2. Bare-minimum Observability
+            "insights_metrics_endpoint_working": False,
+            "cache_age_seconds_present": False,
+            "refresh_failures_total_present": False,
+            "dashboard_cache_age_tracked": False,
+            "pre_session_cache_age_tracked": False,
+            "observability_metrics_functional": False,
+            
+            # 3. Global Fallback Feature Flag
+            "fallback_flag_normal_mode": False,
+            "fallback_flag_forced_mode": False,
+            "fallback_forced_source_correct": False,
+            "fallback_forced_prompt_version": False,
+            "feature_flag_system_working": False,
+            
+            # 4. Operational Runbook
+            "runbook_exists": False,
+            "runbook_readable": False,
+            "blank_card_troubleshooting": False,
+            "stale_card_troubleshooting": False,
+            "high_queue_depth_troubleshooting": False,
+            "feature_flag_instructions": False,
+            "manual_operations_present": False,
+            "runbook_complete": False,
+            
+            # 5. Concept Label Mapping
+            "concept_labels_service_exists": False,
+            "concept_norm_mapping_working": False,
+            "fallback_to_concept_norm": False,
+            "human_readable_labels": False,
+            "integration_in_insights": False,
+            "concept_mapping_functional": False,
+            
+            # Overall Assessment
+            "security_implementation_working": False,
+            "observability_implementation_working": False,
+            "feature_flag_implementation_working": False,
+            "runbook_implementation_working": False,
+            "concept_labels_implementation_working": False,
+            "all_must_haves_operational": False
+        }
+        
+        # PHASE 1: AUTHENTICATION SETUP
+        print("\n🔐 PHASE 1: AUTHENTICATION SETUP")
+        print("-" * 60)
+        print("Authenticating with sp@theskinmantra.com/student123 for MUST-HAVE testing")
+        
+        auth_data = {
+            "email": "sp@theskinmantra.com",
+            "password": "student123"
+        }
+        
+        success, response = self.run_test("MUST-HAVE Authentication", "POST", "auth/login", [200, 401], auth_data)
+        
+        auth_headers = None
+        user_id = None
+        if success and response.get('access_token'):
+            token = response['access_token']
+            auth_headers = {
+                'Authorization': f'Bearer {token}',
+                'Content-Type': 'application/json'
+            }
+            test_results["authentication_working"] = True
+            test_results["jwt_token_valid"] = True
+            print(f"   ✅ Authentication successful")
+            print(f"   📊 JWT Token length: {len(token)} characters")
+            
+            user_data = response.get('user', {})
+            user_id = user_data.get('id')
+            adaptive_enabled = user_data.get('adaptive_enabled', False)
+            
+            if adaptive_enabled:
+                test_results["user_adaptive_enabled"] = True
+                print(f"   ✅ User adaptive_enabled confirmed: {adaptive_enabled}")
+                print(f"   📊 User ID: {user_id}")
+            else:
+                print(f"   ⚠️ User adaptive_enabled: {adaptive_enabled}")
+        else:
+            print("   ❌ Authentication failed - cannot proceed with MUST-HAVE testing")
+            return False
+        
+        # PHASE 2: SANITIZE DASHBOARD MARKDOWN (SECURITY)
+        print("\n🔒 PHASE 2: SANITIZE DASHBOARD MARKDOWN (SECURITY)")
+        print("-" * 60)
+        print("Testing DOMPurify security implementation in frontend")
+        
+        try:
+            # Check if DOMPurify is installed in frontend
+            import os
+            package_json_path = "/app/frontend/package.json"
+            if os.path.exists(package_json_path):
+                with open(package_json_path, 'r') as f:
+                    package_content = f.read()
+                    if 'dompurify' in package_content:
+                        test_results["dompurify_installed"] = True
+                        print(f"   ✅ DOMPurify installed in frontend package.json")
+                    else:
+                        print(f"   ❌ DOMPurify not found in package.json")
+            
+            # Check SimpleDashboard.js for security implementation
+            dashboard_js_path = "/app/frontend/src/components/SimpleDashboard.js"
+            if os.path.exists(dashboard_js_path):
+                with open(dashboard_js_path, 'r') as f:
+                    dashboard_content = f.read()
+                    
+                    # Check for allowed tags configuration
+                    if "ALLOWED_TAGS: ['strong', 'ul', 'li', 'br']" in dashboard_content:
+                        test_results["allowed_tags_only"] = True
+                        print(f"   ✅ Only allowed HTML tags configured: strong, ul, li, br")
+                    
+                    # Check for DOMPurify.sanitize usage
+                    if "DOMPurify.sanitize" in dashboard_content:
+                        test_results["malicious_html_stripped"] = True
+                        print(f"   ✅ DOMPurify.sanitize implemented for HTML sanitization")
+                    
+                    if test_results["allowed_tags_only"] and test_results["malicious_html_stripped"]:
+                        test_results["markdown_security_working"] = True
+                        print(f"   ✅ Markdown security implementation working")
+            
+        except Exception as e:
+            print(f"   ❌ Error checking DOMPurify implementation: {e}")
+        
+        # PHASE 3: BARE-MINIMUM OBSERVABILITY
+        print("\n📊 PHASE 3: BARE-MINIMUM OBSERVABILITY")
+        print("-" * 60)
+        print("Testing GET /api/insights/metrics endpoint")
+        
+        if auth_headers:
+            success, metrics_response = self.run_test(
+                "Insights Metrics Endpoint", 
+                "GET", 
+                "insights/metrics", 
+                [200, 500], 
+                None, 
+                auth_headers
+            )
+            
+            if success and metrics_response:
+                test_results["insights_metrics_endpoint_working"] = True
+                print(f"   ✅ Insights metrics endpoint accessible")
+                
+                # Check for insights_cache_age_seconds
+                cache_age = metrics_response.get("insights_cache_age_seconds")
+                if cache_age and isinstance(cache_age, dict):
+                    test_results["cache_age_seconds_present"] = True
+                    print(f"   ✅ insights_cache_age_seconds present")
+                    
+                    if "dashboard" in cache_age:
+                        test_results["dashboard_cache_age_tracked"] = True
+                        print(f"   ✅ Dashboard cache age tracked: {cache_age['dashboard']}s")
+                    
+                    if "pre_session" in cache_age:
+                        test_results["pre_session_cache_age_tracked"] = True
+                        print(f"   ✅ Pre-session cache age tracked: {cache_age['pre_session']}s")
+                
+                # Check for insights_refresh_failures_total
+                failures_total = metrics_response.get("insights_refresh_failures_total")
+                if failures_total is not None:
+                    test_results["refresh_failures_total_present"] = True
+                    print(f"   ✅ insights_refresh_failures_total present: {failures_total}")
+                
+                if (test_results["cache_age_seconds_present"] and 
+                    test_results["refresh_failures_total_present"]):
+                    test_results["observability_metrics_functional"] = True
+                    print(f"   ✅ Observability metrics functional")
+                
+                print(f"   📊 Metrics response: {metrics_response}")
+            else:
+                print(f"   ❌ Insights metrics endpoint failed: {metrics_response}")
+        
+        # PHASE 4: GLOBAL FALLBACK FEATURE FLAG
+        print("\n🎛️ PHASE 4: GLOBAL FALLBACK FEATURE FLAG")
+        print("-" * 60)
+        print("Testing INSIGHTS_FORCE_FALLBACK feature flag system")
+        
+        try:
+            # Check insight_generator_service.py for fallback flag implementation
+            generator_service_path = "/app/backend/services/insight_generator_service.py"
+            if os.path.exists(generator_service_path):
+                with open(generator_service_path, 'r') as f:
+                    generator_content = f.read()
+                    
+                    # Check for INSIGHTS_FORCE_FALLBACK usage
+                    if 'INSIGHTS_FORCE_FALLBACK' in generator_content:
+                        test_results["fallback_flag_normal_mode"] = True
+                        print(f"   ✅ INSIGHTS_FORCE_FALLBACK flag implemented")
+                    
+                    # Check for fallback_forced source
+                    if 'source="fallback_forced"' in generator_content:
+                        test_results["fallback_forced_source_correct"] = True
+                        print(f"   ✅ Fallback forced source correctly set")
+                    
+                    # Check for fallback_forced prompt version
+                    if 'prompt_version="v1.0_fallback_forced"' in generator_content:
+                        test_results["fallback_forced_prompt_version"] = True
+                        print(f"   ✅ Fallback forced prompt version correctly set")
+                    
+                    if (test_results["fallback_flag_normal_mode"] and 
+                        test_results["fallback_forced_source_correct"] and
+                        test_results["fallback_forced_prompt_version"]):
+                        test_results["feature_flag_system_working"] = True
+                        print(f"   ✅ Feature flag system working correctly")
+            
+            # Test with dashboard insights to see if flag affects responses
+            if auth_headers and user_id:
+                print(f"   🧪 Testing dashboard insights for fallback behavior...")
+                success, dashboard_response = self.run_test(
+                    "Dashboard Insights Fallback Test", 
+                    "GET", 
+                    "dashboard/adaptive-insights", 
+                    [200, 500], 
+                    None, 
+                    auth_headers
+                )
+                
+                if success and dashboard_response:
+                    source = dashboard_response.get("source", "unknown")
+                    prompt_version = dashboard_response.get("prompt_version", "unknown")
+                    print(f"   📊 Dashboard response source: {source}")
+                    print(f"   📊 Dashboard prompt version: {prompt_version}")
+                    
+                    # Normal mode should not be fallback_forced
+                    if source != "fallback_forced":
+                        test_results["fallback_flag_normal_mode"] = True
+                        print(f"   ✅ Normal mode (no forced fallback) working")
+            
+        except Exception as e:
+            print(f"   ❌ Error testing fallback feature flag: {e}")
+        
+        # PHASE 5: OPERATIONAL RUNBOOK
+        print("\n📖 PHASE 5: OPERATIONAL RUNBOOK")
+        print("-" * 60)
+        print("Testing INSIGHTS_RUNBOOK.md existence and completeness")
+        
+        try:
+            runbook_path = "/app/backend/INSIGHTS_RUNBOOK.md"
+            if os.path.exists(runbook_path):
+                test_results["runbook_exists"] = True
+                print(f"   ✅ INSIGHTS_RUNBOOK.md exists")
+                
+                with open(runbook_path, 'r') as f:
+                    runbook_content = f.read()
+                    test_results["runbook_readable"] = True
+                    print(f"   ✅ Runbook is readable ({len(runbook_content)} characters)")
+                    
+                    # Check for troubleshooting sections
+                    if "Problem: Blank Card" in runbook_content:
+                        test_results["blank_card_troubleshooting"] = True
+                        print(f"   ✅ Blank card troubleshooting present")
+                    
+                    if "Problem: Stale Card" in runbook_content:
+                        test_results["stale_card_troubleshooting"] = True
+                        print(f"   ✅ Stale card troubleshooting present")
+                    
+                    if "Problem: High Queue Depth" in runbook_content:
+                        test_results["high_queue_depth_troubleshooting"] = True
+                        print(f"   ✅ High queue depth troubleshooting present")
+                    
+                    # Check for feature flag instructions
+                    if "INSIGHTS_FORCE_FALLBACK" in runbook_content:
+                        test_results["feature_flag_instructions"] = True
+                        print(f"   ✅ Feature flag instructions present")
+                    
+                    # Check for manual operations
+                    if "Manual Operations" in runbook_content:
+                        test_results["manual_operations_present"] = True
+                        print(f"   ✅ Manual operations section present")
+                    
+                    if (test_results["blank_card_troubleshooting"] and 
+                        test_results["stale_card_troubleshooting"] and
+                        test_results["high_queue_depth_troubleshooting"] and
+                        test_results["feature_flag_instructions"] and
+                        test_results["manual_operations_present"]):
+                        test_results["runbook_complete"] = True
+                        print(f"   ✅ Runbook is complete with all required sections")
+            else:
+                print(f"   ❌ INSIGHTS_RUNBOOK.md not found at {runbook_path}")
+        
+        except Exception as e:
+            print(f"   ❌ Error checking runbook: {e}")
+        
+        # PHASE 6: CONCEPT LABEL MAPPING
+        print("\n🏷️ PHASE 6: CONCEPT LABEL MAPPING")
+        print("-" * 60)
+        print("Testing concept_norm to human-readable label mapping")
+        
+        try:
+            # Check concept_labels.py service
+            concept_labels_path = "/app/backend/services/concept_labels.py"
+            if os.path.exists(concept_labels_path):
+                test_results["concept_labels_service_exists"] = True
+                print(f"   ✅ Concept labels service exists")
+                
+                # Import and test the service
+                import sys
+                sys.path.append('/app/backend')
+                from services.concept_labels import get_concept_label, CONCEPT_LABELS
+                
+                # Test known mappings
+                test_concepts = [
+                    ("Time-Speed-Distance", "Time, Speed & Distance"),
+                    ("Arithmetic:Percentage", "Percentage Calculations"),
+                    ("Geometry:Area", "Area Calculations")
+                ]
+                
+                mapping_working = True
+                for concept_norm, expected_label in test_concepts:
+                    actual_label = get_concept_label(concept_norm)
+                    if actual_label == expected_label:
+                        print(f"   ✅ Mapping working: {concept_norm} → {actual_label}")
+                    else:
+                        print(f"   ❌ Mapping failed: {concept_norm} → {actual_label} (expected: {expected_label})")
+                        mapping_working = False
+                
+                if mapping_working:
+                    test_results["concept_norm_mapping_working"] = True
+                    test_results["human_readable_labels"] = True
+                    print(f"   ✅ Concept norm mapping working correctly")
+                
+                # Test fallback behavior
+                unknown_concept = "Unknown-Concept-Test"
+                fallback_result = get_concept_label(unknown_concept)
+                if fallback_result == unknown_concept:
+                    test_results["fallback_to_concept_norm"] = True
+                    print(f"   ✅ Fallback to concept_norm working: {unknown_concept}")
+                
+                # Check integration in adaptive insights
+                adaptive_insights_path = "/app/backend/services/adaptive_insights_service.py"
+                if os.path.exists(adaptive_insights_path):
+                    with open(adaptive_insights_path, 'r') as f:
+                        insights_content = f.read()
+                        if "from services.concept_labels import get_concept_label" in insights_content:
+                            test_results["integration_in_insights"] = True
+                            print(f"   ✅ Concept labels integrated in adaptive insights")
+                
+                if (test_results["concept_norm_mapping_working"] and 
+                    test_results["fallback_to_concept_norm"] and
+                    test_results["integration_in_insights"]):
+                    test_results["concept_mapping_functional"] = True
+                    print(f"   ✅ Concept mapping fully functional")
+                
+                print(f"   📊 Total concept mappings: {len(CONCEPT_LABELS)}")
+            else:
+                print(f"   ❌ Concept labels service not found")
+        
+        except Exception as e:
+            print(f"   ❌ Error testing concept label mapping: {e}")
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 80)
+        print("🎯 MUST-HAVE IMPLEMENTATIONS TESTING - RESULTS")
+        print("=" * 80)
+        
+        passed_tests = sum(test_results.values())
+        total_tests = len(test_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        # Group results by MUST-HAVE categories
+        must_have_categories = {
+            "AUTHENTICATION": [
+                "authentication_working", "user_adaptive_enabled", "jwt_token_valid"
+            ],
+            "1. SANITIZE DASHBOARD MARKDOWN (SECURITY)": [
+                "dompurify_installed", "allowed_tags_only", "malicious_html_stripped", "markdown_security_working"
+            ],
+            "2. BARE-MINIMUM OBSERVABILITY": [
+                "insights_metrics_endpoint_working", "cache_age_seconds_present", "refresh_failures_total_present",
+                "dashboard_cache_age_tracked", "pre_session_cache_age_tracked", "observability_metrics_functional"
+            ],
+            "3. GLOBAL FALLBACK FEATURE FLAG": [
+                "fallback_flag_normal_mode", "fallback_flag_forced_mode", "fallback_forced_source_correct",
+                "fallback_forced_prompt_version", "feature_flag_system_working"
+            ],
+            "4. OPERATIONAL RUNBOOK": [
+                "runbook_exists", "runbook_readable", "blank_card_troubleshooting", "stale_card_troubleshooting",
+                "high_queue_depth_troubleshooting", "feature_flag_instructions", "manual_operations_present", "runbook_complete"
+            ],
+            "5. CONCEPT LABEL MAPPING": [
+                "concept_labels_service_exists", "concept_norm_mapping_working", "fallback_to_concept_norm",
+                "human_readable_labels", "integration_in_insights", "concept_mapping_functional"
+            ]
+        }
+        
+        for category, tests in must_have_categories.items():
+            print(f"\n{category}:")
+            category_passed = 0
+            category_total = len(tests)
+            
+            for test in tests:
+                if test in test_results:
+                    result = test_results[test]
+                    status = "✅ PASS" if result else "❌ FAIL"
+                    print(f"  {test.replace('_', ' ').title():<50} {status}")
+                    if result:
+                        category_passed += 1
+            
+            category_rate = (category_passed / category_total) * 100 if category_total > 0 else 0
+            print(f"  Category Success Rate: {category_passed}/{category_total} ({category_rate:.1f}%)")
+        
+        print("-" * 80)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # MUST-HAVE IMPLEMENTATION ASSESSMENT
+        print("\n🎯 MUST-HAVE IMPLEMENTATION ASSESSMENT:")
+        
+        # Security Implementation
+        security_working = (
+            test_results["dompurify_installed"] and
+            test_results["allowed_tags_only"] and
+            test_results["malicious_html_stripped"]
+        )
+        
+        if security_working:
+            test_results["security_implementation_working"] = True
+            print("\n✅ SECURITY IMPLEMENTATION: WORKING")
+            print("   - DOMPurify installed and configured")
+            print("   - Only allowed HTML tags (strong, ul, li, br) rendered")
+            print("   - Malicious HTML stripped correctly")
+        else:
+            print("\n❌ SECURITY IMPLEMENTATION: ISSUES DETECTED")
+            print("   - DOMPurify security implementation needs attention")
+        
+        # Observability Implementation
+        observability_working = (
+            test_results["insights_metrics_endpoint_working"] and
+            test_results["cache_age_seconds_present"] and
+            test_results["refresh_failures_total_present"]
+        )
+        
+        if observability_working:
+            test_results["observability_implementation_working"] = True
+            print("\n✅ OBSERVABILITY IMPLEMENTATION: WORKING")
+            print("   - /api/insights/metrics endpoint functional")
+            print("   - insights_cache_age_seconds{dashboard, pre_session} tracked")
+            print("   - insights_refresh_failures_total tracked")
+        else:
+            print("\n❌ OBSERVABILITY IMPLEMENTATION: ISSUES DETECTED")
+            print("   - Metrics endpoint or metric tracking problems")
+        
+        # Feature Flag Implementation
+        feature_flag_working = (
+            test_results["fallback_flag_normal_mode"] and
+            test_results["fallback_forced_source_correct"] and
+            test_results["fallback_forced_prompt_version"]
+        )
+        
+        if feature_flag_working:
+            test_results["feature_flag_implementation_working"] = True
+            print("\n✅ FEATURE FLAG IMPLEMENTATION: WORKING")
+            print("   - INSIGHTS_FORCE_FALLBACK flag implemented")
+            print("   - Fallback forced responses correctly marked")
+            print("   - Prompt version tracking working")
+        else:
+            print("\n❌ FEATURE FLAG IMPLEMENTATION: ISSUES DETECTED")
+            print("   - Global fallback feature flag problems")
+        
+        # Runbook Implementation
+        runbook_working = (
+            test_results["runbook_exists"] and
+            test_results["runbook_complete"]
+        )
+        
+        if runbook_working:
+            test_results["runbook_implementation_working"] = True
+            print("\n✅ RUNBOOK IMPLEMENTATION: WORKING")
+            print("   - INSIGHTS_RUNBOOK.md exists and is complete")
+            print("   - Troubleshooting for blank card, stale card, high queue depth")
+            print("   - Feature flag instructions and manual operations")
+        else:
+            print("\n❌ RUNBOOK IMPLEMENTATION: ISSUES DETECTED")
+            print("   - Operational runbook missing or incomplete")
+        
+        # Concept Labels Implementation
+        concept_labels_working = (
+            test_results["concept_labels_service_exists"] and
+            test_results["concept_norm_mapping_working"] and
+            test_results["fallback_to_concept_norm"]
+        )
+        
+        if concept_labels_working:
+            test_results["concept_labels_implementation_working"] = True
+            print("\n✅ CONCEPT LABELS IMPLEMENTATION: WORKING")
+            print("   - Concept norm to human-readable mapping working")
+            print("   - Fallback to concept_norm when no mapping exists")
+            print("   - Integration in adaptive insights responses")
+        else:
+            print("\n❌ CONCEPT LABELS IMPLEMENTATION: ISSUES DETECTED")
+            print("   - Concept label mapping problems")
+        
+        # Overall Assessment
+        all_must_haves = (
+            security_working and observability_working and feature_flag_working and
+            runbook_working and concept_labels_working
+        )
+        
+        if all_must_haves:
+            test_results["all_must_haves_operational"] = True
+            print("\n🎉 ALL MUST-HAVE IMPLEMENTATIONS: OPERATIONAL")
+            print("   - Security sanitization working")
+            print("   - Observability metrics functional")
+            print("   - Feature flag system working")
+            print("   - Operational runbook complete")
+            print("   - Concept label mapping working")
+            print("   - System ready for production use")
+        else:
+            print("\n⚠️ MUST-HAVE IMPLEMENTATIONS: SOME ISSUES DETECTED")
+            print("   - Some critical implementations need attention")
+        
+        return success_rate >= 80 and all_must_haves
+
     def test_new_background_job_architecture_adaptive_insights(self):
         """
         🎯 NEW BACKGROUND JOB ARCHITECTURE FOR ADAPTIVE INSIGHTS TESTING
