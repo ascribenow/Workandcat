@@ -183,6 +183,9 @@ const Pricing = () => {
               <p className="text-gray-600" style={{ fontFamily: 'Lato, sans-serif' }}>
                 For long-term prep spaced across months
               </p>
+              <div className="mt-2 px-3 py-1 bg-blue-50 border border-blue-200 rounded-full text-sm text-blue-800 font-medium inline-block">
+                Available from Jan 1, 2026
+              </div>
             </div>
             
             <div className="mb-8">
