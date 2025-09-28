@@ -231,7 +231,6 @@ class PYQQuestion(Base):
         Ensure this PYQ question has complete enhanced enrichment
         Includes difficulty assessment and concept extraction
         """
-        from datetime import datetime
         
         # Check if enhanced enrichment is needed
         if (self.concept_extraction_status != 'completed' or 
