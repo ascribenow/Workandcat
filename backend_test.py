@@ -30065,7 +30065,7 @@ if __name__ == "__main__":
     try:
         # Run the optimized adaptive insights testing
         print("\n🎯 RUNNING OPTIMIZED ADAPTIVE INSIGHTS TESTING")
-        optimization_success = tester.test_optimized_adaptive_insights_implementation()
+        optimization_success = tester.test_ultra_optimized_adaptive_insights_cache_performance()
         
         # FINAL SUMMARY
         print("\n" + "=" * 80)
