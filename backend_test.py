@@ -1211,7 +1211,7 @@ class CATBackendTester:
         # PHASE 1: AUTHENTICATION SETUP
         print("\n🔐 PHASE 1: AUTHENTICATION SETUP")
         print("-" * 60)
-        print("Authenticating with sp@theskinmantra.com/student123 for optimization testing")
+        print("Authenticating with sp@theskinmantra.com/student123 for ultra-fast cache testing")
         
         auth_data = {
             "email": "sp@theskinmantra.com",
