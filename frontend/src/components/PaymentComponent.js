@@ -448,6 +448,66 @@ const PaymentComponent = ({ planType, amount, planName, description, onSuccess, 
           </div>
         </div>
       )}
+
+      {/* Plan Availability Modal */}
+      {showAvailabilityModal && availabilityInfo && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900">
+                {availabilityInfo.planName} Not Available
+              </h3>
+              <button
+                onClick={() => setShowAvailabilityModal(false)}
+                className="text-gray-500 hover:text-gray-700 text-2xl"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="mb-6">
+              <div className="flex items-center mb-3">
+                <svg className="w-8 h-8 text-blue-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span className="text-gray-800 font-medium">Coming Soon!</span>
+              </div>
+              
+              <p className="text-gray-600 mb-4">
+                {availabilityInfo.message}
+              </p>
+
+              {availabilityInfo.reason === 'not_yet_available' && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                  <p className="text-blue-800 text-sm">
+                    <strong>Why the wait?</strong> We're fine-tuning Pro Regular to provide you with the best possible experience. 
+                    Meanwhile, check out Pro Exclusive for immediate access to unlimited sessions!
+                  </p>
+                </div>
+              )}
+            </div>
+
+            <div className="flex space-x-3">
+              <button
+                onClick={() => setShowAvailabilityModal(false)}
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                Close
+              </button>
+              <button
+                onClick={() => {
+                  setShowAvailabilityModal(false);
+                  // Navigate to pricing page or scroll to Pro Exclusive
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                className="flex-1 px-4 py-2 bg-[#9ac026] text-white rounded-lg hover:bg-[#8bb024] transition-colors"
+              >
+                View Other Plans
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };
