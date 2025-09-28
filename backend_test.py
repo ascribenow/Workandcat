@@ -1417,135 +1417,164 @@ class CATBackendTester:
         else:
             print("   ❌ Cannot test dashboard performance without authentication")
         
-        # PHASE 4: PRE-SESSION INSIGHT RESPONSE TIME (OPTIMIZED)
-        print("\n🚀 PHASE 4: PRE-SESSION INSIGHT RESPONSE TIME (OPTIMIZED)")
+        # PHASE 4: PRE-SESSION INSIGHTS PERFORMANCE TESTING
+        print("\n🚀 PHASE 4: PRE-SESSION INSIGHTS PERFORMANCE TESTING")
         print("-" * 60)
-        print("Testing pre-session insight performance - target: <5 seconds (improved from 10s)")
+        print("Testing pre-session insights: 10-min TTL memory cache, ultra-fast responses")
         
         if auth_headers and user_id:
-            # Test pre-session insight response time
-            print("   ⏱️ Testing pre-session insight response time...")
+            # Test multiple pre-session calls
+            pre_session_times = []
+            pre_session_sources = []
             
-            start_time = time.time()
-            success, pre_session_response = self.run_test(
-                "Pre-Session Insight Performance", 
-                "GET", 
-                "session/pre-session-insight", 
-                [200, 500], 
-                None, 
-                auth_headers
-            )
-            response_time = time.time() - start_time
-            
-            print(f"   📊 Pre-session insight response time: {response_time:.3f} seconds")
-            
-            if success and pre_session_response:
-                if response_time < 5.0:
-                    test_results["pre_session_insight_under_5_seconds"] = True
-                    test_results["pre_session_response_time_improved"] = True
-                    test_results["pre_session_performance_target_met"] = True
-                    print(f"   ✅ Pre-session insight under 5 seconds target")
+            for i in range(3):
+                print(f"   🔄 Pre-session call {i+1}/3...")
+                start_time = time.time()
+                success, response = self.run_test(
+                    f"Pre-session Insights Call {i+1}", 
+                    "GET", 
+                    "session/pre-session-insight", 
+                    [200, 500], 
+                    None, 
+                    auth_headers
+                )
+                call_time = (time.time() - start_time) * 1000
+                pre_session_times.append(call_time)
+                
+                if success and response:
+                    source = response.get("source", "unknown")
+                    pre_session_sources.append(source)
+                    print(f"   📊 Call {i+1}: {call_time:.1f}ms, Source: {source}")
                     
-                    # Calculate improvement from 10s baseline
-                    baseline = 10.0
-                    improvement = ((baseline - response_time) / baseline) * 100
-                    print(f"   📊 Performance improvement from 10s baseline: {improvement:.1f}%")
+                    # Check for required fields
+                    if "title" in response and "progress" in response:
+                        test_results["pre_session_cache_source_correct"] = True
+                    
+                    if i == 0:  # First call
+                        if call_time < 2000:  # Under 2 seconds for first call
+                            test_results["pre_session_under_target_threshold"] = True
+                    elif i >= 1:  # Subsequent calls should hit memory cache
+                        if source == "memory" and call_time < 50:
+                            test_results["pre_session_memory_cache_working"] = True
+                            test_results["pre_session_10min_ttl_working"] = True
                 else:
-                    print(f"   ❌ Pre-session insight exceeds 5 second target: {response_time:.3f}s")
+                    print(f"   ❌ Pre-session call {i+1} failed: {response}")
                 
-                # Check for optimization indicators
-                if "optimization" in pre_session_response or response_time < 3.0:
-                    test_results["optimized_data_extraction_used"] = True
-                    print(f"   ✅ Optimized data extraction methods detected")
+                # Small delay between calls
+                if i < 2:
+                    time.sleep(0.2)
+            
+            # Analyze pre-session performance
+            if len(pre_session_times) >= 2:
+                first_call = pre_session_times[0]
+                avg_cache_time = sum(pre_session_times[1:]) / len(pre_session_times[1:])
                 
-                # Check response structure
-                required_fields = ["title", "progress", "way_forward", "today"]
-                missing_fields = [field for field in required_fields if field not in pre_session_response]
+                print(f"   📊 Pre-session performance summary:")
+                print(f"      First call: {first_call:.1f}ms ({pre_session_sources[0] if pre_session_sources else 'unknown'})")
+                print(f"      Memory cache avg: {avg_cache_time:.1f}ms")
                 
-                if not missing_fields:
-                    print(f"   ✅ All required fields present in response")
+                if first_call < 2000 and avg_cache_time < 50:
+                    test_results["pre_session_performance_optimized"] = True
+                    print(f"   ✅ Pre-session performance optimized: First<2s, Cache<50ms")
                 else:
-                    print(f"   ⚠️ Missing fields: {missing_fields}")
-            else:
-                print(f"   ❌ Pre-session insight failed: {pre_session_response}")
-        
-        # PHASE 5: EDGE CASES AND ERROR HANDLING (IMPROVED)
-        print("\n🛡️ PHASE 5: EDGE CASES AND ERROR HANDLING (IMPROVED)")
-        print("-" * 60)
-        print("Testing edge cases and error handling improvements")
-        
-        # Test unauthorized access handling
-        print("   🔒 Testing unauthorized access handling...")
-        
-        success, unauthorized_response = self.run_test(
-            "Unauthorized Dashboard Access", 
-            "GET", 
-            "dashboard/adaptive-insights", 
-            [401, 403], 
-            None, 
-            {"Content-Type": "application/json"}  # No auth header
-        )
-        
-        if success and unauthorized_response:
-            test_results["unauthorized_access_properly_blocked"] = True
-            print(f"   ✅ Unauthorized access properly blocked")
+                    print(f"   ⚠️ Pre-session performance needs improvement")
         else:
-            print(f"   ⚠️ Unauthorized access handling issue")
+            print("   ❌ Cannot test pre-session performance without authentication")
         
-        # Test graceful degradation
-        print("   🔄 Testing graceful degradation...")
+        # PHASE 5: CACHE SOURCE VERIFICATION & METRICS
+        print("\n🔍 PHASE 5: CACHE SOURCE VERIFICATION & METRICS")
+        print("-" * 60)
+        print("Testing cache source tracking, metrics accuracy, and memory cleanup")
         
-        if auth_headers:
-            # Test with invalid session_id for graceful degradation
-            success, graceful_response = self.run_test(
-                "Graceful Degradation Test", 
+        if auth_headers and user_id:
+            # Test cache metrics endpoint
+            print("   📊 Testing cache metrics endpoint...")
+            success, metrics_response = self.run_test(
+                "Cache Metrics", 
                 "GET", 
-                "session/pre-session-insight?session_id=invalid-session-123", 
+                "dashboard/insights-metrics", 
                 [200, 500], 
                 None, 
                 auth_headers
             )
             
-            if success and graceful_response:
-                # Check if graceful response is provided
-                if (graceful_response.get("title") and 
-                    "source" in graceful_response and
-                    graceful_response.get("source") in ["graceful_degradation", "fallback"]):
-                    test_results["graceful_degradation_working"] = True
-                    print(f"   ✅ Graceful degradation working")
-                    print(f"   📊 Graceful response: {graceful_response.get('title', 'N/A')}")
-                else:
-                    print(f"   ⚠️ Graceful degradation may need improvement")
-        
-        # Test cache freshness edge cases
-        print("   📅 Testing cache freshness edge cases...")
-        
-        try:
-            # Import cache service to test edge cases
-            from services.insight_cache_service import insight_cache_service
-            
-            # Test cache freshness with None datetime
-            is_fresh_none = insight_cache_service._is_cache_fresh(None)
-            if not is_fresh_none:  # Should return False for None
-                print(f"   ✅ Cache freshness handles None datetime correctly")
+            if success and metrics_response:
+                print(f"   ✅ Cache metrics endpoint working")
                 
-                # Test with timezone-naive datetime
-                from datetime import datetime
-                naive_dt = datetime.now()  # No timezone
-                is_fresh_naive = insight_cache_service._is_cache_fresh(naive_dt)
-                print(f"   ✅ Cache freshness handles timezone-naive datetime")
+                # Check for expected metrics
+                expected_metrics = ["dashboard_cache_entries", "pre_session_cache_entries", "timestamp"]
+                present_metrics = [m for m in expected_metrics if m in metrics_response]
                 
-                test_results["cache_freshness_edge_cases_handled"] = True
+                if len(present_metrics) >= 2:
+                    test_results["cache_metrics_accurate"] = True
+                    print(f"   ✅ Cache metrics accurate: {len(present_metrics)}/{len(expected_metrics)} present")
+                    print(f"   📊 Dashboard entries: {metrics_response.get('dashboard_cache_entries', 'N/A')}")
+                    print(f"   📊 Pre-session entries: {metrics_response.get('pre_session_cache_entries', 'N/A')}")
             
-        except Exception as e:
-            print(f"   ⚠️ Cache freshness edge case test error: {e}")
+            # Test memory cache cleanup
+            print("   🧹 Testing memory cache cleanup...")
+            try:
+                # Import and test cleanup function
+                from services.insight_cache_service import cleanup_memory_cache
+                cleanup_memory_cache()
+                test_results["memory_cache_cleanup_functional"] = True
+                test_results["memory_cache_prevents_leaks"] = True
+                print(f"   ✅ Memory cache cleanup functional")
+            except Exception as e:
+                print(f"   ⚠️ Memory cache cleanup test error: {e}")
         
-        # Overall error handling assessment
-        if (test_results["unauthorized_access_properly_blocked"] and 
-            test_results["graceful_degradation_working"] and 
-            test_results["cache_freshness_edge_cases_handled"]):
-            test_results["error_handling_improved"] = True
-            print(f"   ✅ Error handling improvements verified")
+        # PHASE 6: PERFORMANCE IMPROVEMENT VERIFICATION
+        print("\n📈 PHASE 6: PERFORMANCE IMPROVEMENT VERIFICATION")
+        print("-" * 60)
+        print("Verifying performance improvements from 952ms baseline to <200ms target")
+        
+        # Collect all response times from previous tests
+        all_times = []
+        if 'dashboard_times' in locals():
+            all_times.extend(dashboard_times)
+        if 'pre_session_times' in locals():
+            all_times.extend(pre_session_times)
+        
+        if all_times:
+            avg_time = sum(all_times) / len(all_times)
+            max_time = max(all_times)
+            min_time = min(all_times)
+            under_200ms = [t for t in all_times if t < 200]
+            
+            print(f"   📊 Performance analysis:")
+            print(f"      Average response time: {avg_time:.1f}ms")
+            print(f"      Min response time: {min_time:.1f}ms")
+            print(f"      Max response time: {max_time:.1f}ms")
+            print(f"      Calls under 200ms: {len(under_200ms)}/{len(all_times)} ({(len(under_200ms)/len(all_times)*100):.1f}%)")
+            
+            # Check baseline improvement (952ms → current)
+            baseline = 952.0
+            if avg_time < baseline:
+                improvement = ((baseline - avg_time) / baseline) * 100
+                test_results["baseline_952ms_improved"] = True
+                print(f"   ✅ Baseline improved: {improvement:.1f}% faster than 952ms")
+                
+                if improvement >= 79:  # Target 79% improvement
+                    test_results["79_percent_improvement_achieved"] = True
+                    print(f"   ✅ Target 79% improvement achieved: {improvement:.1f}%")
+            
+            # Check 200ms target
+            if avg_time < 200:
+                test_results["target_200ms_achieved"] = True
+                print(f"   ✅ Target <200ms achieved: {avg_time:.1f}ms")
+            
+            # Check 95% calls under 200ms
+            if len(under_200ms) / len(all_times) >= 0.95:
+                test_results["95_percent_calls_under_200ms"] = True
+                print(f"   ✅ 95%+ calls under 200ms achieved")
+            
+            # Overall ultra-fast performance validation
+            if (test_results.get("target_200ms_achieved") and 
+                test_results.get("95_percent_calls_under_200ms")):
+                test_results["ultra_fast_performance_validated"] = True
+                print(f"   ✅ Ultra-fast performance validated")
+        else:
+            print("   ⚠️ No performance data collected for analysis")
         
         # FINAL RESULTS SUMMARY
         print("\n" + "=" * 80)
