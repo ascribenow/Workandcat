@@ -44,44 +44,16 @@ else:
 
 router = APIRouter(prefix="/doubts")
 
-# Enhanced Ask Twelvr Mode Detection
-def detect_ask_twelvr_mode(user_message: str, has_context: bool) -> int:
-    """
-    Detect the mode for Ask Twelvr response:
-    1 = Session-Related Query
-    2 = Random/Off-Topic Query  
-    3 = Solution Step Explanation
-    """
-    text = user_message.lower().strip()
-    
-    # Mode 3: Solution Step Explanation patterns
-    SOLUTION_STEP_PATTERNS = [
-        r'[=≠≈≤≥<>]\s*[^?]*$',                    # equation-like line
-        r'[\d\w]\s*[\+\-×x\*/÷]\s*[\d\w]',        # arithmetic/algebra ops
-        r'(\bexplain\b|\bwhat does.*mean\b|\bwhy\b).*',
-        r'\bsubstitute|factor|expand|simplify|cross-?multiply|complete the square\b',
-        r'^\s*[a-zA-Z]\s*=.*\d',                  # variable equations
-        r'\bformula|equation|calculation|step\b',
-        r'\bi don\'t understand|help me with|what.*this.*mean\b'
+# Simple context awareness - let LLM intelligence handle the conversation
+def has_question_context(user_message: str) -> bool:
+    """Simple check if user seems to be referring to current question"""
+    text = user_message.lower()
+    context_indicators = [
+        'this question', 'this problem', 'current question', 'this one',
+        'option a', 'option b', 'option c', 'option d', 'which option',
+        'right answer', 'correct answer', 'how to solve this'
     ]
-    
-    # Mode 1: Session-Related patterns
-    SESSION_RELATED_PATTERNS = [
-        r'\b(this|current)\s+(question|problem|solution|approach)\b',
-        r'\boption\s+[A-D]\b|\bwhich option\b|\bright answer\b',
-        r'\bhow.*solve.*this\b|\bmethod.*this\b'
-    ]
-    
-    # Check for Mode 3 first (most specific)
-    if any(re.search(pattern, text) for pattern in SOLUTION_STEP_PATTERNS):
-        return 3
-    
-    # Check for Mode 1 (session-related)
-    if has_context and any(re.search(pattern, text) for pattern in SESSION_RELATED_PATTERNS):
-        return 1
-    
-    # Default to Mode 2 (off-topic)
-    return 2
+    return any(indicator in text for indicator in context_indicators)
 
 def get_natural_system_prompt() -> str:
     """Get the natural, intelligent Ask Twelvr system prompt"""
