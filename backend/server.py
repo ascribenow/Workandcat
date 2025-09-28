@@ -43,6 +43,9 @@ from referral_service import ReferralService
 from subscription_access_service import SubscriptionAccessService
 from gmail_service import gmail_service
 
+# Import adaptive insights services
+from services.insight_cache_service import insight_cache_service
+
 # Import enrichment services
 from pyq_enrichment_service import pyq_enrichment_service
 # from enhanced_enrichment_checker_service import enhanced_enrichment_checker_service  # File deleted during cleanup
