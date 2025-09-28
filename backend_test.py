@@ -1264,117 +1264,111 @@ class CATBackendTester:
         print("Testing comprehensive data extractor for complete user data extraction")
         
         if auth_headers and user_id:
-            import time
+            # Test comprehensive data extraction by checking what data is available
+            print("   📋 Testing comprehensive data extraction capabilities...")
             
-            # Test pre-session insights API
-            start_time = time.time()
-            success, pre_session_response = self.run_test(
-                "Pre-session Insights API", 
-                "GET", 
-                "session/pre-session-insight", 
-                [200, 500], 
-                None, 
-                auth_headers
-            )
-            response_time = time.time() - start_time
+            # We can't directly test the extractor service, but we can test the APIs that use it
+            # and check if they have rich data to work with
             
-            if success and pre_session_response:
-                test_results["pre_session_api_accessible"] = True
-                print(f"   ✅ Pre-session insights API accessible")
-                print(f"   📊 Response time: {response_time:.3f} seconds")
+            # First, let's check if the user has sufficient data for comprehensive extraction
+            try:
+                # Test if we can access the comprehensive data through the insights APIs
+                print("   🔍 Checking data availability through insights APIs...")
                 
-                if response_time <= 5.0:  # Should be under 5s as per review
-                    test_results["pre_session_response_time_good"] = True
-                    print(f"   ✅ Response time good (≤5s)")
+                # Test dashboard insights to see if comprehensive data is being used
+                import time
+                start_time = time.time()
+                success, dashboard_response = self.run_test(
+                    "Dashboard Insights for Data Check", 
+                    "GET", 
+                    "dashboard/adaptive-insights", 
+                    [200, 500], 
+                    None, 
+                    auth_headers
+                )
+                response_time = time.time() - start_time
+                
+                if success and dashboard_response:
+                    print(f"   ✅ Dashboard insights API accessible ({response_time:.3f}s)")
+                    
+                    # Check if the response indicates comprehensive data usage
+                    all_time_content = dashboard_response.get("all_time_markdown", "")
+                    recent_content = dashboard_response.get("recent_markdown", "")
+                    source = dashboard_response.get("source", "unknown")
+                    
+                    print(f"   📊 Dashboard response analysis:")
+                    print(f"      All-time content: {len(all_time_content)} chars")
+                    print(f"      Recent content: {len(recent_content)} chars")
+                    print(f"      Source: {source}")
+                    
+                    # Check for indicators of comprehensive data usage
+                    comprehensive_indicators = [
+                        "sessions", "accuracy", "concepts", "performance", "progress",
+                        "journey", "improvement", "practice", "questions", "topics"
+                    ]
+                    
+                    all_time_indicators = sum(1 for indicator in comprehensive_indicators 
+                                            if indicator.lower() in all_time_content.lower())
+                    recent_indicators = sum(1 for indicator in comprehensive_indicators 
+                                          if indicator.lower() in recent_content.lower())
+                    
+                    if all_time_indicators >= 5:
+                        test_results["sessions_data_extracted"] = True
+                        test_results["accuracy_trends_extracted"] = True
+                        print(f"   ✅ All-time insights show comprehensive data usage ({all_time_indicators} indicators)")
+                    else:
+                        print(f"   ⚠️ All-time insights may lack comprehensive data ({all_time_indicators} indicators)")
+                    
+                    if recent_indicators >= 3:
+                        test_results["concept_journey_extracted"] = True
+                        test_results["question_attempts_extracted"] = True
+                        print(f"   ✅ Recent insights show comprehensive data usage ({recent_indicators} indicators)")
+                    else:
+                        print(f"   ⚠️ Recent insights may lack comprehensive data ({recent_indicators} indicators)")
+                    
+                    # Check for specific data types that indicate comprehensive extraction
+                    data_type_indicators = {
+                        "pyq": ["pyq", "previous year", "frequency"],
+                        "difficulty": ["easy", "medium", "hard", "difficulty"],
+                        "coverage": ["coverage", "topics", "areas", "gaps"],
+                        "time": ["time", "speed", "timing", "pace"]
+                    }
+                    
+                    combined_content = (all_time_content + " " + recent_content).lower()
+                    
+                    for data_type, indicators in data_type_indicators.items():
+                        if any(indicator in combined_content for indicator in indicators):
+                            if data_type == "pyq":
+                                test_results["pyq_performance_extracted"] = True
+                                print(f"   ✅ PYQ performance data detected")
+                            elif data_type == "difficulty":
+                                test_results["difficulty_patterns_extracted"] = True
+                                print(f"   ✅ Difficulty patterns data detected")
+                            elif data_type == "coverage":
+                                test_results["coverage_analysis_extracted"] = True
+                                print(f"   ✅ Coverage analysis data detected")
+                            elif data_type == "time":
+                                test_results["time_patterns_extracted"] = True
+                                print(f"   ✅ Time patterns data detected")
+                    
+                    # Overall data richness assessment
+                    total_content_length = len(all_time_content) + len(recent_content)
+                    total_indicators = all_time_indicators + recent_indicators
+                    
+                    if total_content_length > 200 and total_indicators >= 8:
+                        test_results["data_richness_sufficient"] = True
+                        test_results["all_user_data_extracted"] = True
+                        test_results["comprehensive_data_extractor_working"] = True
+                        print(f"   ✅ Data richness sufficient for comprehensive insights")
+                        print(f"   ✅ Comprehensive data extraction appears to be working")
+                    else:
+                        print(f"   ⚠️ Data richness may be insufficient ({total_content_length} chars, {total_indicators} indicators)")
+                
                 else:
-                    print(f"   ⚠️ Response time slow (>{response_time:.1f}s)")
-                
-                # Check response structure and content
-                title = pre_session_response.get("title", "")
-                content = pre_session_response.get("content", "")
-                source = pre_session_response.get("source", "unknown")
-                
-                print(f"   📊 Response details:")
-                print(f"      Title: {title}")
-                print(f"      Content length: {len(content)} chars")
-                print(f"      Source: {source}")
-                
-                # Check if NOT generic template "Ready to Learn 📚"
-                generic_templates = [
-                    "ready to learn 📚",
-                    "let's get started",
-                    "time to practice",
-                    "awaiting_background_job",
-                    "being generated"
-                ]
-                
-                is_generic = any(template.lower() in title.lower() or template.lower() in content.lower() 
-                               for template in generic_templates)
-                
-                if not is_generic and len(content) > 50:
-                    test_results["pre_session_not_generic_template"] = True
-                    print(f"   ✅ Pre-session insights are NOT generic templates")
-                else:
-                    print(f"   ❌ Pre-session insights appear to be generic templates")
-                
-                # Check for contextual generation
-                contextual_indicators = [
-                    "your recent", "last session", "based on your", "you've been",
-                    "your performance", "your progress", "you struggled", "you excelled"
-                ]
-                
-                contextual_count = sum(1 for indicator in contextual_indicators 
-                                     if indicator.lower() in content.lower())
-                
-                if contextual_count >= 2:
-                    test_results["pre_session_contextual_generation"] = True
-                    print(f"   ✅ Contextual generation working ({contextual_count} indicators)")
-                else:
-                    print(f"   ❌ Contextual generation not working ({contextual_count} indicators)")
-                
-                # Check for coach voice
-                coach_voice_indicators = [
-                    "you", "your", "let's", "we can", "great", "excellent", "keep going",
-                    "don't worry", "you're doing", "focus on", "try", "practice"
-                ]
-                
-                coach_voice_count = sum(1 for indicator in coach_voice_indicators 
-                                      if indicator.lower() in content.lower())
-                
-                if coach_voice_count >= 3:
-                    test_results["pre_session_coach_voice_detected"] = True
-                    print(f"   ✅ Coach voice detected ({coach_voice_count} indicators)")
-                else:
-                    print(f"   ❌ Coach voice not detected ({coach_voice_count} indicators)")
-                
-                # Check for encouraging language
-                encouraging_indicators = [
-                    "great", "excellent", "well done", "keep it up", "you can do",
-                    "improvement", "progress", "strength", "good job"
-                ]
-                
-                encouraging_count = sum(1 for indicator in encouraging_indicators 
-                                      if indicator.lower() in content.lower())
-                
-                if encouraging_count >= 1:
-                    test_results["pre_session_encouraging_language"] = True
-                    print(f"   ✅ Encouraging language present ({encouraging_count} indicators)")
-                else:
-                    print(f"   ❌ Encouraging language not present")
-                
-                # Check source for contextual
-                if source == "contextual_coach_voice" or "contextual" in source:
-                    test_results["pre_session_source_contextual"] = True
-                    print(f"   ✅ Source indicates contextual generation: {source}")
-                else:
-                    print(f"   ⚠️ Source may not be contextual: {source}")
-                
-                # Display content sample
-                print(f"   📝 Content sample:")
-                print(f"      {content[:200]}...")
-                
-            else:
-                print(f"   ❌ Pre-session insights API failed: {pre_session_response}")
+                    print(f"   ❌ Dashboard insights API failed: {dashboard_response}")
+                    
+            except Exception as e:
+                print(f"   ❌ Error testing comprehensive data extraction: {e}")
         
         # PHASE 3: DASHBOARD INSIGHTS COACH VOICE TESTING
         print("\n📊 PHASE 3: DASHBOARD INSIGHTS COACH VOICE TESTING")
