@@ -54,7 +54,7 @@ class InsightGeneratorService:
                 prompt=prompt,
                 model_primary="gpt-4o", 
                 model_fallback="gemini-2.5-flash",
-                max_tokens=200
+                max_tokens=350  # Rich insights for recent momentum
             )
             
             if response and len(response.strip()) > 10:
