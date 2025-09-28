@@ -1604,6 +1604,104 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
     }
   };
 
+  // Enhanced message rendering for Ask Twelvr responses
+  const renderEnhancedMessage = (content) => {
+    // Check if this is a Mode 3 response (has the structured headings)
+    const hasStructuredFormat = content.includes('### What that step is doing') && 
+                               content.includes('### The idea behind it') &&
+                               content.includes('### Try this (quick practice)');
+    
+    if (!hasStructuredFormat) {
+      return <div className="whitespace-pre-wrap">{content}</div>;
+    }
+    
+    // Parse structured response
+    const sections = content.split('###').filter(section => section.trim());
+    
+    return (
+      <div className="space-y-4">
+        {sections.map((section, index) => {
+          const lines = section.trim().split('\n');
+          const heading = lines[0].trim();
+          const content = lines.slice(1).join('\n').trim();
+          
+          // Define section styles
+          const getSectionStyle = (heading) => {
+            if (heading.includes('What that step is doing')) {
+              return { 
+                icon: '🔍', 
+                bgColor: '#f0f9ff', 
+                borderColor: '#0ea5e9',
+                headingColor: '#0369a1' 
+              };
+            } else if (heading.includes('The idea behind it')) {
+              return { 
+                icon: '💡', 
+                bgColor: '#fefce8', 
+                borderColor: '#eab308',
+                headingColor: '#a16207' 
+              };
+            } else if (heading.includes('Try this')) {
+              return { 
+                icon: '🎯', 
+                bgColor: '#f0fdf4', 
+                borderColor: '#22c55e',
+                headingColor: '#15803d' 
+              };
+            } else if (heading.includes('Solution')) {
+              return { 
+                icon: '✅', 
+                bgColor: '#fafafa', 
+                borderColor: '#9ac026',
+                headingColor: '#7a8520' 
+              };
+            } else if (heading.includes('Next')) {
+              return { 
+                icon: '🚀', 
+                bgColor: '#fdf2f8', 
+                borderColor: '#ec4899',
+                headingColor: '#be185d' 
+              };
+            }
+            return { 
+              icon: '📝', 
+              bgColor: '#f9fafb', 
+              borderColor: '#d1d5db',
+              headingColor: '#374151' 
+            };
+          };
+          
+          const style = getSectionStyle(heading);
+          
+          return (
+            <div 
+              key={index}
+              className="border-l-4 p-3 rounded-r-lg"
+              style={{ 
+                backgroundColor: style.bgColor, 
+                borderLeftColor: style.borderColor 
+              }}
+            >
+              <div 
+                className="font-semibold text-sm mb-2 flex items-center"
+                style={{ color: style.headingColor }}
+              >
+                <span className="mr-2">{style.icon}</span>
+                {heading}
+              </div>
+              <div 
+                className="text-sm whitespace-pre-wrap leading-relaxed"
+                style={{ color: '#545454' }}
+              >
+                {content}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
   // Doubt conversation functions - Twelvr New Version
   const handleAskDoubt = async () => {
     if (!doubtMessage.trim() || conversationLocked) return;
