@@ -20,6 +20,11 @@ class InsightGeneratorService:
     def gen_all_time_markdown(self, slice_dict: Dict[str, Any]) -> str:
         """Generate all-time journey markdown with LLM + fallback"""
         try:
+            # GLOBAL FALLBACK FEATURE FLAG
+            import os
+            if os.environ.get("INSIGHTS_FORCE_FALLBACK", "false").lower() == "true":
+                return self._fallback_all_time_markdown(slice_dict)
+                
             # LLM cost control
             if not self._should_use_llm(slice_dict.get("user_id", ""), "dashboard"):
                 return self._fallback_all_time_markdown(slice_dict)
