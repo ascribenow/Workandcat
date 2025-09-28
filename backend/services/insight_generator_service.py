@@ -461,6 +461,50 @@ Data: {json.dumps(slice_dict, indent=2)}
             "prompt_version": "v1.0_fallback"
         }
     
+    def _build_comprehensive_insights_prompt(self, comprehensive_data: Dict[str, Any]) -> str:
+        """Build comprehensive prompt for pure LLM freedom approach"""
+        return f"""
+You are a CAT Quant coach with complete creative freedom. Generate comprehensive insights for this learner.
+
+You have access to ALL their data - use it creatively to provide the most helpful insights possible.
+
+Generate a JSON response with these sections:
+1. "dashboard_all_time": Comprehensive journey overview (markdown, 3-4 sentences)
+2. "dashboard_recent": Recent momentum analysis (markdown, 2-3 sentences) 
+3. "pre_session_card": {{
+   "title": "Motivating title with emoji (≤40 chars)",
+   "progress": "Recent progress summary",
+   "way_forward": ["actionable tip 1", "actionable tip 2"],
+   "today": "Session preview with focus areas"
+}}
+
+Coach voice guidelines:
+- Be encouraging and specific
+- Use "about X out of 10 correct" instead of percentages
+- Mention concepts by name when relevant
+- No technical jargon or formatting
+- Focus on growth and momentum
+
+Complete user data: {json.dumps(comprehensive_data, indent=2)}
+
+Return ONLY valid JSON with all three sections.
+        """
+    
+    def _generate_simple_fallback_insights(self, comprehensive_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Simple fallback when LLM is unavailable"""
+        return {
+            "dashboard_all_time": "You're building solid foundations through consistent practice. Every session teaches you something new about problem-solving patterns. Keep trusting the process—your steady rhythm is your secret weapon.",
+            "dashboard_recent": "Your recent work shows good consistency and engagement with the material. That steady practice rhythm is building the foundation for bigger breakthroughs ahead.",
+            "pre_session_card": {
+                "title": "Ready to Learn 🎯",
+                "progress": "Building on your consistent preparation",
+                "way_forward": ["Stay focused on fundamentals", "Trust the process"],
+                "today": "Today's session will continue your growth"
+            },
+            "source": "simple_fallback",
+            "generated_at": datetime.now(timezone.utc).isoformat()
+        }
+    
     def _validate_card_format(self, card_data: Any) -> bool:
         """Validate pre-session card format"""
         if not isinstance(card_data, dict):
