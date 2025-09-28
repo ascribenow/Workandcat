@@ -93,6 +93,7 @@ class InsightGeneratorService:
                         self._track_llm_usage(slice_dict.get("user_id", ""), "pre_session")
                         # Add source flag for debugging
                         card_data["source"] = "llm"
+                        card_data["prompt_version"] = "v1.0_llm"
                         return card_data
                 except json.JSONDecodeError as e:
                     self.logger.warning(f"JSON parse error in pre-session card: {e}")
