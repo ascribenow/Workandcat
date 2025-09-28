@@ -180,7 +180,7 @@ Respond naturally and helpfully:
                 response = model.generate_content(full_prompt)
                 ai_response = response.text.strip()
                 
-                logger.info(f"Ask Twelvr Mode {mode} response generated for user {user_id[:8]}")
+                logger.info(f"Ask Twelvr natural response generated for user {user_id[:8]}")
                 
                 # Store conversation
                 doubt_conversations[conversation_key].extend([
