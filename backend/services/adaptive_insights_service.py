@@ -73,29 +73,32 @@ class AdaptiveInsightsService:
         finally:
             db.close()
     
-    def build_pre_session_slice(self, user_id: str, session_id: str, window: int = 5) -> Dict[str, Any]:
-        """Build pre-session insight data slice (last 5 + today's preview)"""
+    def build_pre_session_slice(self, user_id: str, session_id: str, window: int = 3) -> Dict[str, Any]:
+        """Build pre-session insight data slice (OPTIMIZED: last 3 + today's preview)"""
         db = SessionLocal()
         try:
-            # Get last 5 session accuracy trend
+            # OPTIMIZATION: Reduced window to 3 sessions for faster processing
             recent_sessions = self._get_recent_session_ids(db, user_id, window)
-            accuracy_series = self._get_accuracy_series(db, user_id, recent_sessions)
             
-            # Get concept shifts in last 5 sessions
-            concept_shifts = self._get_concept_shifts_recent(db, user_id, recent_sessions)
+            # OPTIMIZATION: Combined queries to reduce DB calls
+            accuracy_series = self._get_accuracy_series_fast(db, user_id, recent_sessions)
             
-            # Get most significant coverage change
-            coverage_change = self._get_top_coverage_change(db, user_id, recent_sessions)
+            # Get minimal concept shifts (top 2 only)
+            concept_shifts = self._get_concept_shifts_minimal(db, user_id, recent_sessions)
             
-            # Get today's session preview
-            today_preview = self._get_session_preview(db, session_id)
+            # Get top coverage change only
+            coverage_change = self._get_top_coverage_change_fast(db, user_id, recent_sessions)
+            
+            # Get session preview (lightweight)
+            today_preview = self._get_session_preview_fast(db, session_id)
             
             return {
                 "window": len(recent_sessions),  # Actual count
                 "accuracy_series": accuracy_series,
                 "concept_shifts": concept_shifts,
                 "coverage_change": coverage_change,
-                "today_preview": today_preview
+                "today_preview": today_preview,
+                "optimization": "fast_mode"
             }
         finally:
             db.close()
