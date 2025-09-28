@@ -166,14 +166,22 @@ export const SimpleDashboard = () => {
     }));
   };
 
-  // Simple markdown to HTML converter (basic)
+  // Simple markdown to HTML converter with sanitization (security)
   const markdownToHtml = (markdown) => {
     if (!markdown) return '';
-    return markdown
+    const DOMPurify = require('dompurify');
+    
+    const htmlContent = markdown
       .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')  // Bold
       .replace(/^\* (.*)/gm, '<li>$1</li>')              // List items
       .replace(/\n/g, '<br>')                            // Line breaks
       .replace(/(<li>.*<\/li>)/gs, '<ul>$1</ul>');       // Wrap lists
+    
+    // SECURITY: Sanitize HTML before rendering
+    return DOMPurify.sanitize(htmlContent, {
+      ALLOWED_TAGS: ['strong', 'ul', 'li', 'br'],
+      ALLOWED_ATTR: []
+    });
   };
 
   const renderAdaptiveInsights = () => {
