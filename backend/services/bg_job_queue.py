@@ -20,6 +20,7 @@ logger = logging.getLogger(__name__)
 class JobType(Enum):
     SUMMARIZE_SESSION = "SUMMARIZE_SESSION"
     PLAN_NEXT_SESSION = "PLAN_NEXT_SESSION"
+    UPDATE_INSIGHTS = "UPDATE_INSIGHTS"
 
 class JobStatus(Enum):
     QUEUED = "queued"
