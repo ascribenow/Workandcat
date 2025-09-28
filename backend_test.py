@@ -1370,10 +1370,10 @@ class CATBackendTester:
             except Exception as e:
                 print(f"   ❌ Error testing comprehensive data extraction: {e}")
         
-        # PHASE 3: DASHBOARD INSIGHTS COACH VOICE TESTING
-        print("\n📊 PHASE 3: DASHBOARD INSIGHTS COACH VOICE TESTING")
+        # PHASE 3: PURE LLM GENERATION TESTING
+        print("\n🤖 PHASE 3: PURE LLM GENERATION TESTING")
         print("-" * 60)
-        print("Testing GET /api/dashboard/adaptive-insights for coach voice and sanitized formatting")
+        print("Testing pure LLM generation with comprehensive insights method")
         
         if auth_headers and user_id:
             # Test dashboard insights API
