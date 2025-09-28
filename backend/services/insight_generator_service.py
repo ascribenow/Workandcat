@@ -3,8 +3,7 @@ import json
 from typing import Dict, List, Any, Optional
 from datetime import datetime, timezone
 
-# Import existing LLM utils
-from llm_utils import call_llm_with_fallback
+# Direct Gemini LLM implementation
 
 logger = logging.getLogger(__name__)
 
