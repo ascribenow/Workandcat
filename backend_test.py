@@ -1106,38 +1106,43 @@ class CATBackendTester:
         
         return success_rate >= 80 and criteria_rate >= 85
 
-    def test_optimized_adaptive_insights_implementation(self):
+    def test_ultra_optimized_adaptive_insights_cache_performance(self):
         """
-        🎯 OPTIMIZED ADAPTIVE INSIGHTS IMPLEMENTATION TESTING
+        🎯 ULTRA-OPTIMIZED ADAPTIVE INSIGHTS CACHE PERFORMANCE TESTING
         
-        REVIEW REQUEST OBJECTIVES - Testing 20% Issues Resolution:
+        REVIEW REQUEST OBJECTIVES - Testing sub-200ms response times:
         
-        1. **Background Job Import/Enqueueing Issues (FIXED):**
-           - Test that simplified_job_handlers imports work correctly
-           - Verify run_simplified_summarizer function exists and works
-           - Test PLAN_NEXT_SESSION → UPDATE_INSIGHTS job enqueueing
+        **ULTRA-FAST CACHE PERFORMANCE TESTING:**
         
-        2. **Cache Hit Performance (OPTIMIZED):**
-           - Test dashboard insights endpoint twice to measure cache performance
-           - Verify cache_time_ms and generation_time_ms metrics are included
-           - Check that cache hits are significantly faster than fresh generation
+        1. **3-Level Cache Strategy Testing:**
+           - Test Level 1: In-memory cache (target <50ms) 
+           - Test Level 2: Database cache (target <200ms)
+           - Test Level 3: Fresh generation (baseline)
         
-        3. **Pre-session Insight Response Time (OPTIMIZED):**
-           - Test /api/session/pre-session-insight endpoint performance
-           - Verify response time is under 5 seconds (target improvement from 10s)
-           - Check that optimized data extraction methods are being used
+        2. **Dashboard Insights Performance:**
+           - First call: Should populate both DB and memory cache
+           - Second call: Should hit memory cache (<50ms)
+           - Third call: Should hit memory cache (<50ms)
+           - Verify memory cache cleanup and TTL behavior
         
-        4. **Edge Cases and Error Handling (IMPROVED):**
-           - Test cache freshness calculation with edge cases
-           - Test unauthorized access handling
-           - Test graceful degradation when services fail
+        3. **Pre-session Insights Performance:**
+           - Test ultra-fast memory caching with 10-min TTL
+           - Verify response times are under target thresholds
+           - Check memory cache population and retrieval
         
-        **Expected Results after Optimization:**
-        - Import errors should be resolved
-        - Cache hits should be under 200ms
-        - Pre-session insights should be under 5 seconds
-        - All edge cases should be handled gracefully
-        - Overall success rate should improve from 80% to 90%+
+        4. **Cache Source Verification:**
+           - Verify response includes correct "source" field: "memory", "db_cache", or "fresh"
+           - Check cache_time_ms and generation_time_ms metrics
+           - Verify memory cache cleanup prevents memory leaks
+        
+        **Success Criteria:**
+        - Memory cache hits: <50ms
+        - DB cache hits: <200ms  
+        - Cache source tracking working
+        - Memory cleanup functional
+        - Overall target: 95%+ calls under 200ms
+        
+        Test with sp@theskinmantra.com/student123 and measure actual performance improvements from 952ms baseline.
         
         AUTHENTICATION: sp@theskinmantra.com/student123
         """
