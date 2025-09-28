@@ -34392,31 +34392,31 @@ if __name__ == "__main__":
         return final_results["100_percent_success_achieved"]
 
 if __name__ == "__main__":
-    print("🚀 ENHANCED ASK TWELVR SYSTEM TESTING")
+    print("🚀 ADAPTIVE INSIGHTS FIXES VERIFICATION TESTING")
     print("=" * 80)
-    print("OBJECTIVE: Test ENHANCED Ask Twelvr with rich context and solution intelligence")
-    print("Focus: Rich context, solution detection, practice questions, harder flow, natural conversation")
-    print("Expected: Intelligent responses, 5-section format, practice generation, contextual awareness")
+    print("OBJECTIVE: Verify implemented fixes resolved Adaptive Insights issues")
+    print("Focus: Pre-session insights, coach voice, background jobs, data quality")
+    print("Expected: Contextual insights, coach voice, working background jobs, real user data")
     print("Authentication: sp@theskinmantra.com/student123")
     print("=" * 80)
     
     tester = CATBackendTester()
     
     try:
-        # Run Enhanced Ask Twelvr System Test
-        print("\n🎯 RUNNING ENHANCED ASK TWELVR SYSTEM TESTING")
-        enhanced_test_passed = tester.test_enhanced_ask_twelvr_system()
+        # Run Adaptive Insights Fixes Verification Test
+        print("\n🎯 RUNNING ADAPTIVE INSIGHTS FIXES VERIFICATION")
+        insights_test_passed = tester.test_adaptive_insights_fixes_verification()
         
         # FINAL SUMMARY
         print("\n" + "=" * 80)
-        print("🏁 ENHANCED ASK TWELVR TESTING - FINAL RESULTS")
+        print("🏁 ADAPTIVE INSIGHTS FIXES VERIFICATION - FINAL RESULTS")
         print("=" * 80)
         print(f"Total Tests Run: {tester.tests_run}")
         print(f"Total Tests Passed: {tester.tests_passed}")
         print(f"Overall Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%" if tester.tests_run > 0 else "0%")
         
-        print("\n📊 ENHANCED SYSTEM TEST RESULTS:")
-        print(f"Enhanced Ask Twelvr System: {'✅ PASS' if enhanced_test_passed else '❌ FAIL'}")
+        print("\n📊 ADAPTIVE INSIGHTS FIXES TEST RESULTS:")
+        print(f"Adaptive Insights Fixes Verification: {'✅ PASS' if insights_test_passed else '❌ FAIL'}")
         
         if enhanced_test_passed:
             print("\n🎉 ENHANCED ASK TWELVR SYSTEM: VALIDATED")
