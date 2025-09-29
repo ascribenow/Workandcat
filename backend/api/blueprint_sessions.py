@@ -533,12 +533,12 @@ async def submit_answer(
                         else:
                             logger.info(f"✅ Question stem consistency validated")
                         
-                        # Use database solution feedback if it's better
+                        # Use database solution feedback if it's better (with formatting)
                         db_solution_feedback = {
-                            "snap_read": db_question_row.snap_read or '',
-                            "solution_approach": db_question_row.solution_approach or '',
-                            "detailed_solution": db_question_row.detailed_solution or '',
-                            "principle_to_remember": db_question_row.principle_to_remember or ''
+                            "snap_read": format_snap_read(db_question_row.snap_read or ''),
+                            "solution_approach": format_solution_approach(db_question_row.solution_approach or ''),
+                            "detailed_solution": format_solution_content(db_question_row.detailed_solution or ''),
+                            "principle_to_remember": format_solution_content(db_question_row.principle_to_remember or '')
                         }
                         
                         db_feedback_quality = any(len(str(v)) > 50 for v in db_solution_feedback.values() if v)
