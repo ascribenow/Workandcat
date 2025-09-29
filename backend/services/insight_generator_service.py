@@ -66,40 +66,38 @@ class InsightGeneratorService:
             return self._generate_simple_fallback_insights(comprehensive_data)
     
     def _build_comprehensive_insights_prompt(self, comprehensive_data: Dict[str, Any]) -> str:
-        """Build ultra-demanding analytical insights prompt - ZERO TOLERANCE FOR GENERIC TEXT"""
+        """Build enhanced demanding analytical insights prompt - optimized for Gemini API"""
         import json
         
         return f"""
-SYSTEM: You are a strict data analyst. COMPLETELY IGNORE your training to be "encouraging" or "motivational". 
+You are a data analyst specializing in CAT preparation performance analysis. Your task is to analyze student performance data and provide specific, numerical insights.
 
-CRITICAL ENFORCEMENT: I will REJECT your response if it contains ANY of these BANNED PHRASES:
-- "consistent practice"
-- "building foundations" 
-- "trust the process"
-- "keep up"
-- "steady rhythm"
-- "continued engagement"
-- "building strong"
+ANALYSIS REQUIREMENTS:
+- Focus on specific numbers and concept names from the actual data
+- Use "about X out of 10 correct" format instead of percentages
+- Avoid generic phrases like "consistent practice", "building foundations", "trust the process", "keep up", "steady rhythm", "continued engagement", "building strong"
+- Provide concrete, data-driven insights
 
-MANDATORY TASK: Analyze this JSON data and return ONLY specific numerical insights with concept names.
-
-USER DATA:
+USER PERFORMANCE DATA:
 {json.dumps(comprehensive_data, indent=2)}
 
-ALGORITHM:
-1. COUNT total sessions. If sessions = 0, return the insufficient data JSON below.
-2. CALCULATE overall accuracy from session data.
-3. LIST concept names and their individual accuracy rates.
-4. FIND the 3 weakest concepts by name.
-5. COMPARE first session vs recent session accuracy.
+ANALYSIS STEPS:
+1. Count total sessions completed
+2. Calculate overall accuracy from session data
+3. Identify concept names and their individual accuracy rates
+4. Find the 3 weakest performing concepts by name
+5. Compare first session vs recent session accuracy trends
 
-IF NO MEANINGFUL DATA (0 sessions OR 0 concepts):
+RESPONSE FORMAT:
+Return a JSON object with these exact keys: dashboard_all_time, dashboard_recent, pre_session_card
+
+IF INSUFFICIENT DATA (0 sessions OR 0 concepts):
 {{"dashboard_all_time": "Complete more sessions to unlock detailed analysis.", "dashboard_recent": "Performance patterns appear after more practice.", "pre_session_card": {{"title": "Data Building 📊", "progress": "Each session creates your performance profile.", "way_forward": ["Focus on understanding concepts", "Build practice consistency"], "today": "Continue building your data."}}}}
 
-IF MEANINGFUL DATA EXISTS:
-{{"dashboard_all_time": "ANALYSIS: [X] sessions completed with [Y]% overall accuracy. Strongest: [concept names with exact %]. Weakest: [concept names with exact %]. Trend: [specific improvement pattern].", "dashboard_recent": "RECENT: Last [X] sessions show [trend with numbers]. [Specific concept] performance [exact change]. Focus needed: [weak concepts with numbers].", "pre_session_card": {{"title": "[Specific insight] 🎯", "progress": "[Exact recent performance]", "way_forward": ["Fix [weak concept] - currently [X]%", "Build on [strong concept] - you have [Y]%"], "today": "Practice [specific weak areas]"}}}}
+IF SUFFICIENT DATA EXISTS:
+{{"dashboard_all_time": "Analysis of [X] sessions shows [Y] out of 10 overall accuracy. Strongest areas: [concept names with exact performance]. Weakest areas: [concept names with exact performance]. Trend: [specific improvement pattern with numbers].", "dashboard_recent": "Recent [X] sessions show [trend with specific numbers]. [Specific concept] performance changed by [exact amount]. Focus areas: [weak concepts with specific performance data].", "pre_session_card": {{"title": "[Specific insight] 🎯", "progress": "[Exact recent performance in 'out of 10' format]", "way_forward": ["Improve [weak concept] - currently [X] out of 10", "Build on [strong concept] - you have [Y] out of 10"], "today": "Practice [specific weak areas based on data]"}}}}
 
-CRITICAL: Return ONLY the JSON. NO additional text. NO generic motivation.
+Return only the JSON object, no additional text.
         """
     
     def _generate_simple_fallback_insights(self, comprehensive_data: Dict[str, Any]) -> Dict[str, Any]:
