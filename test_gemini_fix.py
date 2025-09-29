@@ -62,30 +62,44 @@ ANALYZE AND RESPOND:
             )
         )
         
-        # Debug the response
-        print(f"📊 Response object: {response}")
-        if hasattr(response, 'candidates') and response.candidates:
+        # Enhanced response handling for Gemini API reliability
+        if response and hasattr(response, 'candidates') and response.candidates:
             candidate = response.candidates[0]
+            
+            # Debug information
             print(f"📊 Finish reason: {candidate.finish_reason}")
-            print(f"📊 Safety ratings: {candidate.safety_ratings}")
+            if hasattr(candidate, 'safety_ratings'):
+                print(f"📊 Safety ratings: {candidate.safety_ratings}")
+            
+            # Check if we have content parts
+            if hasattr(candidate, 'content') and candidate.content and hasattr(candidate.content, 'parts'):
+                for part in candidate.content.parts:
+                    if hasattr(part, 'text') and part.text:
+                        print(f"✅ Gemini API call successful")
+                        print(f"📊 Response length: {len(part.text)} chars")
+                        print(f"📝 Response: {part.text[:200]}...")
+                        return True
+            
+            # If no text parts, check finish reason
+            if hasattr(candidate, 'finish_reason'):
+                finish_reason = candidate.finish_reason
+                if finish_reason == 2:  # SAFETY
+                    print("❌ Gemini response blocked by safety filters")
+                elif finish_reason == 3:  # RECITATION
+                    print("❌ Gemini response blocked due to recitation")
+                else:
+                    print(f"❌ Gemini response incomplete, finish_reason: {finish_reason}")
+                return False
         
-        if response and response.text:
-            print(f"✅ Gemini API call successful")
+        # Fallback for old response format
+        if response and hasattr(response, 'text') and response.text:
+            print(f"✅ Gemini API call successful (legacy)")
             print(f"📊 Response length: {len(response.text)} chars")
             print(f"📝 Response: {response.text[:200]}...")
             return True
-        else:
-            print(f"❌ No response text from Gemini")
-            # Try to get the response parts directly
-            if hasattr(response, 'candidates') and response.candidates:
-                candidate = response.candidates[0]
-                if hasattr(candidate, 'content') and candidate.content:
-                    if hasattr(candidate.content, 'parts') and candidate.content.parts:
-                        for part in candidate.content.parts:
-                            if hasattr(part, 'text'):
-                                print(f"📝 Part text: {part.text[:200]}...")
-                                return True
-            return False
+        
+        print(f"❌ No valid response from Gemini API")
+        return False
             
     except Exception as e:
         print(f"❌ Gemini API test failed: {e}")
