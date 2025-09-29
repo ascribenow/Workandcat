@@ -489,7 +489,7 @@ Data: {json.dumps(slice_dict, indent=2)}
 
     
     def _call_gemini_llm(self, prompt: str) -> str:
-        """Direct Gemini LLM call with enhanced configuration for insights"""
+        """Direct Gemini LLM call with simple response handling"""
         try:
             import os
             import google.generativeai as genai
@@ -508,45 +508,15 @@ Data: {json.dumps(slice_dict, indent=2)}
             # Initialize Gemini model with basic configuration
             model = genai.GenerativeModel("gemini-2.5-flash")
             
-            # Generate content with conservative settings
-            response = model.generate_content(
-                prompt,
-                generation_config=genai.types.GenerationConfig(
-                    max_output_tokens=800,
-                    temperature=0.1,  # Very low temperature
-                )
-            )
+            # Generate content
+            response = model.generate_content(prompt)
             
-            # Enhanced response handling for Gemini API reliability
-            if response and hasattr(response, 'candidates') and response.candidates:
-                candidate = response.candidates[0]
-                
-                # Check if we have content parts
-                if hasattr(candidate, 'content') and candidate.content and hasattr(candidate.content, 'parts'):
-                    for part in candidate.content.parts:
-                        if hasattr(part, 'text') and part.text:
-                            self.logger.info(f"Gemini response received: {len(part.text)} chars")
-                            return part.text.strip()
-                
-                # If no text parts, check finish reason
-                if hasattr(candidate, 'finish_reason'):
-                    finish_reason = candidate.finish_reason
-                    if finish_reason == 2:  # SAFETY
-                        self.logger.warning("Gemini response blocked by safety filters")
-                        raise Exception("Response blocked by safety filters")
-                    elif finish_reason == 3:  # RECITATION
-                        self.logger.warning("Gemini response blocked due to recitation")
-                        raise Exception("Response blocked due to recitation")
-                    else:
-                        self.logger.warning(f"Gemini response incomplete, finish_reason: {finish_reason}")
-                        raise Exception(f"Response incomplete, finish_reason: {finish_reason}")
-            
-            # Fallback for old response format
-            if response and hasattr(response, 'text') and response.text:
-                self.logger.info(f"Gemini response received (legacy): {len(response.text)} chars")
+            # Simple response handling
+            if response and response.text:
+                self.logger.info(f"Gemini response received: {len(response.text)} chars")
                 return response.text.strip()
-            
-            raise Exception("No valid response from Gemini API")
+            else:
+                raise Exception("No response text from Gemini")
                 
         except Exception as e:
             self.logger.error(f"Gemini LLM call failed: {e}")
