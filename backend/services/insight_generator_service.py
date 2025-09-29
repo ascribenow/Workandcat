@@ -66,38 +66,23 @@ class InsightGeneratorService:
             return self._generate_simple_fallback_insights(comprehensive_data)
     
     def _build_comprehensive_insights_prompt(self, comprehensive_data: Dict[str, Any]) -> str:
-        """Build enhanced demanding analytical insights prompt - optimized for Gemini API"""
+        """Build simple, safety-filter friendly insights prompt for Gemini API"""
         import json
         
         return f"""
-You are a data analyst specializing in CAT preparation performance analysis. Your task is to analyze student performance data and provide specific, numerical insights.
+Please analyze this student performance data for CAT preparation and return insights in JSON format.
 
-ANALYSIS REQUIREMENTS:
-- Focus on specific numbers and concept names from the actual data
-- Use "about X out of 10 correct" format instead of percentages
-- Avoid generic phrases like "consistent practice", "building foundations", "trust the process", "keep up", "steady rhythm", "continued engagement", "building strong"
-- Provide concrete, data-driven insights
-
-USER PERFORMANCE DATA:
+Performance Data:
 {json.dumps(comprehensive_data, indent=2)}
 
-ANALYSIS STEPS:
-1. Count total sessions completed
-2. Calculate overall accuracy from session data
-3. Identify concept names and their individual accuracy rates
-4. Find the 3 weakest performing concepts by name
-5. Compare first session vs recent session accuracy trends
+Please return a JSON object with exactly these three keys:
+1. "dashboard_all_time" - Overview of overall performance 
+2. "dashboard_recent" - Recent performance trends
+3. "pre_session_card" - Object with title, progress, way_forward (array), today
 
-RESPONSE FORMAT:
-Return a JSON object with these exact keys: dashboard_all_time, dashboard_recent, pre_session_card
+If there is sufficient session data, include specific numbers and concept names. If there is limited data, provide encouraging guidance about completing more sessions.
 
-IF INSUFFICIENT DATA (0 sessions OR 0 concepts):
-{{"dashboard_all_time": "Complete more sessions to unlock detailed analysis.", "dashboard_recent": "Performance patterns appear after more practice.", "pre_session_card": {{"title": "Data Building 📊", "progress": "Each session creates your performance profile.", "way_forward": ["Focus on understanding concepts", "Build practice consistency"], "today": "Continue building your data."}}}}
-
-IF SUFFICIENT DATA EXISTS:
-{{"dashboard_all_time": "Analysis of [X] sessions shows [Y] out of 10 overall accuracy. Strongest areas: [concept names with exact performance]. Weakest areas: [concept names with exact performance]. Trend: [specific improvement pattern with numbers].", "dashboard_recent": "Recent [X] sessions show [trend with specific numbers]. [Specific concept] performance changed by [exact amount]. Focus areas: [weak concepts with specific performance data].", "pre_session_card": {{"title": "[Specific insight] 🎯", "progress": "[Exact recent performance in 'out of 10' format]", "way_forward": ["Improve [weak concept] - currently [X] out of 10", "Build on [strong concept] - you have [Y] out of 10"], "today": "Practice [specific weak areas based on data]"}}}}
-
-Return only the JSON object, no additional text.
+Return only valid JSON format.
         """
     
     def _generate_simple_fallback_insights(self, comprehensive_data: Dict[str, Any]) -> Dict[str, Any]:
