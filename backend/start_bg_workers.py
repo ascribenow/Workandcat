@@ -7,7 +7,6 @@ Starts background workers for processing adaptive intelligence jobs
 import asyncio
 import logging
 import sys
-import os
 from pathlib import Path
 
 # Add backend directory to path
@@ -15,12 +14,6 @@ backend_dir = Path(__file__).parent
 sys.path.insert(0, str(backend_dir))
 
 from services.bg_job_queue import job_queue
-from services.simplified_job_handlers import (
-    handle_summarize_session,
-    handle_plan_next_session, 
-    handle_update_insights,
-    handle_trigger_insights_refresh
-)
 
 # Setup logging
 logging.basicConfig(
