@@ -304,27 +304,28 @@ Return only the JSON object, no additional text.
         self.user_call_counts[key] = current_count + 1
     
     def _build_all_time_prompt(self, slice_dict: Dict[str, Any]) -> str:
-        """Build DEMANDING analytical prompt - NO GENERIC TEXT ALLOWED"""
+        """Build enhanced analytical prompt for all-time insights"""
         return f"""
-CRITICAL: Analyze the JSON data below and provide SPECIFIC numerical insights. Do NOT write generic motivational text.
+Analyze the performance data below and provide specific numerical insights for CAT preparation.
 
-STEP-BY-STEP ANALYSIS REQUIRED:
+ANALYSIS REQUIREMENTS:
 1. Count total sessions and calculate overall accuracy
 2. Identify concepts with >5 attempts and list by accuracy (high to low)  
 3. Find difficulty pattern trends (Easy vs Medium vs Hard)
 4. Check for improvement/decline patterns in recent sessions
 
-DATA TO ANALYZE:
+PERFORMANCE DATA:
 {json.dumps(slice_dict, indent=2)}
 
-RESPONSE RULES:
-- IF no meaningful data (all 0% accuracy OR no concepts with >5 attempts): Return "Complete more sessions to unlock detailed analysis."
-- IF meaningful data exists: Provide specific analysis with exact numbers and concept names
-- Use "about X out of 10 correct" format
+RESPONSE GUIDELINES:
+- If insufficient data (all 0% accuracy OR no concepts with >5 attempts): Return "Complete more sessions to unlock detailed analysis."
+- If sufficient data exists: Provide specific analysis with exact numbers and concept names
+- Use "about X out of 10 correct" format instead of percentages
 - Mention specific concept names and their exact accuracies
-- NO phrases like "consistent practice" or "building foundations"
+- Avoid generic phrases like "consistent practice" or "building foundations"
+- Focus on concrete performance data and trends
 
-ANALYZE AND RESPOND:
+Provide your analysis:
         """
     
     def _build_recent_prompt(self, slice_dict: Dict[str, Any]) -> str:
