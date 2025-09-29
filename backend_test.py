@@ -37483,50 +37483,48 @@ def main():
         return final_results["100_percent_success_achieved"]
 
 if __name__ == "__main__":
-    print("🎯 COMPLETE USER SIGNUP SYSTEM TESTING")
+    print("🎯 FIXED SESSION SUBMIT ANSWER SYSTEM TESTING")
     print("=" * 80)
-    print("OBJECTIVE: Test the complete user signup system and identify 'Not Found' error cause")
-    print("FOCUS: Signup API, email verification, referral codes, database creation")
-    print("EXPECTED: Identify why signup fails with 'Not Found' instead of verification code")
-    print("TEST DATA: Test User <test.signup@example.com> with referral code TEST123")
+    print("OBJECTIVE: Test the FIXED session submit answer system - regex bug resolved")
+    print("FOCUS: Submit answer flow, solution formatting, database operations")
+    print("EXPECTED: No more 'Could not save your answer' errors from regex issues")
+    print("AUTHENTICATION: sp@theskinmantra.com/student123")
     print("=" * 80)
     
     tester = CATBackendTester()
     
     try:
-        # Run the Complete User Signup System test
-        print("\n🎯 RUNNING COMPLETE USER SIGNUP SYSTEM TEST")
-        signup_test_passed = tester.test_complete_user_signup_system()
+        # Run the Fixed Session Submit Answer System test
+        print("\n🎯 RUNNING FIXED SESSION SUBMIT ANSWER SYSTEM TEST")
+        submit_test_passed = tester.test_fixed_session_submit_answer_system()
         
         # FINAL SUMMARY
         print("\n" + "=" * 80)
-        print("🏁 COMPLETE USER SIGNUP SYSTEM TESTING - FINAL RESULTS")
+        print("🏁 FIXED SESSION SUBMIT ANSWER SYSTEM TESTING - FINAL RESULTS")
         print("=" * 80)
         print(f"Total Tests Run: {tester.tests_run}")
         print(f"Total Tests Passed: {tester.tests_passed}")
         print(f"Overall Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%" if tester.tests_run > 0 else "0%")
         
-        print("\n📊 SIGNUP SYSTEM TEST RESULTS:")
-        print(f"Complete User Signup System Test: {'✅ PASS' if signup_test_passed else '❌ FAIL'}")
+        print("\n📊 SUBMIT ANSWER SYSTEM TEST RESULTS:")
+        print(f"Fixed Session Submit Answer System Test: {'✅ PASS' if submit_test_passed else '❌ FAIL'}")
         
-        if signup_test_passed:
-            print("\n🎉 SIGNUP SYSTEM TESTING: COMPLETED SUCCESSFULLY")
-            print("   ✅ Root cause of 'Not Found' error identified")
-            print("   ✅ Signup API functionality tested")
-            print("   ✅ Email verification system analyzed")
-            print("   ✅ Referral code system validated")
-            print("   ✅ Database integration confirmed")
-            print("   ✅ Critical issues identified for resolution")
+        if submit_test_passed:
+            print("\n🎉 SUBMIT ANSWER SYSTEM TESTING: COMPLETED SUCCESSFULLY")
+            print("   ✅ Regex bug in solution formatter fixed")
+            print("   ✅ Submit answer endpoint working correctly")
+            print("   ✅ Solution formatting functions operational")
+            print("   ✅ Database operations functional")
+            print("   ✅ No more 'Could not save your answer' errors")
+            print("   ✅ System ready for production use")
         else:
-            print("\n⚠️ SIGNUP SYSTEM TESTING: CRITICAL ISSUES FOUND")
-            print("   ❌ 'Not Found' error reproduced and analyzed")
-            print("   ❌ Email verification system missing or broken")
-            print("   ❌ System not ready for production use")
-            print("   ❌ Immediate fixes required")
+            print("\n⚠️ SUBMIT ANSWER SYSTEM TESTING: CRITICAL ISSUES FOUND")
+            print("   ❌ Regex bug may still exist in solution formatter")
+            print("   ❌ Submit answer flow may have issues")
+            print("   ❌ System may not be ready for production use")
+            print("   ❌ Additional fixes may be required")
         
     except Exception as e:
-        print(f"\n❌ Error during signup system testing: {e}")
+        print(f"\n❌ Error during submit answer system testing: {e}")
         import traceback
         traceback.print_exc()
-    
-    main()
