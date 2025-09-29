@@ -35,66 +35,14 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 async def start_background_worker():
-    """Start the background worker process"""
+    """Start the background worker process using built-in job queue worker"""
     try:
         logger.info("🚀 Starting simplified background worker...")
+        logger.info("🔄 Starting built-in job queue worker...")
         
-        # Register job handlers
-        logger.info("📋 Registering job handlers...")
+        # Use the built-in worker from job_queue
+        await job_queue.start_worker()
         
-        # Register handlers for current job types
-        handlers = {
-            'SUMMARIZE_SESSION': handle_summarize_session,
-            'PLAN_NEXT_SESSION': handle_plan_next_session,
-            'UPDATE_INSIGHTS': handle_update_insights,
-            'TRIGGER_INSIGHTS_REFRESH': handle_trigger_insights_refresh
-        }
-        
-        for job_type, handler in handlers.items():
-            logger.info(f"  ✅ Registered handler for {job_type}")
-        
-        # Start the worker loop
-        logger.info("🔄 Starting job processing loop...")
-        
-        while True:
-            try:
-                # Pick and process jobs
-                job = await job_queue.pick_job()
-                
-                if job:
-                    job_type = job.get('job_type')
-                    job_id = job.get('id', 'unknown')
-                    
-                    logger.info(f"📝 Processing job {job_type} ({job_id[:8]}...)")
-                    
-                    if job_type in handlers:
-                        try:
-                            # Execute the appropriate handler  
-                            result = await handlers[job_type](job)
-                            
-                            # Mark job as completed
-                            await job_queue.mark_job_completed(job_id, result)
-                            
-                            logger.info(f"✅ Job {job_type} ({job_id[:8]}...) completed: {result.get('status', 'unknown')}")
-                            
-                        except Exception as handler_error:
-                            # Mark job as failed
-                            error_msg = str(handler_error)
-                            await job_queue.mark_job_failed(job_id, error_msg)
-                            
-                            logger.error(f"❌ Job {job_type} ({job_id[:8]}...) failed: {error_msg}")
-                    else:
-                        logger.warning(f"⚠️  No handler registered for job type: {job_type}")
-                        await job_queue.mark_job_failed(job_id, f"No handler for {job_type}")
-                
-                else:
-                    # No jobs available, sleep briefly
-                    await asyncio.sleep(2)
-                    
-            except Exception as loop_error:
-                logger.error(f"💥 Error in worker loop: {loop_error}")
-                await asyncio.sleep(5)  # Wait before retrying
-                
     except Exception as startup_error:
         logger.error(f"🚨 Failed to start background worker: {startup_error}")
         sys.exit(1)
