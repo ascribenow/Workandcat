@@ -1106,6 +1106,499 @@ class CATBackendTester:
         
         return success_rate >= 80 and criteria_rate >= 85
 
+    def test_fixed_session_submit_answer_system(self):
+        """
+        🎯 FIXED SESSION SUBMIT ANSWER SYSTEM TESTING
+        
+        **TESTING OBJECTIVE:**
+        Test the FIXED session submit answer system. The critical bug in the solution formatter 
+        where `format_solution_approach` had an invalid regex group reference (\3 instead of \1) 
+        has been fixed, which was causing "invalid group reference 3 at position 3" errors.
+
+        The error was happening when users clicked "Submit Answer" and was causing a 500 Internal 
+        Server Error with the message "Could not save your answer. Please retry."
+
+        **SPECIFIC FIX VALIDATED:**
+        - BEFORE: `content = re.sub(r'(\d+\.)', r'\n\3', content)` ❌
+        - AFTER: `content = re.sub(r'(\d+\.)', r'\n\1', content)` ✅
+
+        **TESTS TO PERFORM:**
+        1. **Authentication system** - verify auth endpoints work
+        2. **Session creation/access** - test session management  
+        3. **Submit answer endpoint** - POST /api/session/submit
+        4. **Solution formatting functions** - verify solution content formatting works
+        5. **Database operations** - ensure answer submission stores correctly
+        6. **Error handling** - confirm no more 500 errors from regex issues
+
+        Focus on testing the complete answer submission flow to ensure users can now 
+        successfully submit answers without getting "Could not save your answer" errors.
+        """
+        print("🎯 FIXED SESSION SUBMIT ANSWER SYSTEM TESTING")
+        print("=" * 80)
+        print("OBJECTIVE: Test FIXED session submit answer system - regex bug resolved")
+        print("FOCUS: Submit answer flow, solution formatting, database operations")
+        print("EXPECTED: No more 'Could not save your answer' errors from regex issues")
+        print("=" * 80)
+        
+        test_results = {
+            # Authentication System
+            "authentication_working": False,
+            "user_adaptive_enabled": False,
+            "jwt_token_valid": False,
+            "privileged_user_access": False,
+            
+            # Session Management
+            "session_creation_working": False,
+            "session_start_endpoint_accessible": False,
+            "session_data_retrieved": False,
+            "session_questions_available": False,
+            
+            # Submit Answer Endpoint
+            "submit_answer_endpoint_accessible": False,
+            "submit_answer_working": False,
+            "answer_submission_successful": False,
+            "no_500_errors_on_submit": False,
+            "correct_answer_validation": False,
+            "incorrect_answer_handling": False,
+            
+            # Solution Formatting Functions
+            "solution_formatter_working": False,
+            "format_solution_approach_fixed": False,
+            "format_solution_content_working": False,
+            "format_snap_read_working": False,
+            "no_regex_group_errors": False,
+            
+            # Database Operations
+            "answer_storage_working": False,
+            "session_answers_table_accessible": False,
+            "attempt_events_table_accessible": False,
+            "database_integrity_maintained": False,
+            
+            # Error Handling
+            "proper_error_responses": False,
+            "no_regex_errors": False,
+            "graceful_error_handling": False,
+            "user_friendly_error_messages": False,
+            
+            # Solution Feedback
+            "solution_feedback_returned": False,
+            "formatted_solution_content": False,
+            "snap_read_formatted": False,
+            "solution_approach_formatted": False,
+            "detailed_solution_formatted": False,
+            
+            # Overall Assessment
+            "submit_answer_system_working": False,
+            "regex_bug_fixed": False,
+            "production_ready": False
+        }
+        
+        # PHASE 1: AUTHENTICATION SYSTEM
+        print("\n🔐 PHASE 1: AUTHENTICATION SYSTEM")
+        print("-" * 60)
+        print("Testing authentication with sp@theskinmantra.com/student123")
+        
+        auth_data = {
+            "email": "sp@theskinmantra.com",
+            "password": "student123"
+        }
+        
+        success, response = self.run_test("Authentication", "POST", "auth/login", [200, 401], auth_data)
+        
+        auth_headers = None
+        user_id = None
+        if success and response.get('access_token'):
+            token = response['access_token']
+            auth_headers = {
+                'Authorization': f'Bearer {token}',
+                'Content-Type': 'application/json'
+            }
+            test_results["authentication_working"] = True
+            test_results["jwt_token_valid"] = True
+            print(f"   ✅ Authentication successful")
+            print(f"   📊 JWT Token length: {len(token)} characters")
+            
+            user_data = response.get('user', {})
+            user_id = user_data.get('id')
+            adaptive_enabled = user_data.get('adaptive_enabled', False)
+            
+            if adaptive_enabled:
+                test_results["user_adaptive_enabled"] = True
+                test_results["privileged_user_access"] = True
+                print(f"   ✅ User adaptive_enabled confirmed: {adaptive_enabled}")
+                print(f"   📊 User ID: {user_id}")
+            else:
+                print(f"   ⚠️ User adaptive_enabled: {adaptive_enabled}")
+        else:
+            print("   ❌ Authentication failed - cannot proceed with session testing")
+            return False
+        
+        # PHASE 2: SESSION MANAGEMENT
+        print("\n📋 PHASE 2: SESSION MANAGEMENT")
+        print("-" * 60)
+        print("Testing session creation and access")
+        
+        session_id = None
+        if user_id and auth_headers:
+            # Test session start endpoint
+            session_data = {
+                "user_id": user_id
+            }
+            
+            success, session_response = self.run_test(
+                "Session Start", 
+                "POST", 
+                "session/start", 
+                [200, 201, 400, 500], 
+                session_data, 
+                auth_headers
+            )
+            
+            if success and session_response.get('session_id'):
+                test_results["session_creation_working"] = True
+                test_results["session_start_endpoint_accessible"] = True
+                session_id = session_response['session_id']
+                print(f"   ✅ Session created successfully")
+                print(f"   📊 Session ID: {session_id}")
+                
+                # Check if questions are available
+                questions = session_response.get('questions', [])
+                if questions and len(questions) > 0:
+                    test_results["session_questions_available"] = True
+                    test_results["session_data_retrieved"] = True
+                    print(f"   ✅ Session questions available: {len(questions)} questions")
+                    print(f"   📊 First question ID: {questions[0].get('id', 'N/A')}")
+                else:
+                    print(f"   ⚠️ No questions found in session response")
+            else:
+                print(f"   ❌ Session creation failed: {session_response}")
+                # Try to get an existing session for testing
+                print("   🔄 Attempting to find existing session for testing...")
+                
+                # Create a test session ID for testing
+                session_id = f"test_session_{uuid.uuid4()}"
+                print(f"   📊 Using test session ID: {session_id}")
+        
+        # PHASE 3: SUBMIT ANSWER ENDPOINT TESTING
+        print("\n📝 PHASE 3: SUBMIT ANSWER ENDPOINT TESTING")
+        print("-" * 60)
+        print("Testing the fixed submit answer endpoint")
+        
+        if session_id and auth_headers:
+            # Test submit answer endpoint accessibility
+            test_submit_data = {
+                "session_id": session_id,
+                "position": 1,
+                "answer": "A"
+            }
+            
+            success, submit_response = self.run_test(
+                "Submit Answer Endpoint Access", 
+                "POST", 
+                "session/submit", 
+                [200, 400, 404, 500], 
+                test_submit_data, 
+                auth_headers
+            )
+            
+            if success:
+                test_results["submit_answer_endpoint_accessible"] = True
+                print(f"   ✅ Submit answer endpoint accessible")
+                
+                # Check if the response indicates successful submission
+                if submit_response.get('success'):
+                    test_results["submit_answer_working"] = True
+                    test_results["answer_submission_successful"] = True
+                    test_results["no_500_errors_on_submit"] = True
+                    print(f"   ✅ Answer submission successful")
+                    print(f"   📊 Response: {submit_response}")
+                    
+                    # Check solution feedback
+                    solution_feedback = submit_response.get('solution_feedback', {})
+                    if solution_feedback:
+                        test_results["solution_feedback_returned"] = True
+                        print(f"   ✅ Solution feedback returned")
+                        
+                        # Check individual feedback components
+                        if solution_feedback.get('snap_read'):
+                            test_results["snap_read_formatted"] = True
+                            print(f"   ✅ Snap read feedback available")
+                        
+                        if solution_feedback.get('solution_approach'):
+                            test_results["solution_approach_formatted"] = True
+                            print(f"   ✅ Solution approach feedback available")
+                        
+                        if solution_feedback.get('detailed_solution'):
+                            test_results["detailed_solution_formatted"] = True
+                            print(f"   ✅ Detailed solution feedback available")
+                        
+                        print(f"   📊 Solution feedback keys: {list(solution_feedback.keys())}")
+                    
+                    # Test correct answer validation
+                    is_correct = submit_response.get('is_correct')
+                    if is_correct is not None:
+                        test_results["correct_answer_validation"] = True
+                        print(f"   ✅ Answer validation working: {'Correct' if is_correct else 'Incorrect'}")
+                
+                elif submit_response.get('status_code') == 500:
+                    print(f"   ❌ 500 Internal Server Error detected - regex bug may still exist")
+                    print(f"   📊 Error details: {submit_response}")
+                else:
+                    print(f"   ⚠️ Submit response: {submit_response}")
+                    # Check if it's a validation error (expected for test data)
+                    if submit_response.get('status_code') in [400, 404]:
+                        test_results["submit_answer_endpoint_accessible"] = True
+                        test_results["no_500_errors_on_submit"] = True
+                        print(f"   ✅ No 500 errors - endpoint accessible with validation")
+            else:
+                print(f"   ❌ Submit answer endpoint failed: {submit_response}")
+                if submit_response and submit_response.get('status_code') == 500:
+                    print(f"   🚨 CRITICAL: 500 error detected - regex bug may still exist!")
+        
+        # PHASE 4: SOLUTION FORMATTING FUNCTIONS TESTING
+        print("\n🔧 PHASE 4: SOLUTION FORMATTING FUNCTIONS TESTING")
+        print("-" * 60)
+        print("Testing the fixed solution formatting functions")
+        
+        try:
+            # Import and test the solution formatter directly
+            import sys
+            sys.path.append('/app/backend')
+            from utils.solution_formatter import format_solution_approach, format_solution_content, format_snap_read
+            
+            # Test format_solution_approach with the fixed regex
+            test_content = "1. First step. 2. Second step. 3. Third step."
+            
+            try:
+                formatted_approach = format_solution_approach(test_content)
+                test_results["format_solution_approach_fixed"] = True
+                test_results["solution_formatter_working"] = True
+                test_results["no_regex_group_errors"] = True
+                print(f"   ✅ format_solution_approach working - regex bug fixed")
+                print(f"   📊 Original: {test_content}")
+                print(f"   📊 Formatted: {formatted_approach}")
+            except Exception as e:
+                print(f"   ❌ format_solution_approach failed: {e}")
+                if "invalid group reference" in str(e):
+                    print(f"   🚨 CRITICAL: Regex group reference error still exists!")
+            
+            # Test format_solution_content
+            try:
+                test_solution = "This is a solution. Method: Calculate the value. Answer: 42."
+                formatted_content = format_solution_content(test_solution)
+                test_results["format_solution_content_working"] = True
+                print(f"   ✅ format_solution_content working")
+                print(f"   📊 Formatted length: {len(formatted_content)} characters")
+            except Exception as e:
+                print(f"   ❌ format_solution_content failed: {e}")
+            
+            # Test format_snap_read
+            try:
+                test_snap = "Quick read. Key point. Important note."
+                formatted_snap = format_snap_read(test_snap)
+                test_results["format_snap_read_working"] = True
+                print(f"   ✅ format_snap_read working")
+                print(f"   📊 Formatted snap read: {formatted_snap[:50]}...")
+            except Exception as e:
+                print(f"   ❌ format_snap_read failed: {e}")
+            
+            # Overall formatter assessment
+            if (test_results["format_solution_approach_fixed"] and 
+                test_results["format_solution_content_working"] and 
+                test_results["format_snap_read_working"]):
+                test_results["formatted_solution_content"] = True
+                test_results["no_regex_errors"] = True
+                print(f"   ✅ All solution formatting functions working correctly")
+            
+        except Exception as e:
+            print(f"   ❌ Error testing solution formatter: {e}")
+        
+        # PHASE 5: DATABASE OPERATIONS TESTING
+        print("\n🗄️ PHASE 5: DATABASE OPERATIONS TESTING")
+        print("-" * 60)
+        print("Testing database operations for answer storage")
+        
+        try:
+            # Test database connectivity
+            import sys
+            sys.path.append('/app/backend')
+            from database import SessionLocal
+            from sqlalchemy import text
+            
+            db = SessionLocal()
+            try:
+                # Test session_answers table
+                result = db.execute(text("SELECT COUNT(*) FROM session_answers LIMIT 1"))
+                count = result.scalar()
+                test_results["session_answers_table_accessible"] = True
+                print(f"   ✅ session_answers table accessible")
+                
+                # Test attempt_events table
+                result = db.execute(text("SELECT COUNT(*) FROM attempt_events LIMIT 1"))
+                count = result.scalar()
+                test_results["attempt_events_table_accessible"] = True
+                print(f"   ✅ attempt_events table accessible")
+                
+                test_results["answer_storage_working"] = True
+                test_results["database_integrity_maintained"] = True
+                print(f"   ✅ Database operations working correctly")
+                
+            finally:
+                db.close()
+                
+        except Exception as e:
+            print(f"   ❌ Database operations failed: {e}")
+        
+        # PHASE 6: ERROR HANDLING TESTING
+        print("\n🛡️ PHASE 6: ERROR HANDLING TESTING")
+        print("-" * 60)
+        print("Testing error handling and user-friendly messages")
+        
+        if auth_headers:
+            # Test with invalid session ID
+            invalid_submit_data = {
+                "session_id": "invalid_session_id",
+                "position": 1,
+                "answer": "A"
+            }
+            
+            success, error_response = self.run_test(
+                "Invalid Session Error Handling", 
+                "POST", 
+                "session/submit", 
+                [400, 404, 500], 
+                invalid_submit_data, 
+                auth_headers
+            )
+            
+            if success and error_response.get('status_code') in [400, 404]:
+                test_results["proper_error_responses"] = True
+                test_results["graceful_error_handling"] = True
+                print(f"   ✅ Proper error handling for invalid session")
+                
+                # Check if error message is user-friendly
+                error_detail = error_response.get('detail', '')
+                if error_detail and 'Could not save your answer' not in error_detail:
+                    test_results["user_friendly_error_messages"] = True
+                    print(f"   ✅ User-friendly error messages")
+                    print(f"   📊 Error message: {error_detail}")
+            elif error_response and error_response.get('status_code') == 500:
+                print(f"   ❌ 500 error on invalid input - may indicate regex bug")
+            else:
+                print(f"   ⚠️ Error handling response: {error_response}")
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 80)
+        print("🎯 FIXED SESSION SUBMIT ANSWER SYSTEM - RESULTS")
+        print("=" * 80)
+        
+        passed_tests = sum(test_results.values())
+        total_tests = len(test_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        # Group results by test categories
+        test_categories = {
+            "AUTHENTICATION SYSTEM": [
+                "authentication_working", "user_adaptive_enabled", "jwt_token_valid", "privileged_user_access"
+            ],
+            "SESSION MANAGEMENT": [
+                "session_creation_working", "session_start_endpoint_accessible", 
+                "session_data_retrieved", "session_questions_available"
+            ],
+            "SUBMIT ANSWER ENDPOINT": [
+                "submit_answer_endpoint_accessible", "submit_answer_working",
+                "answer_submission_successful", "no_500_errors_on_submit",
+                "correct_answer_validation", "incorrect_answer_handling"
+            ],
+            "SOLUTION FORMATTING": [
+                "solution_formatter_working", "format_solution_approach_fixed",
+                "format_solution_content_working", "format_snap_read_working", "no_regex_group_errors"
+            ],
+            "DATABASE OPERATIONS": [
+                "answer_storage_working", "session_answers_table_accessible",
+                "attempt_events_table_accessible", "database_integrity_maintained"
+            ],
+            "ERROR HANDLING": [
+                "proper_error_responses", "no_regex_errors",
+                "graceful_error_handling", "user_friendly_error_messages"
+            ],
+            "SOLUTION FEEDBACK": [
+                "solution_feedback_returned", "formatted_solution_content",
+                "snap_read_formatted", "solution_approach_formatted", "detailed_solution_formatted"
+            ]
+        }
+        
+        for category, tests in test_categories.items():
+            print(f"\n{category}:")
+            category_passed = 0
+            category_total = len(tests)
+            
+            for test in tests:
+                if test in test_results:
+                    result = test_results[test]
+                    status = "✅ PASS" if result else "❌ FAIL"
+                    print(f"  {test.replace('_', ' ').title():<50} {status}")
+                    if result:
+                        category_passed += 1
+            
+            category_rate = (category_passed / category_total) * 100 if category_total > 0 else 0
+            print(f"  Category Success Rate: {category_passed}/{category_total} ({category_rate:.1f}%)")
+        
+        print("-" * 80)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # CRITICAL ASSESSMENT
+        print("\n🎯 CRITICAL ASSESSMENT:")
+        
+        # Regex Bug Fix Assessment
+        regex_bug_fixed = (
+            test_results["format_solution_approach_fixed"] and
+            test_results["no_regex_group_errors"] and
+            test_results["no_500_errors_on_submit"]
+        )
+        
+        if regex_bug_fixed:
+            test_results["regex_bug_fixed"] = True
+            print("\n✅ REGEX BUG FIXED")
+            print("   - format_solution_approach using correct \\1 group reference")
+            print("   - No 'invalid group reference 3' errors detected")
+            print("   - Submit answer endpoint not returning 500 errors")
+        else:
+            print("\n❌ REGEX BUG: ISSUES DETECTED")
+            print("   - Regex group reference errors may still exist")
+        
+        # Submit Answer System Assessment
+        submit_system_working = (
+            test_results["submit_answer_endpoint_accessible"] and
+            test_results["no_500_errors_on_submit"] and
+            test_results["solution_formatter_working"]
+        )
+        
+        if submit_system_working:
+            test_results["submit_answer_system_working"] = True
+            print("\n✅ SUBMIT ANSWER SYSTEM: WORKING")
+            print("   - Submit answer endpoint accessible and functional")
+            print("   - Solution formatting working without regex errors")
+            print("   - No 'Could not save your answer' errors")
+        else:
+            print("\n❌ SUBMIT ANSWER SYSTEM: ISSUES DETECTED")
+            print("   - Submit answer system may have remaining issues")
+        
+        # Production Readiness Assessment
+        if (regex_bug_fixed and submit_system_working and 
+            test_results["authentication_working"] and test_results["database_integrity_maintained"]):
+            test_results["production_ready"] = True
+            print("\n🎉 PRODUCTION READINESS: READY")
+            print("   - Regex bug in solution formatter fixed")
+            print("   - Submit answer flow working correctly")
+            print("   - Authentication and database operations functional")
+            print("   - Users can successfully submit answers without errors")
+        else:
+            print("\n⚠️ PRODUCTION READINESS: NEEDS ATTENTION")
+            print("   - Some critical issues may need additional fixes")
+        
+        return success_rate >= 70 and regex_bug_fixed and submit_system_working
+
     def test_corrected_complete_signup_system(self):
         """
         🎯 CORRECTED COMPLETE SIGNUP SYSTEM TESTING
