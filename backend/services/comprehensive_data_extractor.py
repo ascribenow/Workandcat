@@ -31,7 +31,6 @@ class ComprehensiveDataExtractor:
                 "sessions": self._get_all_sessions(db, user_id),
                 "accuracy_trends": self._get_accuracy_trends(db, user_id),
                 "concept_journey": self._get_concept_journey(db, user_id),
-                "question_attempts": self._get_question_attempts(db, user_id),
                 "pyq_performance": self._get_pyq_performance(db, user_id),
                 "difficulty_patterns": self._get_difficulty_patterns(db, user_id),
                 "coverage_analysis": self._get_coverage_analysis(db, user_id),
