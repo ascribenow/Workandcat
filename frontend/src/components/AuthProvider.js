@@ -162,10 +162,12 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Send email verification code
-  const sendVerificationCode = async (email) => {
+  const sendVerificationCode = async (name, email, password) => {
     try {
       const response = await axios.post(`${API}/auth/send-verification-code`, {
-        email
+        name,
+        email,
+        password
       });
       
       return { 
