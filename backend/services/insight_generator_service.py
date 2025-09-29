@@ -551,16 +551,16 @@ Data: {json.dumps(slice_dict, indent=2)}
                 }
             )
             
-            # Generate content
+            # Generate content with more tokens and slightly higher temperature for better analytical responses
             response = model.generate_content(
                 prompt,
                 generation_config=genai.types.GenerationConfig(
-                    max_output_tokens=800,
-                    temperature=0.1,
+                    max_output_tokens=1200,
+                    temperature=0.3,
                 )
             )
             
-            # Handle different response states
+            # Handle different response states - NO SAFETY FILTER FALLBACK
             if response.text:
                 return response.text.strip()
             elif hasattr(response, 'candidates') and response.candidates:
@@ -569,11 +569,8 @@ Data: {json.dumps(slice_dict, indent=2)}
                 if hasattr(candidate, 'finish_reason'):
                     finish_reason = candidate.finish_reason
                     if finish_reason == 2:  # SAFETY filter
-                        self.logger.warning("Response blocked by safety filter, using neutral prompt")
-                        # Try with a more neutral prompt
-                        neutral_prompt = "Generate encouraging educational insights for a student's progress in JSON format."
-                        neutral_response = model.generate_content(neutral_prompt)
-                        return neutral_response.text.strip() if neutral_response.text else "Educational insights available."
+                        self.logger.warning("Response blocked by safety filter - this should not happen with educational content")
+                        raise Exception(f"Safety filter blocked educational insights - finish_reason: {finish_reason}")
                     else:
                         raise Exception(f"Response blocked with finish_reason: {finish_reason}")
                 else:
