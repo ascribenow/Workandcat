@@ -498,17 +498,8 @@ Data: {json.dumps(slice_dict, indent=2)}
             # Configure Gemini
             genai.configure(api_key=google_api_key)
             
-            # Initialize Gemini model with minimal safety settings and stable model
-            model = genai.GenerativeModel(
-                "gemini-1.5-pro",  # Use stable model
-                safety_settings={
-                    genai.types.HarmCategory.HARM_CATEGORY_HARASSMENT: genai.types.HarmBlockThreshold.BLOCK_NONE,
-                    genai.types.HarmCategory.HARM_CATEGORY_HATE_SPEECH: genai.types.HarmBlockThreshold.BLOCK_NONE,
-                    genai.types.HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: genai.types.HarmBlockThreshold.BLOCK_NONE,
-                    genai.types.HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: genai.types.HarmBlockThreshold.BLOCK_NONE,
-                },
-                system_instruction="You are an educational data analyst providing student performance insights."
-            )
+            # Initialize Gemini model with basic configuration
+            model = genai.GenerativeModel("gemini-2.5-flash")
             
             # Generate content with conservative settings
             response = model.generate_content(
