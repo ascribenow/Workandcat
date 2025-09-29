@@ -250,7 +250,6 @@ class BlueprintSessionPlanner:
                         "option_c": mcq_options.get('C', ''),
                         "option_d": mcq_options.get('D', ''),
                         "answer": row[3] or "",
-                        "explanation": row[4] or "",  # right_answer contains explanation
                         "category": row[5] or "",
                         "subcategory": row[6] or "Unknown",
                         "type_of_question": row[7] or "Unknown",
