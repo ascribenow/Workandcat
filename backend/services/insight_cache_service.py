@@ -527,10 +527,10 @@ class InsightCacheService:
             self.logger.error(f"Error storing debug slices for user {user_id[:8]}: {e}")
     
     def _empty_dashboard_response(self) -> Dict[str, Any]:
-        """Return empty dashboard response on error"""
+        """Return empty dashboard response - CACHE-FIRST FALLBACK"""
         return {
-            "all_time_markdown": "Welcome to your adaptive journey! Complete a few sessions to see insights.",
-            "recent_markdown": "Your recent progress will appear here after completing sessions.",
+            "all_time_markdown": "We're preparing your personalized insights! Complete a session or two and they'll appear here soon.",
+            "recent_markdown": "Your momentum analysis is being generated. Check back after your next session.",
             "last_updated_at": datetime.now(timezone.utc).isoformat()
         }
     
