@@ -114,7 +114,6 @@ class SendVerificationRequest(BaseModel):
     name: str
     email: str 
     password: str
-    referral_code: Optional[str] = None  # Someone else's referral code they're entering
 
 class VerifyCodeRequest(BaseModel):
     email: str
