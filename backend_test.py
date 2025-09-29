@@ -1142,11 +1142,11 @@ class CATBackendTester:
 
         Focus on testing the complete flow end-to-end with the corrected data structure.
         """
-        print("🎯 COMPLETE USER SIGNUP SYSTEM TESTING")
+        print("🎯 CORRECTED COMPLETE SIGNUP SYSTEM TESTING")
         print("=" * 80)
-        print("OBJECTIVE: Test complete signup system and identify 'Not Found' error cause")
-        print("FOCUS: Signup API, email verification, referral codes, database creation")
-        print("EXPECTED: Identify why signup fails with 'Not Found' instead of verification code")
+        print("OBJECTIVE: Test CORRECTED signup system with NO referral code during signup")
+        print("FOCUS: Name/Email/Password ONLY → Verification → Account + 2 emails")
+        print("EXPECTED: Complete signup flow without referral validation during registration")
         print("=" * 80)
         
         test_results = {
