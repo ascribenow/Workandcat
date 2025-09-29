@@ -495,12 +495,14 @@ async def submit_answer(
         
         logger.info(f"Answer submitted for session {request.session_id[:8]}, position {request.position}: {'correct' if is_correct else 'incorrect'}")
         
-        # Build solution feedback object from question data
+        # Build solution feedback object from question data with improved formatting
+        from utils.solution_formatter import format_solution_content, format_solution_approach, format_snap_read
+        
         solution_feedback = {
-            "snap_read": question_at_position.get('snap_read', ''),
-            "solution_approach": question_at_position.get('solution_approach', ''),
-            "detailed_solution": question_at_position.get('detailed_solution', ''),
-            "principle_to_remember": question_at_position.get('principle_to_remember', '')
+            "snap_read": format_snap_read(question_at_position.get('snap_read', '')),
+            "solution_approach": format_solution_approach(question_at_position.get('solution_approach', '')),
+            "detailed_solution": format_solution_content(question_at_position.get('detailed_solution', '')),
+            "principle_to_remember": format_solution_content(question_at_position.get('principle_to_remember', ''))
         }
         
         # VALIDATION: If solution feedback is missing or questionable, fetch from questions table directly
