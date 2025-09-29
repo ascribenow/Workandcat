@@ -11,6 +11,10 @@ import json
 import time
 import sys
 import os
+import warnings
+
+# Suppress SSL warnings
+warnings.filterwarnings('ignore', message='Unverified HTTPS request')
 
 class ProofOfPuddingTester:
     def __init__(self, base_url="https://llm-prompt-repair.preview.emergentagent.com/api"):
