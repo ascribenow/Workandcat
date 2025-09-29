@@ -249,8 +249,8 @@ class BlueprintSessionPlanner:
                         "option_b": mcq_options.get('B', ''),
                         "option_c": mcq_options.get('C', ''),
                         "option_d": mcq_options.get('D', ''),
-                        "answer": row[4] or "",  # Use right_answer (LLM-enhanced) instead of raw answer
-                        "explanation": row[4] or "",  # right_answer contains explanation
+                        "answer": row[4] or row[3] or "",  # Use right_answer (LLM-enhanced) with fallback to original
+                        "explanation": row[15] or row[14] or "",  # Use detailed_solution with fallback to solution_approach
                         "category": row[5] or "",
                         "subcategory": row[6] or "Unknown",
                         "type_of_question": row[7] or "Unknown",
