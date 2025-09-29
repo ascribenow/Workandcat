@@ -1111,30 +1111,39 @@ class CATBackendTester:
         🎯 COMPLETE USER SIGNUP SYSTEM TESTING
         
         **TESTING OBJECTIVE:**
-        Test the complete user signup system for the Twelvr application based on the review request.
-        A new user "Shubham Agarwal" with email "shubham160304@gmail.com" and referral code "Shubhamtwelvr007" 
-        tried signing up but received "Not Found" error instead of verification code.
+        Test the COMPLETE signup system that was just implemented. The user "Shubham Agarwal" with email 
+        "shubham160304@gmail.com" was getting "Not Found" error when clicking "Send Verification Code". 
+        The missing endpoints have now been implemented.
         
         **SPECIFIC TESTS TO PERFORM:**
-        1. **Signup API endpoint** - POST request to create new user account
-        2. **Email verification system** - Check if verification emails are being sent
-        3. **Referral code validation** - Test if referral codes are being processed correctly
-        4. **Database user creation** - Verify users are being stored properly
-        5. **Error handling** - Check what's causing the "Not Found" error
-        6. **Email service integration** - Verify email service (Gmail/SMTP) is configured and working
-        7. **Verification code generation** - Test if codes are being generated and stored
-        8. **Complete signup flow** - From initial signup to email verification completion
+        1. **POST /api/auth/send-verification-code** with data:
+           - name: "Test User"
+           - email: "test.signup@example.com" 
+           - password: "testpass123"
+           - referral_code: "TESTREF01" (optional - test both with and without)
         
-        **TEST DATA:**
-        - Name: "Test User"
-        - Email: "test.signup@example.com" 
-        - Referral Code: "TEST123" (or test without referral first)
+        2. **Check Gmail service initialization** - verify Gmail service can authenticate and send emails
+        
+        3. **Test verification code generation** and email sending
+        
+        4. **POST /api/auth/verify-email** with verification code to complete signup
+        
+        5. **Verify user creation** in database with proper referral code assignment
+        
+        6. **Check email sending** - confirmation email and user's own referral code email
         
         **FOCUS:**
-        - Why "Not Found" error appears instead of successful signup
-        - Whether email service is working
-        - If referral code validation is causing issues
-        - Any missing API endpoints or configuration problems
+        - Why the "Not Found" error was happening (missing endpoints)
+        - Whether Gmail service is properly configured and authenticated
+        - Complete flow from verification code sending to user registration
+        - Referral code validation and processing
+        - Email delivery from hello@twelvr.com
+        
+        **TEST BOTH SCENARIOS:**
+        - With referral code (someone else's)
+        - Without referral code
+        
+        This should resolve the "Not Found" issue the user experienced.
         """
         print("🎯 COMPLETE USER SIGNUP SYSTEM TESTING")
         print("=" * 80)
