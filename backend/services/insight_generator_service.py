@@ -498,9 +498,9 @@ Data: {json.dumps(slice_dict, indent=2)}
             # Configure Gemini
             genai.configure(api_key=google_api_key)
             
-            # Initialize Gemini model with minimal safety settings and different configuration
+            # Initialize Gemini model with minimal safety settings and stable model
             model = genai.GenerativeModel(
-                "gemini-1.5-flash",  # Try different model version
+                "gemini-1.5-pro",  # Use stable model
                 safety_settings={
                     genai.types.HarmCategory.HARM_CATEGORY_HARASSMENT: genai.types.HarmBlockThreshold.BLOCK_NONE,
                     genai.types.HarmCategory.HARM_CATEGORY_HATE_SPEECH: genai.types.HarmBlockThreshold.BLOCK_NONE,
