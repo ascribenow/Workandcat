@@ -1,9 +1,0 @@
-📊 BEFORE - Current verification status:
-   total_active: 388
-   quality_verified: 388
-   quality_unverified: 0
-   has_anchors: 63
-   missing_anchors: 325
-
-🚀 Running Enhanced Quality Verifier on ALL active questions...
-⏰ Processing in background with rate limiting...
