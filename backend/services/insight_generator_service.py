@@ -305,27 +305,19 @@ If there is insufficient data, please indicate that more sessions are needed for
         """
     
     def _build_recent_prompt(self, slice_dict: Dict[str, Any]) -> str:
-        """Build enhanced recent analysis prompt"""
+        """Build simple recent analysis prompt"""
         return f"""
-Analyze the recent performance data and provide specific insights about momentum and trends.
+Please analyze this recent CAT preparation performance data and provide insights about momentum and trends.
 
-ANALYSIS FOCUS:
-1. Compare last 3 sessions to previous sessions - specific accuracy numbers
-2. Identify which concepts are trending up/down in recent attempts  
-3. Note any significant performance changes
-
-RECENT PERFORMANCE DATA:
+Recent Performance Data:
 {json.dumps(slice_dict, indent=2)}
 
-RESPONSE GUIDELINES:
-- If insufficient recent data: Return "Complete more recent sessions for momentum analysis."
-- If data exists: Provide specific numbers and trends
-- Use "about X out of 10 correct" format instead of percentages
-- Mention specific concepts and their recent performance changes
-- Avoid generic phrases about "engagement" or "continued practice"
-- Focus on concrete recent trends and changes
+Please provide analysis that includes:
+1. Recent session accuracy trends
+2. Concepts that are improving or declining
+3. Specific performance changes with numbers
 
-Provide your recent performance analysis:
+If there is insufficient recent data, please indicate that more recent sessions are needed.
         """
     
     def _build_pre_session_prompt(self, slice_dict: Dict[str, Any]) -> str:
