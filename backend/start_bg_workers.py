@@ -59,7 +59,7 @@ async def start_background_worker():
         while True:
             try:
                 # Pick and process jobs
-                job = await bg_job_queue_service.pick_job()
+                job = await job_queue.pick_job()
                 
                 if job:
                     job_type = job.get('job_type')
@@ -69,23 +69,23 @@ async def start_background_worker():
                     
                     if job_type in handlers:
                         try:
-                            # Execute the appropriate handler
+                            # Execute the appropriate handler  
                             result = await handlers[job_type](job)
                             
                             # Mark job as completed
-                            await bg_job_queue_service.mark_job_completed(job_id, result)
+                            await job_queue.mark_job_completed(job_id, result)
                             
                             logger.info(f"✅ Job {job_type} ({job_id[:8]}...) completed: {result.get('status', 'unknown')}")
                             
                         except Exception as handler_error:
                             # Mark job as failed
                             error_msg = str(handler_error)
-                            await bg_job_queue_service.mark_job_failed(job_id, error_msg)
+                            await job_queue.mark_job_failed(job_id, error_msg)
                             
                             logger.error(f"❌ Job {job_type} ({job_id[:8]}...) failed: {error_msg}")
                     else:
                         logger.warning(f"⚠️  No handler registered for job type: {job_type}")
-                        await bg_job_queue_service.mark_job_failed(job_id, f"No handler for {job_type}")
+                        await job_queue.mark_job_failed(job_id, f"No handler for {job_type}")
                 
                 else:
                     # No jobs available, sleep briefly
