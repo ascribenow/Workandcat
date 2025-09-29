@@ -329,17 +329,6 @@ async def verify_email_and_signup(verify_data: VerifyCodeRequest):
             db.add(user)
             db.commit()
             
-            # Process referral code if user entered someone else's referral code
-            used_referral_code = pending_user_data.get("referral_code")
-            if used_referral_code:
-                try:
-                    # Process referral usage for free tier (0 amount)
-                    referral_service.process_referral_usage(
-                        db, used_referral_code.upper().strip(), user.email, "free_trial", 0
-                    )
-                except Exception as e:
-                    logger.warning(f"Referral processing failed: {e}")
-            
             # Clean up pending data
             gmail_service.remove_pending_user(verify_data.email)
             
