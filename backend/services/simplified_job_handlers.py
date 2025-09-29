@@ -67,7 +67,7 @@ async def run_simplified_summarizer(user_id: str, session_id: str) -> Dict[str, 
                 }
                 
                 # CRITICAL FIX: Persist to session_summary_llm
-                logger.info(f"📊 Persisting session summary to session_summary_llm...")
+                logger.info("📊 Persisting session summary to session_summary_llm...")
                 db.execute(text("""
                     INSERT INTO session_summary_llm
                         (user_id, session_id, concept_alias_map, dominance, readiness_reasons, 
@@ -93,7 +93,7 @@ async def run_simplified_summarizer(user_id: str, session_id: str) -> Dict[str, 
                 })
                 
                 db.commit()
-                logger.info(f"✅ Session summary persisted to session_summary_llm successfully")
+                logger.info("✅ Session summary persisted to session_summary_llm successfully")
                 
                 return session_data
                 
