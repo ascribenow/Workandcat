@@ -329,26 +329,27 @@ Provide your analysis:
         """
     
     def _build_recent_prompt(self, slice_dict: Dict[str, Any]) -> str:
-        """Build SPECIFIC recent analysis prompt - NO GENERIC MOMENTUM TALK"""
+        """Build enhanced recent analysis prompt"""
         return f"""
-ANALYZE THE RECENT DATA ONLY. Do NOT write generic "continued engagement" text.
+Analyze the recent performance data and provide specific insights about momentum and trends.
 
-REQUIRED ANALYSIS:
+ANALYSIS FOCUS:
 1. Compare last 3 sessions to previous sessions - specific accuracy numbers
 2. Identify which concepts are trending up/down in recent attempts  
 3. Note any significant performance changes
 
-DATA:
+RECENT PERFORMANCE DATA:
 {json.dumps(slice_dict, indent=2)}
 
-RULES:
-- IF insufficient recent data: Return "Complete more recent sessions for momentum analysis."
-- IF data exists: Provide specific numbers and trends
-- Use "about X out of 10 correct" format  
+RESPONSE GUIDELINES:
+- If insufficient recent data: Return "Complete more recent sessions for momentum analysis."
+- If data exists: Provide specific numbers and trends
+- Use "about X out of 10 correct" format instead of percentages
 - Mention specific concepts and their recent performance changes
-- NO generic phrases about "engagement" or "continued practice"
+- Avoid generic phrases about "engagement" or "continued practice"
+- Focus on concrete recent trends and changes
 
-ANALYZE RECENT TRENDS:
+Provide your recent performance analysis:
         """
     
     def _build_pre_session_prompt(self, slice_dict: Dict[str, Any]) -> str:
