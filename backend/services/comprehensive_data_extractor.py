@@ -297,33 +297,7 @@ class ComprehensiveDataExtractor:
             self.logger.warning(f"Error getting coverage analysis: {e}")
             return []
     
-    def _get_time_patterns(self, db: Session, user_id: str) -> Dict[str, Any]:
-        """Get time-based patterns"""
-        try:
-            query = text("""
-                SELECT 
-                    AVG(ae.time_taken_seconds) as avg_time_per_question,
-                    MIN(ae.time_taken_seconds) as fastest_time,
-                    MAX(ae.time_taken_seconds) as slowest_time,
-                    COUNT(CASE WHEN ae.time_taken_seconds < 60 THEN 1 END) as quick_answers,
-                    COUNT(CASE WHEN ae.time_taken_seconds > 180 THEN 1 END) as slow_answers
-                FROM attempt_events ae
-                WHERE ae.user_id = :user_id AND ae.time_taken_seconds IS NOT NULL
-            """)
-            
-            result = db.execute(query, {"user_id": user_id}).fetchone()
-            if result:
-                return {
-                    "average_time_per_question": float(result.avg_time_per_question or 0.0),
-                    "fastest_answer": float(result.fastest_time or 0.0),
-                    "slowest_answer": float(result.slowest_time or 0.0),
-                    "quick_answers_under_60s": int(result.quick_answers or 0),
-                    "slow_answers_over_180s": int(result.slow_answers or 0)
-                }
-            return {}
-        except Exception as e:
-            self.logger.warning(f"Error getting time patterns: {e}")
-            return {}
+    # _get_time_patterns removed - Twelvr engine focuses on accuracy & concept patterns only
     
     def _get_recent_activity(self, db: Session, user_id: str) -> Dict[str, Any]:
         """Get recent activity summary"""
