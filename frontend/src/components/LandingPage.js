@@ -89,7 +89,7 @@ const LandingPage = () => {
     
     try {
       // Step 1: Send verification code
-      const result = await sendVerificationCode(email);
+      const result = await sendVerificationCode(name, email, password);
       
       if (result.success) {
         setShowVerification(true);
