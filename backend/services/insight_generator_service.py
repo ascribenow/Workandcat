@@ -66,21 +66,31 @@ class InsightGeneratorService:
             return self._generate_simple_fallback_insights(comprehensive_data)
     
     def _build_comprehensive_insights_prompt(self, comprehensive_data: Dict[str, Any]) -> str:
-        """Build ultra-simple, educational prompt for Gemini API"""
+        """Build minimal educational prompt"""
         import json
         
-        return f"""
-Analyze student performance data for educational insights.
-
-Data: {json.dumps(comprehensive_data, indent=2)}
+        sessions = comprehensive_data.get('sessions', [])
+        concepts = comprehensive_data.get('concept_journey', [])
+        
+        if len(sessions) == 0:
+            return """Return this JSON: {"dashboard_all_time": "Complete more sessions to unlock detailed analysis.", "dashboard_recent": "Performance patterns appear after more practice.", "pre_session_card": {"title": "Data Building 📊", "progress": "Each session creates your performance profile.", "way_forward": ["Focus on understanding concepts", "Build practice consistency"], "today": "Continue building your data."}}"""
+        
+        # Extract key numbers to make it very simple
+        total_sessions = len(sessions)
+        if total_sessions > 0:
+            avg_accuracy = sum(s.get('accuracy', 0) for s in sessions) / total_sessions
+            accuracy_out_of_10 = round(avg_accuracy * 10, 1)
+        else:
+            accuracy_out_of_10 = 0
+        
+        return f"""Student has completed {total_sessions} practice sessions with {accuracy_out_of_10} out of 10 average accuracy.
 
 Return JSON with:
-- dashboard_all_time: overall performance summary
-- dashboard_recent: recent trends  
+- dashboard_all_time: summary of {total_sessions} sessions and {accuracy_out_of_10}/10 accuracy
+- dashboard_recent: recent performance trends
 - pre_session_card: object with title, progress, way_forward array, today
 
-Focus on educational progress and specific numbers where available.
-        """
+Use encouraging educational language."""
     
     def _generate_simple_fallback_insights(self, comprehensive_data: Dict[str, Any]) -> Dict[str, Any]:
         """Simple fallback when LLM fails"""
