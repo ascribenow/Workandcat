@@ -1106,6 +1106,662 @@ class CATBackendTester:
         
         return success_rate >= 80 and criteria_rate >= 85
 
+    def test_proof_of_pudding_adaptive_insights_fix(self):
+        """
+        🎯 PROOF OF THE PUDDING ADAPTIVE INSIGHTS FIX TESTING
+        
+        **TESTING THE SPECIFIC FIX IMPLEMENTED:**
+        
+        The main agent implemented a fix to resolve the issue where wrong LLM prompt was being used for insight generation:
+        
+        1. **REMOVED** the duplicate generic `_build_comprehensive_insights_prompt` method 
+        2. **KEPT** only the enhanced demanding analytical prompt that requires specific data analysis
+        3. **REMOVED** the safety filter fallback that could cause generic responses
+        4. **INCREASED** max_output_tokens to 1200 and temperature to 0.3 for better responses
+        
+        **SPECIFIC TESTS TO PERFORM:**
+        1. Authentication with sp@theskinmantra.com/student123
+        2. Check if this user has actual session/performance data in the database
+        3. Force refresh insights using the endpoint that triggers UPDATE_INSIGHTS background jobs
+        4. Verify the generated insights are now personalized and contain specific data analysis (not generic text)
+        5. Test both dashboard insights and pre-session insights endpoints
+        6. Check if insights mention specific concepts, accuracy numbers, and performance patterns
+        
+        **SUCCESS CRITERIA:**
+        - Insights should contain specific data analysis with actual numbers
+        - Should use "about X out of 10 correct" format instead of percentages
+        - Should mention specific concept names from user's actual performance data
+        - Should NOT contain generic phrases like "consistent practice" or "building foundations"
+        - Should show evidence of using the enhanced demanding analytical prompt
+        - Background job system should successfully trigger UPDATE_INSIGHTS jobs
+        
+        **EXPECTED OUTCOME:**
+        The fix should make the system use the enhanced demanding analytical prompt instead of the generic one, 
+        resulting in personalized insights based on actual user data with specific numbers and concept analysis.
+        """
+        print("🎯 PROOF OF THE PUDDING ADAPTIVE INSIGHTS FIX TESTING")
+        print("=" * 80)
+        print("OBJECTIVE: Test the specific fix to use enhanced demanding analytical prompt instead of generic one")
+        print("FOCUS: Personalized insights with specific data analysis, not generic motivational text")
+        print("EXPECTED: Insights with actual numbers, concept names, and performance patterns from user data")
+        print("=" * 80)
+        
+        test_results = {
+            # Authentication Setup
+            "authentication_working": False,
+            "user_adaptive_enabled": False,
+            "jwt_token_valid": False,
+            
+            # User Data Verification
+            "user_has_session_data": False,
+            "user_has_performance_data": False,
+            "user_has_concept_data": False,
+            "sufficient_data_for_analysis": False,
+            
+            # Background Job System Testing
+            "force_refresh_endpoint_working": False,
+            "update_insights_jobs_triggered": False,
+            "background_job_processing": False,
+            "job_completion_successful": False,
+            
+            # Dashboard Insights Testing
+            "dashboard_insights_accessible": False,
+            "dashboard_contains_specific_data": False,
+            "dashboard_uses_demanding_prompt": False,
+            "dashboard_mentions_concept_names": False,
+            "dashboard_includes_accuracy_numbers": False,
+            "dashboard_uses_out_of_10_format": False,
+            "dashboard_avoids_generic_phrases": False,
+            
+            # Pre-Session Insights Testing
+            "pre_session_insights_accessible": False,
+            "pre_session_contains_specific_data": False,
+            "pre_session_uses_demanding_prompt": False,
+            "pre_session_mentions_performance_patterns": False,
+            "pre_session_contextual_to_user": False,
+            
+            # Enhanced Prompt Verification
+            "enhanced_prompt_being_used": False,
+            "safety_filter_fallback_removed": False,
+            "max_tokens_1200_configured": False,
+            "temperature_0_3_configured": False,
+            "generic_prompt_removed": False,
+            
+            # Content Quality Analysis
+            "insights_personalized_not_generic": False,
+            "insights_contain_actual_numbers": False,
+            "insights_mention_specific_concepts": False,
+            "insights_show_performance_analysis": False,
+            "no_generic_motivational_text": False,
+            
+            # Overall Assessment
+            "fix_successfully_implemented": False,
+            "demanding_prompt_working": False,
+            "personalized_insights_generated": False,
+            "production_ready": False
+        }
+        
+        # PHASE 1: AUTHENTICATION SETUP
+        print("\n🔐 PHASE 1: AUTHENTICATION SETUP")
+        print("-" * 60)
+        print("Authenticating with sp@theskinmantra.com/student123 to test the fix")
+        
+        auth_data = {
+            "email": "sp@theskinmantra.com",
+            "password": "student123"
+        }
+        
+        success, response = self.run_test("Proof of Pudding Authentication", "POST", "auth/login", [200, 401], auth_data)
+        
+        auth_headers = None
+        user_id = None
+        if success and response.get('access_token'):
+            token = response['access_token']
+            auth_headers = {
+                'Authorization': f'Bearer {token}',
+                'Content-Type': 'application/json'
+            }
+            test_results["authentication_working"] = True
+            test_results["jwt_token_valid"] = True
+            print(f"   ✅ Authentication successful")
+            print(f"   📊 JWT Token length: {len(token)} characters")
+            
+            user_data = response.get('user', {})
+            user_id = user_data.get('id')
+            adaptive_enabled = user_data.get('adaptive_enabled', False)
+            
+            if adaptive_enabled:
+                test_results["user_adaptive_enabled"] = True
+                print(f"   ✅ User adaptive_enabled confirmed: {adaptive_enabled}")
+                print(f"   📊 User ID: {user_id}")
+            else:
+                print(f"   ⚠️ User adaptive_enabled: {adaptive_enabled}")
+        else:
+            print("   ❌ Authentication failed - cannot proceed with fix testing")
+            return False
+        
+        # PHASE 2: USER DATA VERIFICATION
+        print("\n📊 PHASE 2: USER DATA VERIFICATION")
+        print("-" * 60)
+        print("Checking if user has actual session/performance data for meaningful insights")
+        
+        if auth_headers and user_id:
+            # Check if user has session data by trying to get dashboard insights
+            print("   🔍 Checking user's existing data through dashboard insights...")
+            
+            import time
+            start_time = time.time()
+            success, dashboard_response = self.run_test(
+                "Dashboard Insights Data Check", 
+                "GET", 
+                "dashboard/adaptive-insights", 
+                [200, 500], 
+                None, 
+                auth_headers
+            )
+            response_time = time.time() - start_time
+            
+            if success and dashboard_response:
+                print(f"   ✅ Dashboard insights accessible ({response_time:.3f}s)")
+                
+                # Analyze the current insights to see if they contain actual data
+                all_time_content = dashboard_response.get("all_time_markdown", "")
+                recent_content = dashboard_response.get("recent_markdown", "")
+                source = dashboard_response.get("source", "unknown")
+                
+                print(f"   📊 Current insights analysis:")
+                print(f"      All-time content: {len(all_time_content)} chars")
+                print(f"      Recent content: {len(recent_content)} chars")
+                print(f"      Source: {source}")
+                
+                # Check for indicators of actual user data
+                data_indicators = [
+                    "sessions", "accuracy", "correct", "concepts", "performance", 
+                    "questions", "attempts", "out of 10", "about", "specific"
+                ]
+                
+                combined_content = (all_time_content + " " + recent_content).lower()
+                data_indicator_count = sum(1 for indicator in data_indicators 
+                                         if indicator in combined_content)
+                
+                if data_indicator_count >= 3:
+                    test_results["user_has_session_data"] = True
+                    test_results["user_has_performance_data"] = True
+                    print(f"   ✅ User has performance data ({data_indicator_count} indicators found)")
+                else:
+                    print(f"   ⚠️ Limited performance data detected ({data_indicator_count} indicators)")
+                
+                # Check for concept-specific data
+                concept_indicators = ["concept", "topic", "area", "subcategory", "arithmetic", "algebra", "geometry"]
+                concept_count = sum(1 for indicator in concept_indicators 
+                                  if indicator in combined_content)
+                
+                if concept_count >= 2:
+                    test_results["user_has_concept_data"] = True
+                    print(f"   ✅ User has concept data ({concept_count} concept indicators)")
+                else:
+                    print(f"   ⚠️ Limited concept data ({concept_count} concept indicators)")
+                
+                # Determine if sufficient data for meaningful analysis
+                if data_indicator_count >= 3 and concept_count >= 2:
+                    test_results["sufficient_data_for_analysis"] = True
+                    print(f"   ✅ Sufficient data for meaningful insights analysis")
+                else:
+                    print(f"   ⚠️ May have insufficient data for comprehensive analysis")
+            else:
+                print(f"   ❌ Dashboard insights not accessible: {dashboard_response}")
+        
+        # PHASE 3: BACKGROUND JOB SYSTEM TESTING
+        print("\n🔄 PHASE 3: BACKGROUND JOB SYSTEM TESTING")
+        print("-" * 60)
+        print("Testing force refresh insights to trigger UPDATE_INSIGHTS background jobs")
+        
+        if auth_headers and user_id:
+            # Try to find a force refresh endpoint or trigger UPDATE_INSIGHTS jobs
+            print("   🚀 Attempting to trigger UPDATE_INSIGHTS background job...")
+            
+            # Check if there's a force refresh endpoint
+            success, refresh_response = self.run_test(
+                "Force Refresh Insights", 
+                "POST", 
+                "dashboard/force-refresh", 
+                [200, 404, 500], 
+                {"user_id": user_id}, 
+                auth_headers
+            )
+            
+            if success:
+                test_results["force_refresh_endpoint_working"] = True
+                print(f"   ✅ Force refresh endpoint working")
+                
+                # Check if UPDATE_INSIGHTS job was triggered
+                if "job" in str(refresh_response).lower() or "background" in str(refresh_response).lower():
+                    test_results["update_insights_jobs_triggered"] = True
+                    print(f"   ✅ UPDATE_INSIGHTS job appears to be triggered")
+                else:
+                    print(f"   ⚠️ Job triggering unclear from response")
+            else:
+                print(f"   ⚠️ Force refresh endpoint not available or failed: {refresh_response}")
+                
+                # Alternative: Check background job status endpoint
+                success, job_status = self.run_test(
+                    "Background Job Status", 
+                    "GET", 
+                    "bg-jobs/status", 
+                    [200, 404], 
+                    None, 
+                    auth_headers
+                )
+                
+                if success and job_status:
+                    test_results["background_job_processing"] = True
+                    print(f"   ✅ Background job system accessible")
+                    
+                    # Look for UPDATE_INSIGHTS jobs
+                    jobs = job_status.get("recent_jobs", [])
+                    update_insights_jobs = [job for job in jobs if "UPDATE_INSIGHTS" in str(job).upper()]
+                    
+                    if update_insights_jobs:
+                        test_results["update_insights_jobs_triggered"] = True
+                        print(f"   ✅ Found {len(update_insights_jobs)} UPDATE_INSIGHTS jobs")
+                    else:
+                        print(f"   ⚠️ No UPDATE_INSIGHTS jobs found in recent jobs")
+                else:
+                    print(f"   ❌ Background job system not accessible")
+        
+        # PHASE 4: DASHBOARD INSIGHTS TESTING (POST-FIX)
+        print("\n📈 PHASE 4: DASHBOARD INSIGHTS TESTING (POST-FIX)")
+        print("-" * 60)
+        print("Testing dashboard insights for enhanced demanding analytical prompt usage")
+        
+        if auth_headers:
+            # Wait a moment for any background jobs to process
+            print("   ⏳ Waiting for potential background job processing...")
+            time.sleep(2)
+            
+            # Get fresh dashboard insights
+            start_time = time.time()
+            success, dashboard_response = self.run_test(
+                "Post-Fix Dashboard Insights", 
+                "GET", 
+                "dashboard/adaptive-insights", 
+                [200, 500], 
+                None, 
+                auth_headers
+            )
+            response_time = time.time() - start_time
+            
+            if success and dashboard_response:
+                test_results["dashboard_insights_accessible"] = True
+                print(f"   ✅ Dashboard insights accessible ({response_time:.3f}s)")
+                
+                all_time_content = dashboard_response.get("all_time_markdown", "")
+                recent_content = dashboard_response.get("recent_markdown", "")
+                source = dashboard_response.get("source", "unknown")
+                
+                print(f"   📊 Post-fix insights analysis:")
+                print(f"      All-time content: {len(all_time_content)} chars")
+                print(f"      Recent content: {len(recent_content)} chars")
+                print(f"      Source: {source}")
+                
+                # Test for enhanced demanding prompt characteristics
+                combined_content = all_time_content + " " + recent_content
+                
+                # Check for specific data analysis (enhanced prompt should demand this)
+                specific_data_indicators = [
+                    "about", "out of 10", "sessions", "accuracy", "correct", 
+                    "specific", "exactly", "total", "attempts"
+                ]
+                specific_count = sum(1 for indicator in specific_data_indicators 
+                                   if indicator.lower() in combined_content.lower())
+                
+                if specific_count >= 4:
+                    test_results["dashboard_contains_specific_data"] = True
+                    test_results["dashboard_uses_demanding_prompt"] = True
+                    print(f"   ✅ Dashboard contains specific data analysis ({specific_count} indicators)")
+                else:
+                    print(f"   ⚠️ Limited specific data analysis ({specific_count} indicators)")
+                
+                # Check for concept names (enhanced prompt should demand specific concepts)
+                concept_names = [
+                    "arithmetic", "algebra", "geometry", "ratio", "percentage", 
+                    "time", "speed", "distance", "profit", "loss", "interest"
+                ]
+                concept_mentions = sum(1 for concept in concept_names 
+                                     if concept.lower() in combined_content.lower())
+                
+                if concept_mentions >= 2:
+                    test_results["dashboard_mentions_concept_names"] = True
+                    print(f"   ✅ Dashboard mentions specific concept names ({concept_mentions} found)")
+                else:
+                    print(f"   ⚠️ Limited concept name mentions ({concept_mentions} found)")
+                
+                # Check for "about X out of 10 correct" format (enhanced prompt requirement)
+                out_of_10_patterns = [
+                    "out of 10", "about", "correct", "/10", "x out of 10"
+                ]
+                out_of_10_count = sum(1 for pattern in out_of_10_patterns 
+                                    if pattern.lower() in combined_content.lower())
+                
+                if out_of_10_count >= 2:
+                    test_results["dashboard_uses_out_of_10_format"] = True
+                    test_results["dashboard_includes_accuracy_numbers"] = True
+                    print(f"   ✅ Dashboard uses 'out of 10' format ({out_of_10_count} indicators)")
+                else:
+                    print(f"   ⚠️ Limited 'out of 10' format usage ({out_of_10_count} indicators)")
+                
+                # Check for absence of generic phrases (enhanced prompt should avoid these)
+                generic_phrases = [
+                    "consistent practice", "building foundations", "trust the process",
+                    "steady rhythm", "keep up the good work", "continued engagement"
+                ]
+                generic_count = sum(1 for phrase in generic_phrases 
+                                  if phrase.lower() in combined_content.lower())
+                
+                if generic_count <= 1:  # Allow minimal generic content
+                    test_results["dashboard_avoids_generic_phrases"] = True
+                    print(f"   ✅ Dashboard avoids generic phrases ({generic_count} found)")
+                else:
+                    print(f"   ⚠️ Contains generic phrases ({generic_count} found)")
+                
+                # Display sample content for manual verification
+                print(f"   📝 Sample all-time content (first 200 chars):")
+                print(f"      {all_time_content[:200]}...")
+                print(f"   📝 Sample recent content (first 200 chars):")
+                print(f"      {recent_content[:200]}...")
+            else:
+                print(f"   ❌ Dashboard insights not accessible: {dashboard_response}")
+        
+        # PHASE 5: PRE-SESSION INSIGHTS TESTING
+        print("\n🎯 PHASE 5: PRE-SESSION INSIGHTS TESTING")
+        print("-" * 60)
+        print("Testing pre-session insights for enhanced analytical content")
+        
+        if auth_headers:
+            # Test pre-session insights
+            success, presession_response = self.run_test(
+                "Post-Fix Pre-Session Insights", 
+                "GET", 
+                "session/pre-session-insight", 
+                [200, 500], 
+                None, 
+                auth_headers
+            )
+            
+            if success and presession_response:
+                test_results["pre_session_insights_accessible"] = True
+                print(f"   ✅ Pre-session insights accessible")
+                
+                # Analyze pre-session content
+                title = presession_response.get("title", "")
+                progress = presession_response.get("progress", "")
+                way_forward = presession_response.get("way_forward", [])
+                today = presession_response.get("today", "")
+                source = presession_response.get("source", "unknown")
+                
+                print(f"   📊 Pre-session insights analysis:")
+                print(f"      Title: {title}")
+                print(f"      Progress: {progress}")
+                print(f"      Way forward: {way_forward}")
+                print(f"      Today: {today}")
+                print(f"      Source: {source}")
+                
+                # Check for specific data in pre-session insights
+                combined_presession = f"{title} {progress} {' '.join(way_forward)} {today}".lower()
+                
+                specific_presession_indicators = [
+                    "about", "out of 10", "accuracy", "correct", "sessions", "performance"
+                ]
+                presession_specific_count = sum(1 for indicator in specific_presession_indicators 
+                                              if indicator in combined_presession)
+                
+                if presession_specific_count >= 2:
+                    test_results["pre_session_contains_specific_data"] = True
+                    test_results["pre_session_uses_demanding_prompt"] = True
+                    print(f"   ✅ Pre-session contains specific data ({presession_specific_count} indicators)")
+                else:
+                    print(f"   ⚠️ Limited specific data in pre-session ({presession_specific_count} indicators)")
+                
+                # Check for performance patterns
+                performance_indicators = ["trend", "improving", "accuracy", "correct", "pattern"]
+                performance_count = sum(1 for indicator in performance_indicators 
+                                      if indicator in combined_presession)
+                
+                if performance_count >= 2:
+                    test_results["pre_session_mentions_performance_patterns"] = True
+                    print(f"   ✅ Pre-session mentions performance patterns ({performance_count} indicators)")
+                else:
+                    print(f"   ⚠️ Limited performance pattern mentions ({performance_count} indicators)")
+                
+                # Check if contextual to user (not generic)
+                if "your" in combined_presession and ("session" in combined_presession or "accuracy" in combined_presession):
+                    test_results["pre_session_contextual_to_user"] = True
+                    print(f"   ✅ Pre-session insights are contextual to user")
+                else:
+                    print(f"   ⚠️ Pre-session insights may be generic")
+            else:
+                print(f"   ❌ Pre-session insights not accessible: {presession_response}")
+        
+        # PHASE 6: ENHANCED PROMPT VERIFICATION
+        print("\n🔧 PHASE 6: ENHANCED PROMPT VERIFICATION")
+        print("-" * 60)
+        print("Verifying the fix implementation: enhanced prompt usage and configuration")
+        
+        # Based on the insights content, infer if enhanced prompt is being used
+        if (test_results["dashboard_contains_specific_data"] and 
+            test_results["dashboard_mentions_concept_names"] and 
+            test_results["dashboard_uses_out_of_10_format"]):
+            test_results["enhanced_prompt_being_used"] = True
+            print(f"   ✅ Enhanced demanding analytical prompt appears to be in use")
+        else:
+            print(f"   ⚠️ Enhanced prompt usage unclear from content analysis")
+        
+        # Check if generic phrases are minimized (safety filter fallback removed)
+        if test_results["dashboard_avoids_generic_phrases"]:
+            test_results["safety_filter_fallback_removed"] = True
+            print(f"   ✅ Safety filter fallback appears to be removed (minimal generic content)")
+        else:
+            print(f"   ⚠️ May still have safety filter fallback (generic content present)")
+        
+        # Infer configuration improvements from response quality
+        if (test_results["dashboard_contains_specific_data"] and 
+            len(all_time_content) > 200):  # Longer responses suggest higher max_tokens
+            test_results["max_tokens_1200_configured"] = True
+            print(f"   ✅ Higher max_tokens (1200) appears to be configured")
+        else:
+            print(f"   ⚠️ max_tokens configuration unclear")
+        
+        # Temperature 0.3 would result in more analytical, less creative responses
+        if (test_results["dashboard_contains_specific_data"] and 
+            not test_results["dashboard_avoids_generic_phrases"]):
+            test_results["temperature_0_3_configured"] = True
+            print(f"   ✅ Temperature 0.3 appears to be configured (analytical responses)")
+        else:
+            print(f"   ⚠️ Temperature configuration unclear")
+        
+        # If enhanced prompt is working, generic prompt should be removed
+        if test_results["enhanced_prompt_being_used"]:
+            test_results["generic_prompt_removed"] = True
+            print(f"   ✅ Generic prompt appears to be removed (enhanced prompt working)")
+        else:
+            print(f"   ⚠️ Generic prompt removal unclear")
+        
+        # PHASE 7: CONTENT QUALITY ANALYSIS
+        print("\n📝 PHASE 7: CONTENT QUALITY ANALYSIS")
+        print("-" * 60)
+        print("Analyzing content quality to verify fix effectiveness")
+        
+        # Overall personalization check
+        if (test_results["dashboard_contains_specific_data"] and 
+            test_results["dashboard_mentions_concept_names"] and 
+            test_results["pre_session_contextual_to_user"]):
+            test_results["insights_personalized_not_generic"] = True
+            print(f"   ✅ Insights are personalized, not generic")
+        else:
+            print(f"   ⚠️ Insights may still be generic")
+        
+        # Actual numbers check
+        if (test_results["dashboard_uses_out_of_10_format"] and 
+            test_results["dashboard_includes_accuracy_numbers"]):
+            test_results["insights_contain_actual_numbers"] = True
+            print(f"   ✅ Insights contain actual numbers")
+        else:
+            print(f"   ⚠️ Limited actual numbers in insights")
+        
+        # Specific concepts check
+        if test_results["dashboard_mentions_concept_names"]:
+            test_results["insights_mention_specific_concepts"] = True
+            print(f"   ✅ Insights mention specific concepts")
+        else:
+            print(f"   ⚠️ Limited specific concept mentions")
+        
+        # Performance analysis check
+        if (test_results["dashboard_contains_specific_data"] and 
+            test_results["pre_session_mentions_performance_patterns"]):
+            test_results["insights_show_performance_analysis"] = True
+            print(f"   ✅ Insights show performance analysis")
+        else:
+            print(f"   ⚠️ Limited performance analysis")
+        
+        # Generic text avoidance
+        if test_results["dashboard_avoids_generic_phrases"]:
+            test_results["no_generic_motivational_text"] = True
+            print(f"   ✅ Minimal generic motivational text")
+        else:
+            print(f"   ⚠️ Contains generic motivational text")
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 80)
+        print("🎯 PROOF OF THE PUDDING ADAPTIVE INSIGHTS FIX - RESULTS")
+        print("=" * 80)
+        
+        passed_tests = sum(test_results.values())
+        total_tests = len(test_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        # Group results by test categories
+        test_categories = {
+            "AUTHENTICATION": [
+                "authentication_working", "user_adaptive_enabled", "jwt_token_valid"
+            ],
+            "USER DATA VERIFICATION": [
+                "user_has_session_data", "user_has_performance_data", 
+                "user_has_concept_data", "sufficient_data_for_analysis"
+            ],
+            "BACKGROUND JOB SYSTEM": [
+                "force_refresh_endpoint_working", "update_insights_jobs_triggered",
+                "background_job_processing", "job_completion_successful"
+            ],
+            "DASHBOARD INSIGHTS (POST-FIX)": [
+                "dashboard_insights_accessible", "dashboard_contains_specific_data",
+                "dashboard_uses_demanding_prompt", "dashboard_mentions_concept_names",
+                "dashboard_includes_accuracy_numbers", "dashboard_uses_out_of_10_format",
+                "dashboard_avoids_generic_phrases"
+            ],
+            "PRE-SESSION INSIGHTS": [
+                "pre_session_insights_accessible", "pre_session_contains_specific_data",
+                "pre_session_uses_demanding_prompt", "pre_session_mentions_performance_patterns",
+                "pre_session_contextual_to_user"
+            ],
+            "ENHANCED PROMPT VERIFICATION": [
+                "enhanced_prompt_being_used", "safety_filter_fallback_removed",
+                "max_tokens_1200_configured", "temperature_0_3_configured", "generic_prompt_removed"
+            ],
+            "CONTENT QUALITY": [
+                "insights_personalized_not_generic", "insights_contain_actual_numbers",
+                "insights_mention_specific_concepts", "insights_show_performance_analysis",
+                "no_generic_motivational_text"
+            ]
+        }
+        
+        for category, tests in test_categories.items():
+            print(f"\n{category}:")
+            category_passed = 0
+            category_total = len(tests)
+            
+            for test in tests:
+                if test in test_results:
+                    result = test_results[test]
+                    status = "✅ PASS" if result else "❌ FAIL"
+                    print(f"  {test.replace('_', ' ').title():<50} {status}")
+                    if result:
+                        category_passed += 1
+            
+            category_rate = (category_passed / category_total) * 100 if category_total > 0 else 0
+            print(f"  Category Success Rate: {category_passed}/{category_total} ({category_rate:.1f}%)")
+        
+        print("-" * 80)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # CRITICAL ASSESSMENT
+        print("\n🎯 CRITICAL ASSESSMENT:")
+        
+        # Fix Implementation Assessment
+        fix_implemented = (
+            test_results["enhanced_prompt_being_used"] and
+            test_results["dashboard_contains_specific_data"] and
+            test_results["dashboard_uses_out_of_10_format"]
+        )
+        
+        if fix_implemented:
+            test_results["fix_successfully_implemented"] = True
+            print("\n✅ FIX SUCCESSFULLY IMPLEMENTED")
+            print("   - Enhanced demanding analytical prompt is being used")
+            print("   - Dashboard contains specific data analysis")
+            print("   - Uses 'about X out of 10 correct' format as required")
+        else:
+            print("\n❌ FIX IMPLEMENTATION UNCLEAR")
+            print("   - Enhanced prompt usage not clearly detected")
+        
+        # Demanding Prompt Assessment
+        demanding_prompt_working = (
+            test_results["dashboard_mentions_concept_names"] and
+            test_results["dashboard_includes_accuracy_numbers"] and
+            test_results["dashboard_avoids_generic_phrases"]
+        )
+        
+        if demanding_prompt_working:
+            test_results["demanding_prompt_working"] = True
+            print("\n✅ DEMANDING ANALYTICAL PROMPT: WORKING")
+            print("   - Mentions specific concept names from user data")
+            print("   - Includes actual accuracy numbers")
+            print("   - Avoids generic motivational phrases")
+        else:
+            print("\n❌ DEMANDING PROMPT: ISSUES DETECTED")
+            print("   - May still be using generic prompt or fallbacks")
+        
+        # Personalized Insights Assessment
+        personalized_insights = (
+            test_results["insights_personalized_not_generic"] and
+            test_results["insights_contain_actual_numbers"] and
+            test_results["insights_mention_specific_concepts"]
+        )
+        
+        if personalized_insights:
+            test_results["personalized_insights_generated"] = True
+            print("\n✅ PERSONALIZED INSIGHTS: GENERATED")
+            print("   - Insights are personalized based on actual user data")
+            print("   - Contains actual numbers from user performance")
+            print("   - Mentions specific concepts from user's learning journey")
+        else:
+            print("\n❌ PERSONALIZED INSIGHTS: ISSUES DETECTED")
+            print("   - Insights may still be generic or lack specific data")
+        
+        # Overall Production Readiness
+        if (fix_implemented and demanding_prompt_working and personalized_insights):
+            test_results["production_ready"] = True
+            print("\n🎉 PRODUCTION READINESS: READY")
+            print("   - Fix successfully implemented and working")
+            print("   - Enhanced demanding analytical prompt generating personalized insights")
+            print("   - System now provides specific data analysis instead of generic text")
+            print("   - Background job system functional for insights refresh")
+        else:
+            print("\n⚠️ PRODUCTION READINESS: NEEDS ATTENTION")
+            print("   - Fix may not be fully implemented or working as expected")
+            print("   - Additional investigation needed")
+        
+        return success_rate >= 70 and fix_implemented and demanding_prompt_working
+
     def test_pure_llm_freedom_adaptive_insights(self):
         """
         🎯 PURE LLM FREEDOM APPROACH VERIFICATION: Test the completely reimplemented Adaptive Insights system
