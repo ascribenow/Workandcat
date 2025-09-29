@@ -253,13 +253,19 @@ async def send_verification_code(signup_data: SendVerificationRequest):
             if result.scalar_one_or_none():
                 raise HTTPException(status_code=400, detail="Email already registered")
             
-            # Validate referral code if provided
+            # Validate referral code if provided (without requiring auth)
             if signup_data.referral_code:
-                referral_result = referral_service.validate_referral_code(
-                    db, signup_data.referral_code, None, skip_auth=True  
-                )
-                if not referral_result.get("valid", False):
+                # Simple validation - check if referral code exists
+                referral_check = db.execute(
+                    select(User).where(User.referral_code == signup_data.referral_code.upper().strip())
+                ).scalar_one_or_none()
+                
+                if not referral_check:
                     raise HTTPException(status_code=400, detail="Invalid referral code")
+                
+                # Check if they're not using their own referral code
+                if referral_check.email.lower() == signup_data.email.lower():
+                    raise HTTPException(status_code=400, detail="Cannot use your own referral code")
             
             # Initialize Gmail service if not already done
             if not gmail_service.service:
@@ -269,15 +275,15 @@ async def send_verification_code(signup_data: SendVerificationRequest):
             # Generate verification code
             verification_code = gmail_service.generate_verification_code(signup_data.email)
             
-            # Store pending user data
+            # Store pending user data temporarily
             gmail_service.store_pending_user(signup_data.email, {
+                "name": signup_data.name,
                 "email": signup_data.email,
-                "full_name": signup_data.full_name,
                 "password": signup_data.password,
                 "referral_code": signup_data.referral_code
             })
             
-            # Send verification email
+            # Send verification email from hello@twelvr.com
             email_sent = gmail_service.send_verification_email(signup_data.email, verification_code)
             
             if not email_sent:
