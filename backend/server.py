@@ -111,10 +111,10 @@ class SignupRequest(BaseModel):
     referral_code: Optional[str] = None
 
 class SendVerificationRequest(BaseModel):
-    email: str
-    full_name: str
+    name: str
+    email: str 
     password: str
-    referral_code: Optional[str] = None
+    referral_code: Optional[str] = None  # Someone else's referral code they're entering
 
 class VerifyCodeRequest(BaseModel):
     email: str
