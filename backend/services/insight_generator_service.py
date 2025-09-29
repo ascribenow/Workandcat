@@ -75,7 +75,6 @@ You are an expert CAT Quant coach with access to complete student performance da
 ANALYZE ALL AVAILABLE DATA:
 - Sessions: Overall accuracy progression and consistency patterns
 - Concept Journey: Individual concept mastery levels and readiness states
-- Question Attempts: Detailed performance across different question types
 - Difficulty Patterns: Performance across Easy/Medium/Hard questions
 - Coverage Analysis: Topic gaps and practice debt
 - PYQ Performance: Readiness for actual CAT-style questions
