@@ -421,23 +421,25 @@ async def persist_session_pack(user_id: str, session_pack: Dict[str, Any]) -> st
         
         # Insert into session_packs (using existing Blueprint schema)
         # Note: session_packs uses session_id as primary key, not id
-        # CRITICAL FIX: Handle UUID casting for user_id
+        # CRITICAL FIX: Ensure proper UUID format validation
+        constraint_report_json = json.dumps({
+            "pack_type": session_pack["pack_type"],
+            "difficulty_distribution": session_pack["difficulty_distribution"],
+            "planning_strategy": session_pack["planning_strategy"],
+            "weak_concepts_targeted": session_pack["weak_concepts_targeted"],
+            "high_debt_pairs_addressed": session_pack["high_debt_pairs_addressed"]
+        })
+        
         db.execute(text("""
             INSERT INTO session_packs (
                 session_id, user_id, constraint_report, created_at
             ) VALUES (
-                :session_id::uuid, :user_id::uuid, :constraint_report::jsonb, :created_at
+                CAST(:session_id AS uuid), CAST(:user_id AS uuid), CAST(:constraint_report AS jsonb), :created_at
             )
         """), {
-            "session_id": pack_id,  # Use pack_id as session_id
-            "user_id": user_id,  # Let PostgreSQL handle UUID casting
-            "constraint_report": json.dumps({
-                "pack_type": session_pack["pack_type"],
-                "difficulty_distribution": session_pack["difficulty_distribution"],
-                "planning_strategy": session_pack["planning_strategy"],
-                "weak_concepts_targeted": session_pack["weak_concepts_targeted"],
-                "high_debt_pairs_addressed": session_pack["high_debt_pairs_addressed"]
-            }),
+            "session_id": pack_id,
+            "user_id": user_id,
+            "constraint_report": constraint_report_json,
             "created_at": datetime.now(timezone.utc)
         })
         
