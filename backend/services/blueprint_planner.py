@@ -249,7 +249,7 @@ class BlueprintSessionPlanner:
                         "option_b": mcq_options.get('B', ''),
                         "option_c": mcq_options.get('C', ''),
                         "option_d": mcq_options.get('D', ''),
-                        "answer": row[3] or "",
+                        "answer": row[4] or "",  # Use right_answer (LLM-enhanced) instead of raw answer
                         "explanation": row[4] or "",  # right_answer contains explanation
                         "category": row[5] or "",
                         "subcategory": row[6] or "Unknown",
