@@ -35,8 +35,8 @@ class ComprehensiveDataExtractor:
                 "pyq_performance": self._get_pyq_performance(db, user_id),
                 "difficulty_patterns": self._get_difficulty_patterns(db, user_id),
                 "coverage_analysis": self._get_coverage_analysis(db, user_id),
-                "time_patterns": self._get_time_patterns(db, user_id),
                 "recent_activity": self._get_recent_activity(db, user_id),
+                # time_patterns removed - Twelvr focuses on accuracy patterns only
                 
                 # Context for current/upcoming session  
                 "upcoming_session": self._get_upcoming_session_context(db, session_id) if session_id else None
