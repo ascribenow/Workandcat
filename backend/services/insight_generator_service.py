@@ -533,15 +533,16 @@ Data: {json.dumps(slice_dict, indent=2)}
             # Configure Gemini
             genai.configure(api_key=google_api_key)
             
-            # Initialize Gemini model with relaxed safety settings
+            # Initialize Gemini model with relaxed safety settings - USING PREVIEW VERSION FOR BETTER INSTRUCTION FOLLOWING
             model = genai.GenerativeModel(
-                "gemini-2.5-flash",
+                "gemini-2.5-flash-preview",
                 safety_settings={
                     genai.types.HarmCategory.HARM_CATEGORY_HARASSMENT: genai.types.HarmBlockThreshold.BLOCK_NONE,
                     genai.types.HarmCategory.HARM_CATEGORY_HATE_SPEECH: genai.types.HarmBlockThreshold.BLOCK_NONE,
                     genai.types.HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: genai.types.HarmBlockThreshold.BLOCK_NONE,
                     genai.types.HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: genai.types.HarmBlockThreshold.BLOCK_NONE,
-                }
+                },
+                system_instruction="You are a strict data analyst. You MUST analyze the provided data and return specific numerical insights with concept names. NEVER use generic motivational phrases like 'consistent practice' or 'building foundations'. Always include exact numbers and concept names from the data."
             )
             
             # Generate content with more tokens and slightly higher temperature for better analytical responses
