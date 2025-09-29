@@ -517,58 +517,67 @@ Data: {json.dumps(slice_dict, indent=2)}
 
     
     def _call_gemini_llm(self, prompt: str) -> str:
-        """LLM call using emergentintegrations library for reliable insight generation"""
+        """Direct Gemini LLM call with enhanced configuration"""
         try:
-            import asyncio
             import os
-            from dotenv import load_dotenv
+            import google.generativeai as genai
             
             # Load environment variables
+            from dotenv import load_dotenv
             load_dotenv()
             
-            # Get Emergent LLM key
-            emergent_llm_key = os.getenv('EMERGENT_LLM_KEY')
-            if not emergent_llm_key:
-                raise Exception("Emergent LLM key not found")
+            google_api_key = os.getenv('GOOGLE_API_KEY')
+            if not google_api_key:
+                raise Exception("Google API key not found in environment variables")
             
-            # Use emergentintegrations for reliable LLM calls
-            from emergentintegrations.llm.chat import LlmChat, UserMessage
+            self.logger.info(f"Using Google API key: {google_api_key[:10]}...")
             
-            # Create a simple sync wrapper for async call
-            async def make_llm_call():
-                # Initialize the chat with Gemini 2.5-flash
-                chat = LlmChat(
-                    api_key=emergent_llm_key,
-                    session_id=f"insights_{hash(prompt[:100]) % 10000}",  # Simple session ID based on prompt
-                    system_message="You are a strict data analyst for CAT preparation. You MUST analyze provided data and return specific numerical insights with concept names. NEVER use generic motivational phrases."
-                ).with_model("gemini", "gemini-2.5-flash")
-                
-                # Create user message with our demanding prompt
-                user_message = UserMessage(text=prompt)
-                
-                # Send message and get response
-                response = await chat.send_message(user_message)
-                return response
+            # Configure Gemini
+            genai.configure(api_key=google_api_key)
             
-            # Run the async function
-            loop = asyncio.get_event_loop()
-            if loop.is_running():
-                # If we're in an async context, create a new event loop
-                import concurrent.futures
-                with concurrent.futures.ThreadPoolExecutor() as executor:
-                    future = executor.submit(asyncio.run, make_llm_call())
-                    response = future.result(timeout=30)
+            # Initialize Gemini model with demanding system instruction
+            model = genai.GenerativeModel(
+                "gemini-2.5-flash",
+                safety_settings={
+                    genai.types.HarmCategory.HARM_CATEGORY_HARASSMENT: genai.types.HarmBlockThreshold.BLOCK_NONE,
+                    genai.types.HarmCategory.HARM_CATEGORY_HATE_SPEECH: genai.types.HarmBlockThreshold.BLOCK_NONE,
+                    genai.types.HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: genai.types.HarmBlockThreshold.BLOCK_NONE,
+                    genai.types.HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: genai.types.HarmBlockThreshold.BLOCK_NONE,
+                },
+                system_instruction="You are a strict data analyst for CAT preparation. You MUST analyze the provided JSON data and return specific numerical insights with concept names and exact performance numbers. NEVER use generic motivational phrases like 'consistent practice' or 'building foundations'. Always include exact numbers and concept names from the data provided."
+            )
+            
+            # Generate content with enhanced configuration for analytical responses
+            response = model.generate_content(
+                prompt,
+                generation_config=genai.types.GenerationConfig(
+                    max_output_tokens=1200,
+                    temperature=0.3,
+                )
+            )
+            
+            # Handle different response states
+            if response.text:
+                self.logger.info(f"Gemini response received: {len(response.text)} chars")
+                return response.text.strip()
+            elif hasattr(response, 'candidates') and response.candidates:
+                # Check finish reason
+                candidate = response.candidates[0]
+                if hasattr(candidate, 'finish_reason'):
+                    finish_reason = candidate.finish_reason
+                    if finish_reason == 2:  # SAFETY filter
+                        self.logger.warning("Response blocked by safety filter")
+                        raise Exception(f"Safety filter blocked educational insights - finish_reason: {finish_reason}")
+                    else:
+                        raise Exception(f"Response blocked with finish_reason: {finish_reason}")
+                else:
+                    raise Exception("Response has candidates but no text")
             else:
-                response = asyncio.run(make_llm_call())
-            
-            if response and len(response.strip()) > 10:
-                return response.strip()
-            else:
-                raise Exception("Empty or insufficient response from LLM")
+                raise Exception("No response or candidates from Gemini")
                 
         except Exception as e:
-            self.logger.error(f"Emergent LLM call failed: {e}")
-            # Return a clear fallback that indicates the issue
-            return '{"dashboard_all_time": "LLM service temporarily unavailable. Please try refreshing your insights.", "dashboard_recent": "LLM analysis will resume shortly.", "pre_session_card": {"title": "Service Update 🔧", "progress": "Insights temporarily unavailable", "way_forward": ["Try refreshing in a moment", "Contact support if issue persists"], "today": "Session ready when insights load"}}'
+            self.logger.error(f"Gemini LLM call failed: {e}")
+            # Return a clear error message for debugging
+            return f'{{"dashboard_all_time": "Gemini API error: {str(e)[:100]}...", "dashboard_recent": "LLM call failed - check logs", "pre_session_card": {{"title": "API Error 🔧", "progress": "Gemini service issue", "way_forward": ["Check API configuration", "Retry in a moment"], "today": "Technical issue detected"}}}}'
 # Global service instance
 insight_generator_service = InsightGeneratorService()
