@@ -289,28 +289,19 @@ Return only valid JSON format.
         self.user_call_counts[key] = current_count + 1
     
     def _build_all_time_prompt(self, slice_dict: Dict[str, Any]) -> str:
-        """Build enhanced analytical prompt for all-time insights"""
+        """Build simple analytical prompt for all-time insights"""
         return f"""
-Analyze the performance data below and provide specific numerical insights for CAT preparation.
+Please analyze this CAT preparation performance data and provide specific insights.
 
-ANALYSIS REQUIREMENTS:
-1. Count total sessions and calculate overall accuracy
-2. Identify concepts with >5 attempts and list by accuracy (high to low)  
-3. Find difficulty pattern trends (Easy vs Medium vs Hard)
-4. Check for improvement/decline patterns in recent sessions
-
-PERFORMANCE DATA:
+Performance Data:
 {json.dumps(slice_dict, indent=2)}
 
-RESPONSE GUIDELINES:
-- If insufficient data (all 0% accuracy OR no concepts with >5 attempts): Return "Complete more sessions to unlock detailed analysis."
-- If sufficient data exists: Provide specific analysis with exact numbers and concept names
-- Use "about X out of 10 correct" format instead of percentages
-- Mention specific concept names and their exact accuracies
-- Avoid generic phrases like "consistent practice" or "building foundations"
-- Focus on concrete performance data and trends
+Please provide an analysis that includes:
+1. Total sessions completed and overall accuracy
+2. Strong and weak concept areas with specific performance data
+3. Overall trends and patterns
 
-Provide your analysis:
+If there is insufficient data, please indicate that more sessions are needed for detailed analysis.
         """
     
     def _build_recent_prompt(self, slice_dict: Dict[str, Any]) -> str:
