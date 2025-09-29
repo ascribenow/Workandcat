@@ -141,6 +141,38 @@ async def start_session(
     
     # ACCESS GRANTED - Proceed to serve pre-packed session
     try:
+        # CACHE TTL PRAGMATISM: Force refresh insights if stale before session start
+        # Rationale: Pre-session "aha moment" is critical - stale cards kill the effect
+        from services.bg_job_queue import job_queue
+        
+        try:
+            db_cache_check = SessionLocal()
+            cache_check = db_cache_check.execute(text("""
+                SELECT last_updated_at FROM user_dashboard_insights 
+                WHERE user_id = :user_id
+            """), {"user_id": request.user_id}).fetchone()
+            
+            should_force_refresh = False
+            if cache_check and cache_check.last_updated_at:
+                cache_age_hours = (datetime.now(timezone.utc) - cache_check.last_updated_at).total_seconds() / 3600
+                # Force refresh if cache is older than 4 hours before session start
+                should_force_refresh = cache_age_hours > 4
+                
+                if should_force_refresh:
+                    logger.info(f"🔄 Force refreshing insights for session start - cache age: {cache_age_hours:.1f}h")
+            else:
+                # No cache exists - definitely refresh
+                should_force_refresh = True
+                logger.info(f"🔄 Force refreshing insights for session start - no cache exists")
+            
+            if should_force_refresh:
+                await job_queue.enqueue_job("UPDATE_INSIGHTS", request.user_id)
+                
+        except Exception as cache_check_error:
+            logger.warning(f"Cache staleness check failed: {cache_check_error}")
+        finally:
+            db_cache_check.close()
+
         planner = await get_blueprint_planner()
         
         # Plan/serve session (will use pre-packed if available, create new if not)
