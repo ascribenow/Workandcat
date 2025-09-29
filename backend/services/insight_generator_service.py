@@ -498,16 +498,16 @@ Data: {json.dumps(slice_dict, indent=2)}
             # Configure Gemini
             genai.configure(api_key=google_api_key)
             
-            # Initialize Gemini model with demanding system instruction
+            # Initialize Gemini model with minimal safety settings and different configuration
             model = genai.GenerativeModel(
-                "gemini-2.5-flash",
+                "gemini-1.5-flash",  # Try different model version
                 safety_settings={
                     genai.types.HarmCategory.HARM_CATEGORY_HARASSMENT: genai.types.HarmBlockThreshold.BLOCK_NONE,
                     genai.types.HarmCategory.HARM_CATEGORY_HATE_SPEECH: genai.types.HarmBlockThreshold.BLOCK_NONE,
                     genai.types.HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: genai.types.HarmBlockThreshold.BLOCK_NONE,
                     genai.types.HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: genai.types.HarmBlockThreshold.BLOCK_NONE,
                 },
-                system_instruction="You are a strict data analyst for CAT preparation. You MUST analyze the provided JSON data and return specific numerical insights with concept names and exact performance numbers. NEVER use generic motivational phrases like 'consistent practice' or 'building foundations'. Always include exact numbers and concept names from the data provided."
+                system_instruction="You are an educational data analyst providing student performance insights."
             )
             
             # Generate content with enhanced configuration for analytical responses
