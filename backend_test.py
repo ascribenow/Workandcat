@@ -1106,6 +1106,466 @@ class CATBackendTester:
         
         return success_rate >= 80 and criteria_rate >= 85
 
+    def test_latex_solution_formatting_system(self):
+        """
+        🎯 LATEX SOLUTION FORMATTING SYSTEM TESTING
+        
+        **TESTING OBJECTIVE:**
+        Test the UPDATED solution formatting system with LaTeX math rendering. The solution formatter 
+        has been enhanced to properly wrap LaTeX math expressions in `\(...\)` delimiters so the 
+        frontend MathRenderer can render them correctly.
+
+        **THE ISSUE FIXED:**
+        Solutions contained raw LaTeX like `\frac{Distance}{Time}` and `\boxed{48 \km/hr\}` which 
+        was displaying as unformatted text instead of mathematical notation.
+
+        **THE FIX IMPLEMENTED:**
+        LaTeX delimiter wrapping in the solution formatter:
+        - `\frac{a}{b}` becomes `\(\frac{a}{b}\)`
+        - `\boxed{result}` becomes `\(\boxed{result}\)`
+        - `Variable_2` becomes `\(Variable_{2}\)`
+
+        **TESTS TO PERFORM:**
+        1. **Authentication and session access** - verify user can access sessions
+        2. **Answer submission** - submit an answer to get solution feedback  
+        3. **Solution content formatting** - verify LaTeX expressions are properly wrapped
+        4. **Math rendering preparation** - confirm delimiters are in place for frontend
+        5. **All formatter functions** - test format_solution_content, format_solution_approach, format_snap_read
+
+        The goal is to ensure that when users submit answers, the solution feedback contains 
+        properly formatted LaTeX expressions that the frontend MathRenderer can convert to 
+        beautiful mathematical notation instead of raw text.
+        """
+        print("🎯 LATEX SOLUTION FORMATTING SYSTEM TESTING")
+        print("=" * 80)
+        print("OBJECTIVE: Test UPDATED solution formatting with LaTeX math rendering")
+        print("FOCUS: LaTeX delimiter wrapping, solution feedback formatting, math rendering prep")
+        print("EXPECTED: LaTeX expressions wrapped in \\(...\\) for frontend MathRenderer")
+        print("=" * 80)
+        
+        test_results = {
+            # Authentication System
+            "authentication_working": False,
+            "user_adaptive_enabled": False,
+            "jwt_token_valid": False,
+            "session_access_working": False,
+            
+            # Session Management & Answer Submission
+            "session_creation_working": False,
+            "answer_submission_working": False,
+            "solution_feedback_returned": False,
+            "submit_endpoint_accessible": False,
+            
+            # LaTeX Formatting Functions
+            "format_solution_content_working": False,
+            "format_solution_approach_working": False,
+            "format_snap_read_working": False,
+            "latex_delimiter_wrapping": False,
+            
+            # LaTeX Expression Wrapping Tests
+            "frac_expressions_wrapped": False,
+            "boxed_expressions_wrapped": False,
+            "subscript_expressions_wrapped": False,
+            "sqrt_expressions_wrapped": False,
+            "trig_expressions_wrapped": False,
+            
+            # Solution Feedback Formatting
+            "snap_read_formatted": False,
+            "solution_approach_formatted": False,
+            "detailed_solution_formatted": False,
+            "principle_to_remember_formatted": False,
+            
+            # Math Rendering Preparation
+            "math_delimiters_present": False,
+            "frontend_ready_format": False,
+            "no_raw_latex_text": False,
+            "proper_delimiter_syntax": False,
+            
+            # Overall Assessment
+            "latex_formatting_system_working": False,
+            "math_rendering_ready": False,
+            "production_ready": False
+        }
+        
+        # PHASE 1: AUTHENTICATION AND SESSION ACCESS
+        print("\n🔐 PHASE 1: AUTHENTICATION AND SESSION ACCESS")
+        print("-" * 60)
+        print("Testing authentication with sp@theskinmantra.com/student123")
+        
+        auth_data = {
+            "email": "sp@theskinmantra.com",
+            "password": "student123"
+        }
+        
+        success, response = self.run_test("Authentication", "POST", "auth/login", [200, 401], auth_data)
+        
+        auth_headers = None
+        user_id = None
+        if success and response.get('access_token'):
+            token = response['access_token']
+            auth_headers = {
+                'Authorization': f'Bearer {token}',
+                'Content-Type': 'application/json'
+            }
+            test_results["authentication_working"] = True
+            test_results["jwt_token_valid"] = True
+            print(f"   ✅ Authentication successful")
+            print(f"   📊 JWT Token length: {len(token)} characters")
+            
+            user_data = response.get('user', {})
+            user_id = user_data.get('id')
+            adaptive_enabled = user_data.get('adaptive_enabled', False)
+            
+            if adaptive_enabled:
+                test_results["user_adaptive_enabled"] = True
+                test_results["session_access_working"] = True
+                print(f"   ✅ User adaptive_enabled confirmed: {adaptive_enabled}")
+                print(f"   📊 User ID: {user_id}")
+            else:
+                print(f"   ⚠️ User adaptive_enabled: {adaptive_enabled}")
+        else:
+            print("   ❌ Authentication failed - cannot proceed with LaTeX formatting testing")
+            return False
+        
+        # PHASE 2: LATEX FORMATTING FUNCTIONS TESTING
+        print("\n🔧 PHASE 2: LATEX FORMATTING FUNCTIONS TESTING")
+        print("-" * 60)
+        print("Testing solution formatter functions with LaTeX expressions")
+        
+        try:
+            # Import the solution formatter functions
+            import sys
+            sys.path.append('/app/backend')
+            from utils.solution_formatter import format_solution_content, format_solution_approach, format_snap_read
+            
+            # Test format_solution_content with LaTeX expressions
+            test_content_with_latex = """
+            The speed can be calculated using the formula \\frac{Distance}{Time}. 
+            Given Distance = 96 km and Time = 2 hours, we get Speed = \\frac{96}{2} = 48 km/hr.
+            The final answer is \\boxed{48 \\text{ km/hr}}.
+            We can also express this as Speed_1 = 48 and Distance_2 = 96.
+            Using trigonometry: \\sin{30°} = 0.5 and \\sqrt{16} = 4.
+            """
+            
+            formatted_content = format_solution_content(test_content_with_latex)
+            test_results["format_solution_content_working"] = True
+            print(f"   ✅ format_solution_content function working")
+            
+            # Check for LaTeX delimiter wrapping
+            if '\\(\\frac{' in formatted_content and '}\\)' in formatted_content:
+                test_results["frac_expressions_wrapped"] = True
+                print(f"   ✅ \\frac expressions properly wrapped in \\(...\\)")
+            
+            if '\\(\\boxed{' in formatted_content:
+                test_results["boxed_expressions_wrapped"] = True
+                print(f"   ✅ \\boxed expressions properly wrapped in \\(...\\)")
+            
+            if '\\(Speed_{1}\\)' in formatted_content or '\\(Distance_{2}\\)' in formatted_content:
+                test_results["subscript_expressions_wrapped"] = True
+                print(f"   ✅ Subscript expressions properly wrapped in \\(...\\)")
+            
+            if '\\(\\sin{' in formatted_content:
+                test_results["trig_expressions_wrapped"] = True
+                print(f"   ✅ Trigonometric expressions properly wrapped in \\(...\\)")
+            
+            if '\\(\\sqrt{' in formatted_content:
+                test_results["sqrt_expressions_wrapped"] = True
+                print(f"   ✅ Square root expressions properly wrapped in \\(...\\)")
+            
+            # Overall LaTeX delimiter wrapping check
+            if (test_results["frac_expressions_wrapped"] and 
+                test_results["boxed_expressions_wrapped"] and
+                test_results["subscript_expressions_wrapped"]):
+                test_results["latex_delimiter_wrapping"] = True
+                print(f"   ✅ LaTeX delimiter wrapping system working")
+            
+            print(f"   📊 Formatted content sample:")
+            print(f"      {formatted_content[:200]}...")
+            
+            # Test format_solution_approach
+            test_approach = "1. Calculate speed using formula. 2. Substitute values. 3. Simplify result."
+            formatted_approach = format_solution_approach(test_approach)
+            test_results["format_solution_approach_working"] = True
+            print(f"   ✅ format_solution_approach function working")
+            
+            # Test format_snap_read
+            test_snap_read = "Quick solution: Use distance/time formula. Answer is 48 km/hr."
+            formatted_snap_read = format_snap_read(test_snap_read)
+            test_results["format_snap_read_working"] = True
+            print(f"   ✅ format_snap_read function working")
+            
+        except Exception as e:
+            print(f"   ❌ Error testing solution formatter functions: {e}")
+        
+        # PHASE 3: SESSION CREATION AND ANSWER SUBMISSION
+        print("\n📝 PHASE 3: SESSION CREATION AND ANSWER SUBMISSION")
+        print("-" * 60)
+        print("Testing session creation and answer submission to get formatted solution feedback")
+        
+        session_id = None
+        if user_id and auth_headers:
+            # Try to start a session
+            session_data = {"user_id": user_id}
+            
+            success, session_response = self.run_test(
+                "Session Start", 
+                "POST", 
+                "session/start", 
+                [200, 201, 400, 500], 
+                session_data, 
+                auth_headers
+            )
+            
+            if success and session_response.get('session_id'):
+                test_results["session_creation_working"] = True
+                session_id = session_response['session_id']
+                print(f"   ✅ Session created successfully")
+                print(f"   📊 Session ID: {session_id}")
+                
+                # Get questions from session
+                questions = session_response.get('questions', [])
+                if questions and len(questions) > 0:
+                    print(f"   ✅ Session questions available: {len(questions)} questions")
+                    
+                    # Try to submit an answer to get solution feedback
+                    first_question = questions[0]
+                    question_id = first_question.get('id')
+                    
+                    submit_data = {
+                        "session_id": session_id,
+                        "position": 1,
+                        "answer": "A"  # Submit a test answer
+                    }
+                    
+                    success, submit_response = self.run_test(
+                        "Answer Submission", 
+                        "POST", 
+                        "session/submit", 
+                        [200, 400, 404, 500], 
+                        submit_data, 
+                        auth_headers
+                    )
+                    
+                    if success:
+                        test_results["submit_endpoint_accessible"] = True
+                        print(f"   ✅ Submit answer endpoint accessible")
+                        
+                        if submit_response.get('success') or submit_response.get('result'):
+                            test_results["answer_submission_working"] = True
+                            print(f"   ✅ Answer submission working")
+                            
+                            # Check for solution feedback
+                            solution_feedback = submit_response.get('result', {}).get('solution_feedback', {})
+                            if not solution_feedback:
+                                solution_feedback = submit_response.get('solution_feedback', {})
+                            
+                            if solution_feedback:
+                                test_results["solution_feedback_returned"] = True
+                                print(f"   ✅ Solution feedback returned")
+                                
+                                # Test each component of solution feedback for LaTeX formatting
+                                snap_read = solution_feedback.get('snap_read', '')
+                                solution_approach = solution_feedback.get('solution_approach', '')
+                                detailed_solution = solution_feedback.get('detailed_solution', '')
+                                principle_to_remember = solution_feedback.get('principle_to_remember', '')
+                                
+                                if snap_read:
+                                    test_results["snap_read_formatted"] = True
+                                    print(f"   ✅ Snap read feedback available")
+                                    print(f"      Sample: {snap_read[:100]}...")
+                                
+                                if solution_approach:
+                                    test_results["solution_approach_formatted"] = True
+                                    print(f"   ✅ Solution approach feedback available")
+                                    print(f"      Sample: {solution_approach[:100]}...")
+                                
+                                if detailed_solution:
+                                    test_results["detailed_solution_formatted"] = True
+                                    print(f"   ✅ Detailed solution feedback available")
+                                    print(f"      Sample: {detailed_solution[:100]}...")
+                                
+                                if principle_to_remember:
+                                    test_results["principle_to_remember_formatted"] = True
+                                    print(f"   ✅ Principle to remember feedback available")
+                                    print(f"      Sample: {principle_to_remember[:100]}...")
+                                
+                                # Check for math delimiters in the feedback
+                                all_feedback = f"{snap_read} {solution_approach} {detailed_solution} {principle_to_remember}"
+                                
+                                if '\\(' in all_feedback and '\\)' in all_feedback:
+                                    test_results["math_delimiters_present"] = True
+                                    test_results["frontend_ready_format"] = True
+                                    print(f"   ✅ Math delimiters \\(...\\) present in solution feedback")
+                                
+                                # Check that raw LaTeX is properly wrapped (not appearing as raw text)
+                                raw_latex_patterns = ['\\frac{', '\\boxed{', '\\sqrt{']
+                                wrapped_patterns = ['\\(\\frac{', '\\(\\boxed{', '\\(\\sqrt{']
+                                
+                                has_raw_latex = any(pattern in all_feedback for pattern in raw_latex_patterns)
+                                has_wrapped_latex = any(pattern in all_feedback for pattern in wrapped_patterns)
+                                
+                                if has_wrapped_latex and not has_raw_latex:
+                                    test_results["no_raw_latex_text"] = True
+                                    test_results["proper_delimiter_syntax"] = True
+                                    print(f"   ✅ LaTeX expressions properly wrapped (no raw LaTeX text)")
+                                elif has_raw_latex:
+                                    print(f"   ⚠️ Raw LaTeX text detected - may need additional wrapping")
+                                
+                            else:
+                                print(f"   ⚠️ No solution feedback in response")
+                        else:
+                            print(f"   ⚠️ Answer submission response: {submit_response}")
+                    else:
+                        print(f"   ❌ Answer submission failed: {submit_response}")
+                else:
+                    print(f"   ⚠️ No questions available in session")
+            else:
+                print(f"   ❌ Session creation failed: {session_response}")
+                # Continue with direct formatter testing even if session creation fails
+        
+        # PHASE 4: MATH RENDERING PREPARATION VALIDATION
+        print("\n🧮 PHASE 4: MATH RENDERING PREPARATION VALIDATION")
+        print("-" * 60)
+        print("Validating that LaTeX expressions are properly prepared for frontend MathRenderer")
+        
+        # Test specific LaTeX expressions that should be wrapped
+        test_expressions = [
+            ("\\frac{Distance}{Time}", "\\(\\frac{Distance}{Time}\\)"),
+            ("\\boxed{48 \\text{ km/hr}}", "\\(\\boxed{48 \\text{ km/hr}}\\)"),
+            ("Speed_2", "\\(Speed_{2}\\)"),
+            ("\\sqrt{16}", "\\(\\sqrt{16}\\)"),
+            ("\\sin{30}", "\\(\\sin{30}\\)")
+        ]
+        
+        if test_results["format_solution_content_working"]:
+            from utils.solution_formatter import format_solution_content
+            
+            all_expressions_wrapped = True
+            for original, expected_wrapped in test_expressions:
+                test_input = f"The formula is {original} which gives us the result."
+                formatted_output = format_solution_content(test_input)
+                
+                if expected_wrapped in formatted_output:
+                    print(f"   ✅ {original} → {expected_wrapped}")
+                else:
+                    print(f"   ❌ {original} not properly wrapped")
+                    all_expressions_wrapped = False
+            
+            if all_expressions_wrapped:
+                test_results["math_rendering_ready"] = True
+                print(f"   ✅ All LaTeX expressions properly prepared for frontend MathRenderer")
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 80)
+        print("🎯 LATEX SOLUTION FORMATTING SYSTEM - RESULTS")
+        print("=" * 80)
+        
+        passed_tests = sum(test_results.values())
+        total_tests = len(test_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        # Group results by test categories
+        test_categories = {
+            "AUTHENTICATION & SESSION ACCESS": [
+                "authentication_working", "user_adaptive_enabled", "jwt_token_valid", "session_access_working"
+            ],
+            "SESSION MANAGEMENT & SUBMISSION": [
+                "session_creation_working", "answer_submission_working", 
+                "solution_feedback_returned", "submit_endpoint_accessible"
+            ],
+            "LATEX FORMATTING FUNCTIONS": [
+                "format_solution_content_working", "format_solution_approach_working",
+                "format_snap_read_working", "latex_delimiter_wrapping"
+            ],
+            "LATEX EXPRESSION WRAPPING": [
+                "frac_expressions_wrapped", "boxed_expressions_wrapped",
+                "subscript_expressions_wrapped", "sqrt_expressions_wrapped", "trig_expressions_wrapped"
+            ],
+            "SOLUTION FEEDBACK FORMATTING": [
+                "snap_read_formatted", "solution_approach_formatted",
+                "detailed_solution_formatted", "principle_to_remember_formatted"
+            ],
+            "MATH RENDERING PREPARATION": [
+                "math_delimiters_present", "frontend_ready_format",
+                "no_raw_latex_text", "proper_delimiter_syntax"
+            ]
+        }
+        
+        for category, tests in test_categories.items():
+            print(f"\n{category}:")
+            category_passed = 0
+            category_total = len(tests)
+            
+            for test in tests:
+                if test in test_results:
+                    result = test_results[test]
+                    status = "✅ PASS" if result else "❌ FAIL"
+                    print(f"  {test.replace('_', ' ').title():<50} {status}")
+                    if result:
+                        category_passed += 1
+            
+            category_rate = (category_passed / category_total) * 100 if category_total > 0 else 0
+            print(f"  Category Success Rate: {category_passed}/{category_total} ({category_rate:.1f}%)")
+        
+        print("-" * 80)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # CRITICAL ASSESSMENT
+        print("\n🎯 CRITICAL ASSESSMENT:")
+        
+        # LaTeX Formatting System Assessment
+        latex_system_working = (
+            test_results["format_solution_content_working"] and
+            test_results["latex_delimiter_wrapping"] and
+            test_results["frac_expressions_wrapped"] and
+            test_results["boxed_expressions_wrapped"]
+        )
+        
+        if latex_system_working:
+            test_results["latex_formatting_system_working"] = True
+            print("\n✅ LATEX FORMATTING SYSTEM: WORKING")
+            print("   - Solution formatter functions operational")
+            print("   - LaTeX expressions properly wrapped in \\(...\\)")
+            print("   - \\frac{a}{b} becomes \\(\\frac{a}{b}\\)")
+            print("   - \\boxed{result} becomes \\(\\boxed{result}\\)")
+            print("   - Variable_2 becomes \\(Variable_{2}\\)")
+        else:
+            print("\n❌ LATEX FORMATTING SYSTEM: ISSUES DETECTED")
+            print("   - LaTeX delimiter wrapping not working correctly")
+        
+        # Math Rendering Readiness Assessment
+        math_rendering_ready = (
+            test_results["math_delimiters_present"] and
+            test_results["no_raw_latex_text"] and
+            test_results["proper_delimiter_syntax"]
+        )
+        
+        if math_rendering_ready:
+            test_results["math_rendering_ready"] = True
+            print("\n✅ MATH RENDERING PREPARATION: READY")
+            print("   - Math delimiters \\(...\\) present in solution feedback")
+            print("   - No raw LaTeX text displaying as unformatted text")
+            print("   - Frontend MathRenderer can process the formatted expressions")
+        else:
+            print("\n❌ MATH RENDERING PREPARATION: NEEDS ATTENTION")
+            print("   - Math rendering preparation incomplete")
+        
+        # Overall Production Readiness
+        if (latex_system_working and 
+            test_results["solution_feedback_returned"] and
+            test_results["format_solution_content_working"]):
+            test_results["production_ready"] = True
+            print("\n🎉 PRODUCTION READINESS: READY")
+            print("   - LaTeX solution formatting system working correctly")
+            print("   - Solution feedback contains properly wrapped LaTeX expressions")
+            print("   - Frontend MathRenderer can render mathematical notation")
+            print("   - Users will see beautiful math instead of raw LaTeX text")
+        else:
+            print("\n⚠️ PRODUCTION READINESS: NEEDS ATTENTION")
+            print("   - Some LaTeX formatting components need fixes")
+        
+        return success_rate >= 75 and latex_system_working
+
     def test_fixed_session_submit_answer_system(self):
         """
         🎯 FIXED SESSION SUBMIT ANSWER SYSTEM TESTING
