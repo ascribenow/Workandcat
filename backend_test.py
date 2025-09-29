@@ -1267,40 +1267,60 @@ class CATBackendTester:
             if verify_email_response and verify_email_response.get('status_code') == 404:
                 print(f"   🎯 CRITICAL: verify-email endpoint also missing!")
         
-        # PHASE 2: SEND VERIFICATION CODE TESTING
-        print("\n📝 PHASE 2: SEND VERIFICATION CODE TESTING")
+        # PHASE 2: CORRECTED SEND VERIFICATION CODE TESTING (NO REFERRAL CODE)
+        print("\n📝 PHASE 2: CORRECTED SEND VERIFICATION CODE TESTING")
         print("-" * 60)
-        print("Testing the new send-verification-code endpoint with test data")
+        print("Testing send-verification-code with CORRECTED data structure (NO referral_code)")
         
         if test_results["signup_endpoint_accessible"]:
-            # Test send verification code WITHOUT referral code first
-            test_verification_data = {
-                "name": "Test User",
-                "email": "test.signup@example.com",
+            # Test send verification code with CORRECTED data structure (NO referral_code)
+            corrected_verification_data = {
+                "name": "Test User New",
+                "email": "test.new.signup@example.com",
                 "password": "testpass123"
+                # NO referral_code field - this is the correction
             }
             
-            print(f"   📋 Testing send-verification-code without referral code...")
+            print(f"   📋 Testing CORRECTED send-verification-code (Name/Email/Password ONLY)...")
             success, verification_response = self.run_test(
-                "Send Verification Code Without Referral", 
+                "CORRECTED Send Verification Code", 
                 "POST", 
                 "auth/send-verification-code", 
                 [200, 400, 409, 500], 
-                test_verification_data, 
+                corrected_verification_data, 
                 None
             )
             
             if success and verification_response.get('success'):
                 test_results["send_verification_code_working"] = True
                 test_results["signup_returns_proper_response"] = True
-                print(f"   ✅ Send verification code without referral working")
+                print(f"   ✅ CORRECTED send verification code working (no referral validation)")
                 print(f"   📊 Response: {verification_response.get('message', 'N/A')}")
                 print(f"   📊 Email: {verification_response.get('email', 'N/A')}")
                 
-                # Store email for later verification test
+                # Store email and try to extract verification code for testing
                 self.test_email = verification_response.get('email')
+                
+                # Try to get verification code from Gmail service for testing
+                try:
+                    import sys
+                    sys.path.append('/app/backend')
+                    from gmail_service import gmail_service
+                    
+                    # Check if we can access the verification code for testing
+                    if hasattr(gmail_service, 'verification_codes') and self.test_email in gmail_service.verification_codes:
+                        verification_code_data = gmail_service.verification_codes[self.test_email]
+                        self.test_verification_code = verification_code_data.get('code')
+                        print(f"   📊 Verification code generated: {self.test_verification_code}")
+                        test_results["verification_code_generation"] = True
+                    else:
+                        print(f"   ⚠️ Could not access verification code for testing")
+                        
+                except Exception as e:
+                    print(f"   ⚠️ Could not access Gmail service for verification code: {e}")
+                    
             else:
-                print(f"   ❌ Send verification code without referral failed: {verification_response}")
+                print(f"   ❌ CORRECTED send verification code failed: {verification_response}")
                 
                 # Check for specific error types
                 if verification_response and verification_response.get('status_code') == 404:
@@ -1311,37 +1331,32 @@ class CATBackendTester:
                 elif verification_response and verification_response.get('status_code') == 500:
                     print(f"   ⚠️ Internal server error - may be Gmail service issue")
             
-            # Test send verification code WITH referral code
-            test_verification_data_with_referral = {
-                "name": "Test User With Referral",
-                "email": "test.signup.referral@example.com",
+            # Test that referral_code field is NOT required (should work without it)
+            print(f"   📋 Verifying referral_code field is NOT required...")
+            
+            # Test with referral_code field included (should still work but ignore it)
+            verification_data_with_referral = {
+                "name": "Test User With Referral Field",
+                "email": "test.referral.field@example.com",
                 "password": "testpass123",
-                "referral_code": "TESTREF01"
+                "referral_code": "SHOULDBEIGNORED"  # This should be ignored during signup
             }
             
-            print(f"   📋 Testing send-verification-code with referral code...")
-            success, verification_referral_response = self.run_test(
-                "Send Verification Code With Referral", 
+            success_with_referral, response_with_referral = self.run_test(
+                "Send Verification Code With Referral Field", 
                 "POST", 
                 "auth/send-verification-code", 
                 [200, 400, 409, 500], 
-                test_verification_data_with_referral, 
+                verification_data_with_referral, 
                 None
             )
             
-            if success and verification_referral_response.get('success'):
-                test_results["signup_with_referral_working"] = True
-                print(f"   ✅ Send verification code with referral code working")
-                print(f"   📊 Response: {verification_referral_response.get('message', 'N/A')}")
-                
-                # Store email for later verification test
-                self.test_email_with_referral = verification_referral_response.get('email')
+            if success_with_referral and response_with_referral.get('success'):
+                print(f"   ✅ Referral code field ignored during signup (correct behavior)")
+                test_results["referral_code_ignored_during_signup"] = True
             else:
-                print(f"   ❌ Send verification code with referral failed: {verification_referral_response}")
-                
-                # Check if referral code validation is the issue
-                if verification_referral_response and 'referral' in str(verification_referral_response).lower():
-                    print(f"   ⚠️ Referral code validation may be causing issues")
+                print(f"   ❌ Signup failed when referral_code field present: {response_with_referral}")
+                # This might indicate the system is still trying to validate referral codes during signup
         
         # PHASE 3: GMAIL SERVICE INITIALIZATION TESTING
         print("\n📧 PHASE 3: GMAIL SERVICE INITIALIZATION TESTING")
