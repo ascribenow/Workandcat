@@ -38,8 +38,10 @@ class ComprehensiveDataExtractor:
                 "time_patterns": self._get_time_patterns(db, user_id),
                 "recent_activity": self._get_recent_activity(db, user_id),
                 
-                # Context for current/upcoming session
+                # Context for current/upcoming session  
                 "upcoming_session": self._get_upcoming_session_context(db, session_id) if session_id else None
+                
+                # NOTE: Timing data excluded - Twelvr engine focuses on accuracy & concept patterns only
             }
             
             # Log data richness for debugging
