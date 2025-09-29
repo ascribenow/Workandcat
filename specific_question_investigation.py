@@ -9,7 +9,7 @@ import json
 import uuid
 
 class SpecificQuestionInvestigator:
-    def __init__(self, base_url="https://adaptive-insights-1.preview.emergentagent.com/api"):
+    def __init__(self, base_url="https://llm-prompt-repair.preview.emergentagent.com/api"):
         self.base_url = base_url
         self.auth_headers = None
         self.user_id = None

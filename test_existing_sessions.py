@@ -7,7 +7,7 @@ import requests
 import json
 
 def test_existing_sessions():
-    base_url = "https://adaptive-insights-1.preview.emergentagent.com/api"
+    base_url = "https://llm-prompt-repair.preview.emergentagent.com/api"
     
     # Step 1: Authenticate
     print("🔐 Step 1: Authentication")

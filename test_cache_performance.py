@@ -8,7 +8,7 @@ import sys
 def test_ultra_fast_cache_performance():
     """Test the ultra-fast cache performance with sp@theskinmantra.com/student123"""
     
-    base_url = "https://adaptive-insights-1.preview.emergentagent.com/api"
+    base_url = "https://llm-prompt-repair.preview.emergentagent.com/api"
     
     print("🎯 ULTRA-OPTIMIZED ADAPTIVE INSIGHTS CACHE PERFORMANCE TESTING")
     print("=" * 80)
