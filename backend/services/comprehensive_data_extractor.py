@@ -45,10 +45,10 @@ class ComprehensiveDataExtractor:
             
             # Log data richness for debugging
             total_sessions = len(user_data.get("sessions", []))
-            total_attempts = len(user_data.get("question_attempts", []))
             concept_count = len(user_data.get("concept_journey", []))
+            coverage_count = len(user_data.get("coverage_analysis", []))
             
-            self.logger.info(f"Extracted comprehensive data: {total_sessions} sessions, {total_attempts} attempts, {concept_count} concepts")
+            self.logger.info(f"Extracted comprehensive data: {total_sessions} sessions, {concept_count} concepts, {coverage_count} coverage items")
             
             return user_data
             
