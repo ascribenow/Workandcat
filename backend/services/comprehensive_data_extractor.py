@@ -133,19 +133,22 @@ class ComprehensiveDataExtractor:
             return []
     
     def _get_concept_journey(self, db: Session, user_id: str) -> List[Dict[str, Any]]:
-        """Get concept learning journey"""
+        """Get concept learning journey with attempt statistics"""
         try:
             query = text("""
                 SELECT 
                     ln.concept_norm,
                     ln.readiness,
-                    ln.sessions_seen,
-                    ln.total_attempts,
-                    ln.correct_attempts,
+                    ln.mastery_score,
                     ln.last_seen_at,
-                    ln.first_seen_at
+                    COUNT(ae.id) as total_attempts,
+                    COUNT(CASE WHEN ae.was_correct THEN 1 END) as correct_attempts
                 FROM learner_notebook ln
+                LEFT JOIN attempt_events ae ON ln.concept_norm = ANY(
+                    string_to_array(ae.core_concepts::text, ',')
+                ) AND ae.user_id = ln.user_id
                 WHERE ln.user_id = :user_id
+                GROUP BY ln.concept_norm, ln.readiness, ln.mastery_score, ln.last_seen_at
                 ORDER BY ln.last_seen_at DESC
                 LIMIT 50
             """)
@@ -155,12 +158,11 @@ class ComprehensiveDataExtractor:
                 {
                     "concept": r.concept_norm,
                     "readiness": r.readiness,
-                    "sessions_seen": int(r.sessions_seen or 0),
+                    "mastery_score": float(r.mastery_score or 0.0),
                     "total_attempts": int(r.total_attempts or 0),
                     "correct_attempts": int(r.correct_attempts or 0),
                     "accuracy": float(r.correct_attempts / r.total_attempts) if r.total_attempts > 0 else 0.0,
-                    "last_seen": r.last_seen_at.isoformat() if r.last_seen_at else None,
-                    "first_seen": r.first_seen_at.isoformat() if r.first_seen_at else None
+                    "last_seen": r.last_seen_at.isoformat() if r.last_seen_at else None
                 }
                 for r in results
             ]
