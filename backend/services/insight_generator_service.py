@@ -313,48 +313,27 @@ ANALYZE THE DATA NOW AND RETURN ONLY JSON:
         self.user_call_counts[key] = current_count + 1
     
     def _build_all_time_prompt(self, slice_dict: Dict[str, Any]) -> str:
-        """Build comprehensive analytical prompt for all-time journey insights"""
+        """Build DEMANDING analytical prompt - NO GENERIC TEXT ALLOWED"""
         return f"""
-You are an expert CAT Quant coach analyzing a student's complete learning journey. Your goal is to provide deep, personalized insights based on their actual performance data.
+CRITICAL: Analyze the JSON data below and provide SPECIFIC numerical insights. Do NOT write generic motivational text.
 
-ANALYZE THE STUDENT'S COMPLETE PROFILE:
+STEP-BY-STEP ANALYSIS REQUIRED:
+1. Count total sessions and calculate overall accuracy
+2. Identify concepts with >5 attempts and list by accuracy (high to low)  
+3. Find difficulty pattern trends (Easy vs Medium vs Hard)
+4. Check for improvement/decline patterns in recent sessions
 
-1. **CONCEPT MASTERY ANALYSIS**: Examine their concept_journey data to identify:
-   - Which specific concepts they've mastered (Strong readiness, high accuracy)
-   - Which concepts are their biggest weaknesses (Weak readiness, low accuracy) 
-   - Concepts showing improvement or decline patterns
-   - Areas with insufficient practice (low total_attempts)
+DATA TO ANALYZE:
+{json.dumps(slice_dict, indent=2)}
 
-2. **LEARNING PATTERN ANALYSIS**: Look at their sessions data to identify:
-   - Overall accuracy progression from first to recent sessions
-   - Consistency patterns and any performance drops
-   - Question volume and engagement levels
+RESPONSE RULES:
+- IF no meaningful data (all 0% accuracy OR no concepts with >5 attempts): Return "Complete more sessions to unlock detailed analysis."
+- IF meaningful data exists: Provide specific analysis with exact numbers and concept names
+- Use "about X out of 10 correct" format
+- Mention specific concept names and their exact accuracies
+- NO phrases like "consistent practice" or "building foundations"
 
-3. **DIFFICULTY PERFORMANCE**: Analyze difficulty_patterns to understand:
-   - Comfort zones (high accuracy in Easy/Medium/Hard)
-   - Challenge areas needing focus
-   - Readiness for higher difficulty levels
-
-4. **COVERAGE GAPS**: Examine coverage_analysis to identify:
-   - Topics with high debt_score (urgent practice needed)
-   - Well-covered areas with low debt_score
-   - Strategic focus areas for improvement
-
-PROVIDE A COMPREHENSIVE INSIGHT (4-6 sentences) that includes:
-- Specific concept strengths with numbers ("You've mastered Time-Speed-Distance with about 8 out of 10 correct across 15 attempts")
-- Specific concept weaknesses ("Percentages needs attention - only about 3 out of 10 correct in your recent attempts")
-- Clear learning patterns ("Your accuracy has grown from about 4 out of 10 in early sessions to about 6 out of 10 recently")
-- Strategic recommendations ("Focus on Algebra practice - it has high debt and could boost your overall score significantly")
-
-TONE: Encouraging but analytical coach who knows the student's exact strengths and weaknesses.
-
-CONSTRAINTS:
-- Use "about X out of 10 correct" format instead of percentages
-- Be specific about concepts and numbers from the actual data
-- No generic phrases - everything should be based on their unique performance
-- Be encouraging but realistic about areas needing work
-
-Data: {json.dumps(slice_dict, indent=2)}
+ANALYZE AND RESPOND:
         """
     
     def _build_recent_prompt(self, slice_dict: Dict[str, Any]) -> str:
