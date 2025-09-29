@@ -227,7 +227,7 @@ const MathRenderer = ({ content, className = '', style = {} }) => {
                 if (inlineSeg.type === 'inlineMath') {
                   return renderInlineMath(inlineSeg.content);
                 } else {
-                  return <span key={inlineIndex}>{inlineSeg.content}</span>;
+                  return <span key={inlineIndex}>{renderWithSimpleMarkdown(inlineSeg.content)}</span>;
                 }
               })}
             </span>
