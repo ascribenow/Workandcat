@@ -1213,7 +1213,7 @@ class CATBackendTester:
         # PHASE 1: BASIC API AVAILABILITY
         print("\n🔍 PHASE 1: BASIC API AVAILABILITY")
         print("-" * 60)
-        print("Testing if signup endpoint exists and is accessible")
+        print("Testing if the new signup endpoints exist and are accessible")
         
         # Test API health first
         success, health_response = self.run_test(
@@ -1231,26 +1231,44 @@ class CATBackendTester:
         else:
             print(f"   ❌ API health check failed: {health_response}")
         
-        # Test signup endpoint accessibility (without data first)
-        success, signup_response = self.run_test(
-            "Signup Endpoint Accessibility", 
+        # Test the NEW send-verification-code endpoint (this was missing before)
+        success, send_verification_response = self.run_test(
+            "Send Verification Code Endpoint", 
             "POST", 
-            "auth/signup", 
-            [400, 422, 500],  # Expect validation error without data
+            "auth/send-verification-code", 
+            [200, 400, 422, 500],  # Expect validation error without data
             None, 
             None
         )
         
-        if success or (signup_response and signup_response.get('status_code') in [400, 422]):
+        if success or (send_verification_response and send_verification_response.get('status_code') in [400, 422]):
             test_results["signup_endpoint_exists"] = True
             test_results["signup_endpoint_accessible"] = True
-            print(f"   ✅ Signup endpoint exists and is accessible")
+            print(f"   ✅ Send verification code endpoint exists and is accessible")
         else:
-            print(f"   ❌ Signup endpoint not accessible: {signup_response}")
-            # Check if it's a 404 Not Found error
-            if signup_response and signup_response.get('status_code') == 404:
+            print(f"   ❌ Send verification code endpoint not accessible: {send_verification_response}")
+            # Check if it's a 404 Not Found error (the original issue)
+            if send_verification_response and send_verification_response.get('status_code') == 404:
                 test_results["not_found_error_reproduced"] = True
-                print(f"   🎯 REPRODUCED: 'Not Found' error - signup endpoint missing!")
+                print(f"   🎯 REPRODUCED: 'Not Found' error - send-verification-code endpoint missing!")
+        
+        # Test the verify-email endpoint
+        success, verify_email_response = self.run_test(
+            "Verify Email Endpoint", 
+            "POST", 
+            "auth/verify-email", 
+            [200, 400, 422, 500],  # Expect validation error without data
+            None, 
+            None
+        )
+        
+        if success or (verify_email_response and verify_email_response.get('status_code') in [400, 422]):
+            test_results["email_verification_endpoints_exist"] = True
+            print(f"   ✅ Verify email endpoint exists and is accessible")
+        else:
+            print(f"   ❌ Verify email endpoint not accessible: {verify_email_response}")
+            if verify_email_response and verify_email_response.get('status_code') == 404:
+                print(f"   🎯 CRITICAL: verify-email endpoint also missing!")
         
         # PHASE 2: SIGNUP API TESTING
         print("\n📝 PHASE 2: SIGNUP API TESTING")
