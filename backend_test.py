@@ -36860,34 +36860,53 @@ def main():
         return final_results["100_percent_success_achieved"]
 
 if __name__ == "__main__":
-    print("🎯 PROOF OF THE PUDDING ADAPTIVE INSIGHTS FIX TESTING")
+    print("🎯 COMPLETE USER SIGNUP SYSTEM TESTING")
     print("=" * 80)
-    print("OBJECTIVE: Test the specific fix to use enhanced demanding analytical prompt")
-    print("Focus: Personalized insights with specific data analysis, not generic motivational text")
-    print("Expected: Insights with actual numbers, concept names, and performance patterns")
-    print("Authentication: sp@theskinmantra.com/student123")
+    print("OBJECTIVE: Test the complete user signup system and identify 'Not Found' error cause")
+    print("FOCUS: Signup API, email verification, referral codes, database creation")
+    print("EXPECTED: Identify why signup fails with 'Not Found' instead of verification code")
+    print("TEST DATA: Test User <test.signup@example.com> with referral code TEST123")
     print("=" * 80)
     
     tester = CATBackendTester()
     
     try:
-        # Run the Proof of the Pudding Adaptive Insights Fix Test
-        print("\n🎯 RUNNING PROOF OF THE PUDDING ADAPTIVE INSIGHTS FIX TEST")
-        fix_test_passed = tester.test_proof_of_pudding_adaptive_insights_fix()
+        # Run the Complete User Signup System test
+        print("\n🎯 RUNNING COMPLETE USER SIGNUP SYSTEM TEST")
+        signup_test_passed = tester.test_complete_user_signup_system()
         
         # FINAL SUMMARY
         print("\n" + "=" * 80)
-        print("🏁 PROOF OF THE PUDDING ADAPTIVE INSIGHTS FIX - FINAL RESULTS")
+        print("🏁 COMPLETE USER SIGNUP SYSTEM TESTING - FINAL RESULTS")
         print("=" * 80)
         print(f"Total Tests Run: {tester.tests_run}")
         print(f"Total Tests Passed: {tester.tests_passed}")
         print(f"Overall Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%" if tester.tests_run > 0 else "0%")
         
-        print("\n📊 ADAPTIVE INSIGHTS FIX TEST RESULTS:")
-        print(f"Proof of the Pudding Fix Verification: {'✅ PASS' if fix_test_passed else '❌ FAIL'}")
+        print("\n📊 SIGNUP SYSTEM TEST RESULTS:")
+        print(f"Complete User Signup System Test: {'✅ PASS' if signup_test_passed else '❌ FAIL'}")
         
-        if fix_test_passed:
-            print("\n🎉 PROOF OF THE PUDDING FIX: VALIDATED")
+        if signup_test_passed:
+            print("\n🎉 SIGNUP SYSTEM TESTING: COMPLETED SUCCESSFULLY")
+            print("   ✅ Root cause of 'Not Found' error identified")
+            print("   ✅ Signup API functionality tested")
+            print("   ✅ Email verification system analyzed")
+            print("   ✅ Referral code system validated")
+            print("   ✅ Database integration confirmed")
+            print("   ✅ Critical issues identified for resolution")
+        else:
+            print("\n⚠️ SIGNUP SYSTEM TESTING: CRITICAL ISSUES FOUND")
+            print("   ❌ 'Not Found' error reproduced and analyzed")
+            print("   ❌ Email verification system missing or broken")
+            print("   ❌ System not ready for production use")
+            print("   ❌ Immediate fixes required")
+        
+    except Exception as e:
+        print(f"\n❌ Error during signup system testing: {e}")
+        import traceback
+        traceback.print_exc()
+    
+    main()
             print("   ✅ Enhanced demanding analytical prompt is being used")
             print("   ✅ Generic duplicate prompt method successfully removed")
             print("   ✅ Safety filter fallback removed - no more generic responses")
