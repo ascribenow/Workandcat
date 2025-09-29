@@ -195,12 +195,12 @@ class ComprehensiveDataExtractor:
                     "question_id": r.question_id,
                     "correct": bool(r.was_correct),
                     "selected_option": r.selected_option,
-                    "time_taken": float(r.time_taken_seconds or 0.0),
                     "attempted_at": r.created_at.isoformat() if r.created_at else None,
                     "category": r.category,
                     "subcategory": r.subcategory,
                     "difficulty": r.difficulty,
                     "pyq_score": float(r.pyq_frequency_score or 0.0)
+                    # time_taken removed - Twelvr focuses on accuracy patterns only
                 }
                 for r in results
             ]
