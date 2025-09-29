@@ -4352,9 +4352,7 @@ def main():
         print(f"❌ Testing failed with error: {e}")
         return False
 
-if __name__ == "__main__":
-    success = main()
-    exit(0 if success else 1)
+# Removed old main block
 
     def test_coach_voice_implementation(self):
         """
