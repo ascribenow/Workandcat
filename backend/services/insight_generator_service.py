@@ -66,45 +66,47 @@ class InsightGeneratorService:
             return self._generate_simple_fallback_insights(comprehensive_data)
     
     def _build_comprehensive_insights_prompt(self, comprehensive_data: Dict[str, Any]) -> str:
-        """Build comprehensive analytical insights prompt - Deep LLM Analysis"""
+        """Build comprehensive analytical insights prompt - DEMAND SPECIFIC DATA ANALYSIS"""
         import json
         
         return f"""
-You are an expert CAT Quant coach with access to complete student performance data. Provide deep, personalized insights based on detailed analysis.
+You are a data analyst for CAT preparation. Your job is to analyze the JSON data and extract SPECIFIC NUMERICAL INSIGHTS.
 
-ANALYZE ALL AVAILABLE DATA:
-- Sessions: Overall accuracy progression and consistency patterns
-- Concept Journey: Individual concept mastery levels and readiness states
-- Difficulty Patterns: Performance across Easy/Medium/Hard questions
-- Coverage Analysis: Topic gaps and practice debt
-- PYQ Performance: Readiness for actual CAT-style questions
-- Recent Activity: Latest engagement and learning trends
+CRITICAL INSTRUCTION: You MUST analyze the actual data provided. Do NOT generate generic motivational text.
 
+DATA TO ANALYZE:
 {json.dumps(comprehensive_data, indent=2)}
 
-Generate comprehensive insights with JSON in this exact format:
+MANDATORY ANALYSIS STEPS:
+1. COUNT the total sessions and calculate overall accuracy progression
+2. IDENTIFY the top 3 strongest concepts (highest accuracy + attempts > 5)  
+3. IDENTIFY the top 3 weakest concepts (lowest accuracy + attempts > 5)
+4. ANALYZE difficulty patterns (Easy vs Medium vs Hard performance)
+5. CHECK for recent trends (last 3 sessions vs previous sessions)
 
+IF insufficient data (no concepts with >5 attempts OR all sessions 0% accuracy):
+Return: {{"dashboard_all_time": "Complete a few more sessions to unlock detailed performance analysis.", "dashboard_recent": "Your detailed momentum insights will appear after more practice.", "pre_session_card": {{"title": "Building Data 📊", "progress": "Each session builds your performance profile.", "way_forward": ["Focus on understanding each question", "Build consistent practice habits"], "today": "Let's generate more data for analysis."}}}}
+
+IF sufficient data exists, return detailed analysis:
 {{
-    "dashboard_all_time": "COMPREHENSIVE analysis of their complete learning journey. Identify: (1) Specific concept strengths with accuracy numbers, (2) Key weaknesses needing attention, (3) Overall progression arc from start to now, (4) Major accomplishments and growth areas. Use 'about X out of 10 correct' format. Be specific about concepts and numbers from their actual data. 4-6 sentences with detailed analysis.",
-    "dashboard_recent": "DETAILED momentum analysis covering: (1) Recent accuracy trends with specific numbers, (2) Concept shifts - which concepts are improving/declining, (3) Coverage changes - gaps closing or emerging, (4) Strategic recommendations for next steps. Use 'about X out of 10 correct' format. 3-4 sentences with specific data-driven insights.", 
+    "dashboard_all_time": "SPECIFIC ANALYSIS: You've completed [X] sessions with [Y] overall accuracy. Your strongest concepts are [specific names with exact accuracies]. Your weakest areas are [specific names with exact accuracies]. [Specific improvement pattern from first to recent sessions].",
+    "dashboard_recent": "RECENT ANALYSIS: Last [X] sessions show [specific accuracy trend]. [Specific concept] has [improved/declined] to [exact accuracy]. Focus needed on [specific weak concepts with exact numbers].",
     "pre_session_card": {{
-        "title": "Data-driven motivating title with emoji (under 30 chars)",
-        "progress": "Specific progress statement with numbers from recent performance",
-        "way_forward": ["Specific actionable tip based on weakness analysis", "Strategic guidance based on strength analysis"],
-        "today": "Session preview based on their current learning needs and concept priorities"
+        "title": "[Specific insight] 🎯",
+        "progress": "[Specific recent performance with numbers]",
+        "way_forward": ["Work on [specific weak concept] - currently [X]/10 correct", "Leverage [specific strong concept] - you're getting [Y]/10 correct"],
+        "today": "Focus on [specific concepts based on gaps]"
     }}
 }}
 
-ANALYSIS REQUIREMENTS:
-- Reference SPECIFIC concepts from their concept_journey data
-- Use ACTUAL accuracy numbers from their performance
-- Identify REAL patterns from their session history
-- Provide ACTIONABLE recommendations based on their coverage gaps
-- Be ENCOURAGING but analytically precise
-- Use "about X out of 10 correct" instead of percentages
-- NO generic phrases - everything must be data-driven and personalized
+FORMATTING RULES:
+- Always use "about X out of 10 correct" format
+- Always mention specific concept names from the data
+- Always include actual numbers from their performance
+- NO generic phrases like "consistent practice" or "building foundations"
+- If no meaningful data exists, say so clearly
 
-Return ONLY the JSON, nothing else.
+ANALYZE THE DATA NOW AND RETURN ONLY JSON:
         """
     
     def _generate_simple_fallback_insights(self, comprehensive_data: Dict[str, Any]) -> Dict[str, Any]:
