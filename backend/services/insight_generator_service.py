@@ -517,64 +517,58 @@ Data: {json.dumps(slice_dict, indent=2)}
 
     
     def _call_gemini_llm(self, prompt: str) -> str:
-        """Direct Gemini LLM call with safety filter handling"""
+        """LLM call using emergentintegrations library for reliable insight generation"""
         try:
+            import asyncio
             import os
-            import google.generativeai as genai
+            from dotenv import load_dotenv
             
             # Load environment variables
-            from dotenv import load_dotenv
             load_dotenv()
             
-            google_api_key = os.getenv('GOOGLE_API_KEY')
-            if not google_api_key:
-                raise Exception("Google API key not found")
+            # Get Emergent LLM key
+            emergent_llm_key = os.getenv('EMERGENT_LLM_KEY')
+            if not emergent_llm_key:
+                raise Exception("Emergent LLM key not found")
             
-            # Configure Gemini
-            genai.configure(api_key=google_api_key)
+            # Use emergentintegrations for reliable LLM calls
+            from emergentintegrations.llm.chat import LlmChat, UserMessage
             
-            # Initialize Gemini model with relaxed safety settings - USING PREVIEW VERSION FOR BETTER INSTRUCTION FOLLOWING
-            model = genai.GenerativeModel(
-                "gemini-2.5-flash-preview",
-                safety_settings={
-                    genai.types.HarmCategory.HARM_CATEGORY_HARASSMENT: genai.types.HarmBlockThreshold.BLOCK_NONE,
-                    genai.types.HarmCategory.HARM_CATEGORY_HATE_SPEECH: genai.types.HarmBlockThreshold.BLOCK_NONE,
-                    genai.types.HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: genai.types.HarmBlockThreshold.BLOCK_NONE,
-                    genai.types.HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: genai.types.HarmBlockThreshold.BLOCK_NONE,
-                },
-                system_instruction="You are a strict data analyst. You MUST analyze the provided data and return specific numerical insights with concept names. NEVER use generic motivational phrases like 'consistent practice' or 'building foundations'. Always include exact numbers and concept names from the data."
-            )
+            # Create a simple sync wrapper for async call
+            async def make_llm_call():
+                # Initialize the chat with Gemini 2.5-flash
+                chat = LlmChat(
+                    api_key=emergent_llm_key,
+                    session_id=f"insights_{hash(prompt[:100]) % 10000}",  # Simple session ID based on prompt
+                    system_message="You are a strict data analyst for CAT preparation. You MUST analyze provided data and return specific numerical insights with concept names. NEVER use generic motivational phrases."
+                ).with_model("gemini", "gemini-2.5-flash")
+                
+                # Create user message with our demanding prompt
+                user_message = UserMessage(text=prompt)
+                
+                # Send message and get response
+                response = await chat.send_message(user_message)
+                return response
             
-            # Generate content with more tokens and slightly higher temperature for better analytical responses
-            response = model.generate_content(
-                prompt,
-                generation_config=genai.types.GenerationConfig(
-                    max_output_tokens=1200,
-                    temperature=0.3,
-                )
-            )
-            
-            # Handle different response states - NO SAFETY FILTER FALLBACK
-            if response.text:
-                return response.text.strip()
-            elif hasattr(response, 'candidates') and response.candidates:
-                # Check finish reason
-                candidate = response.candidates[0]
-                if hasattr(candidate, 'finish_reason'):
-                    finish_reason = candidate.finish_reason
-                    if finish_reason == 2:  # SAFETY filter
-                        self.logger.warning("Response blocked by safety filter - this should not happen with educational content")
-                        raise Exception(f"Safety filter blocked educational insights - finish_reason: {finish_reason}")
-                    else:
-                        raise Exception(f"Response blocked with finish_reason: {finish_reason}")
-                else:
-                    raise Exception("Response has candidates but no text")
+            # Run the async function
+            loop = asyncio.get_event_loop()
+            if loop.is_running():
+                # If we're in an async context, create a new event loop
+                import concurrent.futures
+                with concurrent.futures.ThreadPoolExecutor() as executor:
+                    future = executor.submit(asyncio.run, make_llm_call())
+                    response = future.result(timeout=30)
             else:
-                raise Exception("No response or candidates from Gemini")
+                response = asyncio.run(make_llm_call())
+            
+            if response and len(response.strip()) > 10:
+                return response.strip()
+            else:
+                raise Exception("Empty or insufficient response from LLM")
                 
         except Exception as e:
-            self.logger.error(f"Gemini LLM call failed: {e}")
-            # Return a simple fallback instead of raising
-            return '{"dashboard_all_time": "Your consistent practice is building strong foundations.", "dashboard_recent": "Recent sessions show continued engagement.", "pre_session_card": {"title": "Keep Going! 💪", "progress": "Building steady progress", "way_forward": ["Stay consistent", "Focus on understanding"], "today": "Continuing your preparation journey"}}'
+            self.logger.error(f"Emergent LLM call failed: {e}")
+            # Return a clear fallback that indicates the issue
+            return '{"dashboard_all_time": "LLM service temporarily unavailable. Please try refreshing your insights.", "dashboard_recent": "LLM analysis will resume shortly.", "pre_session_card": {"title": "Service Update 🔧", "progress": "Insights temporarily unavailable", "way_forward": ["Try refreshing in a moment", "Contact support if issue persists"], "today": "Session ready when insights load"}}'
 # Global service instance
 insight_generator_service = InsightGeneratorService()
