@@ -71,9 +71,23 @@ class InsightCacheService:
             if cache_entry:
                 cache_time = (time() - start_time) * 1000
                 
+                # Extract and parse insights from markdown-wrapped JSON
+                all_time_markdown = ""
+                recent_markdown = ""
+                
+                # Parse all-time insights
+                if cache_entry.all_time_insights.get("markdown"):
+                    all_time_raw = cache_entry.all_time_insights["markdown"]
+                    all_time_markdown = self._extract_insight_from_json_markdown(all_time_raw, "dashboard_all_time")
+                
+                # Parse recent insights  
+                if cache_entry.recent_insights.get("markdown"):
+                    recent_raw = cache_entry.recent_insights["markdown"]
+                    recent_markdown = self._extract_insight_from_json_markdown(recent_raw, "dashboard_recent")
+                
                 result = {
-                    "all_time_markdown": cache_entry.all_time_insights.get("markdown", ""),
-                    "recent_markdown": cache_entry.recent_insights.get("markdown", ""),
+                    "all_time_markdown": all_time_markdown,
+                    "recent_markdown": recent_markdown,
                     "last_updated_at": cache_entry.last_updated_at.isoformat(),
                     "source": "pre_computed",
                     "cache_time_ms": cache_time
