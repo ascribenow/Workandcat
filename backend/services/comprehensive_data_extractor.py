@@ -248,8 +248,7 @@ class ComprehensiveDataExtractor:
                 SELECT 
                     q.difficulty,
                     COUNT(ae.id) as attempted,
-                    COUNT(CASE WHEN ae.was_correct THEN 1 END) as correct,
-                    AVG(ae.time_taken_seconds) as avg_time
+                    COUNT(CASE WHEN ae.was_correct THEN 1 END) as correct
                 FROM attempt_events ae
                 JOIN questions q ON q.id = ae.question_id
                 WHERE ae.user_id = :user_id
@@ -261,8 +260,8 @@ class ComprehensiveDataExtractor:
                 r.difficulty or "Unknown": {
                     "attempted": int(r.attempted or 0),
                     "correct": int(r.correct or 0),
-                    "accuracy": float(r.correct / r.attempted) if r.attempted > 0 else 0.0,
-                    "avg_time_seconds": float(r.avg_time or 0.0)
+                    "accuracy": float(r.correct / r.attempted) if r.attempted > 0 else 0.0
+                    # avg_time removed - Twelvr focuses on accuracy patterns only
                 }
                 for r in results
             }
