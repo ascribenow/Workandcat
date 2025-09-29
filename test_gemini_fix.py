@@ -62,6 +62,13 @@ ANALYZE AND RESPOND:
             )
         )
         
+        # Debug the response
+        print(f"📊 Response object: {response}")
+        if hasattr(response, 'candidates') and response.candidates:
+            candidate = response.candidates[0]
+            print(f"📊 Finish reason: {candidate.finish_reason}")
+            print(f"📊 Safety ratings: {candidate.safety_ratings}")
+        
         if response and response.text:
             print(f"✅ Gemini API call successful")
             print(f"📊 Response length: {len(response.text)} chars")
@@ -69,6 +76,15 @@ ANALYZE AND RESPOND:
             return True
         else:
             print(f"❌ No response text from Gemini")
+            # Try to get the response parts directly
+            if hasattr(response, 'candidates') and response.candidates:
+                candidate = response.candidates[0]
+                if hasattr(candidate, 'content') and candidate.content:
+                    if hasattr(candidate.content, 'parts') and candidate.content.parts:
+                        for part in candidate.content.parts:
+                            if hasattr(part, 'text'):
+                                print(f"📝 Part text: {part.text[:200]}...")
+                                return True
             return False
             
     except Exception as e:
