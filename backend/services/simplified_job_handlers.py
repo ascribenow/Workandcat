@@ -73,8 +73,8 @@ async def run_simplified_summarizer(user_id: str, session_id: str) -> Dict[str, 
                         (user_id, session_id, concept_alias_map, dominance, readiness_reasons, 
                          coverage_labels, llm_model_used, created_at)
                     VALUES
-                        (:user_id, :session_id, :concept_alias_map_json::jsonb, :dominance_json::jsonb, 
-                         :readiness_reasons_json::jsonb, :coverage_labels_json::jsonb, :llm_model_used, NOW())
+                        (:user_id, :session_id, CAST(:concept_alias_map_json AS jsonb), CAST(:dominance_json AS jsonb), 
+                         CAST(:readiness_reasons_json AS jsonb), CAST(:coverage_labels_json AS jsonb), :llm_model_used, NOW())
                     ON CONFLICT (user_id, session_id) DO UPDATE SET
                         concept_alias_map = EXCLUDED.concept_alias_map,
                         dominance = EXCLUDED.dominance,
