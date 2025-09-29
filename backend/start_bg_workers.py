@@ -14,7 +14,7 @@ from pathlib import Path
 backend_dir = Path(__file__).parent
 sys.path.insert(0, str(backend_dir))
 
-from services.bg_job_queue import bg_job_queue_service
+from services.bg_job_queue import job_queue
 from services.simplified_job_handlers import (
     handle_summarize_session,
     handle_plan_next_session, 
