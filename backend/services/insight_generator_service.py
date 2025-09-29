@@ -66,35 +66,46 @@ class InsightGeneratorService:
             return self._generate_simple_fallback_insights(comprehensive_data)
     
     def _build_comprehensive_insights_prompt(self, comprehensive_data: Dict[str, Any]) -> str:
-        """Build comprehensive insights prompt - Pure LLM Freedom"""
+        """Build comprehensive analytical insights prompt - Deep LLM Analysis"""
         import json
         
         return f"""
-You are an encouraging CAT Quant coach analyzing a student's complete learning journey. 
+You are an expert CAT Quant coach with access to complete student performance data. Provide deep, personalized insights based on detailed analysis.
 
-Here is ALL their data - sessions, accuracy patterns, concept progress, question attempts, timing, and more:
+ANALYZE ALL AVAILABLE DATA:
+- Sessions: Overall accuracy progression and consistency patterns
+- Concept Journey: Individual concept mastery levels and readiness states
+- Question Attempts: Detailed performance across different question types
+- Difficulty Patterns: Performance across Easy/Medium/Hard questions
+- Coverage Analysis: Topic gaps and practice debt
+- PYQ Performance: Readiness for actual CAT-style questions
+- Recent Activity: Latest engagement and learning trends
 
 {json.dumps(comprehensive_data, indent=2)}
 
-Generate comprehensive insights that help and motivate this student. Respond with JSON in this exact format:
+Generate comprehensive insights with JSON in this exact format:
 
 {{
-    "dashboard_all_time": "Write an encouraging all-time journey insight in coach voice. Use 'about X out of 10 correct' instead of percentages. Mention their progress arc, key concepts they've worked on, and what they've accomplished. 2-4 sentences, warm and motivating.",
-    "dashboard_recent": "Write about their recent momentum in coach voice. Focus on latest trends, what's improving or needs attention, recent concepts worked on. Use encouraging language and 'about X out of 10' format. 2-3 sentences.", 
+    "dashboard_all_time": "COMPREHENSIVE analysis of their complete learning journey. Identify: (1) Specific concept strengths with accuracy numbers, (2) Key weaknesses needing attention, (3) Overall progression arc from start to now, (4) Major accomplishments and growth areas. Use 'about X out of 10 correct' format. Be specific about concepts and numbers from their actual data. 4-6 sentences with detailed analysis.",
+    "dashboard_recent": "DETAILED momentum analysis covering: (1) Recent accuracy trends with specific numbers, (2) Concept shifts - which concepts are improving/declining, (3) Coverage changes - gaps closing or emerging, (4) Strategic recommendations for next steps. Use 'about X out of 10 correct' format. 3-4 sentences with specific data-driven insights.", 
     "pre_session_card": {{
-        "title": "Motivating title with emoji (under 30 chars)",
-        "progress": "One sentence about their recent progress in encouraging terms",
-        "way_forward": ["First actionable tip", "Second encouraging guidance"],
-        "today": "What to expect in today's session based on their data"
+        "title": "Data-driven motivating title with emoji (under 30 chars)",
+        "progress": "Specific progress statement with numbers from recent performance",
+        "way_forward": ["Specific actionable tip based on weakness analysis", "Strategic guidance based on strength analysis"],
+        "today": "Session preview based on their current learning needs and concept priorities"
     }}
 }}
 
-IMPORTANT:
-- Be warm, encouraging, and coach-like
-- Use "about X out of 10 correct" instead of percentages  
-- Mention specific concepts from their data when relevant
-- Focus on growth, patterns, and guidance
-- Return ONLY the JSON, nothing else
+ANALYSIS REQUIREMENTS:
+- Reference SPECIFIC concepts from their concept_journey data
+- Use ACTUAL accuracy numbers from their performance
+- Identify REAL patterns from their session history
+- Provide ACTIONABLE recommendations based on their coverage gaps
+- Be ENCOURAGING but analytically precise
+- Use "about X out of 10 correct" instead of percentages
+- NO generic phrases - everything must be data-driven and personalized
+
+Return ONLY the JSON, nothing else.
         """
     
     def _generate_simple_fallback_insights(self, comprehensive_data: Dict[str, Any]) -> Dict[str, Any]:
