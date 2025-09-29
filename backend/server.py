@@ -252,20 +252,6 @@ async def send_verification_code(signup_data: SendVerificationRequest):
             if result.scalar_one_or_none():
                 raise HTTPException(status_code=400, detail="Email already registered")
             
-            # Validate referral code if provided (without requiring auth)
-            if signup_data.referral_code:
-                # Simple validation - check if referral code exists
-                referral_check = db.execute(
-                    select(User).where(User.referral_code == signup_data.referral_code.upper().strip())
-                ).scalar_one_or_none()
-                
-                if not referral_check:
-                    raise HTTPException(status_code=400, detail="Invalid referral code")
-                
-                # Check if they're not using their own referral code
-                if referral_check.email.lower() == signup_data.email.lower():
-                    raise HTTPException(status_code=400, detail="Cannot use your own referral code")
-            
             # Initialize Gmail service if not already done
             if not gmail_service.service:
                 if not gmail_service.authenticate_service():
@@ -278,8 +264,7 @@ async def send_verification_code(signup_data: SendVerificationRequest):
             gmail_service.store_pending_user(signup_data.email, {
                 "name": signup_data.name,
                 "email": signup_data.email,
-                "password": signup_data.password,
-                "referral_code": signup_data.referral_code
+                "password": signup_data.password
             })
             
             # Send verification email from hello@twelvr.com
