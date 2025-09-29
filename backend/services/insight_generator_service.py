@@ -510,12 +510,12 @@ Data: {json.dumps(slice_dict, indent=2)}
                 system_instruction="You are an educational data analyst providing student performance insights."
             )
             
-            # Generate content with enhanced configuration for analytical responses
+            # Generate content with conservative settings
             response = model.generate_content(
                 prompt,
                 generation_config=genai.types.GenerationConfig(
-                    max_output_tokens=1200,
-                    temperature=0.3,
+                    max_output_tokens=800,
+                    temperature=0.1,  # Very low temperature
                 )
             )
             
