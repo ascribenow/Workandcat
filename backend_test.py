@@ -4807,39 +4807,39 @@ class CATBackendTester:
         return success_rate >= 75 and natural_conversation_working and rigid_system_removed
 
 def main():
-    """Run the Pure LLM Freedom Approach verification testing"""
-    print("🚀 PURE LLM FREEDOM APPROACH VERIFICATION TESTING")
+    """Run the Complete User Signup System Testing"""
+    print("🚀 COMPLETE USER SIGNUP SYSTEM TESTING")
     print("=" * 80)
-    print("OBJECTIVE: Test the completely reimplemented Adaptive Insights system using pure LLM freedom")
-    print("FOCUS: Comprehensive data extraction, pure LLM generation, background jobs, direct storage")
-    print("EXPECTED: Natural insights without rigid constraints, simplified pipeline, coach voice")
-    print("AUTHENTICATION: sp@theskinmantra.com/student123")
+    print("OBJECTIVE: Test the complete user signup system and identify 'Not Found' error cause")
+    print("FOCUS: Signup API, email verification, referral codes, database creation")
+    print("EXPECTED: Identify why signup fails with 'Not Found' instead of verification code")
+    print("TEST DATA: Test User <test.signup@example.com> with referral code TEST123")
     print("=" * 80)
     
     tester = CATBackendTester()
     
     try:
-        # Run the Pure LLM Freedom Approach verification test
-        success = tester.test_pure_llm_freedom_adaptive_insights_complete()
+        # Run the Complete User Signup System test
+        success = tester.test_complete_user_signup_system()
         
         print("\n" + "=" * 80)
-        print("🎯 PURE LLM FREEDOM APPROACH TESTING SUMMARY")
+        print("🎯 COMPLETE USER SIGNUP SYSTEM TESTING SUMMARY")
         print("=" * 80)
         
         if success:
-            print("✅ PURE LLM FREEDOM APPROACH: VALIDATED")
-            print("   - Comprehensive data extraction working with 50+ data points")
-            print("   - LLM generates natural, encouraging insights without rigid formatting")
-            print("   - Background jobs use new pure LLM approach successfully")
-            print("   - Direct storage methods work correctly")
-            print("   - APIs return LLM-generated content with coach voice")
-            print("   - System significantly exceeds previous 54.5% success rate")
-            print("   - Simplified pipeline eliminates complex fallback logic")
-            print("   - System ready for production deployment")
+            print("✅ SIGNUP SYSTEM TESTING: COMPLETED SUCCESSFULLY")
+            print("   - Root cause of 'Not Found' error identified")
+            print("   - Signup API functionality tested")
+            print("   - Email verification system analyzed")
+            print("   - Referral code system validated")
+            print("   - Database integration confirmed")
+            print("   - Critical issues identified for resolution")
         else:
-            print("❌ PURE LLM FREEDOM APPROACH: NEEDS ATTENTION")
-            print("   - Some critical components of the pure LLM approach not working correctly")
-            print("   - Additional fixes required before production deployment")
+            print("❌ SIGNUP SYSTEM TESTING: CRITICAL ISSUES FOUND")
+            print("   - 'Not Found' error reproduced and analyzed")
+            print("   - Email verification system missing or broken")
+            print("   - System not ready for production use")
+            print("   - Immediate fixes required")
         
         print(f"\nTotal Tests Run: {tester.tests_run}")
         print(f"Tests Passed: {tester.tests_passed}")
