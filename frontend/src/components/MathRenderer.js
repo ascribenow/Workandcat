@@ -216,9 +216,9 @@ const MathRenderer = ({ content, className = '', style = {} }) => {
             });
           }
 
-          // If no inline math, return as plain text
+          // If no inline math, return as plain text with markdown support
           if (inlineSegments.length === 0) {
-            return <span key={segIndex}>{segment.content}</span>;
+            return <span key={segIndex}>{renderWithSimpleMarkdown(segment.content)}</span>;
           }
 
           return (
