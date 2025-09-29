@@ -535,12 +535,12 @@ class InsightCacheService:
         }
     
     def _empty_pre_session_response(self) -> Dict[str, Any]:
-        """Return empty pre-session response on error"""
+        """Return empty pre-session response - CACHE-FIRST FALLBACK"""
         return {
-            "title": "Ready to Start 🚀",
-            "progress": "Let's begin your learning session.",
-            "way_forward": ["Focus on accuracy and understanding"],
-            "today": "12 questions designed for your level.",
+            "title": "Let's Begin 🎯",
+            "progress": "Your session insights are being prepared.",
+            "way_forward": ["Focus on understanding each question", "Work at your steady pace"],
+            "today": "12 adaptive questions await you.",
             "last_updated_at": datetime.now(timezone.utc).isoformat()
         }
     
