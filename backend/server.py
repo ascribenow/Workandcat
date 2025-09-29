@@ -108,6 +108,17 @@ class SignupRequest(BaseModel):
     email: str
     full_name: str
     password: str
+    referral_code: Optional[str] = None
+
+class SendVerificationRequest(BaseModel):
+    email: str
+    full_name: str
+    password: str
+    referral_code: Optional[str] = None
+
+class VerifyCodeRequest(BaseModel):
+    email: str
+    verification_code: str
 
 class QuestionResponse(BaseModel):
     id: str
