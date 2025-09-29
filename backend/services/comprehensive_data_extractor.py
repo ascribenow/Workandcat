@@ -169,44 +169,7 @@ class ComprehensiveDataExtractor:
             self.logger.warning(f"Error getting concept journey: {e}")
             return []
     
-    def _get_question_attempts(self, db: Session, user_id: str) -> List[Dict[str, Any]]:
-        """Get recent question attempts with details"""
-        try:
-            query = text("""
-                SELECT 
-                    ae.question_id,
-                    ae.was_correct,
-                    ae.selected_option,
-                    ae.created_at,
-                    q.category,
-                    q.subcategory,
-                    q.difficulty,
-                    q.pyq_frequency_score
-                FROM attempt_events ae
-                JOIN questions q ON q.id = ae.question_id
-                WHERE ae.user_id = :user_id
-                ORDER BY ae.created_at DESC
-                LIMIT 100
-            """)
-            
-            results = db.execute(query, {"user_id": user_id}).fetchall()
-            return [
-                {
-                    "question_id": r.question_id,
-                    "correct": bool(r.was_correct),
-                    "selected_option": r.selected_option,
-                    "attempted_at": r.created_at.isoformat() if r.created_at else None,
-                    "category": r.category,
-                    "subcategory": r.subcategory,
-                    "difficulty": r.difficulty,
-                    "pyq_score": float(r.pyq_frequency_score or 0.0)
-                    # time_taken removed - Twelvr focuses on accuracy patterns only
-                }
-                for r in results
-            ]
-        except Exception as e:
-            self.logger.warning(f"Error getting question attempts: {e}")
-            return []
+    # _get_question_attempts removed - redundant with aggregated concept_journey and difficulty_patterns data
     
     def _get_pyq_performance(self, db: Session, user_id: str) -> Dict[str, Any]:
         """Get PYQ-specific performance"""
