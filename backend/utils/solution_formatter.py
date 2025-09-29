@@ -10,10 +10,23 @@ import re
 
 def format_solution_content(content: str) -> str:
     """
-    Format solution content for better readability
+    Format solution content for better readability and proper LaTeX math rendering
     """
     if not content:
         return content
+    
+    # Step 0: Wrap LaTeX math expressions in proper delimiters for frontend rendering
+    # Wrap \frac{...}{...} expressions
+    content = re.sub(r'\\frac\{([^}]+)\}\{([^}]+)\}', r'\\(\frac{\1}{\2}\\)', content)
+    
+    # Wrap \boxed{...} expressions
+    content = re.sub(r'\\boxed\{([^}]+)\}', r'\\(\boxed{\1}\\)', content)
+    
+    # Wrap standalone mathematical expressions (anything with backslash followed by letters)
+    content = re.sub(r'\\([a-zA-Z]+)\{([^}]+)\}(?!\\)', r'\\(\\\1{\2}\\)', content)
+    
+    # Wrap expressions like Speed_2, Distance_1, etc.
+    content = re.sub(r'([A-Za-z_]+)_(\d+)', r'\\(\1_{\2}\\)', content)
     
     # Step 1: Convert \text{...} commands to readable format
     # \text{minutes} -> minutes, \text{hours} -> hours, etc.
@@ -33,8 +46,7 @@ def format_solution_content(content: str) -> str:
     content = re.sub(r'(\.)(\s*)(Method|Givens|Goal|Solution|Answer):', r'\1\n\n**\3:**', content)
     content = re.sub(r'^(Method|Givens|Goal|Solution|Answer):', r'**\1:**', content, flags=re.MULTILINE)
     
-    # Step 6: Add spacing around boxed answers
-    content = re.sub(r'(\.)(\s*)(\\boxed\{[^}]+\})', r'\1\n\n\3', content)
+    # Step 6: Spacing is already handled by Step 0 for boxed expressions
     
     # Step 7: Add line breaks before "Sanity check:" and "Common pitfall:"
     content = re.sub(r'(\.)(\s*)(Sanity check|Common pitfall):', r'\1\n\n**\3:**', content)
