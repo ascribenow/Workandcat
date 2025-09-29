@@ -337,46 +337,26 @@ ANALYZE AND RESPOND:
         """
     
     def _build_recent_prompt(self, slice_dict: Dict[str, Any]) -> str:
-        """Build analytical prompt for recent momentum insights"""
+        """Build SPECIFIC recent analysis prompt - NO GENERIC MOMENTUM TALK"""
         return f"""
-You are an expert CAT Quant coach analyzing a student's recent performance trends. Provide a detailed momentum analysis.
+ANALYZE THE RECENT DATA ONLY. Do NOT write generic "continued engagement" text.
 
-ANALYZE RECENT PERFORMANCE PATTERNS:
+REQUIRED ANALYSIS:
+1. Compare last 3 sessions to previous sessions - specific accuracy numbers
+2. Identify which concepts are trending up/down in recent attempts  
+3. Note any significant performance changes
 
-1. **ACCURACY TRAJECTORY**: Examine accuracy_series data:
-   - Identify if accuracy is improving, declining, or stable
-   - Calculate the trend from first to most recent sessions
-   - Note any significant drops or improvements
+DATA:
+{json.dumps(slice_dict, indent=2)}
 
-2. **CONCEPT SHIFTS**: Look at concept_shifts_recent data:
-   - Which concepts have improved (moved to Strong/Moderate)
-   - Which concepts have declined (moved to Weak)
-   - New concepts being introduced vs. existing ones being reinforced
+RULES:
+- IF insufficient recent data: Return "Complete more recent sessions for momentum analysis."
+- IF data exists: Provide specific numbers and trends
+- Use "about X out of 10 correct" format  
+- Mention specific concepts and their recent performance changes
+- NO generic phrases about "engagement" or "continued practice"
 
-3. **COVERAGE CHANGES**: Analyze coverage_recent data:
-   - Topics where practice gaps are closing (debt relief)
-   - New gaps that are emerging (rising debt)
-   - Strategic implications for upcoming practice
-
-4. **PYQ PERFORMANCE**: Check pyq_recent data:
-   - Performance on high-frequency PYQ questions
-   - Readiness for actual CAT-style questions
-
-PROVIDE ANALYTICAL MOMENTUM INSIGHT (3-4 sentences) including:
-- Specific recent accuracy trend with numbers ("Your recent sessions show improvement from about 4 out of 10 to about 7 out of 10")
-- Concept-specific changes ("Geometry practice is paying off - you've moved from Weak to Moderate")
-- Strategic focus areas ("Your Algebra debt is increasing - prioritize this to prevent larger gaps")
-- PYQ readiness assessment if data available
-
-TONE: Analytical coach providing specific, data-driven momentum assessment.
-
-CONSTRAINTS:
-- Use "about X out of 10 correct" format instead of percentages
-- Reference specific concepts and readiness changes from the data
-- Focus on actionable trends, not generic encouragement
-- Be specific about what's working and what needs attention
-
-Data: {json.dumps(slice_dict, indent=2)}
+ANALYZE RECENT TRENDS:
         """
     
     def _build_pre_session_prompt(self, slice_dict: Dict[str, Any]) -> str:
