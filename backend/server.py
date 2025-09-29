@@ -241,9 +241,156 @@ async def health_check():
 async def api_health_check():
     return {"status": "healthy", "message": "Twelvr API is running via /api route"}
 
-# Authentication endpoints
+# Authentication endpoints - Two-step email verification
+@app.post("/api/auth/send-verification-code")
+async def send_verification_code(signup_data: SendVerificationRequest):
+    """Step 1: Send verification code to user's email"""
+    try:
+        db = SessionLocal()
+        try:
+            # Check if user already exists
+            result = db.execute(select(User).where(User.email == signup_data.email))
+            if result.scalar_one_or_none():
+                raise HTTPException(status_code=400, detail="Email already registered")
+            
+            # Validate referral code if provided
+            if signup_data.referral_code:
+                referral_result = referral_service.validate_referral_code(
+                    db, signup_data.referral_code, None, skip_auth=True  
+                )
+                if not referral_result.get("valid", False):
+                    raise HTTPException(status_code=400, detail="Invalid referral code")
+            
+            # Initialize Gmail service if not already done
+            if not gmail_service.service:
+                if not gmail_service.authenticate_service():
+                    raise HTTPException(status_code=500, detail="Email service not available")
+            
+            # Generate verification code
+            verification_code = gmail_service.generate_verification_code(signup_data.email)
+            
+            # Store pending user data
+            gmail_service.store_pending_user(signup_data.email, {
+                "email": signup_data.email,
+                "full_name": signup_data.full_name,
+                "password": signup_data.password,
+                "referral_code": signup_data.referral_code
+            })
+            
+            # Send verification email
+            email_sent = gmail_service.send_verification_email(signup_data.email, verification_code)
+            
+            if not email_sent:
+                raise HTTPException(status_code=500, detail="Failed to send verification email")
+            
+            return {
+                "success": True,
+                "message": "Verification code sent to your email",
+                "email": signup_data.email
+            }
+            
+        finally:
+            db.close()
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Send verification error: {e}")
+        raise HTTPException(status_code=500, detail="Failed to send verification code")
+
+@app.post("/api/auth/verify-email")  
+async def verify_email_and_signup(verify_data: VerifyCodeRequest):
+    """Step 2: Verify code and complete user registration"""
+    try:
+        db = SessionLocal()
+        try:
+            # Verify the code
+            if not gmail_service.verify_code(verify_data.email, verify_data.verification_code):
+                raise HTTPException(status_code=400, detail="Invalid or expired verification code")
+            
+            # Get pending user data
+            pending_user_data = gmail_service.get_pending_user(verify_data.email)
+            if not pending_user_data:
+                raise HTTPException(status_code=400, detail="No pending signup found for this email")
+            
+            # Check if user already exists (double check)
+            result = db.execute(select(User).where(User.email == verify_data.email))
+            if result.scalar_one_or_none():
+                raise HTTPException(status_code=400, detail="Email already registered")
+            
+            # Hash password
+            password_hash = bcrypt.hashpw(
+                pending_user_data["password"].encode('utf-8'), 
+                bcrypt.gensalt()
+            ).decode('utf-8')
+            
+            # Generate referral code for new user
+            user_referral_code = referral_service.generate_referral_code(db)
+            
+            # Create user
+            user = User(
+                id=str(uuid.uuid4()),
+                email=pending_user_data["email"],
+                full_name=pending_user_data["full_name"],
+                password_hash=password_hash,
+                referral_code=user_referral_code,
+                email_verified=True  # Mark as verified
+            )
+            
+            db.add(user)
+            db.commit()
+            
+            # Process referral code if used
+            used_referral_code = pending_user_data.get("referral_code")
+            if used_referral_code:
+                try:
+                    referral_service.process_referral_usage(
+                        db, used_referral_code, user.email, "free_trial", 0
+                    )
+                except Exception as e:
+                    logger.warning(f"Referral processing failed: {e}")
+            
+            # Clean up pending data
+            gmail_service.remove_pending_user(verify_data.email)
+            
+            # Send welcome emails
+            try:
+                gmail_service.send_signup_confirmation_email(user.email, user.full_name)
+                if user.referral_code:
+                    gmail_service.send_referral_code_email(user.email, user.full_name, user.referral_code)
+            except Exception as e:
+                logger.warning(f"Welcome email failed: {e}")
+            
+            # Create access token
+            access_token = create_access_token(data={"sub": user.id})
+            
+            return {
+                "success": True,
+                "access_token": access_token,
+                "token_type": "bearer",
+                "user": {
+                    "id": user.id,
+                    "email": user.email,
+                    "full_name": user.full_name,
+                    "is_admin": user.is_admin,
+                    "adaptive_enabled": bool(user.adaptive_enabled),
+                    "email_verified": True
+                },
+                "message": "Account created successfully"
+            }
+            
+        finally:
+            db.close()
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Email verification error: {e}")
+        raise HTTPException(status_code=500, detail="Email verification failed")
+
 @app.post("/api/auth/signup")
 async def signup(signup_data: SignupRequest):
+    """Legacy direct signup - kept for backward compatibility"""
     db = SessionLocal()
     try:
         # Check if user exists
@@ -263,7 +410,8 @@ async def signup(signup_data: SignupRequest):
             email=signup_data.email,
             full_name=signup_data.full_name,
             password_hash=password_hash,
-            referral_code=referral_code
+            referral_code=referral_code,
+            email_verified=False  # Not verified in legacy flow
         )
         
         db.add(user)
@@ -280,7 +428,8 @@ async def signup(signup_data: SignupRequest):
                 "email": user.email,
                 "full_name": user.full_name,
                 "is_admin": user.is_admin,
-                "adaptive_enabled": bool(user.adaptive_enabled)
+                "adaptive_enabled": bool(user.adaptive_enabled),
+                "email_verified": False
             }
         }
     finally:
