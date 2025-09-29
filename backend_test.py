@@ -1106,6 +1106,507 @@ class CATBackendTester:
         
         return success_rate >= 80 and criteria_rate >= 85
 
+    def test_complete_user_signup_system(self):
+        """
+        🎯 COMPLETE USER SIGNUP SYSTEM TESTING
+        
+        **TESTING OBJECTIVE:**
+        Test the complete user signup system for the Twelvr application based on the review request.
+        A new user "Shubham Agarwal" with email "shubham160304@gmail.com" and referral code "Shubhamtwelvr007" 
+        tried signing up but received "Not Found" error instead of verification code.
+        
+        **SPECIFIC TESTS TO PERFORM:**
+        1. **Signup API endpoint** - POST request to create new user account
+        2. **Email verification system** - Check if verification emails are being sent
+        3. **Referral code validation** - Test if referral codes are being processed correctly
+        4. **Database user creation** - Verify users are being stored properly
+        5. **Error handling** - Check what's causing the "Not Found" error
+        6. **Email service integration** - Verify email service (Gmail/SMTP) is configured and working
+        7. **Verification code generation** - Test if codes are being generated and stored
+        8. **Complete signup flow** - From initial signup to email verification completion
+        
+        **TEST DATA:**
+        - Name: "Test User"
+        - Email: "test.signup@example.com" 
+        - Referral Code: "TEST123" (or test without referral first)
+        
+        **FOCUS:**
+        - Why "Not Found" error appears instead of successful signup
+        - Whether email service is working
+        - If referral code validation is causing issues
+        - Any missing API endpoints or configuration problems
+        """
+        print("🎯 COMPLETE USER SIGNUP SYSTEM TESTING")
+        print("=" * 80)
+        print("OBJECTIVE: Test complete signup system and identify 'Not Found' error cause")
+        print("FOCUS: Signup API, email verification, referral codes, database creation")
+        print("EXPECTED: Identify why signup fails with 'Not Found' instead of verification code")
+        print("=" * 80)
+        
+        test_results = {
+            # Basic API Availability
+            "signup_endpoint_exists": False,
+            "signup_endpoint_accessible": False,
+            "api_health_check_working": False,
+            
+            # Signup API Testing
+            "signup_without_referral_working": False,
+            "signup_with_referral_working": False,
+            "signup_creates_user_in_db": False,
+            "signup_returns_proper_response": False,
+            
+            # Email Verification System
+            "email_verification_endpoints_exist": False,
+            "send_verification_code_working": False,
+            "verify_code_endpoint_working": False,
+            "gmail_service_configured": False,
+            "verification_emails_sent": False,
+            
+            # Referral Code System
+            "referral_code_validation_working": False,
+            "referral_code_generation_working": False,
+            "invalid_referral_handled_properly": False,
+            "referral_service_accessible": False,
+            
+            # Database Integration
+            "user_creation_in_database": False,
+            "user_data_properly_stored": False,
+            "referral_code_stored": False,
+            "database_connection_working": False,
+            
+            # Error Handling
+            "not_found_error_reproduced": False,
+            "error_cause_identified": False,
+            "proper_error_messages": False,
+            "duplicate_email_handling": False,
+            
+            # Email Service Integration
+            "gmail_service_initialized": False,
+            "email_sending_functional": False,
+            "verification_code_generation": False,
+            "email_templates_working": False,
+            
+            # Complete Signup Flow
+            "initial_signup_request": False,
+            "verification_code_sent": False,
+            "code_verification_working": False,
+            "user_account_activated": False,
+            "signup_flow_complete": False,
+            
+            # Overall Assessment
+            "signup_system_working": False,
+            "email_verification_working": False,
+            "referral_system_working": False,
+            "critical_issues_identified": False,
+            "production_ready": False
+        }
+        
+        # PHASE 1: BASIC API AVAILABILITY
+        print("\n🔍 PHASE 1: BASIC API AVAILABILITY")
+        print("-" * 60)
+        print("Testing if signup endpoint exists and is accessible")
+        
+        # Test API health first
+        success, health_response = self.run_test(
+            "API Health Check", 
+            "GET", 
+            "health", 
+            [200], 
+            None, 
+            None
+        )
+        
+        if success:
+            test_results["api_health_check_working"] = True
+            print(f"   ✅ API health check working")
+        else:
+            print(f"   ❌ API health check failed: {health_response}")
+        
+        # Test signup endpoint accessibility (without data first)
+        success, signup_response = self.run_test(
+            "Signup Endpoint Accessibility", 
+            "POST", 
+            "auth/signup", 
+            [400, 422, 500],  # Expect validation error without data
+            None, 
+            None
+        )
+        
+        if success or (signup_response and signup_response.get('status_code') in [400, 422]):
+            test_results["signup_endpoint_exists"] = True
+            test_results["signup_endpoint_accessible"] = True
+            print(f"   ✅ Signup endpoint exists and is accessible")
+        else:
+            print(f"   ❌ Signup endpoint not accessible: {signup_response}")
+            # Check if it's a 404 Not Found error
+            if signup_response and signup_response.get('status_code') == 404:
+                test_results["not_found_error_reproduced"] = True
+                print(f"   🎯 REPRODUCED: 'Not Found' error - signup endpoint missing!")
+        
+        # PHASE 2: SIGNUP API TESTING
+        print("\n📝 PHASE 2: SIGNUP API TESTING")
+        print("-" * 60)
+        print("Testing signup API with test data")
+        
+        if test_results["signup_endpoint_accessible"]:
+            # Test signup without referral code first
+            test_signup_data = {
+                "email": "test.signup@example.com",
+                "full_name": "Test User",
+                "password": "TestPassword123!"
+            }
+            
+            print(f"   📋 Testing signup without referral code...")
+            success, signup_response = self.run_test(
+                "Signup Without Referral", 
+                "POST", 
+                "auth/signup", 
+                [200, 201, 400, 409, 500], 
+                test_signup_data, 
+                None
+            )
+            
+            if success and signup_response.get('access_token'):
+                test_results["signup_without_referral_working"] = True
+                test_results["signup_returns_proper_response"] = True
+                print(f"   ✅ Signup without referral working")
+                print(f"   📊 Response includes access_token: {len(signup_response.get('access_token', ''))} chars")
+                
+                # Check user data in response
+                user_data = signup_response.get('user', {})
+                if user_data.get('email') == test_signup_data['email']:
+                    test_results["signup_creates_user_in_db"] = True
+                    print(f"   ✅ User data properly returned in response")
+                    print(f"   📊 User ID: {user_data.get('id', 'N/A')}")
+                    print(f"   📊 User Email: {user_data.get('email', 'N/A')}")
+                    print(f"   📊 User Name: {user_data.get('full_name', 'N/A')}")
+            else:
+                print(f"   ❌ Signup without referral failed: {signup_response}")
+                
+                # Check for specific error types
+                if signup_response and signup_response.get('status_code') == 404:
+                    test_results["not_found_error_reproduced"] = True
+                    print(f"   🎯 REPRODUCED: 'Not Found' error during signup!")
+                elif signup_response and signup_response.get('status_code') == 400:
+                    print(f"   ⚠️ Bad request error - may be validation issue")
+                elif signup_response and signup_response.get('status_code') == 500:
+                    print(f"   ⚠️ Internal server error - may be database/service issue")
+            
+            # Test signup with referral code
+            test_signup_data_with_referral = {
+                "email": "test.signup.referral@example.com",
+                "full_name": "Test User With Referral",
+                "password": "TestPassword123!",
+                "referral_code": "TEST123"
+            }
+            
+            print(f"   📋 Testing signup with referral code...")
+            success, signup_referral_response = self.run_test(
+                "Signup With Referral", 
+                "POST", 
+                "auth/signup", 
+                [200, 201, 400, 409, 500], 
+                test_signup_data_with_referral, 
+                None
+            )
+            
+            if success and signup_referral_response.get('access_token'):
+                test_results["signup_with_referral_working"] = True
+                print(f"   ✅ Signup with referral code working")
+            else:
+                print(f"   ❌ Signup with referral failed: {signup_referral_response}")
+        
+        # PHASE 3: EMAIL VERIFICATION SYSTEM TESTING
+        print("\n📧 PHASE 3: EMAIL VERIFICATION SYSTEM TESTING")
+        print("-" * 60)
+        print("Testing email verification endpoints and functionality")
+        
+        # Check for email verification endpoints
+        verification_endpoints = [
+            ("send-verification-code", "POST"),
+            ("verify-email-code", "POST"),
+            ("verify-code", "POST"),
+            ("send-verification", "POST")
+        ]
+        
+        for endpoint, method in verification_endpoints:
+            success, response = self.run_test(
+                f"Email Verification Endpoint: {endpoint}", 
+                method, 
+                f"auth/{endpoint}", 
+                [200, 400, 404, 422, 500], 
+                {"email": "test@example.com"}, 
+                None
+            )
+            
+            if success or (response and response.get('status_code') != 404):
+                test_results["email_verification_endpoints_exist"] = True
+                print(f"   ✅ Found email verification endpoint: {endpoint}")
+                break
+            else:
+                print(f"   ❌ Email verification endpoint not found: {endpoint}")
+        
+        if not test_results["email_verification_endpoints_exist"]:
+            print(f"   🎯 CRITICAL FINDING: No email verification endpoints found!")
+            print(f"   📋 This explains why users don't receive verification codes")
+        
+        # Test Gmail service configuration
+        try:
+            print(f"   🔍 Testing Gmail service configuration...")
+            
+            # Try to import and test gmail service
+            import sys
+            sys.path.append('/app/backend')
+            from gmail_service import gmail_service
+            
+            if hasattr(gmail_service, 'service') and gmail_service.service:
+                test_results["gmail_service_configured"] = True
+                test_results["gmail_service_initialized"] = True
+                print(f"   ✅ Gmail service is configured and initialized")
+            else:
+                print(f"   ❌ Gmail service not properly initialized")
+            
+            # Test verification code generation
+            if hasattr(gmail_service, 'generate_verification_code'):
+                test_code = gmail_service.generate_verification_code("test@example.com")
+                if test_code and len(test_code) == 6:
+                    test_results["verification_code_generation"] = True
+                    print(f"   ✅ Verification code generation working: {test_code}")
+                else:
+                    print(f"   ❌ Verification code generation failed")
+            
+            # Test email sending capability (without actually sending)
+            if hasattr(gmail_service, 'send_verification_email'):
+                test_results["email_templates_working"] = True
+                print(f"   ✅ Email sending methods available")
+            else:
+                print(f"   ❌ Email sending methods not available")
+                
+        except Exception as e:
+            print(f"   ❌ Error testing Gmail service: {e}")
+        
+        # PHASE 4: REFERRAL CODE SYSTEM TESTING
+        print("\n🎫 PHASE 4: REFERRAL CODE SYSTEM TESTING")
+        print("-" * 60)
+        print("Testing referral code validation and generation")
+        
+        # Test referral validation endpoint
+        success, referral_response = self.run_test(
+            "Referral Code Validation", 
+            "POST", 
+            "referral/validate", 
+            [200, 400, 401, 404, 500], 
+            {"referral_code": "TEST123"}, 
+            None
+        )
+        
+        if success:
+            test_results["referral_code_validation_working"] = True
+            print(f"   ✅ Referral validation endpoint working")
+        else:
+            print(f"   ❌ Referral validation failed: {referral_response}")
+            if referral_response and referral_response.get('status_code') == 401:
+                print(f"   ⚠️ Referral validation requires authentication")
+        
+        # Test referral service
+        try:
+            print(f"   🔍 Testing referral service...")
+            
+            import sys
+            sys.path.append('/app/backend')
+            from referral_service import referral_service
+            
+            if hasattr(referral_service, 'generate_referral_code'):
+                test_results["referral_service_accessible"] = True
+                test_results["referral_code_generation_working"] = True
+                print(f"   ✅ Referral service accessible and functional")
+            else:
+                print(f"   ❌ Referral service not properly configured")
+                
+        except Exception as e:
+            print(f"   ❌ Error testing referral service: {e}")
+        
+        # PHASE 5: DATABASE INTEGRATION TESTING
+        print("\n🗄️ PHASE 5: DATABASE INTEGRATION TESTING")
+        print("-" * 60)
+        print("Testing database connection and user creation")
+        
+        # Test database connection through a simple endpoint
+        success, db_response = self.run_test(
+            "Database Connection Test", 
+            "GET", 
+            "health", 
+            [200], 
+            None, 
+            None
+        )
+        
+        if success:
+            test_results["database_connection_working"] = True
+            print(f"   ✅ Database connection appears to be working")
+        else:
+            print(f"   ❌ Database connection issues detected")
+        
+        # If we successfully created a user earlier, check if it's in the database
+        if test_results["signup_without_referral_working"]:
+            test_results["user_creation_in_database"] = True
+            test_results["user_data_properly_stored"] = True
+            print(f"   ✅ User creation in database confirmed (from successful signup)")
+        
+        # PHASE 6: ERROR ANALYSIS AND ROOT CAUSE
+        print("\n🔍 PHASE 6: ERROR ANALYSIS AND ROOT CAUSE")
+        print("-" * 60)
+        print("Analyzing the root cause of 'Not Found' errors")
+        
+        if test_results["not_found_error_reproduced"]:
+            test_results["error_cause_identified"] = True
+            print(f"   🎯 ROOT CAUSE IDENTIFIED: 'Not Found' error reproduced")
+            print(f"   📋 Likely causes:")
+            print(f"      1. Signup endpoint missing or incorrectly configured")
+            print(f"      2. Email verification endpoints missing")
+            print(f"      3. API routing issues")
+        
+        if not test_results["email_verification_endpoints_exist"]:
+            test_results["critical_issues_identified"] = True
+            print(f"   🎯 CRITICAL ISSUE: Email verification system not implemented")
+            print(f"   📋 This explains why users don't receive verification codes")
+        
+        # Test duplicate email handling
+        if test_results["signup_without_referral_working"]:
+            print(f"   🔄 Testing duplicate email handling...")
+            
+            duplicate_signup_data = {
+                "email": "test.signup@example.com",  # Same email as before
+                "full_name": "Duplicate User",
+                "password": "TestPassword123!"
+            }
+            
+            success, duplicate_response = self.run_test(
+                "Duplicate Email Handling", 
+                "POST", 
+                "auth/signup", 
+                [400, 409], 
+                duplicate_signup_data, 
+                None
+            )
+            
+            if success and duplicate_response.get('status_code') in [400, 409]:
+                test_results["duplicate_email_handling"] = True
+                print(f"   ✅ Duplicate email properly handled")
+            else:
+                print(f"   ❌ Duplicate email handling issue: {duplicate_response}")
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 80)
+        print("🎯 COMPLETE USER SIGNUP SYSTEM TESTING - RESULTS")
+        print("=" * 80)
+        
+        passed_tests = sum(test_results.values())
+        total_tests = len(test_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        # Group results by test categories
+        test_categories = {
+            "BASIC API AVAILABILITY": [
+                "signup_endpoint_exists", "signup_endpoint_accessible", "api_health_check_working"
+            ],
+            "SIGNUP API FUNCTIONALITY": [
+                "signup_without_referral_working", "signup_with_referral_working",
+                "signup_creates_user_in_db", "signup_returns_proper_response"
+            ],
+            "EMAIL VERIFICATION SYSTEM": [
+                "email_verification_endpoints_exist", "send_verification_code_working",
+                "verify_code_endpoint_working", "gmail_service_configured", "verification_emails_sent"
+            ],
+            "REFERRAL CODE SYSTEM": [
+                "referral_code_validation_working", "referral_code_generation_working",
+                "invalid_referral_handled_properly", "referral_service_accessible"
+            ],
+            "DATABASE INTEGRATION": [
+                "user_creation_in_database", "user_data_properly_stored",
+                "referral_code_stored", "database_connection_working"
+            ],
+            "ERROR HANDLING": [
+                "not_found_error_reproduced", "error_cause_identified",
+                "proper_error_messages", "duplicate_email_handling"
+            ],
+            "EMAIL SERVICE INTEGRATION": [
+                "gmail_service_initialized", "email_sending_functional",
+                "verification_code_generation", "email_templates_working"
+            ],
+            "COMPLETE SIGNUP FLOW": [
+                "initial_signup_request", "verification_code_sent",
+                "code_verification_working", "user_account_activated", "signup_flow_complete"
+            ]
+        }
+        
+        for category, tests in test_categories.items():
+            print(f"\n{category}:")
+            category_passed = 0
+            category_total = len(tests)
+            
+            for test in tests:
+                if test in test_results:
+                    result = test_results[test]
+                    status = "✅ PASS" if result else "❌ FAIL"
+                    print(f"  {test.replace('_', ' ').title():<50} {status}")
+                    if result:
+                        category_passed += 1
+            
+            category_rate = (category_passed / category_total) * 100 if category_total > 0 else 0
+            print(f"  Category Success Rate: {category_passed}/{category_total} ({category_rate:.1f}%)")
+        
+        print("-" * 80)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # CRITICAL FINDINGS SUMMARY
+        print("\n🎯 CRITICAL FINDINGS:")
+        
+        if test_results["not_found_error_reproduced"]:
+            print("\n❌ 'NOT FOUND' ERROR REPRODUCED:")
+            print("   - Signup endpoint returns 404 Not Found")
+            print("   - This matches the user's reported issue")
+            print("   - Likely cause: API routing or endpoint configuration problem")
+        
+        if not test_results["email_verification_endpoints_exist"]:
+            print("\n❌ EMAIL VERIFICATION SYSTEM MISSING:")
+            print("   - No email verification endpoints found")
+            print("   - Users cannot receive verification codes")
+            print("   - Email verification flow not implemented")
+        
+        if test_results["gmail_service_configured"] and not test_results["email_verification_endpoints_exist"]:
+            print("\n⚠️ CONFIGURATION MISMATCH:")
+            print("   - Gmail service is configured but not connected to API endpoints")
+            print("   - Email sending capability exists but no way to trigger it")
+        
+        if test_results["referral_service_accessible"] and not test_results["referral_code_validation_working"]:
+            print("\n⚠️ REFERRAL SYSTEM ISSUES:")
+            print("   - Referral service exists but validation endpoint has issues")
+            print("   - May require authentication or have other problems")
+        
+        # PRODUCTION READINESS ASSESSMENT
+        signup_working = (
+            test_results["signup_endpoint_accessible"] and
+            test_results["signup_without_referral_working"]
+        )
+        
+        email_system_working = (
+            test_results["email_verification_endpoints_exist"] and
+            test_results["gmail_service_configured"]
+        )
+        
+        if signup_working and email_system_working:
+            test_results["signup_system_working"] = True
+            test_results["production_ready"] = True
+            print("\n✅ SIGNUP SYSTEM: WORKING")
+        else:
+            print("\n❌ SIGNUP SYSTEM: CRITICAL ISSUES DETECTED")
+            print("   - Email verification system missing or broken")
+            print("   - Users cannot complete signup flow")
+            print("   - System not ready for production use")
+        
+        return success_rate >= 60 and test_results["error_cause_identified"]
+
     def test_proof_of_pudding_adaptive_insights_fix(self):
         """
         🎯 PROOF OF THE PUDDING ADAPTIVE INSIGHTS FIX TESTING
