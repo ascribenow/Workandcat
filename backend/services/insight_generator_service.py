@@ -66,23 +66,20 @@ class InsightGeneratorService:
             return self._generate_simple_fallback_insights(comprehensive_data)
     
     def _build_comprehensive_insights_prompt(self, comprehensive_data: Dict[str, Any]) -> str:
-        """Build simple, safety-filter friendly insights prompt for Gemini API"""
+        """Build ultra-simple, educational prompt for Gemini API"""
         import json
         
         return f"""
-Please analyze this student performance data for CAT preparation and return insights in JSON format.
+Analyze student performance data for educational insights.
 
-Performance Data:
-{json.dumps(comprehensive_data, indent=2)}
+Data: {json.dumps(comprehensive_data, indent=2)}
 
-Please return a JSON object with exactly these three keys:
-1. "dashboard_all_time" - Overview of overall performance 
-2. "dashboard_recent" - Recent performance trends
-3. "pre_session_card" - Object with title, progress, way_forward (array), today
+Return JSON with:
+- dashboard_all_time: overall performance summary
+- dashboard_recent: recent trends  
+- pre_session_card: object with title, progress, way_forward array, today
 
-If there is sufficient session data, include specific numbers and concept names. If there is limited data, provide encouraging guidance about completing more sessions.
-
-Return only valid JSON format.
+Focus on educational progress and specific numbers where available.
         """
     
     def _generate_simple_fallback_insights(self, comprehensive_data: Dict[str, Any]) -> Dict[str, Any]:
