@@ -556,13 +556,25 @@ Data: {json.dumps(slice_dict, indent=2)}
                 )
             )
             
-            # Handle different response states
-            if response.text:
+            # Handle different response states with better error handling
+            if hasattr(response, 'text') and response.text:
                 self.logger.info(f"Gemini response received: {len(response.text)} chars")
                 return response.text.strip()
             elif hasattr(response, 'candidates') and response.candidates:
-                # Check finish reason
+                # Check finish reason and try to get text from candidates
                 candidate = response.candidates[0]
+                if hasattr(candidate, 'content') and candidate.content.parts:
+                    # Try to extract text from parts
+                    text_parts = []
+                    for part in candidate.content.parts:
+                        if hasattr(part, 'text'):
+                            text_parts.append(part.text)
+                    if text_parts:
+                        combined_text = ''.join(text_parts)
+                        self.logger.info(f"Gemini response from candidates: {len(combined_text)} chars")
+                        return combined_text.strip()
+                
+                # Check finish reason if no text available
                 if hasattr(candidate, 'finish_reason'):
                     finish_reason = candidate.finish_reason
                     if finish_reason == 2:  # SAFETY filter
@@ -571,9 +583,9 @@ Data: {json.dumps(slice_dict, indent=2)}
                     else:
                         raise Exception(f"Response blocked with finish_reason: {finish_reason}")
                 else:
-                    raise Exception("Response has candidates but no text")
+                    raise Exception("Response has candidates but no accessible text content")
             else:
-                raise Exception("No response or candidates from Gemini")
+                raise Exception("No response text or candidates from Gemini")
                 
         except Exception as e:
             self.logger.error(f"Gemini LLM call failed: {e}")
