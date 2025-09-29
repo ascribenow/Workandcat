@@ -17,18 +17,18 @@ def format_solution_content(content: str) -> str:
     
     # Step 0: Wrap LaTeX math expressions in proper delimiters for frontend rendering
     # Wrap \frac{...}{...} expressions
-    content = re.sub(r'\\frac\{([^}]+)\}\{([^}]+)\}', r'\\(\frac{\1}{\2}\\)', content)
+    content = re.sub(r'\\frac\{([^}]+)\}\{([^}]+)\}', r'\\(\\frac{\1}{\2}\\)', content)
     
     # Wrap \boxed{...} expressions
-    content = re.sub(r'\\boxed\{([^}]+)\}', r'\\(\boxed{\1}\\)', content)
+    content = re.sub(r'\\boxed\{([^}]+)\}', r'\\(\\boxed{\1}\\)', content)
     
-    # Wrap standalone mathematical expressions (anything with backslash followed by letters)
-    content = re.sub(r'\\([a-zA-Z]+)\{([^}]+)\}(?!\\)', r'\\(\\\1{\2}\\)', content)
+    # Wrap other common LaTeX commands like \sqrt, \sin, \cos, etc.
+    content = re.sub(r'\\(sqrt|sin|cos|tan|log|ln)\{([^}]+)\}', r'\\(\\\1{\2}\\)', content)
     
-    # Wrap expressions like Speed_2, Distance_1, etc.
+    # Wrap expressions like Speed_2, Distance_1, etc. (subscripts)
     content = re.sub(r'([A-Za-z_]+)_(\d+)', r'\\(\1_{\2}\\)', content)
     
-    # Step 1: Convert \text{...} commands to readable format
+    # Step 1: Convert \text{...} commands to readable format (after wrapping)
     # \text{minutes} -> minutes, \text{hours} -> hours, etc.
     content = re.sub(r'\\text\{([^}]+)\}', r'\1', content)
     
