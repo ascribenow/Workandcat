@@ -13,8 +13,8 @@ def test_gemini_api():
         import google.generativeai as genai
         from dotenv import load_dotenv
         
-        # Load environment variables
-        load_dotenv()
+        # Load environment variables from backend directory
+        load_dotenv('/app/backend/.env')
         
         google_api_key = os.getenv('GOOGLE_API_KEY')
         if not google_api_key:
