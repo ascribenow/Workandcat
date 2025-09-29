@@ -1155,10 +1155,10 @@ class CATBackendTester:
             "signup_endpoint_accessible": False,
             "api_health_check_working": False,
             
-            # Signup API Testing
-            "signup_without_referral_working": False,
-            "signup_with_referral_working": False,
-            "signup_creates_user_in_db": False,
+            # CORRECTED Signup API Testing (NO referral code during signup)
+            "corrected_signup_working": False,
+            "signup_without_referral_validation": False,
+            "referral_code_ignored_during_signup": False,
             "signup_returns_proper_response": False,
             
             # Email Verification System
@@ -1168,10 +1168,9 @@ class CATBackendTester:
             "gmail_service_configured": False,
             "verification_emails_sent": False,
             
-            # Referral Code System
-            "referral_code_validation_working": False,
+            # Referral Code System (for user's OWN code generation)
+            "user_referral_code_generated": False,
             "referral_code_generation_working": False,
-            "invalid_referral_handled_properly": False,
             "referral_service_accessible": False,
             
             # Database Integration
@@ -1192,15 +1191,20 @@ class CATBackendTester:
             "verification_code_generation": False,
             "email_templates_working": False,
             
-            # Complete Signup Flow
+            # Complete Signup Flow (CORRECTED)
             "initial_signup_request": False,
             "verification_code_sent": False,
             "code_verification_working": False,
             "user_account_activated": False,
             "signup_flow_complete": False,
             
+            # Two Email Delivery Verification
+            "signup_confirmation_email_sent": False,
+            "referral_code_email_sent": False,
+            "two_emails_delivered": False,
+            
             # Overall Assessment
-            "signup_system_working": False,
+            "corrected_signup_system_working": False,
             "email_verification_working": False,
             "referral_system_working": False,
             "critical_issues_identified": False,
