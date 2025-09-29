@@ -37943,31 +37943,31 @@ def main():
         return final_results["100_percent_success_achieved"]
 
 if __name__ == "__main__":
-    print("🎯 FIXED SESSION SUBMIT ANSWER SYSTEM TESTING")
+    print("🎯 LATEX SOLUTION FORMATTING SYSTEM TESTING")
     print("=" * 80)
-    print("OBJECTIVE: Test the FIXED session submit answer system - regex bug resolved")
-    print("FOCUS: Submit answer flow, solution formatting, database operations")
-    print("EXPECTED: No more 'Could not save your answer' errors from regex issues")
+    print("OBJECTIVE: Test the UPDATED solution formatting with LaTeX math rendering")
+    print("FOCUS: LaTeX delimiter wrapping, solution feedback formatting, math rendering prep")
+    print("EXPECTED: LaTeX expressions wrapped in \\(...\\) for frontend MathRenderer")
     print("AUTHENTICATION: sp@theskinmantra.com/student123")
     print("=" * 80)
     
     tester = CATBackendTester()
     
     try:
-        # Run the Fixed Session Submit Answer System test
-        print("\n🎯 RUNNING FIXED SESSION SUBMIT ANSWER SYSTEM TEST")
-        submit_test_passed = tester.test_fixed_session_submit_answer_system()
+        # Run the LaTeX Solution Formatting System test
+        print("\n🎯 RUNNING LATEX SOLUTION FORMATTING SYSTEM TEST")
+        latex_test_passed = tester.test_latex_solution_formatting_system()
         
         # FINAL SUMMARY
         print("\n" + "=" * 80)
-        print("🏁 FIXED SESSION SUBMIT ANSWER SYSTEM TESTING - FINAL RESULTS")
+        print("🏁 LATEX SOLUTION FORMATTING SYSTEM TESTING - FINAL RESULTS")
         print("=" * 80)
         print(f"Total Tests Run: {tester.tests_run}")
         print(f"Total Tests Passed: {tester.tests_passed}")
         print(f"Overall Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%" if tester.tests_run > 0 else "0%")
         
-        print("\n📊 SUBMIT ANSWER SYSTEM TEST RESULTS:")
-        print(f"Fixed Session Submit Answer System Test: {'✅ PASS' if submit_test_passed else '❌ FAIL'}")
+        print("\n📊 LATEX FORMATTING SYSTEM TEST RESULTS:")
+        print(f"LaTeX Solution Formatting System Test: {'✅ PASS' if latex_test_passed else '❌ FAIL'}")
         
         if submit_test_passed:
             print("\n🎉 SUBMIT ANSWER SYSTEM TESTING: COMPLETED SUCCESSFULLY")
