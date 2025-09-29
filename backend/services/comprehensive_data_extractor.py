@@ -176,7 +176,6 @@ class ComprehensiveDataExtractor:
                     ae.question_id,
                     ae.was_correct,
                     ae.selected_option,
-                    ae.time_taken_seconds,
                     ae.created_at,
                     q.category,
                     q.subcategory,
