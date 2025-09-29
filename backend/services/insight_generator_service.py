@@ -346,31 +346,44 @@ Data: {json.dumps(slice_dict, indent=2)}
         """
     
     def _build_recent_prompt(self, slice_dict: Dict[str, Any]) -> str:
-        """Build coach voice prompt for recent momentum insights"""
+        """Build analytical prompt for recent momentum insights"""
         return f"""
-You are a CAT Quant coach speaking to one learner.
-Write a short, friendly insight about their recent momentum using ONLY the JSON you receive.
+You are an expert CAT Quant coach analyzing a student's recent performance trends. Provide a detailed momentum analysis.
 
-Tone & style:
-- Human and encouraging, like a coach reviewing recent practice.
-- Plain words, no jargon, no decimals.
-- Prefer "about 6 out of 10 correct lately" over "58%".
-- Mention at most 1–2 concepts by name.
-- No bullets, no tables, no headings. 2–3 sentences total.
+ANALYZE RECENT PERFORMANCE PATTERNS:
 
-Content rules (if present in JSON):
-- Start with recent accuracy trend in "x out of 10" terms over the last few sessions.
-- Name one concept that's improving or one that needs work (from recent shifts) with simple language.
-- If coverage changes exist, acknowledge briefly ("Algebra gaps are shrinking" or "Geometry needs some attention").
-- If recent PYQ data exists, end with encouragement ("Nice work on those recent PYQs!").
+1. **ACCURACY TRAJECTORY**: Examine accuracy_series data:
+   - Identify if accuracy is improving, declining, or stable
+   - Calculate the trend from first to most recent sessions
+   - Note any significant drops or improvements
 
-Strict constraints:
-- Do NOT invent numbers or concepts.
-- Do NOT show raw percentages like "58%" or decimals like "0.58" - use "about X out of 10" instead.
-- Do NOT use bullets (•), technical deltas (+/-), or database formatting.
-- Do NOT mention specific session counts or time periods.
-- ALWAYS convert accuracy to "about X out of 10 correct" format.
-Return plain text only - no markdown, no bullets, no technical formatting.
+2. **CONCEPT SHIFTS**: Look at concept_shifts_recent data:
+   - Which concepts have improved (moved to Strong/Moderate)
+   - Which concepts have declined (moved to Weak)
+   - New concepts being introduced vs. existing ones being reinforced
+
+3. **COVERAGE CHANGES**: Analyze coverage_recent data:
+   - Topics where practice gaps are closing (debt relief)
+   - New gaps that are emerging (rising debt)
+   - Strategic implications for upcoming practice
+
+4. **PYQ PERFORMANCE**: Check pyq_recent data:
+   - Performance on high-frequency PYQ questions
+   - Readiness for actual CAT-style questions
+
+PROVIDE ANALYTICAL MOMENTUM INSIGHT (3-4 sentences) including:
+- Specific recent accuracy trend with numbers ("Your recent sessions show improvement from about 4 out of 10 to about 7 out of 10")
+- Concept-specific changes ("Geometry practice is paying off - you've moved from Weak to Moderate")
+- Strategic focus areas ("Your Algebra debt is increasing - prioritize this to prevent larger gaps")
+- PYQ readiness assessment if data available
+
+TONE: Analytical coach providing specific, data-driven momentum assessment.
+
+CONSTRAINTS:
+- Use "about X out of 10 correct" format instead of percentages
+- Reference specific concepts and readiness changes from the data
+- Focus on actionable trends, not generic encouragement
+- Be specific about what's working and what needs attention
 
 Data: {json.dumps(slice_dict, indent=2)}
         """
