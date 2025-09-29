@@ -91,7 +91,7 @@ const Login = () => {
     setError("");
     
     try {
-      const result = await sendVerificationCode(formData.email);
+      const result = await sendVerificationCode(formData.name, formData.email, formData.password);
       if (result.success) {
         setSuccess("Verification code sent! Please check your email.");
         setCodeSent(true);
