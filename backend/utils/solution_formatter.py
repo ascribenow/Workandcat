@@ -53,7 +53,7 @@ def format_solution_approach(content: str) -> str:
         return content
     
     # Add numbered list formatting
-    content = re.sub(r'(\d+\.)', r'\n\3', content)
+    content = re.sub(r'(\d+\.)', r'\n\1', content)
     content = content.strip()
     
     return content
