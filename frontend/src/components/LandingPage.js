@@ -144,7 +144,7 @@ const LandingPage = () => {
     setError('');
     
     try {
-      const result = await sendVerificationCode(email);
+      const result = await sendVerificationCode(name, email, password);
       
       if (result.success) {
         setResendCountdown(60);
