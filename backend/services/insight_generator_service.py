@@ -66,31 +66,28 @@ class InsightGeneratorService:
             return self._generate_simple_fallback_insights(comprehensive_data)
     
     def _build_comprehensive_insights_prompt(self, comprehensive_data: Dict[str, Any]) -> str:
-        """Build minimal educational prompt"""
-        import json
+        """Build safe educational prompt without raw data"""
         
         sessions = comprehensive_data.get('sessions', [])
         concepts = comprehensive_data.get('concept_journey', [])
         
-        if len(sessions) == 0:
-            return """Return this JSON: {"dashboard_all_time": "Complete more sessions to unlock detailed analysis.", "dashboard_recent": "Performance patterns appear after more practice.", "pre_session_card": {"title": "Data Building 📊", "progress": "Each session creates your performance profile.", "way_forward": ["Focus on understanding concepts", "Build practice consistency"], "today": "Continue building your data."}}"""
-        
-        # Extract key numbers to make it very simple
+        # Extract safe summary statistics only
         total_sessions = len(sessions)
-        if total_sessions > 0:
-            avg_accuracy = sum(s.get('accuracy', 0) for s in sessions) / total_sessions
-            accuracy_out_of_10 = round(avg_accuracy * 10, 1)
-        else:
-            accuracy_out_of_10 = 0
         
-        return f"""Student has completed {total_sessions} practice sessions with {accuracy_out_of_10} out of 10 average accuracy.
+        if total_sessions == 0:
+            return """Return this exact JSON: {"dashboard_all_time": "Complete more sessions to unlock detailed analysis.", "dashboard_recent": "Performance patterns appear after more practice.", "pre_session_card": {"title": "Data Building 📊", "progress": "Each session creates your performance profile.", "way_forward": ["Focus on understanding concepts", "Build practice consistency"], "today": "Continue building your data."}}"""
+        
+        # Calculate safe statistics
+        total_questions = sum(s.get('total_questions', 0) for s in sessions)
+        total_correct = sum(s.get('correct_answers', 0) for s in sessions)
+        accuracy_percent = round((total_correct / total_questions * 100) if total_questions > 0 else 0)
+        
+        return f"""A student completed {total_sessions} practice sessions with {accuracy_percent}% accuracy.
 
-Return JSON with:
-- dashboard_all_time: summary of {total_sessions} sessions and {accuracy_out_of_10}/10 accuracy
-- dashboard_recent: recent performance trends
-- pre_session_card: object with title, progress, way_forward array, today
-
-Use encouraging educational language."""
+Return educational insights in JSON format:
+- dashboard_all_time: summary mentioning {total_sessions} sessions and {accuracy_percent}% accuracy
+- dashboard_recent: encouraging recent progress note
+- pre_session_card: motivational card with title, progress, way_forward array, today field"""
     
     def _generate_simple_fallback_insights(self, comprehensive_data: Dict[str, Any]) -> Dict[str, Any]:
         """Simple fallback when LLM fails"""
