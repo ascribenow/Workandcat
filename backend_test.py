@@ -36907,32 +36907,3 @@ if __name__ == "__main__":
         traceback.print_exc()
     
     main()
-            print("   ✅ Enhanced demanding analytical prompt is being used")
-            print("   ✅ Generic duplicate prompt method successfully removed")
-            print("   ✅ Safety filter fallback removed - no more generic responses")
-            print("   ✅ max_output_tokens increased to 1200 and temperature to 0.3")
-            print("   ✅ Insights now contain specific data analysis with actual numbers")
-            print("   ✅ Uses 'about X out of 10 correct' format instead of percentages")
-            print("   ✅ Mentions specific concept names from user's performance data")
-            print("   ✅ Avoids generic phrases like 'consistent practice' or 'building foundations'")
-            print("   ✅ Background job system successfully triggers UPDATE_INSIGHTS jobs")
-            print("   ✅ System ready for production with personalized insights")
-        else:
-            print("\n⚠️ PROOF OF THE PUDDING FIX: NEEDS ATTENTION")
-            print("   ❌ Fix may not be fully implemented or working as expected")
-            print("   ❌ Enhanced demanding analytical prompt may not be in use")
-            print("   ❌ Insights may still be generic instead of personalized")
-            print("   ❌ Review test results for specific issues")
-            print("   ❌ Additional investigation required")
-        
-        print("=" * 80)
-        
-        # Exit with appropriate code
-        sys.exit(0 if fix_test_passed else 1)
-        
-    except Exception as e:
-        print(f"\n❌ CRITICAL ERROR during adaptive insights fix testing: {e}")
-        print("Testing aborted due to unexpected error")
-        import traceback
-        traceback.print_exc()
-        sys.exit(1)
