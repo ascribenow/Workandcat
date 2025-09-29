@@ -40,17 +40,18 @@ def test_gemini_api():
         
         # Test prompt
         test_prompt = """
-CRITICAL: Analyze the JSON data below and provide SPECIFIC numerical insights. Do NOT write generic motivational text.
+Analyze the performance data below and provide specific numerical insights for CAT preparation.
 
-DATA TO ANALYZE:
+PERFORMANCE DATA:
 {"sessions": [{"accuracy": 0.42}, {"accuracy": 0.38}], "concepts": ["Arithmetic", "Algebra"]}
 
-RESPONSE RULES:
-- Use "about X out of 10 correct" format
+RESPONSE GUIDELINES:
+- Use "about X out of 10 correct" format instead of percentages
 - Mention specific concept names and their exact accuracies
-- NO phrases like "consistent practice" or "building foundations"
+- Avoid generic phrases like "consistent practice" or "building foundations"
+- Focus on concrete performance data
 
-ANALYZE AND RESPOND:
+Provide your analysis:
         """
         
         # Generate content
