@@ -36363,55 +36363,59 @@ if __name__ == "__main__":
         return final_results["100_percent_success_achieved"]
 
 if __name__ == "__main__":
-    print("🚀 PURE LLM FREEDOM APPROACH VERIFICATION TESTING")
+    print("🎯 PROOF OF THE PUDDING ADAPTIVE INSIGHTS FIX TESTING")
     print("=" * 80)
-    print("OBJECTIVE: Test the completely reimplemented Adaptive Insights system using pure LLM freedom")
-    print("Focus: Comprehensive data extraction, pure LLM generation, background jobs, direct storage")
-    print("Expected: Natural insights without rigid constraints, simplified pipeline, coach voice")
+    print("OBJECTIVE: Test the specific fix to use enhanced demanding analytical prompt")
+    print("Focus: Personalized insights with specific data analysis, not generic motivational text")
+    print("Expected: Insights with actual numbers, concept names, and performance patterns")
     print("Authentication: sp@theskinmantra.com/student123")
     print("=" * 80)
     
     tester = CATBackendTester()
     
     try:
-        # Run Pure LLM Freedom Approach Verification Test
-        print("\n🎯 RUNNING PURE LLM FREEDOM APPROACH VERIFICATION")
-        pure_llm_test_passed = tester.test_pure_llm_freedom_adaptive_insights_complete()
+        # Run the Proof of the Pudding Adaptive Insights Fix Test
+        print("\n🎯 RUNNING PROOF OF THE PUDDING ADAPTIVE INSIGHTS FIX TEST")
+        fix_test_passed = tester.test_proof_of_pudding_adaptive_insights_fix()
         
         # FINAL SUMMARY
         print("\n" + "=" * 80)
-        print("🏁 PURE LLM FREEDOM APPROACH VERIFICATION - FINAL RESULTS")
+        print("🏁 PROOF OF THE PUDDING ADAPTIVE INSIGHTS FIX - FINAL RESULTS")
         print("=" * 80)
         print(f"Total Tests Run: {tester.tests_run}")
         print(f"Total Tests Passed: {tester.tests_passed}")
         print(f"Overall Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%" if tester.tests_run > 0 else "0%")
         
-        print("\n📊 PURE LLM FREEDOM APPROACH TEST RESULTS:")
-        print(f"Pure LLM Freedom Approach Verification: {'✅ PASS' if pure_llm_test_passed else '❌ FAIL'}")
+        print("\n📊 ADAPTIVE INSIGHTS FIX TEST RESULTS:")
+        print(f"Proof of the Pudding Fix Verification: {'✅ PASS' if fix_test_passed else '❌ FAIL'}")
         
-        if pure_llm_test_passed:
-            print("\n🎉 PURE LLM FREEDOM APPROACH: VALIDATED")
-            print("   ✅ Comprehensive data extraction working with 50+ data points")
-            print("   ✅ LLM generates natural, encouraging insights without rigid formatting")
-            print("   ✅ Background jobs use new pure LLM approach successfully")
-            print("   ✅ Direct storage methods work correctly")
-            print("   ✅ APIs return LLM-generated content with coach voice")
-            print("   ✅ System significantly exceeds previous 54.5% success rate")
-            print("   ✅ Simplified pipeline eliminates complex fallback logic")
-            print("   ✅ System ready for production deployment")
+        if fix_test_passed:
+            print("\n🎉 PROOF OF THE PUDDING FIX: VALIDATED")
+            print("   ✅ Enhanced demanding analytical prompt is being used")
+            print("   ✅ Generic duplicate prompt method successfully removed")
+            print("   ✅ Safety filter fallback removed - no more generic responses")
+            print("   ✅ max_output_tokens increased to 1200 and temperature to 0.3")
+            print("   ✅ Insights now contain specific data analysis with actual numbers")
+            print("   ✅ Uses 'about X out of 10 correct' format instead of percentages")
+            print("   ✅ Mentions specific concept names from user's performance data")
+            print("   ✅ Avoids generic phrases like 'consistent practice' or 'building foundations'")
+            print("   ✅ Background job system successfully triggers UPDATE_INSIGHTS jobs")
+            print("   ✅ System ready for production with personalized insights")
         else:
-            print("\n⚠️ PURE LLM FREEDOM APPROACH: NEEDS ATTENTION")
-            print("   ❌ Some critical components of the pure LLM approach not working correctly")
+            print("\n⚠️ PROOF OF THE PUDDING FIX: NEEDS ATTENTION")
+            print("   ❌ Fix may not be fully implemented or working as expected")
+            print("   ❌ Enhanced demanding analytical prompt may not be in use")
+            print("   ❌ Insights may still be generic instead of personalized")
             print("   ❌ Review test results for specific issues")
-            print("   ❌ Additional fixes required before production deployment")
+            print("   ❌ Additional investigation required")
         
         print("=" * 80)
         
         # Exit with appropriate code
-        sys.exit(0 if pure_llm_test_passed else 1)
+        sys.exit(0 if fix_test_passed else 1)
         
     except Exception as e:
-        print(f"\n❌ CRITICAL ERROR during pure LLM freedom approach testing: {e}")
+        print(f"\n❌ CRITICAL ERROR during adaptive insights fix testing: {e}")
         print("Testing aborted due to unexpected error")
         import traceback
         traceback.print_exc()
