@@ -540,6 +540,34 @@ class InsightCacheService:
         except Exception as e:
             self.logger.error(f"Error storing debug slices for user {user_id[:8]}: {e}")
     
+    def _extract_insight_from_json_markdown(self, markdown_text: str, json_key: str) -> str:
+        """Extract specific insight text from JSON wrapped in markdown code blocks"""
+        try:
+            import json
+            import re
+            
+            # Try to extract JSON from markdown code blocks
+            json_match = re.search(r'```(?:json)?\s*\n?(.*?)\n?```', markdown_text, re.DOTALL)
+            if json_match:
+                json_content = json_match.group(1).strip()
+            else:
+                # Fallback: try to parse the entire content as JSON
+                json_content = markdown_text.strip()
+            
+            # Parse JSON and extract the specific key
+            parsed_json = json.loads(json_content)
+            
+            if json_key in parsed_json:
+                return parsed_json[json_key]
+            else:
+                self.logger.warning(f"Key '{json_key}' not found in parsed JSON")
+                return "Insights are being processed..."
+                
+        except (json.JSONDecodeError, AttributeError) as e:
+            self.logger.warning(f"Failed to parse JSON from markdown: {e}")
+            # Return the original markdown if JSON parsing fails
+            return markdown_text
+    
     def _empty_dashboard_response(self) -> Dict[str, Any]:
         """Return empty dashboard response - CACHE-FIRST FALLBACK"""
         return {
