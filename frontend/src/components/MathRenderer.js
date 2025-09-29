@@ -248,9 +248,22 @@ const MathRenderer = ({ content, className = '', style = {} }) => {
     }
   };
 
+  /**
+   * Simple markdown formatter for bold text
+   */
+  const renderWithSimpleMarkdown = (text) => {
+    const parts = text.split(/(\*\*[^*]+\*\*)/g);
+    return parts.map((part, index) => {
+      if (part.startsWith('**') && part.endsWith('**')) {
+        return <strong key={index}>{part.slice(2, -2)}</strong>;
+      }
+      return part;
+    });
+  };
+
   // Performance optimization: Only process if math content detected
   if (!hasMathContent(content)) {
-    // Fast path: plain text rendering with preserved formatting
+    // Fast path: plain text rendering with preserved formatting and markdown support
     return (
       <div 
         className={className} 
@@ -259,7 +272,7 @@ const MathRenderer = ({ content, className = '', style = {} }) => {
           ...style 
         }}
       >
-        {content}
+        {renderWithSimpleMarkdown(content)}
       </div>
     );
   }
