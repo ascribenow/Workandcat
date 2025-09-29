@@ -330,28 +330,28 @@ async def verify_email_and_signup(verify_data: VerifyCodeRequest):
                 bcrypt.gensalt()
             ).decode('utf-8')
             
-            # Generate referral code for new user
+            # Generate user's own randomized referral code
             user_referral_code = referral_service.generate_referral_code(db)
             
             # Create user
             user = User(
                 id=str(uuid.uuid4()),
                 email=pending_user_data["email"],
-                full_name=pending_user_data["full_name"],
+                full_name=pending_user_data["name"],  # Use 'name' from pending data
                 password_hash=password_hash,
-                referral_code=user_referral_code,
-                email_verified=True  # Mark as verified
+                referral_code=user_referral_code
             )
             
             db.add(user)
             db.commit()
             
-            # Process referral code if used
+            # Process referral code if user entered someone else's referral code
             used_referral_code = pending_user_data.get("referral_code")
             if used_referral_code:
                 try:
+                    # Process referral usage for free tier (0 amount)
                     referral_service.process_referral_usage(
-                        db, used_referral_code, user.email, "free_trial", 0
+                        db, used_referral_code.upper().strip(), user.email, "free_trial", 0
                     )
                 except Exception as e:
                     logger.warning(f"Referral processing failed: {e}")
@@ -359,13 +359,17 @@ async def verify_email_and_signup(verify_data: VerifyCodeRequest):
             # Clean up pending data
             gmail_service.remove_pending_user(verify_data.email)
             
-            # Send welcome emails
+            # Send confirmation email from hello@twelvr.com
             try:
                 gmail_service.send_signup_confirmation_email(user.email, user.full_name)
-                if user.referral_code:
-                    gmail_service.send_referral_code_email(user.email, user.full_name, user.referral_code)
             except Exception as e:
-                logger.warning(f"Welcome email failed: {e}")
+                logger.warning(f"Signup confirmation email failed: {e}")
+            
+            # Send user's own referral code email from hello@twelvr.com
+            try:
+                gmail_service.send_referral_code_email(user.email, user.full_name, user.referral_code)
+            except Exception as e:
+                logger.warning(f"Referral code email failed: {e}")
             
             # Create access token
             access_token = create_access_token(data={"sub": user.id})
@@ -379,8 +383,7 @@ async def verify_email_and_signup(verify_data: VerifyCodeRequest):
                     "email": user.email,
                     "full_name": user.full_name,
                     "is_admin": user.is_admin,
-                    "adaptive_enabled": bool(user.adaptive_enabled),
-                    "email_verified": True
+                    "adaptive_enabled": bool(user.adaptive_enabled)
                 },
                 "message": "Account created successfully"
             }
