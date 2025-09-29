@@ -48,7 +48,7 @@ async def run_simplified_summarizer(user_id: str, session_id: str) -> Dict[str, 
                         try:
                             parsed_concepts = json.loads(concept_row.core_concepts) if isinstance(concept_row.core_concepts, str) else concept_row.core_concepts
                             concept_list.extend(parsed_concepts)
-                        except:
+                        except (json.JSONDecodeError, TypeError, AttributeError):
                             pass
                 
                 session_data = {
