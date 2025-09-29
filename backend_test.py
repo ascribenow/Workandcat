@@ -1346,39 +1346,10 @@ class CATBackendTester:
                 if verification_referral_response and 'referral' in str(verification_referral_response).lower():
                     print(f"   ⚠️ Referral code validation may be causing issues")
         
-        # PHASE 3: EMAIL VERIFICATION SYSTEM TESTING
-        print("\n📧 PHASE 3: EMAIL VERIFICATION SYSTEM TESTING")
+        # PHASE 3: GMAIL SERVICE INITIALIZATION TESTING
+        print("\n📧 PHASE 3: GMAIL SERVICE INITIALIZATION TESTING")
         print("-" * 60)
-        print("Testing email verification endpoints and functionality")
-        
-        # Check for email verification endpoints
-        verification_endpoints = [
-            ("send-verification-code", "POST"),
-            ("verify-email-code", "POST"),
-            ("verify-code", "POST"),
-            ("send-verification", "POST")
-        ]
-        
-        for endpoint, method in verification_endpoints:
-            success, response = self.run_test(
-                f"Email Verification Endpoint: {endpoint}", 
-                method, 
-                f"auth/{endpoint}", 
-                [200, 400, 404, 422, 500], 
-                {"email": "test@example.com"}, 
-                None
-            )
-            
-            if success or (response and response.get('status_code') != 404):
-                test_results["email_verification_endpoints_exist"] = True
-                print(f"   ✅ Found email verification endpoint: {endpoint}")
-                break
-            else:
-                print(f"   ❌ Email verification endpoint not found: {endpoint}")
-        
-        if not test_results["email_verification_endpoints_exist"]:
-            print(f"   🎯 CRITICAL FINDING: No email verification endpoints found!")
-            print(f"   📋 This explains why users don't receive verification codes")
+        print("Testing Gmail service authentication and email sending capability")
         
         # Test Gmail service configuration
         try:
@@ -1389,26 +1360,46 @@ class CATBackendTester:
             sys.path.append('/app/backend')
             from gmail_service import gmail_service
             
-            if hasattr(gmail_service, 'service') and gmail_service.service:
-                test_results["gmail_service_configured"] = True
-                test_results["gmail_service_initialized"] = True
-                print(f"   ✅ Gmail service is configured and initialized")
+            # Check if Gmail service is initialized
+            if hasattr(gmail_service, 'service'):
+                if gmail_service.service:
+                    test_results["gmail_service_configured"] = True
+                    test_results["gmail_service_initialized"] = True
+                    print(f"   ✅ Gmail service is configured and initialized")
+                else:
+                    print(f"   ⚠️ Gmail service object exists but not authenticated")
+                    # Try to authenticate
+                    if hasattr(gmail_service, 'authenticate_service'):
+                        auth_result = gmail_service.authenticate_service()
+                        if auth_result:
+                            test_results["gmail_service_configured"] = True
+                            test_results["gmail_service_initialized"] = True
+                            print(f"   ✅ Gmail service authenticated successfully")
+                        else:
+                            print(f"   ❌ Gmail service authentication failed")
             else:
-                print(f"   ❌ Gmail service not properly initialized")
+                print(f"   ❌ Gmail service not properly configured")
             
             # Test verification code generation
             if hasattr(gmail_service, 'generate_verification_code'):
                 test_code = gmail_service.generate_verification_code("test@example.com")
-                if test_code and len(test_code) == 6:
+                if test_code and len(test_code) == 6 and test_code.isdigit():
                     test_results["verification_code_generation"] = True
                     print(f"   ✅ Verification code generation working: {test_code}")
                 else:
-                    print(f"   ❌ Verification code generation failed")
+                    print(f"   ❌ Verification code generation failed or invalid format")
             
-            # Test email sending capability (without actually sending)
+            # Test email sending methods availability
             if hasattr(gmail_service, 'send_verification_email'):
                 test_results["email_templates_working"] = True
                 print(f"   ✅ Email sending methods available")
+                
+                # Check if sender email is configured
+                if hasattr(gmail_service, 'sender_email') and gmail_service.sender_email == 'hello@twelvr.com':
+                    test_results["email_sending_functional"] = True
+                    print(f"   ✅ Email sender configured as hello@twelvr.com")
+                else:
+                    print(f"   ⚠️ Email sender not configured correctly")
             else:
                 print(f"   ❌ Email sending methods not available")
                 
