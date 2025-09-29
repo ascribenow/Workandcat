@@ -1115,28 +1115,26 @@ class CATBackendTester:
         The main agent implemented a fix to resolve the issue where wrong LLM prompt was being used for insight generation:
         
         1. **REMOVED** the duplicate generic `_build_comprehensive_insights_prompt` method 
-        2. **KEPT** only the enhanced demanding analytical prompt that requires specific data analysis
-        3. **REMOVED** the safety filter fallback that could cause generic responses
-        4. **INCREASED** max_output_tokens to 1200 and temperature to 0.3 for better responses
+        2. **ENHANCED** the demanding analytical prompt with banned phrases list and specific numerical analysis requirements
+        3. **RESTORED** direct Gemini API integration using user's Google API key (removed Emergent LLM key usage)
+        4. **SIMPLIFIED** response handling for reliable Gemini API calls
         
         **SPECIFIC TESTS TO PERFORM:**
         1. Authentication with sp@theskinmantra.com/student123
-        2. Check if this user has actual session/performance data in the database
-        3. Force refresh insights using the endpoint that triggers UPDATE_INSIGHTS background jobs
-        4. Verify the generated insights are now personalized and contain specific data analysis (not generic text)
-        5. Test both dashboard insights and pre-session insights endpoints
-        6. Check if insights mention specific concepts, accuracy numbers, and performance patterns
+        2. Force refresh insights to trigger UPDATE_INSIGHTS background jobs
+        3. Verify dashboard insights show specific numerical analysis (not generic text)
+        4. Verify pre-session insights contain user-specific performance data
+        5. Confirm no banned generic phrases appear in insights
+        6. Test with users who have substantial session/concept data for meaningful analysis
         
         **SUCCESS CRITERIA:**
-        - Insights should contain specific data analysis with actual numbers
-        - Should use "about X out of 10 correct" format instead of percentages
-        - Should mention specific concept names from user's actual performance data
-        - Should NOT contain generic phrases like "consistent practice" or "building foundations"
-        - Should show evidence of using the enhanced demanding analytical prompt
-        - Background job system should successfully trigger UPDATE_INSIGHTS jobs
+        - Use the ENHANCED demanding analytical prompt that requires specific data analysis
+        - Generate personalized insights with exact numbers, concept names, and performance patterns
+        - AVOID generic phrases like "consistent practice", "building foundations", etc.
+        - Work with direct Gemini API calls (not Emergent LLM key)
         
         **EXPECTED OUTCOME:**
-        The fix should make the system use the enhanced demanding analytical prompt instead of the generic one, 
+        The fix should now use the enhanced demanding analytical prompt instead of the generic one, 
         resulting in personalized insights based on actual user data with specific numbers and concept analysis.
         """
         print("🎯 PROOF OF THE PUDDING ADAPTIVE INSIGHTS FIX TESTING")
