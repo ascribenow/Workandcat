@@ -1,20 +1,29 @@
 <analysis>
-The AI engineer's trajectory began with stabilizing the core Blueprint Session System, resolving critical backend and frontend issues, including database interactions, UUID validation, LLM model compatibility, and fixing a session reuse bug. A significant phase involved implementing a streamlined two-job background adaptive intelligence system. Subsequently, the engineer diagnosed and fixed a critical 502 Bad Gateway error preventing Ask Twelvr functionality, tracing it to a frontend URL configuration error. Following this, the focus shifted to product requirements for subscription tiers, implementing Pro Regular availability restrictions, unifying Ask Twelvr access, and adjusting Pro Exclusive pricing, which involved extensive frontend and backend modifications. Most recently, the engineer initiated the Proof of the Pudding Adaptive Insights feature. This involved detailed planning, creating new database tables and services for data extraction, LLM-powered insight generation, caching, and integrating new API endpoints and background job handlers, which is currently in progress.
+The AI engineer's work encompassed several major feature developments and significant refactoring. Initially, the focus was on stabilizing the Blueprint Session System and implementing a background adaptive intelligence system. Key tasks included fixing a 502 Bad Gateway error, implementing subscription tier logic (Pro Regular restrictions, Pro Exclusive pricing), and unifying Ask Twelvr access.
+
+A substantial part of the work revolved around developing and optimizing Proof of the Pudding Adaptive Insights, involving database schema, new services for data extraction, LLM-powered insight generation, and caching. This feature underwent iterative improvements, transitioning from real-time LLM calls to a background job architecture for pre-computed, cached insights. There was a significant effort to refine LLM prompts to achieve a coach voice for human-readable, motivating insights, moving away from technical jargon.
+
+Concurrently, the Ask Twelvr chat functionality was refactored from a rigid, mode-based system to a natural, intelligent conversational agent capable of understanding context, explaining solutions in a 5-section format, and generating practice questions. Debugging LLM integration, including handling Gemini safety filters and correcting  references, was also a notable part of the work. The last activity was auditing LLM usage and related services in the codebase.
 </analysis>
+
 <product_requirements>
-The Twelvr application is an adaptive CAT preparation platform that aims to provide a Blueprint Session System with reliable session creation, correct post-answer feedback, no auto-advancement, accurate session numbering, synchronized dashboard stats, and robust authentication, replacing an older polling system. A key feature is a background adaptive intelligence system for LLM summarization and next-session planning, operating asynchronously with a 2-worker job queue (, ) and exponential backoff.
-Recent requirements included:
-1.  Ensure Ask Twelvr chat functionality is fully operational and visible across all tiers.
-2.  Restrict Pro Regular plan subscription availability until January 1, 2026, with a clear user notification and change Pro Exclusive tier price to ₹1,499.
-3.  Implement Proof of the Pudding Adaptive Insights to visualize adaptivity to learners on the dashboard and in a pre-session card, leveraging existing data for concept-level mastery, coverage gaps, and PYQ exposure.
+The Twelvr application is an adaptive CAT preparation platform designed to offer a robust Blueprint Session System with features like reliable session creation, accurate post-answer feedback, no auto-advancement, correct session numbering, synchronized dashboard statistics, and secure authentication. It also incorporates a background adaptive intelligence system for LLM-based summarization and next-session planning, operating asynchronously with a 2-worker job queue (, ).
+
+Recent feature developments have focused on:
+1.  **Ask Twelvr Chat Functionality**: Ensuring it is fully operational and accessible across all user tiers. This has evolved to be a natural, intelligent conversation system with rich context awareness, the ability to evaluate pasted solutions, present a 5-section format for explanations, generate related practice questions, and offer harder follow-up questions.
+2.  **Subscription Tier Management**: Restricting Pro Regular plan availability until January 1, 2026, with clear user notifications, and updating the Pro Exclusive tier price to ₹1,499.
+3.  **Proof of the Pudding Adaptive Insights**: Implementing dashboard and pre-session card visualizations to demonstrate adaptivity to learners. This feature leverages existing data to highlight concept-level mastery, coverage gaps, and PYQ exposure, aiming for human-like, motivating coach voice insights delivered via a background job architecture for pre-computation and caching.
 </product_requirements>
+
 <key_technical_concepts>
 - Full-stack: React (Frontend), FastAPI (Backend), PostgreSQL.
 - Database: SQLAlchemy, PostgreSQL (migrations, JSONB, UUIDs, ENUMs).
-- Adaptive Learning: LLM-powered (GPT-4o, Gemini 2.5-flash), pre-generated sessions, .
+- Adaptive Learning: LLM-powered (GPT-4o, Gemini), pre-generated sessions, .
 - Asynchronous Processing: Background job queues, long-lived workers, supervisor.
 - Core Adaptive Concepts: Learner Notebook, Session Packs, Idempotency-Key.
+- Caching: In-memory and database caching with TTLs.
 </key_technical_concepts>
+
 <code_architecture>
 
 - ****:
@@ -22,37 +31,52 @@ Recent requirements included:
     - **Changes**: Implemented session limit enforcement in the  endpoint to check  before creating a session, ensuring pre-packed sessions are only consumed when access is granted.
 - ****:
     - **Summary**: Handles Ask Twelvr chat conversations.
-    - **Changes**: Enhanced LLM prompt and logic to support a new solution step explanation mode (Mode 3), including detailed breakdowns, underlying concepts, and practice questions. Fixed an .
+    - **Changes**: Refactored from rigid mode-based interaction to a natural, LLM-driven conversation. Enhanced context provision, added solution paste detection, 5-section format for explanations, practice question generation, and the ability to ask for harder questions.
 - ****:
     - **Summary**: Main FastAPI app entry point.
-    - **Changes**: Added new API endpoint . Integrated new adaptive insights API endpoints:  and .
+    - **Changes**: Added new API endpoint . Integrated new adaptive insights API endpoints:  and . Modified these insight endpoints to trigger background job enqueuing if insights are stale or missing, returning graceful fallbacks. Added  endpoint.
 - ****:
     - **Summary**: PostgreSQL Database Configuration and Models.
     - **Changes**: Added new SQLAlchemy models for , , and  to support adaptive insights caching.
 - ****:
     - **Summary**: Defines new database schema for caching adaptive insights.
-    - **Changes**: Created , , and  tables, along with performance indexes. Corrected foreign key type for  to .
+    **Changes**: Created , , and  tables.
 - ** (NEW)**:
+    - **Summary**: Adds  job type to the  enum in the  table.
+    - **Changes**: Created new migration file and applied it.
+- ****:
     - **Summary**: Service for extracting adaptive learning insights from user data.
-    - **Changes**: Provides methods (, , ) to gather data from various tables using SQL queries to prepare data for LLM processing.
+    - **Changes**: Refactored , ,  methods for efficiency and to support pure LLM freedom approach. Added low data guards. Corrected SQL column name  to .
 - ** (NEW)**:
+    - **Summary**: Extracts all relevant user data (sessions, attempts, concepts, etc.) as a comprehensive JSON for the pure LLM freedom approach.
+    - **Changes**: Created to consolidate data extraction for the LLM.
+- ****:
     - **Summary**: Service for generating LLM-powered adaptive insights.
-    - **Changes**: Implements methods (, , ) using LLM  and includes deterministic fallback methods if LLM calls fail.
-- ** (NEW)**:
+    - **Changes**: Implemented , ,  using LLM. Heavily refactored LLM prompts for coach voice, plain language, and avoidance of technical jargon. Introduced  feature flag. Reverted LLM token limitations. Simplified LLM call to use direct Gemini integration (instead of ). Implemented safety filter handling for Gemini.
+- ****:
     - **Summary**: Service for managing adaptive insights cache.
-    - **Changes**: Implements ,  with a cache-first strategy (24h TTL) and ,  for synchronous cache updates.
+    - **Changes**: Implemented ,  with a cache-first strategy. ,  for synchronous cache updates. Optimized cache performance with in-memory caching and reduced TTL to 120s. Added  for direct storage in the pure LLM approach.
+- ** (NEW)**:
+    - **Summary**: Service to track and expose bare-minimum observability metrics for adaptive insights.
+    - **Changes**: Created to track  and .
 - ****:
     - **Summary**: Handles referral code generation and validation.
     - **Changes**: Added a wrapper method  to correctly call .
 - ****:
     - **Summary**: Contains handlers for simplified background job types.
-    - **Changes**: Added  job handler to refresh dashboard and pre-session caches.
+    - **Changes**: Added  job handler. Modified  to enqueue  after session planning. Fixed import error for . Added  for manual job triggering.
 - ****:
     - **Summary**: Manages enqueuing, picking, and processing background jobs.
-    - **Changes**: Added  to the  mapping.
+    - **Changes**: Added  to the  enum and  mapping. Verified deduplication logic.
+- ****:
+    - **Summary**: LLM service for summarizing sessions.
+    - **Changes**: Debugged and fixed import/function call issues from .
 - ****:
     - **Summary**: Manages user subscription access levels.
     - **Changes**: Modified to unify Ask Twelvr access. Implemented logic to restrict Pro Regular plan access until January 1, 2026.
+- ** (NEW)**:
+    - **Summary**: A one-page operational runbook for Adaptive Insights.
+    - **Changes**: Created to document symptoms, checks, fixes, and feature flag usage.
 - ****:
     - **Summary**: Provides authentication context and API configuration.
     - **Changes**: Fixed a critical bug where the  variable was incorrectly configured for preview domains, resolving 502 Bad Gateway errors.
@@ -63,20 +87,29 @@ Recent requirements included:
     - **Summary**: Displays subscription plans and pricing.
     - **Changes**: Updated Pro Regular availability, unified Ask Twelvr listing, updated FAQ, and reflected new Pro Exclusive price (₹1,499).
 - ****:
+    - **Summary**: Main component for the user dashboard.
+    - **Changes**: Integrated the  component for rendering, which now displays adaptive insights.
+- ****:
+    - **Summary**: Renders the core dashboard content.
+    - **Changes**: Added fetching and rendering logic for Adaptive Insights. Integrated  for markdown sanitization.
+- ****:
     - **Summary**: Manages the interactive session experience and chat modal.
-    - **Changes**: Enhanced message display for markdown rendering in the Ask Twelvr modal.
+    - **Changes**: Added state and logic for displaying pre-session insights. Integrated a modal for pre-session insights. Enhanced message display for markdown rendering in the Ask Twelvr modal.
 </code_architecture>
-<pending_tasks>
-- Update the  function in  to enqueue the  job after session planning.
-- Implement Phase 7: Frontend Integration for the Adaptive Insights feature (Dashboard Component and Session Start Component).
-- Conduct thorough testing and optimization (Phase 9) for Adaptive Insights.
-</pending_tasks>
-<current_work>
-Immediately before this summary request, the AI engineer was implementing Phase 6 of the Proof of the Pudding Adaptive Insights plan: Background Job Integration.
-Specifically, the new  job handler has been created and added to . The engineer is currently in the process of updating the  function (which corresponds to the  job) in  to enqueue the  job after personalized session planning is complete. This will trigger the asynchronous refresh of adaptive insights caches.
-</current_work>
-<optional_next_step>
-Update the  function to enqueue the  job.
 
-And refer the proofofpudding.md file in case of any previous context required over and above
+<pending_tasks>
+- Conduct a complete audit of all LLMs used in the system and the services/utilities related to them. This involves identifying specific LLM providers (e.g., Gemini, GPT-4o) and understanding how they are integrated and managed across various backend services.
+- Further refine the Harder Question Flow functionality within the Ask Twelvr system, as it currently shows 0% success.
+</pending_tasks>
+
+<current_work>
+Immediately before this summary request, the AI engineer was tasked with auditing all LLM usage and related services within the application. This request came after a significant amount of work on:
+1.  **Adaptive Insights**: The system successfully implemented a Pure LLM Freedom approach for generating adaptive insights. This involves extracting comprehensive user data into JSON, feeding it to an LLM (currently Gemini), and letting the LLM generate natural, coach-voice insights, which are then cached and served to the frontend. This also involved fixing LLM integration issues, such as a missing  abstraction and handling Gemini's safety filters (finish_reason 2).
+2.  **Ask Twelvr**: The chat system was completely refactored from a rigid, mode-based system to a natural conversational model. It now effectively provides rich context to the LLM, detects pasted solutions to offer structured 5-section explanations, and generates practice questions, with a focus on witty and encouraging responses. The Harder Question Flow remains to be perfected.
+
+The AI engineer's most recent actions were initiated by the user's explicit question: Okay now tell me which all LLMs are used in our system and what services / utils exist related to LLM ? (Chat Message 633). The engineer started this audit by broadly searching for LLM-related terms, then narrowed it down to specific service files. The last observed action was examining  to identify its LLM usage and then asking what other LLM services exist, indicating an ongoing investigative phase to map out the LLM architecture.
+</current_work>
+
+<optional_next_step>
+Continue the audit of LLM usage and related services in the system as requested by the user.
 </optional_next_step>

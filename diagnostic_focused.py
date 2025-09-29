@@ -19,7 +19,7 @@ def main():
     print("=" * 80)
     
     # Test the working API base
-    base_url = 'https://insight-engine-16.preview.emergentagent.com/api'
+    base_url = 'https://adaptive-insights-1.preview.emergentagent.com/api'
     
     print(f"\n🌐 TESTING API BASE: {base_url}")
     print("-" * 60)

@@ -20,9 +20,9 @@ class PackDataAnalyzer:
                 if backend_url:
                     self.base_url = f"{backend_url}/api"
                 else:
-                    self.base_url = "https://insight-engine-16.preview.emergentagent.com/api"
+                    self.base_url = "https://adaptive-insights-1.preview.emergentagent.com/api"
             else:
-                self.base_url = "https://insight-engine-16.preview.emergentagent.com/api"
+                self.base_url = "https://adaptive-insights-1.preview.emergentagent.com/api"
         
         print(f"🌐 Using backend URL: {self.base_url}")
         

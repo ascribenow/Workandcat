@@ -8,7 +8,7 @@ import time
 
 class ComprehensiveMCQTester:
     def __init__(self):
-        self.base_url = "https://insight-engine-16.preview.emergentagent.com/api"
+        self.base_url = "https://adaptive-insights-1.preview.emergentagent.com/api"
         self.auth_headers = None
         self.user_id = None
         
