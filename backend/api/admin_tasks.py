@@ -294,7 +294,7 @@ async def get_backfill_history(limit: int = 10):
 @router.get("/validate-schema")
 async def validate_schema():
     """Verify database schema constraints are in place"""
-    db = get_db_session()
+    db = SessionLocal()
     
     try:
         constraints = db.execute(text("""
