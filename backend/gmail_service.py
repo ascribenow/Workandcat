@@ -501,7 +501,6 @@ The Twelvr Team
         import logging
         logger = logging.getLogger(__name__)
         
-        from datetime import timedelta
         from utils.timezone_utils import now_ist, ist_to_utc
         from database import SessionLocal
         from sqlalchemy import text
