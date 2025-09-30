@@ -110,8 +110,8 @@ async def run_simplified_summarizer(user_id: str, session_id: str) -> Dict[str, 
                         INSERT INTO session_summary_final 
                         (user_id, session_id, concept_weights, final_readiness, 
                          final_coverage, aggregate_counts, created_at, processing_time_ms)
-                        VALUES (:user_id, :session_id, :concept_weights::jsonb, :final_readiness::jsonb,
-                                :final_coverage::jsonb, :aggregate_counts::jsonb, NOW(), :processing_time_ms)
+                        VALUES (:user_id, :session_id, :concept_weights, :final_readiness,
+                                :final_coverage, :aggregate_counts, NOW(), :processing_time_ms)
                     """), {
                         "user_id": user_id,
                         "session_id": session_id,
