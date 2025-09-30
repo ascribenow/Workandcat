@@ -127,10 +127,10 @@ const LandingPage = () => {
       
       if (result.success) {
         setSuccess('Account created successfully! Welcome to Twelvr!');
-        // Clear form and redirect
+        // Clear form and redirect to home (which shows Dashboard when authenticated)
         setTimeout(() => {
           // User will be automatically logged in by verifyEmailCode
-          navigate('/dashboard');
+          navigate('/');
         }, 2000);
       } else {
         // Enhanced error message with remaining attempts
