@@ -680,23 +680,29 @@ The Twelvr Team
     
     def remove_pending_user(self, email: str):
         """Remove pending user after successful signup"""
-        if email in self.pending_users:
-            del self.pending_users[email]
-        if email in self.verification_codes:
-            del self.verification_codes[email]
-            
-        # Also remove from database
+        # Remove from database
         from database import SessionLocal
         from sqlalchemy import text
         
         db = SessionLocal()
         try:
+            # Remove pending signup data
+            db.execute(text("DELETE FROM pending_signups WHERE email = :email"), {"email": email})
+            
+            # Remove verification code
             db.execute(text("DELETE FROM verification_codes WHERE email = :email"), {"email": email})
+            
             db.commit()
         except Exception as e:
-            print(f"Error removing verification code from database: {e}")
+            print(f"Error removing pending user data from database: {e}")
         finally:
             db.close()
+        
+        # Also clean up in-memory storage
+        if email in self.pending_users:
+            del self.pending_users[email]
+        if email in self.verification_codes:
+            del self.verification_codes[email]
     
     def cleanup_expired_codes(self):
         """Remove expired codes and pending users (both in-memory and database)"""
