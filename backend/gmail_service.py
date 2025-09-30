@@ -533,7 +533,7 @@ The Twelvr Team
         return code
     
     def verify_code(self, email: str, provided_code: str) -> bool:
-        """Verify the provided code against stored code in database"""
+        """Verify the provided code against stored code in database - SIMPLE VERSION"""
         from database import SessionLocal
         from sqlalchemy import text
         from datetime import datetime
@@ -557,18 +557,11 @@ The Twelvr Team
             
             # Check if code has expired
             if datetime.utcnow() > expires_at:
-                # Delete expired code
-                db.execute(text("DELETE FROM verification_codes WHERE email = :email"), {"email": email})
-                db.commit()
                 return False
             
-            # Check if already verified
-            if verified:
-                return False
-            
-            # Check if code matches
+            # Simple check: does the code match?
             if code == provided_code:
-                # Code is correct - mark as verified
+                # Mark as verified and return success
                 db.execute(text("""
                     UPDATE verification_codes 
                     SET verified = true 
@@ -576,24 +569,9 @@ The Twelvr Team
                 """), {"email": email})
                 db.commit()
                 return True
-            else:
-                # Code is wrong - increment attempts
-                new_attempts = attempts + 1
-                
-                # Check if too many attempts (security measure)
-                if new_attempts > 5:
-                    db.execute(text("DELETE FROM verification_codes WHERE email = :email"), {"email": email})
-                    db.commit()
-                    return False
-                
-                # Update attempts for wrong code
-                db.execute(text("""
-                    UPDATE verification_codes 
-                    SET attempts = :attempts 
-                    WHERE email = :email
-                """), {"email": email, "attempts": new_attempts})
-                db.commit()
-                return False
+            
+            # Code doesn't match
+            return False
             
         finally:
             db.close()
