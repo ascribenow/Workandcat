@@ -501,15 +501,20 @@ The Twelvr Team
         import logging
         logger = logging.getLogger(__name__)
         
-        from datetime import datetime, timedelta, timezone
+        from datetime import timedelta
+        from utils.timezone_utils import now_ist, ist_to_utc
         from database import SessionLocal
         from sqlalchemy import text
         import uuid
         import traceback
         
         code = f"{secrets.randbelow(1000000):06d}"
-        current_time = datetime.now(timezone.utc)
-        expiry_time = current_time + timedelta(minutes=15)
+        current_time_ist = now_ist()
+        expiry_time_ist = current_time_ist + timedelta(minutes=15)
+        
+        # Convert to UTC for database storage
+        current_time_utc = ist_to_utc(current_time_ist)
+        expiry_time_utc = ist_to_utc(expiry_time_ist)
         
         logger.info(f"🔍 GENERATE_CODE DEBUG: Starting code generation for {email}")
         logger.info(f"🔍 GENERATE_CODE DEBUG: Generated code {code}, expires at {expiry_time}")
