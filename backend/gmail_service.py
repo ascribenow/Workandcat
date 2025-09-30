@@ -649,7 +649,7 @@ The Twelvr Team
                 "email": email,
                 "name": user_data["name"],
                 "password": user_data["password"],
-                "expires_at": expires_at
+                "expires_at": expires_at_utc
             })
             
             db.commit()
@@ -660,8 +660,8 @@ The Twelvr Team
         # Also store in memory for backward compatibility (will be cleaned up later)
         self.pending_users[email] = {
             'user_data': user_data,
-            'created_at': current_time,
-            'expires_at': expires_at
+            'created_at': current_time_ist,
+            'expires_at': expires_at_ist
         }
     
     def get_pending_user(self, email: str) -> Optional[dict]:
