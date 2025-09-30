@@ -125,21 +125,35 @@ async def run_simplified_summarizer(user_id: str, session_id: str) -> Dict[str, 
                 except Exception as final_error:
                     logger.error(f"❌ Session summary final write failed: {final_error}")
                 
-                # Write to concept_alias_map_latest  
+                # Write to concept_alias_map_latest with correct table structure
                 concept_map_data = session_data.get("concept_alias_map_updated", [])
                 if concept_map_data:
                     logger.info(f"📊 Upserting concept alias map ({len(concept_map_data)} concepts)...")
                     try:
-                        db.execute(text("""
-                            INSERT INTO concept_alias_map_latest (user_id, alias_map_json, updated_at)
-                            VALUES (:user_id, :alias_map_json, NOW())
-                            ON CONFLICT (user_id) DO UPDATE
-                              SET alias_map_json = EXCLUDED.alias_map_json,
-                                  updated_at = EXCLUDED.updated_at
-                        """), {
-                            "user_id": user_id, 
-                            "alias_map_json": json.dumps(concept_map_data)
-                        })
+                        # Insert each concept as a separate row with correct structure
+                        for concept_entry in concept_map_data:
+                            canonical = concept_entry.get("canonical", "unknown")
+                            aliases = concept_entry.get("aliases", [canonical])
+                            
+                            db.execute(text("""
+                                INSERT INTO concept_alias_map_latest 
+                                (user_id, semantic_id, canonical_label, members, last_updated, 
+                                 first_seen_session_id, usage_count)
+                                VALUES (:user_id, :semantic_id, :canonical_label, :members, NOW(), 
+                                        :session_id, 1)
+                                ON CONFLICT (user_id, semantic_id) DO UPDATE
+                                  SET canonical_label = EXCLUDED.canonical_label,
+                                      members = EXCLUDED.members,
+                                      last_updated = EXCLUDED.last_updated,
+                                      usage_count = concept_alias_map_latest.usage_count + 1
+                            """), {
+                                "user_id": user_id,
+                                "semantic_id": canonical.lower().replace(" ", "_"),
+                                "canonical_label": canonical,
+                                "members": json.dumps(aliases),
+                                "session_id": session_id
+                            })
+                        
                         logger.info("✅ Concept alias map upserted successfully")
                     except Exception as alias_error:
                         logger.error(f"❌ Concept alias map upsert failed: {alias_error}")
