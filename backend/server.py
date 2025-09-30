@@ -381,6 +381,68 @@ async def send_verification_code(signup_data: SendVerificationRequest, request: 
         logger.error(f"Send verification error for {signup_data.email}: {e}")
         raise HTTPException(status_code=500, detail="Failed to send verification code")
 
+@app.post("/api/auth/resend-verification-code")
+async def resend_verification_code(request_data: dict, request: Request):
+    """Resend verification code with rate limiting"""
+    try:
+        email = request_data.get("email", "").strip().lower()
+        if not email:
+            raise HTTPException(status_code=400, detail="Email is required")
+        
+        client_ip = request.client.host
+        db = SessionLocal()
+        try:
+            # Enhanced rate limiting for resend (stricter than initial send)
+            rate_limit_result = check_rate_limit(db, client_ip, email)
+            if not rate_limit_result["allowed"]:
+                logger.warning(f"Rate limit exceeded for resend request - IP {client_ip}, email {email}")
+                raise HTTPException(
+                    status_code=429,
+                    detail=f"Too many resend requests. Try again in {rate_limit_result['retry_after']} minutes."
+                )
+            
+            # Check if there's pending signup data for this email
+            pending_data = gmail_service.get_pending_user(email)
+            if not pending_data:
+                logger.warning(f"Resend attempt for email with no pending signup: {email}")
+                raise HTTPException(status_code=400, detail="No pending signup found for this email")
+            
+            # Check if user already exists
+            result = db.execute(select(User).where(User.email == email))
+            if result.scalar_one_or_none():
+                logger.warning(f"Resend attempt for existing email: {email}")
+                raise HTTPException(status_code=400, detail="Email already registered")
+            
+            # Generate new verification code
+            verification_code = gmail_service.generate_verification_code(email)
+            logger.info(f"New verification code generated for resend request: {email} from IP {client_ip}")
+            
+            # Send verification email
+            email_sent = gmail_service.send_verification_email(email, verification_code)
+            
+            if not email_sent:
+                logger.error(f"Failed to resend verification email to {email}")
+                raise HTTPException(status_code=500, detail="Failed to resend verification email")
+            
+            # Update rate limiting
+            update_rate_limit(db, client_ip, email)
+            
+            logger.info(f"Verification code resent successfully to {email} from IP {client_ip}")
+            return {
+                "success": True,
+                "message": "Verification code resent to your email",
+                "email": email
+            }
+            
+        finally:
+            db.close()
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Resend verification error: {e}")
+        raise HTTPException(status_code=500, detail="Failed to resend verification code")
+
 @app.post("/api/auth/verify-email")  
 async def verify_email_and_signup(verify_data: VerifyCodeRequest):
     """Step 2: Verify code and complete user registration"""
