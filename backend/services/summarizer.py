@@ -237,17 +237,22 @@ Return ONLY valid JSON matching this exact schema with the specified field names
                     # 5) Write session_summary_final with aggregated results
                     logger.info(f"📊 Writing session summary to session_summary_final...")
                     try:
-                        # Prepare final summary data
-                        concept_weights = data.get("concept_alias_map_updated", [])
+                        # Prepare final summary data (use available data or defaults)
+                        concept_weights = concept_map_data  # Use the concept map we just prepared
                         final_readiness = data.get("concept_readiness_labels", [])
                         final_coverage = data.get("pair_coverage_labels", [])
                         
-                        # Create aggregate counts
+                        # Create aggregate counts from attempt data
+                        total_attempts = len([a for a in attempts if a.get("was_correct") is not None])
+                        correct_attempts = len([a for a in attempts if a.get("was_correct") == True])
+                        
                         aggregate_counts = {
-                            "total_questions": len([a for a in attempts if a.get("was_correct") is not None]),
-                            "correct_questions": len([a for a in attempts if a.get("was_correct") == True]),
+                            "total_questions": total_attempts,
+                            "correct_questions": correct_attempts,
+                            "accuracy": (correct_attempts / total_attempts * 100) if total_attempts > 0 else 0,
                             "concepts_touched": len(concept_weights),
-                            "coverage_pairs": len(final_coverage)
+                            "coverage_pairs": len(final_coverage),
+                            "llm_analysis": model_used != "none"
                         }
                         
                         db.execute(text("""
