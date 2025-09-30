@@ -654,13 +654,9 @@ async def complete_session(
     """
     
     try:
-        # INPUT VALIDATION: Ensure session_id is valid UUID format
-        try:
-            import uuid
-            uuid.UUID(request.session_id)
-        except ValueError:
-            logger.error(f"Invalid session_id format: {request.session_id}")
-            raise HTTPException(status_code=400, detail="Invalid session ID format")
+        # Validate UUID format at API boundary
+        session_id = validate_canonical_uuid(request.session_id, "session_id")
+        auth_user_id = validate_canonical_uuid(auth_user_id, "authenticated_user_id")
         
         planner = await get_blueprint_planner()
         
