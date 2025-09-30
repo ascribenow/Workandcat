@@ -562,23 +562,13 @@ The Twelvr Team
                 db.commit()
                 return False
             
-            # Increment attempts
-            new_attempts = attempts + 1
-            db.execute(text("""
-                UPDATE verification_codes 
-                SET attempts = :attempts 
-                WHERE email = :email
-            """), {"email": email, "attempts": new_attempts})
-            
-            # Check if too many attempts (security measure)
-            if new_attempts > 5:
-                db.execute(text("DELETE FROM verification_codes WHERE email = :email"), {"email": email})
-                db.commit()
+            # Check if already verified
+            if verified:
                 return False
             
-            # Check if code matches and not already verified
-            if code == provided_code and not verified:
-                # Mark as verified
+            # Check if code matches
+            if code == provided_code:
+                # Code is correct - mark as verified
                 db.execute(text("""
                     UPDATE verification_codes 
                     SET verified = true 
@@ -586,9 +576,24 @@ The Twelvr Team
                 """), {"email": email})
                 db.commit()
                 return True
-            
-            db.commit()
-            return False
+            else:
+                # Code is wrong - increment attempts
+                new_attempts = attempts + 1
+                
+                # Check if too many attempts (security measure)
+                if new_attempts > 5:
+                    db.execute(text("DELETE FROM verification_codes WHERE email = :email"), {"email": email})
+                    db.commit()
+                    return False
+                
+                # Update attempts for wrong code
+                db.execute(text("""
+                    UPDATE verification_codes 
+                    SET attempts = :attempts 
+                    WHERE email = :email
+                """), {"email": email, "attempts": new_attempts})
+                db.commit()
+                return False
             
         finally:
             db.close()
