@@ -178,13 +178,95 @@ async def run_simplified_summarizer(user_id: str, session_id: str) -> Dict[str, 
                 return session_data
                 
             else:
-                return {
+                # No session data found, create minimal response
+                session_data = {
                     "status": "no_data",
                     "session_accuracy": 0.0,
                     "total_attempts": 0,
                     "concept_alias_map_updated": [],
                     "telemetry": {"summarizer_used": "simplified", "no_data": True}
                 }
+            
+            # CRITICAL: Always write to final tables regardless of data availability
+            print("🔧 PRINT DEBUG: Writing to critical tables (outside data condition)")
+            logger.info("📊 Writing session_summary_final (always)...")
+            
+            try:
+                # Create basic aggregate counts
+                aggregate_counts = {
+                    "total_questions": session_data.get("total_attempts", 0),
+                    "correct_questions": int(session_data.get("total_attempts", 0) * session_data.get("session_accuracy", 0)),
+                    "accuracy": session_data.get("session_accuracy", 0) * 100,
+                    "concepts_touched": len(session_data.get("concept_alias_map_updated", [])),
+                    "coverage_pairs": 0,
+                    "llm_analysis": False
+                }
+                
+                db.execute(text("""
+                    INSERT INTO session_summary_final 
+                    (user_id, session_id, concept_weights, final_readiness, 
+                     final_coverage, aggregate_counts, created_at, processing_time_ms)
+                    VALUES (:user_id, :session_id, :concept_weights, :final_readiness,
+                            :final_coverage, :aggregate_counts, NOW(), :processing_time_ms)
+                    ON CONFLICT (user_id, session_id) DO UPDATE
+                      SET concept_weights = EXCLUDED.concept_weights,
+                          final_readiness = EXCLUDED.final_readiness,
+                          final_coverage = EXCLUDED.final_coverage,
+                          aggregate_counts = EXCLUDED.aggregate_counts,
+                          created_at = EXCLUDED.created_at,
+                          processing_time_ms = EXCLUDED.processing_time_ms
+                """), {
+                    "user_id": user_id,
+                    "session_id": session_id,
+                    "concept_weights": json.dumps(session_data.get("concept_alias_map_updated", [])),
+                    "final_readiness": json.dumps([]),
+                    "final_coverage": json.dumps([]),
+                    "aggregate_counts": json.dumps(aggregate_counts),
+                    "processing_time_ms": 1000
+                })
+                
+                print("✅ PRINT DEBUG: session_summary_final written")
+                logger.info("✅ session_summary_final written successfully")
+                
+                # Write basic concept alias map if concepts exist
+                concept_map_data = session_data.get("concept_alias_map_updated", [])
+                if concept_map_data:
+                    for concept_entry in concept_map_data:
+                        canonical = concept_entry.get("canonical", "unknown")
+                        aliases = concept_entry.get("aliases", [canonical])
+                        
+                        db.execute(text("""
+                            INSERT INTO concept_alias_map_latest 
+                            (user_id, semantic_id, canonical_label, members, last_updated, 
+                             first_seen_session_id, usage_count)
+                            VALUES (:user_id, :semantic_id, :canonical_label, :members, NOW(), 
+                                    :session_id, 1)
+                            ON CONFLICT (user_id, semantic_id) DO UPDATE
+                              SET canonical_label = EXCLUDED.canonical_label,
+                                  members = EXCLUDED.members,
+                                  last_updated = EXCLUDED.last_updated,
+                                  usage_count = concept_alias_map_latest.usage_count + 1
+                        """), {
+                            "user_id": user_id,
+                            "semantic_id": canonical.lower().replace(" ", "_"),
+                            "canonical_label": canonical,
+                            "members": json.dumps(aliases),
+                            "session_id": session_id
+                        })
+                    
+                    print(f"✅ PRINT DEBUG: concept_alias_map_latest updated with {len(concept_map_data)} concepts")
+                    logger.info(f"✅ Concept alias map updated with {len(concept_map_data)} concepts")
+                
+                db.commit()
+                print("✅ PRINT DEBUG: All critical tables committed")
+                
+            except Exception as e:
+                logger.error(f"❌ Critical table write error: {e}")
+                print(f"❌ PRINT DEBUG: Critical table write error: {e}")
+                db.rollback()
+            
+            return session_data
+            
         finally:
             db.close()
             
