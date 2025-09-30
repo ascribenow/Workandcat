@@ -238,23 +238,39 @@ def check_rate_limit(db, client_ip: str, email: str) -> dict:
     try:
         from datetime import datetime, timedelta
         
-        # Rate limit: 5 requests per IP per hour, 3 requests per email per hour
-        one_hour_ago = datetime.utcnow() - timedelta(hours=1)
+        # Rate limit: 3 requests per IP per hour for verification codes
+        one_hour_ago = datetime.utcnow()
         
-        # Check IP-based rate limit (5 per hour)
+        # Clean up expired entries first
+        db.execute(text("""
+            DELETE FROM rate_limiting_events 
+            WHERE expires_at < :current_time
+        """), {"current_time": datetime.utcnow()})
+        
+        # Check IP-based rate limit (3 per hour)
         ip_count = db.execute(text("""
-            SELECT COUNT(*) FROM rate_limit_log 
-            WHERE client_ip = :client_ip AND created_at > :one_hour_ago
-        """), {"client_ip": client_ip, "one_hour_ago": one_hour_ago}).scalar() or 0
+            SELECT COUNT(*) FROM rate_limiting_events 
+            WHERE ip_address = :ip_address 
+            AND event_type = 'send_verification_code'
+            AND created_at > :one_hour_ago
+        """), {
+            "ip_address": client_ip, 
+            "one_hour_ago": datetime.utcnow() - timedelta(hours=1)
+        }).scalar() or 0
         
-        if ip_count >= 5:
+        if ip_count >= 3:
             return {"allowed": False, "retry_after": 60}
         
-        # Check email-based rate limit (3 per hour)
+        # Check email-based rate limit (3 per hour) 
         email_count = db.execute(text("""
-            SELECT COUNT(*) FROM rate_limit_log 
-            WHERE email = :email AND created_at > :one_hour_ago
-        """), {"email": email, "one_hour_ago": one_hour_ago}).scalar() or 0
+            SELECT COUNT(*) FROM rate_limiting_events 
+            WHERE email = :email 
+            AND event_type = 'send_verification_code'
+            AND created_at > :one_hour_ago
+        """), {
+            "email": email, 
+            "one_hour_ago": datetime.utcnow() - timedelta(hours=1)
+        }).scalar() or 0
         
         if email_count >= 3:
             return {"allowed": False, "retry_after": 60}
