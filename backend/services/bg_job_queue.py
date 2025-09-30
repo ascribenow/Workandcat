@@ -41,14 +41,26 @@ class SimplifiedJobQueue:
         job_type: str,
         user_id: str,
         session_id: Optional[str] = None,
+        correlation_id: Optional[str] = None,
         max_attempts: int = 6
     ) -> str:
         """
-        Enqueue background job with dedupe_key idempotency
+        Enqueue background job with dedupe_key idempotency and correlation ID for tracing
         
+        Args:
+            job_type: Type of job (SUMMARIZE_SESSION, PLAN_NEXT_SESSION)
+            user_id: User ID
+            session_id: Session ID (optional)
+            correlation_id: Correlation ID for end-to-end tracing (optional)
+            max_attempts: Maximum retry attempts
+            
         Returns:
             Job ID (UUID) for tracking
         """
+        # Generate correlation_id if not provided
+        if not correlation_id:
+            correlation_id = str(uuid.uuid4())
+        
         # Generate dedupe_key for idempotency
         if session_id:
             dedupe_key = f"u:{user_id}|s:{session_id}|{job_type}"
@@ -60,17 +72,19 @@ class SimplifiedJobQueue:
             # Insert with ON CONFLICT to handle deduplication
             result = db.execute(text("""
                 INSERT INTO bg_jobs (
-                    job_type, user_id, session_id, dedupe_key, max_attempts, next_attempt_at
+                    job_type, user_id, session_id, correlation_id, dedupe_key, max_attempts, next_attempt_at
                 ) VALUES (
-                    :job_type, :user_id, :session_id, :dedupe_key, :max_attempts, :next_attempt_at
+                    :job_type, :user_id, :session_id, :correlation_id, :dedupe_key, :max_attempts, :next_attempt_at
                 )
                 ON CONFLICT (dedupe_key) DO UPDATE SET
-                    next_attempt_at = EXCLUDED.next_attempt_at
+                    next_attempt_at = EXCLUDED.next_attempt_at,
+                    correlation_id = EXCLUDED.correlation_id
                 RETURNING id
             """), {
                 "job_type": job_type,
                 "user_id": user_id,
                 "session_id": session_id,
+                "correlation_id": correlation_id,
                 "dedupe_key": dedupe_key,
                 "max_attempts": max_attempts,
                 "next_attempt_at": datetime.now(timezone.utc)
