@@ -387,9 +387,16 @@ async def verify_email_and_signup(verify_data: VerifyCodeRequest):
     try:
         db = SessionLocal()
         try:
+            # Log verification attempt
+            logger.info(f"Verification attempt for email: {verify_data.email}, code: {verify_data.verification_code[:2]}**")
+            
             # Verify the code
-            if not gmail_service.verify_code(verify_data.email, verify_data.verification_code):
+            verification_result = gmail_service.verify_code(verify_data.email, verify_data.verification_code)
+            if not verification_result:
+                logger.warning(f"Failed verification attempt for email: {verify_data.email}, code: {verify_data.verification_code[:2]}**")
                 raise HTTPException(status_code=400, detail="Invalid or expired verification code")
+            
+            logger.info(f"Successful verification for email: {verify_data.email}")
             
             # Get pending user data
             pending_user_data = gmail_service.get_pending_user(verify_data.email)
