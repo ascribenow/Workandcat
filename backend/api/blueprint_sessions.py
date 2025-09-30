@@ -745,7 +745,9 @@ async def complete_session(
             "accuracy": round(accuracy, 1),
             "completed_at": datetime.now(timezone.utc).isoformat(),
             "session_type": "blueprint",
-            "adaptive_processing": "queued" if bg_jobs_enqueued else "enqueue_failed"
+            "adaptive_processing": "queued" if bg_jobs_enqueued else "enqueue_failed",
+            "correlation_id": correlation_id,
+            "trace_url": f"/api/admin/pipeline-health/trace/{correlation_id}"
         }
         
         return JSONResponse({
