@@ -139,8 +139,10 @@ async def run_simplified_summarizer(user_id: str, session_id: str) -> Dict[str, 
                 
                 # Write to concept_alias_map_latest with correct table structure
                 concept_map_data = session_data.get("concept_alias_map_updated", [])
+                print(f"🔧 PRINT DEBUG: concept_map_data has {len(concept_map_data)} entries")
                 if concept_map_data:
                     logger.info(f"📊 Upserting concept alias map ({len(concept_map_data)} concepts)...")
+                    print(f"📊 PRINT DEBUG: Starting concept upsert loop...")
                     try:
                         # Insert each concept as a separate row with correct structure
                         for concept_entry in concept_map_data:
