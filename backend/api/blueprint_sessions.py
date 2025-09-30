@@ -697,10 +697,10 @@ async def complete_session(
                 "questions_correct": correct_answers,
                 "questions_skipped": 0,  # Blueprint sessions don't allow skipping
                 "current_position": total_questions,  # Completed = at final position
-                "session_id": request.session_id
+                "session_id": session_id
             })
             
-            logger.info(f"Final reconciliation: Session {request.session_id[:8]} completed with {correct_answers}/{total_questions} correct")
+            logger.info(f"Final reconciliation: Session {session_id[:8]} completed with {correct_answers}/{total_questions} correct")
             
             db.commit()
             
