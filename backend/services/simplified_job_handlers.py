@@ -167,7 +167,9 @@ async def run_simplified_summarizer(user_id: str, session_id: str) -> Dict[str, 
                         logger.error(f"❌ Concept alias map upsert failed: {alias_error}")
                 
                 db.commit()
+                print("✅ PRINT DEBUG: Committed all critical table writes")
                 logger.info("✅ Session summary persisted to session_summary_llm successfully")
+                print("✅ PRINT DEBUG: Function completing normally")
                 
                 return session_data
                 
