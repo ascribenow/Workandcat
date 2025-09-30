@@ -20,7 +20,7 @@ class GmailService:
         self.sender_email = 'hello@twelvr.com'
         self.sender_name = 'Twelvr'  # Display name for emails
         self.service = None
-        # In production, use proper database
+        # Legacy in-memory storage (deprecated - use database instead)
         self.verification_codes: Dict[str, Dict] = {}
         self.pending_users: Dict[str, Dict] = {}
     
