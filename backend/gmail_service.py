@@ -695,7 +695,7 @@ The Twelvr Team
         # Fallback to in-memory storage for backward compatibility
         if email in self.pending_users:
             pending_data = self.pending_users[email]
-            if datetime.utcnow() <= pending_data['expires_at']:
+            if current_time <= pending_data['expires_at']:
                 return pending_data['user_data']
             else:
                 del self.pending_users[email]
