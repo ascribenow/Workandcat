@@ -258,8 +258,12 @@ async def get_backfill_status(batch_id: str):
             "started_at": result[6].isoformat() if result[6] else None,
             "completed_at": result[7].isoformat() if result[7] else None
         }
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(500, f"Error fetching backfill status: {e}")
+    finally:
+        db.close()
 
 
 @router.get("/backfill-history", response_model=List[Dict])
