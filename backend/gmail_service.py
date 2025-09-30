@@ -628,16 +628,53 @@ The Twelvr Team
         }
     
     def get_pending_user(self, email: str) -> Optional[dict]:
-        """Get pending user data"""
+        """Get pending user data from database"""
+        from database import SessionLocal
+        from sqlalchemy import text
+        from datetime import datetime
+        
+        db = SessionLocal()
+        try:
+            # First clean up expired entries
+            db.execute(text("""
+                DELETE FROM pending_signups 
+                WHERE expires_at < :current_time
+            """), {"current_time": datetime.utcnow()})
+            
+            # Get pending signup data
+            result = db.execute(text("""
+                SELECT name, password, expires_at 
+                FROM pending_signups 
+                WHERE email = :email
+            """), {"email": email}).fetchone()
+            
+            if result:
+                name, password, expires_at = result
+                
+                # Double check if not expired
+                if datetime.utcnow() <= expires_at:
+                    return {
+                        "name": name,
+                        "email": email,
+                        "password": password
+                    }
+                else:
+                    # Clean up expired entry
+                    db.execute(text("DELETE FROM pending_signups WHERE email = :email"), {"email": email})
+                    db.commit()
+            
+            return None
+            
+        finally:
+            db.close()
+        
+        # Fallback to in-memory storage for backward compatibility
         if email in self.pending_users:
             pending_data = self.pending_users[email]
-            
-            # Check if expired
-            if datetime.utcnow() > pending_data['expires_at']:
+            if datetime.utcnow() <= pending_data['expires_at']:
+                return pending_data['user_data']
+            else:
                 del self.pending_users[email]
-                return None
-            
-            return pending_data['user_data']
         
         return None
     
