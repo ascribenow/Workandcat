@@ -56,7 +56,7 @@ def mark_session_started(user_id: str, session_id: str) -> bool:
                 })
             return True
         else:
-            logger.warning(f"⚠️ Session start failed - session not found")
+            logger.warning("⚠️ Session start failed - session not found")
             return False
             
     except Exception as e:
@@ -189,7 +189,7 @@ def mark_session_completed(user_id: str, session_id: str) -> bool:
             
             return True
         else:
-            logger.warning(f"⚠️ Session completion failed - session not found")
+            logger.warning("⚠️ Session completion failed - session not found")
             return False
             
     except Exception as e:
