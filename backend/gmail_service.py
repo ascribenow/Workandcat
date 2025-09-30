@@ -501,6 +501,7 @@ The Twelvr Team
         from datetime import datetime, timedelta
         from database import SessionLocal
         from sqlalchemy import text
+        import uuid
         
         code = f"{secrets.randbelow(1000000):06d}"
         expiry_time = datetime.utcnow() + timedelta(minutes=15)
@@ -510,14 +511,16 @@ The Twelvr Team
             # Delete any existing code for this email
             db.execute(text("DELETE FROM verification_codes WHERE email = :email"), {"email": email})
             
-            # Insert new verification code
+            # Insert new verification code with explicit ID and created_at
             db.execute(text("""
-                INSERT INTO verification_codes (email, code, expires_at, verified, attempts)
-                VALUES (:email, :code, :expires_at, false, 0)
+                INSERT INTO verification_codes (id, email, code, expires_at, verified, attempts, created_at)
+                VALUES (:id, :email, :code, :expires_at, false, 0, :created_at)
             """), {
+                "id": str(uuid.uuid4()),
                 "email": email,
                 "code": code, 
-                "expires_at": expiry_time
+                "expires_at": expiry_time,
+                "created_at": datetime.utcnow()
             })
             
             db.commit()
