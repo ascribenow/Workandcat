@@ -13,10 +13,4 @@ CREATE INDEX idx_rate_limiting_ip_email ON rate_limiting_events(ip_address, emai
 CREATE INDEX idx_rate_limiting_expires_at ON rate_limiting_events(expires_at);
 CREATE INDEX idx_rate_limiting_ip_created ON rate_limiting_events(ip_address, created_at DESC);
 
-# Cleanup function to remove expired entries
-CREATE OR REPLACE FUNCTION cleanup_expired_rate_limits()
-RETURNS void AS $$
-BEGIN
-    DELETE FROM rate_limiting_events WHERE expires_at < NOW();
-END;
-$$ LANGUAGE plpgsql;
+# Note: Cleanup will be handled in application code
