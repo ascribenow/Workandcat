@@ -144,11 +144,11 @@ const LandingPage = () => {
     setError('');
     
     try {
-      const result = await sendVerificationCode(name, email, password);
+      const result = await resendVerificationCode(email);
       
       if (result.success) {
         setResendCountdown(60);
-        setSuccess('New verification code sent!');
+        setSuccess('New verification code sent to your email!');
       } else {
         setError(result.error || 'Failed to resend code');
       }
