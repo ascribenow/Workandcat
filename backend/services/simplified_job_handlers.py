@@ -93,6 +93,7 @@ async def run_simplified_summarizer(user_id: str, session_id: str) -> Dict[str, 
                 })
                 
                 # CRITICAL FIX: Also write to session_summary_final and concept_alias_map_latest
+                logger.info("🔧 DEBUG: Starting critical table writes...")
                 
                 # Write to session_summary_final
                 logger.info("📊 Writing session summary to session_summary_final...")
