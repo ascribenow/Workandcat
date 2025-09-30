@@ -497,17 +497,38 @@ The Twelvr Team
             return False
     
     def generate_verification_code(self, email: str) -> str:
-        """Generate a 6-digit verification code"""
+        """Generate a 6-digit verification code and store in database"""
+        import secrets
+        from datetime import datetime, timedelta
+        from database import SessionLocal
+        from sqlalchemy import text
+        
         code = f"{secrets.randbelow(1000000):06d}"
         expiry_time = datetime.utcnow() + timedelta(minutes=15)
         
-        self.verification_codes[email] = {
-            'code': code,
-            'created_at': datetime.utcnow(),
-            'expires_at': expiry_time,
-            'verified': False
-        }
-        
+        db = SessionLocal()
+        try:
+            # Delete any existing code for this email
+            db.execute(text("DELETE FROM verification_codes WHERE email = :email"), {"email": email})
+            
+            # Insert new verification code
+            db.execute(text("""
+                INSERT INTO verification_codes (email, code, expires_at, verified, attempts)
+                VALUES (:email, :code, :expires_at, false, 0)
+            """), {
+                "email": email,
+                "code": code, 
+                "expires_at": expiry_time
+            })
+            
+            db.commit()
+            
+            # Clean up expired codes periodically
+            self._cleanup_expired_codes_db(db)
+            
+        finally:
+            db.close()
+            
         return code
     
     def verify_code(self, email: str, provided_code: str) -> bool:
