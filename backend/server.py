@@ -230,6 +230,83 @@ async def get_current_admin_user(user_id: str = Depends(get_current_user)):
     finally:
         db.close()
 
+def check_rate_limit(db, client_ip: str, email: str) -> dict:
+    """
+    Check if the client IP or email has exceeded rate limits for verification code requests
+    Returns: {"allowed": bool, "retry_after": int (minutes)}
+    """
+    try:
+        from datetime import datetime, timedelta
+        
+        # Rate limit: 5 requests per IP per hour, 3 requests per email per hour
+        one_hour_ago = datetime.utcnow() - timedelta(hours=1)
+        
+        # Check IP-based rate limit (5 per hour)
+        ip_count = db.execute(text("""
+            SELECT COUNT(*) FROM rate_limit_log 
+            WHERE client_ip = :client_ip AND created_at > :one_hour_ago
+        """), {"client_ip": client_ip, "one_hour_ago": one_hour_ago}).scalar() or 0
+        
+        if ip_count >= 5:
+            return {"allowed": False, "retry_after": 60}
+        
+        # Check email-based rate limit (3 per hour)
+        email_count = db.execute(text("""
+            SELECT COUNT(*) FROM rate_limit_log 
+            WHERE email = :email AND created_at > :one_hour_ago
+        """), {"email": email, "one_hour_ago": one_hour_ago}).scalar() or 0
+        
+        if email_count >= 3:
+            return {"allowed": False, "retry_after": 60}
+        
+        return {"allowed": True, "retry_after": 0}
+        
+    except Exception as e:
+        logger.error(f"Rate limit check error: {e}")
+        # On error, allow the request (fail open)
+        return {"allowed": True, "retry_after": 0}
+
+def update_rate_limit(db, client_ip: str, email: str):
+    """
+    Update rate limit log after successful verification code send
+    """
+    try:
+        # Create rate_limit_log table if it doesn't exist
+        db.execute(text("""
+            CREATE TABLE IF NOT EXISTS rate_limit_log (
+                id VARCHAR(36) PRIMARY KEY,
+                client_ip VARCHAR(45),
+                email VARCHAR(255),
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                INDEX idx_rate_limit_ip_time (client_ip, created_at),
+                INDEX idx_rate_limit_email_time (email, created_at)
+            )
+        """))
+        
+        # Insert new rate limit entry
+        db.execute(text("""
+            INSERT INTO rate_limit_log (id, client_ip, email, created_at)
+            VALUES (:id, :client_ip, :email, :created_at)
+        """), {
+            "id": str(uuid.uuid4()),
+            "client_ip": client_ip,
+            "email": email,
+            "created_at": datetime.utcnow()
+        })
+        
+        # Clean up old entries (older than 24 hours)
+        db.execute(text("""
+            DELETE FROM rate_limit_log 
+            WHERE created_at < :cleanup_time
+        """), {"cleanup_time": datetime.utcnow() - timedelta(hours=24)})
+        
+        db.commit()
+        
+    except Exception as e:
+        logger.error(f"Rate limit update error: {e}")
+        # Don't fail the main operation if rate limiting fails
+        pass
+
 # Health check
 @app.get("/health")
 async def health_check():
