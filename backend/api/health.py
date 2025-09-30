@@ -8,6 +8,12 @@ from typing import Dict, List, Any, Optional
 from datetime import datetime, timezone
 from sqlalchemy import text
 from database import SessionLocal
+try:
+    from config.adaptive_learning_config import config as adaptive_config
+    CONFIG_AVAILABLE = True
+except Exception as e:
+    CONFIG_AVAILABLE = False
+    adaptive_config = None
 
 router = APIRouter(prefix="/api/admin", tags=["health"])
 
