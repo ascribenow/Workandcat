@@ -205,7 +205,9 @@ async def handle_summarize_session(job: Dict[str, Any]) -> Dict[str, Any]:
     
     try:
         # Step 1: Run simplified summarizer for concept analysis
+        logger.info(f"🔧 DEBUG: About to call run_simplified_summarizer for user {user_id[:8]} session {session_id[:8]}")
         summarizer_result = await run_simplified_summarizer(user_id, session_id)
+        logger.info(f"🔧 DEBUG: run_simplified_summarizer returned, type: {type(summarizer_result)}")
         
         # Step 2: Update learner notebook with session insights
         await update_learner_notebook_from_session(user_id, session_id, summarizer_result)
