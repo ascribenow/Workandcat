@@ -234,6 +234,38 @@ async def refresh_health_metrics():
         db.close()
 
 
+@router.get("/pipeline-health/config")
+async def get_current_config():
+    """
+    Get currently active configuration
+    
+    Returns the configuration that is currently deployed and active
+    """
+    db = SessionLocal()
+    
+    try:
+        # Get active config from database
+        result = db.execute(text("SELECT get_active_config()")).scalar()
+        
+        # Also get Python config for comparison
+        try:
+            from config.adaptive_learning_config import config as py_config
+            python_config = py_config.to_dict()
+        except Exception as e:
+            python_config = {"error": f"Could not load Python config: {e}"}
+        
+        return {
+            "database_config": result,
+            "python_config": python_config,
+            "match": result == python_config if isinstance(python_config, dict) else False
+        }
+        
+    except Exception as e:
+        raise HTTPException(500, f"Error fetching config: {e}")
+    finally:
+        db.close()
+
+
 @router.get("/pipeline-health/config-versions")
 async def get_config_versions():
     """
