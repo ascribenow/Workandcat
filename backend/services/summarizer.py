@@ -216,6 +216,43 @@ Return ONLY valid JSON matching this exact schema with the specified field names
                         except Exception as alias_error:
                             logger.error(f"❌ Concept alias map upsert failed: {alias_error}")
                             raise alias_error
+
+                    # 5) Write session_summary_final with aggregated results
+                    logger.info(f"📊 Writing session summary to session_summary_final...")
+                    try:
+                        # Prepare final summary data
+                        concept_weights = data.get("concept_alias_map_updated", [])
+                        final_readiness = data.get("concept_readiness_labels", [])
+                        final_coverage = data.get("pair_coverage_labels", [])
+                        
+                        # Create aggregate counts
+                        aggregate_counts = {
+                            "total_questions": len([a for a in attempts if a.get("was_correct") is not None]),
+                            "correct_questions": len([a for a in attempts if a.get("was_correct") == True]),
+                            "concepts_touched": len(concept_weights),
+                            "coverage_pairs": len(final_coverage)
+                        }
+                        
+                        db.execute(text("""
+                            INSERT INTO session_summary_final 
+                            (user_id, session_id, concept_weights, final_readiness, 
+                             final_coverage, aggregate_counts, created_at, processing_time_ms)
+                            VALUES (:user_id, :session_id, :concept_weights::jsonb, :final_readiness::jsonb,
+                                    :final_coverage::jsonb, :aggregate_counts::jsonb, NOW(), :processing_time_ms)
+                        """), {
+                            "user_id": user_id,
+                            "session_id": session_id,
+                            "concept_weights": json.dumps(concept_weights),
+                            "final_readiness": json.dumps(final_readiness),
+                            "final_coverage": json.dumps(final_coverage),
+                            "aggregate_counts": json.dumps(aggregate_counts),
+                            "processing_time_ms": data.get("telemetry", {}).get("processing_time_ms", 0)
+                        })
+                        logger.info(f"✅ Session summary final written successfully")
+                    except Exception as final_error:
+                        logger.error(f"❌ Session summary final write failed: {final_error}")
+                        raise final_error
+                        
                 else:
                     logger.info(f"⚠️ No meaningful LLM analysis performed - skipping database persistence")
                     logger.info(f"   Session can be processed later when LLM is available")
