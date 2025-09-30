@@ -246,7 +246,7 @@ const PaymentComponent = ({ planType, amount, planName, description, onSuccess, 
               onSuccess(verifyResult.data);
             } else {
               alert('Payment successful! Redirecting to dashboard...');
-              window.location.href = '/dashboard';
+              window.location.href = '/';
             }
             
           } catch (error) {
