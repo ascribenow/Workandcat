@@ -21,6 +21,7 @@ from services.blueprint_planner import BlueprintSessionPlanner, create_blueprint
 from database import get_async_compatible_db, get_database, SessionLocal, User
 from subscription_access_service import subscription_access_service
 from free_tier_session_service import free_tier_service
+from utils.uuid_validator import validate_canonical_uuid
 import os
 
 logger = logging.getLogger(__name__)
