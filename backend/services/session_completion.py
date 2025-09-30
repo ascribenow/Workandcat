@@ -166,28 +166,16 @@ def mark_session_completed(user_id: str, session_id: str) -> bool:
                 
                 if not existing_job:
                     # Enqueue SUMMARIZE_SESSION job for adaptive pipeline
+                    # Use sync approach since this is a sync function
+                    loop = asyncio.new_event_loop()
+                    asyncio.set_event_loop(loop)
                     try:
-                        # Check if we're in an async context
-                        loop = asyncio.get_running_loop()
-                        # We're in an async context but this is a sync function
-                        # Create a task to run the async function
-                        import concurrent.futures
-                        with concurrent.futures.ThreadPoolExecutor() as executor:
-                            future = executor.submit(asyncio.run, job_queue.enqueue_job(
-                                job_type="SUMMARIZE_SESSION",
-                                user_id=user_id,
-                                session_id=session_id
-                            ))
-                            job_id = future.result()
-                    except RuntimeError:
-                        # No running loop, we can create one
-                        loop = asyncio.new_event_loop()
-                        asyncio.set_event_loop(loop)
                         job_id = loop.run_until_complete(job_queue.enqueue_job(
                             job_type="SUMMARIZE_SESSION",
                             user_id=user_id,
                             session_id=session_id
                         ))
+                    finally:
                         loop.close()
                     
                     logger.info(f"🚀 Enqueued SUMMARIZE_SESSION job {job_id[:8]} for session {session_id[:8]}")
