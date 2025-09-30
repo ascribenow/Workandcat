@@ -371,3 +371,5 @@ async def validate_foreign_keys():
             "foreign_keys": [],
             "all_validated": False
         }
+    finally:
+        db.close()
