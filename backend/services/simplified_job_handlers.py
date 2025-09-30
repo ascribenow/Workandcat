@@ -36,6 +36,7 @@ async def run_simplified_summarizer(user_id: str, session_id: str) -> Dict[str, 
             """), {"session_id": session_id, "user_id": user_id})
             
             result = session_result.fetchone()
+            print(f"🔍 PRINT DEBUG: Session query result: {result}")
             if result:
                 # Extract basic concept data for analysis
                 concepts_result = db.execute(text("""
