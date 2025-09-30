@@ -118,21 +118,43 @@ const LandingPage = () => {
     }
     
     try {
-      // Step 2: Register with verification code
-      const result = await registerWithVerification(name, email, password, verificationCode);
+      // Increment attempt counter
+      const currentAttempt = verificationAttempts + 1;
+      setVerificationAttempts(currentAttempt);
+      
+      // Step 2: Verify code and complete signup
+      const result = await verifyEmailCode(email, verificationCode);
       
       if (result.success) {
         setSuccess('Account created successfully! Welcome to Twelvr!');
-        // Clear form and redirect or show success
+        // Clear form and redirect
         setTimeout(() => {
-          // User will be automatically logged in by registerWithVerification
-          navigate('/dashboard'); // Or wherever you want to redirect
+          // User will be automatically logged in by verifyEmailCode
+          navigate('/dashboard');
         }, 2000);
       } else {
-        setError(result.error || 'Invalid or expired verification code');
+        // Enhanced error message with remaining attempts
+        const remainingAttempts = 5 - currentAttempt;
+        if (remainingAttempts > 0) {
+          setError(`${result.error || 'Invalid verification code'}. ${remainingAttempts} attempts remaining.`);
+        } else {
+          setError('Maximum verification attempts reached. Please request a new code.');
+          // Reset verification flow to allow new code request
+          setTimeout(() => {
+            resetSignupFlow();
+          }, 3000);
+        }
       }
     } catch (err) {
-      setError('Registration failed. Please try again.');
+      const remainingAttempts = 5 - (verificationAttempts + 1);
+      if (remainingAttempts > 0) {
+        setError(`Verification failed. ${remainingAttempts} attempts remaining. Please try again.`);
+      } else {
+        setError('Maximum verification attempts reached. Please request a new code.');
+        setTimeout(() => {
+          resetSignupFlow();
+        }, 3000);
+      }
     } finally {
       setLoading(false);
     }
