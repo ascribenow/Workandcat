@@ -144,8 +144,15 @@ async def run_simplified_summarizer(user_id: str, session_id: str) -> Dict[str, 
                     try:
                         # Insert each concept as a separate row with correct structure
                         for concept_entry in concept_map_data:
-                            canonical = concept_entry.get("canonical", "unknown")
-                            aliases = concept_entry.get("aliases", [canonical])
+                            # Handle both string format and object format
+                            if isinstance(concept_entry, str):
+                                # Simple string format - use as both canonical and alias
+                                canonical = concept_entry
+                                aliases = [concept_entry]
+                            else:
+                                # Object format with canonical and aliases
+                                canonical = concept_entry.get("canonical", "unknown")
+                                aliases = concept_entry.get("aliases", [canonical])
                             
                             db.execute(text("""
                                 INSERT INTO concept_alias_map_latest 
