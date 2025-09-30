@@ -40012,20 +40012,19 @@ def main():
         return final_results["100_percent_success_achieved"]
 
 if __name__ == "__main__":
-    print("🔐 SIMPLIFIED SIGNUP AND VERIFICATION SYSTEM WITHOUT RATE LIMITING TESTING")
-    print("=" * 80)
-    print("OBJECTIVE: Test simplified signup and verification system WITHOUT rate limiting")
-    print("FOCUS: Core verification, resend functionality, email verification, enhanced security")
-    print("EXPECTED: All functionality works smoothly without rate limiting complexity")
-    print("PHASES: Core Verification → Resend → Email Verification → Enhanced Security")
-    print("=" * 80)
+    print("🎯 COMPLETE END-TO-END SIGNUP VERIFICATION TEST WITH IST TIMEZONE IMPLEMENTATION")
+    print("=" * 90)
+    print("OBJECTIVE: Complete signup flow from start to finish with IST timezone integration")
+    print("FOCUS: IST timezone handling, database storage, verification flow, account creation")
+    print("EXPECTED: Complete signup flow working with proper IST timezone calculations")
+    print("=" * 90)
     
     tester = CATBackendTester()
     
     try:
-        # Run the Simplified Signup and Verification System test
-        print("\n🔐 RUNNING SIMPLIFIED SIGNUP AND VERIFICATION SYSTEM WITHOUT RATE LIMITING TEST")
-        simplified_test_passed = tester.test_simplified_signup_verification_without_rate_limiting()
+        # Run the IST timezone signup verification test
+        print("\n🔐 RUNNING IST TIMEZONE SIGNUP VERIFICATION TEST")
+        ist_test_passed = tester.test_ist_timezone_signup_verification_complete()
         
         # FINAL SUMMARY
         print("\n" + "=" * 80)
