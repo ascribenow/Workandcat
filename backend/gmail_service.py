@@ -511,12 +511,11 @@ The Twelvr Team
             # Delete any existing code for this email
             db.execute(text("DELETE FROM verification_codes WHERE email = :email"), {"email": email})
             
-            # Insert new verification code with explicit ID and created_at
+            # Insert new verification code
             db.execute(text("""
-                INSERT INTO verification_codes (id, email, code, expires_at, verified, attempts, created_at)
-                VALUES (:id, :email, :code, :expires_at, false, 0, :created_at)
+                INSERT INTO verification_codes (email, code, expires_at, verified, attempts, created_at)
+                VALUES (:email, :code, :expires_at, false, 0, :created_at)
             """), {
-                "id": str(uuid.uuid4()),
                 "email": email,
                 "code": code, 
                 "expires_at": expiry_time,
