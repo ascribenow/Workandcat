@@ -98,6 +98,7 @@ app.include_router(session_progress_router, prefix="/api")
 app.include_router(blueprint_sessions_router)  # Blueprint sessions API
 app.include_router(bg_jobs_router)  # Background jobs API (minimal health endpoint)
 app.include_router(admin_tasks_router)  # Admin tasks API (backfill, validation)
+app.include_router(health_router)  # Enhanced health and observability API
 
 # In-memory logging store (for MVP - replace with database in production)
 question_action_logs = []
