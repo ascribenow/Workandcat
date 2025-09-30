@@ -552,7 +552,7 @@ async def submit_answer(
                     "questions_answered": total_answered,
                     "questions_correct": total_correct,
                     "current_position": current_pos,
-                    "session_id": request.session_id
+                    "session_id": session_id
                 })
                 
                 logger.info(f"Real-time session update: {total_correct}/{total_answered} correct, position {current_pos}")
