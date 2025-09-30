@@ -366,11 +366,14 @@ async def handle_summarize_session(job: Dict[str, Any]) -> Dict[str, Any]:
         await update_coverage_debt_from_session(user_id, session_id)
         
         # Step 4: Enqueue next job in sequence (PLAN_NEXT_SESSION)
+        # Propagate correlation_id for end-to-end tracing
         from services.bg_job_queue import job_queue
+        correlation_id = job.get("correlation_id")
         planning_job_id = await job_queue.enqueue_job(
             job_type="PLAN_NEXT_SESSION",
             user_id=user_id,
-            session_id=None  # Planning is per-user, not per-session
+            session_id=None,  # Planning is per-user, not per-session
+            correlation_id=correlation_id
         )
         
         logger.info(f"✅ SUMMARIZE_SESSION completed, enqueued PLAN_NEXT_SESSION: {planning_job_id[:8]}")
