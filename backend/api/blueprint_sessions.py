@@ -721,10 +721,12 @@ async def complete_session(
             from services.bg_job_queue import job_queue
             
             # Single job: SUMMARIZE_SESSION (which will enqueue PLAN_NEXT_SESSION)
+            # Pass correlation_id for end-to-end tracing
             summarization_job_id = await job_queue.enqueue_job(
                 job_type="SUMMARIZE_SESSION",
                 user_id=auth_user_id,
-                session_id=session_id
+                session_id=session_id,
+                correlation_id=correlation_id
             )
             
             bg_jobs_enqueued = True
