@@ -180,17 +180,34 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Verify email code
-  const verifyEmailCode = async (email, code) => {
+  // Verify email code and complete signup
+  const verifyEmailCode = async (email, verification_code) => {
     try {
-      const response = await axios.post(`${API}/auth/verify-email-code`, {
+      const response = await axios.post(`${API}/auth/verify-email`, {
         email,
-        code
+        verification_code
       });
+      
+      if (response.data.success && response.data.access_token) {
+        // Auto-login the user after successful verification
+        const { access_token, user: userData } = response.data;
+        
+        // Store in localStorage
+        localStorage.setItem('cat_prep_token', access_token);
+        localStorage.setItem('cat_prep_user', JSON.stringify(userData));
+
+        // Set auth state
+        setToken(access_token);
+        setUser(userData);
+
+        // Set default authorization header
+        axios.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
+      }
       
       return { 
         success: true, 
-        message: response.data.message || 'Email verification successful'
+        message: response.data.message || 'Email verification successful',
+        user: response.data.user
       };
     } catch (error) {
       const message = error.response?.data?.detail || 'Invalid or expired verification code';
