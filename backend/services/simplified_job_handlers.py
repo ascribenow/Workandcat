@@ -132,7 +132,7 @@ async def run_simplified_summarizer(user_id: str, session_id: str) -> Dict[str, 
                     try:
                         db.execute(text("""
                             INSERT INTO concept_alias_map_latest (user_id, alias_map_json, updated_at)
-                            VALUES (:user_id, :alias_map_json::jsonb, NOW())
+                            VALUES (:user_id, :alias_map_json, NOW())
                             ON CONFLICT (user_id) DO UPDATE
                               SET alias_map_json = EXCLUDED.alias_map_json,
                                   updated_at = EXCLUDED.updated_at
