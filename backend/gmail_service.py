@@ -617,6 +617,19 @@ The Twelvr Team
             del self.pending_users[email]
         if email in self.verification_codes:
             del self.verification_codes[email]
+            
+        # Also remove from database
+        from database import SessionLocal
+        from sqlalchemy import text
+        
+        db = SessionLocal()
+        try:
+            db.execute(text("DELETE FROM verification_codes WHERE email = :email"), {"email": email})
+            db.commit()
+        except Exception as e:
+            print(f"Error removing verification code from database: {e}")
+        finally:
+            db.close()
     
     def cleanup_expired_codes(self):
         """Remove expired codes and pending users"""
