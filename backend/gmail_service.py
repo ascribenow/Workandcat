@@ -532,23 +532,62 @@ The Twelvr Team
         return code
     
     def verify_code(self, email: str, provided_code: str) -> bool:
-        """Verify the provided code against stored code"""
-        if email not in self.verification_codes:
+        """Verify the provided code against stored code in database"""
+        from database import SessionLocal
+        from sqlalchemy import text
+        from datetime import datetime
+        
+        db = SessionLocal()
+        try:
+            # Get verification code from database
+            result = db.execute(text("""
+                SELECT code, expires_at, verified, attempts 
+                FROM verification_codes 
+                WHERE email = :email
+            """), {"email": email}).fetchone()
+            
+            if not result:
+                return False
+            
+            code, expires_at, verified, attempts = result
+            
+            # Check if code has expired
+            if datetime.utcnow() > expires_at:
+                # Delete expired code
+                db.execute(text("DELETE FROM verification_codes WHERE email = :email"), {"email": email})
+                db.commit()
+                return False
+            
+            # Increment attempts
+            new_attempts = attempts + 1
+            db.execute(text("""
+                UPDATE verification_codes 
+                SET attempts = :attempts 
+                WHERE email = :email
+            """), {"email": email, "attempts": new_attempts})
+            
+            # Check if too many attempts (optional security measure)
+            if new_attempts > 5:
+                db.execute(text("DELETE FROM verification_codes WHERE email = :email"), {"email": email})
+                db.commit()
+                return False
+            
+            # Check if code matches and not already verified
+            if code == provided_code and not verified:
+                # Mark as verified
+                db.execute(text("""
+                    UPDATE verification_codes 
+                    SET verified = true 
+                    WHERE email = :email
+                """), {"email": email})
+                db.commit()
+                return True
+            
+            db.commit()
             return False
-        
-        stored_data = self.verification_codes[email]
-        
-        # Check if code has expired
-        if datetime.utcnow() > stored_data['expires_at']:
-            del self.verification_codes[email]
-            return False
-        
-        # Check if code matches
-        if stored_data['code'] == provided_code and not stored_data['verified']:
-            self.verification_codes[email]['verified'] = True
-            return True
-        
-        return False
+            
+        finally:
+            db.close()
     
     def store_pending_user(self, email: str, user_data: dict):
         """Store pending user data temporarily"""
