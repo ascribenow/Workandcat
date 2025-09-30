@@ -245,20 +245,11 @@ async def api_health_check():
 # Authentication endpoints - Two-step email verification
 @app.post("/api/auth/send-verification-code")
 async def send_verification_code(signup_data: SendVerificationRequest, request: Request):
-    """Step 1: Send verification code to user's email with rate limiting"""
+    """Step 1: Send verification code to user's email"""
     try:
         client_ip = request.client.host
         db = SessionLocal()
         try:
-            # Rate limiting check
-            rate_limit_result = check_rate_limit(db, client_ip, signup_data.email)
-            if not rate_limit_result["allowed"]:
-                logger.warning(f"Rate limit exceeded for IP {client_ip}, email {signup_data.email}")
-                raise HTTPException(
-                    status_code=429, 
-                    detail=f"Too many requests. Try again in {rate_limit_result['retry_after']} minutes."
-                )
-            
             # Check if user already exists
             result = db.execute(select(User).where(User.email == signup_data.email))
             if result.scalar_one_or_none():
@@ -288,9 +279,6 @@ async def send_verification_code(signup_data: SendVerificationRequest, request: 
             if not email_sent:
                 logger.error(f"Failed to send verification email to {signup_data.email}")
                 raise HTTPException(status_code=500, detail="Failed to send verification email")
-            
-            # Update rate limiting counter
-            update_rate_limit(db, client_ip, signup_data.email)
             
             logger.info(f"Verification email sent successfully to {signup_data.email} from IP {client_ip}")
             return {
