@@ -186,6 +186,7 @@ const LandingPage = () => {
     setShowVerification(false);
     setVerificationCode('');
     setResendCountdown(0);
+    setVerificationAttempts(0);
     setError('');
     setSuccess('');
   };
