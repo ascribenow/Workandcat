@@ -536,7 +536,7 @@ async def submit_answer(
                     MAX(position) as current_position
                 FROM session_answers 
                 WHERE session_id = :session_id
-            """), {"session_id": request.session_id}).fetchone()
+            """), {"session_id": session_id}).fetchone()
             
             if session_stats:
                 total_answered, total_correct, current_pos = session_stats
