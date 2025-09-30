@@ -53,46 +53,49 @@ class BackfillManager:
         """Find orphaned sessions with per-user fairness"""
         db = SessionLocal()
         
-        all_orphaned = db.execute(text("""
-            SELECT 
-                s.session_id, 
-                s.user_id,
-                s.created_at,
-                s.questions_answered,
-                s.questions_correct
-            FROM sessions s
-            WHERE s.status = 'completed'
-            AND NOT EXISTS (
-                SELECT 1 FROM session_summary_final ssf 
-                WHERE ssf.session_id = s.session_id::varchar
-            )
-            ORDER BY s.created_at ASC
-        """)).fetchall()
-        
-        self.stats["found"] = len(all_orphaned)
-        
-        if not all_orphaned:
-            return []
-        
-        # Apply per-user fairness
-        user_counts = {}
-        selected = []
-        
-        for session in all_orphaned:
-            session_id, user_id, created_at, answered, correct = session
-            user_id_str = str(user_id)
+        try:
+            all_orphaned = db.execute(text("""
+                SELECT 
+                    s.session_id, 
+                    s.user_id,
+                    s.created_at,
+                    s.questions_answered,
+                    s.questions_correct
+                FROM sessions s
+                WHERE s.status = 'completed'
+                AND NOT EXISTS (
+                    SELECT 1 FROM session_summary_final ssf 
+                    WHERE ssf.session_id = s.session_id::varchar
+                )
+                ORDER BY s.created_at ASC
+            """)).fetchall()
             
-            if user_counts.get(user_id_str, 0) >= self.request.per_user_limit:
-                self.stats["skipped"] += 1
-                continue
+            self.stats["found"] = len(all_orphaned)
             
-            selected.append(session)
-            user_counts[user_id_str] = user_counts.get(user_id_str, 0) + 1
+            if not all_orphaned:
+                return []
             
-            if len(selected) >= self.request.batch_size:
-                break
-        
-        return selected
+            # Apply per-user fairness
+            user_counts = {}
+            selected = []
+            
+            for session in all_orphaned:
+                session_id, user_id, created_at, answered, correct = session
+                user_id_str = str(user_id)
+                
+                if user_counts.get(user_id_str, 0) >= self.request.per_user_limit:
+                    self.stats["skipped"] += 1
+                    continue
+                
+                selected.append(session)
+                user_counts[user_id_str] = user_counts.get(user_id_str, 0) + 1
+                
+                if len(selected) >= self.request.batch_size:
+                    break
+            
+            return selected
+        finally:
+            db.close()
     
     async def execute_backfill(self) -> Dict:
         """Execute backfill with provenance tracking"""
