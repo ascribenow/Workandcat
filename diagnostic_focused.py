@@ -19,7 +19,7 @@ def main():
     print("=" * 80)
     
     # Test the working API base
-    base_url = 'https://llm-prompt-repair.preview.emergentagent.com/api'
+    base_url = 'https://twelvr-auth-fix.preview.emergentagent.com/api'
     
     print(f"\n🌐 TESTING API BASE: {base_url}")
     print("-" * 60)

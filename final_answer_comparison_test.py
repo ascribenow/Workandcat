@@ -24,7 +24,7 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 class FinalAnswerComparisonValidator:
     def __init__(self):
-        self.base_url = "https://llm-prompt-repair.preview.emergentagent.com/api"
+        self.base_url = "https://twelvr-auth-fix.preview.emergentagent.com/api"
         self.auth_headers = None
         self.user_id = None
         

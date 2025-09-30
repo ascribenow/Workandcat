@@ -7,7 +7,7 @@ from datetime import datetime
 
 # Test the MCQ answer comparison issue
 def test_mcq_debug():
-    base_url = "https://llm-prompt-repair.preview.emergentagent.com/api"
+    base_url = "https://twelvr-auth-fix.preview.emergentagent.com/api"
     
     # Authenticate
     auth_data = {
