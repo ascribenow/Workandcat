@@ -634,10 +634,10 @@ The Twelvr Team
             db.close()
     
     def cleanup_expired_codes(self):
-        """Remove expired codes and pending users"""
+        """Remove expired codes and pending users (both in-memory and database)"""
         current_time = datetime.utcnow()
         
-        # Clean up expired verification codes
+        # Clean up expired verification codes (legacy in-memory)
         expired_codes = [
             email for email, data in self.verification_codes.items()
             if current_time > data['expires_at']
@@ -645,13 +645,26 @@ The Twelvr Team
         for email in expired_codes:
             del self.verification_codes[email]
         
-        # Clean up expired pending users
+        # Clean up expired pending users (in-memory)
         expired_users = [
             email for email, data in self.pending_users.items()
             if current_time > data['expires_at']
         ]
         for email in expired_users:
             del self.pending_users[email]
+            
+        # Clean up expired codes in database
+        from database import SessionLocal
+        from sqlalchemy import text
+        
+        db = SessionLocal()
+        try:
+            self._cleanup_expired_codes_db(db)
+            db.commit()
+        except Exception as e:
+            print(f"Error cleaning up expired codes from database: {e}")
+        finally:
+            db.close()
 
     def _cleanup_expired_codes_db(self, db):
         """Clean up expired verification codes from database"""
