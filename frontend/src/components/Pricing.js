@@ -45,7 +45,7 @@ const Pricing = () => {
     
     // Redirect to dashboard after 3 seconds
     setTimeout(() => {
-      navigate('/dashboard');
+      navigate('/');
     }, 3000);
   };
 
