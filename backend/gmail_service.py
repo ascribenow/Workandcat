@@ -668,18 +668,19 @@ The Twelvr Team
         """Get pending user data from database"""
         from database import SessionLocal
         from sqlalchemy import text
-        from datetime import datetime, timezone
+        from utils.timezone_utils import now_ist, ist_to_utc
         
         db = SessionLocal()
         try:
-            # Get current time as timezone-aware UTC
-            current_time = datetime.now(timezone.utc)
+            # Get current time in IST and convert to UTC for database comparison
+            current_time_ist = now_ist()
+            current_time_utc = ist_to_utc(current_time_ist)
             
             # First clean up expired entries
             db.execute(text("""
                 DELETE FROM pending_signups 
                 WHERE expires_at < :current_time
-            """), {"current_time": current_time})
+            """), {"current_time": current_time_utc})
             
             # Get pending signup data
             result = db.execute(text("""
