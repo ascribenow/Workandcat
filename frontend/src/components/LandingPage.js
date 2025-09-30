@@ -3,7 +3,7 @@ import { useAuth } from './AuthProvider';
 import { useNavigate } from 'react-router-dom';
 
 const LandingPage = () => {
-  const { login, sendVerificationCode, verifyEmailCode, registerWithVerification } = useAuth();
+  const { login, sendVerificationCode, resendVerificationCode, verifyEmailCode, registerWithVerification } = useAuth();
   const navigate = useNavigate();
   const [showSignIn, setShowSignIn] = useState(true);
   const [email, setEmail] = useState('');
