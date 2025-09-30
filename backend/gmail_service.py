@@ -555,13 +555,14 @@ The Twelvr Team
         return code
     
     def verify_code(self, email: str, provided_code: str) -> bool:
-        """Verify the provided code against stored code in database - SIMPLE VERSION"""
+        """Verify the provided code against stored code in database - IST VERSION"""
         import logging
         logger = logging.getLogger(__name__)
         
         from database import SessionLocal
         from sqlalchemy import text
-        from datetime import datetime, timezone
+        from utils.timezone_utils import now_ist, ist_to_utc, utc_to_ist
+        from datetime import timezone
         import traceback
         
         # Strip whitespace from provided code for better UX
@@ -586,8 +587,9 @@ The Twelvr Team
             code, expires_at, verified, attempts = result
             logger.info(f"🔍 VERIFY_CODE DEBUG: Found code {code}, verified={verified}, expires_at={expires_at}")
             
-            # Get current time as timezone-aware UTC
-            current_time = datetime.now(timezone.utc)
+            # Get current time in IST and convert to UTC for comparison
+            current_time_ist = now_ist()
+            current_time_utc = ist_to_utc(current_time_ist)
             
             # Ensure expires_at is timezone-aware for comparison
             if expires_at.tzinfo is None:
@@ -595,8 +597,9 @@ The Twelvr Team
                 expires_at = expires_at.replace(tzinfo=timezone.utc)
             
             # Check if code has expired
-            if current_time > expires_at:
-                logger.info(f"🔍 VERIFY_CODE DEBUG: Code expired for {email}")
+            if current_time_utc > expires_at:
+                expires_at_ist = utc_to_ist(expires_at)
+                logger.info(f"🔍 VERIFY_CODE DEBUG: Code expired for {email}. Current IST: {current_time_ist}, Expires IST: {expires_at_ist}")
                 return False
             
             # Simple check: does the code match?
