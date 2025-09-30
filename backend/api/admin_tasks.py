@@ -262,7 +262,7 @@ async def get_backfill_status(batch_id: str):
 @router.get("/backfill-history", response_model=List[Dict])
 async def get_backfill_history(limit: int = 10):
     """Get recent backfill history"""
-    db = get_db_session()
+    db = SessionLocal()
     
     try:
         results = db.execute(text("""
