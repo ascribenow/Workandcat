@@ -679,14 +679,27 @@ async def complete_session(
             correct_answers = sum(1 for answer in answers_data if answer[1])  # is_correct is at index 1
             accuracy = (correct_answers / total_questions) * 100 if total_questions > 0 else 0
             
-            # Update session status to completed
+            # FINAL RECONCILIATION: Update session with complete stats and completion status
+            completed_at = datetime.now(timezone.utc)
             db.execute(text("""
-                UPDATE sessions SET status = 'completed', abandoned_at = :completed_at 
+                UPDATE sessions 
+                SET status = 'completed',
+                    completed_at = :completed_at,
+                    questions_answered = :questions_answered,
+                    questions_correct = :questions_correct,
+                    questions_skipped = :questions_skipped,
+                    current_position = :current_position
                 WHERE session_id = :session_id
             """), {
-                "completed_at": datetime.now(timezone.utc),
-                "session_id": request.session_id  # Use string directly
+                "completed_at": completed_at,
+                "questions_answered": total_questions,
+                "questions_correct": correct_answers,
+                "questions_skipped": 0,  # Blueprint sessions don't allow skipping
+                "current_position": total_questions,  # Completed = at final position
+                "session_id": request.session_id
             })
+            
+            logger.info(f"Final reconciliation: Session {request.session_id[:8]} completed with {correct_answers}/{total_questions} correct")
             
             db.commit()
             
