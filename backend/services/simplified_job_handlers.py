@@ -17,6 +17,11 @@ logger = logging.getLogger(__name__)
 
 async def run_simplified_summarizer(user_id: str, session_id: str) -> Dict[str, Any]:
     """Simplified summarizer for adaptive insights background jobs - WITH session_summary_llm persistence"""
+    print(f"🚀 FUNCTION ENTRY: run_simplified_summarizer called for user {user_id[:8]}... session {session_id[:8]}...")
+    
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.info(f"🚀 FUNCTION ENTRY LOG: run_simplified_summarizer called for user {user_id[:8]}... session {session_id[:8]}...")
     try:
         # Get session data for concept analysis
         db = SessionLocal()
