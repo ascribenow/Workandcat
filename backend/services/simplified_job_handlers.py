@@ -97,6 +97,8 @@ async def run_simplified_summarizer(user_id: str, session_id: str) -> Dict[str, 
                     "llm_model_used": "simplified_analyzer"
                 })
                 
+                print("✅ PRINT DEBUG: session_summary_llm insert completed")
+                
                 # CRITICAL FIX: Also write to session_summary_final and concept_alias_map_latest
                 logger.info("🔧 DEBUG: Starting critical table writes...")
                 print(f"🔧 PRINT DEBUG: Starting critical table writes for session {session_id[:8]}...")
