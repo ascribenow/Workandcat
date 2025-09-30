@@ -245,12 +245,77 @@ async def get_config_versions():
     db = SessionLocal()
     
     try:
-        # Check for mixed config versions (if config_version column exists)
-        # This is a placeholder for when Phase 4 configuration management is implemented
+        # Get currently active config
+        active_config = db.execute(text("""
+            SELECT new_config->>'version' as version,
+                   changed_at,
+                   deployed_at
+            FROM config_change_log
+            WHERE deployed_at IS NOT NULL
+            ORDER BY deployed_at DESC
+            LIMIT 1
+        """)).fetchone()
+        
+        if not active_config:
+            return {
+                "status": "no_deployments",
+                "message": "No configuration deployments found",
+                "active_version": None
+            }
+        
+        active_version = active_config[0]
+        last_deployed = active_config[2]
+        
+        # Get recent config changes (last 7 days)
+        recent_changes = db.execute(text("""
+            SELECT 
+                id,
+                changed_by,
+                change_reason,
+                old_config->>'version' as old_version,
+                new_config->>'version' as new_version,
+                changed_at,
+                deployed_at
+            FROM config_change_log
+            WHERE changed_at > NOW() - INTERVAL '7 days'
+            ORDER BY changed_at DESC
+            LIMIT 10
+        """)).fetchall()
+        
+        changes_list = []
+        for change in recent_changes:
+            changes_list.append({
+                "id": change[0],
+                "changed_by": change[1],
+                "reason": change[2][:100] if change[2] else None,
+                "version_change": f"{change[3] or 'none'} → {change[4]}",
+                "changed_at": change[5].isoformat() if change[5] else None,
+                "deployed": change[6] is not None
+            })
+        
+        # Check for pending (undeployed) changes
+        pending_count = db.execute(text("""
+            SELECT COUNT(*)
+            FROM config_change_log
+            WHERE deployed_at IS NULL
+            AND changed_at > (
+                SELECT COALESCE(MAX(deployed_at), '1970-01-01'::timestamptz)
+                FROM config_change_log
+            )
+        """)).scalar()
+        
+        status = "consistent"
+        if pending_count > 0:
+            status = "pending_deployment"
         
         return {
-            "status": "not_implemented",
-            "message": "Configuration version tracking will be implemented in Phase 4"
+            "status": status,
+            "active_version": active_version,
+            "last_deployed": last_deployed.isoformat() if last_deployed else None,
+            "pending_changes": pending_count,
+            "recent_changes": changes_list,
+            "message": f"Active version: {active_version}" + 
+                      (f" ({pending_count} pending changes)" if pending_count > 0 else " (up to date)")
         }
         
     except Exception as e:
