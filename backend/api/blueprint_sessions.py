@@ -629,7 +629,7 @@ async def submit_answer(
         
         return JSONResponse({
             "success": True,
-            "session_id": request.session_id,
+            "session_id": session_id,
             "position": request.position,
             "is_correct": is_correct,
             "correct_answer": correct_answer,
