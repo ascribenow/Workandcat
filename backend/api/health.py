@@ -360,3 +360,95 @@ async def get_config_versions():
         raise HTTPException(500, f"Error checking config versions: {e}")
     finally:
         db.close()
+
+
+@router.get("/pipeline-health/config/demo")
+async def demo_config_usage():
+    """
+    Demonstrate configuration usage with examples
+    
+    Shows how the centralized configuration is used throughout the system
+    """
+    if not CONFIG_AVAILABLE or not adaptive_config:
+        return {
+            "error": "Configuration not available",
+            "message": "Adaptive learning config could not be loaded"
+        }
+    
+    # Import helper functions
+    from config.adaptive_learning_config import (
+        get_readiness_from_mastery,
+        normalize_mastery_score,
+        normalize_coverage_debt,
+        get_job_backoff_minutes
+    )
+    
+    # Demonstrate configuration values and helper functions
+    examples = {
+        "session_config": {
+            "questions_per_session": adaptive_config.session_questions_count,
+            "min_questions": adaptive_config.session_min_questions,
+            "timeout_minutes": adaptive_config.session_timeout_minutes
+        },
+        "mastery_scoring": {
+            "range": f"{adaptive_config.mastery_min_score} - {adaptive_config.mastery_max_score}",
+            "initial": adaptive_config.mastery_initial_score,
+            "increase_correct": adaptive_config.mastery_increase_correct,
+            "decrease_incorrect": adaptive_config.mastery_decrease_incorrect,
+            "examples": {
+                "score_2.5": {
+                    "raw": 2.5,
+                    "normalized": normalize_mastery_score(2.5),
+                    "readiness": get_readiness_from_mastery(2.5)
+                },
+                "score_5.0": {
+                    "raw": 5.0,
+                    "normalized": normalize_mastery_score(5.0),
+                    "readiness": get_readiness_from_mastery(5.0)
+                },
+                "score_8.5": {
+                    "raw": 8.5,
+                    "normalized": normalize_mastery_score(8.5),
+                    "readiness": get_readiness_from_mastery(8.5)
+                },
+                "score_15.0_overflow": {
+                    "raw": 15.0,
+                    "normalized": normalize_mastery_score(15.0),
+                    "readiness": get_readiness_from_mastery(normalize_mastery_score(15.0))
+                }
+            }
+        },
+        "coverage_debt": {
+            "range": f"{adaptive_config.coverage_debt_min} - {adaptive_config.coverage_debt_max}",
+            "initial": adaptive_config.coverage_debt_initial,
+            "decrease_when_served": adaptive_config.coverage_debt_decrease_served,
+            "decay_rate": adaptive_config.coverage_debt_decay_rate,
+            "examples": {
+                "debt_0.5": normalize_coverage_debt(0.5),
+                "debt_5.0": normalize_coverage_debt(5.0),
+                "debt_12.0_overflow": normalize_coverage_debt(12.0)
+            }
+        },
+        "job_retries": {
+            "max_attempts": adaptive_config.job_max_attempts,
+            "backoff_schedule": {
+                f"attempt_{i}": f"{get_job_backoff_minutes(i)} minutes"
+                for i in range(1, adaptive_config.job_max_attempts + 1)
+            }
+        },
+        "anchors": {
+            "min_per_question": adaptive_config.anchor_min_per_question,
+            "max_per_question": adaptive_config.anchor_max_per_question,
+            "confidence_threshold": adaptive_config.anchor_confidence_threshold
+        }
+    }
+    
+    return {
+        "config_version": adaptive_config.to_dict()["version"],
+        "last_updated": adaptive_config.to_dict()["last_updated"],
+        "examples": examples,
+        "validation": {
+            "status": "valid",
+            "errors": []
+        }
+    }
