@@ -429,6 +429,8 @@ async def verify_email_and_signup(verify_data: VerifyCodeRequest):
             db.add(user)
             db.commit()
             
+            logger.info(f"User account created successfully for email: {verify_data.email}, user_id: {user.id}")
+            
             # Clean up pending data
             gmail_service.remove_pending_user(verify_data.email)
             
