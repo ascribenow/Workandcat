@@ -227,7 +227,7 @@ Return ONLY valid JSON matching this exact schema with the specified field names
                                       updated_at = EXCLUDED.updated_at
                             """), {
                                 "user_id": user_id, 
-                                "alias_map_json": json.dumps(data.get("concept_alias_map_updated", []))
+                                "alias_map_json": json.dumps(concept_map_data)
                             })
                             logger.info(f"✅ Concept alias map upserted successfully")
                         except Exception as alias_error:
