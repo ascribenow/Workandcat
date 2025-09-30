@@ -521,6 +521,36 @@ async def submit_answer(
                 "sess_seq_at_serve": request.position  # Use position as sequence
             })
             
+            # REAL-TIME SESSION PROGRESS UPDATE: Update sessions table with current progress
+            # Get current session stats from session_answers
+            session_stats = db.execute(text("""
+                SELECT 
+                    COUNT(*) as total_answered,
+                    COUNT(*) FILTER (WHERE is_correct = true) as total_correct,
+                    MAX(position) as current_position
+                FROM session_answers 
+                WHERE session_id = :session_id
+            """), {"session_id": request.session_id}).fetchone()
+            
+            if session_stats:
+                total_answered, total_correct, current_pos = session_stats
+                
+                # Update sessions table with real-time progress
+                db.execute(text("""
+                    UPDATE sessions 
+                    SET questions_answered = :questions_answered,
+                        questions_correct = :questions_correct,
+                        current_position = :current_position
+                    WHERE session_id = :session_id
+                """), {
+                    "questions_answered": total_answered,
+                    "questions_correct": total_correct,
+                    "current_position": current_pos,
+                    "session_id": request.session_id
+                })
+                
+                logger.info(f"Real-time session update: {total_correct}/{total_answered} correct, position {current_pos}")
+            
             db.commit()
         finally:
             db.close()
