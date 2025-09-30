@@ -124,6 +124,12 @@ async def run_simplified_summarizer(user_id: str, session_id: str) -> Dict[str, 
                          final_coverage, aggregate_counts, created_at, processing_time_ms)
                         VALUES (:user_id, :session_id, :concept_weights, :final_readiness,
                                 :final_coverage, :aggregate_counts, NOW(), :processing_time_ms)
+                        ON CONFLICT (user_id, session_id) DO UPDATE SET
+                            concept_weights = EXCLUDED.concept_weights,
+                            final_readiness = EXCLUDED.final_readiness,
+                            final_coverage = EXCLUDED.final_coverage,
+                            aggregate_counts = EXCLUDED.aggregate_counts,
+                            processing_time_ms = EXCLUDED.processing_time_ms
                     """), {
                         "user_id": user_id,
                         "session_id": session_id,
@@ -135,7 +141,10 @@ async def run_simplified_summarizer(user_id: str, session_id: str) -> Dict[str, 
                     })
                     logger.info("✅ Session summary final written successfully")
                 except Exception as final_error:
+                    print(f"❌ PRINT DEBUG: Session summary final write failed: {final_error}")
                     logger.error(f"❌ Session summary final write failed: {final_error}")
+                    db.rollback()  # Rollback to recover from failed transaction
+                    raise  # Re-raise to fail the job
                 
                 # Write to concept_alias_map_latest with correct table structure
                 concept_map_data = session_data.get("concept_alias_map_updated", [])
