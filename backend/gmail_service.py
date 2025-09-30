@@ -498,20 +498,30 @@ The Twelvr Team
     
     def generate_verification_code(self, email: str) -> str:
         """Generate a 6-digit verification code and store in database"""
+        import logging
+        logger = logging.getLogger(__name__)
+        
         from datetime import datetime, timedelta
         from database import SessionLocal
         from sqlalchemy import text
         import uuid
+        import traceback
         
         code = f"{secrets.randbelow(1000000):06d}"
         expiry_time = datetime.utcnow() + timedelta(minutes=15)
         
+        logger.info(f"🔍 GENERATE_CODE DEBUG: Starting code generation for {email}")
+        logger.info(f"🔍 GENERATE_CODE DEBUG: Generated code {code}, expires at {expiry_time}")
+        logger.info(f"🔍 GENERATE_CODE DEBUG: Call stack: {traceback.format_stack()[-3:-1]}")
+        
         db = SessionLocal()
         try:
             # Delete any existing code for this email
+            logger.info(f"🔍 GENERATE_CODE DEBUG: Deleting existing codes for {email}")
             db.execute(text("DELETE FROM verification_codes WHERE email = :email"), {"email": email})
             
             # Insert new verification code
+            logger.info(f"🔍 GENERATE_CODE DEBUG: Inserting new code {code} with verified=FALSE")
             db.execute(text("""
                 INSERT INTO verification_codes (email, code, expires_at, verified, attempts, created_at)
                 VALUES (:email, :code, :expires_at, false, 0, :created_at)
@@ -523,6 +533,12 @@ The Twelvr Team
             })
             
             db.commit()
+            logger.info(f"🔍 GENERATE_CODE DEBUG: Successfully inserted code for {email}")
+            
+            # Immediately check what's in the database
+            check_result = db.execute(text("SELECT verified FROM verification_codes WHERE email = :email"), {"email": email}).fetchone()
+            if check_result:
+                logger.info(f"🔍 GENERATE_CODE DEBUG: Code verification status after insert: {check_result[0]}")
             
             # Clean up expired codes periodically
             self._cleanup_expired_codes_db(db)
@@ -530,6 +546,7 @@ The Twelvr Team
         finally:
             db.close()
             
+        logger.info(f"🔍 GENERATE_CODE DEBUG: Completed code generation for {email}")
         return code
     
     def verify_code(self, email: str, provided_code: str) -> bool:
