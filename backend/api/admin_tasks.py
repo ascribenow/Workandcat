@@ -329,6 +329,8 @@ async def validate_schema():
             "uuid_constraints": [],
             "total": 0
         }
+    finally:
+        db.close()
 
 
 @router.get("/validate-foreign-keys")
