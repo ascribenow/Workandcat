@@ -193,6 +193,39 @@ async def run_simplified_summarizer(user_id: str, session_id: str) -> Dict[str, 
                 db.commit()
                 print("✅ PRINT DEBUG: Committed all critical table writes")
                 logger.info("✅ Session summary persisted to session_summary_llm successfully")
+                
+                # POST-CONDITION: Verify critical writes actually happened
+                db.rollback()  # Close the write transaction, start fresh read
+                
+                # Verify session_summary_final exists
+                verify_summary = db.execute(text("""
+                    SELECT COUNT(*) FROM session_summary_final 
+                    WHERE user_id = :user_id AND session_id = :session_id
+                """), {"user_id": user_id, "session_id": session_id}).scalar()
+                
+                if verify_summary == 0:
+                    error_msg = f"POST-CONDITION FAILED: session_summary_final not written for session {session_id[:8]}"
+                    print(f"❌ {error_msg}")
+                    logger.error(error_msg)
+                    raise Exception(error_msg)
+                
+                # Verify concepts were written if concepts exist
+                if len(session_data.get("concept_alias_map_updated", [])) > 0:
+                    verify_concepts = db.execute(text("""
+                        SELECT COUNT(*) FROM concept_alias_map_latest 
+                        WHERE user_id = :user_id 
+                        AND first_seen_session_id = :session_id
+                    """), {"user_id": user_id, "session_id": session_id}).scalar()
+                    
+                    if verify_concepts == 0:
+                        error_msg = f"POST-CONDITION FAILED: No concepts written despite {len(session_data.get('concept_alias_map_updated', []))} concepts in data"
+                        print(f"❌ {error_msg}")
+                        logger.error(error_msg)
+                        raise Exception(error_msg)
+                    
+                    print(f"✅ POST-CONDITION: Verified {verify_concepts} concepts written")
+                
+                print(f"✅ POST-CONDITION: All required data verified in database")
                 print("✅ PRINT DEBUG: Function completing normally")
                 
                 return session_data
