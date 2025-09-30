@@ -98,7 +98,7 @@ class BackfillManager:
         """Execute backfill with provenance tracking"""
         
         # Log start
-        db = get_db_session()
+        db = SessionLocal()
         try:
             db.execute(text("""
                 INSERT INTO backfill_audit_log (
