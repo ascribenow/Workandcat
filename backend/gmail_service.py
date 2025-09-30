@@ -764,14 +764,14 @@ The Twelvr Team
     def _cleanup_expired_codes_db(self, db):
         """Clean up expired verification codes from database"""
         from sqlalchemy import text
-        from datetime import datetime
+        from datetime import datetime, timezone
         
         try:
             # Delete expired verification codes
             db.execute(text("""
                 DELETE FROM verification_codes 
                 WHERE expires_at < :current_time
-            """), {"current_time": datetime.utcnow()})
+            """), {"current_time": datetime.now(timezone.utc)})
             
             # Note: We don't commit here as this is called within other transactions
             
