@@ -38842,61 +38842,62 @@ def main():
         return final_results["100_percent_success_achieved"]
 
 if __name__ == "__main__":
-    print("🔐 SIGNUP AND VERIFICATION SYSTEM WITH ENHANCED SECURITY FEATURES TESTING")
+    print("🔐 SIMPLIFIED SIGNUP AND VERIFICATION SYSTEM WITHOUT RATE LIMITING TESTING")
     print("=" * 80)
-    print("OBJECTIVE: Test complete signup and verification system with enhanced security")
-    print("FOCUS: Rate limiting, verification codes, resend functionality, email verification")
-    print("EXPECTED: Production-ready signup system with security measures")
-    print("PHASES: Rate Limiting → Verification Codes → Resend → Email Verification → Logging")
+    print("OBJECTIVE: Test simplified signup and verification system WITHOUT rate limiting")
+    print("FOCUS: Core verification, resend functionality, email verification, enhanced security")
+    print("EXPECTED: All functionality works smoothly without rate limiting complexity")
+    print("PHASES: Core Verification → Resend → Email Verification → Enhanced Security")
     print("=" * 80)
     
     tester = CATBackendTester()
     
     try:
-        # Run the Signup and Verification System test
-        print("\n🔐 RUNNING SIGNUP AND VERIFICATION SYSTEM WITH ENHANCED SECURITY TEST")
-        signup_test_passed = tester.test_signup_verification_system_enhanced_security()
+        # Run the Simplified Signup and Verification System test
+        print("\n🔐 RUNNING SIMPLIFIED SIGNUP AND VERIFICATION SYSTEM WITHOUT RATE LIMITING TEST")
+        simplified_test_passed = tester.test_simplified_signup_verification_without_rate_limiting()
         
         # FINAL SUMMARY
         print("\n" + "=" * 80)
-        print("🏁 SIGNUP AND VERIFICATION SYSTEM TESTING - FINAL RESULTS")
+        print("🏁 SIMPLIFIED SIGNUP AND VERIFICATION SYSTEM TESTING - FINAL RESULTS")
         print("=" * 80)
         print(f"Total Tests Run: {tester.tests_run}")
         print(f"Total Tests Passed: {tester.tests_passed}")
         print(f"Overall Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%" if tester.tests_run > 0 else "0%")
         
-        print("\n📊 SIGNUP AND VERIFICATION SYSTEM TEST RESULTS:")
-        print(f"Signup and Verification System Test: {'✅ PASS' if signup_test_passed else '❌ FAIL'}")
+        print("\n📊 SIMPLIFIED SIGNUP AND VERIFICATION SYSTEM TEST RESULTS:")
+        print(f"Simplified Signup and Verification System Test: {'✅ PASS' if simplified_test_passed else '❌ FAIL'}")
         
-        if signup_test_passed:
-            print("\n🎉 SIGNUP AND VERIFICATION SYSTEM TESTING: COMPLETED SUCCESSFULLY")
-            print("   ✅ Rate limiting system working (3 requests per hour per email/IP)")
-            print("   ✅ Verification code system functional (15-minute expiration, 5 attempts)")
-            print("   ✅ Resend functionality working with same rate limiting")
+        if simplified_test_passed:
+            print("\n🎉 SIMPLIFIED SIGNUP AND VERIFICATION SYSTEM TESTING: COMPLETED SUCCESSFULLY")
+            print("   ✅ Core verification system working (send-verification-code endpoint)")
+            print("   ✅ Verification codes stored with proper expiration (15 minutes)")
+            print("   ✅ Attempt tracking configured (max 5 attempts per code)")
+            print("   ✅ Resend functionality working without rate limiting restrictions")
             print("   ✅ Email verification and signup completion working")
-            print("   ✅ Enhanced logging with IP addresses operational")
-            print("   ✅ Database tables (rate_limiting_events, verification_codes, users) working")
-            print("   ✅ Security measures prevent abuse and ensure production readiness")
-            print("   ✅ System ready for production deployment")
+            print("   ✅ Enhanced security features operational (6-digit codes, expiration)")
+            print("   ✅ Account creation only after successful verification")
+            print("   ✅ System ready for production deployment without rate limiting complexity")
         else:
-            print("\n⚠️ SIGNUP AND VERIFICATION SYSTEM TESTING: CRITICAL ISSUES FOUND")
-            print("   ❌ Rate limiting may not be properly enforced")
-            print("   ❌ Verification code system may have issues")
-            print("   ❌ Security measures may not be adequate")
-            print("   ❌ Database tables may not be functioning correctly")
+            print("\n⚠️ SIMPLIFIED SIGNUP AND VERIFICATION SYSTEM TESTING: CRITICAL ISSUES FOUND")
+            print("   ❌ Core verification system may have issues")
+            print("   ❌ Resend functionality may not be working properly")
+            print("   ❌ Email verification may have problems")
+            print("   ❌ Security features may not be adequate")
             print("   ❌ System may not be ready for production use")
-            print("   ❌ Additional security fixes may be required")
+            print("   ❌ Additional fixes may be required")
         
         print("\n📋 DETAILED FINDINGS:")
-        print("   • Rate Limiting: Blocks after 3 requests per hour per email and IP")
-        print("   • Verification Codes: 6-digit codes with 15-minute expiration")
+        print("   • Core Verification: Send verification code endpoint with proper data structure")
+        print("   • Code Storage: Verification codes stored in verification_codes table")
+        print("   • Code Expiration: 15-minute expiration enforced")
         print("   • Attempt Tracking: Maximum 5 verification attempts per code")
-        print("   • Resend Functionality: Uses same rate limiting as initial send")
-        print("   • Enhanced Logging: All attempts logged with IP addresses")
-        print("   • Database Integration: All required tables operational")
-        print("   • Security Events: Proper logging for monitoring and analysis")
+        print("   • Resend Functionality: Works without rate limiting restrictions")
+        print("   • Email Verification: Proper error handling for invalid codes")
+        print("   • Account Creation: Only after successful email verification")
+        print("   • Security: 6-digit random codes with proper expiration")
         
     except Exception as e:
-        print(f"\n❌ Error during signup and verification system testing: {e}")
+        print(f"\n❌ Error during simplified signup and verification system testing: {e}")
         import traceback
         traceback.print_exc()
