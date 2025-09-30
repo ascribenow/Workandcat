@@ -231,7 +231,7 @@ async def trigger_backfill(
 @router.get("/backfill/{batch_id}", response_model=Dict)
 async def get_backfill_status(batch_id: str):
     """Get status of a backfill batch"""
-    db = get_db_session()
+    db = SessionLocal()
     
     try:
         result = db.execute(text("""
