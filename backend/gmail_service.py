@@ -668,6 +668,7 @@ The Twelvr Team
         """Get pending user data from database"""
         from database import SessionLocal
         from sqlalchemy import text
+        from datetime import timezone
         from utils.timezone_utils import now_ist, ist_to_utc
         
         db = SessionLocal()
