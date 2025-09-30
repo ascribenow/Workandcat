@@ -594,11 +594,37 @@ The Twelvr Team
             db.close()
     
     def store_pending_user(self, email: str, user_data: dict):
-        """Store pending user data temporarily"""
+        """Store pending user data in database"""
+        from database import SessionLocal
+        from sqlalchemy import text
+        from datetime import datetime, timedelta
+        
+        db = SessionLocal()
+        try:
+            # Delete any existing pending signup for this email
+            db.execute(text("DELETE FROM pending_signups WHERE email = :email"), {"email": email})
+            
+            # Insert new pending signup
+            db.execute(text("""
+                INSERT INTO pending_signups (email, name, password, expires_at)
+                VALUES (:email, :name, :password, :expires_at)
+            """), {
+                "email": email,
+                "name": user_data["name"],
+                "password": user_data["password"],
+                "expires_at": datetime.utcnow() + timedelta(minutes=30)
+            })
+            
+            db.commit()
+            
+        finally:
+            db.close()
+        
+        # Also store in memory for backward compatibility (will be cleaned up later)
         self.pending_users[email] = {
             'user_data': user_data,
             'created_at': datetime.utcnow(),
-            'expires_at': datetime.utcnow() + timedelta(minutes=30)  # 30 min for signup completion
+            'expires_at': datetime.utcnow() + timedelta(minutes=30)
         }
     
     def get_pending_user(self, email: str) -> Optional[dict]:
