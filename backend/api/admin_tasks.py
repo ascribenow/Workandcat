@@ -51,7 +51,7 @@ class BackfillManager:
     
     def find_orphaned_sessions_with_fairness(self) -> List[tuple]:
         """Find orphaned sessions with per-user fairness"""
-        db = get_db_session()
+        db = SessionLocal()
         
         all_orphaned = db.execute(text("""
             SELECT 
