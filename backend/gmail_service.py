@@ -638,6 +638,23 @@ The Twelvr Team
         for email in expired_users:
             del self.pending_users[email]
 
+    def _cleanup_expired_codes_db(self, db):
+        """Clean up expired verification codes from database"""
+        from sqlalchemy import text
+        from datetime import datetime
+        
+        try:
+            # Delete expired verification codes
+            db.execute(text("""
+                DELETE FROM verification_codes 
+                WHERE expires_at < :current_time
+            """), {"current_time": datetime.utcnow()})
+            
+            # Note: We don't commit here as this is called within other transactions
+            
+        except Exception as e:
+            print(f"Error cleaning up expired codes: {e}")
+
     def send_signup_confirmation_email(self, to_email: str, full_name: str) -> bool:
         """Send basic signup confirmation email (separate from referral email)"""
         if not self.service:
