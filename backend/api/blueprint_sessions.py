@@ -513,7 +513,7 @@ async def submit_answer(
             """), {
                 "id": str(uuid.uuid4()),
                 "user_id": auth_user_id,
-                "session_id": request.session_id,
+                "session_id": session_id,
                 "question_id": question_at_position['id'],
                 "was_correct": is_correct,
                 "skipped": False,  # Blueprint answers are never skipped
