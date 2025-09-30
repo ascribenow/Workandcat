@@ -642,7 +642,7 @@ async def submit_answer(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Failed to submit answer for session {request.session_id[:8]}, position {request.position}: {e}")
+        logger.error(f"Failed to submit answer for session {session_id[:8] if 'session_id' in locals() else 'UNKNOWN'}, position {request.position}: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to submit answer: {str(e)}")
 
 @router.post("/complete")
