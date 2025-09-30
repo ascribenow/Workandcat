@@ -707,7 +707,7 @@ async def complete_session(
         finally:
             db.close()
         
-        logger.info(f"Blueprint session {request.session_id[:8]} completed with {correct_answers}/{total_questions} correct ({accuracy:.1f}%)")
+        logger.info(f"Blueprint session {session_id[:8]} completed with {correct_answers}/{total_questions} correct ({accuracy:.1f}%)")
         
         # BACKGROUND ADAPTIVE INTELLIGENCE: Two-job pipeline (SUMMARIZE → PLAN)
         bg_jobs_enqueued = False
@@ -718,15 +718,15 @@ async def complete_session(
             summarization_job_id = await job_queue.enqueue_job(
                 job_type="SUMMARIZE_SESSION",
                 user_id=auth_user_id,
-                session_id=request.session_id
+                session_id=session_id
             )
             
             bg_jobs_enqueued = True
-            logger.info(f"🚀 Enqueued SUMMARIZE_SESSION job {summarization_job_id[:8]} for session {request.session_id[:8]}")
+            logger.info(f"🚀 Enqueued SUMMARIZE_SESSION job {summarization_job_id[:8]} for session {session_id[:8]}")
             
         except Exception as bg_error:
             # NO SYNCHRONOUS FALLBACK - trust the async pipeline
-            logger.error(f"❌ Failed to enqueue background jobs for session {request.session_id[:8]}: {bg_error}")
+            logger.error(f"❌ Failed to enqueue background jobs for session {session_id[:8]}: {bg_error}")
             # Still return 200 - next session planning will use last-known signals
         
         # Generate session summary (enhanced with adaptive processing indicator)
