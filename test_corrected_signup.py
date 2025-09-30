@@ -12,7 +12,7 @@ import os
 
 class CorrectedSignupTester:
     def __init__(self):
-        self.base_url = "https://catprep-repair.preview.emergentagent.com/api"
+        self.base_url = "https://adapt-engine.preview.emergentagent.com/api"
         self.test_email = "test.new.signup@example.com"
         self.test_name = "Test User New"
         self.test_password = "testpass123"

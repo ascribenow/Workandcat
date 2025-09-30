@@ -27,7 +27,7 @@ class Day5BeltAndSuspendersValidation:
     
     def __init__(self):
         self.db_url = os.getenv('DATABASE_URL')
-        self.backend_url = 'https://catprep-repair.preview.emergentagent.com'
+        self.backend_url = 'https://adapt-engine.preview.emergentagent.com'
         self.auth_headers = None
         self.test_user_id = None
         

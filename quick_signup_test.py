@@ -12,7 +12,7 @@ import warnings
 warnings.filterwarnings('ignore', message='Unverified HTTPS request')
 
 def test_corrected_signup():
-    base_url = "https://catprep-repair.preview.emergentagent.com/api"
+    base_url = "https://adapt-engine.preview.emergentagent.com/api"
     
     print("🎯 CORRECTED COMPLETE SIGNUP SYSTEM TEST")
     print("=" * 60)
