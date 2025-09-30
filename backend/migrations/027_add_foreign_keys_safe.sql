@@ -19,9 +19,10 @@ BEGIN
         AND conrelid = 'session_summary_final'::regclass
     ) THEN
         ALTER TABLE session_summary_final
-        ADD CONSTRAINT fk_session_summary_session NOT VALID
+        ADD CONSTRAINT fk_session_summary_session 
         FOREIGN KEY (session_id) REFERENCES sessions(session_id)
-        ON DELETE CASCADE;
+        ON DELETE CASCADE
+        NOT VALID;
         
         RAISE NOTICE 'Added FK constraint: fk_session_summary_session';
     ELSE
