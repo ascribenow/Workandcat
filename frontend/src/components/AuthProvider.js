@@ -180,6 +180,23 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Resend verification code
+  const resendVerificationCode = async (email) => {
+    try {
+      const response = await axios.post(`${API}/auth/resend-verification-code`, {
+        email
+      });
+      
+      return { 
+        success: true, 
+        message: response.data.message || 'Verification code resent successfully'
+      };
+    } catch (error) {
+      const message = error.response?.data?.detail || 'Failed to resend verification code';
+      return { success: false, error: message };
+    }
+  };
+
   // Verify email code and complete signup
   const verifyEmailCode = async (email, verification_code) => {
     try {
