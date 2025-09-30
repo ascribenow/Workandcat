@@ -509,6 +509,27 @@ class PrivilegedEmail(Base):
     notes = Column(String, nullable=True)  # Optional notes about why this email is privileged
 
 
+class VerificationCode(Base):
+    """Email verification codes table"""
+    __tablename__ = "verification_codes"
+    
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    email = Column(String(255), nullable=False, index=True)
+    code = Column(String(6), nullable=False)  # 6-digit verification code
+    expires_at = Column(DateTime, nullable=False)
+    verified = Column(Boolean, default=False)
+    attempts = Column(Integer, default=0)  # Track verification attempts
+    created_at = Column(DateTime, default=lambda: ist_to_utc(now_ist()))
+    
+    # Indexes for performance
+    __table_args__ = (
+        Index('idx_verification_codes_email', 'email'),
+        Index('idx_verification_codes_expires', 'expires_at'),
+        # Ensure one active code per email
+        Index('idx_verification_codes_unique', 'email', unique=True),
+    )
+
+
 # DELETED TABLE: StudentCoverageTracking model removed as part of database cleanup
 
 
