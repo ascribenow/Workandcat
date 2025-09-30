@@ -668,7 +668,7 @@ async def complete_session(
                 FROM session_answers
                 WHERE session_id = :session_id
                 ORDER BY position ASC
-            """), {"session_id": request.session_id})  # Use string directly
+            """), {"session_id": session_id})  # Use validated UUID
             
             answers_data = answers_result.fetchall()
             
