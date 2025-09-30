@@ -88,6 +88,7 @@ from api.doubts import router as doubts_router
 from api.session_progress import router as session_progress_router
 from api.blueprint_sessions import router as blueprint_sessions_router
 from api.bg_jobs_api import router as bg_jobs_router
+from api.admin_tasks import router as admin_tasks_router
 
 # Mount active routers
 app.include_router(session_lifecycle_router, prefix="/api/sessions")
@@ -95,6 +96,7 @@ app.include_router(doubts_router, prefix="/api")
 app.include_router(session_progress_router, prefix="/api")
 app.include_router(blueprint_sessions_router)  # Blueprint sessions API
 app.include_router(bg_jobs_router)  # Background jobs API (minimal health endpoint)
+app.include_router(admin_tasks_router)  # Admin tasks API (backfill, validation)
 
 # In-memory logging store (for MVP - replace with database in production)
 question_action_logs = []
