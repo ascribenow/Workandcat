@@ -298,7 +298,7 @@ async def send_verification_code(signup_data: SendVerificationRequest, request: 
 
 @app.post("/api/auth/resend-verification-code")
 async def resend_verification_code(request_data: dict, request: Request):
-    """Resend verification code with rate limiting"""
+    """Resend verification code"""
     try:
         email = request_data.get("email", "").strip().lower()
         if not email:
@@ -307,15 +307,6 @@ async def resend_verification_code(request_data: dict, request: Request):
         client_ip = request.client.host
         db = SessionLocal()
         try:
-            # Enhanced rate limiting for resend (stricter than initial send)
-            rate_limit_result = check_rate_limit(db, client_ip, email)
-            if not rate_limit_result["allowed"]:
-                logger.warning(f"Rate limit exceeded for resend request - IP {client_ip}, email {email}")
-                raise HTTPException(
-                    status_code=429,
-                    detail=f"Too many resend requests. Try again in {rate_limit_result['retry_after']} minutes."
-                )
-            
             # Check if there's pending signup data for this email
             pending_data = gmail_service.get_pending_user(email)
             if not pending_data:
@@ -338,9 +329,6 @@ async def resend_verification_code(request_data: dict, request: Request):
             if not email_sent:
                 logger.error(f"Failed to resend verification email to {email}")
                 raise HTTPException(status_code=500, detail="Failed to resend verification email")
-            
-            # Update rate limiting
-            update_rate_limit(db, client_ip, email)
             
             logger.info(f"Verification code resent successfully to {email} from IP {client_ip}")
             return {
