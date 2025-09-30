@@ -242,23 +242,36 @@ async def api_health_check():
 
 # Authentication endpoints - Two-step email verification
 @app.post("/api/auth/send-verification-code")
-async def send_verification_code(signup_data: SendVerificationRequest):
-    """Step 1: Send verification code to user's email"""
+async def send_verification_code(signup_data: SendVerificationRequest, request: Request):
+    """Step 1: Send verification code to user's email with rate limiting"""
     try:
+        client_ip = request.client.host
         db = SessionLocal()
         try:
+            # Rate limiting check
+            rate_limit_result = check_rate_limit(db, client_ip, signup_data.email)
+            if not rate_limit_result["allowed"]:
+                logger.warning(f"Rate limit exceeded for IP {client_ip}, email {signup_data.email}")
+                raise HTTPException(
+                    status_code=429, 
+                    detail=f"Too many requests. Try again in {rate_limit_result['retry_after']} minutes."
+                )
+            
             # Check if user already exists
             result = db.execute(select(User).where(User.email == signup_data.email))
             if result.scalar_one_or_none():
+                logger.info(f"Signup attempt for existing email: {signup_data.email} from IP {client_ip}")
                 raise HTTPException(status_code=400, detail="Email already registered")
             
             # Initialize Gmail service if not already done
             if not gmail_service.service:
                 if not gmail_service.authenticate_service():
+                    logger.error(f"Gmail service authentication failed for {signup_data.email}")
                     raise HTTPException(status_code=500, detail="Email service not available")
             
             # Generate verification code
             verification_code = gmail_service.generate_verification_code(signup_data.email)
+            logger.info(f"Verification code generated for {signup_data.email} from IP {client_ip}")
             
             # Store pending user data temporarily
             gmail_service.store_pending_user(signup_data.email, {
@@ -271,8 +284,13 @@ async def send_verification_code(signup_data: SendVerificationRequest):
             email_sent = gmail_service.send_verification_email(signup_data.email, verification_code)
             
             if not email_sent:
+                logger.error(f"Failed to send verification email to {signup_data.email}")
                 raise HTTPException(status_code=500, detail="Failed to send verification email")
             
+            # Update rate limiting counter
+            update_rate_limit(db, client_ip, signup_data.email)
+            
+            logger.info(f"Verification email sent successfully to {signup_data.email} from IP {client_ip}")
             return {
                 "success": True,
                 "message": "Verification code sent to your email",
@@ -285,7 +303,7 @@ async def send_verification_code(signup_data: SendVerificationRequest):
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Send verification error: {e}")
+        logger.error(f"Send verification error for {signup_data.email}: {e}")
         raise HTTPException(status_code=500, detail="Failed to send verification code")
 
 @app.post("/api/auth/verify-email")  
