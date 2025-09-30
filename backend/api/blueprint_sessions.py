@@ -77,7 +77,7 @@ async def start_session(
     db = SessionLocal()
     try:
         # Get user details for access checking
-        user_result = db.execute(select(User).where(User.id == request.user_id))
+        user_result = db.execute(select(User).where(User.id == user_id))
         user = user_result.scalar_one_or_none()
         
         if not user:
@@ -85,7 +85,7 @@ async def start_session(
         
         # Check user's subscription access level
         access_level = subscription_access_service.get_user_access_level(
-            request.user_id, user.email, db
+            user_id, user.email, db
         )
         
         logger.info(f"User {request.user_id[:8]} access level: {access_level['plan_type']} - unlimited: {access_level['unlimited_sessions']}")
