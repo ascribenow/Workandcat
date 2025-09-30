@@ -517,7 +517,7 @@ The Twelvr Team
         expiry_time_utc = ist_to_utc(expiry_time_ist)
         
         logger.info(f"🔍 GENERATE_CODE DEBUG: Starting code generation for {email}")
-        logger.info(f"🔍 GENERATE_CODE DEBUG: Generated code {code}, expires at {expiry_time}")
+        logger.info(f"🔍 GENERATE_CODE DEBUG: Generated code {code}, expires at {expiry_time_utc} (UTC)")
         logger.info(f"🔍 GENERATE_CODE DEBUG: Call stack: {traceback.format_stack()[-3:-1]}")
         
         db = SessionLocal()
@@ -534,8 +534,8 @@ The Twelvr Team
             """), {
                 "email": email,
                 "code": code, 
-                "expires_at": expiry_time,
-                "created_at": current_time
+                "expires_at": expiry_time_utc,
+                "created_at": current_time_utc
             })
             
             db.commit()
