@@ -126,7 +126,12 @@ def mark_session_completed(user_id: str, session_id: str) -> bool:
                     loop.close()
                 else:
                     summary_result = run_summarizer(user_id, session_id)
-                logger.info(f"✅ Post-completion summarizer succeeded for session {session_id[:8]}")
+                
+                # Log completion based on summarizer result
+                if summary_result:
+                    logger.info(f"✅ Post-completion summarizer succeeded for session {session_id[:8]}")
+                else:
+                    logger.warning(f"⚠️ Post-completion summarizer returned None for session {session_id[:8]}")
             except Exception as e:
                 # Log error but don't fail the completion
                 logger.warning(f"⚠️ Post-completion summarizer failed for session {session_id[:8]}: {e}")
