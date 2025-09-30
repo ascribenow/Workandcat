@@ -498,7 +498,6 @@ The Twelvr Team
     
     def generate_verification_code(self, email: str) -> str:
         """Generate a 6-digit verification code and store in database"""
-        import secrets
         from datetime import datetime, timedelta
         from database import SessionLocal
         from sqlalchemy import text
