@@ -92,6 +92,58 @@ async def run_simplified_summarizer(user_id: str, session_id: str) -> Dict[str, 
                     "llm_model_used": "simplified_analyzer"
                 })
                 
+                # CRITICAL FIX: Also write to session_summary_final and concept_alias_map_latest
+                
+                # Write to session_summary_final
+                logger.info("📊 Writing session summary to session_summary_final...")
+                try:
+                    aggregate_counts = {
+                        "total_questions": session_data.get("total_attempts", 0),
+                        "correct_questions": int(session_data.get("total_attempts", 0) * session_data.get("session_accuracy", 0)),
+                        "accuracy": session_data.get("session_accuracy", 0) * 100,
+                        "concepts_touched": len(session_data.get("concept_alias_map_updated", [])),
+                        "coverage_pairs": len(session_data.get("pair_coverage_labels", [])),
+                        "llm_analysis": True
+                    }
+                    
+                    db.execute(text("""
+                        INSERT INTO session_summary_final 
+                        (user_id, session_id, concept_weights, final_readiness, 
+                         final_coverage, aggregate_counts, created_at, processing_time_ms)
+                        VALUES (:user_id, :session_id, :concept_weights::jsonb, :final_readiness::jsonb,
+                                :final_coverage::jsonb, :aggregate_counts::jsonb, NOW(), :processing_time_ms)
+                    """), {
+                        "user_id": user_id,
+                        "session_id": session_id,
+                        "concept_weights": json.dumps(session_data.get("concept_alias_map_updated", [])),
+                        "final_readiness": json.dumps(session_data.get("concept_readiness_labels", [])),
+                        "final_coverage": json.dumps(session_data.get("pair_coverage_labels", [])),
+                        "aggregate_counts": json.dumps(aggregate_counts),
+                        "processing_time_ms": 1000  # Default processing time
+                    })
+                    logger.info("✅ Session summary final written successfully")
+                except Exception as final_error:
+                    logger.error(f"❌ Session summary final write failed: {final_error}")
+                
+                # Write to concept_alias_map_latest  
+                concept_map_data = session_data.get("concept_alias_map_updated", [])
+                if concept_map_data:
+                    logger.info(f"📊 Upserting concept alias map ({len(concept_map_data)} concepts)...")
+                    try:
+                        db.execute(text("""
+                            INSERT INTO concept_alias_map_latest (user_id, alias_map_json, updated_at)
+                            VALUES (:user_id, :alias_map_json::jsonb, NOW())
+                            ON CONFLICT (user_id) DO UPDATE
+                              SET alias_map_json = EXCLUDED.alias_map_json,
+                                  updated_at = EXCLUDED.updated_at
+                        """), {
+                            "user_id": user_id, 
+                            "alias_map_json": json.dumps(concept_map_data)
+                        })
+                        logger.info("✅ Concept alias map upserted successfully")
+                    except Exception as alias_error:
+                        logger.error(f"❌ Concept alias map upsert failed: {alias_error}")
+                
                 db.commit()
                 logger.info("✅ Session summary persisted to session_summary_llm successfully")
                 
