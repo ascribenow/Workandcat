@@ -287,36 +287,18 @@ def update_rate_limit(db, client_ip: str, email: str):
     Update rate limit log after successful verification code send
     """
     try:
-        # Create rate_limit_log table if it doesn't exist
-        db.execute(text("""
-            CREATE TABLE IF NOT EXISTS rate_limit_log (
-                id VARCHAR(36) PRIMARY KEY,
-                client_ip VARCHAR(45),
-                email VARCHAR(255),
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                INDEX idx_rate_limit_ip_time (client_ip, created_at),
-                INDEX idx_rate_limit_email_time (email, created_at)
-            )
-        """))
-        
         # Insert new rate limit entry
         db.execute(text("""
-            INSERT INTO rate_limit_log (id, client_ip, email, created_at)
-            VALUES (:id, :client_ip, :email, :created_at)
+            INSERT INTO rate_limiting_events (ip_address, email, event_type, expires_at)
+            VALUES (:ip_address, :email, :event_type, :expires_at)
         """), {
-            "id": str(uuid.uuid4()),
-            "client_ip": client_ip,
-            "email": email,
-            "created_at": datetime.utcnow()
+            "ip_address": client_ip,
+            "email": email, 
+            "event_type": "send_verification_code",
+            "expires_at": datetime.utcnow() + timedelta(hours=1)
         })
         
-        # Clean up old entries (older than 24 hours)
-        db.execute(text("""
-            DELETE FROM rate_limit_log 
-            WHERE created_at < :cleanup_time
-        """), {"cleanup_time": datetime.utcnow() - timedelta(hours=24)})
-        
-        db.commit()
+        logger.info(f"Rate limit entry added for IP {client_ip}, email {email}")
         
     except Exception as e:
         logger.error(f"Rate limit update error: {e}")
