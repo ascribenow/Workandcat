@@ -99,9 +99,11 @@ async def run_simplified_summarizer(user_id: str, session_id: str) -> Dict[str, 
                 
                 # CRITICAL FIX: Also write to session_summary_final and concept_alias_map_latest
                 logger.info("🔧 DEBUG: Starting critical table writes...")
+                print(f"🔧 PRINT DEBUG: Starting critical table writes for session {session_id[:8]}...")
                 
                 # Write to session_summary_final
                 logger.info("📊 Writing session summary to session_summary_final...")
+                print("📊 PRINT DEBUG: About to write session_summary_final...")
                 try:
                     aggregate_counts = {
                         "total_questions": session_data.get("total_attempts", 0),
