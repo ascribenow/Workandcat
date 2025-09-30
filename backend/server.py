@@ -259,7 +259,6 @@ async def send_verification_code(signup_data: SendVerificationRequest):
             
             # Generate verification code
             verification_code = gmail_service.generate_verification_code(signup_data.email)
-            logger.info(f"Generated verification code for {signup_data.email}: {verification_code}")
             
             # Store pending user data temporarily
             gmail_service.store_pending_user(signup_data.email, {
@@ -267,11 +266,6 @@ async def send_verification_code(signup_data: SendVerificationRequest):
                 "email": signup_data.email,
                 "password": signup_data.password
             })
-            logger.info(f"Stored pending user data for {signup_data.email}")
-            
-            # Verify code was actually stored
-            codes_count = len(gmail_service.verification_codes)
-            logger.info(f"Total verification codes in memory: {codes_count}")
             
             # Send verification email from hello@twelvr.com
             email_sent = gmail_service.send_verification_email(signup_data.email, verification_code)
