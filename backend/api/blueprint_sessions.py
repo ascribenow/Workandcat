@@ -731,7 +731,7 @@ async def complete_session(
         
         # Generate session summary (enhanced with adaptive processing indicator)
         session_summary = {
-            "session_id": request.session_id,
+            "session_id": session_id,
             "total_questions": total_questions,
             "correct_answers": correct_answers,
             "accuracy": round(accuracy, 1),
@@ -749,7 +749,7 @@ async def complete_session(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Failed to complete session {request.session_id[:8] if hasattr(request, 'session_id') else 'UNKNOWN'}: {e}")
+        logger.error(f"Failed to complete session {session_id[:8] if 'session_id' in locals() else 'UNKNOWN'}: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to complete session: {str(e)}")
 
 @router.get("/list")
