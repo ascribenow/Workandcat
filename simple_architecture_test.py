@@ -11,7 +11,7 @@ def test_background_job_architecture():
     print("🎯 NEW BACKGROUND JOB ARCHITECTURE TESTING")
     print("=" * 60)
     
-    base_url = "https://twelvr-auth-fix.preview.emergentagent.com/api"
+    base_url = "https://catprep-repair.preview.emergentagent.com/api"
     
     # Step 1: Authenticate
     print("🔐 Step 1: Authentication")
