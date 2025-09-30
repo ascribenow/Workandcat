@@ -1513,7 +1513,7 @@ class CATBackendTester:
                     # Check learner_notebook table
                     notebook_result = db.execute(text("""
                         SELECT COUNT(*) as total_concepts,
-                               MAX(last_updated_at) as latest_update
+                               MAX(last_seen_at) as latest_update
                         FROM learner_notebook 
                         WHERE user_id = :user_id
                     """), {"user_id": user_id}).fetchone()
