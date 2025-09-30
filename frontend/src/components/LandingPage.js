@@ -171,6 +171,7 @@ const LandingPage = () => {
       
       if (result.success) {
         setResendCountdown(60);
+        setVerificationAttempts(0); // Reset attempts with new code
         setSuccess('New verification code sent to your email!');
       } else {
         setError(result.error || 'Failed to resend code');
