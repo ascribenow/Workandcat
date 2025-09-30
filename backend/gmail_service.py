@@ -551,12 +551,19 @@ The Twelvr Team
     
     def verify_code(self, email: str, provided_code: str) -> bool:
         """Verify the provided code against stored code in database - SIMPLE VERSION"""
+        import logging
+        logger = logging.getLogger(__name__)
+        
         from database import SessionLocal
         from sqlalchemy import text
         from datetime import datetime
+        import traceback
         
         # Strip whitespace from provided code for better UX
         provided_code = provided_code.strip()
+        
+        logger.info(f"🔍 VERIFY_CODE DEBUG: Starting verification for {email} with code {provided_code}")
+        logger.info(f"🔍 VERIFY_CODE DEBUG: Call stack: {traceback.format_stack()[-3:-1]}")
         
         db = SessionLocal()
         try:
@@ -568,16 +575,20 @@ The Twelvr Team
             """), {"email": email}).fetchone()
             
             if not result:
+                logger.info(f"🔍 VERIFY_CODE DEBUG: No verification code found for {email}")
                 return False
             
             code, expires_at, verified, attempts = result
+            logger.info(f"🔍 VERIFY_CODE DEBUG: Found code {code}, verified={verified}, expires_at={expires_at}")
             
             # Check if code has expired
             if datetime.utcnow() > expires_at:
+                logger.info(f"🔍 VERIFY_CODE DEBUG: Code expired for {email}")
                 return False
             
             # Simple check: does the code match?
             if code == provided_code:
+                logger.info(f"🔍 VERIFY_CODE DEBUG: Code matches! Marking as verified for {email}")
                 # Mark as verified and return success
                 db.execute(text("""
                     UPDATE verification_codes 
@@ -585,9 +596,11 @@ The Twelvr Team
                     WHERE email = :email
                 """), {"email": email})
                 db.commit()
+                logger.info(f"🔍 VERIFY_CODE DEBUG: Successfully marked code as verified for {email}")
                 return True
             
             # Code doesn't match
+            logger.info(f"🔍 VERIFY_CODE DEBUG: Code mismatch for {email}. Expected: {code}, Got: {provided_code}")
             return False
             
         finally:
