@@ -557,7 +557,7 @@ The Twelvr Team
         
         from database import SessionLocal
         from sqlalchemy import text
-        from datetime import datetime
+        from datetime import datetime, timezone
         import traceback
         
         # Strip whitespace from provided code for better UX
@@ -582,8 +582,11 @@ The Twelvr Team
             code, expires_at, verified, attempts = result
             logger.info(f"🔍 VERIFY_CODE DEBUG: Found code {code}, verified={verified}, expires_at={expires_at}")
             
+            # Get current time as timezone-aware UTC
+            current_time = datetime.now(timezone.utc)
+            
             # Check if code has expired
-            if datetime.utcnow() > expires_at:
+            if current_time > expires_at:
                 logger.info(f"🔍 VERIFY_CODE DEBUG: Code expired for {email}")
                 return False
             
