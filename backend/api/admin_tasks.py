@@ -325,7 +325,7 @@ async def validate_schema():
 @router.get("/validate-foreign-keys")
 async def validate_foreign_keys():
     """Verify foreign key constraints are validated"""
-    db = get_db_session()
+    db = SessionLocal()
     
     try:
         fks = db.execute(text("""
