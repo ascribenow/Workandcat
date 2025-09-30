@@ -41,9 +41,10 @@ BEGIN
         AND conrelid = 'concept_alias_map_latest'::regclass
     ) THEN
         ALTER TABLE concept_alias_map_latest
-        ADD CONSTRAINT fk_concept_map_user NOT VALID
+        ADD CONSTRAINT fk_concept_map_user 
         FOREIGN KEY (user_id) REFERENCES users(id)
-        ON DELETE CASCADE;
+        ON DELETE CASCADE
+        NOT VALID;
         
         RAISE NOTICE 'Added FK constraint: fk_concept_map_user';
     ELSE
