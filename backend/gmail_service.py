@@ -692,8 +692,12 @@ The Twelvr Team
             if result:
                 name, password, expires_at = result
                 
+                # Ensure timezone consistency for comparison
+                if expires_at.tzinfo is None:
+                    expires_at = expires_at.replace(tzinfo=timezone.utc)
+                
                 # Double check if not expired (both are now timezone-aware)
-                if current_time <= expires_at:
+                if current_time_utc <= expires_at:
                     return {
                         "name": name,
                         "email": email,
@@ -712,7 +716,7 @@ The Twelvr Team
         # Fallback to in-memory storage for backward compatibility
         if email in self.pending_users:
             pending_data = self.pending_users[email]
-            if current_time <= pending_data['expires_at']:
+            if current_time_ist <= pending_data['expires_at']:
                 return pending_data['user_data']
             else:
                 del self.pending_users[email]
