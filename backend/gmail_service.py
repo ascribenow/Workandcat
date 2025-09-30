@@ -626,16 +626,20 @@ The Twelvr Team
         """Store pending user data in database"""
         from database import SessionLocal
         from sqlalchemy import text
-        from datetime import datetime, timedelta, timezone
+        from datetime import timedelta
+        from utils.timezone_utils import now_ist, ist_to_utc
         
         db = SessionLocal()
         try:
             # Delete any existing pending signup for this email
             db.execute(text("DELETE FROM pending_signups WHERE email = :email"), {"email": email})
             
-            # Get current time as timezone-aware UTC
-            current_time = datetime.now(timezone.utc)
-            expires_at = current_time + timedelta(minutes=30)
+            # Get current time in IST and calculate expiry
+            current_time_ist = now_ist()
+            expires_at_ist = current_time_ist + timedelta(minutes=30)
+            
+            # Convert to UTC for database storage
+            expires_at_utc = ist_to_utc(expires_at_ist)
             
             # Insert new pending signup
             db.execute(text("""
