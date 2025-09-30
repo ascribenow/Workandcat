@@ -171,9 +171,12 @@ Return ONLY valid JSON matching this exact schema with the specified field names
                     "provisional_new_count": self._count_provisional_concepts(data),
                 })
                 
-                # 3) Persist session summary ONLY if meaningful LLM analysis was performed
+                # 3) Persist session summary and final tables (even with minimal analysis)
                 model_used = data.get("telemetry", {}).get("llm_model_used", "none")
-                if model_used != "none" and model_used != "unknown":
+                # Always persist basic session data, even without full LLM analysis
+                should_persist = True  # Changed: always persist to ensure adaptive tables are populated
+                
+                if should_persist:
                     logger.info(f"📊 Persisting session summary to database...")
                     try:
                         db.execute(text("""
