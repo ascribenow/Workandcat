@@ -539,6 +539,9 @@ The Twelvr Team
         from sqlalchemy import text
         from datetime import datetime
         
+        # Strip whitespace from provided code for better UX
+        provided_code = provided_code.strip()
+        
         db = SessionLocal()
         try:
             # Get verification code from database
@@ -568,7 +571,7 @@ The Twelvr Team
                 WHERE email = :email
             """), {"email": email, "attempts": new_attempts})
             
-            # Check if too many attempts (optional security measure)
+            # Check if too many attempts (security measure)
             if new_attempts > 5:
                 db.execute(text("DELETE FROM verification_codes WHERE email = :email"), {"email": email})
                 db.commit()
