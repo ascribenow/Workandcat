@@ -71,7 +71,7 @@ async def start_session(
     if user_id != auth_user_id:
         raise HTTPException(status_code=403, detail="Cannot start session for other users")
     
-    logger.info(f"Starting blueprint session for user {request.user_id[:8]} - checking access limits")
+    logger.info(f"Starting blueprint session for user {user_id[:8]} - checking access limits")
     
     # SESSION ACCESS CONTROL - Check limits before serving pre-packed session
     db = SessionLocal()
