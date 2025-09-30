@@ -144,6 +144,49 @@ def mark_session_completed(user_id: str, session_id: str) -> bool:
                     "session_id": session_id
                 })
             
+            # ENQUEUE BACKGROUND JOB: Ensure SUMMARIZE_SESSION job is enqueued for adaptive pipeline
+            try:
+                from services.bg_job_queue import job_queue
+                import asyncio
+                
+                # Check if job already exists to avoid duplicates
+                existing_job = db.execute(text("""
+                    SELECT id FROM bg_jobs 
+                    WHERE user_id = :user_id AND session_id = :session_id 
+                    AND job_type = 'SUMMARIZE_SESSION'
+                """), {
+                    'user_id': user_id,
+                    'session_id': session_id
+                }).fetchone()
+                
+                if not existing_job:
+                    # Enqueue SUMMARIZE_SESSION job for adaptive pipeline
+                    if asyncio.get_event_loop().is_running():
+                        # In async context
+                        job_id = await job_queue.enqueue_job(
+                            job_type="SUMMARIZE_SESSION",
+                            user_id=user_id,
+                            session_id=session_id
+                        )
+                    else:
+                        # In sync context
+                        loop = asyncio.new_event_loop()
+                        asyncio.set_event_loop(loop)
+                        job_id = loop.run_until_complete(job_queue.enqueue_job(
+                            job_type="SUMMARIZE_SESSION",
+                            user_id=user_id,
+                            session_id=session_id
+                        ))
+                        loop.close()
+                    
+                    logger.info(f"🚀 Enqueued SUMMARIZE_SESSION job {job_id[:8]} for session {session_id[:8]}")
+                else:
+                    logger.info(f"ℹ️ SUMMARIZE_SESSION job already exists for session {session_id[:8]}")
+                    
+            except Exception as job_error:
+                logger.error(f"❌ Failed to enqueue SUMMARIZE_SESSION job for session {session_id[:8]}: {job_error}")
+                # Don't fail the completion - adaptive pipeline will catch up later
+            
             return True
         else:
             logger.warning(f"⚠️ Session completion failed - session not found")
