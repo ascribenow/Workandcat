@@ -11,7 +11,7 @@ import uuid
 from datetime import datetime, timezone
 
 from services.bg_job_queue import job_queue
-from database import get_db_session
+from database import SessionLocal
 from sqlalchemy import text
 
 router = APIRouter(prefix="/api/admin/tasks", tags=["admin-tasks"])
