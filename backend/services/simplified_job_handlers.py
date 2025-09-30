@@ -175,8 +175,10 @@ async def run_simplified_summarizer(user_id: str, session_id: str) -> Dict[str, 
                                 "session_id": session_id
                             })
                         
+                        print(f"✅ PRINT DEBUG: Concept alias map upserted {len(concept_map_data)} concepts")
                         logger.info("✅ Concept alias map upserted successfully")
                     except Exception as alias_error:
+                        print(f"❌ PRINT DEBUG: Concept alias map upsert failed: {alias_error}")
                         logger.error(f"❌ Concept alias map upsert failed: {alias_error}")
                 
                 db.commit()
