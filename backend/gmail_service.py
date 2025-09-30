@@ -585,6 +585,11 @@ The Twelvr Team
             # Get current time as timezone-aware UTC
             current_time = datetime.now(timezone.utc)
             
+            # Ensure expires_at is timezone-aware for comparison
+            if expires_at.tzinfo is None:
+                # If expires_at is timezone-naive, assume it's UTC
+                expires_at = expires_at.replace(tzinfo=timezone.utc)
+            
             # Check if code has expired
             if current_time > expires_at:
                 logger.info(f"🔍 VERIFY_CODE DEBUG: Code expired for {email}")
