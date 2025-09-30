@@ -411,17 +411,18 @@ async def submit_answer(
     Submit answer for a question in blueprint session
     """
     
+    # Validate UUID format at API boundary
+    session_id = validate_canonical_uuid(request.session_id, "session_id")
+    auth_user_id = validate_canonical_uuid(auth_user_id, "authenticated_user_id")
+    
     if not (1 <= request.position <= 12):
         raise HTTPException(status_code=400, detail="Position must be between 1 and 12")
     
     try:
         planner = await get_blueprint_planner()
         
-        # Validate session_id format
-        try:
-            session_uuid = uuid.UUID(request.session_id)
-        except ValueError:
-            raise HTTPException(status_code=400, detail="Invalid session ID format")
+        # Convert validated UUID string to UUID object for planner
+        session_uuid = uuid.UUID(session_id)
         
         # Get session questions to validate answer
         questions = await planner._get_session_questions(session_uuid)
