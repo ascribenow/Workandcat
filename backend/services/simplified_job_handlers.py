@@ -47,6 +47,7 @@ async def run_simplified_summarizer(user_id: str, session_id: str) -> Dict[str, 
                 """), {"session_id": session_id, "user_id": user_id})
                 
                 concepts = concepts_result.fetchall()
+                print(f"🔍 PRINT DEBUG: Concepts query returned {len(concepts)} rows")
                 concept_list = []
                 for concept_row in concepts:
                     if concept_row.core_concepts:
