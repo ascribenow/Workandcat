@@ -561,7 +561,7 @@ async def submit_answer(
         finally:
             db.close()
         
-        logger.info(f"Answer submitted for session {request.session_id[:8]}, position {request.position}: {'correct' if is_correct else 'incorrect'}")
+        logger.info(f"Answer submitted for session {session_id[:8]}, position {request.position}: {'correct' if is_correct else 'incorrect'}")
         
         # Build solution feedback object from question data with improved formatting
         from utils.solution_formatter import format_solution_content, format_solution_approach, format_snap_read
