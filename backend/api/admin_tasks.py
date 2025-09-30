@@ -296,6 +296,8 @@ async def get_backfill_history(limit: int = 10):
         ]
     except Exception as e:
         return []
+    finally:
+        db.close()
 
 
 @router.get("/validate-schema")
