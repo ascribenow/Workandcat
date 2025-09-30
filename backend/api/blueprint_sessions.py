@@ -64,7 +64,11 @@ async def start_session(
     Serves pre-packed sessions when user has access, blocks when limits exceeded
     """
     
-    if request.user_id != auth_user_id:
+    # Validate UUID format at API boundary
+    user_id = validate_canonical_uuid(request.user_id, "user_id")
+    auth_user_id = validate_canonical_uuid(auth_user_id, "authenticated_user_id")
+    
+    if user_id != auth_user_id:
         raise HTTPException(status_code=403, detail="Cannot start session for other users")
     
     logger.info(f"Starting blueprint session for user {request.user_id[:8]} - checking access limits")
