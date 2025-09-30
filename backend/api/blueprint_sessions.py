@@ -448,6 +448,13 @@ async def submit_answer(
         if not question_at_position:
             raise HTTPException(status_code=404, detail=f"Question at position {request.position} not found")
         
+        # DEBUG: Log complete question identification for mismatch tracking
+        logger.info(f"🔍 POSITION {request.position} QUESTION MATCH:")
+        logger.info(f"  - Question ID: {question_at_position.get('id', 'NO_ID')}")
+        logger.info(f"  - Stem (first 80 chars): {question_at_position.get('stem', 'NO_STEM')[:80]}")
+        logger.info(f"  - Answer: {question_at_position.get('answer', 'NO_ANSWER')}")
+        logger.info(f"  - Solution approach (first 80 chars): {str(question_at_position.get('solution_approach', 'NO_SOLUTION'))[:80]}")
+        
         # CROSS-VALIDATION: Check if this matches what was displayed to user
         display_meta = question_at_position.get('_validation', {})
         if display_meta:
