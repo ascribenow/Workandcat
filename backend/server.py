@@ -89,6 +89,7 @@ from api.session_progress import router as session_progress_router
 from api.blueprint_sessions import router as blueprint_sessions_router
 from api.bg_jobs_api import router as bg_jobs_router
 from api.admin_tasks import router as admin_tasks_router
+from api.health import router as health_router
 
 # Mount active routers
 app.include_router(session_lifecycle_router, prefix="/api/sessions")
