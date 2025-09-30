@@ -362,6 +362,7 @@ export const AuthProvider = ({ children }) => {
     requestPasswordReset,
     verifyPasswordReset,
     sendVerificationCode,
+    resendVerificationCode,
     verifyEmailCode,
     registerWithVerification,
     getGmailAuthURL,
