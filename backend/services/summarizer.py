@@ -201,9 +201,23 @@ Return ONLY valid JSON matching this exact schema with the specified field names
                         logger.error(f"❌ Session summary persistence failed: {persist_error}")
                         raise persist_error
 
-                    # 4) Upsert per-user alias map ONLY if meaningful data exists
-                    if data.get("concept_alias_map_updated"):
-                        logger.info(f"📊 Upserting concept alias map...")
+                    # 4) Upsert per-user alias map - create basic map even without full LLM analysis
+                    concept_map_data = data.get("concept_alias_map_updated", [])
+                    
+                    # If no LLM-generated map, create basic concept map from attempt data
+                    if not concept_map_data and len(attempts) > 0:
+                        logger.info(f"📊 Creating basic concept map from attempts...")
+                        basic_concepts = set()
+                        for attempt in attempts:
+                            core_concepts = attempt.get('core_concepts', [])
+                            if isinstance(core_concepts, list):
+                                basic_concepts.update(core_concepts)
+                        
+                        # Create basic alias map structure
+                        concept_map_data = [{"canonical": concept, "aliases": [concept]} for concept in basic_concepts]
+                    
+                    if concept_map_data:
+                        logger.info(f"📊 Upserting concept alias map ({len(concept_map_data)} concepts)...")
                         try:
                             db.execute(text("""
                                 INSERT INTO concept_alias_map_latest (user_id, alias_map_json, updated_at)
