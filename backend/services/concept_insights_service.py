@@ -54,9 +54,7 @@ class ConceptInsightsService:
                     "concept": row[0],
                     "mastery": float(row[1]) if row[1] is not None else 0.0,
                     "readiness": row[2],
-                    "coverage_debt": float(row[3]) if row[3] is not None else 0.0,
-                    "last_seen": row[4],
-                    "first_seen": row[5]
+                    "last_seen": row[3]
                 })
             
             # Analyze concepts
