@@ -108,7 +108,6 @@ class ConceptInsightsService:
             "weak_concepts": weak[:5],      # Bottom 5
             "moderate_concepts": moderate[:5],
             "neglected_concepts": neglected[:5],
-            "underserved_concepts": underserved[:5],
             "avg_mastery": round(avg_mastery, 1),
             "strong_count": len(strong),
             "moderate_count": len(moderate),
