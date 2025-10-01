@@ -32,18 +32,14 @@ class ConceptInsightsService:
         db = SessionLocal()
         
         try:
-            # Fetch all concept data for user
+            # Fetch all concept data from learner_notebook (the correct table with mastery data)
             concepts_result = db.execute(text("""
                 SELECT 
-                    concept_alias,
+                    concept_norm,
                     mastery_score,
-                    readiness_level,
-                    coverage_debt,
-                    last_seen_at,
-                    first_seen_at,
-                    created_at,
-                    updated_at
-                FROM concept_alias_map_latest
+                    readiness,
+                    last_seen_at
+                FROM learner_notebook
                 WHERE user_id = :user_id
                 ORDER BY mastery_score DESC
             """), {"user_id": user_id}).fetchall()
