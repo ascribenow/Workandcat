@@ -193,7 +193,7 @@ class ConceptInsightsService:
         if analysis["avg_mastery"] < 5.0:
             recommendations.append("📚 **Build breadth** by practicing diverse concepts")
         elif analysis["avg_mastery"] >= 7.0:
-            recommendations.append("🚀 **Challenge yourself** with harder questions to deepen mastery")
+            recommendations.append("🚀 **Excellent progress!** Keep challenging yourself with harder questions")
         
         if recommendations:
             return "\n".join([f"- {rec}" for rec in recommendations])
