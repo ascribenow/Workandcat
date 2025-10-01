@@ -16,54 +16,62 @@ class InsightGeneratorService:
         self.user_call_counts = {}  # Track LLM usage per user per day
         self.max_calls_per_user_per_day = 10  # Reasonable limit
     
-    def generate_comprehensive_insights(self, comprehensive_data: Dict[str, Any]) -> Dict[str, Any]:
+    def generate_concept_level_insights(self, user_id: str) -> Dict[str, Any]:
         """
-        PURE LLM FREEDOM APPROACH
-        Give LLM complete user data and let it generate all insights naturally
+        Generate concept-level insights using LLM
+        Analyzes learner_notebook and coverage_debt for actionable insights
         """
         try:
             import os
             
             # Check for global fallback flag
             if os.environ.get("INSIGHTS_FORCE_FALLBACK", "false").lower() == "true":
-                return self._generate_simple_fallback_insights(comprehensive_data)
+                return self._generate_simple_fallback_insights({"user_id": user_id})
             
-            # Pure LLM freedom prompt - no restrictions, complete creative control
-            prompt = self._build_comprehensive_insights_prompt(comprehensive_data)
+            # Build concept-level prompt with mastery and debt data
+            prompt = self._build_comprehensive_insights_prompt({"user_id": user_id})
             
-            # Use actual LLM implementation (same as Ask Twelvr)
+            # Call Gemini LLM
             response = self._call_gemini_llm(prompt)
             
             if response and len(response.strip()) > 50:
-                # Parse LLM response (expecting JSON with all insights)
+                # Parse LLM response (expecting JSON with insights)
                 try:
                     import json
-                    insights_data = json.loads(response.strip())
-                    insights_data["source"] = "llm_comprehensive"
-                    insights_data["generated_at"] = datetime.now(timezone.utc).isoformat()
-                    self.logger.info("Generated comprehensive insights via LLM")
-                    return insights_data
-                except json.JSONDecodeError:
-                    # If not JSON, treat as markdown and structure it
-                    self.logger.warning("LLM returned non-JSON, structuring response")
+                    # Clean response - remove markdown code blocks if present
+                    cleaned = response.strip()
+                    if cleaned.startswith("```json"):
+                        cleaned = cleaned[7:]
+                    if cleaned.startswith("```"):
+                        cleaned = cleaned[3:]
+                    if cleaned.endswith("```"):
+                        cleaned = cleaned[:-3]
+                    cleaned = cleaned.strip()
+                    
+                    insights_data = json.loads(cleaned)
+                    
+                    # Ensure we have the expected fields
                     return {
-                        "dashboard_all_time": response.strip(),
-                        "dashboard_recent": "Your recent progress continues to build on your foundations.",
-                        "pre_session_card": {
-                            "title": "Ready to Learn 🎯",
-                            "progress": "Building on your consistent preparation",
-                            "way_forward": ["Stay focused", "Trust the process"],
-                            "today": "Today's session will continue your growth"
-                        },
-                        "source": "llm_comprehensive_markdown",
-                        "generated_at": datetime.now(timezone.utc).isoformat()
+                        "all_time_markdown": insights_data.get("all_time_markdown", "Your learning journey is building momentum!"),
+                        "recent_markdown": insights_data.get("recent_markdown", "Keep up the consistent practice!"),
+                        "last_updated_at": datetime.now(timezone.utc).isoformat(),
+                        "source": "llm_concept_level",
+                        "total_concepts": insights_data.get("total_concepts", 0)
+                    }
+                except json.JSONDecodeError as je:
+                    self.logger.warning(f"LLM returned non-JSON: {je}, using fallback")
+                    return {
+                        "all_time_markdown": response.strip()[:500],
+                        "recent_markdown": "Continue building your consistent practice!",
+                        "last_updated_at": datetime.now(timezone.utc).isoformat(),
+                        "source": "llm_concept_markdown"
                     }
             else:
-                return self._generate_simple_fallback_insights(comprehensive_data)
+                return self._generate_simple_fallback_insights({"user_id": user_id})
                 
         except Exception as e:
-            self.logger.error(f"Error in comprehensive insights generation: {e}")
-            return self._generate_simple_fallback_insights(comprehensive_data)
+            self.logger.error(f"Error in concept-level insights generation: {e}")
+            return self._generate_simple_fallback_insights({"user_id": user_id})
     
     def _build_comprehensive_insights_prompt(self, comprehensive_data: Dict[str, Any]) -> str:
         """Build concept-level insights prompt with mastery and coverage debt data"""
