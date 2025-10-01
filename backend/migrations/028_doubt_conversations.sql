@@ -2,9 +2,9 @@
 -- Purpose: Persist conversation history in database instead of in-memory storage
 
 CREATE TABLE IF NOT EXISTS doubt_conversations (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID NOT NULL,
-    question_id UUID NOT NULL,
+    id VARCHAR(36) PRIMARY KEY DEFAULT gen_random_uuid()::text,
+    user_id VARCHAR(36) NOT NULL,
+    question_id VARCHAR(36) NOT NULL,
     role VARCHAR(20) NOT NULL CHECK (role IN ('user', 'assistant')),
     content TEXT NOT NULL,
     timestamp TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
@@ -22,8 +22,8 @@ CREATE INDEX IF NOT EXISTS idx_doubt_conversations_timestamp
 
 -- Table to track message counts per user per question
 CREATE TABLE IF NOT EXISTS doubt_message_counts (
-    user_id UUID NOT NULL,
-    question_id UUID NOT NULL,
+    user_id VARCHAR(36) NOT NULL,
+    question_id VARCHAR(36) NOT NULL,
     message_count INTEGER DEFAULT 0,
     is_locked BOOLEAN DEFAULT FALSE,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
