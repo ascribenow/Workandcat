@@ -1128,34 +1128,10 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
         // Still continue with UI flow but log clearly that adaptive features won't work
       }
       
-      // End-of-session handshake: plan next session if blueprint enabled
-      if (blueprintEnabled) {
-        const lastSessionId = sessionId;
-        const cached = loadNext(user.id);
-        const nextSessionId = cached?.nextSessionId || generateSessionId();
-        
-        try {
-          await axios.post(`${API}/adapt/plan-next`, {
-            user_id: user.id,
-            last_session_id: lastSessionId,
-            next_session_id: nextSessionId
-          }, {
-            headers: {
-              'Idempotency-Key': `${user.id}:${lastSessionId}:${nextSessionId}`
-            }
-          });
-          
-          // Persist for next session start
-          persistNext(user.id, lastSessionId, nextSessionId);
-          setNextSessionId(nextSessionId);
-          
-          console.log('✅ End-of-session handshake successful:', nextSessionId);
-          
-        } catch (error) {
-          console.error('❌ End-of-session planning failed:', error);
-          // Continue with session end even if planning fails
-        }
-      }
+      // REMOVED: Dead /api/adapt/plan-next call (endpoint doesn't exist)
+      // Planning is now handled by background job pipeline:
+      // /api/session/complete → SUMMARIZE_SESSION → PLAN_NEXT_SESSION → UPDATE_INSIGHTS
+      console.log('✅ Session completion triggered adaptive pipeline (background jobs)');
       
       // Call original session end handler
       if (onSessionEnd) {
