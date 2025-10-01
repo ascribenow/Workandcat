@@ -548,14 +548,16 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
       !isPlanning &&
       !firstServeDoneRef.current
     ) {
-      console.log('[BOOT] ✅ All conditions met - Pack ready & no currentQuestion; serving Q1');
-      console.log('[BOOT] Pack sample:', currentPackRef.current[0]);
+      // CRITICAL FIX: Use currentQuestionIndex instead of hardcoded 0 for resume support
+      const resumeIndex = currentQuestionIndex || 0;
+      console.log(`[BOOT] ✅ All conditions met - Pack ready & no currentQuestion; serving Q${resumeIndex + 1}`);
+      console.log('[BOOT] Pack sample:', currentPackRef.current[resumeIndex]);
       firstServeDoneRef.current = true;
-      serveQuestionFromPack(0);
+      serveQuestionFromPack(resumeIndex);
     } else {
       console.log(`[BOOT_DEBUG] ❌ Conditions not met: pack=${packLength > 0}, noQuestion=${!hasCurrentQuestion}, session=${hasSessionId}, notPlanning=${notPlanning}, notServed=${notServedYet}`);
     }
-  }, [currentQuestion, sessionId, isPlanning, currentPack]);
+  }, [currentQuestion, sessionId, isPlanning, currentPack, currentQuestionIndex]);
 
   // SURGICAL FIX: Reset first serve flag when session changes
   useEffect(() => {
