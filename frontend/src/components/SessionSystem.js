@@ -2266,54 +2266,48 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
                       />
                       <div className="flex justify-between items-center">
                         <div className="text-sm" style={{ color: '#9ac026', fontFamily: 'Lato, sans-serif' }}>
-                          {messageCount > 0 && (
+                          {messageCount > 0 ? (
                             conversationLocked ? (
                               <span style={{ color: '#ff6d4d' }} className="font-medium">❌ Conversation limit reached (10/10)</span>
                             ) : (
-                              <span>💬 Messages used: {messageCount}/10</span>
+                              <button 
+                                onClick={openDoubtModal}
+                                className="underline hover:no-underline"
+                                style={{ color: '#9ac026' }}
+                              >
+                                💬 Messages used: {messageCount}/10 (click to view)
+                              </button>
                             )
-                          )}
+                          ) : null}
                         </div>
-                        <div className="flex space-x-2">
-                          {messageCount > 0 && (
-                            <button
-                              onClick={openDoubtModal}
-                              className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md focus:outline-none focus:ring-2 transition-colors"
-                              style={{ 
-                                fontFamily: 'Lato, sans-serif'
-                              }}
-                              onMouseOver={(e) => {
-                                e.target.style.backgroundColor = '#f3f4f6';
-                              }}
-                              onMouseOut={(e) => {
-                                e.target.style.backgroundColor = 'transparent';
-                              }}
-                            >
-                              📖 View Conversation
-                            </button>
-                          )}
-                          <button
-                            onClick={() => handleAskDoubt()}
-                            disabled={!doubtMessage.trim() || doubtLoading || conversationLocked}
-                            className="px-4 py-2 text-white rounded-md focus:outline-none focus:ring-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                            style={{ 
-                              backgroundColor: '#9ac026',
-                              fontFamily: 'Lato, sans-serif'
-                            }}
-                            onMouseOver={(e) => {
-                              if (!e.target.disabled) {
-                                e.target.style.backgroundColor = '#8bb024';
-                              }
-                            }}
-                            onMouseOut={(e) => {
-                              if (!e.target.disabled) {
-                                e.target.style.backgroundColor = '#9ac026';
-                              }
-                            }}
-                          >
-                            {doubtLoading ? "Asking..." : "🤔 Ask Twelvr"}
-                          </button>
-                        </div>
+                        <button
+                          onClick={() => {
+                            if (doubtMessage.trim()) {
+                              handleAskDoubt();
+                              setShowDoubtModal(true);
+                            } else {
+                              openDoubtModal();
+                            }
+                          }}
+                          disabled={doubtLoading || (conversationLocked && !doubtMessage.trim())}
+                          className="px-4 py-2 text-white rounded-md focus:outline-none focus:ring-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                          style={{ 
+                            backgroundColor: '#9ac026',
+                            fontFamily: 'Lato, sans-serif'
+                          }}
+                          onMouseOver={(e) => {
+                            if (!e.target.disabled) {
+                              e.target.style.backgroundColor = '#8bb024';
+                            }
+                          }}
+                          onMouseOut={(e) => {
+                            if (!e.target.disabled) {
+                              e.target.style.backgroundColor = '#9ac026';
+                            }
+                          }}
+                        >
+                          {doubtLoading ? "Asking..." : "🤔 Ask Twelvr"}
+                        </button>
                       </div>
                     </div>
                   </div>
