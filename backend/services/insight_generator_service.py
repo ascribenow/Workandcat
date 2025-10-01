@@ -164,12 +164,23 @@ Generate personalized, actionable insights in JSON format:
 }}
 
 IMPORTANT RULES:
-1. DO NOT include any numerical scores like "(9.0/10)" or "8.5/10" or percentages
-2. Use qualitative language: "strong", "excellent", "needs work", "building proficiency"
-3. Mention specific concept names (e.g., "Time-Speed-Distance", "Percentages")
-4. Be encouraging but honest about areas needing improvement
-5. Keep it conversational and motivating (2-3 sentences per section)
-6. Focus on actionable next steps"""
+1. DO include count numbers: "You've practiced 10 concepts", "3 strong areas", "5 topics need attention" ✅
+2. DO NOT include mastery scores: NO "(9.0/10)" or "8.5/10" or "90%" next to concept names ❌
+3. Use qualitative language for concept strength: "strong", "excellent", "needs work", "building proficiency"
+4. Mention specific concept names (e.g., "Time-Speed-Distance", "Percentages")
+5. Be encouraging but honest about areas needing improvement
+6. Keep it conversational and motivating (2-3 sentences per section)
+7. Focus on actionable next steps
+
+GOOD EXAMPLES:
+- "You've practiced 10 concepts so far" ✅
+- "Your strongest areas are Ratios, Mixtures, and Algebra" ✅
+- "Focus on 3 topics that need attention: Percentages, Geometry, and Mensuration" ✅
+
+BAD EXAMPLES:
+- "Ratios (9.0/10)" ❌
+- "Percentages: 75% mastery" ❌
+- "Time-Speed-Distance scored 8.5/10" ❌"""
             
             return prompt
             
