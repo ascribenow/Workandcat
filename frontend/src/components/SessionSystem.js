@@ -1033,6 +1033,10 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
       real_options: Object.values(question.options).filter(opt => !opt.startsWith('Option '))
     });
 
+    // CRITICAL FIX: Update currentQuestionIndex to match the question being served
+    console.log(`[STATE_UPDATE] ${requestId}: Updating currentQuestionIndex from ${currentQuestionIndex} to ${questionIndex}`);
+    setCurrentQuestionIndex(questionIndex);
+    
     // CRITICAL FIX: Force synchronous state updates to ensure React re-renders
     console.log(`[STATE_UPDATE] ${requestId}: About to set current question: ${question.id}`);
     
@@ -1060,6 +1064,7 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
       console.log(`[STATE_VERIFY] ${requestId}: Post-serve state check`, {
         currentQuestionSet: !!currentQuestion,
         questionId: currentQuestion?.id,
+        currentQuestionIndex,
         progressSet: !!sessionProgress,
         loadingCleared: !loading,
         planningCleared: !isPlanning,
