@@ -198,6 +198,35 @@ async def start_session(
         
         logger.info(f"Blueprint session {session_data['session_id'][:8]} created successfully with {len(session_data.get('questions', []))} questions")
         
+        # Check if session has existing progress (resume logic)
+        db_progress = SessionLocal()
+        try:
+            progress_result = db_progress.execute(text("""
+                SELECT 
+                    current_position,
+                    questions_answered,
+                    status
+                FROM sessions
+                WHERE session_id = :session_id
+            """), {"session_id": session_data["session_id"]}).fetchone()
+            
+            if progress_result and progress_result[2] in ('active', 'planned'):
+                # Existing session - resume from saved position
+                current_position = progress_result[0] if progress_result[0] else 1
+                questions_answered = progress_result[1] if progress_result[1] else 0
+                logger.info(f"📍 Resuming session {session_data['session_id'][:8]} from position {current_position} ({questions_answered} answered)")
+            else:
+                # New session - start at position 1
+                current_position = 1
+                questions_answered = 0
+                logger.info(f"🆕 Starting new session {session_data['session_id'][:8]} from position 1")
+        except Exception as progress_error:
+            logger.error(f"Error checking session progress: {progress_error}")
+            current_position = 1
+            questions_answered = 0
+        finally:
+            db_progress.close()
+        
         return JSONResponse({
             "success": True,
             "session_id": session_data["session_id"],
@@ -205,7 +234,8 @@ async def start_session(
             "questions": session_data["questions"],
             "constraint_report": session_data["constraint_report"],
             "total_questions": len(session_data.get("questions", [])),
-            "current_position": 1,  # Blueprint sessions start at position 1
+            "current_position": current_position,  # Resume from saved position
+            "questions_answered": questions_answered,  # Include answered count
             "session_type": "blueprint",
             "session_number": calculated_session_number,  # FIX: Use calculated number instead of stored sess_seq
             "created_at": datetime.now(timezone.utc).isoformat()
