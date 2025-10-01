@@ -1789,10 +1789,17 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
     await loadDoubtHistory();
     setShowDoubtModal(true);
   };
-
+  
   const closeDoubtModal = () => {
     setShowDoubtModal(false);
   };
+  
+  // Load history when modal opens
+  useEffect(() => {
+    if (showDoubtModal && currentQuestion?.id) {
+      loadDoubtHistory();
+    }
+  }, [showDoubtModal, currentQuestion?.id]);
 
   if (!sessionId && !loading) {
     return (
