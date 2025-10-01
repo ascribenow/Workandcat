@@ -358,13 +358,46 @@ async def get_doubt_history(
     user_id: str = Depends(get_current_user)
 ):
     """Get conversation history for a specific question"""
+    db = SessionLocal()
     try:
-        conversation_key = f"{user_id}:{question_id}"
+        # Get conversation history from database
+        history_records = db.execute(
+            select(DoubtConversation).where(
+                and_(
+                    DoubtConversation.user_id == user_id,
+                    DoubtConversation.question_id == question_id
+                )
+            ).order_by(DoubtConversation.timestamp)
+        ).scalars().all()
         
-        messages = doubt_conversations.get(conversation_key, [])
-        message_count = doubt_message_counts.get(conversation_key, 0)
+        # Convert to dict format for frontend
+        messages = [
+            {
+                "role": msg.role,
+                "content": msg.content,
+                "timestamp": msg.timestamp.isoformat() if msg.timestamp else datetime.utcnow().isoformat()
+            }
+            for msg in history_records
+        ]
+        
+        # Get message count
+        count_record = db.execute(
+            select(DoubtMessageCount).where(
+                and_(
+                    DoubtMessageCount.user_id == user_id,
+                    DoubtMessageCount.question_id == question_id
+                )
+            )
+        ).scalar_one_or_none()
+        
+        if count_record:
+            message_count = count_record.message_count
+            is_locked = count_record.is_locked
+        else:
+            message_count = 0
+            is_locked = False
+        
         remaining = MAX_MESSAGES_PER_QUESTION - message_count
-        is_locked = message_count >= MAX_MESSAGES_PER_QUESTION
         
         return {
             "success": True,
@@ -377,6 +410,8 @@ async def get_doubt_history(
     except Exception as e:
         logger.error(f"❌ Error getting doubt history: {e}")
         raise HTTPException(status_code=500, detail="Failed to get doubt history")
+    finally:
+        db.close()
 
 @router.get("/admin/conversations")
 async def admin_get_all_conversations(
