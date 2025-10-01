@@ -2233,7 +2233,7 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
                 )}
 
                 {/* Ask Any Doubt Section - Twelvr New Version */}
-                {result.solution_feedback && currentQuestion && (
+                {result.solution_feedback && currentQuestion && !showDoubtModal && (
                   <div className="border border-gray-200 rounded-lg p-4 mb-4" style={{ backgroundColor: '#f7fdf0' }}>
                     <h4 className="font-semibold mb-3" style={{ color: '#545454', fontFamily: 'Manrope, sans-serif' }}>💬 Have a doubt about this solution?</h4>
                     <div className="space-y-3">
@@ -2256,10 +2256,12 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
                       />
                       <div className="flex justify-between items-center">
                         <div className="text-sm" style={{ color: '#9ac026', fontFamily: 'Lato, sans-serif' }}>
-                          {conversationLocked ? (
-                            <span style={{ color: '#ff6d4d' }} className="font-medium">❌ Conversation limit reached (10/10)</span>
-                          ) : (
-                            <span>💬 Messages used: {messageCount}/10</span>
+                          {messageCount > 0 && (
+                            conversationLocked ? (
+                              <span style={{ color: '#ff6d4d' }} className="font-medium">❌ Conversation limit reached (10/10)</span>
+                            ) : (
+                              <span>💬 Messages used: {messageCount}/10</span>
+                            )
                           )}
                         </div>
                         <button
