@@ -139,36 +139,37 @@ class InsightGeneratorService:
             
             prompt = f"""You are an adaptive learning coach analyzing a CAT preparation student's progress.
 
-CONCEPT MASTERY DATA (0-10 scale):
+CONCEPT MASTERY DATA:
 - Total concepts practiced: {prompt_data['total_concepts']}
-- Strong concepts (≥7): {prompt_data['strong_count']}
-- Moderate concepts (3-7): {prompt_data['moderate_count']}
-- Weak concepts (≤3): {prompt_data['weak_count']}
-- Average mastery: {prompt_data['avg_mastery_scaled']}/10
+- Strong concepts: {prompt_data['strong_count']}
+- Moderate concepts: {prompt_data['moderate_count']}
+- Weak concepts: {prompt_data['weak_count']}
 
-TOP STRENGTHS:
-{chr(10).join([f"- {name}: {score}/10" for name, score in prompt_data['top_3_strong']])}
+TOP STRENGTHS (concepts they've mastered):
+{chr(10).join([f"- {name}" for name, score in prompt_data['top_3_strong']])}
 
-NEED ATTENTION:
-{chr(10).join([f"- {name}: {score}/10" for name, score in prompt_data['top_3_weak']])}
+CONCEPTS NEEDING ATTENTION:
+{chr(10).join([f"- {name}" for name, score in prompt_data['top_3_weak']])}
 
 NEGLECTED TOPICS (not practiced in 14+ days):
-{chr(10).join([f"- {name[0]}: {days} days ago" for name, days in prompt_data['neglected']])}
+{chr(10).join([f"- {name[0]} ({days} days ago)" for name, days in prompt_data['neglected']])}
 
-UNDERSERVED TOPICS (high coverage debt):
-{chr(10).join([f"- {name}: debt={debt}" for name, debt in prompt_data['high_debt_topics']])}
+UNDERSERVED TOPICS (need more coverage):
+{chr(10).join([f"- {name}" for name, debt in prompt_data['high_debt_topics']])}
 
 Generate personalized, actionable insights in JSON format:
 {{
-  "all_time_markdown": "Engaging summary of overall journey with specific concept names and scores",
-  "recent_markdown": "Action-oriented guidance highlighting neglected/underserved topics with specific names"
+  "all_time_markdown": "Engaging summary of overall journey with specific concept names",
+  "recent_markdown": "Action-oriented guidance highlighting topics to focus on next"
 }}
 
-Make it:
-1. Specific (use actual concept names and scores)
-2. Actionable (clear next steps)
-3. Motivating (balanced tone)
-4. Concise (2-3 sentences per section)"""
+IMPORTANT RULES:
+1. DO NOT include any numerical scores like "(9.0/10)" or "8.5/10" or percentages
+2. Use qualitative language: "strong", "excellent", "needs work", "building proficiency"
+3. Mention specific concept names (e.g., "Time-Speed-Distance", "Percentages")
+4. Be encouraging but honest about areas needing improvement
+5. Keep it conversational and motivating (2-3 sentences per section)
+6. Focus on actionable next steps"""
             
             return prompt
             
