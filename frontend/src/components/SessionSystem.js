@@ -884,28 +884,12 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
         } catch (error) {
           console.log('Planning trigger failed, trying fallback...', error.message);
           
-          // Fallback: retry once with longer timeout for backward compatibility
-          try {
-            const retryResponse = await axios.post(`${API}/adapt/plan-next`, {
-              user_id: user.id,
-              last_session_id: lastSessionId,
-              next_session_id: nextSessionId
-            }, { 
-              headers: planHeaders,
-              timeout: 25000  // Fallback timeout
-            });
-            
-            console.log('✅ Planning fallback completed:', retryResponse.status);
-            
-            // If fallback succeeded, fetch pack normally
-            await new Promise(r => setTimeout(r, 1000));
-            pack = await fetchPackSafe(user.id, nextSessionId);
-            
-          } catch (retryError) {
-            console.error('❌ Session planning failed after retry');
-            setError('Session planning failed. Please refresh the page to try again.');
-            return;
-          }
+          // REMOVED: Fallback retry to non-existent endpoint
+          console.error('❌ Session planning failed - no pre-packed session available');
+          console.error('   This indicates background job pipeline has not run yet');
+          console.error('   User needs to complete at least one session for adaptive planning to work');
+          setError('No session available. Please complete your first session to enable adaptive planning.');
+          return;
         }
         
         // SURGICAL FIX: Safe guard after planning
