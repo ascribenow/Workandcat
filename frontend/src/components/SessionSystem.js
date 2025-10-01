@@ -857,15 +857,11 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
         try {
           console.log('🚀 Triggering async session planning...');
           
-          // 1. Trigger planning (expect 202, don't wait)
-          const planResponse = await axios.post(`${API}/adapt/plan-next`, {
-            user_id: user.id,
-            last_session_id: lastSessionId,
-            next_session_id: nextSessionId
-          }, { 
-            headers: planHeaders,
-            timeout: 8000  // Short timeout - just triggering background job
-          });
+          // DEAD CODE: /api/adapt/plan-next endpoint doesn't exist
+          // Planning is handled by background job pipeline after session completion
+          // This code path should never execute if sessions are properly pre-packed
+          console.error('❌ Attempting to call non-existent /api/adapt/plan-next endpoint');
+          throw new Error('Manual planning endpoint not available - sessions must be pre-packed by background pipeline');
           
           if (planResponse.status === 202) {
             console.log('✅ Session planning triggered in background');
