@@ -183,8 +183,9 @@ def mark_session_completed(user_id: str, session_id: str) -> bool:
                     logger.info(f"ℹ️ SUMMARIZE_SESSION job already exists for session {session_id[:8]}")
                     
             except Exception as job_error:
-                logger.error(f"❌ Failed to enqueue SUMMARIZE_SESSION job for session {session_id[:8]}: {job_error}")
+                logger.error(f"❌ CRITICAL: Failed to enqueue SUMMARIZE_SESSION job for session {session_id[:8]}: {job_error}", exc_info=True)
                 # Don't fail the completion - adaptive pipeline will catch up later
+                # BUT this is a critical failure that needs investigation
             
             return True
         else:
