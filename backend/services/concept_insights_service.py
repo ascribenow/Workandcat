@@ -99,8 +99,8 @@ class ConceptInsightsService:
         # Sort neglected by days
         neglected.sort(key=lambda x: x["days_since"], reverse=True)
         
-        # Calculate average mastery
-        avg_mastery = sum(c["mastery"] for c in concepts) / len(concepts) if concepts else 0.0
+        # Calculate average mastery (convert to 0-10 scale for display)
+        avg_mastery = (sum(c["mastery"] for c in concepts) / len(concepts) * 10) if concepts else 0.0
         
         return {
             "total_concepts": len(concepts),
