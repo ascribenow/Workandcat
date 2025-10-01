@@ -530,6 +530,34 @@ class VerificationCode(Base):
     )
 
 
+class DoubtConversation(Base):
+    """Ask Twelvr conversation history table"""
+    __tablename__ = "doubt_conversations"
+    
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = Column(String(36), nullable=False, index=True)
+    question_id = Column(String(36), nullable=False, index=True)
+    role = Column(String(20), nullable=False)  # 'user' or 'assistant'
+    content = Column(Text, nullable=False)
+    timestamp = Column(DateTime, default=lambda: ist_to_utc(now_ist()))
+    
+    __table_args__ = (
+        Index('idx_doubt_conversations_user_question', 'user_id', 'question_id', 'timestamp'),
+        Index('idx_doubt_conversations_timestamp', 'timestamp'),
+    )
+
+
+class DoubtMessageCount(Base):
+    """Track message counts per user per question"""
+    __tablename__ = "doubt_message_counts"
+    
+    user_id = Column(String(36), primary_key=True)
+    question_id = Column(String(36), primary_key=True)
+    message_count = Column(Integer, default=0)
+    is_locked = Column(Boolean, default=False)
+    updated_at = Column(DateTime, default=lambda: ist_to_utc(now_ist()), onupdate=lambda: ist_to_utc(now_ist()))
+
+
 # DELETED TABLE: StudentCoverageTracking model removed as part of database cleanup
 
 
