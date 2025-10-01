@@ -7,7 +7,7 @@ import requests
 import json
 
 def test_pack_fetch_direct():
-    base_url = "https://adapt-engine.preview.emergentagent.com/api"
+    base_url = "https://adaptive-tutor-2.preview.emergentagent.com/api"
     
     # Step 1: Authenticate (with longer timeout)
     print("🔐 Step 1: Authentication")

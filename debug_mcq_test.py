@@ -7,7 +7,7 @@ from datetime import datetime
 
 # Test the MCQ answer comparison issue
 def test_mcq_debug():
-    base_url = "https://adapt-engine.preview.emergentagent.com/api"
+    base_url = "https://adaptive-tutor-2.preview.emergentagent.com/api"
     
     # Authenticate
     auth_data = {

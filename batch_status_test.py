@@ -11,7 +11,7 @@ from datetime import datetime
 
 class BatchStatusChecker:
     def __init__(self):
-        self.base_url = "https://adapt-engine.preview.emergentagent.com/api"
+        self.base_url = "https://adaptive-tutor-2.preview.emergentagent.com/api"
         self.admin_token = None
         
     def authenticate_admin(self):

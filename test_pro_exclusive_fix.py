@@ -9,7 +9,7 @@ import time
 
 def test_pro_exclusive_payment():
     """Test Pro Exclusive payment with authenticated user"""
-    base_url = "https://adapt-engine.preview.emergentagent.com/api"
+    base_url = "https://adaptive-tutor-2.preview.emergentagent.com/api"
     
     print("🔍 TESTING PRO EXCLUSIVE PAYMENT WITH AUTHENTICATED USER")
     print("=" * 60)

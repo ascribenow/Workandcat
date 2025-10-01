@@ -17,7 +17,7 @@ def fix_canonical_taxonomy():
         'password': 'admin2025'
     }
 
-    base_url = 'https://adapt-engine.preview.emergentagent.com/api'
+    base_url = 'https://adaptive-tutor-2.preview.emergentagent.com/api'
     
     print("🔐 Logging in as admin...")
     response = requests.post(f'{base_url}/auth/login', json=admin_login)

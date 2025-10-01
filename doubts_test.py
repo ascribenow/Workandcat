@@ -19,7 +19,7 @@ import uuid
 import sys
 
 class DoubtsSystemTester:
-    def __init__(self, base_url="https://adapt-engine.preview.emergentagent.com/api"):
+    def __init__(self, base_url="https://adaptive-tutor-2.preview.emergentagent.com/api"):
         self.base_url = base_url
         self.auth_headers = None
         self.user_id = None

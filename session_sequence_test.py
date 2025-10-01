@@ -11,7 +11,7 @@ import sys
 def test_session_sequence_logic():
     """Test the corrected session sequence logic"""
     
-    base_url = "https://adapt-engine.preview.emergentagent.com/api"
+    base_url = "https://adaptive-tutor-2.preview.emergentagent.com/api"
     
     print("🎯 SESSION SEQUENCE CORRECTED LOGIC TEST")
     print("=" * 60)
