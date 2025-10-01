@@ -1739,17 +1739,16 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
   const handleAskDoubt = async () => {
     if (!doubtMessage.trim() || conversationLocked) return;
 
-    // Open modal and load conversation history first
-    setShowDoubtModal(true);
-    await loadDoubtHistory();
-
-    // Then send the doubt
+    // FIXED: Send message first, then open modal with updated history
+    const userMessage = doubtMessage.trim();
+    setDoubtMessage(''); // Clear input immediately for better UX
     setDoubtLoading(true);
+    
     try {
       const response = await axios.post(`${API}/doubts/ask`, {
         question_id: currentQuestion.id,
         session_id: sessionId,
-        message: doubtMessage.trim()
+        message: userMessage
       });
 
       if (response.data.success) {
@@ -1757,16 +1756,20 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
         setMessageCount(response.data.message_count);
         setRemainingMessages(response.data.remaining_messages);
         setConversationLocked(response.data.is_locked);
-        setDoubtMessage('');
         
-        // Reload conversation history to show new message
+        // Load complete conversation history (includes new exchange)
         await loadDoubtHistory();
+        
+        // NOW open modal with updated history
+        setShowDoubtModal(true);
       } else {
         alert(response.data.error || 'Failed to send doubt');
+        setDoubtMessage(userMessage); // Restore message on error
       }
     } catch (error) {
       console.error('Error sending doubt:', error);
       alert('Failed to send your doubt. Please try again.');
+      setDoubtMessage(userMessage); // Restore message on error
     } finally {
       setDoubtLoading(false);
     }
