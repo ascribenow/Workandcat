@@ -768,26 +768,34 @@ async def complete_session(
         logger.info(f"Blueprint session {session_id[:8]} completed with {correct_answers}/{total_questions} correct ({accuracy:.1f}%)")
         
         # BACKGROUND ADAPTIVE INTELLIGENCE: Two-job pipeline (SUMMARIZE → PLAN)
+        # IDEMPOTENT: Only enqueue if session was just completed (not already completed)
         bg_jobs_enqueued = False
-        try:
-            from services.bg_job_queue import job_queue
-            
-            # Single job: SUMMARIZE_SESSION (which will enqueue PLAN_NEXT_SESSION)
-            # Pass correlation_id for end-to-end tracing
-            summarization_job_id = await job_queue.enqueue_job(
-                job_type="SUMMARIZE_SESSION",
-                user_id=auth_user_id,
-                session_id=session_id,
-                correlation_id=correlation_id
-            )
-            
-            bg_jobs_enqueued = True
-            logger.info(f"🚀 Enqueued SUMMARIZE_SESSION job {summarization_job_id[:8]} for session {session_id[:8]}")
-            
-        except Exception as bg_error:
-            # NO SYNCHRONOUS FALLBACK - trust the async pipeline
-            logger.error(f"❌ Failed to enqueue background jobs for session {session_id[:8]}: {bg_error}")
-            # Still return 200 - next session planning will use last-known signals
+        
+        if existing_session and existing_session[0] == 'completed':
+            # Session was already completed - check if jobs were already enqueued
+            logger.info(f"Session {session_id[:8]} already completed, skipping job enqueue (idempotent)")
+            bg_jobs_enqueued = True  # Assume jobs were enqueued on first completion
+        else:
+            # First completion - enqueue background jobs
+            try:
+                from services.bg_job_queue import job_queue
+                
+                # Single job: SUMMARIZE_SESSION (which will enqueue PLAN_NEXT_SESSION)
+                # Pass correlation_id for end-to-end tracing
+                summarization_job_id = await job_queue.enqueue_job(
+                    job_type="SUMMARIZE_SESSION",
+                    user_id=auth_user_id,
+                    session_id=session_id,
+                    correlation_id=correlation_id
+                )
+                
+                bg_jobs_enqueued = True
+                logger.info(f"🚀 Enqueued SUMMARIZE_SESSION job {summarization_job_id[:8]} for session {session_id[:8]}")
+                
+            except Exception as bg_error:
+                # NO SYNCHRONOUS FALLBACK - trust the async pipeline
+                logger.error(f"❌ Failed to enqueue background jobs for session {session_id[:8]}: {bg_error}")
+                # Still return 200 - next session planning will use last-known signals
         
         # Generate session summary (enhanced with adaptive processing indicator)
         session_summary = {
