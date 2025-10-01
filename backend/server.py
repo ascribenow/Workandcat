@@ -2112,15 +2112,15 @@ async def get_current_session_status(user_id: str = Depends(get_current_user)):
 
 @app.get("/api/dashboard/adaptive-insights")
 async def get_dashboard_adaptive_insights(user_id: str = Depends(get_current_user)):
-    """Get adaptive insights for dashboard - CONCEPT-LEVEL INSIGHTS"""
+    """Get adaptive insights for dashboard - LLM-POWERED CONCEPT-LEVEL INSIGHTS"""
     try:
-        # Use new concept-level insights service
-        from services.concept_insights_service import concept_insights_service
+        # Use legacy insight generator with updated concept-level logic
+        from services.insight_generator_service import insight_generator_service
         
-        logger.info(f"📊 Generating concept-level insights for user {user_id[:8]}")
-        insights = concept_insights_service.get_concept_insights(user_id)
+        logger.info(f"📊 Generating LLM-powered concept insights for user {user_id[:8]}")
+        insights = insight_generator_service.generate_concept_level_insights(user_id)
         
-        logger.info(f"✅ Concept insights generated: {insights.get('total_concepts', 0)} concepts analyzed")
+        logger.info(f"✅ LLM insights generated: {insights.get('source', 'unknown')}")
         
         return insights
     except Exception as e:
