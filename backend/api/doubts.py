@@ -161,10 +161,6 @@ class DoubtResponse(BaseModel):
     response: Optional[str] = None
     error: Optional[str] = None
 
-# In-memory storage for MVP (replace with database in production)
-doubt_conversations = {}  # {f"{user_id}:{question_id}": [messages...]}
-doubt_message_counts = {}  # {f"{user_id}:{question_id}": count}
-
 MAX_MESSAGES_PER_QUESTION = 10
 
 @router.post("/ask")
