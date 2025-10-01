@@ -791,6 +791,8 @@ async def complete_session(
         return JSONResponse({
             "success": True,
             "session_completed": True,
+            "correlation_id": correlation_id,
+            "background_jobs_enqueued": bg_jobs_enqueued,
             "summary": session_summary
         }, status_code=200)
         
