@@ -138,20 +138,20 @@ class ConceptInsightsService:
             
             distribution += f"Your average mastery score is **{avg_mastery}/10**."
         
-        # Highlight strongest concepts
+        # Highlight strongest concepts (convert to 0-10 scale)
         strengths_text = ""
         if analysis["strong_concepts"]:
             strong_list = ", ".join([
-                f"**{c['concept']}** ({c['mastery']}/10)"
+                f"**{c['concept']}** ({round(c['mastery'] * 10, 1)}/10)"
                 for c in analysis["strong_concepts"][:3]
             ])
             strengths_text = f"\n\n🎯 **Your Strongest Concepts:** {strong_list}"
         
-        # Highlight weakest concepts
+        # Highlight weakest concepts (convert to 0-10 scale)
         weaknesses_text = ""
         if analysis["weak_concepts"]:
             weak_list = ", ".join([
-                f"**{c['concept']}** ({c['mastery']}/10)"
+                f"**{c['concept']}** ({round(c['mastery'] * 10, 1)}/10)"
                 for c in analysis["weak_concepts"][:3]
             ])
             weaknesses_text = f"\n\n⚠️ **Concepts Needing Attention:** {weak_list}"
