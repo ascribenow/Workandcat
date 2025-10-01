@@ -129,12 +129,12 @@ class ConceptInsightsService:
             distribution = f"You've practiced **{total} concepts** so far. "
             
             if strong_count > 0:
-                distribution += f"**{strong_count} concepts** are strong (mastery ≥ 7.0), "
+                distribution += f"**{strong_count} concepts** are strong (mastery ≥ 7), "
             
             distribution += f"**{analysis['moderate_count']} concepts** are moderate, "
             
             if weak_count > 0:
-                distribution += f"and **{weak_count} concepts** need attention (mastery ≤ 3.0). "
+                distribution += f"and **{weak_count} concepts** need attention (mastery ≤ 3). "
             
             distribution += f"Your average mastery score is **{avg_mastery}/10**."
         
