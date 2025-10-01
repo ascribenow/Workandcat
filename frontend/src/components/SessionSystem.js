@@ -1790,6 +1790,12 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
     }
   };
 
+  const openDoubtModal = async () => {
+    // Load history and open modal to view conversation
+    await loadDoubtHistory();
+    setShowDoubtModal(true);
+  };
+
   const closeDoubtModal = () => {
     setShowDoubtModal(false);
   };
