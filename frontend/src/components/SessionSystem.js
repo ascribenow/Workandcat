@@ -2273,27 +2273,46 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
                             )
                           )}
                         </div>
-                        <button
-                          onClick={() => handleAskDoubt()}
-                          disabled={!doubtMessage.trim() || doubtLoading || conversationLocked}
-                          className="px-4 py-2 text-white rounded-md focus:outline-none focus:ring-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                          style={{ 
-                            backgroundColor: '#9ac026',
-                            fontFamily: 'Lato, sans-serif'
-                          }}
-                          onMouseOver={(e) => {
-                            if (!e.target.disabled) {
-                              e.target.style.backgroundColor = '#8bb024';
-                            }
-                          }}
-                          onMouseOut={(e) => {
-                            if (!e.target.disabled) {
-                              e.target.style.backgroundColor = '#9ac026';
-                            }
-                          }}
-                        >
-                          {doubtLoading ? "Asking..." : "🤔 Ask Twelvr"}
-                        </button>
+                        <div className="flex space-x-2">
+                          {messageCount > 0 && (
+                            <button
+                              onClick={openDoubtModal}
+                              className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md focus:outline-none focus:ring-2 transition-colors"
+                              style={{ 
+                                fontFamily: 'Lato, sans-serif'
+                              }}
+                              onMouseOver={(e) => {
+                                e.target.style.backgroundColor = '#f3f4f6';
+                              }}
+                              onMouseOut={(e) => {
+                                e.target.style.backgroundColor = 'transparent';
+                              }}
+                            >
+                              📖 View Conversation
+                            </button>
+                          )}
+                          <button
+                            onClick={() => handleAskDoubt()}
+                            disabled={!doubtMessage.trim() || doubtLoading || conversationLocked}
+                            className="px-4 py-2 text-white rounded-md focus:outline-none focus:ring-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                            style={{ 
+                              backgroundColor: '#9ac026',
+                              fontFamily: 'Lato, sans-serif'
+                            }}
+                            onMouseOver={(e) => {
+                              if (!e.target.disabled) {
+                                e.target.style.backgroundColor = '#8bb024';
+                              }
+                            }}
+                            onMouseOut={(e) => {
+                              if (!e.target.disabled) {
+                                e.target.style.backgroundColor = '#9ac026';
+                              }
+                            }}
+                          >
+                            {doubtLoading ? "Asking..." : "🤔 Ask Twelvr"}
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
