@@ -12,7 +12,7 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session as SQLSession
 from sqlalchemy import select, func, and_, desc, text
 
-from database import SessionLocal, Question
+from database import SessionLocal, Question, DoubtConversation, DoubtMessageCount
 import google.generativeai as genai
 
 # Authentication helpers (import from main server)
