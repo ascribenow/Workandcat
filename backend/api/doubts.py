@@ -418,35 +418,65 @@ async def admin_get_all_conversations(
     admin_user_id: str = Depends(get_current_user)  # Add proper admin check if needed
 ):
     """Admin endpoint to view all doubt conversations"""
+    db = SessionLocal()
     try:
         # Get conversation statistics
-        total_conversations = len(doubt_conversations)
-        total_messages = sum(len(messages) for messages in doubt_conversations.values())
+        total_messages = db.execute(select(func.count(DoubtConversation.id))).scalar()
+        
+        # Get unique conversation counts
+        total_conversations = db.execute(
+            select(func.count(DoubtMessageCount.user_id))
+        ).scalar()
         
         # Get active conversations (not locked)
-        active_conversations = sum(
-            1 for key in doubt_message_counts 
-            if doubt_message_counts[key] < MAX_MESSAGES_PER_QUESTION
-        )
+        active_conversations = db.execute(
+            select(func.count(DoubtMessageCount.user_id)).where(
+                DoubtMessageCount.is_locked == False
+            )
+        ).scalar()
+        
+        # Get recent conversations
+        recent_counts = db.execute(
+            select(DoubtMessageCount)
+            .order_by(desc(DoubtMessageCount.updated_at))
+            .limit(10)
+        ).scalars().all()
+        
+        recent_list = []
+        for count in recent_counts:
+            # Get last message for this conversation
+            last_msg = db.execute(
+                select(DoubtConversation).where(
+                    and_(
+                        DoubtConversation.user_id == count.user_id,
+                        DoubtConversation.question_id == count.question_id
+                    )
+                ).order_by(desc(DoubtConversation.timestamp)).limit(1)
+            ).scalar_one_or_none()
+            
+            recent_list.append({
+                "key": f"{count.user_id}:{count.question_id}",
+                "message_count": count.message_count,
+                "last_message": {
+                    "role": last_msg.role,
+                    "content": last_msg.content[:100] + "..." if len(last_msg.content) > 100 else last_msg.content,
+                    "timestamp": last_msg.timestamp.isoformat() if last_msg.timestamp else None
+                } if last_msg else None
+            })
         
         return {
             "success": True,
             "statistics": {
-                "total_conversations": total_conversations,
-                "total_messages": total_messages,
-                "active_conversations": active_conversations,
-                "locked_conversations": total_conversations - active_conversations
+                "total_conversations": total_conversations or 0,
+                "total_messages": total_messages or 0,
+                "active_conversations": active_conversations or 0,
+                "locked_conversations": (total_conversations or 0) - (active_conversations or 0)
             },
-            "recent_conversations": [
-                {
-                    "key": key,
-                    "message_count": doubt_message_counts.get(key, 0),
-                    "last_message": messages[-1] if messages else None
-                }
-                for key, messages in list(doubt_conversations.items())[-10:]
-            ]
+            "recent_conversations": recent_list
         }
         
     except Exception as e:
         logger.error(f"❌ Error getting admin conversations: {e}")
         raise HTTPException(status_code=500, detail="Failed to get conversations")
+    finally:
+        db.close()
