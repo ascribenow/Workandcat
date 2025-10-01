@@ -652,27 +652,9 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
   // PRE-WARMING: Trigger next session preparation in background
   const triggerNextSessionPreWarming = async () => {
     try {
-      const nextSessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      
-      // Fire-and-forget request to pre-warm next session
-      axios.post(`${API}/adapt/plan-next`, {
-        user_id: user.id,
-        last_session_id: sessionId,
-        next_session_id: nextSessionId
-      }, { 
-        headers: { 
-          Authorization: `Bearer ${localStorage.getItem('cat_prep_token')}`,
-          'Content-Type': 'application/json',
-          'Idempotency-Key': `prewarm_${Date.now()}`
-        },
-        timeout: 8000
-      }).then(response => {
-        if (response.status === 202) {
-          console.log('🔄 Next session pre-warming triggered successfully');
-        }
-      }).catch(err => {
-        console.log('⚠️ Pre-warming trigger failed (non-critical):', err.message);
-      });
+      // REMOVED: Pre-warming call to non-existent /api/adapt/plan-next endpoint
+      // Planning is handled automatically by background job pipeline after session completion
+      console.log('✅ Next session planning handled by background pipeline (PLAN_NEXT_SESSION job)');
       
     } catch (error) {
       console.log('⚠️ Pre-warming setup failed (non-critical):', error.message);
