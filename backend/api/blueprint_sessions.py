@@ -720,31 +720,45 @@ async def complete_session(
             accuracy = (correct_answers / total_questions) * 100 if total_questions > 0 else 0
             
             # FINAL RECONCILIATION: Update session with complete stats and completion status
-            # Generate correlation ID for end-to-end tracing
-            correlation_id = str(uuid.uuid4())
-            completed_at = datetime.now(timezone.utc)
-            
-            db.execute(text("""
-                UPDATE sessions 
-                SET status = 'completed',
-                    completed_at = :completed_at,
-                    questions_answered = :questions_answered,
-                    questions_correct = :questions_correct,
-                    questions_skipped = :questions_skipped,
-                    current_position = :current_position,
-                    correlation_id = :correlation_id
+            # IDEMPOTENT: Check if session is already completed
+            check_result = db.execute(text("""
+                SELECT status, correlation_id, completed_at
+                FROM sessions
                 WHERE session_id = :session_id
-            """), {
-                "completed_at": completed_at,
-                "questions_answered": total_questions,
-                "questions_correct": correct_answers,
-                "questions_skipped": 0,  # Blueprint sessions don't allow skipping
-                "current_position": total_questions,  # Completed = at final position
-                "correlation_id": correlation_id,
-                "session_id": session_id
-            })
+            """), {"session_id": session_id})
             
-            logger.info(f"Final reconciliation: Session {session_id[:8]} completed with {correct_answers}/{total_questions} correct")
+            existing_session = check_result.fetchone()
+            
+            if existing_session and existing_session[0] == 'completed':
+                # Session already completed - return existing data (idempotent)
+                correlation_id = existing_session[1]
+                logger.info(f"Session {session_id[:8]} already completed, returning existing data (idempotent)")
+            else:
+                # First completion - generate new correlation ID and update
+                correlation_id = str(uuid.uuid4())
+                completed_at = datetime.now(timezone.utc)
+                
+                db.execute(text("""
+                    UPDATE sessions 
+                    SET status = 'completed',
+                        completed_at = :completed_at,
+                        questions_answered = :questions_answered,
+                        questions_correct = :questions_correct,
+                        questions_skipped = :questions_skipped,
+                        current_position = :current_position,
+                        correlation_id = :correlation_id
+                    WHERE session_id = :session_id
+                """), {
+                    "completed_at": completed_at,
+                    "questions_answered": total_questions,
+                    "questions_correct": correct_answers,
+                    "questions_skipped": 0,  # Blueprint sessions don't allow skipping
+                    "current_position": total_questions,  # Completed = at final position
+                    "correlation_id": correlation_id,
+                    "session_id": session_id
+                })
+                
+                logger.info(f"Final reconciliation: Session {session_id[:8]} completed with {correct_answers}/{total_questions} correct")
             
             db.commit()
             
