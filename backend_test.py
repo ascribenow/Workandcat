@@ -1156,6 +1156,564 @@ class CATBackendTester:
         
         return success_rate >= 85 and complete_signup_working and ist_timezone_validated
 
+    def test_enhanced_ask_twelvr_context_passing(self):
+        """
+        🎯 ENHANCED ASK TWELVR CONTEXT PASSING TESTING
+        
+        OBJECTIVE: Test the "Ask Twelvr" doubts system with enhanced context passing to verify
+        that ALL solution fields are included in the context passed to the LLM.
+        
+        TESTING REQUIREMENTS FROM REVIEW REQUEST:
+        1. AUTHENTICATION: Login with sp@theskinmantra.com/student123
+        2. GET SAMPLE QUESTION: Get any question from database to test with (need question_id)
+           - Verify question has solution fields populated (snap_read, solution_approach, detailed_solution, principle_to_remember)
+        3. TEST ENHANCED CONTEXT - ASK ABOUT SPECIFIC SOLUTION PARTS:
+           - Test Case 1: Ask about "Snap Read" - verify response references snap_read content
+           - Test Case 2: Ask about "Approach" - verify response references solution_approach content  
+           - Test Case 3: Ask about "Principle to Remember" - verify response references principle_to_remember content
+        4. VERIFY CONVERSATION HISTORY: Check all messages are stored and message counting works
+        
+        SUCCESS CRITERIA:
+        - All API calls return 200 OK
+        - AI responses are contextually relevant and reference specific solution parts
+        - Response should NOT say "I don't have that information" for snap read, approach, or principle
+        - Conversation history properly maintained
+        - Message counting works correctly
+        
+        AUTHENTICATION: sp@theskinmantra.com/student123
+        """
+        print("🎯 ENHANCED ASK TWELVR CONTEXT PASSING TESTING")
+        print("=" * 80)
+        print("OBJECTIVE: Test Ask Twelvr doubts system with enhanced context passing")
+        print("FOCUS: LLM context includes ALL solution fields, contextual responses to specific parts")
+        print("EXPECTED: AI understands and references snap_read, solution_approach, principle_to_remember")
+        print("=" * 80)
+        
+        test_results = {
+            # Authentication Setup
+            "authentication_working": False,
+            "user_adaptive_enabled": False,
+            "jwt_token_valid": False,
+            
+            # Sample Question Retrieval
+            "sample_question_retrieved": False,
+            "question_has_snap_read": False,
+            "question_has_solution_approach": False,
+            "question_has_detailed_solution": False,
+            "question_has_principle_to_remember": False,
+            "question_solution_fields_complete": False,
+            
+            # Test Case 1: Ask about Snap Read
+            "snap_read_question_api_success": False,
+            "snap_read_response_contextual": False,
+            "snap_read_content_referenced": False,
+            "snap_read_no_missing_info_error": False,
+            
+            # Test Case 2: Ask about Approach
+            "approach_question_api_success": False,
+            "approach_response_contextual": False,
+            "approach_content_referenced": False,
+            "approach_no_missing_info_error": False,
+            
+            # Test Case 3: Ask about Principle to Remember
+            "principle_question_api_success": False,
+            "principle_response_contextual": False,
+            "principle_content_referenced": False,
+            "principle_no_missing_info_error": False,
+            
+            # Conversation History Verification
+            "conversation_history_api_working": False,
+            "all_messages_stored": False,
+            "message_counting_correct": False,
+            "conversation_persistence_working": False,
+            
+            # Overall Assessment
+            "enhanced_context_working": False,
+            "solution_parts_accessible": False,
+            "conversation_system_functional": False,
+            "production_ready": False
+        }
+        
+        # PHASE 1: AUTHENTICATION
+        print("\n🔐 PHASE 1: AUTHENTICATION")
+        print("-" * 60)
+        print("Authenticating with sp@theskinmantra.com/student123")
+        
+        auth_data = {
+            "email": "sp@theskinmantra.com",
+            "password": "student123"
+        }
+        
+        success, response = self.run_test("Enhanced Context Authentication", "POST", "auth/login", [200, 401], auth_data)
+        
+        auth_headers = None
+        user_id = None
+        if success and response.get('access_token'):
+            token = response['access_token']
+            auth_headers = {
+                'Authorization': f'Bearer {token}',
+                'Content-Type': 'application/json'
+            }
+            test_results["authentication_working"] = True
+            test_results["jwt_token_valid"] = True
+            print(f"   ✅ Authentication successful")
+            print(f"   📊 JWT Token length: {len(token)} characters")
+            
+            user_data = response.get('user', {})
+            user_id = user_data.get('id')
+            adaptive_enabled = user_data.get('adaptive_enabled', False)
+            
+            if adaptive_enabled:
+                test_results["user_adaptive_enabled"] = True
+                print(f"   ✅ User adaptive_enabled confirmed: {adaptive_enabled}")
+                print(f"   📊 User ID: {user_id}")
+            else:
+                print(f"   ⚠️ User adaptive_enabled: {adaptive_enabled}")
+        else:
+            print("   ❌ Authentication failed - cannot proceed with Ask Twelvr testing")
+            return False
+        
+        # PHASE 2: GET SAMPLE QUESTION
+        print("\n📋 PHASE 2: GET SAMPLE QUESTION")
+        print("-" * 60)
+        print("Retrieving sample question with solution fields for testing")
+        
+        sample_question = None
+        question_id = None
+        
+        if auth_headers:
+            # Get questions from the API
+            success, questions_response = self.run_test(
+                "Get Sample Questions", 
+                "GET", 
+                "questions?limit=10", 
+                [200, 404], 
+                None, 
+                auth_headers
+            )
+            
+            if success and questions_response:
+                questions = questions_response if isinstance(questions_response, list) else []
+                
+                # Find a question with complete solution fields
+                for question in questions:
+                    if (question.get('snap_read') and 
+                        question.get('solution_approach') and 
+                        question.get('detailed_solution') and 
+                        question.get('principle_to_remember')):
+                        sample_question = question
+                        question_id = question.get('id')
+                        break
+                
+                if sample_question:
+                    test_results["sample_question_retrieved"] = True
+                    print(f"   ✅ Sample question retrieved: {question_id}")
+                    
+                    # Verify solution fields
+                    snap_read = sample_question.get('snap_read', '')
+                    solution_approach = sample_question.get('solution_approach', '')
+                    detailed_solution = sample_question.get('detailed_solution', '')
+                    principle_to_remember = sample_question.get('principle_to_remember', '')
+                    
+                    if snap_read:
+                        test_results["question_has_snap_read"] = True
+                        print(f"   ✅ Question has snap_read: {len(snap_read)} characters")
+                    
+                    if solution_approach:
+                        test_results["question_has_solution_approach"] = True
+                        print(f"   ✅ Question has solution_approach: {len(solution_approach)} characters")
+                    
+                    if detailed_solution:
+                        test_results["question_has_detailed_solution"] = True
+                        print(f"   ✅ Question has detailed_solution: {len(detailed_solution)} characters")
+                    
+                    if principle_to_remember:
+                        test_results["question_has_principle_to_remember"] = True
+                        print(f"   ✅ Question has principle_to_remember: {len(principle_to_remember)} characters")
+                    
+                    if all([snap_read, solution_approach, detailed_solution, principle_to_remember]):
+                        test_results["question_solution_fields_complete"] = True
+                        print(f"   ✅ Question has complete solution fields")
+                        
+                        # Display question details
+                        print(f"   📊 Question stem: {sample_question.get('stem', '')[:100]}...")
+                        print(f"   📊 Category: {sample_question.get('category', 'Unknown')}")
+                        print(f"   📊 Right answer: {sample_question.get('right_answer', 'Unknown')}")
+                    else:
+                        print(f"   ⚠️ Question missing some solution fields")
+                else:
+                    print(f"   ❌ No question found with complete solution fields")
+                    # Use first available question anyway
+                    if questions:
+                        sample_question = questions[0]
+                        question_id = sample_question.get('id')
+                        test_results["sample_question_retrieved"] = True
+                        print(f"   ⚠️ Using question with partial solution fields: {question_id}")
+            else:
+                print(f"   ❌ Failed to retrieve sample questions: {questions_response}")
+        
+        if not question_id:
+            print("   ❌ Cannot proceed without a sample question")
+            return False
+        
+        # Generate unique session ID for testing
+        session_id = f"test_session_{uuid.uuid4().hex[:8]}"
+        print(f"   📊 Using session ID: {session_id}")
+        
+        # PHASE 3: TEST ENHANCED CONTEXT - ASK ABOUT SPECIFIC SOLUTION PARTS
+        print("\n🧠 PHASE 3: TEST ENHANCED CONTEXT - ASK ABOUT SPECIFIC SOLUTION PARTS")
+        print("-" * 60)
+        print("Testing AI responses to questions about specific solution components")
+        
+        # Test Case 1: Ask about "Snap Read"
+        print("\n   📖 TEST CASE 1: Ask about 'Snap Read'")
+        snap_read_data = {
+            "question_id": question_id,
+            "session_id": session_id,
+            "message": "Can you explain the snap read part?"
+        }
+        
+        success, snap_read_response = self.run_test(
+            "Ask about Snap Read", 
+            "POST", 
+            "doubts/ask", 
+            [200, 400, 500], 
+            snap_read_data, 
+            auth_headers
+        )
+        
+        if success and snap_read_response.get('success'):
+            test_results["snap_read_question_api_success"] = True
+            print(f"      ✅ Snap read question API successful")
+            
+            ai_response = snap_read_response.get('response', '')
+            if ai_response:
+                print(f"      📊 AI response length: {len(ai_response)} characters")
+                
+                # Check if response is contextual and references snap read content
+                response_lower = ai_response.lower()
+                contextual_indicators = ['snap read', 'quick insight', 'brief', 'summary', 'key point']
+                missing_info_indicators = ["don't have that information", "not available", "cannot find", "no information"]
+                
+                if any(indicator in response_lower for indicator in contextual_indicators):
+                    test_results["snap_read_response_contextual"] = True
+                    print(f"      ✅ Response appears contextual to snap read")
+                
+                if sample_question and sample_question.get('snap_read'):
+                    # Check if response references actual snap read content
+                    snap_read_content = sample_question['snap_read'].lower()
+                    if any(word in response_lower for word in snap_read_content.split()[:5]):
+                        test_results["snap_read_content_referenced"] = True
+                        print(f"      ✅ Response references snap read content")
+                
+                if not any(indicator in response_lower for indicator in missing_info_indicators):
+                    test_results["snap_read_no_missing_info_error"] = True
+                    print(f"      ✅ No 'missing information' error in response")
+                else:
+                    print(f"      ❌ Response indicates missing information")
+                
+                print(f"      📝 Response preview: {ai_response[:200]}...")
+            else:
+                print(f"      ❌ No AI response received")
+        else:
+            print(f"      ❌ Snap read question failed: {snap_read_response}")
+        
+        # Test Case 2: Ask about "Approach"
+        print("\n   🎯 TEST CASE 2: Ask about 'Approach'")
+        approach_data = {
+            "question_id": question_id,
+            "session_id": session_id,
+            "message": "What is the approach for solving this?"
+        }
+        
+        success, approach_response = self.run_test(
+            "Ask about Approach", 
+            "POST", 
+            "doubts/ask", 
+            [200, 400, 500], 
+            approach_data, 
+            auth_headers
+        )
+        
+        if success and approach_response.get('success'):
+            test_results["approach_question_api_success"] = True
+            print(f"      ✅ Approach question API successful")
+            
+            ai_response = approach_response.get('response', '')
+            if ai_response:
+                print(f"      📊 AI response length: {len(ai_response)} characters")
+                
+                # Check if response is contextual and references approach content
+                response_lower = ai_response.lower()
+                contextual_indicators = ['approach', 'method', 'strategy', 'way to solve', 'technique']
+                missing_info_indicators = ["don't have that information", "not available", "cannot find", "no information"]
+                
+                if any(indicator in response_lower for indicator in contextual_indicators):
+                    test_results["approach_response_contextual"] = True
+                    print(f"      ✅ Response appears contextual to approach")
+                
+                if sample_question and sample_question.get('solution_approach'):
+                    # Check if response references actual approach content
+                    approach_content = sample_question['solution_approach'].lower()
+                    if any(word in response_lower for word in approach_content.split()[:5]):
+                        test_results["approach_content_referenced"] = True
+                        print(f"      ✅ Response references solution approach content")
+                
+                if not any(indicator in response_lower for indicator in missing_info_indicators):
+                    test_results["approach_no_missing_info_error"] = True
+                    print(f"      ✅ No 'missing information' error in response")
+                else:
+                    print(f"      ❌ Response indicates missing information")
+                
+                print(f"      📝 Response preview: {ai_response[:200]}...")
+            else:
+                print(f"      ❌ No AI response received")
+        else:
+            print(f"      ❌ Approach question failed: {approach_response}")
+        
+        # Test Case 3: Ask about "Principle to Remember"
+        print("\n   💡 TEST CASE 3: Ask about 'Principle to Remember'")
+        principle_data = {
+            "question_id": question_id,
+            "session_id": session_id,
+            "message": "What is the key principle I should remember?"
+        }
+        
+        success, principle_response = self.run_test(
+            "Ask about Principle", 
+            "POST", 
+            "doubts/ask", 
+            [200, 400, 500], 
+            principle_data, 
+            auth_headers
+        )
+        
+        if success and principle_response.get('success'):
+            test_results["principle_question_api_success"] = True
+            print(f"      ✅ Principle question API successful")
+            
+            ai_response = principle_response.get('response', '')
+            if ai_response:
+                print(f"      📊 AI response length: {len(ai_response)} characters")
+                
+                # Check if response is contextual and references principle content
+                response_lower = ai_response.lower()
+                contextual_indicators = ['principle', 'key takeaway', 'remember', 'important', 'concept']
+                missing_info_indicators = ["don't have that information", "not available", "cannot find", "no information"]
+                
+                if any(indicator in response_lower for indicator in contextual_indicators):
+                    test_results["principle_response_contextual"] = True
+                    print(f"      ✅ Response appears contextual to principle")
+                
+                if sample_question and sample_question.get('principle_to_remember'):
+                    # Check if response references actual principle content
+                    principle_content = sample_question['principle_to_remember'].lower()
+                    if any(word in response_lower for word in principle_content.split()[:5]):
+                        test_results["principle_content_referenced"] = True
+                        print(f"      ✅ Response references principle to remember content")
+                
+                if not any(indicator in response_lower for indicator in missing_info_indicators):
+                    test_results["principle_no_missing_info_error"] = True
+                    print(f"      ✅ No 'missing information' error in response")
+                else:
+                    print(f"      ❌ Response indicates missing information")
+                
+                print(f"      📝 Response preview: {ai_response[:200]}...")
+            else:
+                print(f"      ❌ No AI response received")
+        else:
+            print(f"      ❌ Principle question failed: {principle_response}")
+        
+        # PHASE 4: VERIFY CONVERSATION HISTORY
+        print("\n📚 PHASE 4: VERIFY CONVERSATION HISTORY")
+        print("-" * 60)
+        print("Testing conversation history and message counting")
+        
+        success, history_response = self.run_test(
+            "Get Conversation History", 
+            "GET", 
+            f"doubts/{question_id}/history", 
+            [200, 404], 
+            None, 
+            auth_headers
+        )
+        
+        if success and history_response.get('success'):
+            test_results["conversation_history_api_working"] = True
+            print(f"   ✅ Conversation history API working")
+            
+            messages = history_response.get('messages', [])
+            message_count = history_response.get('message_count', 0)
+            remaining_messages = history_response.get('remaining_messages', 0)
+            
+            print(f"   📊 Total messages in history: {len(messages)}")
+            print(f"   📊 Message count: {message_count}")
+            print(f"   📊 Remaining messages: {remaining_messages}")
+            
+            # We sent 3 questions, so should have 6 messages total (3 user + 3 AI)
+            expected_messages = 6
+            if len(messages) == expected_messages:
+                test_results["all_messages_stored"] = True
+                print(f"   ✅ All messages stored correctly ({expected_messages} messages)")
+            else:
+                print(f"   ⚠️ Message count mismatch: expected {expected_messages}, got {len(messages)}")
+            
+            # Check message counting (should be 3 user messages)
+            if message_count == 3:
+                test_results["message_counting_correct"] = True
+                print(f"   ✅ Message counting correct (3/10 messages used)")
+            else:
+                print(f"   ⚠️ Message counting incorrect: expected 3, got {message_count}")
+            
+            # Check conversation persistence
+            if messages and len(messages) > 0:
+                test_results["conversation_persistence_working"] = True
+                print(f"   ✅ Conversation persistence working")
+                
+                # Display sample messages
+                for i, msg in enumerate(messages[:4]):  # Show first 4 messages
+                    role = msg.get('role', 'unknown')
+                    content = msg.get('content', '')[:100]
+                    print(f"      Message {i+1} ({role}): {content}...")
+            else:
+                print(f"   ❌ No messages found in conversation history")
+        else:
+            print(f"   ❌ Conversation history failed: {history_response}")
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 80)
+        print("🎯 ENHANCED ASK TWELVR CONTEXT PASSING TESTING - RESULTS")
+        print("=" * 80)
+        
+        passed_tests = sum(test_results.values())
+        total_tests = len(test_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        # Group results by test categories
+        test_categories = {
+            "AUTHENTICATION": [
+                "authentication_working", "user_adaptive_enabled", "jwt_token_valid"
+            ],
+            "SAMPLE QUESTION RETRIEVAL": [
+                "sample_question_retrieved", "question_has_snap_read", "question_has_solution_approach",
+                "question_has_detailed_solution", "question_has_principle_to_remember", "question_solution_fields_complete"
+            ],
+            "SNAP READ CONTEXT TEST": [
+                "snap_read_question_api_success", "snap_read_response_contextual",
+                "snap_read_content_referenced", "snap_read_no_missing_info_error"
+            ],
+            "APPROACH CONTEXT TEST": [
+                "approach_question_api_success", "approach_response_contextual",
+                "approach_content_referenced", "approach_no_missing_info_error"
+            ],
+            "PRINCIPLE CONTEXT TEST": [
+                "principle_question_api_success", "principle_response_contextual",
+                "principle_content_referenced", "principle_no_missing_info_error"
+            ],
+            "CONVERSATION HISTORY": [
+                "conversation_history_api_working", "all_messages_stored",
+                "message_counting_correct", "conversation_persistence_working"
+            ]
+        }
+        
+        for category, tests in test_categories.items():
+            print(f"\n{category}:")
+            category_passed = 0
+            category_total = len(tests)
+            
+            for test in tests:
+                if test in test_results:
+                    result = test_results[test]
+                    status = "✅ PASS" if result else "❌ FAIL"
+                    print(f"  {test.replace('_', ' ').title():<50} {status}")
+                    if result:
+                        category_passed += 1
+            
+            category_rate = (category_passed / category_total) * 100 if category_total > 0 else 0
+            print(f"  Category Success Rate: {category_passed}/{category_total} ({category_rate:.1f}%)")
+        
+        print("-" * 80)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # CRITICAL ASSESSMENT
+        print("\n🎯 CRITICAL ASSESSMENT:")
+        
+        # Enhanced Context Assessment
+        enhanced_context_working = (
+            test_results["snap_read_question_api_success"] and
+            test_results["approach_question_api_success"] and
+            test_results["principle_question_api_success"] and
+            test_results["snap_read_no_missing_info_error"] and
+            test_results["approach_no_missing_info_error"] and
+            test_results["principle_no_missing_info_error"]
+        )
+        
+        if enhanced_context_working:
+            test_results["enhanced_context_working"] = True
+            print("\n✅ ENHANCED CONTEXT PASSING: WORKING")
+            print("   - All API calls successful (200 OK)")
+            print("   - AI responses generated for all solution parts")
+            print("   - No 'missing information' errors detected")
+            print("   - LLM has access to complete solution context")
+        else:
+            print("\n❌ ENHANCED CONTEXT PASSING: ISSUES DETECTED")
+            print("   - Some API calls failed or responses indicate missing context")
+        
+        # Solution Parts Accessibility Assessment
+        solution_parts_accessible = (
+            test_results["snap_read_response_contextual"] and
+            test_results["approach_response_contextual"] and
+            test_results["principle_response_contextual"]
+        )
+        
+        if solution_parts_accessible:
+            test_results["solution_parts_accessible"] = True
+            print("\n✅ SOLUTION PARTS ACCESSIBILITY: WORKING")
+            print("   - AI understands 'snap read' references")
+            print("   - AI understands 'approach' references")
+            print("   - AI understands 'principle to remember' references")
+            print("   - Contextual responses generated for specific solution parts")
+        else:
+            print("\n❌ SOLUTION PARTS ACCESSIBILITY: ISSUES DETECTED")
+            print("   - AI may not be accessing or understanding specific solution parts")
+        
+        # Conversation System Assessment
+        conversation_system_functional = (
+            test_results["conversation_history_api_working"] and
+            test_results["message_counting_correct"] and
+            test_results["conversation_persistence_working"]
+        )
+        
+        if conversation_system_functional:
+            test_results["conversation_system_functional"] = True
+            print("\n✅ CONVERSATION SYSTEM: FUNCTIONAL")
+            print("   - Conversation history properly maintained")
+            print("   - Message counting works correctly (3/10)")
+            print("   - All messages stored and retrievable")
+        else:
+            print("\n❌ CONVERSATION SYSTEM: ISSUES DETECTED")
+            print("   - Conversation history or message counting problems")
+        
+        # Overall Production Readiness
+        if (enhanced_context_working and solution_parts_accessible and conversation_system_functional):
+            test_results["production_ready"] = True
+            print("\n🎉 PRODUCTION READINESS: READY")
+            print("   - Enhanced context passing working correctly")
+            print("   - AI can access and reference all solution fields")
+            print("   - Conversation system fully functional")
+            print("   - Users can ask about specific solution parts successfully")
+        else:
+            print("\n⚠️ PRODUCTION READINESS: NEEDS ATTENTION")
+            print("   - Critical context passing or conversation issues detected")
+        
+        print(f"\n📊 FINAL ASSESSMENT:")
+        print(f"   Enhanced Context Passing: {'✅ WORKING' if enhanced_context_working else '❌ ISSUES'}")
+        print(f"   Solution Parts Accessible: {'✅ WORKING' if solution_parts_accessible else '❌ ISSUES'}")
+        print(f"   Conversation System: {'✅ FUNCTIONAL' if conversation_system_functional else '❌ ISSUES'}")
+        print(f"   Production Ready: {'✅ YES' if test_results['production_ready'] else '❌ NO'}")
+        
+        return success_rate >= 80 and enhanced_context_working and solution_parts_accessible
+
     def test_background_job_pipeline_verification(self):
         """
         🎯 BACKGROUND JOB PIPELINE VERIFICATION TESTING
