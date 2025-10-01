@@ -169,52 +169,71 @@ async def ask_doubt(
     user_id: str = Depends(get_current_user)
 ) -> DoubtResponse:
     """Submit a doubt about a specific question and get AI response"""
+    db = SessionLocal()
     try:
-        conversation_key = f"{user_id}:{doubt_data.question_id}"
+        # Get or create message count record
+        count_record = db.execute(
+            select(DoubtMessageCount).where(
+                and_(
+                    DoubtMessageCount.user_id == user_id,
+                    DoubtMessageCount.question_id == doubt_data.question_id
+                )
+            )
+        ).scalar_one_or_none()
         
-        # Initialize conversation if not exists
-        if conversation_key not in doubt_conversations:
-            doubt_conversations[conversation_key] = []
-            doubt_message_counts[conversation_key] = 0
+        if not count_record:
+            count_record = DoubtMessageCount(
+                user_id=user_id,
+                question_id=doubt_data.question_id,
+                message_count=0,
+                is_locked=False
+            )
+            db.add(count_record)
+            db.commit()
+            db.refresh(count_record)
         
         # Check message limit
-        current_count = doubt_message_counts[conversation_key]
-        if current_count >= MAX_MESSAGES_PER_QUESTION:
+        if count_record.is_locked or count_record.message_count >= MAX_MESSAGES_PER_QUESTION:
             return DoubtResponse(
                 success=False,
-                message_count=current_count,
+                message_count=count_record.message_count,
                 remaining_messages=0,
                 is_locked=True,
                 error="Message limit reached for this question"
             )
         
         # Get question details
-        db = SessionLocal()
-        try:
-            result = db.execute(select(Question).where(Question.id == doubt_data.question_id))
-            question = result.scalar_one_or_none()
-            
-            if not question:
-                return DoubtResponse(
-                    success=False,
-                    message_count=current_count,
-                    remaining_messages=MAX_MESSAGES_PER_QUESTION - current_count,
-                    is_locked=False,
-                    error="Question not found"
-                )
-        finally:
-            db.close()
+        result = db.execute(select(Question).where(Question.id == doubt_data.question_id))
+        question = result.scalar_one_or_none()
+        
+        if not question:
+            return DoubtResponse(
+                success=False,
+                message_count=count_record.message_count,
+                remaining_messages=MAX_MESSAGES_PER_QUESTION - count_record.message_count,
+                is_locked=False,
+                error="Question not found"
+            )
         
         # Generate AI response using Gemini with natural conversation
         if GOOGLE_API_KEY:
             try:
                 model = genai.GenerativeModel("gemini-2.5-flash")
                 
-                # Prepare natural conversation context
-                conversation_history = doubt_conversations[conversation_key]
+                # Get conversation history from database
+                history_records = db.execute(
+                    select(DoubtConversation).where(
+                        and_(
+                            DoubtConversation.user_id == user_id,
+                            DoubtConversation.question_id == doubt_data.question_id
+                        )
+                    ).order_by(DoubtConversation.timestamp)
+                ).scalars().all()
+                
+                # Build conversation context
                 context_messages = "\n".join([
-                    f"{'Student' if i % 2 == 0 else 'Twelvr'}: {msg['content']}"
-                    for i, msg in enumerate(conversation_history)
+                    f"{'Student' if msg.role == 'user' else 'Twelvr'}: {msg.content}"
+                    for msg in history_records
                 ])
                 
                 # Build rich question context for LLM with COMPLETE solution details
@@ -236,7 +255,7 @@ async def ask_doubt(
 This is the COMPLETE context of what the student is working on. When they ask about "snap read", "approach", "principle to remember", or any specific part, you have ALL the details above to reference and explain.
 """
                 
-                # Detect if student is sharing solution steps (intelligent detection)
+                # Detect if student is sharing solution steps
                 is_solution_paste = solution_detector.detect_solution_paste(doubt_data.message)
                 solution_guidance = ""
                 if is_solution_paste:
@@ -268,25 +287,34 @@ Respond with your full intelligence - be witty, use analogies, and help them und
                 
                 logger.info(f"Ask Twelvr natural response generated for user {user_id[:8]}")
                 
-                # Store conversation
-                doubt_conversations[conversation_key].extend([
-                    {
-                        "role": "user",
-                        "content": doubt_data.message,
-                        "timestamp": datetime.utcnow().isoformat()
-                    },
-                    {
-                        "role": "assistant", 
-                        "content": ai_response,
-                        "timestamp": datetime.utcnow().isoformat()
-                    }
-                ])
+                # Store user message in database
+                user_message = DoubtConversation(
+                    user_id=user_id,
+                    question_id=doubt_data.question_id,
+                    role="user",
+                    content=doubt_data.message
+                )
+                db.add(user_message)
+                
+                # Store AI response in database
+                ai_message = DoubtConversation(
+                    user_id=user_id,
+                    question_id=doubt_data.question_id,
+                    role="assistant",
+                    content=ai_response
+                )
+                db.add(ai_message)
                 
                 # Update message count
-                doubt_message_counts[conversation_key] += 1
-                new_count = doubt_message_counts[conversation_key]
+                count_record.message_count += 1
+                count_record.is_locked = count_record.message_count >= MAX_MESSAGES_PER_QUESTION
+                count_record.updated_at = datetime.utcnow()
+                
+                db.commit()
+                
+                new_count = count_record.message_count
                 remaining = MAX_MESSAGES_PER_QUESTION - new_count
-                is_locked = new_count >= MAX_MESSAGES_PER_QUESTION
+                is_locked = count_record.is_locked
                 
                 logger.info(f"🤔 Doubt answered for question {doubt_data.question_id[:8]} by user {user_id[:8]} ({new_count}/{MAX_MESSAGES_PER_QUESTION})")
                 
@@ -300,25 +328,29 @@ Respond with your full intelligence - be witty, use analogies, and help them und
                 
             except Exception as e:
                 logger.error(f"❌ Gemini error: {e}")
+                db.rollback()
                 return DoubtResponse(
                     success=False,
-                    message_count=current_count,
-                    remaining_messages=MAX_MESSAGES_PER_QUESTION - current_count,
+                    message_count=count_record.message_count,
+                    remaining_messages=MAX_MESSAGES_PER_QUESTION - count_record.message_count,
                     is_locked=False,
                     error="AI service temporarily unavailable"
                 )
         else:
             return DoubtResponse(
                 success=False,
-                message_count=current_count,
-                remaining_messages=MAX_MESSAGES_PER_QUESTION - current_count,
+                message_count=count_record.message_count,
+                remaining_messages=MAX_MESSAGES_PER_QUESTION - count_record.message_count,
                 is_locked=False,
                 error="AI service not configured"
             )
         
     except Exception as e:
         logger.error(f"❌ Error in ask doubt: {e}")
+        db.rollback()
         raise HTTPException(status_code=500, detail="Failed to process doubt")
+    finally:
+        db.close()
 
 @router.get("/{question_id}/history")
 async def get_doubt_history(
