@@ -485,6 +485,9 @@ async def update_learner_notebook_from_session(user_id: str, session_id: str, su
             skip_penalty = skip_rate * 0.5
             new_mastery = max(0.0, min(1.0, base_mastery - skip_penalty))
             
+            # Log calculation for transparency
+            logger.info(f"  📊 {concept_norm}: accuracy={accuracy:.2f}, skip_rate={skip_rate:.2f} → mastery={new_mastery:.2f} ({readiness})")
+            
             # Upsert to learner_notebook
             # Note: EMA blending happens in UPDATE clause below
             db.execute(text("""
