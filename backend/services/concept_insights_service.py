@@ -83,10 +83,10 @@ class ConceptInsightsService:
         """Analyze concept data to extract key insights"""
         now = datetime.now(timezone.utc)
         
-        # Categorize concepts
-        strong = [c for c in concepts if c["mastery"] >= 7.0]
-        moderate = [c for c in concepts if 3.0 < c["mastery"] < 7.0]
-        weak = [c for c in concepts if c["mastery"] <= 3.0]
+        # Categorize concepts (mastery is 0.0-1.0 scale, not 0-10)
+        strong = [c for c in concepts if c["mastery"] >= 0.7]
+        moderate = [c for c in concepts if 0.3 < c["mastery"] < 0.7]
+        weak = [c for c in concepts if c["mastery"] <= 0.3]
         
         # Find neglected concepts (not seen in last 14 days)
         neglected = []
