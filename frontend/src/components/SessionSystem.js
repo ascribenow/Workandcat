@@ -1113,15 +1113,19 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
     try {
       console.log('🎯 Session completed, triggering end-of-session handshake...');
       
-      // NEW: Mark session as completed (sets completed_at timestamp)
+      // FIXED: Call correct completion endpoint that triggers adaptive pipeline
       try {
-        await axios.post(`${API}/sessions/mark-completed`, {
+        const response = await axios.post(`${API}/session/complete`, {
           session_id: sessionId
         });
-        console.log('🏁 session completed:', sessionId);
+        console.log('🏁 Session completed successfully');
+        console.log('   ✅ Correlation ID:', response.data.correlation_id);
+        console.log('   ✅ Background jobs enqueued:', response.data.background_jobs_enqueued);
+        console.log('   ✅ Adaptive processing:', response.data.summary?.adaptive_processing);
       } catch (completionError) {
-        console.warn('⚠️ Session completion timestamp failed:', completionError);
-        // Don't fail the flow
+        console.error('❌ CRITICAL: Session completion failed:', completionError);
+        console.error('   This prevents adaptive pipeline from running');
+        // Still continue with UI flow but log clearly that adaptive features won't work
       }
       
       // End-of-session handshake: plan next session if blueprint enabled
