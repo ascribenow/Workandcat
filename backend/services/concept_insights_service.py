@@ -172,22 +172,11 @@ class ConceptInsightsService:
                 )
             neglected_text = "📅 **Concepts to Revisit:**\n" + "\n".join([f"- {item}" for item in neglected_items])
         
-        # Focus on underserved concepts
-        underserved_text = ""
-        if analysis["underserved_concepts"]:
-            underserved = analysis["underserved_concepts"][:3]
-            underserved_items = []
-            for c in underserved:
-                underserved_items.append(
-                    f"**{c['concept']}** (coverage debt: {c['coverage_debt']}/10)"
-                )
-            underserved_text = "\n\n🎯 **Underserved Topics:**\n" + "\n".join([f"- {item}" for item in underserved_items])
-        
         # Provide actionable recommendations
         recommendations = self._generate_recommendations(analysis)
         
-        if neglected_text or underserved_text:
-            return f"{neglected_text}{underserved_text}\n\n{recommendations}"
+        if neglected_text:
+            return f"{neglected_text}\n\n{recommendations}"
         else:
             return f"Keep up the consistent practice! {recommendations}"
     
