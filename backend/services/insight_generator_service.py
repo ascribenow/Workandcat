@@ -66,28 +66,109 @@ class InsightGeneratorService:
             return self._generate_simple_fallback_insights(comprehensive_data)
     
     def _build_comprehensive_insights_prompt(self, comprehensive_data: Dict[str, Any]) -> str:
-        """Build safe educational prompt without raw data"""
+        """Build concept-level insights prompt with mastery and coverage debt data"""
         
-        sessions = comprehensive_data.get('sessions', [])
-        concepts = comprehensive_data.get('concept_journey', [])
+        user_id = comprehensive_data.get('user_id')
         
-        # Extract safe summary statistics only
-        total_sessions = len(sessions)
-        
-        if total_sessions == 0:
+        if not user_id:
             return """Return this exact JSON: {"dashboard_all_time": "Complete more sessions to unlock detailed analysis.", "dashboard_recent": "Performance patterns appear after more practice.", "pre_session_card": {"title": "Data Building 📊", "progress": "Each session creates your performance profile.", "way_forward": ["Focus on understanding concepts", "Build practice consistency"], "today": "Continue building your data."}}"""
         
-        # Calculate safe statistics
-        total_questions = sum(s.get('total_questions', 0) for s in sessions)
-        total_correct = sum(s.get('correct_answers', 0) for s in sessions)
-        accuracy_percent = round((total_correct / total_questions * 100) if total_questions > 0 else 0)
+        # Fetch concept-level data from learner_notebook
+        from database import SessionLocal
+        from sqlalchemy import text
         
-        return f"""A student completed {total_sessions} practice sessions with {accuracy_percent}% accuracy.
+        db = SessionLocal()
+        try:
+            # Get concept mastery data
+            concepts_result = db.execute(text("""
+                SELECT concept_norm, mastery_score, readiness, last_seen_at
+                FROM learner_notebook
+                WHERE user_id = :user_id
+                ORDER BY mastery_score DESC
+            """), {"user_id": user_id}).fetchall()
+            
+            # Get coverage debt data
+            debt_result = db.execute(text("""
+                SELECT subcategory, debt_score, updated_at
+                FROM coverage_debt
+                WHERE user_id = :user_id
+                ORDER BY debt_score DESC
+                LIMIT 10
+            """), {"user_id": user_id}).fetchall()
+            
+            if not concepts_result:
+                return """Return this exact JSON: {"dashboard_all_time": "Start your learning journey! Complete your first practice session to see personalized insights about your strengths and areas for improvement.", "dashboard_recent": "Your adaptive insights will appear here after you complete a few practice sessions.", "pre_session_card": {"title": "Begin Your Journey 🚀", "progress": "Each session helps us understand your learning patterns better!", "way_forward": ["Complete your first session", "Build consistent practice"], "today": "Start building your concept map today!"}}"""
+            
+            # Analyze concepts
+            total_concepts = len(concepts_result)
+            strong_concepts = [c for c in concepts_result if c[1] >= 0.7]
+            moderate_concepts = [c for c in concepts_result if 0.3 < c[1] < 0.7]
+            weak_concepts = [c for c in concepts_result if c[1] <= 0.3]
+            avg_mastery = sum(c[1] for c in concepts_result) / total_concepts if total_concepts > 0 else 0
+            
+            # Find neglected concepts (not seen in 14+ days)
+            from datetime import datetime, timezone
+            now = datetime.now(timezone.utc)
+            neglected = []
+            for c in concepts_result:
+                if c[3]:  # last_seen_at
+                    days_since = (now - c[3]).days
+                    if days_since > 14:
+                        neglected.append((c[0], days_since, c[1]))
+            
+            # Build data summary for LLM
+            prompt_data = {
+                "total_concepts": total_concepts,
+                "strong_count": len(strong_concepts),
+                "moderate_count": len(moderate_concepts),
+                "weak_count": len(weak_concepts),
+                "avg_mastery_scaled": round(avg_mastery * 10, 1),  # 0-10 scale
+                "top_3_strong": [(c[0], round(c[1]*10, 1)) for c in strong_concepts[:3]],
+                "top_3_weak": [(c[0], round(c[1]*10, 1)) for c in weak_concepts[:3]],
+                "neglected": [(c[0], c[1]) for c in neglected[:3]],
+                "high_debt_topics": [(d[0], round(d[1], 2)) for d in debt_result[:3]]
+            }
+            
+            prompt = f"""You are an adaptive learning coach analyzing a CAT preparation student's progress.
 
-Return educational insights in JSON format:
-- dashboard_all_time: summary mentioning {total_sessions} sessions and {accuracy_percent}% accuracy
-- dashboard_recent: encouraging recent progress note
-- pre_session_card: motivational card with title, progress, way_forward array, today field"""
+CONCEPT MASTERY DATA (0-10 scale):
+- Total concepts practiced: {prompt_data['total_concepts']}
+- Strong concepts (≥7): {prompt_data['strong_count']}
+- Moderate concepts (3-7): {prompt_data['moderate_count']}
+- Weak concepts (≤3): {prompt_data['weak_count']}
+- Average mastery: {prompt_data['avg_mastery_scaled']}/10
+
+TOP STRENGTHS:
+{chr(10).join([f"- {name}: {score}/10" for name, score in prompt_data['top_3_strong']])}
+
+NEED ATTENTION:
+{chr(10).join([f"- {name}: {score}/10" for name, score in prompt_data['top_3_weak']])}
+
+NEGLECTED TOPICS (not practiced in 14+ days):
+{chr(10).join([f"- {name[0]}: {days} days ago" for name, days in prompt_data['neglected']])}
+
+UNDERSERVED TOPICS (high coverage debt):
+{chr(10).join([f"- {name}: debt={debt}" for name, debt in prompt_data['high_debt_topics']])}
+
+Generate personalized, actionable insights in JSON format:
+{{
+  "all_time_markdown": "Engaging summary of overall journey with specific concept names and scores",
+  "recent_markdown": "Action-oriented guidance highlighting neglected/underserved topics with specific names"
+}}
+
+Make it:
+1. Specific (use actual concept names and scores)
+2. Actionable (clear next steps)
+3. Motivating (balanced tone)
+4. Concise (2-3 sentences per section)"""
+            
+            return prompt
+            
+        except Exception as e:
+            self.logger.error(f"Error building concept insights prompt: {e}")
+            return """Return this exact JSON: {"all_time_markdown": "We're processing your learning data.", "recent_markdown": "Check back in a moment for personalized insights!"}"""
+        finally:
+            db.close()
     
     def _generate_simple_fallback_insights(self, comprehensive_data: Dict[str, Any]) -> Dict[str, Any]:
         """Simple fallback when LLM fails"""
