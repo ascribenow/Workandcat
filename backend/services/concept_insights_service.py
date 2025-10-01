@@ -168,7 +168,7 @@ class ConceptInsightsService:
             neglected_items = []
             for c in neglected:
                 neglected_items.append(
-                    f"**{c['concept']}** (last practiced {c['days_since']} days ago, mastery: {c['mastery']}/10)"
+                    f"**{c['concept']}** (last practiced {c['days_since']} days ago, mastery: {round(c['mastery'] * 10, 1)}/10)"
                 )
             neglected_text = "📅 **Concepts to Revisit:**\n" + "\n".join([f"- {item}" for item in neglected_items])
         
