@@ -476,10 +476,17 @@ async def update_learner_notebook_from_session(user_id: str, session_id: str, su
             else:
                 readiness = "Moderate"
             
-            # Calculate mastery score (EMA-style: blend with existing)
-            new_mastery = max(0.1, min(0.9, accuracy + (1 - skip_rate) * 0.1))
+            # Calculate mastery score - REFINED FORMULA
+            # Base mastery directly on accuracy (0.0 to 1.0)
+            base_mastery = accuracy
+            
+            # Apply skip penalty: skipping questions indicates uncertainty
+            # Each 10% skip rate reduces mastery by 5%
+            skip_penalty = skip_rate * 0.5
+            new_mastery = max(0.0, min(1.0, base_mastery - skip_penalty))
             
             # Upsert to learner_notebook
+            # Note: EMA blending happens in UPDATE clause below
             db.execute(text("""
                 INSERT INTO learner_notebook (
                     user_id, concept_norm, mastery_score, readiness, last_seen_at
@@ -487,7 +494,7 @@ async def update_learner_notebook_from_session(user_id: str, session_id: str, su
                     :user_id, :concept_norm, :mastery_score, :readiness, :last_seen_at
                 )
                 ON CONFLICT (user_id, concept_norm) DO UPDATE SET
-                    mastery_score = (learner_notebook.mastery_score * 0.7) + (EXCLUDED.mastery_score * 0.3),
+                    mastery_score = (learner_notebook.mastery_score * 0.5) + (EXCLUDED.mastery_score * 0.5),
                     readiness = EXCLUDED.readiness,
                     last_seen_at = EXCLUDED.last_seen_at
             """), {
