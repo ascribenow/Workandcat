@@ -99,10 +99,6 @@ class ConceptInsightsService:
         # Sort neglected by days
         neglected.sort(key=lambda x: x["days_since"], reverse=True)
         
-        # Find high coverage debt concepts (underserved)
-        underserved = [c for c in concepts if c["coverage_debt"] >= 5.0]
-        underserved.sort(key=lambda x: x["coverage_debt"], reverse=True)
-        
         # Calculate average mastery
         avg_mastery = sum(c["mastery"] for c in concepts) / len(concepts) if concepts else 0.0
         
