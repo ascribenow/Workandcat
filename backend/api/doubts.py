@@ -221,7 +221,7 @@ async def ask_doubt(
                     for i, msg in enumerate(conversation_history)
                 ])
                 
-                # Build rich question context for LLM
+                # Build rich question context for LLM with COMPLETE solution details
                 rich_context = f"""
 ## CURRENT QUESTION CONTEXT:
 **Problem Statement**: {question.stem or 'Not available'}
@@ -229,14 +229,15 @@ async def ask_doubt(
 **Difficulty**: {getattr(question, 'difficulty', 'Medium')}
 **Correct Answer**: {question.right_answer or 'Not provided'}
 
-**Available Solutions**:
-- Approach: {question.solution_approach or 'Standard method'}
-- Detailed Solution: {question.detailed_solution or 'Solution steps available'}
-- Key Insight: {question.snap_read or 'Apply fundamental concepts'}
+**Complete Solution Breakdown**:
+- **Snap Read** (Quick Insight): {question.snap_read or 'Quick insight not available'}
+- **Solution Approach** (Strategy): {question.solution_approach or 'Standard method'}
+- **Detailed Solution** (Step-by-step): {question.detailed_solution or 'Solution steps available'}
+- **Principle to Remember** (Key Takeaway): {question.principle_to_remember or 'Core principle not available'}
 
 **Core Concepts**: {getattr(question, 'core_concepts', []) or ['Mathematical reasoning']}
 
-This is what the student is working on. Use this context intelligently in your responses.
+This is the COMPLETE context of what the student is working on. When they ask about "snap read", "approach", "principle to remember", or any specific part, you have ALL the details above to reference and explain.
 """
                 
                 # Detect if student is sharing solution steps (intelligent detection)
