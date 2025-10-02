@@ -141,7 +141,8 @@ class SimplifiedJobQueue:
                 "user_id": job_row.user_id,
                 "session_id": job_row.session_id,
                 "attempts": job_row.attempts,
-                "max_attempts": job_row.max_attempts
+                "max_attempts": job_row.max_attempts,
+                "correlation_id": job_row.correlation_id
             }
             
         except Exception as e:
