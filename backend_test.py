@@ -1770,6 +1770,40 @@ class CATBackendTester:
         
         return success_rate >= 85 and complete_signup_working and ist_timezone_validated
 
+def main():
+    """Main function to run deployment readiness check"""
+    print("🚀 Starting Twelvr Deployment Readiness Check...")
+    print("=" * 100)
+    
+    tester = CATBackendTester()
+    
+    try:
+        # Run the deployment readiness check
+        deployment_ready = tester.test_deployment_readiness_check()
+        
+        print("\n" + "=" * 100)
+        print("🎯 DEPLOYMENT READINESS CHECK SUMMARY")
+        print("=" * 100)
+        
+        if deployment_ready:
+            print("✅ RESULT: SYSTEM IS READY FOR PRODUCTION DEPLOYMENT")
+            print("🎉 All critical systems are operational and healthy")
+            print("📊 System meets all deployment readiness criteria")
+            return 0
+        else:
+            print("❌ RESULT: SYSTEM NEEDS ATTENTION BEFORE DEPLOYMENT")
+            print("⚠️ Critical issues detected that require resolution")
+            print("🔧 Please address the identified issues before proceeding")
+            return 1
+            
+    except Exception as e:
+        print(f"\n❌ DEPLOYMENT READINESS CHECK FAILED: {e}")
+        print("🔧 Please check system connectivity and try again")
+        return 1
+
+if __name__ == "__main__":
+    exit_code = main()
+
     def test_enhanced_adaptive_pipeline_comprehensive_verification(self):
         """
         🎯 COMPREHENSIVE VERIFICATION OF ENHANCED ADAPTIVE PIPELINE WITH JOB SUPERVISOR
