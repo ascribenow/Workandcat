@@ -126,8 +126,8 @@ class SimplifiedJobQueue:
                 )
                 RETURNING id, job_type, user_id, session_id, attempts, max_attempts, correlation_id
             """), {
-                "started_at": datetime.now(timezone.utc),
-                "now": datetime.now(timezone.utc)
+                "started_at": now_ist(),  # FIXED: Use IST
+                "now": now_ist()  # FIXED: Use IST
             })
             
             job_row = result.fetchone()
