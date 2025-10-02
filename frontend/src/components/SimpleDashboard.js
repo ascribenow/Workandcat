@@ -31,6 +31,34 @@ export const SimpleDashboard = () => {
     // Cleanup function removed since we removed the timeout
   }, [user, token]);
 
+  // FIX: Refresh insights when user returns to dashboard (after session completion)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden && user && token) {
+        console.log('SimpleDashboard: Tab became visible, refreshing data...');
+        fetchDashboardData();
+        fetchAdaptiveInsights();
+      }
+    };
+
+    const handleFocus = () => {
+      if (user && token) {
+        console.log('SimpleDashboard: Window focused, refreshing insights...');
+        fetchAdaptiveInsights();
+      }
+    };
+
+    // Listen for tab visibility changes
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    // Listen for window focus (when returning from session)
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [user, token]);
+
   // LIGHTWEIGHT TELEMETRY: Log dashboard state mismatches only when data is actually different
   const logDashboardMismatch = (event, apiData, displayData) => {
     const apiCount = apiData?.total_sessions || 0;
