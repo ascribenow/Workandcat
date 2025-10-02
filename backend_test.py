@@ -42251,19 +42251,19 @@ def main():
         return final_results["100_percent_success_achieved"]
 
 if __name__ == "__main__":
-    print("🎯 ASK TWELVR DOUBTS SYSTEM WITH DATABASE PERSISTENCE TESTING")
+    print("🎯 ADAPTIVE LEARNING PIPELINE JOB CHAINING BUG FIX TESTING")
     print("=" * 80)
-    print("OBJECTIVE: Test complete Ask Twelvr doubts system with database persistence")
-    print("FOCUS: Database storage, conversation history, message counting, context awareness")
-    print("EXPECTED: All conversations stored in DB, proper message counting, context awareness")
+    print("OBJECTIVE: Test job chaining fix - SUMMARIZE_SESSION → PLAN_NEXT_SESSION → UPDATE_INSIGHTS")
+    print("FOCUS: correlation_id propagation, job chaining, valid timestamps, error monitoring")
+    print("EXPECTED: Complete job pipeline working with proper correlation_id propagation")
     print("=" * 80)
     
     tester = CATBackendTester()
     
     try:
-        # Run the Ask Twelvr doubts system database persistence test
-        print("\n🚀 RUNNING ASK TWELVR DOUBTS SYSTEM DATABASE PERSISTENCE TEST")
-        doubts_test_passed = tester.test_ask_twelvr_doubts_system_database_persistence()
+        # Run the adaptive learning pipeline job chaining test
+        print("\n🚀 RUNNING ADAPTIVE LEARNING PIPELINE JOB CHAINING TEST")
+        pipeline_test_passed = tester.test_adaptive_learning_pipeline_job_chaining()
         
         # FINAL SUMMARY
         print("\n" + "=" * 80)
