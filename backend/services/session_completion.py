@@ -114,24 +114,38 @@ def mark_session_completed(user_id: str, session_id: str) -> bool:
             db.commit()
             logger.info(f"✅ Session {session_id[:8]} marked as completed for user {user_id[:8]}")
             
-            # Post-session summarizer (non-fatal)
+            # Post-session background job (non-fatal)
             try:
-                logger.info(f"📊 Running post-completion summarizer for session {session_id[:8]}")
-                import asyncio
-                if asyncio.iscoroutinefunction(run_summarizer):
-                    # Handle async call
-                    loop = asyncio.new_event_loop()
-                    asyncio.set_event_loop(loop)
-                    summary_result = loop.run_until_complete(run_summarizer(user_id, session_id))
-                    loop.close()
-                else:
-                    summary_result = run_summarizer(user_id, session_id)
+                logger.info(f"📊 Enqueueing SUMMARIZE_SESSION job for session {session_id[:8]}")
                 
-                # Log completion based on summarizer result
-                if summary_result:
-                    logger.info(f"✅ Post-completion summarizer succeeded for session {session_id[:8]}")
-                else:
-                    logger.warning(f"⚠️ Post-completion summarizer returned None for session {session_id[:8]}")
+                # Use the new background job queue instead of direct summarizer call
+                from services.bg_job_queue import job_queue
+                
+                # Check if job already exists to avoid duplicates
+                db_check = SessionLocal()
+                try:
+                    existing_job = db_check.execute(text("""
+                        SELECT id FROM bg_jobs 
+                        WHERE user_id = :user_id AND session_id = :session_id 
+                        AND job_type = 'SUMMARIZE_SESSION'
+                        AND status IN ('queued', 'running')
+                        LIMIT 1
+                    """), {"user_id": user_id, "session_id": session_id}).fetchone()
+                    
+                    if existing_job:
+                        logger.info(f"ℹ️ SUMMARIZE_SESSION job already exists for session {session_id[:8]}")
+                    else:
+                        # Enqueue the background job
+                        job_id = await job_queue.enqueue_job(
+                            job_type="SUMMARIZE_SESSION",
+                            user_id=user_id,
+                            session_id=session_id
+                        )
+                        logger.info(f"✅ SUMMARIZE_SESSION job {job_id[:8]} enqueued for session {session_id[:8]}")
+                        
+                finally:
+                    db_check.close()
+                    
             except Exception as e:
                 # Log error but don't fail the completion
                 logger.warning(f"⚠️ Post-completion summarizer failed for session {session_id[:8]}: {e}")
