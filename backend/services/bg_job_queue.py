@@ -14,6 +14,7 @@ from enum import Enum
 
 from database import SessionLocal
 from sqlalchemy import text
+from utils.timezone_utils import now_ist
 
 logger = logging.getLogger(__name__)
 
