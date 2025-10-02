@@ -508,7 +508,7 @@ async def update_learner_notebook_from_session(user_id: str, session_id: str, su
                 "concept_norm": concept_norm,
                 "mastery_score": new_mastery,
                 "readiness": readiness,
-                "last_seen_at": datetime.now(timezone.utc)
+                "last_seen_at": now_ist()
             })
         
         db.commit()
