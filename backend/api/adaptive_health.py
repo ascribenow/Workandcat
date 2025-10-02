@@ -7,7 +7,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from typing import Dict, Any
 import logging
 
-from auth import get_current_user  # Assuming this exists for admin access
+# Note: Authentication dependency removed for initial implementation
+# from auth import get_current_user
 from services.adaptive_job_supervisor import get_supervisor_health
 
 router = APIRouter()
