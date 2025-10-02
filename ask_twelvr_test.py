@@ -319,7 +319,7 @@ class AskTwelvrTester:
                 print(f"   ✅ Second message sent successfully")
                 
                 # Check AI response
-                ai_response = second_response.get('response', '')
+                ai_response = second_response.get('response', '') or ''
                 if len(ai_response) > 50:  # Meaningful response
                     test_results["second_ai_response_generated"] = True
                     print(f"   ✅ AI response generated: {len(ai_response)} characters")
