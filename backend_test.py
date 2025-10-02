@@ -1156,33 +1156,34 @@ class CATBackendTester:
         
         return success_rate >= 85 and complete_signup_working and ist_timezone_validated
 
-    def test_corrected_adaptive_learning_pipeline(self):
+    def test_enhanced_adaptive_pipeline_comprehensive_verification(self):
         """
-        🎯 CORRECTED ADAPTIVE LEARNING PIPELINE TESTING AFTER JOB CHAINING FIXES
+        🎯 COMPREHENSIVE VERIFICATION OF ENHANCED ADAPTIVE PIPELINE WITH JOB SUPERVISOR
         
-        OBJECTIVE: Test the CORRECTED adaptive learning pipeline after fixing the job chaining issues.
-        My investigation revealed that job chaining WAS working correctly - the issue was database 
-        schema mismatches in job handlers.
+        OBJECTIVE: Comprehensive verification of all critical issue fixes implemented in the adaptive pipeline:
         
-        FIXES IMPLEMENTED:
-        1. ✅ Job chaining IS working correctly - SUMMARIZE_SESSION jobs do enqueue PLAN_NEXT_SESSION jobs  
-        2. ✅ Correlation ID propagation IS working - correlation_ids are properly propagated through job chain
-        3. ✅ Event loop issues ARE resolved - no more async/await conflicts
-        
-        ROOT CAUSE IDENTIFIED:
-        - Job chaining was never actually broken - the issue was database schema mismatches in job handlers
-        - PLAN_NEXT_SESSION jobs were failing due to outdated INSERT statements trying to use non-existent columns
-        
-        NEW TEST REQUIREMENTS:
-        1. Authenticate with sp@theskinmantra.com/student123  
-        2. Use the CORRECT endpoint: /api/session/complete (NOT /api/sessions/mark-completed)
-        3. Create a new session and complete it properly to trigger fresh SUMMARIZE_SESSION job
-        4. Monitor that SUMMARIZE_SESSION → PLAN_NEXT_SESSION → UPDATE_INSIGHTS pipeline works
-        5. Verify correlation_id propagation through entire chain
-        6. Check that all job handlers execute successfully without database schema errors
-        
-        FOCUS: Test with a real, fresh session completion using the correct endpoint to verify 
-        the full pipeline works end-to-end.
+        **FIXES IMPLEMENTED:**
+        1. ✅ **UPDATE_INSIGHTS Method Resolution**: Fixed by restarting backend workers to clear stale processes
+        2. ✅ **Job Queue FK Constraints**: Fixed UUID type mismatch between users.id and bg_jobs.user_id  
+        3. ✅ **PLAN_NEXT_SESSION Schema Issue**: Cleaned up old failed jobs and verified current handler works
+        4. 🚀 **Enhanced Job Supervisor**: Implemented comprehensive monitoring, circuit breakers, health checks
+
+        **VERIFICATION REQUIREMENTS:**
+        1. **Test complete adaptive pipeline**: Session completion → SUMMARIZE_SESSION → PLAN_NEXT_SESSION → UPDATE_INSIGHTS
+        2. **Verify job chaining works end-to-end** with proper correlation_id propagation
+        3. **Test new health monitoring endpoints**: /api/adaptive/health and /api/adaptive/health/detailed
+        4. **Verify circuit breakers and supervisor monitoring** are operational
+        5. **Confirm job enqueueing works** without FK constraint violations
+        6. **Test performance metrics collection** and failure detection
+
+        **AUTHENTICATION:** Use sp@theskinmantra.com/student123
+        **FOCUS:** Complete end-to-end adaptive engine functionality with enhanced supervision and monitoring
+
+        **EXPECTED RESULTS:**
+        - All job types should have >90% success rate
+        - Complete job chaining: SUMMARIZE → PLAN → UPDATE_INSIGHTS
+        - Health endpoints should show "healthy" or "warning" status (not critical)
+        - Job supervisor should be actively monitoring and providing insights
         """
         print("🎯 CORRECTED ADAPTIVE LEARNING PIPELINE TESTING AFTER JOB CHAINING FIXES")
         print("=" * 90)
