@@ -1158,29 +1158,31 @@ class CATBackendTester:
 
     def test_adaptive_learning_pipeline_job_chaining(self):
         """
-        🎯 ADAPTIVE LEARNING PIPELINE JOB CHAINING BUG FIX TESTING
+        🎯 CORRECTED ADAPTIVE LEARNING PIPELINE TESTING AFTER JOB CHAINING FIXES
         
-        OBJECTIVE: Test the updated adaptive learning pipeline with the job chaining fixes:
-        1. Fixed correlation_id propagation in bg_job_queue.py 
-        2. Fixed event loop issues in session_completion.py
-        3. Made session completion properly async
+        OBJECTIVE: Test the CORRECTED adaptive learning pipeline after fixing the job chaining issues.
+        The investigation revealed that job chaining WAS working correctly - the issue was database 
+        schema mismatches in job handlers.
         
-        TESTING REQUIREMENTS FROM REVIEW REQUEST:
-        1. AUTHENTICATION: Login with sp@theskinmantra.com/student123
-        2. TEST CORRECT SESSION COMPLETION ENDPOINT: 
-           - POST /api/sessions/mark-completed (NOT /api/session/complete)
-        3. VERIFY SUMMARIZE_SESSION JOB ENQUEUED:
-           - Check that SUMMARIZE_SESSION job is created with correlation_id
-        4. MONITOR JOB CHAIN PROGRESSION:
-           - SUMMARIZE_SESSION → PLAN_NEXT_SESSION → UPDATE_INSIGHTS
-        5. VERIFY CORRELATION_ID PROPAGATION:
-           - Same correlation_id through entire job pipeline
-        6. CHECK BACKEND LOGS:
-           - No event loop conflicts or async/await issues
-        7. VERIFY COMPLETE JOB PIPELINE:
-           - All three jobs in sequence with proper correlation_id
+        FIXES IMPLEMENTED:
+        1. ✅ Job chaining IS working correctly - SUMMARIZE_SESSION jobs do enqueue PLAN_NEXT_SESSION jobs  
+        2. ✅ Correlation ID propagation IS working - correlation_ids are properly propagated through job chain
+        3. ✅ Event loop issues ARE resolved - no more async/await conflicts
         
-        AUTHENTICATION: sp@theskinmantra.com/student123
+        ROOT CAUSE IDENTIFIED:
+        - Job chaining was never actually broken - the issue was database schema mismatches in job handlers
+        - PLAN_NEXT_SESSION jobs were failing due to outdated INSERT statements trying to use non-existent columns
+        
+        NEW TEST REQUIREMENTS:
+        1. Authenticate with sp@theskinmantra.com/student123  
+        2. Use the CORRECT endpoint: /api/session/complete (NOT /api/sessions/mark-completed)
+        3. Create a new session and complete it properly to trigger fresh SUMMARIZE_SESSION job
+        4. Monitor that SUMMARIZE_SESSION → PLAN_NEXT_SESSION → UPDATE_INSIGHTS pipeline works
+        5. Verify correlation_id propagation through entire chain
+        6. Check that all job handlers execute successfully without database schema errors
+        
+        FOCUS: Test with a real, fresh session completion using the correct endpoint to verify 
+        the full pipeline works end-to-end.
         """
         print("🎯 ADAPTIVE LEARNING PIPELINE JOB CHAINING BUG FIX TESTING")
         print("=" * 80)
