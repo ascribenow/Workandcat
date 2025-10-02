@@ -1160,33 +1160,25 @@ class CATBackendTester:
         """
         🎯 ADAPTIVE LEARNING PIPELINE JOB CHAINING BUG FIX TESTING
         
-        OBJECTIVE: Test the adaptive learning pipeline job chaining fix where SUMMARIZE_SESSION 
-        jobs were not enqueuing PLAN_NEXT_SESSION jobs because correlation_id was missing from 
-        the job data.
+        OBJECTIVE: Test the updated adaptive learning pipeline with the job chaining fixes:
+        1. Fixed correlation_id propagation in bg_job_queue.py 
+        2. Fixed event loop issues in session_completion.py
+        3. Made session completion properly async
         
         TESTING REQUIREMENTS FROM REVIEW REQUEST:
         1. AUTHENTICATION: Login with sp@theskinmantra.com/student123
-        2. TEST SESSION COMPLETION ENDPOINT: 
-           - POST /api/session/complete with valid session to trigger SUMMARIZE_SESSION job
-        3. MONITOR BACKGROUND JOBS TABLE:
-           - Verify SUMMARIZE_SESSION job is enqueued
-           - Verify when SUMMARIZE_SESSION completes, it enqueues PLAN_NEXT_SESSION job
-        4. VERIFY JOB CHAINING:
+        2. TEST CORRECT SESSION COMPLETION ENDPOINT: 
+           - POST /api/sessions/mark-completed (NOT /api/session/complete)
+        3. VERIFY SUMMARIZE_SESSION JOB ENQUEUED:
+           - Check that SUMMARIZE_SESSION job is created with correlation_id
+        4. MONITOR JOB CHAIN PROGRESSION:
            - SUMMARIZE_SESSION → PLAN_NEXT_SESSION → UPDATE_INSIGHTS
-        5. CHECK CORRELATION_ID PROPAGATION:
-           - Verify correlation_id is properly propagated through job chain
-        6. VERIFY VALID TIMESTAMPS:
-           - All background jobs have valid next_attempt_at timestamps
-        7. MONITOR LOGS:
-           - Check for job processing errors
-        
-        SUCCESS CRITERIA:
-        - Session completion triggers SUMMARIZE_SESSION job
-        - SUMMARIZE_SESSION job successfully enqueues PLAN_NEXT_SESSION job
-        - PLAN_NEXT_SESSION job successfully enqueues UPDATE_INSIGHTS job
-        - correlation_id is propagated through entire job chain
-        - All jobs have valid next_attempt_at timestamps
-        - No job processing errors in logs
+        5. VERIFY CORRELATION_ID PROPAGATION:
+           - Same correlation_id through entire job pipeline
+        6. CHECK BACKEND LOGS:
+           - No event loop conflicts or async/await issues
+        7. VERIFY COMPLETE JOB PIPELINE:
+           - All three jobs in sequence with proper correlation_id
         
         AUTHENTICATION: sp@theskinmantra.com/student123
         """
