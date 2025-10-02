@@ -551,7 +551,7 @@ async def update_coverage_debt_from_session(user_id: str, session_id: str):
                     "user_id": user_id,
                     "subcategory": subcategory,
                     "type_of_question": type_of_question,
-                    "updated_at": datetime.now(timezone.utc)
+                    "updated_at": now_ist()
                 })
         
         # Small decay for all other pairs (time passing increases debt)
