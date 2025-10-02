@@ -123,7 +123,7 @@ class SimplifiedJobQueue:
                     FOR UPDATE SKIP LOCKED
                     LIMIT 1
                 )
-                RETURNING id, job_type, user_id, session_id, attempts, max_attempts
+                RETURNING id, job_type, user_id, session_id, attempts, max_attempts, correlation_id
             """), {
                 "started_at": datetime.now(timezone.utc),
                 "now": datetime.now(timezone.utc)
