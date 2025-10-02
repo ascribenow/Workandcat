@@ -312,12 +312,7 @@ BAD EXAMPLES:
         return {
             "dashboard_all_time": f"You've shown great consistency across {sessions_count} sessions. Your dedication to working through different problem types is building the solid foundation that CAT success requires. Keep up this steady rhythm!",
             "dashboard_recent": "Your recent practice shows you're staying engaged with the material. Each session is teaching you something new about approaching quantitative problems effectively.",
-            "pre_session_card": self._generate_fallback_pre_session_card(comprehensive_data)
-                "title": "Keep Building! 🏗️",
-                "progress": "Your consistent practice is creating strong foundations",
-                "way_forward": ["Focus on understanding over speed", "Trust your problem-solving process"],
-                "today": "Today's session will continue strengthening your quantitative skills"
-            },
+            "pre_session_card": self._generate_fallback_pre_session_card(comprehensive_data),
             "source": "simple_fallback",
             "generated_at": datetime.now(timezone.utc).isoformat()
         }
