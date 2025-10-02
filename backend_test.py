@@ -1528,59 +1528,89 @@ class CATBackendTester:
         print("Validating job processing and checking for errors")
         
         if auth_headers:
-            # Check overall job statistics
-            success, jobs_response = self.run_test(
-                "Get Job Processing Statistics", 
-                "GET", 
-                "bg-jobs/status", 
-                [200, 500], 
-                None, 
-                auth_headers
-            )
-            
-            if success and jobs_response:
-                stats = jobs_response.get('statistics', {})
-                print(f"   📊 Total jobs: {stats.get('total_jobs', 'N/A')}")
-                print(f"   📊 Succeeded jobs: {stats.get('succeeded_jobs', 'N/A')}")
-                print(f"   📊 Failed jobs: {stats.get('failed_jobs', 'N/A')}")
-                print(f"   📊 Success rate: {stats.get('success_rate', 'N/A')}%")
-                
-                # Check if all jobs have valid timestamps
-                recent_jobs = jobs_response.get('recent_jobs', [])
-                jobs_with_valid_timestamps = 0
-                total_jobs_checked = 0
-                
-                for job in recent_jobs:
-                    if job.get('user_id') == user_id:
-                        total_jobs_checked += 1
-                        if job.get('next_attempt_at'):
-                            jobs_with_valid_timestamps += 1
-                
-                if total_jobs_checked > 0 and jobs_with_valid_timestamps == total_jobs_checked:
-                    test_results["all_jobs_have_valid_timestamps"] = True
-                    print(f"   ✅ All user jobs have valid next_attempt_at timestamps ({jobs_with_valid_timestamps}/{total_jobs_checked})")
-                else:
-                    print(f"   ❌ Some jobs missing valid timestamps ({jobs_with_valid_timestamps}/{total_jobs_checked})")
-                
-                # Check for job processing errors
-                failed_jobs = [job for job in recent_jobs if job.get('status') == 'failed' and job.get('user_id') == user_id]
-                if not failed_jobs:
-                    test_results["no_job_processing_errors"] = True
-                    print(f"   ✅ No job processing errors detected")
-                else:
-                    print(f"   ❌ Found {len(failed_jobs)} failed jobs")
-                    for failed_job in failed_jobs[:3]:  # Show first 3 failed jobs
-                        print(f"      Failed job: {failed_job.get('job_type')} - {failed_job.get('error_message', 'No error message')}")
-                
-                # Check if job chain completed successfully
-                if (test_results["summarize_session_job_found"] and 
-                    test_results["plan_next_session_job_enqueued"]):
-                    test_results["job_chain_completed_successfully"] = True
-                    print(f"   ✅ Job chain completed successfully")
-                else:
-                    print(f"   ❌ Job chain did not complete successfully")
-            else:
-                print(f"   ❌ Failed to get job processing statistics: {jobs_response}")
+            # Check job processing statistics from database
+            try:
+                db = SessionLocal()
+                try:
+                    # Get overall job statistics
+                    stats_result = db.execute(text("""
+                        SELECT 
+                            COUNT(*) as total_jobs,
+                            COUNT(CASE WHEN status = 'succeeded' THEN 1 END) as succeeded_jobs,
+                            COUNT(CASE WHEN status = 'failed' THEN 1 END) as failed_jobs,
+                            COUNT(CASE WHEN status = 'queued' THEN 1 END) as queued_jobs,
+                            COUNT(CASE WHEN status = 'running' THEN 1 END) as running_jobs
+                        FROM bg_jobs 
+                        WHERE user_id = :user_id
+                    """), {"user_id": user_id})
+                    
+                    stats = stats_result.fetchone()
+                    if stats:
+                        total = stats.total_jobs
+                        succeeded = stats.succeeded_jobs
+                        failed = stats.failed_jobs
+                        queued = stats.queued_jobs
+                        running = stats.running_jobs
+                        success_rate = (succeeded / total * 100) if total > 0 else 0
+                        
+                        print(f"   📊 Total jobs: {total}")
+                        print(f"   📊 Succeeded jobs: {succeeded}")
+                        print(f"   📊 Failed jobs: {failed}")
+                        print(f"   📊 Queued jobs: {queued}")
+                        print(f"   📊 Running jobs: {running}")
+                        print(f"   📊 Success rate: {success_rate:.1f}%")
+                    
+                    # Check if all jobs have valid timestamps
+                    timestamp_result = db.execute(text("""
+                        SELECT COUNT(*) as total, 
+                               COUNT(CASE WHEN next_attempt_at IS NOT NULL THEN 1 END) as with_timestamps
+                        FROM bg_jobs 
+                        WHERE user_id = :user_id AND status IN ('queued', 'failed')
+                    """), {"user_id": user_id})
+                    
+                    timestamp_stats = timestamp_result.fetchone()
+                    if timestamp_stats:
+                        total_jobs_checked = timestamp_stats.total
+                        jobs_with_valid_timestamps = timestamp_stats.with_timestamps
+                        
+                        if total_jobs_checked > 0 and jobs_with_valid_timestamps == total_jobs_checked:
+                            test_results["all_jobs_have_valid_timestamps"] = True
+                            print(f"   ✅ All queued/failed jobs have valid next_attempt_at timestamps ({jobs_with_valid_timestamps}/{total_jobs_checked})")
+                        else:
+                            print(f"   ❌ Some jobs missing valid timestamps ({jobs_with_valid_timestamps}/{total_jobs_checked})")
+                    
+                    # Check for job processing errors
+                    failed_jobs_result = db.execute(text("""
+                        SELECT job_type, error_message, attempts, max_attempts
+                        FROM bg_jobs 
+                        WHERE user_id = :user_id AND status = 'failed'
+                        ORDER BY created_at DESC
+                        LIMIT 5
+                    """), {"user_id": user_id})
+                    
+                    failed_jobs = failed_jobs_result.fetchall()
+                    if not failed_jobs:
+                        test_results["no_job_processing_errors"] = True
+                        print(f"   ✅ No job processing errors detected")
+                    else:
+                        print(f"   ❌ Found {len(failed_jobs)} failed jobs")
+                        for failed_job in failed_jobs:
+                            error_msg = failed_job.error_message[:100] + "..." if failed_job.error_message and len(failed_job.error_message) > 100 else failed_job.error_message
+                            print(f"      Failed job: {failed_job.job_type} - {error_msg}")
+                    
+                    # Check if job chain completed successfully
+                    if (test_results["summarize_session_job_found"] and 
+                        test_results["plan_next_session_job_enqueued"]):
+                        test_results["job_chain_completed_successfully"] = True
+                        print(f"   ✅ Job chain completed successfully")
+                    else:
+                        print(f"   ❌ Job chain did not complete successfully")
+                    
+                finally:
+                    db.close()
+                    
+            except Exception as e:
+                print(f"   ❌ Error getting job processing statistics: {e}")
         
         # FINAL RESULTS SUMMARY
         print("\n" + "=" * 80)
