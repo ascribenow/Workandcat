@@ -1268,10 +1268,10 @@ class CATBackendTester:
             print("   ❌ Authentication failed - cannot proceed with pipeline testing")
             return False
         
-        # PHASE 2: SESSION SETUP AND COMPLETION
-        print("\n📋 PHASE 2: SESSION SETUP AND COMPLETION")
+        # PHASE 2: CREATE FRESH SESSION AND COMPLETE IT
+        print("\n📋 PHASE 2: CREATE FRESH SESSION AND COMPLETE IT")
         print("-" * 60)
-        print("Finding or creating a session to test the CORRECT completion endpoint")
+        print("Creating a new session and completing it to trigger fresh SUMMARIZE_SESSION job")
         
         # First, check if there are any existing sessions we can use
         session_id = None
