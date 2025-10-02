@@ -564,7 +564,7 @@ async def update_coverage_debt_from_session(user_id: str, session_id: str):
         """), {
             "user_id": user_id,
             "served_pairs": served_pairs,
-            "updated_at": datetime.now(timezone.utc)
+            "updated_at": now_ist()
         })
         
         db.commit()
