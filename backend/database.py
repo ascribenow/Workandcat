@@ -50,6 +50,7 @@ if is_postgres:
         connect_args={
             "sslmode": "require",  # Require SSL for security
             "application_name": "twelvr_cat_prep",
+            "options": "-c timezone=Asia/Kolkata",  # Set connection timezone to IST
         }
     )
     print("🐘 Using PostgreSQL database (Production)")
