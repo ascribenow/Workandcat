@@ -12,6 +12,7 @@ from database import SessionLocal
 from sqlalchemy import text
 from services.summarizer_llm_service import summarizer_llm_service
 from services.insight_cache_service import insight_cache_service
+from utils.timezone_utils import now_ist
 
 logger = logging.getLogger(__name__)
 
