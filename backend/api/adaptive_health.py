@@ -34,7 +34,7 @@ async def get_adaptive_health():
         )
 
 @router.get("/health/detailed")
-async def get_detailed_health(user_id: str = Depends(get_current_user)):
+async def get_detailed_health():
     """
     Get detailed health information including recommendations
     Requires authentication for detailed diagnostics
