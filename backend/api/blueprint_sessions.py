@@ -530,7 +530,7 @@ async def submit_answer(
                 "user_answer": request.answer,
                 "is_correct": is_correct,
                 "explanation": question_at_position.get('explanation', ''),
-                "timestamp": datetime.now(timezone.utc)
+                "timestamp": now_ist()  # FIXED: Use IST instead of UTC
             })
             
             # DASHBOARD FIX: Create attempt_events record for dashboard category breakdown  
