@@ -42267,14 +42267,14 @@ if __name__ == "__main__":
         
         # FINAL SUMMARY
         print("\n" + "=" * 80)
-        print("🏁 ASK TWELVR DOUBTS SYSTEM DATABASE PERSISTENCE - FINAL RESULTS")
+        print("🏁 ADAPTIVE LEARNING PIPELINE JOB CHAINING - FINAL RESULTS")
         print("=" * 80)
         print(f"Total Tests Run: {tester.tests_run}")
         print(f"Total Tests Passed: {tester.tests_passed}")
         print(f"Overall Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%" if tester.tests_run > 0 else "0%")
         
-        print("\n📊 ASK TWELVR DOUBTS SYSTEM TEST RESULTS:")
-        print(f"Doubts System Database Persistence Test: {'✅ PASS' if doubts_test_passed else '❌ FAIL'}")
+        print("\n📊 ADAPTIVE LEARNING PIPELINE TEST RESULTS:")
+        print(f"Job Chaining Bug Fix Test: {'✅ PASS' if pipeline_test_passed else '❌ FAIL'}")
         
         if doubts_test_passed:
             print("\n🎉 ASK TWELVR DOUBTS SYSTEM DATABASE PERSISTENCE: COMPLETED SUCCESSFULLY")
