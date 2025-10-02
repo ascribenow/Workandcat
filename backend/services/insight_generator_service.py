@@ -16,9 +16,61 @@ class InsightGeneratorService:
         self.user_call_counts = {}  # Track LLM usage per user per day
         self.max_calls_per_user_per_day = 10  # Reasonable limit
     
+    def generate_comprehensive_insights(self, comprehensive_data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Generate ALL insights including dashboard and session-specific preview
+        Uses comprehensive_data which includes upcoming_session info
+        """
+        try:
+            import os
+            
+            # Check for global fallback flag
+            if os.environ.get("INSIGHTS_FORCE_FALLBACK", "false").lower() == "true":
+                return self._generate_simple_fallback_insights(comprehensive_data)
+            
+            # Build comprehensive prompt with session pack data
+            prompt = self._build_comprehensive_insights_prompt(comprehensive_data)
+            
+            # Call Gemini LLM
+            response = self._call_gemini_llm(prompt)
+            
+            if response and len(response.strip()) > 50:
+                # Parse LLM response (expecting JSON with all insights)
+                try:
+                    import json
+                    # Clean response - remove markdown code blocks if present
+                    cleaned = response.strip()
+                    if cleaned.startswith("```json"):
+                        cleaned = cleaned[7:]
+                    if cleaned.startswith("```"):
+                        cleaned = cleaned[3:]
+                    if cleaned.endswith("```"):
+                        cleaned = cleaned[:-3]
+                    cleaned = cleaned.strip()
+                    
+                    insights_data = json.loads(cleaned)
+                    
+                    # Ensure we have the expected fields including session preview
+                    return {
+                        "dashboard_all_time": insights_data.get("all_time_markdown", "Your learning journey is building momentum!"),
+                        "dashboard_recent": insights_data.get("recent_markdown", "Keep up the consistent practice!"),
+                        "pre_session_card": insights_data.get("pre_session_card", self._generate_fallback_pre_session_card(comprehensive_data)),
+                        "source": "llm_comprehensive",
+                        "generated_at": datetime.now(timezone.utc).isoformat()
+                    }
+                except json.JSONDecodeError as je:
+                    self.logger.warning(f"LLM returned non-JSON: {je}, using fallback")
+                    return self._generate_simple_fallback_insights(comprehensive_data)
+            else:
+                return self._generate_simple_fallback_insights(comprehensive_data)
+                
+        except Exception as e:
+            self.logger.error(f"Error in comprehensive insights generation: {e}")
+            return self._generate_simple_fallback_insights(comprehensive_data)
+    
     def generate_concept_level_insights(self, user_id: str) -> Dict[str, Any]:
         """
-        Generate concept-level insights using LLM
+        LEGACY METHOD - Generate concept-level insights using LLM
         Analyzes learner_notebook and coverage_debt for actionable insights
         """
         try:
