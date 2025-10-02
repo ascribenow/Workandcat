@@ -8,7 +8,7 @@ import logging
 from datetime import datetime, timezone
 from database import SessionLocal
 from sqlalchemy import text
-from services.summarizer import run_summarizer
+# from services.summarizer import run_summarizer  # Replaced with bg_job_queue
 from services.telemetry import telemetry_service
 
 logger = logging.getLogger(__name__)
