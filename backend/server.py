@@ -2230,6 +2230,31 @@ async def get_dashboard_progress(user_id: str = Depends(get_current_user)):
         "progress_data": []
     }
 
+# Initialize Adaptive Job Supervisor on startup
+@app.on_event("startup")
+async def startup_event():
+    """Initialize services on application startup"""
+    try:
+        # Initialize adaptive job supervisor monitoring
+        from services.adaptive_job_supervisor import adaptive_supervisor
+        
+        # Start background monitoring (non-blocking)
+        asyncio.create_task(adaptive_supervisor.start_monitoring())
+        logger.info("🔍 Adaptive Job Supervisor: Monitoring started")
+        
+    except Exception as e:
+        logger.error(f"❌ Startup initialization failed: {e}")
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    """Clean up services on application shutdown"""
+    try:
+        from services.adaptive_job_supervisor import adaptive_supervisor
+        await adaptive_supervisor.stop_monitoring()
+        logger.info("⏹️ Adaptive Job Supervisor: Monitoring stopped")
+    except Exception as e:
+        logger.error(f"❌ Shutdown cleanup failed: {e}")
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8001)
