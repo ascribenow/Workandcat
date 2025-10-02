@@ -1296,11 +1296,50 @@ class CATBackendTester:
                 test_results["session_found_or_created"] = True
                 print(f"   ✅ Found existing session: {session_id}")
             else:
-                # Create a test session ID for testing
-                import uuid
-                session_id = str(uuid.uuid4())
-                test_results["session_found_or_created"] = True
-                print(f"   ✅ Created test session ID: {session_id}")
+                # Look for any existing sessions in the database
+                try:
+                    import sys
+                    sys.path.append('/app/backend')
+                    from database import SessionLocal
+                    from sqlalchemy import text
+                    
+                    db = SessionLocal()
+                    try:
+                        # Find any existing session for this user
+                        session_result = db.execute(text("""
+                            SELECT session_id FROM sessions 
+                            WHERE user_id = :user_id 
+                            ORDER BY created_at DESC 
+                            LIMIT 1
+                        """), {"user_id": user_id})
+                        
+                        session_row = session_result.fetchone()
+                        if session_row:
+                            session_id = session_row.session_id
+                            test_results["session_found_or_created"] = True
+                            print(f"   ✅ Found existing session in database: {session_id}")
+                        else:
+                            # Create a real session in the database for testing
+                            import uuid
+                            session_id = str(uuid.uuid4())
+                            
+                            db.execute(text("""
+                                INSERT INTO sessions (session_id, user_id, status, created_at)
+                                VALUES (:session_id, :user_id, 'served', NOW())
+                            """), {"session_id": session_id, "user_id": user_id})
+                            db.commit()
+                            
+                            test_results["session_found_or_created"] = True
+                            print(f"   ✅ Created new session in database: {session_id}")
+                    finally:
+                        db.close()
+                        
+                except Exception as e:
+                    print(f"   ❌ Error finding/creating session: {e}")
+                    # Fallback to random UUID
+                    import uuid
+                    session_id = str(uuid.uuid4())
+                    print(f"   ⚠️ Using random session ID as fallback: {session_id}")
         
         # Test session completion endpoint
         if session_id and auth_headers:
