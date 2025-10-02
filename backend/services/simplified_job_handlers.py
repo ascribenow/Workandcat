@@ -414,10 +414,12 @@ async def handle_plan_next_session(job: Dict[str, Any]) -> Dict[str, Any]:
         
         # Step 4: Enqueue UPDATE_INSIGHTS job to refresh adaptive insights
         from services.bg_job_queue import job_queue
+        correlation_id = job.get("correlation_id")
         insights_job_id = await job_queue.enqueue_job(
             job_type="UPDATE_INSIGHTS",
             user_id=user_id,
-            session_id=pack_id  # Use the newly created pack_id for pre-session insights
+            session_id=pack_id,  # Use the newly created pack_id for pre-session insights
+            correlation_id=correlation_id
         )
         
         logger.info(f"✅ PLAN_NEXT_SESSION completed: pack {pack_id[:8]}, enqueued UPDATE_INSIGHTS: {insights_job_id[:8]}")
