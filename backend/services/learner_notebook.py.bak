@@ -1,4 +1,3 @@
-from utils.timezone_utils import now_ist
 """
 Learner Notebook Service
 Manages a user's Learner Notebook (skill statuses) with backup to session_summary_llm
@@ -114,7 +113,7 @@ class LearnerNotebookService:
             backup_data = {
                 "notebook_before": notebook_before,
                 "notebook_after": notebook_after,
-                "backup_timestamp": now_ist().isoformat(),
+                "backup_timestamp": datetime.utcnow().isoformat(),
                 "backup_type": "coverage_notebook_update",
                 "skill_changes": self._calculate_skill_changes(notebook_before, notebook_after)
             }

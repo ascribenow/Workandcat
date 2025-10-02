@@ -1,4 +1,3 @@
-from utils.timezone_utils import now_ist
 #!/usr/bin/env python3
 """
 Dynamic Frequency Calculator
@@ -76,7 +75,7 @@ class DynamicFrequencyCalculator:
                 'matching_concepts_summary': frequency_metrics['concept_summary'],
                 'calculation_metadata': {
                     'similarity_threshold': self.similarity_threshold,
-                    'calculation_timestamp': now_ist().isoformat()
+                    'calculation_timestamp': datetime.utcnow().isoformat()
                 }
             }
             
@@ -250,7 +249,7 @@ class DynamicFrequencyCalculator:
             'matching_concepts_summary': [],
             'calculation_metadata': {
                 'similarity_threshold': self.similarity_threshold,
-                'calculation_timestamp': now_ist().isoformat(),
+                'calculation_timestamp': datetime.utcnow().isoformat(),
                 'error': error
             }
         }

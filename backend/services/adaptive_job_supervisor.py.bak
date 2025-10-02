@@ -1,4 +1,3 @@
-from utils.timezone_utils import now_ist
 """
 Enhanced Adaptive Job Supervisor
 Provides intelligent supervision, monitoring, and failure recovery for the adaptive engine
@@ -99,7 +98,7 @@ class AdaptiveJobSupervisor:
             overall_health = await self._assess_overall_health()
             
             return {
-                "timestamp": now_ist().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
                 "overall_status": overall_health.value,
                 "job_metrics": [
                     {
@@ -117,7 +116,7 @@ class AdaptiveJobSupervisor:
         except Exception as e:
             logger.error(f"❌ Health check failed: {e}")
             return {
-                "timestamp": now_ist().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
                 "overall_status": HealthStatus.CRITICAL.value,
                 "error": str(e)
             }
@@ -175,13 +174,13 @@ class AdaptiveJobSupervisor:
                 if cb.state == CircuitBreakerState.CLOSED:
                     if recent_failures >= cb.failure_threshold:
                         cb.state = CircuitBreakerState.OPEN
-                        cb.last_failure_time = now_ist()
+                        cb.last_failure_time = datetime.now(timezone.utc)
                         logger.warning(f"🔴 Circuit breaker OPENED for {job_type} (failures: {recent_failures})")
                 
                 elif cb.state == CircuitBreakerState.OPEN:
                     # Check if recovery timeout has passed
                     if (cb.last_failure_time and 
-                        now_ist() - cb.last_failure_time > 
+                        datetime.now(timezone.utc) - cb.last_failure_time > 
                         timedelta(minutes=cb.recovery_timeout_minutes)):
                         cb.state = CircuitBreakerState.HALF_OPEN
                         logger.info(f"🟡 Circuit breaker HALF-OPEN for {job_type} (testing recovery)")
@@ -202,7 +201,7 @@ class AdaptiveJobSupervisor:
                         logger.info(f"🟢 Circuit breaker CLOSED for {job_type} (recovery confirmed)")
                     elif recent_failures > 0:
                         cb.state = CircuitBreakerState.OPEN
-                        cb.last_failure_time = now_ist()
+                        cb.last_failure_time = datetime.now(timezone.utc)
                         logger.warning(f"🔴 Circuit breaker back to OPEN for {job_type}")
         
         finally:

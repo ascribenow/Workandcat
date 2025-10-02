@@ -1,4 +1,3 @@
-from utils.timezone_utils import now_ist
 """
 Background Job Handlers
 Implements specific job processing logic for different job types
@@ -302,7 +301,7 @@ async def update_learner_notebook(user_id: str, planning_result: Dict[str, Any])
                 "concept_id": concept_id,
                 "label": rec.get("canonical_label", "Unknown Concept"),
                 "readiness_labels": json.dumps(rec.get("readiness_labels", [])),
-                "updated_at": now_ist()
+                "updated_at": datetime.now(timezone.utc)
             })
         
         db.commit()
@@ -406,7 +405,7 @@ async def update_learner_notebook_from_analysis(user_id: str, concept_insights: 
                 "total_attempts": data["total_attempts"],
                 "correct_attempts": data["correct_attempts"],
                 "readiness_labels": json.dumps(readiness_labels),
-                "updated_at": now_ist(),
+                "updated_at": datetime.now(timezone.utc),
                 "last_attempt_at": data["last_attempt"]
             })
         
@@ -534,7 +533,7 @@ async def update_coverage_debt_table(user_id: str, analysis: Dict[str, Any]):
                 "reason_codes": json.dumps(debt["reason_codes"]),
                 "priority_score": debt["priority_score"],
                 "days_since_practice": debt["days_since_practice"],
-                "updated_at": now_ist()
+                "updated_at": datetime.now(timezone.utc)
             })
         
         db.commit()

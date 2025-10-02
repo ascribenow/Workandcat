@@ -1,4 +1,3 @@
-from utils.timezone_utils import now_ist
 """
 Minimal insights observability - just two metrics
 """
@@ -22,7 +21,7 @@ class InsightsMetrics:
         """Get minimal metrics for observability"""
         db = SessionLocal()
         try:
-            now = now_ist()
+            now = datetime.now(timezone.utc)
             
             # Get dashboard cache age
             dashboard_entry = db.query(UserDashboardInsights).order_by(

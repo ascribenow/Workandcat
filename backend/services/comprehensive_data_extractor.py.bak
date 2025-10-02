@@ -1,4 +1,3 @@
-from utils.timezone_utils import now_ist
 """
 Comprehensive Data Extractor - Get ALL user data for LLM analysis
 Simple approach: Extract everything, let LLM figure out the insights
@@ -25,7 +24,7 @@ class ComprehensiveDataExtractor:
             # Get everything - let LLM analyze patterns
             user_data = {
                 "user_id": user_id[:8],  # Truncated for privacy
-                "extraction_timestamp": now_ist().isoformat(),
+                "extraction_timestamp": datetime.now(timezone.utc).isoformat(),
                 "session_context": session_id,
                 
                 # Core session data
@@ -58,7 +57,7 @@ class ComprehensiveDataExtractor:
             # Return minimal data structure if extraction fails
             return {
                 "user_id": user_id[:8],
-                "extraction_timestamp": now_ist().isoformat(),
+                "extraction_timestamp": datetime.now(timezone.utc).isoformat(),
                 "error": str(e),
                 "sessions": [],
                 "message": "Limited data available for analysis"
@@ -282,7 +281,7 @@ class ComprehensiveDataExtractor:
         """Get recent activity summary"""
         try:
             # Last 7 days activity
-            week_ago = now_ist() - timedelta(days=7)
+            week_ago = datetime.now(timezone.utc) - timedelta(days=7)
             
             query = text("""
                 SELECT 

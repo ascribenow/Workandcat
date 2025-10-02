@@ -2,7 +2,6 @@ import logging
 import json
 from typing import Dict, List, Any, Optional
 from datetime import datetime, timezone
-from utils.timezone_utils import now_ist
 
 # Direct Gemini LLM implementation
 
@@ -57,7 +56,7 @@ class InsightGeneratorService:
                         "dashboard_recent": insights_data.get("recent_markdown", "Keep up the consistent practice!"),
                         "pre_session_card": insights_data.get("pre_session_card", self._generate_fallback_pre_session_card(comprehensive_data)),
                         "source": "llm_comprehensive",
-                        "generated_at": now_ist().isoformat()
+                        "generated_at": datetime.now(timezone.utc).isoformat()
                     }
                 except json.JSONDecodeError as je:
                     self.logger.warning(f"LLM returned non-JSON: {je}, using fallback")
@@ -107,7 +106,7 @@ class InsightGeneratorService:
                     return {
                         "all_time_markdown": insights_data.get("all_time_markdown", "Your learning journey is building momentum!"),
                         "recent_markdown": insights_data.get("recent_markdown", "Keep up the consistent practice!"),
-                        "last_updated_at": now_ist().isoformat(),
+                        "last_updated_at": datetime.now(timezone.utc).isoformat(),
                         "source": "llm_concept_level",
                         "total_concepts": insights_data.get("total_concepts", 0)
                     }
@@ -116,7 +115,7 @@ class InsightGeneratorService:
                     return {
                         "all_time_markdown": response.strip()[:500],
                         "recent_markdown": "Continue building your consistent practice!",
-                        "last_updated_at": now_ist().isoformat(),
+                        "last_updated_at": datetime.now(timezone.utc).isoformat(),
                         "source": "llm_concept_markdown"
                     }
             else:
@@ -169,7 +168,7 @@ class InsightGeneratorService:
             
             # Find neglected concepts (not seen in 14+ days)
             from datetime import datetime, timezone
-            now = now_ist()
+            now = datetime.now(timezone.utc)
             neglected = []
             for c in concepts_result:
                 if c[3]:  # last_seen_at
@@ -315,7 +314,7 @@ BAD EXAMPLES:
             "dashboard_recent": "Your recent practice shows you're staying engaged with the material. Each session is teaching you something new about approaching quantitative problems effectively.",
             "pre_session_card": self._generate_fallback_pre_session_card(comprehensive_data),
             "source": "simple_fallback",
-            "generated_at": now_ist().isoformat()
+            "generated_at": datetime.now(timezone.utc).isoformat()
         }
         
     def _percent_to_human(self, accuracy: float) -> str:
@@ -487,7 +486,7 @@ BAD EXAMPLES:
         if not user_id:
             return True  # Allow if no user_id provided
             
-        today = now_ist().date().isoformat()
+        today = datetime.now(timezone.utc).date().isoformat()
         key = f"{user_id}_{surface}_{today}"
         
         current_count = self.user_call_counts.get(key, 0)
@@ -498,7 +497,7 @@ BAD EXAMPLES:
         if not user_id:
             return
             
-        today = now_ist().date().isoformat()
+        today = datetime.now(timezone.utc).date().isoformat()
         key = f"{user_id}_{surface}_{today}"
         
         current_count = self.user_call_counts.get(key, 0)
@@ -677,7 +676,7 @@ Data: {json.dumps(slice_dict, indent=2)}
                 "today": "Today's session will continue your growth"
             },
             "source": "simple_fallback",
-            "generated_at": now_ist().isoformat()
+            "generated_at": datetime.now(timezone.utc).isoformat()
         }
     
     def _validate_card_format(self, card_data: Any) -> bool:

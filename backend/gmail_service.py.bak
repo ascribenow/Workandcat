@@ -752,7 +752,7 @@ The Twelvr Team
     
     def cleanup_expired_codes(self):
         """Remove expired codes and pending users (both in-memory and database)"""
-        current_time = now_ist()
+        current_time = datetime.utcnow()
         
         # Clean up expired verification codes (legacy in-memory)
         expired_codes = [

@@ -1,4 +1,3 @@
-from utils.timezone_utils import now_ist
 #!/usr/bin/env python3
 """
 Telemetry and Metrics Service
@@ -30,7 +29,7 @@ class TelemetryService:
         tags = tags or {}
         
         metric_data = {
-            "timestamp": now_ist().isoformat(),
+            "timestamp": datetime.utcnow().isoformat(),
             "metric": metric_name,
             "value": value,
             "tags": tags

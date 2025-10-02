@@ -1,4 +1,3 @@
-from utils.timezone_utils import now_ist
 """
 Data Migration Script for Twelvr Blueprint
 Migrates existing adaptive_packs and sessions to new schema
@@ -33,7 +32,7 @@ class BlueprintDataMigrator:
             "packs_migrated": 0,
             "questions_created": 0,
             "errors": [],
-            "start_time": now_ist()
+            "start_time": datetime.now(timezone.utc)
         }
     
     async def execute_migration(self) -> Dict:
@@ -396,7 +395,7 @@ class BlueprintDataMigrator:
             "subcategory_distribution": subcategory_counts,
             "pyq_distribution": pyq_counts,
             "migration_source": "legacy_adaptive_pack",
-            "migrated_at": now_ist().isoformat()
+            "migrated_at": datetime.now(timezone.utc).isoformat()
         }
     
     def _transform_question_data(self, question: Dict) -> Dict:
@@ -441,7 +440,7 @@ class BlueprintDataMigrator:
         """
         Finalize migration statistics
         """
-        self.migration_stats["end_time"] = now_ist()
+        self.migration_stats["end_time"] = datetime.now(timezone.utc)
         duration = self.migration_stats["end_time"] - self.migration_stats["start_time"]
         self.migration_stats["duration_seconds"] = duration.total_seconds()
         

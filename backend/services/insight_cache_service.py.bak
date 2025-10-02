@@ -5,7 +5,6 @@ from sqlalchemy.orm import Session
 from database import SessionLocal, UserDashboardInsights, UserPreSessionInsights, UserInsightDebug
 from services.adaptive_insights_service import adaptive_insights_service
 from services.insight_generator_service import insight_generator_service
-from utils.timezone_utils import now_ist
 
 # In-memory cache for ultra-fast responses (Redis alternative for small datasets)
 _memory_cache = {}
@@ -179,7 +178,7 @@ class InsightCacheService:
             self.logger.info(f"Refreshing dashboard cache for user {user_id[:8]}")
             
             # Track timing for observability
-            start_time = now_ist()
+            start_time = datetime.now(timezone.utc)
             
             # Extract data slices
             all_time_slice = adaptive_insights_service.build_all_time_slice(user_id)
@@ -193,24 +192,24 @@ class InsightCacheService:
             recent_markdown = insight_generator_service.gen_recent_markdown(recent_slice)
             
             # Log timing
-            extraction_time = (now_ist() - start_time).total_seconds()
+            extraction_time = (datetime.now(timezone.utc) - start_time).total_seconds()
             self.logger.info(f"Dashboard insight extraction took {extraction_time:.3f}s for user {user_id[:8]}")
             
             # Prepare cache data
             all_time_insights = {
                 "markdown": all_time_markdown,
                 "data_slice": all_time_slice,
-                "generated_at": now_ist().isoformat()
+                "generated_at": datetime.now(timezone.utc).isoformat()
             }
             
             recent_insights = {
                 "markdown": recent_markdown,  
                 "data_slice": recent_slice,
-                "generated_at": now_ist().isoformat()
+                "generated_at": datetime.now(timezone.utc).isoformat()
             }
             
             # Update cache with upsert
-            now = now_ist()
+            now = datetime.now(timezone.utc)
             
             existing = db.query(UserDashboardInsights).filter(
                 UserDashboardInsights.user_id == user_id
@@ -257,7 +256,7 @@ class InsightCacheService:
             self.logger.info(f"Refreshing pre-session cache for user {user_id[:8]}")
             
             # Track timing
-            start_time = now_ist()
+            start_time = datetime.now(timezone.utc)
             
             # ALWAYS extract data and generate insights (no graceful degradation)
             pre_session_slice = adaptive_insights_service.build_pre_session_slice(user_id, session_id, window=5)
@@ -272,11 +271,11 @@ class InsightCacheService:
             insight_card["prompt_version"] = "v1.0_contextual_fix"
             
             # Log timing
-            extraction_time = (now_ist() - start_time).total_seconds()
+            extraction_time = (datetime.now(timezone.utc) - start_time).total_seconds()
             self.logger.info(f"Pre-session insight extraction took {extraction_time:.3f}s for user {user_id[:8]}")
             
             # Update cache with upsert
-            now = now_ist()
+            now = datetime.now(timezone.utc)
             
             existing = db.query(UserPreSessionInsights).filter(
                 UserPreSessionInsights.user_id == user_id
@@ -316,7 +315,7 @@ class InsightCacheService:
         """Direct storage method for comprehensive insights - Pure LLM Freedom approach"""
         db = SessionLocal()
         try:
-            now = now_ist()
+            now = datetime.now(timezone.utc)
             
             # Upsert dashboard insights
             existing = db.query(UserDashboardInsights).filter(
@@ -351,7 +350,7 @@ class InsightCacheService:
         """Direct storage method for pre-session insights - Pure LLM Freedom approach"""
         db = SessionLocal()
         try:
-            now = now_ist()
+            now = datetime.now(timezone.utc)
             
             # Add metadata to insight card
             insight_card_with_meta = insight_card.copy()
@@ -475,7 +474,7 @@ class InsightCacheService:
             "progress": progress,
             "way_forward": way_forward,
             "today": today,
-            "last_updated_at": now_ist().isoformat(),
+            "last_updated_at": datetime.now(timezone.utc).isoformat(),
             "source": "contextual_coach_voice",
             "prompt_version": "v1.0_contextual"
         }
@@ -492,7 +491,7 @@ class InsightCacheService:
             if last_updated.tzinfo is None:
                 last_updated = last_updated.replace(tzinfo=timezone.utc)
             
-            cache_age = now_ist() - last_updated
+            cache_age = datetime.now(timezone.utc) - last_updated
             is_fresh = cache_age.total_seconds() < (ttl_hours * 3600)
             
             # Log cache age for debugging
@@ -518,7 +517,7 @@ class InsightCacheService:
                 UserInsightDebug.user_id == user_id
             ).first()
             
-            now = now_ist()
+            now = datetime.now(timezone.utc)
             
             if existing:
                 if all_time_slice is not None:
@@ -574,7 +573,7 @@ class InsightCacheService:
         return {
             "all_time_markdown": "We're preparing your personalized insights! Complete a session or two and they'll appear here soon.",
             "recent_markdown": "Your momentum analysis is being generated. Check back after your next session.",
-            "last_updated_at": now_ist().isoformat()
+            "last_updated_at": datetime.now(timezone.utc).isoformat()
         }
     
     def _empty_pre_session_response(self) -> Dict[str, Any]:
@@ -584,7 +583,7 @@ class InsightCacheService:
             "progress": "Your session insights are being prepared.",
             "way_forward": ["Focus on understanding each question", "Work at your steady pace"],
             "today": "12 adaptive questions await you.",
-            "last_updated_at": now_ist().isoformat()
+            "last_updated_at": datetime.now(timezone.utc).isoformat()
         }
     
     def get_cache_metrics(self) -> Dict[str, Any]:
@@ -601,7 +600,7 @@ class InsightCacheService:
             pre_session_count = db.execute(pre_session_count_query).scalar()
             
             # Get cache age statistics
-            now = now_ist()
+            now = datetime.now(timezone.utc)
             age_query = text("""
                 SELECT 
                     AVG(EXTRACT(EPOCH FROM (:now - last_updated_at))) as avg_age_seconds,

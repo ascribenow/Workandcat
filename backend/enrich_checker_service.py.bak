@@ -1,4 +1,3 @@
-from utils.timezone_utils import now_ist
 #!/usr/bin/env python3
 """
 Enrich Checker Service
@@ -137,7 +136,7 @@ class EnrichCheckerService:
                 "perfect_quality_count": perfect_quality_count,
                 "perfect_quality_percentage": round(perfect_quality_percentage, 2),
                 "improvement_rate_percentage": round(improvement_rate, 2),
-                "processing_completed_at": now_ist().isoformat()
+                "processing_completed_at": datetime.utcnow().isoformat()
             })
             
             logger.info("🎉 Regular Questions Enrichment Check completed!")
@@ -233,7 +232,7 @@ class EnrichCheckerService:
                 "perfect_quality_count": perfect_quality_count,
                 "perfect_quality_percentage": round(perfect_quality_percentage, 2),
                 "improvement_rate_percentage": round(improvement_rate, 2),
-                "processing_completed_at": now_ist().isoformat()
+                "processing_completed_at": datetime.utcnow().isoformat()
             })
             
             logger.info("🎉 PYQ Questions Enrichment Check completed!")
@@ -494,7 +493,7 @@ Return ONLY this JSON:
                 
                 # Update metadata
                 question.llm_difficulty_assessment_method = 'llm_verified'
-                question.last_llm_assessment_date = now_ist()
+                question.last_llm_assessment_date = datetime.utcnow()
                 question.llm_assessment_error = None
                 
                 db.commit()
@@ -547,7 +546,7 @@ Return ONLY this JSON:
                 
                 # Update PYQ metadata
                 question.concept_extraction_status = 'completed'
-                question.last_updated = now_ist()
+                question.last_updated = datetime.utcnow()
                 question.is_active = True
                 
                 db.commit()

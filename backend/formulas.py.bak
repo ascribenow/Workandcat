@@ -1,4 +1,3 @@
-from utils.timezone_utils import now_ist
 """
 CAT Preparation Platform - Comprehensive Formula Implementation
 Contains all scoring, difficulty, mastery, and assessment formulas
@@ -789,7 +788,7 @@ def can_attempt_question(last_attempt_date: datetime, incorrect_attempts_count: 
     
     # Calculate hours since last attempt if not provided
     if hours_since_last is None:
-        time_diff = now_ist() - last_attempt_date
+        time_diff = datetime.utcnow() - last_attempt_date
         hours_since_last = time_diff.total_seconds() / 3600
     
     # If answered incorrectly twice, can attempt anytime
@@ -812,7 +811,7 @@ def get_next_attempt_time(last_attempt_date: datetime, incorrect_attempts_count:
         Datetime when next attempt is allowed
     """
     if incorrect_attempts_count >= 2:
-        return now_ist()  # Can attempt immediately
+        return datetime.utcnow()  # Can attempt immediately
     
     return last_attempt_date + timedelta(hours=48)
 
