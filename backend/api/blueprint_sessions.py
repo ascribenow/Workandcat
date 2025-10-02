@@ -557,7 +557,7 @@ async def submit_answer(
                 "was_correct": is_correct,
                 "skipped": False,  # Blueprint answers are never skipped
                 "response_time_ms": 30000,  # Default response time for Blueprint answers
-                "created_at": datetime.now(timezone.utc),
+                "created_at": now_ist(),  # FIXED: Use IST instead of UTC
                 "difficulty_band": question_at_position.get('difficulty_band', 'Medium'),
                 "subcategory": question_at_position.get('subcategory', 'General'),
                 "type_of_question": question_at_position.get('type_of_question', 'MCQ'),
