@@ -310,36 +310,70 @@ class ComprehensiveDataExtractor:
             return {}
     
     def _get_upcoming_session_context(self, db: Session, session_id: str) -> Dict[str, Any]:
-        """Get context about upcoming/current session"""
+        """Get detailed context about upcoming/current session including question breakdown"""
         if not session_id:
             return {}
             
         try:
-            # Try to get session pack info if available
+            # Get detailed question breakdown for the session pack
             query = text("""
                 SELECT 
-                    sp.session_id,
-                    sp.pack_type,
-                    sp.difficulty_distribution,
-                    COUNT(spq.id) as question_count,
-                    STRING_AGG(DISTINCT q.subcategory, ', ') as topics_covered
-                FROM session_packs sp
-                LEFT JOIN session_pack_questions spq ON spq.session_id = sp.session_id
-                LEFT JOIN questions q ON q.id = spq.question_id
-                WHERE sp.session_id = :session_id
-                GROUP BY sp.session_id, sp.pack_type, sp.difficulty_distribution
+                    q.subcategory,
+                    q.difficulty_band,
+                    q.type_of_question,
+                    q.core_concepts,
+                    COUNT(*) as count
+                FROM session_pack_questions spq
+                JOIN questions q ON q.id = spq.question_id
+                WHERE spq.pack_session_id = :session_id OR spq.session_id = :session_id
+                GROUP BY q.subcategory, q.difficulty_band, q.type_of_question, q.core_concepts
+                ORDER BY COUNT(*) DESC
             """)
             
-            result = db.execute(query, {"session_id": session_id}).fetchone()
-            if result:
+            results = db.execute(query, {"session_id": session_id}).fetchall()
+            
+            if results:
+                # Build detailed breakdown
+                topic_distribution = {}
+                difficulty_distribution = {"Easy": 0, "Medium": 0, "Hard": 0}
+                total_questions = 0
+                all_concepts = set()
+                
+                for row in results:
+                    subcategory = row.subcategory or "General"
+                    difficulty = row.difficulty_band or "Medium"
+                    count = row.count
+                    concepts = row.core_concepts or []
+                    
+                    # Topic distribution
+                    if subcategory not in topic_distribution:
+                        topic_distribution[subcategory] = {
+                            "count": 0,
+                            "difficulty_breakdown": {"Easy": 0, "Medium": 0, "Hard": 0}
+                        }
+                    
+                    topic_distribution[subcategory]["count"] += count
+                    topic_distribution[subcategory]["difficulty_breakdown"][difficulty] += count
+                    
+                    # Overall difficulty
+                    difficulty_distribution[difficulty] += count
+                    total_questions += count
+                    
+                    # Collect concepts
+                    if isinstance(concepts, list):
+                        all_concepts.update(concepts)
+                
                 return {
-                    "session_id": result.session_id,
-                    "pack_type": result.pack_type,
-                    "difficulty_distribution": result.difficulty_distribution,
-                    "question_count": int(result.question_count or 0),
-                    "topics_covered": result.topics_covered.split(', ') if result.topics_covered else []
+                    "session_id": session_id,
+                    "total_questions": total_questions,
+                    "topic_distribution": topic_distribution,
+                    "difficulty_distribution": difficulty_distribution,
+                    "key_concepts": list(all_concepts)[:10],  # Top 10 concepts
+                    "status": "pack_ready"
                 }
+            
             return {"session_id": session_id, "status": "pack_not_ready"}
+            
         except Exception as e:
             self.logger.warning(f"Error getting upcoming session context: {e}")
             return {"session_id": session_id, "error": str(e)}
