@@ -170,12 +170,18 @@ class InsightGeneratorService:
             if not concepts_result:
                 return """Return this exact JSON: {"dashboard_all_time": "Start your learning journey! Complete your first practice session to see personalized insights about your strengths and areas for improvement.", "dashboard_recent": "Your adaptive insights will appear here after you complete a few practice sessions.", "pre_session_card": {"title": "Begin Your Journey 🚀", "progress": "Each session helps us understand your learning patterns better!", "way_forward": ["Complete your first session", "Build consistent practice"], "today": "Start building your concept map today!"}}"""
             
-            # Analyze concepts
-            total_concepts = len(concepts_result)
-            strong_concepts = [c for c in concepts_result if c[1] >= 0.7]
-            moderate_concepts = [c for c in concepts_result if 0.3 < c[1] < 0.7]
-            weak_concepts = [c for c in concepts_result if c[1] <= 0.3]
-            avg_mastery = sum(c[1] for c in concepts_result) / total_concepts if total_concepts > 0 else 0
+            # CRITICAL FIX: Filter concepts by minimum attempt threshold
+            # c[4] is total_attempts from the query above
+            MINIMUM_ATTEMPTS_FOR_MASTERY = 3
+            concepts_sufficient_data = [c for c in concepts_result if c[4] >= MINIMUM_ATTEMPTS_FOR_MASTERY]
+            concepts_low_data = [c for c in concepts_result if c[4] < MINIMUM_ATTEMPTS_FOR_MASTERY]
+            
+            # Analyze concepts (ONLY those with sufficient attempts)
+            total_concepts = len(concepts_sufficient_data)
+            strong_concepts = [c for c in concepts_sufficient_data if c[1] >= 0.7]
+            moderate_concepts = [c for c in concepts_sufficient_data if 0.3 < c[1] < 0.7]
+            weak_concepts = [c for c in concepts_sufficient_data if c[1] <= 0.3]
+            avg_mastery = sum(c[1] for c in concepts_sufficient_data) / total_concepts if total_concepts > 0 else 0
             
             # Find neglected concepts (not seen in 14+ days)
             from datetime import datetime, timezone
