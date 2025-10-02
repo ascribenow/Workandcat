@@ -1833,10 +1833,7 @@ class CATBackendTester:
             else:
                 print(f"   ❌ Session completion failed: {completion_response}")
         else:
-            print(f"   ❌ Cannot test completion - missing session_id or auth_headers")ERT INTO sessions (session_id, user_id, status, created_at)
-                            VALUES (:session_id, :user_id, 'served', NOW())
-                        """), {"session_id": session_id, "user_id": user_id})
-                        db.commit()
+            print(f"   ❌ Cannot test completion - missing session_id or auth_headers")
                         
                         test_results["session_found_or_created"] = True
                         print(f"   ✅ Created fresh session for testing: {session_id}")
