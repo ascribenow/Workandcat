@@ -246,7 +246,7 @@ class PYQQuestion(Base):
             try:
                 # Update status
                 self.concept_extraction_status = 'processing'
-                self.last_updated = now_ist()
+                self.last_updated = datetime.utcnow()
                 
                 # Trigger Enhanced PYQ Enrichment
                 enrichment_result = await enhanced_enricher.full_pyq_enrichment(self)

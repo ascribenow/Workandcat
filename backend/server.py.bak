@@ -1323,7 +1323,7 @@ async def deprecated_session_start():
     from services.telemetry import telemetry_service
     
     telemetry_service.emit_metric("legacy.endpoint.sessions_start_410", 1, {
-        "deprecated_at": now_ist().isoformat(),
+        "deprecated_at": datetime.utcnow().isoformat(),
         "replacement": "/api/adapt/plan-next"
     })
     

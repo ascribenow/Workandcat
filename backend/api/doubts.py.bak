@@ -1,4 +1,3 @@
-from utils.timezone_utils import now_ist
 # API endpoints for Ask Twelvr doubt conversation system
 import os
 import json
@@ -309,7 +308,7 @@ Respond with your full intelligence - be witty, use analogies, and help them und
                 # Update message count
                 count_record.message_count += 1
                 count_record.is_locked = count_record.message_count >= MAX_MESSAGES_PER_QUESTION
-                count_record.updated_at = now_ist()
+                count_record.updated_at = datetime.utcnow()
                 
                 db.commit()
                 
@@ -376,7 +375,7 @@ async def get_doubt_history(
             {
                 "role": msg.role,
                 "content": msg.content,
-                "timestamp": msg.timestamp.isoformat() if msg.timestamp else now_ist().isoformat()
+                "timestamp": msg.timestamp.isoformat() if msg.timestamp else datetime.utcnow().isoformat()
             }
             for msg in history_records
         ]

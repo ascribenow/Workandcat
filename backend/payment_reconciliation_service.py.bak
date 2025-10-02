@@ -1,4 +1,3 @@
-from utils.timezone_utils import now_ist
 """
 Payment Reconciliation Service
 Ensures data integrity between Twelvr and Razorpay systems
@@ -28,7 +27,7 @@ class PaymentReconciliationService:
     def __init__(self):
         self.db_session = SessionLocal()
         self.reconciliation_results = {
-            "timestamp": now_ist().isoformat(),
+            "timestamp": datetime.utcnow().isoformat(),
             "total_checks": 0,
             "discrepancies_found": 0,
             "fixes_applied": 0,
@@ -72,7 +71,7 @@ class PaymentReconciliationService:
         
         try:
             # Get payment transactions from last N days
-            cutoff_date = now_ist() - timedelta(days=days_back)
+            cutoff_date = datetime.utcnow() - timedelta(days=days_back)
             
             transactions = self.db_session.query(PaymentTransaction).filter(
                 and_(
@@ -120,7 +119,7 @@ class PaymentReconciliationService:
         logger.info("🔍 Checking for amount discrepancies with Razorpay...")
         
         try:
-            cutoff_date = now_ist() - timedelta(days=days_back)
+            cutoff_date = datetime.utcnow() - timedelta(days=days_back)
             
             subscriptions = self.db_session.query(Subscription).filter(
                 and_(
@@ -177,7 +176,7 @@ class PaymentReconciliationService:
         logger.info("🔍 Checking for duplicate payments...")
         
         try:
-            cutoff_date = now_ist() - timedelta(days=days_back)
+            cutoff_date = datetime.utcnow() - timedelta(days=days_back)
             
             # Find users with multiple active subscriptions (potential duplicates)
             from sqlalchemy import func
@@ -214,7 +213,7 @@ class PaymentReconciliationService:
         logger.info("🔍 Checking for subscription plan mismatches...")
         
         try:
-            cutoff_date = now_ist() - timedelta(days=days_back)
+            cutoff_date = datetime.utcnow() - timedelta(days=days_back)
             
             subscriptions = self.db_session.query(Subscription).filter(
                 and_(
@@ -258,7 +257,7 @@ class PaymentReconciliationService:
             
             # Create the missing subscription
             if detected_plan["plan_type"] == "pro_regular":
-                end_date = now_ist() + timedelta(days=30)
+                end_date = datetime.utcnow() + timedelta(days=30)
             elif detected_plan["plan_type"] == "pro_exclusive":
                 end_date = datetime(2025, 12, 31, 23, 59, 0)
             else:
@@ -271,11 +270,11 @@ class PaymentReconciliationService:
                 plan_type=detected_plan["plan_type"],
                 amount=razorpay_data["amount"],
                 status="active",
-                current_period_start=now_ist(),
+                current_period_start=datetime.utcnow(),
                 current_period_end=end_date,
                 auto_renew=detected_plan["plan_type"] == "pro_regular",
-                created_at=now_ist(),
-                updated_at=now_ist()
+                created_at=datetime.utcnow(),
+                updated_at=datetime.utcnow()
             )
             
             self.db_session.add(subscription)
@@ -312,7 +311,7 @@ class PaymentReconciliationService:
             
             # Update subscription amount to match Razorpay
             subscription.amount = actual_amount
-            subscription.updated_at = now_ist()
+            subscription.updated_at = datetime.utcnow()
             
             self.db_session.commit()
             self.reconciliation_results["fixes_applied"] += 1

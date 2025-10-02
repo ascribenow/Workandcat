@@ -1,4 +1,3 @@
-from utils.timezone_utils import now_ist
 """
 Payment System Health Monitoring
 Monitors payment success rates, detects anomalies, and sends alerts
@@ -24,7 +23,7 @@ class PaymentSystemMonitor:
     def __init__(self):
         self.db_session = SessionLocal()
         self.monitoring_results = {
-            "timestamp": now_ist().isoformat(),
+            "timestamp": datetime.utcnow().isoformat(),
             "health_status": "unknown",
             "metrics": {},
             "alerts": [],
@@ -70,7 +69,7 @@ class PaymentSystemMonitor:
             self.monitoring_results["alerts"].append({
                 "level": "critical",
                 "message": f"Health check system failure: {str(e)}",
-                "timestamp": now_ist().isoformat()
+                "timestamp": datetime.utcnow().isoformat()
             })
             raise
         finally:
@@ -83,7 +82,7 @@ class PaymentSystemMonitor:
         logger.info("📊 Checking payment success rates...")
         
         try:
-            cutoff_time = now_ist() - timedelta(hours=hours_back)
+            cutoff_time = datetime.utcnow() - timedelta(hours=hours_back)
             
             # Get payment orders from last N hours
             recent_orders = self.db_session.query(PaymentOrder).filter(
@@ -134,7 +133,7 @@ class PaymentSystemMonitor:
         logger.info("🔐 Checking payment verification rates...")
         
         try:
-            cutoff_time = now_ist() - timedelta(hours=hours_back)
+            cutoff_time = datetime.utcnow() - timedelta(hours=hours_back)
             
             # Get payment transactions (successful verifications)
             verified_payments = self.db_session.query(PaymentTransaction).filter(
@@ -181,7 +180,7 @@ class PaymentSystemMonitor:
         logger.info("💰 Checking amount consistency...")
         
         try:
-            cutoff_time = now_ist() - timedelta(hours=hours_back)
+            cutoff_time = datetime.utcnow() - timedelta(hours=hours_back)
             
             # Find recent transactions with potential amount issues
             transactions = self.db_session.query(PaymentTransaction).filter(
@@ -235,7 +234,7 @@ class PaymentSystemMonitor:
         logger.info("🎁 Checking referral system health...")
         
         try:
-            cutoff_time = now_ist() - timedelta(hours=hours_back)
+            cutoff_time = datetime.utcnow() - timedelta(hours=hours_back)
             
             # Get recent orders with referral codes
             from referral_service import ReferralUsage
@@ -270,7 +269,7 @@ class PaymentSystemMonitor:
         logger.info("📱 Checking subscription activation rates...")
         
         try:
-            cutoff_time = now_ist() - timedelta(hours=hours_back)
+            cutoff_time = datetime.utcnow() - timedelta(hours=hours_back)
             
             # Get successful payments
             successful_payments = self.db_session.query(PaymentTransaction).filter(

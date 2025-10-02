@@ -1,4 +1,3 @@
-from utils.timezone_utils import now_ist
 """
 Subscription Access Control Service
 Handles feature access based on user subscription status
@@ -119,7 +118,7 @@ class SubscriptionAccessService:
             from database import Subscription
             
             # Get active subscriptions that haven't expired (paused subscriptions don't grant access)
-            now = now_ist()
+            now = datetime.utcnow()
             
             result = db.execute(
                 select(Subscription).where(
@@ -186,7 +185,7 @@ class SubscriptionAccessService:
                 }
             
             plan_config = self.plan_features[plan_type]
-            now = now_ist()
+            now = datetime.now(timezone.utc)
             
             # Check if plan has availability restrictions
             if "available_after" in plan_config:
@@ -236,7 +235,7 @@ class SubscriptionAccessService:
         try:
             from database import Subscription
             
-            now = now_ist()
+            now = datetime.utcnow()
             
             # Find expired active subscriptions
             expired_result = db.execute(

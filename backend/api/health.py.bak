@@ -1,4 +1,3 @@
-from utils.timezone_utils import now_ist
 """
 Enhanced health monitoring with root cause context
 Replaces manual log tailing and psql queries with API-driven observability
@@ -125,7 +124,7 @@ async def get_pipeline_health() -> Dict[str, Any]:
         
         return {
             "status": health_status,
-            "timestamp": now_ist().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "metrics": metrics,
             "root_cause_context": {
                 "top_failing_job_types": root_cause,
@@ -231,7 +230,7 @@ async def refresh_health_metrics():
         
         return {
             "status": "success",
-            "updated_at": now_ist().isoformat(),
+            "updated_at": datetime.now(timezone.utc).isoformat(),
             "message": "Health metrics refreshed successfully"
         }
         

@@ -1,4 +1,3 @@
-from utils.timezone_utils import now_ist
 """
 Migration Validation Script for Twelvr Blueprint
 Comprehensive validation of data migration and schema compliance
@@ -34,7 +33,7 @@ class MigrationValidator:
             "deviation_compliance": {},
             "data_integrity": {},
             "performance_metrics": {},
-            "timestamp": now_ist().isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat()
         }
     
     async def run_full_validation(self) -> Dict:

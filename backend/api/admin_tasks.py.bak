@@ -1,4 +1,3 @@
-from utils.timezone_utils import now_ist
 """
 Admin task endpoints for operational tasks
 Replaces manual scripts with API-driven operations
@@ -42,7 +41,7 @@ class BackfillManager:
     def __init__(self, request: BackfillRequest):
         self.request = request
         self.batch_id = str(uuid.uuid4())
-        self.started_at = now_ist()
+        self.started_at = datetime.now(timezone.utc)
         self.stats = {
             "found": 0,
             "enqueued": 0,

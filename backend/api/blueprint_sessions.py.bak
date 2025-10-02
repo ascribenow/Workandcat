@@ -160,7 +160,7 @@ async def start_session(
             
             should_force_refresh = False
             if cache_check and cache_check.last_updated_at:
-                cache_age_hours = (now_ist() - cache_check.last_updated_at).total_seconds() / 3600
+                cache_age_hours = (datetime.now(timezone.utc) - cache_check.last_updated_at).total_seconds() / 3600
                 # Force refresh if cache is older than 4 hours before session start
                 should_force_refresh = cache_age_hours > 4
                 
@@ -239,7 +239,7 @@ async def start_session(
             "questions_answered": questions_answered,  # Include answered count
             "session_type": "blueprint",
             "session_number": calculated_session_number,  # FIX: Use calculated number instead of stored sess_seq
-            "created_at": now_ist().isoformat()
+            "created_at": datetime.now(timezone.utc).isoformat()
         }, status_code=200)
         
     except Exception as e:
@@ -338,7 +338,7 @@ async def get_session_questions(
                 "_display_meta": {
                     "has_all_options": all(q.get(f'option_{opt}') for opt in ['a', 'b', 'c', 'd']),
                     "has_solution_feedback": any(q.get(field) for field in ['snap_read', 'solution_approach', 'detailed_solution', 'principle_to_remember']),
-                    "served_at": now_ist().isoformat()
+                    "served_at": datetime.now(timezone.utc).isoformat()
                 }
             }
             
@@ -756,7 +756,7 @@ async def complete_session(
             else:
                 # First completion - generate new correlation ID and update
                 correlation_id = str(uuid.uuid4())
-                completed_at = now_ist()
+                completed_at = datetime.now(timezone.utc)
                 
                 db.execute(text("""
                     UPDATE sessions 
@@ -823,7 +823,7 @@ async def complete_session(
             "total_questions": total_questions,
             "correct_answers": correct_answers,
             "accuracy": round(accuracy, 1),
-            "completed_at": now_ist().isoformat(),
+            "completed_at": datetime.now(timezone.utc).isoformat(),
             "session_type": "blueprint",
             "adaptive_processing": "queued" if bg_jobs_enqueued else "enqueue_failed",
             "correlation_id": correlation_id,
@@ -963,7 +963,7 @@ async def blueprint_health():
                     "status": "healthy",
                     "blueprint_system": "operational",
                     "database_connection": "active",
-                    "timestamp": now_ist().isoformat()
+                    "timestamp": datetime.now(timezone.utc).isoformat()
                 }, status_code=200)
             else:
                 raise Exception("Database test query failed")
@@ -976,5 +976,5 @@ async def blueprint_health():
             "status": "unhealthy",
             "blueprint_system": "error",
             "error": str(e),
-            "timestamp": now_ist().isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat()
         }, status_code=503)
