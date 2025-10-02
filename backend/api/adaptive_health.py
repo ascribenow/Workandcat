@@ -106,8 +106,10 @@ async def reset_circuit_breaker(job_type: str):
             )
         
         # Reset circuit breaker
+        from services.adaptive_job_supervisor import CircuitBreakerState
+        
         cb = adaptive_supervisor.circuit_breakers[job_type]
-        cb.state = cb.CircuitBreakerState.CLOSED
+        cb.state = CircuitBreakerState.CLOSED
         cb.failure_count = 0
         cb.last_failure_time = None
         
