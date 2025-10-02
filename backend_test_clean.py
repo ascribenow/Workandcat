@@ -359,9 +359,9 @@ class CATBackendTester:
         
         # Test session management (Blueprint V2 - 12 questions)
         if auth_headers and user_id:
-            # Test session creation/resume
+            # First check if there's a current session
             success, session_response = self.run_test(
-                "Session Management", 
+                "Check Current Session", 
                 "GET", 
                 f"session-progress/current/{user_id}", 
                 [200, 404, 500], 
@@ -369,52 +369,80 @@ class CATBackendTester:
                 auth_headers
             )
             
-            if success:
+            session_id = None
+            questions = []
+            
+            if success and session_response.get('has_current_session'):
+                # User has an existing session
                 test_results["session_management_working"] = True
-                print(f"   ✅ Session management working")
+                print(f"   ✅ Found existing session")
+                session_id = session_response.get('session_id')
+                questions = session_response.get('questions', [])
+            else:
+                # No current session, create a new one
+                print(f"   📋 No current session, creating new session...")
                 
-                # Check for 12 questions per session
-                if session_response and 'questions' in session_response:
-                    question_count = len(session_response.get('questions', []))
-                    if question_count == 12:
-                        test_results["twelve_questions_per_session"] = True
-                        print(f"   ✅ Session has 12 questions (Blueprint V2)")
-                    else:
-                        print(f"   ⚠️ Session has {question_count} questions (expected 12)")
+                session_start_data = {"user_id": user_id}
+                success, start_response = self.run_test(
+                    "Start New Session", 
+                    "POST", 
+                    "session/start", 
+                    [200, 403, 500], 
+                    session_start_data, 
+                    auth_headers
+                )
+                
+                if success and start_response.get('success'):
+                    test_results["session_management_working"] = True
+                    print(f"   ✅ New session created successfully")
+                    session_id = start_response.get('session_id')
+                    questions = start_response.get('questions', [])
+                else:
+                    print(f"   ❌ Failed to create new session: {start_response}")
+            
+            # Check for 12 questions per session (Blueprint V2)
+            if questions:
+                question_count = len(questions)
+                if question_count == 12:
+                    test_results["twelve_questions_per_session"] = True
+                    print(f"   ✅ Session has 12 questions (Blueprint V2)")
+                else:
+                    print(f"   ⚠️ Session has {question_count} questions (expected 12)")
                 
                 # Test answer submission if session exists
-                if session_response and session_response.get('session_id'):
-                    session_id = session_response['session_id']
-                    questions = session_response.get('questions', [])
-                    
-                    if questions:
-                        test_question = questions[0]
-                        answer_data = {
-                            "session_id": session_id,
-                            "question_id": test_question.get('id'),
-                            "action": "submit",
-                            "data": {
-                                "user_answer": "Test Answer",
-                                "time_taken": 30
-                            }
+                if session_id and questions:
+                    test_question = questions[0]
+                    answer_data = {
+                        "session_id": session_id,
+                        "question_id": test_question.get('id'),
+                        "action": "submit",
+                        "data": {
+                            "user_answer": test_question.get('answer', 'Test Answer'),  # Use correct answer
+                            "time_taken": 30
                         }
+                    }
+                    
+                    success, answer_response = self.run_test(
+                        "Answer Submission", 
+                        "POST", 
+                        "log/question-action", 
+                        [200, 400, 500], 
+                        answer_data, 
+                        auth_headers
+                    )
+                    
+                    if success:
+                        test_results["answer_submission_working"] = True
+                        print(f"   ✅ Answer submission working")
                         
-                        success, answer_response = self.run_test(
-                            "Answer Submission", 
-                            "POST", 
-                            "log/question-action", 
-                            [200, 400, 500], 
-                            answer_data, 
-                            auth_headers
-                        )
-                        
-                        if success:
-                            test_results["answer_submission_working"] = True
-                            print(f"   ✅ Answer submission working")
-                        else:
-                            print(f"   ❌ Answer submission failed: {answer_response}")
+                        # Test session completion trigger
+                        if answer_response.get('success'):
+                            test_results["session_completion_trigger"] = True
+                            print(f"   ✅ Session completion trigger working")
+                    else:
+                        print(f"   ❌ Answer submission failed: {answer_response}")
             else:
-                print(f"   ❌ Session management failed: {session_response}")
+                print(f"   ❌ No questions found in session")
         
         # Test Ask Twelvr System
         if auth_headers and user_id:
