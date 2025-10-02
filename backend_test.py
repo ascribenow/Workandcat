@@ -1439,76 +1439,88 @@ class CATBackendTester:
             print("   ⏳ Waiting 10 seconds for job processing...")
             time.sleep(10)
             
-            # Check for PLAN_NEXT_SESSION job
-            success, jobs_response = self.run_test(
-                "Check for PLAN_NEXT_SESSION Job", 
-                "GET", 
-                "bg-jobs/status", 
-                [200, 500], 
-                None, 
-                auth_headers
-            )
-            
-            if success and jobs_response:
-                recent_jobs = jobs_response.get('recent_jobs', [])
-                plan_job = None
-                update_job = None
-                
-                # Look for PLAN_NEXT_SESSION job
-                for job in recent_jobs:
-                    if (job.get('job_type') == 'PLAN_NEXT_SESSION' and 
-                        job.get('user_id') == user_id):
-                        plan_job = job
-                        break
-                
-                if plan_job:
-                    test_results["plan_next_session_job_enqueued"] = True
-                    print(f"   ✅ PLAN_NEXT_SESSION job found")
-                    print(f"   📊 Job ID: {plan_job.get('id', 'N/A')}")
-                    print(f"   📊 Job status: {plan_job.get('status', 'N/A')}")
+            # Check database directly for job chaining
+            try:
+                db = SessionLocal()
+                try:
+                    # Query for all job types for this user
+                    jobs_result = db.execute(text("""
+                        SELECT id, job_type, user_id, session_id, status, correlation_id, 
+                               next_attempt_at, created_at, attempts
+                        FROM bg_jobs 
+                        WHERE user_id = :user_id 
+                        ORDER BY created_at DESC
+                        LIMIT 20
+                    """), {"user_id": user_id})
                     
-                    # Check correlation_id propagation
-                    plan_correlation_id = plan_job.get('correlation_id')
-                    if plan_correlation_id:
-                        test_results["plan_next_session_job_has_correlation_id"] = True
-                        print(f"   ✅ PLAN_NEXT_SESSION job has correlation_id: {plan_correlation_id}")
-                    else:
-                        print(f"   ❌ PLAN_NEXT_SESSION job missing correlation_id")
-                else:
-                    print(f"   ❌ PLAN_NEXT_SESSION job not found")
-                
-                # Look for UPDATE_INSIGHTS job
-                for job in recent_jobs:
-                    if (job.get('job_type') == 'UPDATE_INSIGHTS' and 
-                        job.get('user_id') == user_id):
-                        update_job = job
-                        break
-                
-                if update_job:
-                    test_results["update_insights_job_enqueued"] = True
-                    print(f"   ✅ UPDATE_INSIGHTS job found")
-                    print(f"   📊 Job ID: {update_job.get('id', 'N/A')}")
-                    print(f"   📊 Job status: {update_job.get('status', 'N/A')}")
+                    jobs = jobs_result.fetchall()
+                    print(f"   📊 Found {len(jobs)} total jobs for user")
                     
-                    # Check correlation_id propagation
-                    update_correlation_id = update_job.get('correlation_id')
-                    if update_correlation_id:
-                        test_results["update_insights_job_has_correlation_id"] = True
-                        print(f"   ✅ UPDATE_INSIGHTS job has correlation_id: {update_correlation_id}")
+                    plan_job = None
+                    update_job = None
+                    
+                    # Look for PLAN_NEXT_SESSION job
+                    for job in jobs:
+                        if job.job_type == 'PLAN_NEXT_SESSION' and job.user_id == user_id:
+                            plan_job = job
+                            break
+                    
+                    if plan_job:
+                        test_results["plan_next_session_job_enqueued"] = True
+                        print(f"   ✅ PLAN_NEXT_SESSION job found")
+                        print(f"   📊 Job ID: {str(plan_job.id)[:8]}...")
+                        print(f"   📊 Job status: {plan_job.status}")
+                        
+                        # Check correlation_id propagation
+                        if plan_job.correlation_id:
+                            test_results["plan_next_session_job_has_correlation_id"] = True
+                            print(f"   ✅ PLAN_NEXT_SESSION job has correlation_id: {str(plan_job.correlation_id)[:8]}...")
+                        else:
+                            print(f"   ❌ PLAN_NEXT_SESSION job missing correlation_id")
                     else:
-                        print(f"   ❌ UPDATE_INSIGHTS job missing correlation_id")
-                else:
-                    print(f"   ⚠️ UPDATE_INSIGHTS job not found yet (may still be processing)")
-                
-                # Check correlation_id propagation through chain
-                if (test_results["summarize_session_job_has_correlation_id"] and 
-                    test_results["plan_next_session_job_has_correlation_id"]):
-                    test_results["correlation_id_propagated_through_chain"] = True
-                    print(f"   ✅ correlation_id propagated through job chain")
-                else:
-                    print(f"   ❌ correlation_id not properly propagated through job chain")
-            else:
-                print(f"   ❌ Failed to check job chaining: {jobs_response}")
+                        print(f"   ❌ PLAN_NEXT_SESSION job not found")
+                    
+                    # Look for UPDATE_INSIGHTS job
+                    for job in jobs:
+                        if job.job_type == 'UPDATE_INSIGHTS' and job.user_id == user_id:
+                            update_job = job
+                            break
+                    
+                    if update_job:
+                        test_results["update_insights_job_enqueued"] = True
+                        print(f"   ✅ UPDATE_INSIGHTS job found")
+                        print(f"   📊 Job ID: {str(update_job.id)[:8]}...")
+                        print(f"   📊 Job status: {update_job.status}")
+                        
+                        # Check correlation_id propagation
+                        if update_job.correlation_id:
+                            test_results["update_insights_job_has_correlation_id"] = True
+                            print(f"   ✅ UPDATE_INSIGHTS job has correlation_id: {str(update_job.correlation_id)[:8]}...")
+                        else:
+                            print(f"   ❌ UPDATE_INSIGHTS job missing correlation_id")
+                    else:
+                        print(f"   ⚠️ UPDATE_INSIGHTS job not found yet (may still be processing)")
+                    
+                    # Check correlation_id propagation through chain
+                    if (test_results["summarize_session_job_has_correlation_id"] and 
+                        test_results["plan_next_session_job_has_correlation_id"]):
+                        test_results["correlation_id_propagated_through_chain"] = True
+                        print(f"   ✅ correlation_id propagated through job chain")
+                    else:
+                        print(f"   ❌ correlation_id not properly propagated through job chain")
+                    
+                    # Show job chain summary
+                    print(f"   📊 Job chain summary:")
+                    for job in jobs:
+                        if job.job_type in ['SUMMARIZE_SESSION', 'PLAN_NEXT_SESSION', 'UPDATE_INSIGHTS']:
+                            correlation_id_str = str(job.correlation_id)[:8] + "..." if job.correlation_id else "None"
+                            print(f"      {job.job_type} | {job.status} | correlation_id: {correlation_id_str}")
+                    
+                finally:
+                    db.close()
+                    
+            except Exception as e:
+                print(f"   ❌ Error checking job chaining: {e}")
         
         # PHASE 5: JOB PROCESSING VALIDATION
         print("\n✅ PHASE 5: JOB PROCESSING VALIDATION")
