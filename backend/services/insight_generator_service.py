@@ -230,16 +230,16 @@ Generate a motivating "today" preview that tells them what to expect in THIS spe
             
             prompt = f"""You are an adaptive learning coach analyzing a CAT preparation student's progress.
 
-CONCEPT MASTERY DATA:
-- Total concepts practiced: {prompt_data['total_concepts']}
+CONCEPT MASTERY DATA (minimum 3 attempts required for reliable mastery assessment):
+- Total concepts with sufficient data (≥3 attempts): {prompt_data['total_concepts']}
 - Strong concepts: {prompt_data['strong_count']}
 - Moderate concepts: {prompt_data['moderate_count']}
 - Weak concepts: {prompt_data['weak_count']}
 
-TOP STRENGTHS (concepts they've mastered):
+TOP STRENGTHS (concepts they've mastered with ≥3 attempts):
 {chr(10).join([f"- {name}" for name, score in prompt_data['top_3_strong']])}
 
-CONCEPTS NEEDING ATTENTION:
+CONCEPTS NEEDING ATTENTION (≥3 attempts):
 {chr(10).join([f"- {name}" for name, score in prompt_data['top_3_weak']])}
 
 NEGLECTED TOPICS (not practiced in 14+ days):
@@ -247,6 +247,10 @@ NEGLECTED TOPICS (not practiced in 14+ days):
 
 UNDERSERVED TOPICS (need more coverage):
 {chr(10).join([f"- {name}" for name, debt in prompt_data['high_debt_topics']])}
+
+CONCEPTS WITH LIMITED DATA (<3 attempts - {prompt_data['low_data_count']} concepts):
+{chr(10).join([f"- {name}" for name in prompt_data['low_data_concepts']])}
+For these concepts, DO NOT make strong claims about mastery. Instead say: "A few more attempts around these topics would give a better idea of your comfort and preparedness levels."
 {session_preview_section}
 
 Generate personalized, actionable insights in JSON format:
@@ -270,16 +274,19 @@ IMPORTANT RULES:
 6. Keep it conversational and motivating (2-3 sentences per section)
 7. Focus on actionable next steps
 8. For "today" field: Be SPECIFIC about what this session will cover based on the pack data
+9. **CRITICAL**: For concepts with <3 attempts (listed in LIMITED DATA section), DO NOT claim mastery. Use softer language like "a few more attempts would help assess your grasp" ✅
 
 GOOD EXAMPLES:
-- "You've practiced 10 concepts so far" ✅
-- "Your strongest areas are Ratios, Mixtures, and Algebra" ✅
+- "You've practiced 10 concepts with sufficient data so far" ✅
+- "Your strongest areas (with consistent performance) are Ratios, Mixtures, and Algebra" ✅
 - "Today you'll tackle 5 Mensuration questions (3 Easy, 2 Hard) and 4 Profit & Loss problems" ✅
+- "For Circles and Geometry, a few more attempts would give a clearer picture of your comfort level" ✅
 
 BAD EXAMPLES:
 - "Ratios (9.0/10)" ❌
 - "Percentages: 75% mastery" ❌
-- "Today's session will continue your growth" (too generic) ❌"""
+- "Today's session will continue your growth" (too generic) ❌
+- "You have excellent grasp of Circles" (when only 1 attempt) ❌"""
             
             return prompt
             
