@@ -189,6 +189,26 @@ class InsightGeneratorService:
                 "high_debt_topics": [(d[0], round(d[1], 2)) for d in debt_result[:3]]
             }
             
+            # Check if upcoming session data is available
+            upcoming_session = comprehensive_data.get('upcoming_session', {})
+            session_preview_section = ""
+            
+            if upcoming_session and upcoming_session.get('status') == 'pack_ready':
+                topic_dist = upcoming_session.get('topic_distribution', {})
+                diff_dist = upcoming_session.get('difficulty_distribution', {})
+                
+                # Build session preview text
+                topic_list = [f"{topic}: {data['count']} questions" for topic, data in list(topic_dist.items())[:5]]
+                session_preview_section = f"""
+
+UPCOMING SESSION PACK (generate preview for pre_session_card):
+- Total questions: {upcoming_session.get('total_questions', 12)}
+- Topics: {', '.join(topic_list)}
+- Difficulty: {diff_dist.get('Easy', 0)} Easy, {diff_dist.get('Medium', 0)} Medium, {diff_dist.get('Hard', 0)} Hard
+- Key concepts: {', '.join(upcoming_session.get('key_concepts', [])[:5])}
+
+Generate a motivating "today" preview that tells them what to expect in THIS specific session."""
+            
             prompt = f"""You are an adaptive learning coach analyzing a CAT preparation student's progress.
 
 CONCEPT MASTERY DATA:
@@ -208,11 +228,18 @@ NEGLECTED TOPICS (not practiced in 14+ days):
 
 UNDERSERVED TOPICS (need more coverage):
 {chr(10).join([f"- {name}" for name, debt in prompt_data['high_debt_topics']])}
+{session_preview_section}
 
 Generate personalized, actionable insights in JSON format:
 {{
   "all_time_markdown": "Engaging summary of overall journey with specific concept names",
-  "recent_markdown": "Action-oriented guidance highlighting topics to focus on next"
+  "recent_markdown": "Action-oriented guidance highlighting topics to focus on next",
+  "pre_session_card": {{
+    "title": "Ready to Learn 🎯",
+    "progress": "Brief motivational statement about their recent work",
+    "way_forward": ["Action item 1", "Action item 2"],
+    "today": "Specific preview of THIS session based on the pack data above"
+  }}
 }}
 
 IMPORTANT RULES:
@@ -223,16 +250,17 @@ IMPORTANT RULES:
 5. Be encouraging but honest about areas needing improvement
 6. Keep it conversational and motivating (2-3 sentences per section)
 7. Focus on actionable next steps
+8. For "today" field: Be SPECIFIC about what this session will cover based on the pack data
 
 GOOD EXAMPLES:
 - "You've practiced 10 concepts so far" ✅
 - "Your strongest areas are Ratios, Mixtures, and Algebra" ✅
-- "Focus on 3 topics that need attention: Percentages, Geometry, and Mensuration" ✅
+- "Today you'll tackle 5 Mensuration questions (3 Easy, 2 Hard) and 4 Profit & Loss problems" ✅
 
 BAD EXAMPLES:
 - "Ratios (9.0/10)" ❌
 - "Percentages: 75% mastery" ❌
-- "Time-Speed-Distance scored 8.5/10" ❌"""
+- "Today's session will continue your growth" (too generic) ❌"""
             
             return prompt
             
