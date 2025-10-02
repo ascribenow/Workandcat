@@ -4,7 +4,7 @@
 
 OBJECTIVE: Test the Ask Twelvr doubts system to verify that user messages are correctly stored and retrieved without modification.
 
-BACKEND URL: https://adaptive-engine-fix.preview.emergentagent.com
+BACKEND URL: https://data-integrity-1.preview.emergentagent.com
 TEST CREDENTIALS: sp@theskinmantra.com / student123
 
 TEST SCENARIO:
@@ -33,7 +33,7 @@ import sys
 from datetime import datetime
 
 class AskTwelvrTester:
-    def __init__(self, base_url="https://adaptive-engine-fix.preview.emergentagent.com/api"):
+    def __init__(self, base_url="https://data-integrity-1.preview.emergentagent.com/api"):
         self.base_url = base_url
         self.auth_headers = None
         self.user_id = None
@@ -91,7 +91,7 @@ class AskTwelvrTester:
         print("🎯 ASK TWELVR CONVERSATION FLOW TO VERIFY MESSAGE HANDLING")
         print("=" * 90)
         print("OBJECTIVE: Test Ask Twelvr doubts system to verify user messages are stored without modification")
-        print("BACKEND URL: https://adaptive-engine-fix.preview.emergentagent.com")
+        print("BACKEND URL: https://data-integrity-1.preview.emergentagent.com")
         print("TEST CREDENTIALS: sp@theskinmantra.com / student123")
         print("FOCUS: Message storage integrity, conversation flow, chronological order")
         print("=" * 90)

@@ -12,7 +12,7 @@ import os
 
 class CorrectedSignupTester:
     def __init__(self):
-        self.base_url = "https://adaptive-engine-fix.preview.emergentagent.com/api"
+        self.base_url = "https://data-integrity-1.preview.emergentagent.com/api"
         self.test_email = "test.new.signup@example.com"
         self.test_name = "Test User New"
         self.test_password = "testpass123"

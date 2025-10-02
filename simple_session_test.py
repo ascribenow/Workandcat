@@ -8,7 +8,7 @@ import uuid
 def test_session_discrepancy():
     """Simple test to investigate session sequence discrepancy"""
     
-    base_url = "https://adaptive-engine-fix.preview.emergentagent.com/api"
+    base_url = "https://data-integrity-1.preview.emergentagent.com/api"
     
     print("🎯 SESSION SEQUENCE DISCREPANCY INVESTIGATION")
     print("=" * 80)

@@ -9,7 +9,7 @@ import uuid
 import time
 
 def test_quick_flow():
-    base_url = "https://adaptive-engine-fix.preview.emergentagent.com/api"
+    base_url = "https://data-integrity-1.preview.emergentagent.com/api"
     
     # Step 1: Authenticate
     print("🔐 Step 1: Authentication")

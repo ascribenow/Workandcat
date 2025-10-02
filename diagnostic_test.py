@@ -217,7 +217,7 @@ def main():
     
     # Test both API bases
     api_bases = [
-        ("https://adaptive-engine-fix.preview.emergentagent.com/api", "PRIMARY API BASE"),
+        ("https://data-integrity-1.preview.emergentagent.com/api", "PRIMARY API BASE"),
         ("https://adaptive-quant.emergent.host/api", "SECONDARY API BASE")
     ]
     
