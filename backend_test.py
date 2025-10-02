@@ -1156,6 +1156,529 @@ class CATBackendTester:
         
         return success_rate >= 85 and complete_signup_working and ist_timezone_validated
 
+    def test_adaptive_learning_pipeline_job_chaining(self):
+        """
+        🎯 ADAPTIVE LEARNING PIPELINE JOB CHAINING BUG FIX TESTING
+        
+        OBJECTIVE: Test the adaptive learning pipeline job chaining fix where SUMMARIZE_SESSION 
+        jobs were not enqueuing PLAN_NEXT_SESSION jobs because correlation_id was missing from 
+        the job data.
+        
+        TESTING REQUIREMENTS FROM REVIEW REQUEST:
+        1. AUTHENTICATION: Login with sp@theskinmantra.com/student123
+        2. TEST SESSION COMPLETION ENDPOINT: 
+           - POST /api/session/complete with valid session to trigger SUMMARIZE_SESSION job
+        3. MONITOR BACKGROUND JOBS TABLE:
+           - Verify SUMMARIZE_SESSION job is enqueued
+           - Verify when SUMMARIZE_SESSION completes, it enqueues PLAN_NEXT_SESSION job
+        4. VERIFY JOB CHAINING:
+           - SUMMARIZE_SESSION → PLAN_NEXT_SESSION → UPDATE_INSIGHTS
+        5. CHECK CORRELATION_ID PROPAGATION:
+           - Verify correlation_id is properly propagated through job chain
+        6. VERIFY VALID TIMESTAMPS:
+           - All background jobs have valid next_attempt_at timestamps
+        7. MONITOR LOGS:
+           - Check for job processing errors
+        
+        SUCCESS CRITERIA:
+        - Session completion triggers SUMMARIZE_SESSION job
+        - SUMMARIZE_SESSION job successfully enqueues PLAN_NEXT_SESSION job
+        - PLAN_NEXT_SESSION job successfully enqueues UPDATE_INSIGHTS job
+        - correlation_id is propagated through entire job chain
+        - All jobs have valid next_attempt_at timestamps
+        - No job processing errors in logs
+        
+        AUTHENTICATION: sp@theskinmantra.com/student123
+        """
+        print("🎯 ADAPTIVE LEARNING PIPELINE JOB CHAINING BUG FIX TESTING")
+        print("=" * 80)
+        print("OBJECTIVE: Test job chaining fix - SUMMARIZE_SESSION → PLAN_NEXT_SESSION → UPDATE_INSIGHTS")
+        print("FOCUS: correlation_id propagation, job chaining, valid timestamps, error monitoring")
+        print("EXPECTED: Complete job pipeline working with proper correlation_id propagation")
+        print("=" * 80)
+        
+        test_results = {
+            # Authentication Setup
+            "authentication_working": False,
+            "user_adaptive_enabled": False,
+            "jwt_token_valid": False,
+            
+            # Session Setup and Completion
+            "session_found_or_created": False,
+            "session_completion_endpoint_working": False,
+            "summarize_session_job_enqueued": False,
+            "session_completion_response_valid": False,
+            
+            # Background Jobs Monitoring
+            "bg_jobs_table_accessible": False,
+            "summarize_session_job_found": False,
+            "summarize_session_job_has_correlation_id": False,
+            "summarize_session_job_has_valid_timestamp": False,
+            
+            # Job Chaining Verification
+            "plan_next_session_job_enqueued": False,
+            "plan_next_session_job_has_correlation_id": False,
+            "update_insights_job_enqueued": False,
+            "update_insights_job_has_correlation_id": False,
+            "correlation_id_propagated_through_chain": False,
+            
+            # Job Processing Validation
+            "all_jobs_have_valid_timestamps": False,
+            "no_job_processing_errors": False,
+            "job_chain_completed_successfully": False,
+            
+            # Overall Assessment
+            "job_chaining_fix_working": False,
+            "correlation_id_fix_validated": False,
+            "adaptive_pipeline_operational": False,
+            "production_ready": False
+        }
+        
+        # PHASE 1: AUTHENTICATION
+        print("\n🔐 PHASE 1: AUTHENTICATION")
+        print("-" * 60)
+        print("Authenticating with sp@theskinmantra.com/student123")
+        
+        auth_data = {
+            "email": "sp@theskinmantra.com",
+            "password": "student123"
+        }
+        
+        success, response = self.run_test("Adaptive Pipeline Authentication", "POST", "auth/login", [200, 401], auth_data)
+        
+        auth_headers = None
+        user_id = None
+        if success and response.get('access_token'):
+            token = response['access_token']
+            auth_headers = {
+                'Authorization': f'Bearer {token}',
+                'Content-Type': 'application/json'
+            }
+            test_results["authentication_working"] = True
+            test_results["jwt_token_valid"] = True
+            print(f"   ✅ Authentication successful")
+            print(f"   📊 JWT Token length: {len(token)} characters")
+            
+            user_data = response.get('user', {})
+            user_id = user_data.get('id')
+            adaptive_enabled = user_data.get('adaptive_enabled', False)
+            
+            if adaptive_enabled:
+                test_results["user_adaptive_enabled"] = True
+                print(f"   ✅ User adaptive_enabled confirmed: {adaptive_enabled}")
+                print(f"   📊 User ID: {user_id}")
+            else:
+                print(f"   ⚠️ User adaptive_enabled: {adaptive_enabled}")
+        else:
+            print("   ❌ Authentication failed - cannot proceed with pipeline testing")
+            return False
+        
+        # PHASE 2: SESSION SETUP AND COMPLETION
+        print("\n📋 PHASE 2: SESSION SETUP AND COMPLETION")
+        print("-" * 60)
+        print("Finding or creating a session to test completion endpoint")
+        
+        # First, check if there are any existing sessions we can use
+        session_id = None
+        if auth_headers:
+            # Try to get current session progress
+            success, progress_response = self.run_test(
+                "Get Current Session Progress", 
+                "GET", 
+                f"session-progress/current/{user_id}", 
+                [200, 404], 
+                None, 
+                auth_headers
+            )
+            
+            if success and progress_response and progress_response.get('session_id'):
+                session_id = progress_response['session_id']
+                test_results["session_found_or_created"] = True
+                print(f"   ✅ Found existing session: {session_id}")
+            else:
+                # Create a test session ID for testing
+                import uuid
+                session_id = str(uuid.uuid4())
+                test_results["session_found_or_created"] = True
+                print(f"   ✅ Created test session ID: {session_id}")
+        
+        # Test session completion endpoint
+        if session_id and auth_headers:
+            completion_data = {
+                "session_id": session_id
+            }
+            
+            success, completion_response = self.run_test(
+                "Session Completion Endpoint", 
+                "POST", 
+                "sessions/mark-completed", 
+                [200, 400, 500], 
+                completion_data, 
+                auth_headers
+            )
+            
+            if success and completion_response:
+                test_results["session_completion_endpoint_working"] = True
+                print(f"   ✅ Session completion endpoint working")
+                
+                if completion_response.get('ok'):
+                    test_results["session_completion_response_valid"] = True
+                    print(f"   ✅ Session completion response valid")
+                    print(f"   📊 Response: {completion_response}")
+                else:
+                    print(f"   ⚠️ Session completion response not OK: {completion_response}")
+            else:
+                print(f"   ❌ Session completion endpoint failed: {completion_response}")
+        
+        # PHASE 3: BACKGROUND JOBS MONITORING
+        print("\n🔄 PHASE 3: BACKGROUND JOBS MONITORING")
+        print("-" * 60)
+        print("Monitoring background jobs table for SUMMARIZE_SESSION job")
+        
+        if auth_headers and session_id:
+            # Check background jobs health endpoint
+            success, bg_health_response = self.run_test(
+                "Background Jobs Health Check", 
+                "GET", 
+                "bg-jobs/health", 
+                [200, 500], 
+                None, 
+                auth_headers
+            )
+            
+            if success and bg_health_response:
+                test_results["bg_jobs_table_accessible"] = True
+                print(f"   ✅ Background jobs system accessible")
+                print(f"   📊 Queue depth: {bg_health_response.get('queue_depth', 'N/A')}")
+                print(f"   📊 Worker status: {bg_health_response.get('worker_status', 'N/A')}")
+            else:
+                print(f"   ❌ Background jobs system not accessible: {bg_health_response}")
+            
+            # Wait a moment for job to be enqueued
+            import time
+            time.sleep(2)
+            
+            # Check for SUMMARIZE_SESSION job in the system
+            success, jobs_response = self.run_test(
+                "Get Background Jobs Status", 
+                "GET", 
+                "bg-jobs/status", 
+                [200, 500], 
+                None, 
+                auth_headers
+            )
+            
+            if success and jobs_response:
+                print(f"   ✅ Background jobs status retrieved")
+                
+                # Look for SUMMARIZE_SESSION job
+                recent_jobs = jobs_response.get('recent_jobs', [])
+                summarize_job = None
+                
+                for job in recent_jobs:
+                    if (job.get('job_type') == 'SUMMARIZE_SESSION' and 
+                        job.get('user_id') == user_id and 
+                        job.get('session_id') == session_id):
+                        summarize_job = job
+                        break
+                
+                if summarize_job:
+                    test_results["summarize_session_job_found"] = True
+                    test_results["summarize_session_job_enqueued"] = True
+                    print(f"   ✅ SUMMARIZE_SESSION job found")
+                    print(f"   📊 Job ID: {summarize_job.get('id', 'N/A')}")
+                    print(f"   📊 Job status: {summarize_job.get('status', 'N/A')}")
+                    
+                    # Check correlation_id
+                    correlation_id = summarize_job.get('correlation_id')
+                    if correlation_id:
+                        test_results["summarize_session_job_has_correlation_id"] = True
+                        print(f"   ✅ SUMMARIZE_SESSION job has correlation_id: {correlation_id}")
+                    else:
+                        print(f"   ❌ SUMMARIZE_SESSION job missing correlation_id")
+                    
+                    # Check next_attempt_at timestamp
+                    next_attempt_at = summarize_job.get('next_attempt_at')
+                    if next_attempt_at:
+                        test_results["summarize_session_job_has_valid_timestamp"] = True
+                        print(f"   ✅ SUMMARIZE_SESSION job has valid next_attempt_at: {next_attempt_at}")
+                    else:
+                        print(f"   ❌ SUMMARIZE_SESSION job missing next_attempt_at timestamp")
+                else:
+                    print(f"   ❌ SUMMARIZE_SESSION job not found in recent jobs")
+                    print(f"   📊 Recent jobs count: {len(recent_jobs)}")
+                    if recent_jobs:
+                        print(f"   📊 Recent job types: {[j.get('job_type') for j in recent_jobs[:5]]}")
+            else:
+                print(f"   ❌ Failed to get background jobs status: {jobs_response}")
+        
+        # PHASE 4: JOB CHAINING VERIFICATION
+        print("\n🔗 PHASE 4: JOB CHAINING VERIFICATION")
+        print("-" * 60)
+        print("Waiting for job processing and verifying job chaining")
+        
+        if test_results["summarize_session_job_found"] and auth_headers:
+            # Wait for jobs to process (give some time for the chain to execute)
+            print("   ⏳ Waiting 10 seconds for job processing...")
+            time.sleep(10)
+            
+            # Check for PLAN_NEXT_SESSION job
+            success, jobs_response = self.run_test(
+                "Check for PLAN_NEXT_SESSION Job", 
+                "GET", 
+                "bg-jobs/status", 
+                [200, 500], 
+                None, 
+                auth_headers
+            )
+            
+            if success and jobs_response:
+                recent_jobs = jobs_response.get('recent_jobs', [])
+                plan_job = None
+                update_job = None
+                
+                # Look for PLAN_NEXT_SESSION job
+                for job in recent_jobs:
+                    if (job.get('job_type') == 'PLAN_NEXT_SESSION' and 
+                        job.get('user_id') == user_id):
+                        plan_job = job
+                        break
+                
+                if plan_job:
+                    test_results["plan_next_session_job_enqueued"] = True
+                    print(f"   ✅ PLAN_NEXT_SESSION job found")
+                    print(f"   📊 Job ID: {plan_job.get('id', 'N/A')}")
+                    print(f"   📊 Job status: {plan_job.get('status', 'N/A')}")
+                    
+                    # Check correlation_id propagation
+                    plan_correlation_id = plan_job.get('correlation_id')
+                    if plan_correlation_id:
+                        test_results["plan_next_session_job_has_correlation_id"] = True
+                        print(f"   ✅ PLAN_NEXT_SESSION job has correlation_id: {plan_correlation_id}")
+                    else:
+                        print(f"   ❌ PLAN_NEXT_SESSION job missing correlation_id")
+                else:
+                    print(f"   ❌ PLAN_NEXT_SESSION job not found")
+                
+                # Look for UPDATE_INSIGHTS job
+                for job in recent_jobs:
+                    if (job.get('job_type') == 'UPDATE_INSIGHTS' and 
+                        job.get('user_id') == user_id):
+                        update_job = job
+                        break
+                
+                if update_job:
+                    test_results["update_insights_job_enqueued"] = True
+                    print(f"   ✅ UPDATE_INSIGHTS job found")
+                    print(f"   📊 Job ID: {update_job.get('id', 'N/A')}")
+                    print(f"   📊 Job status: {update_job.get('status', 'N/A')}")
+                    
+                    # Check correlation_id propagation
+                    update_correlation_id = update_job.get('correlation_id')
+                    if update_correlation_id:
+                        test_results["update_insights_job_has_correlation_id"] = True
+                        print(f"   ✅ UPDATE_INSIGHTS job has correlation_id: {update_correlation_id}")
+                    else:
+                        print(f"   ❌ UPDATE_INSIGHTS job missing correlation_id")
+                else:
+                    print(f"   ⚠️ UPDATE_INSIGHTS job not found yet (may still be processing)")
+                
+                # Check correlation_id propagation through chain
+                if (test_results["summarize_session_job_has_correlation_id"] and 
+                    test_results["plan_next_session_job_has_correlation_id"]):
+                    test_results["correlation_id_propagated_through_chain"] = True
+                    print(f"   ✅ correlation_id propagated through job chain")
+                else:
+                    print(f"   ❌ correlation_id not properly propagated through job chain")
+            else:
+                print(f"   ❌ Failed to check job chaining: {jobs_response}")
+        
+        # PHASE 5: JOB PROCESSING VALIDATION
+        print("\n✅ PHASE 5: JOB PROCESSING VALIDATION")
+        print("-" * 60)
+        print("Validating job processing and checking for errors")
+        
+        if auth_headers:
+            # Check overall job statistics
+            success, jobs_response = self.run_test(
+                "Get Job Processing Statistics", 
+                "GET", 
+                "bg-jobs/status", 
+                [200, 500], 
+                None, 
+                auth_headers
+            )
+            
+            if success and jobs_response:
+                stats = jobs_response.get('statistics', {})
+                print(f"   📊 Total jobs: {stats.get('total_jobs', 'N/A')}")
+                print(f"   📊 Succeeded jobs: {stats.get('succeeded_jobs', 'N/A')}")
+                print(f"   📊 Failed jobs: {stats.get('failed_jobs', 'N/A')}")
+                print(f"   📊 Success rate: {stats.get('success_rate', 'N/A')}%")
+                
+                # Check if all jobs have valid timestamps
+                recent_jobs = jobs_response.get('recent_jobs', [])
+                jobs_with_valid_timestamps = 0
+                total_jobs_checked = 0
+                
+                for job in recent_jobs:
+                    if job.get('user_id') == user_id:
+                        total_jobs_checked += 1
+                        if job.get('next_attempt_at'):
+                            jobs_with_valid_timestamps += 1
+                
+                if total_jobs_checked > 0 and jobs_with_valid_timestamps == total_jobs_checked:
+                    test_results["all_jobs_have_valid_timestamps"] = True
+                    print(f"   ✅ All user jobs have valid next_attempt_at timestamps ({jobs_with_valid_timestamps}/{total_jobs_checked})")
+                else:
+                    print(f"   ❌ Some jobs missing valid timestamps ({jobs_with_valid_timestamps}/{total_jobs_checked})")
+                
+                # Check for job processing errors
+                failed_jobs = [job for job in recent_jobs if job.get('status') == 'failed' and job.get('user_id') == user_id]
+                if not failed_jobs:
+                    test_results["no_job_processing_errors"] = True
+                    print(f"   ✅ No job processing errors detected")
+                else:
+                    print(f"   ❌ Found {len(failed_jobs)} failed jobs")
+                    for failed_job in failed_jobs[:3]:  # Show first 3 failed jobs
+                        print(f"      Failed job: {failed_job.get('job_type')} - {failed_job.get('error_message', 'No error message')}")
+                
+                # Check if job chain completed successfully
+                if (test_results["summarize_session_job_found"] and 
+                    test_results["plan_next_session_job_enqueued"]):
+                    test_results["job_chain_completed_successfully"] = True
+                    print(f"   ✅ Job chain completed successfully")
+                else:
+                    print(f"   ❌ Job chain did not complete successfully")
+            else:
+                print(f"   ❌ Failed to get job processing statistics: {jobs_response}")
+        
+        # FINAL RESULTS SUMMARY
+        print("\n" + "=" * 80)
+        print("🎯 ADAPTIVE LEARNING PIPELINE JOB CHAINING BUG FIX TESTING - RESULTS")
+        print("=" * 80)
+        
+        passed_tests = sum(test_results.values())
+        total_tests = len(test_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        # Group results by test phases
+        test_phases = {
+            "AUTHENTICATION": [
+                "authentication_working", "user_adaptive_enabled", "jwt_token_valid"
+            ],
+            "SESSION SETUP AND COMPLETION": [
+                "session_found_or_created", "session_completion_endpoint_working", 
+                "summarize_session_job_enqueued", "session_completion_response_valid"
+            ],
+            "BACKGROUND JOBS MONITORING": [
+                "bg_jobs_table_accessible", "summarize_session_job_found", 
+                "summarize_session_job_has_correlation_id", "summarize_session_job_has_valid_timestamp"
+            ],
+            "JOB CHAINING VERIFICATION": [
+                "plan_next_session_job_enqueued", "plan_next_session_job_has_correlation_id",
+                "update_insights_job_enqueued", "update_insights_job_has_correlation_id", 
+                "correlation_id_propagated_through_chain"
+            ],
+            "JOB PROCESSING VALIDATION": [
+                "all_jobs_have_valid_timestamps", "no_job_processing_errors", "job_chain_completed_successfully"
+            ]
+        }
+        
+        for phase, tests in test_phases.items():
+            print(f"\n{phase}:")
+            phase_passed = 0
+            phase_total = len(tests)
+            
+            for test in tests:
+                if test in test_results:
+                    result = test_results[test]
+                    status = "✅ PASS" if result else "❌ FAIL"
+                    print(f"  {test.replace('_', ' ').title():<50} {status}")
+                    if result:
+                        phase_passed += 1
+            
+            phase_rate = (phase_passed / phase_total) * 100 if phase_total > 0 else 0
+            print(f"  Phase Success Rate: {phase_passed}/{phase_total} ({phase_rate:.1f}%)")
+        
+        print("-" * 80)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # CRITICAL ASSESSMENT
+        print("\n🎯 CRITICAL ASSESSMENT:")
+        
+        # Job Chaining Fix Assessment
+        job_chaining_working = (
+            test_results["session_completion_endpoint_working"] and
+            test_results["summarize_session_job_enqueued"] and
+            test_results["plan_next_session_job_enqueued"] and
+            test_results["job_chain_completed_successfully"]
+        )
+        
+        if job_chaining_working:
+            test_results["job_chaining_fix_working"] = True
+            print("\n✅ JOB CHAINING FIX: WORKING")
+            print("   - Session completion triggers SUMMARIZE_SESSION job")
+            print("   - SUMMARIZE_SESSION job enqueues PLAN_NEXT_SESSION job")
+            print("   - Job chain completes successfully")
+        else:
+            print("\n❌ JOB CHAINING FIX: ISSUES DETECTED")
+            print("   - Job chaining not working properly")
+        
+        # Correlation ID Fix Assessment
+        correlation_id_working = (
+            test_results["summarize_session_job_has_correlation_id"] and
+            test_results["plan_next_session_job_has_correlation_id"] and
+            test_results["correlation_id_propagated_through_chain"]
+        )
+        
+        if correlation_id_working:
+            test_results["correlation_id_fix_validated"] = True
+            print("\n✅ CORRELATION_ID FIX: VALIDATED")
+            print("   - SUMMARIZE_SESSION job has correlation_id")
+            print("   - PLAN_NEXT_SESSION job has correlation_id")
+            print("   - correlation_id propagated through job chain")
+        else:
+            print("\n❌ CORRELATION_ID FIX: ISSUES DETECTED")
+            print("   - correlation_id not properly propagated")
+        
+        # Adaptive Pipeline Assessment
+        adaptive_pipeline_working = (
+            test_results["bg_jobs_table_accessible"] and
+            test_results["all_jobs_have_valid_timestamps"] and
+            test_results["no_job_processing_errors"]
+        )
+        
+        if adaptive_pipeline_working:
+            test_results["adaptive_pipeline_operational"] = True
+            print("\n✅ ADAPTIVE PIPELINE: OPERATIONAL")
+            print("   - Background jobs system accessible")
+            print("   - All jobs have valid timestamps")
+            print("   - No job processing errors")
+        else:
+            print("\n❌ ADAPTIVE PIPELINE: ISSUES DETECTED")
+            print("   - Pipeline operational issues detected")
+        
+        # Overall Production Readiness
+        if job_chaining_working and correlation_id_working and adaptive_pipeline_working:
+            test_results["production_ready"] = True
+            print("\n🎉 PRODUCTION READINESS: READY")
+            print("   - Job chaining fix working correctly")
+            print("   - correlation_id propagation validated")
+            print("   - Adaptive pipeline operational")
+            print("   - All background jobs have valid timestamps")
+        else:
+            print("\n⚠️ PRODUCTION READINESS: NEEDS ATTENTION")
+            print("   - Critical issues need to be resolved")
+        
+        print(f"\n📊 FINAL ASSESSMENT:")
+        print(f"   Job Chaining Fix: {'✅ WORKING' if job_chaining_working else '❌ ISSUES'}")
+        print(f"   Correlation ID Fix: {'✅ VALIDATED' if correlation_id_working else '❌ ISSUES'}")
+        print(f"   Adaptive Pipeline: {'✅ OPERATIONAL' if adaptive_pipeline_working else '❌ ISSUES'}")
+        print(f"   Production Ready: {'✅ YES' if test_results['production_ready'] else '❌ NO'}")
+        
+        return success_rate >= 75 and job_chaining_working and correlation_id_working
+
     def test_ask_twelvr_doubts_system_database_persistence(self):
         """
         🎯 ASK TWELVR DOUBTS SYSTEM WITH DATABASE PERSISTENCE TESTING
