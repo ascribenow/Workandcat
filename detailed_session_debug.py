@@ -10,7 +10,7 @@ import time
 
 class DetailedSessionDebugger:
     def __init__(self):
-        self.base_url = "https://adaptive-tutor-2.preview.emergentagent.com/api"
+        self.base_url = "https://smart-tutor-50.preview.emergentagent.com/api"
         self.admin_token = None
         
     def authenticate_admin(self):

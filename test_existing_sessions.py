@@ -7,7 +7,7 @@ import requests
 import json
 
 def test_existing_sessions():
-    base_url = "https://adaptive-tutor-2.preview.emergentagent.com/api"
+    base_url = "https://smart-tutor-50.preview.emergentagent.com/api"
     
     # Step 1: Authenticate
     print("🔐 Step 1: Authentication")

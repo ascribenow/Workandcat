@@ -11,7 +11,7 @@ from datetime import datetime
 
 class BackgroundProcessingTester:
     def __init__(self):
-        self.base_url = "https://adaptive-tutor-2.preview.emergentagent.com/api"
+        self.base_url = "https://smart-tutor-50.preview.emergentagent.com/api"
         self.admin_token = None
         self.tests_run = 0
         self.tests_passed = 0

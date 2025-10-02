@@ -9,7 +9,7 @@ import uuid
 import asyncio
 
 class CATBackendTester:
-    def __init__(self, base_url="https://adaptive-tutor-2.preview.emergentagent.com/api"):
+    def __init__(self, base_url="https://smart-tutor-50.preview.emergentagent.com/api"):
         self.base_url = base_url
         self.student_user = None
         self.admin_user = None
@@ -37232,7 +37232,7 @@ def main():
         6. **Response Times**: Check for timeout issues in authentication flow
         
         AUTHENTICATION CREDENTIALS: sp@theskinmantra.com/student123
-        BACKEND URL: https://adaptive-tutor-2.preview.emergentagent.com/api
+        BACKEND URL: https://smart-tutor-50.preview.emergentagent.com/api
         """
         print("🚨 CRITICAL AUTHENTICATION INVESTIGATION")
         print("=" * 80)
@@ -37509,7 +37509,7 @@ def main():
             options_response = requests.options(
                 f"{self.base_url}/auth/login",
                 headers={
-                    'Origin': 'https://adaptive-tutor-2.preview.emergentagent.com',
+                    'Origin': 'https://smart-tutor-50.preview.emergentagent.com',
                     'Access-Control-Request-Method': 'POST',
                     'Access-Control-Request-Headers': 'Content-Type,Authorization'
                 },
@@ -37532,7 +37532,7 @@ def main():
                 else:
                     print(f"     {header}: Not present")
             
-            if cors_headers['Access-Control-Allow-Origin'] in ['*', 'https://adaptive-tutor-2.preview.emergentagent.com']:
+            if cors_headers['Access-Control-Allow-Origin'] in ['*', 'https://smart-tutor-50.preview.emergentagent.com']:
                 print(f"   ✅ CORS configured for frontend domain")
             else:
                 print(f"   ⚠️ CORS may not be configured for frontend domain")
@@ -39093,7 +39093,7 @@ def main():
         - Headers (CORS, Content-Type, etc.)
         
         AUTHENTICATION CREDENTIALS: sp@theskinmantra.com/student123
-        API BASE: Test both https://adaptive-tutor-2.preview.emergentagent.com and https://adaptive-quant.emergent.host
+        API BASE: Test both https://smart-tutor-50.preview.emergentagent.com and https://adaptive-quant.emergent.host
         
         EXPECTED RESPONSES:
         - plan-next: { status:"ok", reused: false|true, pack:[…12…] }
