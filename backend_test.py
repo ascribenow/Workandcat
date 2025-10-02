@@ -1358,59 +1358,76 @@ class CATBackendTester:
             import time
             time.sleep(2)
             
-            # Check for SUMMARIZE_SESSION job in the system
-            success, jobs_response = self.run_test(
-                "Get Background Jobs Status", 
-                "GET", 
-                "bg-jobs/status", 
-                [200, 500], 
-                None, 
-                auth_headers
-            )
-            
-            if success and jobs_response:
-                print(f"   ✅ Background jobs status retrieved")
+            # Check database directly for SUMMARIZE_SESSION job
+            try:
+                import sys
+                sys.path.append('/app/backend')
+                from database import SessionLocal
+                from sqlalchemy import text
                 
-                # Look for SUMMARIZE_SESSION job
-                recent_jobs = jobs_response.get('recent_jobs', [])
-                summarize_job = None
-                
-                for job in recent_jobs:
-                    if (job.get('job_type') == 'SUMMARIZE_SESSION' and 
-                        job.get('user_id') == user_id and 
-                        job.get('session_id') == session_id):
-                        summarize_job = job
-                        break
-                
-                if summarize_job:
-                    test_results["summarize_session_job_found"] = True
-                    test_results["summarize_session_job_enqueued"] = True
-                    print(f"   ✅ SUMMARIZE_SESSION job found")
-                    print(f"   📊 Job ID: {summarize_job.get('id', 'N/A')}")
-                    print(f"   📊 Job status: {summarize_job.get('status', 'N/A')}")
+                db = SessionLocal()
+                try:
+                    # Query bg_jobs table directly
+                    jobs_result = db.execute(text("""
+                        SELECT id, job_type, user_id, session_id, status, correlation_id, 
+                               next_attempt_at, created_at, attempts
+                        FROM bg_jobs 
+                        WHERE user_id = :user_id 
+                        AND (session_id = :session_id OR job_type = 'PLAN_NEXT_SESSION' OR job_type = 'UPDATE_INSIGHTS')
+                        ORDER BY created_at DESC
+                        LIMIT 10
+                    """), {"user_id": user_id, "session_id": session_id})
                     
-                    # Check correlation_id
-                    correlation_id = summarize_job.get('correlation_id')
-                    if correlation_id:
-                        test_results["summarize_session_job_has_correlation_id"] = True
-                        print(f"   ✅ SUMMARIZE_SESSION job has correlation_id: {correlation_id}")
-                    else:
-                        print(f"   ❌ SUMMARIZE_SESSION job missing correlation_id")
+                    jobs = jobs_result.fetchall()
+                    print(f"   ✅ Background jobs table queried directly")
+                    print(f"   📊 Found {len(jobs)} jobs for user")
                     
-                    # Check next_attempt_at timestamp
-                    next_attempt_at = summarize_job.get('next_attempt_at')
-                    if next_attempt_at:
-                        test_results["summarize_session_job_has_valid_timestamp"] = True
-                        print(f"   ✅ SUMMARIZE_SESSION job has valid next_attempt_at: {next_attempt_at}")
+                    # Look for SUMMARIZE_SESSION job
+                    summarize_job = None
+                    for job in jobs:
+                        if (job.job_type == 'SUMMARIZE_SESSION' and 
+                            job.user_id == user_id and 
+                            job.session_id == session_id):
+                            summarize_job = job
+                            break
+                    
+                    if summarize_job:
+                        test_results["summarize_session_job_found"] = True
+                        test_results["summarize_session_job_enqueued"] = True
+                        print(f"   ✅ SUMMARIZE_SESSION job found")
+                        print(f"   📊 Job ID: {str(summarize_job.id)[:8]}...")
+                        print(f"   📊 Job status: {summarize_job.status}")
+                        print(f"   📊 Job attempts: {summarize_job.attempts}")
+                        
+                        # Check correlation_id
+                        if summarize_job.correlation_id:
+                            test_results["summarize_session_job_has_correlation_id"] = True
+                            print(f"   ✅ SUMMARIZE_SESSION job has correlation_id: {str(summarize_job.correlation_id)[:8]}...")
+                        else:
+                            print(f"   ❌ SUMMARIZE_SESSION job missing correlation_id")
+                        
+                        # Check next_attempt_at timestamp
+                        if summarize_job.next_attempt_at:
+                            test_results["summarize_session_job_has_valid_timestamp"] = True
+                            print(f"   ✅ SUMMARIZE_SESSION job has valid next_attempt_at: {summarize_job.next_attempt_at}")
+                        else:
+                            print(f"   ❌ SUMMARIZE_SESSION job missing next_attempt_at timestamp")
                     else:
-                        print(f"   ❌ SUMMARIZE_SESSION job missing next_attempt_at timestamp")
-                else:
-                    print(f"   ❌ SUMMARIZE_SESSION job not found in recent jobs")
-                    print(f"   📊 Recent jobs count: {len(recent_jobs)}")
-                    if recent_jobs:
-                        print(f"   📊 Recent job types: {[j.get('job_type') for j in recent_jobs[:5]]}")
-            else:
-                print(f"   ❌ Failed to get background jobs status: {jobs_response}")
+                        print(f"   ❌ SUMMARIZE_SESSION job not found")
+                        if jobs:
+                            print(f"   📊 Available job types: {[j.job_type for j in jobs]}")
+                    
+                    # Show all jobs for debugging
+                    if jobs:
+                        print(f"   📊 All jobs for user:")
+                        for job in jobs:
+                            print(f"      {job.job_type} | {job.status} | {str(job.id)[:8]}... | {job.created_at}")
+                    
+                finally:
+                    db.close()
+                    
+            except Exception as e:
+                print(f"   ❌ Error querying background jobs table: {e}")
         
         # PHASE 4: JOB CHAINING VERIFICATION
         print("\n🔗 PHASE 4: JOB CHAINING VERIFICATION")
