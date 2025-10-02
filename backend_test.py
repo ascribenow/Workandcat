@@ -1319,7 +1319,7 @@ class CATBackendTester:
                             test_results["session_found_or_created"] = True
                             print(f"   ✅ Found existing session in database: {session_id}")
                         else:
-                            # Create a real session in the database for testing
+                            # Always create a fresh session for testing to avoid conflicts
                             import uuid
                             session_id = str(uuid.uuid4())
                             
@@ -1331,6 +1331,19 @@ class CATBackendTester:
                             
                             test_results["session_found_or_created"] = True
                             print(f"   ✅ Created new session in database: {session_id}")
+                        
+                        # Always create a fresh session for testing to avoid conflicts with existing jobs
+                        import uuid
+                        session_id = str(uuid.uuid4())
+                        
+                        db.execute(text("""
+                            INSERT INTO sessions (session_id, user_id, status, created_at)
+                            VALUES (:session_id, :user_id, 'served', NOW())
+                        """), {"session_id": session_id, "user_id": user_id})
+                        db.commit()
+                        
+                        test_results["session_found_or_created"] = True
+                        print(f"   ✅ Created fresh session for testing: {session_id}")
                     finally:
                         db.close()
                         
