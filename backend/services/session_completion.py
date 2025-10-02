@@ -66,7 +66,7 @@ def mark_session_started(user_id: str, session_id: str) -> bool:
     finally:
         db.close()
 
-def mark_session_completed(user_id: str, session_id: str) -> bool:
+async def mark_session_completed(user_id: str, session_id: str) -> bool:
     """
     Mark a session as completed and trigger post-session analysis
     
