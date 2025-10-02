@@ -6,6 +6,7 @@ import SubscriptionManagement from './SubscriptionManagement';
 
 export const SimpleDashboard = () => {
   const { user, token } = useAuth();
+  const location = useLocation();
   const [loading, setLoading] = useState(true);
   const [dashboardData, setDashboardData] = useState(null);
   const [categorizedData, setCategorizedData] = useState(null);
