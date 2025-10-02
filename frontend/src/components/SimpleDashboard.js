@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth, API } from './AuthProvider';
+import { useLocation } from 'react-router-dom';
 import SubscriptionManagement from './SubscriptionManagement';
 
 export const SimpleDashboard = () => {
