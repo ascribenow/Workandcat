@@ -91,6 +91,7 @@ from api.bg_jobs_api import router as bg_jobs_router
 from api.admin_tasks import router as admin_tasks_router
 from api.health import router as health_router
 from api.adaptive_health import router as adaptive_health_router
+from api.dashboard import router as dashboard_router
 
 # Mount active routers
 app.include_router(session_lifecycle_router, prefix="/api/sessions")
@@ -101,6 +102,7 @@ app.include_router(bg_jobs_router)  # Background jobs API (minimal health endpoi
 app.include_router(admin_tasks_router)  # Admin tasks API (backfill, validation)
 app.include_router(health_router)  # Enhanced health and observability API
 app.include_router(adaptive_health_router, prefix="/api/adaptive")  # Adaptive engine health monitoring
+app.include_router(dashboard_router, prefix="/api/dashboard")  # Dashboard insights API
 
 # In-memory logging store (for MVP - replace with database in production)
 question_action_logs = []
