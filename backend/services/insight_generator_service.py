@@ -270,6 +270,41 @@ BAD EXAMPLES:
         finally:
             db.close()
     
+    def _generate_fallback_pre_session_card(self, comprehensive_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Generate fallback pre-session card when LLM doesn't provide one"""
+        upcoming_session = comprehensive_data.get('upcoming_session', {})
+        
+        if upcoming_session and upcoming_session.get('status') == 'pack_ready':
+            # Build session-specific preview from pack data
+            topic_dist = upcoming_session.get('topic_distribution', {})
+            diff_dist = upcoming_session.get('difficulty_distribution', {})
+            total_q = upcoming_session.get('total_questions', 12)
+            
+            # Top 2 topics
+            top_topics = sorted(topic_dist.items(), key=lambda x: x[1]['count'], reverse=True)[:2]
+            topic_text = " and ".join([f"{topic} ({data['count']} questions)" for topic, data in top_topics])
+            
+            return {
+                "title": "Ready to Learn 🎯",
+                "progress": "Building on your consistent preparation",
+                "way_forward": [
+                    "Stay focused on accuracy",
+                    "Review solutions carefully"
+                ],
+                "today": f"Today's session has {total_q} questions focused on {topic_text}. Mix of {diff_dist.get('Easy', 0)} Easy, {diff_dist.get('Medium', 0)} Medium, {diff_dist.get('Hard', 0)} Hard problems."
+            }
+        else:
+            # Generic fallback
+            return {
+                "title": "Ready to Learn 🎯",
+                "progress": "Building on your consistent preparation",
+                "way_forward": [
+                    "Trust the process",
+                    "Focus on understanding each concept"
+                ],
+                "today": "Today's session is ready. Work through each question carefully and review the solutions."
+            }
+    
     def _generate_simple_fallback_insights(self, comprehensive_data: Dict[str, Any]) -> Dict[str, Any]:
         """Simple fallback when LLM fails"""
         sessions_count = len(comprehensive_data.get("sessions", []))
@@ -277,7 +312,7 @@ BAD EXAMPLES:
         return {
             "dashboard_all_time": f"You've shown great consistency across {sessions_count} sessions. Your dedication to working through different problem types is building the solid foundation that CAT success requires. Keep up this steady rhythm!",
             "dashboard_recent": "Your recent practice shows you're staying engaged with the material. Each session is teaching you something new about approaching quantitative problems effectively.",
-            "pre_session_card": {
+            "pre_session_card": self._generate_fallback_pre_session_card(comprehensive_data)
                 "title": "Keep Building! 🏗️",
                 "progress": "Your consistent practice is creating strong foundations",
                 "way_forward": ["Focus on understanding over speed", "Trust your problem-solving process"],
