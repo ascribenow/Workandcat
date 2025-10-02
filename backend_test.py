@@ -4137,7 +4137,6 @@ if __name__ == "__main__":
                 print(f"   ❌ Session completion failed: {completion_response}")
         else:
             print(f"   ❌ Cannot test completion - missing session_id or auth_headers")
-                    print(f"   ⚠️ Using random session ID as fallback: {session_id}")
         
         # Test session completion endpoint
         if session_id and auth_headers:
