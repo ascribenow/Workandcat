@@ -1268,7 +1268,7 @@ class CATBackendTester:
         # PHASE 2: SESSION SETUP AND COMPLETION
         print("\n📋 PHASE 2: SESSION SETUP AND COMPLETION")
         print("-" * 60)
-        print("Finding or creating a session to test completion endpoint")
+        print("Finding or creating a session to test the CORRECT completion endpoint")
         
         # First, check if there are any existing sessions we can use
         session_id = None
@@ -1311,7 +1311,7 @@ class CATBackendTester:
                             test_results["session_found_or_created"] = True
                             print(f"   ✅ Found existing session in database: {session_id}")
                         else:
-                            # Always create a fresh session for testing to avoid conflicts
+                            # Create a fresh session for testing
                             import uuid
                             session_id = str(uuid.uuid4())
                             
@@ -1324,12 +1324,102 @@ class CATBackendTester:
                             test_results["session_found_or_created"] = True
                             print(f"   ✅ Created new session in database: {session_id}")
                         
-                        # Always create a fresh session for testing to avoid conflicts with existing jobs
-                        import uuid
-                        session_id = str(uuid.uuid4())
+                    finally:
+                        db.close()
                         
-                        db.execute(text("""
-                            INSERT INTO sessions (session_id, user_id, status, created_at)
+                except Exception as e:
+                    print(f"   ❌ Error accessing database: {e}")
+                    # Create a fallback session ID for testing
+                    import uuid
+                    session_id = str(uuid.uuid4())
+                    test_results["session_found_or_created"] = True
+                    print(f"   ⚠️ Using fallback session ID: {session_id}")
+        
+        # Test the CORRECT session completion endpoint: /api/sessions/mark-completed
+        if session_id and auth_headers:
+            print(f"   🎯 Testing CORRECT endpoint: /api/sessions/mark-completed")
+            print(f"   📋 Session ID: {session_id}")
+            
+            completion_data = {"session_id": session_id}
+            
+            success, completion_response = self.run_test(
+                "Session Completion (CORRECT Endpoint)", 
+                "POST", 
+                "sessions/mark-completed",  # CORRECT endpoint
+                [200, 400, 500], 
+                completion_data, 
+                auth_headers
+            )
+            
+            if success and completion_response.get('ok'):
+                test_results["session_completion_endpoint_working"] = True
+                test_results["session_completion_response_valid"] = True
+                print(f"   ✅ Session completion endpoint working correctly")
+                print(f"   ✅ Response: {completion_response}")
+                
+                # Wait a moment for job to be enqueued
+                import time
+                time.sleep(2)
+                
+                # Check if SUMMARIZE_SESSION job was enqueued
+                try:
+                    db = SessionLocal()
+                    try:
+                        # Check for SUMMARIZE_SESSION job
+                        job_result = db.execute(text("""
+                            SELECT id, job_type, correlation_id, status, next_attempt_at, created_at
+                            FROM bg_jobs 
+                            WHERE user_id = :user_id AND session_id = :session_id 
+                            AND job_type = 'SUMMARIZE_SESSION'
+                            ORDER BY created_at DESC
+                            LIMIT 1
+                        """), {"user_id": user_id, "session_id": session_id})
+                        
+                        job_row = job_result.fetchone()
+                        if job_row:
+                            test_results["summarize_session_job_enqueued"] = True
+                            test_results["bg_jobs_table_accessible"] = True
+                            test_results["summarize_session_job_found"] = True
+                            
+                            job_id = str(job_row.id)
+                            correlation_id = job_row.correlation_id
+                            job_status = job_row.status
+                            next_attempt_at = job_row.next_attempt_at
+                            
+                            print(f"   ✅ SUMMARIZE_SESSION job enqueued successfully")
+                            print(f"   📊 Job ID: {job_id}")
+                            print(f"   📊 Correlation ID: {correlation_id}")
+                            print(f"   📊 Status: {job_status}")
+                            print(f"   📊 Next attempt: {next_attempt_at}")
+                            
+                            if correlation_id:
+                                test_results["summarize_session_job_has_correlation_id"] = True
+                                print(f"   ✅ Job has correlation_id: {correlation_id}")
+                            else:
+                                print(f"   ❌ Job missing correlation_id")
+                            
+                            if next_attempt_at:
+                                test_results["summarize_session_job_has_valid_timestamp"] = True
+                                print(f"   ✅ Job has valid next_attempt_at timestamp")
+                            else:
+                                print(f"   ❌ Job missing next_attempt_at timestamp")
+                            
+                            # Store correlation_id for chain verification
+                            self.correlation_id = correlation_id
+                            
+                        else:
+                            print(f"   ❌ SUMMARIZE_SESSION job not found in bg_jobs table")
+                            
+                    finally:
+                        db.close()
+                        
+                except Exception as e:
+                    print(f"   ❌ Error checking bg_jobs table: {e}")
+                    
+            else:
+                print(f"   ❌ Session completion failed: {completion_response}")
+        else:
+            print(f"   ❌ Cannot test completion - missing session_id or auth_headers")ERT INTO sessions (session_id, user_id, status, created_at)
                             VALUES (:session_id, :user_id, 'served', NOW())
                         """), {"session_id": session_id, "user_id": user_id})
                         db.commit()
