@@ -92,7 +92,7 @@ async def get_detailed_health():
         )
 
 @router.post("/health/circuit-breaker/reset/{job_type}")
-async def reset_circuit_breaker(job_type: str, user_id: str = Depends(get_current_user)):
+async def reset_circuit_breaker(job_type: str):
     """
     Manual circuit breaker reset for administrators
     """
