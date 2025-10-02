@@ -517,6 +517,24 @@ async def submit_answer(
         # Store answer in session_answers table
         db = planner.get_db_session()
         try:
+            # VALIDATION: Check for duplicate question in this session (prevent same Q twice)
+            existing_q = db.execute(text("""
+                SELECT question_id, sess_seq_at_serve 
+                FROM attempt_events 
+                WHERE session_id = :session_id 
+                AND user_id = :user_id 
+                AND question_id = :question_id
+                AND sess_seq_at_serve != :current_position
+            """), {
+                "session_id": session_id,
+                "user_id": auth_user_id,
+                "question_id": question_at_position['id'],
+                "current_position": request.position
+            }).fetchone()
+            
+            if existing_q:
+                logger.warning(f"⚠️  Question {question_at_position['id'][:8]} already attempted at position {existing_q[1]}, current position {request.position}")
+                # Allow the update but log it
             db.execute(text("""
                 INSERT INTO session_answers (session_id, position, question_id, user_answer, is_correct, explanation, timestamp)
                 VALUES (:session_id, :position, :question_id, :user_answer, :is_correct, :explanation, :timestamp)
