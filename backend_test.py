@@ -4137,17 +4137,6 @@ if __name__ == "__main__":
                 print(f"   ❌ Session completion failed: {completion_response}")
         else:
             print(f"   ❌ Cannot test completion - missing session_id or auth_headers")
-                        
-                        test_results["session_found_or_created"] = True
-                        print(f"   ✅ Created fresh session for testing: {session_id}")
-                    finally:
-                        db.close()
-                        
-                except Exception as e:
-                    print(f"   ❌ Error finding/creating session: {e}")
-                    # Fallback to random UUID
-                    import uuid
-                    session_id = str(uuid.uuid4())
                     print(f"   ⚠️ Using random session ID as fallback: {session_id}")
         
         # Test session completion endpoint
