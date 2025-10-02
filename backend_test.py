@@ -1184,12 +1184,13 @@ class CATBackendTester:
         FOCUS: Test with a real, fresh session completion using the correct endpoint to verify 
         the full pipeline works end-to-end.
         """
-        print("🎯 ADAPTIVE LEARNING PIPELINE JOB CHAINING BUG FIX TESTING")
-        print("=" * 80)
-        print("OBJECTIVE: Test job chaining fix - SUMMARIZE_SESSION → PLAN_NEXT_SESSION → UPDATE_INSIGHTS")
-        print("FOCUS: correlation_id propagation, job chaining, valid timestamps, error monitoring")
+        print("🎯 CORRECTED ADAPTIVE LEARNING PIPELINE TESTING AFTER JOB CHAINING FIXES")
+        print("=" * 90)
+        print("OBJECTIVE: Test the CORRECTED adaptive learning pipeline after fixing job chaining issues")
+        print("FOCUS: Fresh session completion, SUMMARIZE_SESSION → PLAN_NEXT_SESSION → UPDATE_INSIGHTS")
         print("EXPECTED: Complete job pipeline working with proper correlation_id propagation")
-        print("=" * 80)
+        print("ROOT CAUSE: Database schema mismatches in job handlers (NOT job chaining)")
+        print("=" * 90)
         
         test_results = {
             # Authentication Setup
