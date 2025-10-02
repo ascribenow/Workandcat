@@ -417,8 +417,8 @@ class AskTwelvrTester:
                     # Check AI responses are contextual
                     ai_responses = [msg for msg in messages if msg.get('role') == 'assistant']
                     if len(ai_responses) >= 2:
-                        first_ai_response = ai_responses[0].get('content', '')
-                        second_ai_response = ai_responses[1].get('content', '')
+                        first_ai_response = ai_responses[0].get('content', '') or ''
+                        second_ai_response = ai_responses[1].get('content', '') or ''
                         
                         if (len(first_ai_response) > 100 and len(second_ai_response) > 100):
                             test_results["ai_responses_contextual"] = True
