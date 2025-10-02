@@ -284,8 +284,8 @@ class AdaptivePipelineTester:
         
         if correlation_id and auth_headers:
             # Wait a moment for jobs to be processed
-            print("   ⏳ Waiting 15 seconds for job processing...")
-            time.sleep(15)
+            print("   ⏳ Waiting 30 seconds for job processing...")
+            time.sleep(30)
             
             # Check background jobs table for our jobs
             try:
