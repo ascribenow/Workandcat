@@ -181,7 +181,7 @@ class SimplifiedJobQueue:
             # Calculate next retry with exponential backoff: 1,2,4,8,16,30m (capped)
             if attempts < max_attempts:
                 backoff_minutes = min(2 ** (attempts - 1), 30)
-                next_attempt_at = datetime.now(timezone.utc) + timedelta(minutes=backoff_minutes)
+                next_attempt_at = now_ist() + timedelta(minutes=backoff_minutes)  # FIXED: Use IST
                 new_status = 'failed'  # Will retry
                 
                 logger.warning(f"⚠️ Job {job_id[:8]} failed (attempt {attempts}/{max_attempts}), retry in {backoff_minutes}m")
