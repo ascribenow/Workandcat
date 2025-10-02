@@ -212,7 +212,7 @@ class AdaptivePipelineTester:
                     # Add some sample session answers to make it a valid completed session
                     for i in range(1, 13):  # 12 questions
                         db.execute(text("""
-                            INSERT INTO session_answers (session_id, position, question_id, user_answer, is_correct, created_at)
+                            INSERT INTO session_answers (session_id, position, question_id, user_answer, is_correct, timestamp)
                             VALUES (:session_id, :position, :question_id, 'Sample Answer', :is_correct, NOW())
                         """), {
                             "session_id": session_id, 
