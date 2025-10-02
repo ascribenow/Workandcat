@@ -34,6 +34,6 @@ async def api_mark_completed(payload: dict, user_id: str = Depends(get_current_u
     if not session_id:
         raise HTTPException(status_code=400, detail={"code": "SESSION_ID_REQUIRED"})
     
-    # Run completion handler with summarizer (non-blocking)
-    mark_session_completed(user_id, session_id)
+    # Run completion handler with background job enqueuing (non-blocking)
+    await mark_session_completed(user_id, session_id)
     return {"ok": True}
