@@ -61,6 +61,15 @@ export const SimpleDashboard = () => {
     };
   }, [user, token]);
 
+  // FIX: Refresh data when location changes (e.g., returning to /dashboard from /session)
+  useEffect(() => {
+    if (location.pathname === '/dashboard' && user && token) {
+      console.log('SimpleDashboard: Navigated back to dashboard, refreshing data...');
+      fetchDashboardData();
+      fetchAdaptiveInsights();
+    }
+  }, [location.pathname, user, token]);
+
   // LIGHTWEIGHT TELEMETRY: Log dashboard state mismatches only when data is actually different
   const logDashboardMismatch = (event, apiData, displayData) => {
     const apiCount = apiData?.total_sessions || 0;
