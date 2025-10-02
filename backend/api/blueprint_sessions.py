@@ -446,8 +446,9 @@ async def submit_answer(
     session_id = validate_canonical_uuid(request.session_id, "session_id")
     auth_user_id = validate_canonical_uuid(auth_user_id, "authenticated_user_id")
     
+    # CRITICAL: Enforce Blueprint V2 constraint - exactly 12 questions
     if not (1 <= request.position <= 12):
-        raise HTTPException(status_code=400, detail="Position must be between 1 and 12")
+        raise HTTPException(status_code=400, detail="Position must be between 1 and 12 (Blueprint V2)")
     
     try:
         planner = await get_blueprint_planner()
