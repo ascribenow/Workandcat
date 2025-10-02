@@ -88,7 +88,7 @@ class SimplifiedJobQueue:
                 "correlation_id": correlation_id,
                 "dedupe_key": dedupe_key,
                 "max_attempts": max_attempts,
-                "next_attempt_at": datetime.now(timezone.utc)
+                "next_attempt_at": now_ist()  # FIXED: Use IST
             })
             
             job_id = result.scalar()
