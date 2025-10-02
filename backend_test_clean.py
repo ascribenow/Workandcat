@@ -436,6 +436,7 @@ class CATBackendTester:
                         "session_id": session_id,
                         "question_id": test_question.get('id'),
                         "action": "submit",
+                        "timestamp": datetime.now().isoformat(),
                         "data": {
                             "user_answer": test_question.get('answer', 'Test Answer'),  # Use correct answer
                             "time_taken": 30
