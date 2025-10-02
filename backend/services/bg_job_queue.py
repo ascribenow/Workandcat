@@ -163,7 +163,7 @@ class SimplifiedJobQueue:
                 WHERE id = :job_id
             """), {
                 "job_id": job_id,
-                "completed_at": datetime.now(timezone.utc)
+                "completed_at": now_ist()  # FIXED: Use IST
             })
             db.commit()
             logger.info(f"✅ Job {job_id[:8]} succeeded ({processing_duration_ms}ms)")
