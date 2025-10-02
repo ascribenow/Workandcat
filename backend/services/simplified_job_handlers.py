@@ -680,7 +680,7 @@ async def persist_session_pack(user_id: str, session_pack: Dict[str, Any]) -> st
             "session_id": pack_id,
             "user_id": user_id,
             "constraint_report": constraint_report_json,
-            "created_at": datetime.now(timezone.utc)
+            "created_at": now_ist()
         })
         
         db.commit()
