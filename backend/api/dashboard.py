@@ -9,9 +9,17 @@ from sqlalchemy import text
 from typing import Optional
 import json
 
-from database import get_db_session
+from database import SessionLocal
 from auth_service import get_current_user
 from utils.timezone_utils import now_ist
+
+def get_db_session():
+    """Get database session"""
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
