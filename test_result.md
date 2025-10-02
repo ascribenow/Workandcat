@@ -157,6 +157,14 @@
     stuck_count: 0
     priority: "critical"
     needs_retesting: false
+
+  - task: "Adaptive Learning Pipeline Job Chaining Bug Fix"
+    implemented: true
+    working: false
+    file: "backend/services/bg_job_queue.py, backend/services/simplified_job_handlers.py"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: true
     status_history:
         - working: true
           agent: "testing"
