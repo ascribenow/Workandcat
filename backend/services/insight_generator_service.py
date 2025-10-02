@@ -140,12 +140,22 @@ class InsightGeneratorService:
         
         db = SessionLocal()
         try:
-            # Get concept mastery data
+            # Get concept mastery data WITH ATTEMPT COUNTS (CRITICAL FIX)
+            # Only concepts with >= 3 attempts should be used for mastery insights
             concepts_result = db.execute(text("""
-                SELECT concept_norm, mastery_score, readiness, last_seen_at
-                FROM learner_notebook
-                WHERE user_id = :user_id
-                ORDER BY mastery_score DESC
+                SELECT 
+                    ln.concept_norm, 
+                    ln.mastery_score, 
+                    ln.readiness, 
+                    ln.last_seen_at,
+                    COUNT(DISTINCT ae.id) as total_attempts
+                FROM learner_notebook ln
+                LEFT JOIN attempt_events ae ON 
+                    ae.user_id = ln.user_id
+                    AND (ae.subcategory || ':' || ae.type_of_question) = ln.concept_norm
+                WHERE ln.user_id = :user_id
+                GROUP BY ln.concept_norm, ln.mastery_score, ln.readiness, ln.last_seen_at
+                ORDER BY ln.mastery_score DESC
             """), {"user_id": user_id}).fetchall()
             
             # Get coverage debt data
