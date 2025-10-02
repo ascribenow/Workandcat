@@ -183,11 +183,11 @@ class InsightGeneratorService:
             weak_concepts = [c for c in concepts_sufficient_data if c[1] <= 0.3]
             avg_mastery = sum(c[1] for c in concepts_sufficient_data) / total_concepts if total_concepts > 0 else 0
             
-            # Find neglected concepts (not seen in 14+ days)
+            # Find neglected concepts (not seen in 14+ days) - ONLY from sufficient data
             from datetime import datetime, timezone
             now = now_ist()
             neglected = []
-            for c in concepts_result:
+            for c in concepts_sufficient_data:
                 if c[3]:  # last_seen_at
                     days_since = (now - c[3]).days
                     if days_since > 14:
@@ -203,7 +203,9 @@ class InsightGeneratorService:
                 "top_3_strong": [(c[0], round(c[1]*10, 1)) for c in strong_concepts[:3]],
                 "top_3_weak": [(c[0], round(c[1]*10, 1)) for c in weak_concepts[:3]],
                 "neglected": [(c[0], c[1]) for c in neglected[:3]],
-                "high_debt_topics": [(d[0], round(d[1], 2)) for d in debt_result[:3]]
+                "high_debt_topics": [(d[0], round(d[1], 2)) for d in debt_result[:3]],
+                "low_data_concepts": [c[0] for c in concepts_low_data[:5]],  # NEW: Track low-data concepts
+                "low_data_count": len(concepts_low_data)  # NEW: Count of low-data concepts
             }
             
             # Check if upcoming session data is available
