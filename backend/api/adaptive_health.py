@@ -111,7 +111,7 @@ async def reset_circuit_breaker(job_type: str):
         cb.failure_count = 0
         cb.last_failure_time = None
         
-        logger.info(f"🔄 Circuit breaker manually reset for {job_type} by user {user_id[:8]}")
+        logger.info(f"🔄 Circuit breaker manually reset for {job_type}")
         
         return {
             "status": "success",
