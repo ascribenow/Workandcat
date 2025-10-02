@@ -10,7 +10,7 @@ import json
 import sys
 
 class BlueprintSessionListTester:
-    def __init__(self, base_url="https://smart-tutor-50.preview.emergentagent.com/api"):
+    def __init__(self, base_url="https://adaptive-engine-fix.preview.emergentagent.com/api"):
         self.base_url = base_url
         self.auth_headers = None
         self.user_id = None

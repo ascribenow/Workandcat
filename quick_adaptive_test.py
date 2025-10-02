@@ -14,7 +14,7 @@ def quick_test():
     print("=" * 60)
     
     # Test with the primary API base
-    base_url = "https://smart-tutor-50.preview.emergentagent.com/api"
+    base_url = "https://adaptive-engine-fix.preview.emergentagent.com/api"
     
     # 1. Authentication
     print("\n1. 🔐 AUTHENTICATION TEST")
