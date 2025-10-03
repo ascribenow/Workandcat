@@ -33,31 +33,31 @@ export const SimpleDashboard = () => {
     // Cleanup function removed since we removed the timeout
   }, [user, token]);
 
-  // FIX: Refresh insights when user returns to dashboard (after session completion)
+  // FIX: Refresh insights ONLY when returning from a completed session
+  // Use sessionStorage flag to track if a session was just completed
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (!document.hidden && user && token) {
-        console.log('SimpleDashboard: Tab became visible, refreshing data...');
-        fetchDashboardData();
-        fetchAdaptiveInsights();
-      }
-    };
-
-    const handleFocus = () => {
-      if (user && token) {
-        console.log('SimpleDashboard: Window focused, refreshing insights...');
-        fetchAdaptiveInsights();
+        // Check if we should refresh (only if session was completed)
+        const shouldRefresh = sessionStorage.getItem('dashboardNeedsRefresh');
+        
+        if (shouldRefresh === 'true') {
+          console.log('SimpleDashboard: Session completed, refreshing data...');
+          fetchDashboardData();
+          fetchAdaptiveInsights();
+          // Clear the flag
+          sessionStorage.removeItem('dashboardNeedsRefresh');
+        } else {
+          console.log('SimpleDashboard: Tab became visible (no refresh needed)');
+        }
       }
     };
 
     // Listen for tab visibility changes
     document.addEventListener('visibilitychange', handleVisibilityChange);
-    // Listen for window focus (when returning from session)
-    window.addEventListener('focus', handleFocus);
 
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
-      window.removeEventListener('focus', handleFocus);
     };
   }, [user, token]);
 
