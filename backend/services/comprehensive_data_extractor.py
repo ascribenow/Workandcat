@@ -24,7 +24,7 @@ class ComprehensiveDataExtractor:
             
             # Get everything - let LLM analyze patterns
             user_data = {
-                "user_id": user_id[:8],  # Truncated for privacy
+                "user_id": user_id,  # FULL user_id needed for downstream queries
                 "extraction_timestamp": now_ist().isoformat(),
                 "session_context": session_id,
                 
