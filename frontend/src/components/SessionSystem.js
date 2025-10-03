@@ -1084,6 +1084,11 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
         console.log('   ✅ Correlation ID:', response.data.correlation_id);
         console.log('   ✅ Background jobs enqueued:', response.data.background_jobs_enqueued);
         console.log('   ✅ Adaptive processing:', response.data.summary?.adaptive_processing);
+        
+        // Set flag to refresh dashboard when user returns
+        sessionStorage.setItem('dashboardNeedsRefresh', 'true');
+        console.log('   ✅ Dashboard refresh flag set');
+        
       } catch (completionError) {
         console.error('❌ CRITICAL: Session completion failed:', completionError);
         console.error('   This prevents adaptive pipeline from running');
