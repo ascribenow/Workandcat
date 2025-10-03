@@ -293,6 +293,10 @@ BAD EXAMPLES:
 - "Today's session will continue your growth" (too generic) ❌
 - "You have excellent grasp of Circles" (when only 1 attempt) ❌"""
             
+            self.logger.info(f"📝 Built prompt for user with {prompt_data['total_concepts']} concepts (sufficient data), {prompt_data['low_data_count']} low-data concepts")
+            self.logger.info(f"📝 Prompt length: {len(prompt)} characters")
+            self.logger.info(f"📝 Prompt preview (first 300 chars): {prompt[:300]}")
+            
             return prompt
             
         except Exception as e:
