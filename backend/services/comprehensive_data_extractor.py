@@ -57,7 +57,7 @@ class ComprehensiveDataExtractor:
             self.logger.error(f"Error extracting comprehensive data for user {user_id[:8]}: {e}")
             # Return minimal data structure if extraction fails
             return {
-                "user_id": user_id[:8],
+                "user_id": user_id,  # FULL user_id needed
                 "extraction_timestamp": now_ist().isoformat(),
                 "error": str(e),
                 "sessions": [],
