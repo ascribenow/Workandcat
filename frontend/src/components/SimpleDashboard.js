@@ -61,12 +61,21 @@ export const SimpleDashboard = () => {
     };
   }, [user, token]);
 
-  // FIX: Refresh data when location changes (e.g., returning to /dashboard from /session)
+  // FIX: Refresh data when returning to dashboard from session page
   useEffect(() => {
     if (location.pathname === '/dashboard' && user && token) {
-      console.log('SimpleDashboard: Navigated back to dashboard, refreshing data...');
-      fetchDashboardData();
-      fetchAdaptiveInsights();
+      // Check if we're coming back from a completed session
+      const shouldRefresh = sessionStorage.getItem('dashboardNeedsRefresh');
+      
+      if (shouldRefresh === 'true') {
+        console.log('SimpleDashboard: Returned from session, refreshing data...');
+        fetchDashboardData();
+        fetchAdaptiveInsights();
+        // Clear the flag
+        sessionStorage.removeItem('dashboardNeedsRefresh');
+      } else {
+        console.log('SimpleDashboard: Dashboard loaded (no refresh needed)');
+      }
     }
   }, [location.pathname, user, token]);
 
