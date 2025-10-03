@@ -751,6 +751,8 @@ Data: {json.dumps(slice_dict, indent=2)}
             # Simple response handling
             if response and response.text:
                 self.logger.info(f"Gemini response received: {len(response.text)} chars")
+                # DEBUG: Log first 200 chars to diagnose issues
+                self.logger.info(f"Gemini response preview: {response.text[:200]}")
                 return response.text.strip()
             else:
                 raise Exception("No response text from Gemini")
