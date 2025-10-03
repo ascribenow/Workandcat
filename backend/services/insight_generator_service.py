@@ -167,7 +167,10 @@ class InsightGeneratorService:
                 LIMIT 10
             """), {"user_id": user_id}).fetchall()
             
+            self.logger.info(f"📊 Query results: concepts_result has {len(concepts_result)} rows")
+            
             if not concepts_result:
+                self.logger.warning("No concepts found - returning fallback prompt")
                 return """Return this exact JSON: {"dashboard_all_time": "Start your learning journey! Complete your first practice session to see personalized insights about your strengths and areas for improvement.", "dashboard_recent": "Your adaptive insights will appear here after you complete a few practice sessions.", "pre_session_card": {"title": "Begin Your Journey 🚀", "progress": "Each session helps us understand your learning patterns better!", "way_forward": ["Complete your first session", "Build consistent practice"], "today": "Start building your concept map today!"}}"""
             
             # CRITICAL FIX: Filter concepts by minimum attempt threshold
@@ -175,6 +178,8 @@ class InsightGeneratorService:
             MINIMUM_ATTEMPTS_FOR_MASTERY = 3
             concepts_sufficient_data = [c for c in concepts_result if c[4] >= MINIMUM_ATTEMPTS_FOR_MASTERY]
             concepts_low_data = [c for c in concepts_result if c[4] < MINIMUM_ATTEMPTS_FOR_MASTERY]
+            
+            self.logger.info(f"📊 Filtered concepts: {len(concepts_sufficient_data)} with ≥3 attempts, {len(concepts_low_data)} with <3 attempts")
             
             # Analyze concepts (ONLY those with sufficient attempts)
             total_concepts = len(concepts_sufficient_data)
