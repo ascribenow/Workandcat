@@ -22,12 +22,16 @@
 
 ### 2. Database Connection Pool
 ```python
-pool_size=10              # Base pool size
-max_overflow=20           # Additional connections when needed
-Total: 30 connections max
+pool_size=20              # Base pool size (UPDATED from 10)
+max_overflow=30           # Additional connections when needed (UPDATED from 20)
+Total: 50 connections max (UPDATED from 30)
 pool_pre_ping=True        # Verify connections before use
 pool_recycle=3600         # Recycle every hour
 ```
+
+**Database Capacity:** 60 connections (Supabase/managed PostgreSQL)
+**Our Application Limit:** 50 connections (leaves 10 buffer for admin/monitoring)
+**Headroom:** 67% increase in capacity
 
 ### 3. Job Queue Implementation
 **Key Feature:** PostgreSQL-backed queue with `FOR UPDATE SKIP LOCKED`
