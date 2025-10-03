@@ -40,11 +40,12 @@ is_sqlite = DATABASE_URL.startswith('sqlite:///')
 
 if is_postgres:
     # PostgreSQL Configuration (Production)
+    # Updated pool size for higher concurrency (30-50 concurrent sessions)
     engine = create_engine(
         DATABASE_URL,
         echo=False,  # Set to True for debugging
-        pool_size=10,  # Connection pool size
-        max_overflow=20,  # Maximum overflow connections
+        pool_size=20,  # Connection pool size (increased from 10)
+        max_overflow=30,  # Maximum overflow connections (increased from 20)
         pool_pre_ping=True,  # Verify connections before use
         pool_recycle=3600,   # Recycle connections every hour
         connect_args={
@@ -53,7 +54,7 @@ if is_postgres:
             "options": "-c timezone=Asia/Kolkata",  # Set connection timezone to IST
         }
     )
-    print("🐘 Using PostgreSQL database (Production)")
+    print("🐘 Using PostgreSQL database (Production) - Pool: 20+30 overflow = 50 max connections")
 else:
     # SQLite Configuration (Development fallback)
     engine = create_engine(
