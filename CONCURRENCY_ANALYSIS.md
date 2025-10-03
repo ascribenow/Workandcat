@@ -154,13 +154,14 @@ T=300s: All UPDATE_INSIGHTS complete (50 × 5s / 2 workers)
 ```
 
 **Resource Usage:**
-- DB connections: 15-20 (approaching limits)
+- DB connections: 20-30 (well within limits ✅)
 - Queue depth: Max 48 jobs waiting
 - Processing latency: Up to 5 minutes for last job
 
-**Result:** ⚠️ **HANDLES BUT WITH DELAYS**
+**Result:** ✅ **HANDLES WELL WITH NEW POOL SIZE**
 - First user: Insights in 15s
 - Last user: Insights in 5 minutes
+- No connection issues with 50-connection pool
 
 ---
 
