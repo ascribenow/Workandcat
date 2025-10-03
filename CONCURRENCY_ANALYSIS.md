@@ -98,7 +98,7 @@ RETURNING id, job_type, user_id, session_id
    - Each job handler opens 3-5 DB connections (queries in learner_notebook, coverage_debt, etc.)
    - 2 workers × 3 connections/job = 6 connections in use continuously
    - API requests: ~5-10 connections
-   - **Buffer:** 30 - 16 = 14 connections available for spikes
+   - **Buffer:** 50 - 16 = **34 connections available for spikes** (UPDATED)
 
 2. **LLM API Rate Limits**
    - UPDATE_INSIGHTS calls Gemini (insight_generator_service.py)
