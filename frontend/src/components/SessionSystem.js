@@ -270,6 +270,11 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
       });
       
       console.log(`[BLUEPRINT] Session completed:`, response.data);
+      
+      // Set flag to refresh dashboard when user returns
+      sessionStorage.setItem('dashboardNeedsRefresh', 'true');
+      console.log(`[BLUEPRINT] Dashboard refresh flag set`);
+      
       return response.data.summary;
       
     } catch (error) {
