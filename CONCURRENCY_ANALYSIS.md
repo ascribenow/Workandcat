@@ -192,11 +192,13 @@ T=300s: All UPDATE_INSIGHTS complete (50 × 5s / 2 workers)
 
 | Concurrent Users | Status | Latency | Notes |
 |-----------------|--------|---------|-------|
-| **1-10** | ✅ Excellent | < 30s | Optimal performance |
-| **10-20** | ✅ Good | 30s-1m | Minor delays, stable |
-| **20-50** | ⚠️ Acceptable | 1-5m | Noticeable queue, but works |
-| **50-100** | ❌ Degraded | 5-10m | Connection issues possible |
-| **100+** | ❌ Critical | 10m+ | System overload |
+| **1-20** | ✅ Excellent | < 30s | Optimal performance |
+| **20-50** | ✅ Good | 30s-2m | Stable with new pool size |
+| **50-80** | ⚠️ Acceptable | 2-5m | Noticeable queue, but no errors |
+| **80-100** | ⚠️ Degraded | 5-10m | May hit LLM rate limits |
+| **100+** | ❌ Critical | 10m+ | Need more workers + LLM optimization |
+
+**Updated with 50-connection pool**
 
 ---
 
