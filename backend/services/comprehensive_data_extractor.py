@@ -225,18 +225,18 @@ class ComprehensiveDataExtractor:
         try:
             query = text("""
                 SELECT 
-                    q.difficulty,
+                    q.difficulty_band,
                     COUNT(ae.id) as attempted,
                     COUNT(CASE WHEN ae.was_correct THEN 1 END) as correct
                 FROM attempt_events ae
                 JOIN questions q ON q.id = ae.question_id
                 WHERE ae.user_id = :user_id
-                GROUP BY q.difficulty
+                GROUP BY q.difficulty_band
             """)
             
             results = db.execute(query, {"user_id": user_id}).fetchall()
             return {
-                r.difficulty or "Unknown": {
+                r.difficulty_band or "Unknown": {
                     "attempted": int(r.attempted or 0),
                     "correct": int(r.correct or 0),
                     "accuracy": float(r.correct / r.attempted) if r.attempted > 0 else 0.0
