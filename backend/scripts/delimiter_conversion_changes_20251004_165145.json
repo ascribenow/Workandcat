@@ -1,0 +1,343 @@
+[
+  {
+    "id": "d12719c0-e4b2-47f1-88e0-312991a3cd57",
+    "changes": [
+      {
+        "field": "detailed_solution",
+        "conversions": 5,
+        "sample_before": "Goal: Find the average age \\(A_2\\) of the remaining 20 people.  \nGivens: \\(A_2 = A_1 + 5\\), \\(A_3 = A_1/2\\)  \nMethod: Weighted averages, as the total ...",
+        "sample_after": "Goal: Find the average age \\(A_2\\) of the remaining 20 people.  \nGivens: \\(A_2 = A_1 + 5\\), \\(A_3 = A_1/2\\)  \nMethod: Weighted averages, as the total ..."
+      }
+    ]
+  },
+  {
+    "id": "d181853b-a7c1-4dde-b063-79ea1e9ad296",
+    "changes": [
+      {
+        "field": "detailed_solution",
+        "conversions": 8,
+        "sample_before": "Goal: Find the speed needed to arrive at 5:00 pm.\n\nGivens: Arrival times at two speeds, departure time \u2192 Required speed for a specific arrival time.\n\n...",
+        "sample_after": "Goal: Find the speed needed to arrive at 5:00 pm.\n\nGivens: Arrival times at two speeds, departure time \u2192 Required speed for a specific arrival time.\n\n..."
+      }
+    ]
+  },
+  {
+    "id": "d3fc6df0-6264-431d-87fc-ca3bca85508f",
+    "changes": [
+      {
+        "field": "detailed_solution",
+        "conversions": 9,
+        "sample_before": "Goal: Find the minimum total surface area of the cylinders, minimizing their number. Givens: \\(V_A = 675\\) cc, \\(V_B = 1314\\) cc, \\(V_C = 585\\) cc, \\(...",
+        "sample_after": "Goal: Find the minimum total surface area of the cylinders, minimizing their number. Givens: \\(V_A = 675\\) cc, \\(V_B = 1314\\) cc, \\(V_C = 585\\) cc, \\(..."
+      }
+    ]
+  },
+  {
+    "id": "d51a50cf-56d3-413f-bbe0-76f49203ba1f",
+    "changes": [
+      {
+        "field": "detailed_solution",
+        "conversions": 9,
+        "sample_before": "Goal: Find the percentage loss in the first year.  \nGivens: Initial investment, relationship between Year 1 loss and Year 2 growth, overall gain. \u2192 Un...",
+        "sample_after": "Goal: Find the percentage loss in the first year.  \nGivens: Initial investment, relationship between Year 1 loss and Year 2 growth, overall gain. \u2192 Un..."
+      }
+    ]
+  },
+  {
+    "id": "d6e30e41-d80d-49bf-b334-6e9877e34747",
+    "changes": [
+      {
+        "field": "detailed_solution",
+        "conversions": 6,
+        "sample_before": "Goal: Find the number of days required to complete 28 person-days of work.  \nGivens: Total work = 28 person-days; workers increase by 1 per day.  \nUnk...",
+        "sample_after": "Goal: Find the number of days required to complete 28 person-days of work.  \nGivens: Total work = 28 person-days; workers increase by 1 per day.  \nUnk..."
+      }
+    ]
+  },
+  {
+    "id": "d8812aab-2111-49ef-951c-9abbf89c1ca7",
+    "changes": [
+      {
+        "field": "detailed_solution",
+        "conversions": 9,
+        "sample_before": "Goal: Find the length of the slower train.  \nGivens: Crossing time, faster train length and speed info, speed difference between trains \u2192 Unknown: Slo...",
+        "sample_after": "Goal: Find the length of the slower train.  \nGivens: Crossing time, faster train length and speed info, speed difference between trains \u2192 Unknown: Slo..."
+      }
+    ]
+  },
+  {
+    "id": "d937aab5-35f8-489b-8b44-7399cfe65dfe",
+    "changes": [
+      {
+        "field": "detailed_solution",
+        "conversions": 10,
+        "sample_before": "Goal: Find the coordinates of the point where the locus of intersection of tangents touches the line \\(x = 6\\).  \nGivens: Circle equation, angle betwe...",
+        "sample_after": "Goal: Find the coordinates of the point where the locus of intersection of tangents touches the line \\(x = 6\\).  \nGivens: Circle equation, angle betwe..."
+      }
+    ]
+  },
+  {
+    "id": "da8d014a-9a07-4566-aee7-9424b809c60a",
+    "changes": [
+      {
+        "field": "detailed_solution",
+        "conversions": 7,
+        "sample_before": "Goal: Find the selling price per kg of the remaining mixture to achieve a 40% overall profit.  \nGivens: CPs (\u20b940, \u20b950, \u20b960/kg), Ratio (3:2:1), SP1 (\u20b96...",
+        "sample_after": "Goal: Find the selling price per kg of the remaining mixture to achieve a 40% overall profit.  \nGivens: CPs (\u20b940, \u20b950, \u20b960/kg), Ratio (3:2:1), SP1 (\u20b96..."
+      }
+    ]
+  },
+  {
+    "id": "dc0118f7-dd29-4c00-93da-9082d1cf0781",
+    "changes": [
+      {
+        "field": "detailed_solution",
+        "conversions": 5,
+        "sample_before": "Goal: Find the distance covered by both vehicles. Givens: \\(r_c = 30\\) cm, \\(r_t = 50\\) cm, \\(N_c = N_t + 4000\\), \\(t_c = 1\\) hr \u2192 Unknown: Distance \\...",
+        "sample_after": "Goal: Find the distance covered by both vehicles. Givens: \\(r_c = 30\\) cm, \\(r_t = 50\\) cm, \\(N_c = N_t + 4000\\), \\(t_c = 1\\) hr \u2192 Unknown: Distance \\..."
+      }
+    ]
+  },
+  {
+    "id": "dd6fecea-f811-45bf-86ed-8a75607981af",
+    "changes": [
+      {
+        "field": "detailed_solution",
+        "conversions": 11,
+        "sample_before": "Goal: Find the length of QR, the diameter of the circle.  \nGivens: PQ = 40 cm, PR = 32 cm, ST = 16 cm.  \nMethod: Similarity of triangles PST and PQR. ...",
+        "sample_after": "Goal: Find the length of QR, the diameter of the circle.  \nGivens: PQ = 40 cm, PR = 32 cm, ST = 16 cm.  \nMethod: Similarity of triangles PST and PQR. ..."
+      }
+    ]
+  },
+  {
+    "id": "de1cbb9d-5c42-4c22-af5e-a576d3339713",
+    "changes": [
+      {
+        "field": "detailed_solution",
+        "conversions": 3,
+        "sample_before": "Goal: Find the area of the square inscribed in a circle of radius 5.  \nGivens: Circle radius \\(r = 5\\) \u2192 Unknown: Square area \\(A\\).  \nMethod: Relate ...",
+        "sample_after": "Goal: Find the area of the square inscribed in a circle of radius 5.  \nGivens: Circle radius \\(r = 5\\) \u2192 Unknown: Square area \\(A\\).  \nMethod: Relate ..."
+      }
+    ]
+  },
+  {
+    "id": "de5a9a0c-be6d-4566-a314-d3de96d3f7c5",
+    "changes": [
+      {
+        "field": "detailed_solution",
+        "conversions": 5,
+        "sample_before": "Goal: Find the speed of the third cyclist so all three meet simultaneously. Givens: \\(v_1 = 20 \\, \\text{km/h}\\), \\(v_2 = 25 \\, \\text{km/h}\\), \\(d = 15...",
+        "sample_after": "Goal: Find the speed of the third cyclist so all three meet simultaneously. Givens: \\(v_1 = 20 \\, \\text{km/h}\\), \\(v_2 = 25 \\, \\text{km/h}\\), \\(d = 15..."
+      }
+    ]
+  },
+  {
+    "id": "de979507-1fb3-4207-8e61-b860813d2bab",
+    "changes": [
+      {
+        "field": "detailed_solution",
+        "conversions": 19,
+        "sample_before": "Goal: Find the time it takes to fill the tank with 7 A inlets and 27 B inlets. Givens: Two scenarios with different combinations of A and B inlets and...",
+        "sample_after": "Goal: Find the time it takes to fill the tank with 7 A inlets and 27 B inlets. Givens: Two scenarios with different combinations of A and B inlets and..."
+      }
+    ]
+  },
+  {
+    "id": "e023cd60-1ff1-4a58-be19-1323a099ce49",
+    "changes": [
+      {
+        "field": "detailed_solution",
+        "conversions": 4,
+        "sample_before": "Goal: Calculate the sum of all ages in the group. Givens: Number of people over 50, number of people under 50, average age. \u2192 Unknown: Sum of all ages...",
+        "sample_after": "Goal: Calculate the sum of all ages in the group. Givens: Number of people over 50, number of people under 50, average age. \u2192 Unknown: Sum of all ages..."
+      }
+    ]
+  },
+  {
+    "id": "e1b36be2-1144-4ac8-826d-aafdbe5d8d86",
+    "changes": [
+      {
+        "field": "detailed_solution",
+        "conversions": 11,
+        "sample_before": "Goal: Find the distance between the slower ship and the port when the faster ship reaches the port.\n\nGivens: Initial equilateral triangle with sides 2...",
+        "sample_after": "Goal: Find the distance between the slower ship and the port when the faster ship reaches the port.\n\nGivens: Initial equilateral triangle with sides 2..."
+      }
+    ]
+  },
+  {
+    "id": "e2e1f40d-cefd-475a-b53c-025609fe0bc9",
+    "changes": [
+      {
+        "field": "detailed_solution",
+        "conversions": 8,
+        "sample_before": "Goal: Find the volume of the sphere circumscribing the rectangular box. Givens: \\(S = 504 \\, \\text{cm}^2\\), \\(P = 120 \\, \\text{cm}\\) \u2192 \\(V_\\text{spher...",
+        "sample_after": "Goal: Find the volume of the sphere circumscribing the rectangular box. Givens: \\(S = 504 \\, \\text{cm}^2\\), \\(P = 120 \\, \\text{cm}\\) \u2192 \\(V_\\text{spher..."
+      }
+    ]
+  },
+  {
+    "id": "e3b18be4-bb57-4d58-b2bc-18b299683892",
+    "changes": [
+      {
+        "field": "detailed_solution",
+        "conversions": 11,
+        "sample_before": "Goal: Find the downstream time of the slower boat.\n\nGiven: \\(t_{1d} = 4\\) hrs, \\(t_{1u} = 6\\) hrs, \\(t_{2r} = 10\\) hrs. Unknown: Downstream time of th...",
+        "sample_after": "Goal: Find the downstream time of the slower boat.\n\nGiven: \\(t_{1d} = 4\\) hrs, \\(t_{1u} = 6\\) hrs, \\(t_{2r} = 10\\) hrs. Unknown: Downstream time of th..."
+      }
+    ]
+  },
+  {
+    "id": "e3f660bd-29ac-4cf2-b080-3838ff592f9e",
+    "changes": [
+      {
+        "field": "detailed_solution",
+        "conversions": 7,
+        "sample_before": "Goal: Find the distance to the island. Givens: Boat speeds (15 km/h, 20 km/h), time differences (\u00b115 minutes relative to ferry). Unknown: Distance (km...",
+        "sample_after": "Goal: Find the distance to the island. Givens: Boat speeds (15 km/h, 20 km/h), time differences (\u00b115 minutes relative to ferry). Unknown: Distance (km..."
+      }
+    ]
+  },
+  {
+    "id": "e4591f6a-0c4a-4854-a1a1-85071a4f75b3",
+    "changes": [
+      {
+        "field": "detailed_solution",
+        "conversions": 5,
+        "sample_before": "Goal: Find the total number of items purchased.  \nGivens: Cost prices \u20b98 and \u20b910, selling price \u20b99.50, total profit \u20b990.  \nMethod: Weighted average co...",
+        "sample_after": "Goal: Find the total number of items purchased.  \nGivens: Cost prices \u20b98 and \u20b910, selling price \u20b99.50, total profit \u20b990.  \nMethod: Weighted average co..."
+      }
+    ]
+  },
+  {
+    "id": "e65cc395-ebb9-4bec-b97b-07262724bcba",
+    "changes": [
+      {
+        "field": "detailed_solution",
+        "conversions": 10,
+        "sample_before": "Goal: Find the volume of the sphere circumscribing the rectangular box.\n\nGivens: Box surface area \\(A = 846 \\text{ cm}^2\\), sum of edges \\(P = 144 \\te...",
+        "sample_after": "Goal: Find the volume of the sphere circumscribing the rectangular box.\n\nGivens: Box surface area \\(A = 846 \\text{ cm}^2\\), sum of edges \\(P = 144 \\te..."
+      }
+    ]
+  },
+  {
+    "id": "eb0c66ac-27f1-41b1-8cb9-616b5f01fc36",
+    "changes": [
+      {
+        "field": "detailed_solution",
+        "conversions": 2,
+        "sample_before": "Goal: Find the difference between the lengths of the two parts of the chord.  \nGivens: Radius = 11 cm, Chord length = 20.5 cm, One part of diameter = ...",
+        "sample_after": "Goal: Find the difference between the lengths of the two parts of the chord.  \nGivens: Radius = 11 cm, Chord length = 20.5 cm, One part of diameter = ..."
+      }
+    ]
+  },
+  {
+    "id": "ebe2c698-df2a-45f5-86e0-0e10e5571d78",
+    "changes": [
+      {
+        "field": "detailed_solution",
+        "conversions": 5,
+        "sample_before": "Goal: Determine the highest possible cost per liter of juice B.  \nGivens: Selling Price (SP) = \u20b9300, Profit = 25%, Total Volume = 12 L, Cost_A = Cost_...",
+        "sample_after": "Goal: Determine the highest possible cost per liter of juice B.  \nGivens: Selling Price (SP) = \u20b9300, Profit = 25%, Total Volume = 12 L, Cost_A = Cost_..."
+      }
+    ]
+  },
+  {
+    "id": "ef25d971-6619-4b78-90d1-ae62e4550c3d",
+    "changes": [
+      {
+        "field": "detailed_solution",
+        "conversions": 2,
+        "sample_before": "Goal: Find the distance from the top of the ball to the base of the cylinder.\n\nGivens: Ball radius \\(r = 8\\) cm, Cylinder height \\(h = 10\\) cm \u2192 Unkno...",
+        "sample_after": "Goal: Find the distance from the top of the ball to the base of the cylinder.\n\nGivens: Ball radius \\(r = 8\\) cm, Cylinder height \\(h = 10\\) cm \u2192 Unkno..."
+      }
+    ]
+  },
+  {
+    "id": "f12bf431-3460-458f-b290-17b069a62865",
+    "changes": [
+      {
+        "field": "detailed_solution",
+        "conversions": 9,
+        "sample_before": "Goal: Find the percentage increase in Person 2's age.  \nGivens: \\(P1_{initial} = 0.4 \\times P2_{initial}\\); \\(P1_{final} = 0.5 \\times P2_{final}\\)  \nU...",
+        "sample_after": "Goal: Find the percentage increase in Person 2's age.  \nGivens: \\(P1_{initial} = 0.4 \\times P2_{initial}\\); \\(P1_{final} = 0.5 \\times P2_{final}\\)  \nU..."
+      }
+    ]
+  },
+  {
+    "id": "f30d950c-4df1-461c-b325-7bb085447677",
+    "changes": [
+      {
+        "field": "principle_to_remember",
+        "conversions": 1,
+        "sample_before": "Compound interest is calculated by adding the accumulated interest to the principal at regular intervals. The formula \\[A = P(1 + \\frac{r}{n})^{nt}\\] ...",
+        "sample_after": "Compound interest is calculated by adding the accumulated interest to the principal at regular intervals. The formula $$ A = P(1 + \\frac{r}{n})^{nt} $..."
+      }
+    ]
+  },
+  {
+    "id": "f3cfd4d9-9c20-42e0-91a6-8dc63cc6d434",
+    "changes": [
+      {
+        "field": "detailed_solution",
+        "conversions": 8,
+        "sample_before": "Goal: Find the slower boat's downstream time.  \nGivens: Boat 1's downstream/upstream times, Boat 2's round trip time \u2192 Boat 1 or 2's downstream time. ...",
+        "sample_after": "Goal: Find the slower boat's downstream time.  \nGivens: Boat 1's downstream/upstream times, Boat 2's round trip time \u2192 Boat 1 or 2's downstream time. ..."
+      }
+    ]
+  },
+  {
+    "id": "f5538825-9455-490e-8323-972eaec37848",
+    "changes": [
+      {
+        "field": "detailed_solution",
+        "conversions": 6,
+        "sample_before": "Goal: Find the total distance covered by the person. Givens: Upstream speed, downstream speed, still water speed, time division, total time \u2192 Unknown:...",
+        "sample_after": "Goal: Find the total distance covered by the person. Givens: Upstream speed, downstream speed, still water speed, time division, total time \u2192 Unknown:..."
+      }
+    ]
+  },
+  {
+    "id": "f559486f-3f46-45a1-bf38-a4c948cadca9",
+    "changes": [
+      {
+        "field": "detailed_solution",
+        "conversions": 3,
+        "sample_before": "Goal: Find a pair (l, b) that satisfies the geometric constraints of the problem.\n\nGiven: Semicircle radius \\(r = 25\\) cm; Rectangle inscribed with on...",
+        "sample_after": "Goal: Find a pair (l, b) that satisfies the geometric constraints of the problem.\n\nGiven: Semicircle radius \\(r = 25\\) cm; Rectangle inscribed with on..."
+      }
+    ]
+  },
+  {
+    "id": "fb889a76-0e58-4b99-8a54-d9eddc25f6f6",
+    "changes": [
+      {
+        "field": "detailed_solution",
+        "conversions": 6,
+        "sample_before": "Goal: Find the length of the train.  \nGivens: Speeds of persons, crossing times \u2192 Length of train.  \nMethod: Relative speed is used because the train ...",
+        "sample_after": "Goal: Find the length of the train.  \nGivens: Speeds of persons, crossing times \u2192 Length of train.  \nMethod: Relative speed is used because the train ..."
+      }
+    ]
+  },
+  {
+    "id": "fd3eacc7-c6cb-4dd8-8f37-cf2efd0fe740",
+    "changes": [
+      {
+        "field": "detailed_solution",
+        "conversions": 2,
+        "sample_before": "Goal: Find the radius of the circle. Given: Chord lengths and distance between them \u2192 Unknown: Radius\n\nMethod: Pythagorean theorem applied to two righ...",
+        "sample_after": "Goal: Find the radius of the circle. Given: Chord lengths and distance between them \u2192 Unknown: Radius\n\nMethod: Pythagorean theorem applied to two righ..."
+      }
+    ]
+  },
+  {
+    "id": "ff7dc8bc-3ba4-4084-aa0c-b343d440fdcd",
+    "changes": [
+      {
+        "field": "detailed_solution",
+        "conversions": 5,
+        "sample_before": "Goal: Find the strength of solution W, a mixture of X and Z.  \nGivens: Mixture strengths for different proportions of X, Y, and Z.  \nMethod: Weighted ...",
+        "sample_after": "Goal: Find the strength of solution W, a mixture of X and Z.  \nGivens: Mixture strengths for different proportions of X, Y, and Z.  \nMethod: Weighted ..."
+      }
+    ]
+  }
+]
