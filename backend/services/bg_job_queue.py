@@ -79,7 +79,11 @@ class SimplifiedJobQueue:
                 )
                 ON CONFLICT (dedupe_key) DO UPDATE SET
                     next_attempt_at = EXCLUDED.next_attempt_at,
-                    correlation_id = EXCLUDED.correlation_id
+                    correlation_id = EXCLUDED.correlation_id,
+                    status = 'queued',  # CRITICAL FIX: Reset status to queued so job runs again
+                    started_at = NULL,
+                    completed_at = NULL,
+                    error_message = NULL
                 RETURNING id
             """), {
                 "job_type": job_type,
