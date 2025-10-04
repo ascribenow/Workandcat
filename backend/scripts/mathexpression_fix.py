@@ -273,17 +273,7 @@ if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == '--live':
         DRY_RUN = False
         log("⚠️  LIVE MODE ENABLED via command line argument", "WARNING")
-    
-    # Confirm before proceeding in live mode
-    if not DRY_RUN:
-        print("\n" + "!"*80)
-        print("WARNING: You are about to modify the database in LIVE MODE")
-        print("A backup will be created before making changes")
-        print("!"*80)
-        confirm = input("\nType 'YES' to proceed: ")
-        if confirm != 'YES':
-            print("Aborted.")
-            sys.exit(0)
+        log("⚠️  Proceeding with database modifications (backup will be created)", "WARNING")
     
     try:
         process_questions(dry_run=DRY_RUN)
