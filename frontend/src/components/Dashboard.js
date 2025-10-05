@@ -198,64 +198,66 @@ export const Dashboard = () => {
         return false;
       }
       
-      // V2 HARDENING: Check for uncompleted Blueprint sessions first  
-      if (user?.adaptive_enabled) {
-        try {
-          console.log('Dashboard: Checking for uncompleted Blueprint sessions...');
-          console.log('Dashboard: About to call Blueprint session list API...');
-          console.log('Dashboard: API URL:', `${API}/session/list`);
-          console.log('Dashboard: Auth headers:', !!localStorage.getItem('cat_prep_token'));
+      // CRITICAL: ALWAYS check for incomplete Blueprint sessions (Blueprint is the primary system)
+      // Don't gate this behind adaptive_enabled flag
+      try {
+        console.log('Dashboard: Checking for uncompleted Blueprint sessions...');
+        console.log('Dashboard: About to call Blueprint session list API...');
+        console.log('Dashboard: API URL:', `${API}/session/list`);
+        console.log('Dashboard: Auth headers:', !!localStorage.getItem('cat_prep_token'));
+        
+        // Check for incomplete Blueprint sessions using the new system
+        const incompleteSessionResponse = await axios.get(`${API}/session/list`, {
+          timeout: 10000,  // 10 second timeout
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('cat_prep_token')}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        console.log('Dashboard: Blueprint session list response:', incompleteSessionResponse.data);
+        
+        // Find incomplete sessions (not completed)
+        const sessions = incompleteSessionResponse.data.sessions || [];
+        const incompleteSession = sessions.find(session => 
+          session.status === 'planned' && session.answered_count < session.total_questions
+        );
+        
+        if (incompleteSession) {
+          console.log(`Dashboard: Found incomplete Blueprint session: ${incompleteSession.session_id} - ${incompleteSession.answered_count}/${incompleteSession.total_questions} answered`);
+          console.log(`Dashboard: Incomplete session current_position from API: ${incompleteSession.current_position}`);
+          console.log(`Dashboard: Will resume from question ${incompleteSession.current_position}`);
           
-          // Check for incomplete Blueprint sessions using the new system
-          const incompleteSessionResponse = await axios.get(`${API}/session/list`, {
-            timeout: 10000,  // 10 second timeout
-            headers: {
-              'Authorization': `Bearer ${localStorage.getItem('cat_prep_token')}`,
-              'Content-Type': 'application/json'
+          // CRITICAL FIX: Set both sessionId AND sessionMetadata for Blueprint detection
+          setActiveSessionId(incompleteSession.session_id);
+          setSessionMetadata({
+            session_id: incompleteSession.session_id,
+            session_type: 'blueprint',  // CRITICAL: Mark as Blueprint session
+            status: incompleteSession.status,
+            total_questions: incompleteSession.total_questions,
+            answered_count: incompleteSession.answered_count,
+            current_position: incompleteSession.current_position || ((incompleteSession.answered_count || 0) + 1),  // FIX: Use backend position
+            progress_percentage: incompleteSession.progress_percentage,
+            // Note: Questions will be loaded from API by SessionSystem when needed
+            questions: [],  // Will be populated by SessionSystem
+            phase_info: {
+              current_session: incompleteSession.session_number || 1  // FIX: Use actual session number from backend
             }
           });
-          console.log('Dashboard: Blueprint session list response:', incompleteSessionResponse.data);
           
-          // Find incomplete sessions (not completed)
-          const sessions = incompleteSessionResponse.data.sessions || [];
-          const incompleteSession = sessions.find(session => 
-            session.status === 'planned' && session.answered_count < session.total_questions
-          );
-          
-          if (incompleteSession) {
-            console.log(`Dashboard: Found incomplete Blueprint session: ${incompleteSession.session_id} - ${incompleteSession.answered_count}/${incompleteSession.total_questions} answered`);
-            console.log(`Dashboard: Incomplete session current_position from API: ${incompleteSession.current_position}`);
-            console.log(`Dashboard: Will resume from question ${incompleteSession.current_position}`);
-            
-            // CRITICAL FIX: Set both sessionId AND sessionMetadata for Blueprint detection
-            setActiveSessionId(incompleteSession.session_id);
-            setSessionMetadata({
-              session_id: incompleteSession.session_id,
-              session_type: 'blueprint',  // CRITICAL: Mark as Blueprint session
-              status: incompleteSession.status,
-              total_questions: incompleteSession.total_questions,
-              answered_count: incompleteSession.answered_count,
-              current_position: incompleteSession.current_position || ((incompleteSession.answered_count || 0) + 1),  // FIX: Use backend position
-              progress_percentage: incompleteSession.progress_percentage,
-              // Note: Questions will be loaded from API by SessionSystem when needed
-              questions: [],  // Will be populated by SessionSystem
-              phase_info: {
-                current_session: incompleteSession.session_number || 1  // FIX: Use actual session number from backend
-              }
-            });
-            
-            // Switch to session view to resume
-            console.log(`Dashboard: Switching to session view to resume session ${incompleteSession.session_id}`);
-            setCurrentView('session');
-            return true;
-          } else {
-            console.log('Dashboard: No incomplete Blueprint sessions found, will start new session');
-          }
-        } catch (error) {
-          console.warn('Dashboard: Failed to check Blueprint session list:', error.message);
-          // Continue with session planning if check fails
+          // Switch to session view to resume
+          console.log(`Dashboard: Switching to session view to resume session ${incompleteSession.session_id}`);
+          setCurrentView('session');
+          return true;
+        } else {
+          console.log('Dashboard: No incomplete Blueprint sessions found, will start new session');
         }
+      } catch (error) {
+        console.warn('Dashboard: Failed to check Blueprint session list:', error.message);
+        console.warn('Dashboard: Will proceed to create new session');
       }
+      
+      // If no incomplete Blueprint session found OR adaptive not enabled, create new session
+      if (user?.adaptive_enabled) {
       
       // Clear any stale legacy session data before creating Blueprint session
       localStorage.removeItem('currentSessionId');
