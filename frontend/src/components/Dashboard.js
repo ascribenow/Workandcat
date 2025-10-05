@@ -256,8 +256,8 @@ export const Dashboard = () => {
         console.warn('Dashboard: Will proceed to create new session');
       }
       
-      // If no incomplete Blueprint session found OR adaptive not enabled, create new session
-      if (user?.adaptive_enabled) {
+      // CRITICAL FIX: Create new Blueprint session for ALL users (not gated by adaptive_enabled)
+      // The adaptive_enabled flag was incorrectly preventing Blueprint session resumption
       
       // Clear any stale legacy session data before creating Blueprint session
       localStorage.removeItem('currentSessionId');
