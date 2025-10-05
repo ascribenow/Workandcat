@@ -9,7 +9,7 @@ import json
 import time
 
 def test_verification_flow():
-    base_url = "https://data-integrity-1.preview.emergentagent.com/api"
+    base_url = "https://adapt-resume.preview.emergentagent.com/api"
     
     print("🔍 DETAILED VERIFICATION SYSTEM ANALYSIS")
     print("=" * 80)

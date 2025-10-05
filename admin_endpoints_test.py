@@ -6,7 +6,7 @@ import time
 import os
 
 class AdminEndpointsTester:
-    def __init__(self, base_url="https://data-integrity-1.preview.emergentagent.com/api"):
+    def __init__(self, base_url="https://adapt-resume.preview.emergentagent.com/api"):
         self.base_url = base_url
         self.admin_token = None
         self.admin_headers = None

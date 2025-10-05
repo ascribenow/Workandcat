@@ -9,7 +9,7 @@ import uuid
 import asyncio
 
 class CATBackendTester:
-    def __init__(self, base_url="https://data-integrity-1.preview.emergentagent.com/api"):
+    def __init__(self, base_url="https://adapt-resume.preview.emergentagent.com/api"):
         self.base_url = base_url
         self.student_user = None
         self.admin_user = None
@@ -87,7 +87,7 @@ class CATBackendTester:
         3. Core System Functionality
         4. Production Readiness Metrics
         
-        BACKEND URL: https://data-integrity-1.preview.emergentagent.com
+        BACKEND URL: https://adapt-resume.preview.emergentagent.com
         TEST CREDENTIALS: sp@theskinmantra.com / student123
         
         CRITICAL AREAS TO VALIDATE:
@@ -111,7 +111,7 @@ class CATBackendTester:
         print("🎯 DEPLOYMENT READINESS CHECK FOR TWELVR ADAPTIVE LEARNING APPLICATION")
         print("=" * 100)
         print("OBJECTIVE: Comprehensive deployment readiness validation")
-        print("BACKEND URL: https://data-integrity-1.preview.emergentagent.com")
+        print("BACKEND URL: https://adapt-resume.preview.emergentagent.com")
         print("TEST CREDENTIALS: sp@theskinmantra.com / student123")
         print("FOCUS: Health monitoring, job pipeline, core functionality, production readiness")
         print("=" * 100)

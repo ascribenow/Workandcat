@@ -14,7 +14,7 @@ def quick_test():
     print("=" * 60)
     
     # Test with the primary API base
-    base_url = "https://data-integrity-1.preview.emergentagent.com/api"
+    base_url = "https://adapt-resume.preview.emergentagent.com/api"
     
     # 1. Authentication
     print("\n1. 🔐 AUTHENTICATION TEST")

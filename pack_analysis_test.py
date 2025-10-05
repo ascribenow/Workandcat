@@ -20,9 +20,9 @@ class PackDataAnalyzer:
                 if backend_url:
                     self.base_url = f"{backend_url}/api"
                 else:
-                    self.base_url = "https://data-integrity-1.preview.emergentagent.com/api"
+                    self.base_url = "https://adapt-resume.preview.emergentagent.com/api"
             else:
-                self.base_url = "https://data-integrity-1.preview.emergentagent.com/api"
+                self.base_url = "https://adapt-resume.preview.emergentagent.com/api"
         
         print(f"🌐 Using backend URL: {self.base_url}")
         
