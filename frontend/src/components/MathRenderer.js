@@ -161,7 +161,7 @@ const MathRenderer = ({ content, className = '', style = {} }) => {
         }
         
         // Add display math
-        displayMathSegments.push({ type: 'displayMath', content: match[1] });
+        displayMathSegments.push({ type: 'displayMath', content: match[1].trim() });
         lastIndex = match.index + match[0].length;
       }
 
@@ -184,39 +184,58 @@ const MathRenderer = ({ content, className = '', style = {} }) => {
             </div>
           );
         } else {
-          // Process inline math in text segments
-          const inlinePattern = /\\?\(([^)]+)\\?\)/g;
+          // FIXED: Better inline math pattern that handles nested parentheses
+          // Matches \(...\) properly by looking for the actual delimiters
           const inlineSegments = [];
-          let inlineLastIndex = 0;
-          let inlineMatch;
-
-          while ((inlineMatch = inlinePattern.exec(segment.content)) !== null) {
-            // Add text before inline math
-            if (inlineMatch.index > inlineLastIndex) {
+          let currentText = segment.content;
+          
+          // Find all \(...\) patterns
+          let searchIndex = 0;
+          while (searchIndex < currentText.length) {
+            const openDelimiter = currentText.indexOf('\\(', searchIndex);
+            
+            if (openDelimiter === -1) {
+              // No more inline math, add remaining text
+              if (searchIndex < currentText.length) {
+                inlineSegments.push({
+                  type: 'text',
+                  content: currentText.slice(searchIndex)
+                });
+              }
+              break;
+            }
+            
+            // Add text before delimiter
+            if (openDelimiter > searchIndex) {
               inlineSegments.push({
                 type: 'text',
-                content: segment.content.slice(inlineLastIndex, inlineMatch.index)
+                content: currentText.slice(searchIndex, openDelimiter)
               });
             }
-
-            // Add inline math
+            
+            // Find matching closing delimiter
+            const closeDelimiter = currentText.indexOf('\\)', openDelimiter + 2);
+            
+            if (closeDelimiter === -1) {
+              // No closing delimiter, treat rest as text
+              inlineSegments.push({
+                type: 'text',
+                content: currentText.slice(openDelimiter)
+              });
+              break;
+            }
+            
+            // Extract math content (without delimiters)
+            const mathContent = currentText.slice(openDelimiter + 2, closeDelimiter);
             inlineSegments.push({
               type: 'inlineMath',
-              content: inlineMatch[1]
+              content: mathContent.trim()
             });
-
-            inlineLastIndex = inlineMatch.index + inlineMatch[0].length;
+            
+            searchIndex = closeDelimiter + 2;
           }
 
-          // Add remaining text
-          if (inlineLastIndex < segment.content.length) {
-            inlineSegments.push({
-              type: 'text',
-              content: segment.content.slice(inlineLastIndex)
-            });
-          }
-
-          // If no inline math, return as plain text with markdown support
+          // If no inline math found, return as plain text with markdown support
           if (inlineSegments.length === 0) {
             return <span key={segIndex}>{renderWithSimpleMarkdown(segment.content)}</span>;
           }
