@@ -224,6 +224,8 @@ export const Dashboard = () => {
           
           if (incompleteSession) {
             console.log(`Dashboard: Found incomplete Blueprint session: ${incompleteSession.session_id} - ${incompleteSession.answered_count}/${incompleteSession.total_questions} answered`);
+            console.log(`Dashboard: Incomplete session current_position from API: ${incompleteSession.current_position}`);
+            console.log(`Dashboard: Will resume from question ${incompleteSession.current_position}`);
             
             // CRITICAL FIX: Set both sessionId AND sessionMetadata for Blueprint detection
             setActiveSessionId(incompleteSession.session_id);
@@ -242,11 +244,12 @@ export const Dashboard = () => {
               }
             });
             
-            console.log(`Dashboard: Set Blueprint session metadata for: ${incompleteSession.session_id}`);
+            // Switch to session view to resume
+            console.log(`Dashboard: Switching to session view to resume session ${incompleteSession.session_id}`);
             setCurrentView('session');
-            return true; // Exit early since we found an incomplete session
+            return true;
           } else {
-            console.log('Dashboard: No incomplete Blueprint sessions found');
+            console.log('Dashboard: No incomplete Blueprint sessions found, will start new session');
           }
         } catch (error) {
           console.warn('Dashboard: Failed to check Blueprint session list:', error.message);
