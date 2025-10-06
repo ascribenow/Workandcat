@@ -375,6 +375,75 @@ export const Dashboard = () => {
     fetchDashboardData(); // Refresh dashboard data
   };
 
+  // Cooldown System: Poll for pre-pack availability
+  const startPrePackPolling = () => {
+    const pollInterval = setInterval(async () => {
+      try {
+        const response = await axios.get(`${API}/session/check-availability`, {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('cat_prep_token')}`
+          }
+        });
+        
+        if (response.data.available) {
+          // Pre-pack ready early!
+          console.log('Dashboard: Pre-pack became available during cooldown');
+          clearInterval(pollInterval);
+          localStorage.removeItem('lastSessionCompletedAt');
+          setShowCooldownModal(false);
+          
+          // Auto-start session
+          startOrResumeSession();
+        }
+      } catch (error) {
+        console.error('Dashboard: Polling error:', error);
+      }
+    }, 10000); // Poll every 10 seconds
+    
+    // Stop polling after 2 minutes
+    setTimeout(() => clearInterval(pollInterval), 120000);
+  };
+
+  // Handle early check from cooldown modal
+  const handleCheckPrePackEarly = async () => {
+    try {
+      const response = await axios.get(`${API}/session/check-availability`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('cat_prep_token')}`
+        }
+      });
+      
+      if (response.data.available) {
+        // Pre-pack ready!
+        localStorage.removeItem('lastSessionCompletedAt');
+        setShowCooldownModal(false);
+        startOrResumeSession();
+      } else {
+        console.log('Dashboard: Pre-pack not ready yet, user should wait');
+      }
+    } catch (error) {
+      console.error('Dashboard: Error checking pre-pack:', error);
+    }
+  };
+
+  // Handle failure notification
+  const handleNotifyFailure = async () => {
+    try {
+      await axios.post(`${API}/session/report-failure`, {
+        user_email: user?.email || 'unknown@user.com'
+      }, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('cat_prep_token')}`
+        }
+      });
+      
+      console.log('Dashboard: Failure notification sent to support team');
+    } catch (error) {
+      console.error('Dashboard: Error sending failure notification:', error);
+      throw error;
+    }
+  };
+
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       weekday: 'short',
