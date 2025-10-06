@@ -316,6 +316,10 @@ export const Dashboard = () => {
   };
 
   const handleSessionEnd = () => {
+    // Store session completion timestamp for cooldown system
+    localStorage.setItem('lastSessionCompletedAt', Date.now().toString());
+    console.log('Dashboard: Session completed, cooldown timer started');
+    
     setActiveSessionId(null);
     setSessionMetadata(null);
     setCurrentView('dashboard');
