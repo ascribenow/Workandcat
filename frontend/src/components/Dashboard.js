@@ -649,6 +649,27 @@ export const Dashboard = () => {
         onClose={() => setShowUpgradeModal(false)} 
         completedSessions={sessionLimitStatus?.completed_sessions || 15}
       />
+
+      {/* Adaptive Cooldown Modal */}
+      {showCooldownModal && (
+        <AdaptiveCooldownModal
+          remainingSeconds={cooldownTimeRemaining}
+          onClose={() => setShowCooldownModal(false)}
+          onCheckEarly={handleCheckPrePackEarly}
+        />
+      )}
+
+      {/* Adaptive Failure Modal */}
+      {showFailureModal && (
+        <AdaptiveFailureModal
+          userEmail={user?.email || 'unknown@user.com'}
+          onNotify={handleNotifyFailure}
+          onClose={() => {
+            setShowFailureModal(false);
+            localStorage.removeItem('lastSessionCompletedAt'); // Clear cooldown on close
+          }}
+        />
+      )}
       </div>
     </DashboardErrorBoundary>
   );
