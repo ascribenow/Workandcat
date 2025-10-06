@@ -62,7 +62,7 @@ class RazorpayService:
             },
             "pro_exclusive": {
                 "name": "Pro Exclusive", 
-                "amount": 149900,  # ₹1,499 in paise
+                "amount": 149500,  # ₹1,495 in paise
                 "interval": None,  # One-time payment
                 "period": "fixed_date",  # Fixed end date: Dec 31, 2025
                 "description": "Pro Exclusive - Unlimited sessions + Ask Twelvr till Dec 31, 2025",
