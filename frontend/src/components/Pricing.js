@@ -113,7 +113,7 @@ const Pricing = () => {
             <div className="mb-6">
               <h3 className="text-2xl font-bold mb-2" style={{ color: '#545454' }}>Free Trial</h3>
               <p className="text-gray-600" style={{ fontFamily: 'Lato, sans-serif' }}>
-                Perfect for testing the waters
+                Built for you to experience Twelvr
               </p>
             </div>
             
