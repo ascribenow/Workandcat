@@ -1,8 +1,8 @@
 """
 Free Tier Session Management Service
 Handles the complex session allocation logic for free tier users:
-- 10 initial sessions upon signup
-- 4 sessions per 7-day cycle after initial 10
+- 5 initial sessions upon signup
+- 4 sessions per 7-day cycle after initial 5
 - Carry forward unused sessions to next cycle
 """
 
@@ -24,8 +24,8 @@ class FreeTierSessionService:
     """Manages free tier session allocation with carry forward logic"""
     
     def __init__(self):
-        self.initial_sessions = 10
-        self.weekly_allocation = 4  # Updated from 2 to 4 sessions per week
+        self.initial_sessions = 5  # Updated from 10 to 5 sessions
+        self.weekly_allocation = 4  # 4 sessions per week
         self.cycle_days = 7
     
     def get_user_session_status(self, user_id: str, user_email: str, db: Session) -> Dict[str, Any]:
