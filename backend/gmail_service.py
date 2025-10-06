@@ -2,6 +2,7 @@ import os
 import json
 import base64
 import secrets
+import logging
 from datetime import datetime, timedelta
 from typing import Dict, Optional, Tuple
 from email.mime.text import MIMEText
@@ -12,6 +13,8 @@ from google_auth_oauthlib.flow import Flow
 from google.oauth2.credentials import Credentials
 from google.auth.transport.requests import Request
 import httplib2
+
+logger = logging.getLogger(__name__)
 
 class GmailService:
     def __init__(self):
