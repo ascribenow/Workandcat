@@ -38,6 +38,11 @@ export const Dashboard = () => {
   const [enriching, setEnriching] = useState(false);
   const [enrichResults, setEnrichResults] = useState(null);
 
+  // Adaptive Cooldown System states
+  const [showCooldownModal, setShowCooldownModal] = useState(false);
+  const [cooldownTimeRemaining, setCooldownTimeRemaining] = useState(0);
+  const [showFailureModal, setShowFailureModal] = useState(false);
+
   useEffect(() => {
     const loadDashboard = async () => {
       try {
