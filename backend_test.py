@@ -4126,8 +4126,34 @@ def main():
         print("🔧 Please check system connectivity and try again")
         return 1
 
+def main():
+    """Main execution function"""
+    print("🚀 Starting Free Tier Session Allocation Changes Testing")
+    print("=" * 80)
+    
+    tester = CATBackendTester()
+    
+    try:
+        # Run the free tier session allocation changes test
+        success = tester.test_free_tier_session_allocation_changes()
+        
+        if success:
+            print("\n🎉 FREE TIER SESSION ALLOCATION CHANGES TESTING COMPLETED SUCCESSFULLY!")
+            print("✅ All critical changes validated and working correctly")
+            return 0
+        else:
+            print("\n⚠️ FREE TIER SESSION ALLOCATION CHANGES TESTING COMPLETED WITH ISSUES")
+            print("❌ Some critical issues need attention before production")
+            return 1
+            
+    except Exception as e:
+        print(f"\n❌ FREE TIER SESSION ALLOCATION CHANGES TESTING FAILED: {e}")
+        print("🔧 Please check system connectivity and try again")
+        return 1
+
 if __name__ == "__main__":
     exit_code = main()
+    sys.exit(exit_code)
 
     def test_enhanced_adaptive_pipeline_comprehensive_verification(self):
         """
