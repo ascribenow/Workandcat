@@ -198,10 +198,13 @@ const Pricing = () => {
             
             <div className="mb-8">
               <div className="flex items-baseline justify-center mb-2">
-                <span className="text-5xl font-bold" style={{ color: '#545454' }}>₹1,495</span>
+                <span className="text-5xl font-bold" style={{ color: '#545454' }}>₹17,988</span>
               </div>
-              <p className="text-gray-600" style={{ fontFamily: 'Lato, sans-serif' }}>
-                30 days, unlimited sessions
+              <p className="text-gray-600 text-sm" style={{ fontFamily: 'Lato, sans-serif' }}>
+                Annual, billed monthly
+              </p>
+              <p className="text-gray-600 mt-1" style={{ fontFamily: 'Lato, sans-serif' }}>
+                Unlimited sessions
               </p>
             </div>
 
@@ -211,7 +214,7 @@ const Pricing = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
                 <span className="text-left" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
-                  Unlimited sessions (30 days)
+                  Unlimited sessions
                 </span>
               </div>
               <div className="flex items-center">
