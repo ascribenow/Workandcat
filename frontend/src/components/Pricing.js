@@ -259,14 +259,13 @@ const Pricing = () => {
               </div>
             </div>
 
-            <PaymentComponent
-              planType="pro_regular"
-              amount={149500}
-              planName="Pro Regular"
-              description="Pro Regular - Unlimited sessions for 30 days"
-              onSuccess={handlePaymentSuccess}
-              onError={handlePaymentError}
-            />
+            <button 
+              disabled
+              className="w-full py-3 px-6 bg-gray-300 text-gray-500 rounded-lg font-semibold cursor-not-allowed"
+              style={{ fontFamily: 'Lato, sans-serif' }}
+            >
+              Available from Jan 1, 2026
+            </button>
           </div>
 
           {/* Pro Exclusive - Ideal for CAT 2025 */}
