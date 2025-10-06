@@ -1314,17 +1314,17 @@ class CATBackendTester:
             "production_ready": False
         }
         
-        # PHASE 1: PRIVILEGED USER AUTHENTICATION
-        print("\n🔐 PHASE 1: PRIVILEGED USER AUTHENTICATION")
+        # PHASE 1: AUTHENTICATION SETUP
+        print("\n🔐 PHASE 1: AUTHENTICATION SETUP")
         print("-" * 60)
-        print("Testing login with sp@theskinmantra.com/student123 (should be privileged user)")
+        print("Testing login with sp@theskinmantra.com/student123")
         
         auth_data = {
             "email": "sp@theskinmantra.com",
             "password": "student123"
         }
         
-        success, response = self.run_test("Privileged User Authentication", "POST", "auth/login", [200, 401], auth_data)
+        success, response = self.run_test("Test User Authentication", "POST", "auth/login", [200, 401], auth_data)
         
         auth_headers = None
         user_id = None
@@ -1337,7 +1337,7 @@ class CATBackendTester:
             }
             test_results["authentication_working"] = True
             test_results["jwt_token_valid"] = True
-            test_results["privileged_user_login"] = True
+            test_results["test_user_login"] = True
             print(f"   ✅ Authentication successful")
             print(f"   📊 JWT Token length: {len(token)} characters")
             
@@ -1354,7 +1354,7 @@ class CATBackendTester:
             else:
                 print(f"   ⚠️ User adaptive_enabled: {adaptive_enabled}")
         else:
-            print("   ❌ Authentication failed - cannot proceed with privileged user testing")
+            print("   ❌ Authentication failed - cannot proceed with free tier testing")
             return False
         
         # PHASE 2: PRIVILEGED USER VERIFICATION
