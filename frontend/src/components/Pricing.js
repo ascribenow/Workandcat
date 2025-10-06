@@ -326,6 +326,13 @@ const Pricing = () => {
               </div>
             </div>
 
+            {/* Reassurance Text */}
+            <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+              <p className="text-sm text-green-800" style={{ fontFamily: 'Lato, sans-serif' }}>
+                If you ever face an unresolved technical issue, we'll refund your subscription after review.
+              </p>
+            </div>
+
             <PaymentComponent
               planType="pro_exclusive"
               amount={149500}
