@@ -1375,11 +1375,91 @@ hello@twelvr.com
 </ul>"""
         else:
             return """<ul>
-<li>✅ 10 adaptive sessions</li>
-<li>✅ Limited Adaptivity (Mindprint)</li>
+<li>✅ 5 adaptive sessions to start</li>
+<li>✅ Continue with 4 adaptive sessions per week</li>
+<li>✅ Full Adaptivity (Trend Matrix + Reflex Loop + Learning Impact)</li>
 <li>✅ Progress dashboard & analytics</li>
 <li>✅ Ask Twelvr: Real-time doubt resolution per question</li>
 </ul>"""
+
+    def send_free_tier_transition_email(self, to_email: str, user_name: str = None) -> bool:
+        """
+        Send email after user completes initial 5 sessions, 
+        informing about weekly sessions and upgrade option
+        """
+        try:
+            display_name = user_name if user_name else to_email.split('@')[0].title()
+            
+            subject = "🎉 Welcome to Weekly Free Sessions at Twelvr!"
+            
+            body = f"""
+Hi {display_name},
+
+Thank you for completing your first 5 adaptive sessions with Twelvr! 🚀
+
+We hope you're experiencing the power of our adaptive learning system. Your journey with personalized CAT preparation has just begun.
+
+<h2 style="color: #9ac026;">What's Next?</h2>
+
+<p><strong>Your Weekly Free Sessions Have Started!</strong></p>
+
+As a free tier user, you now have access to:
+<ul>
+<li>✅ <strong>4 adaptive sessions per week</strong></li>
+<li>✅ Full Adaptivity (Trend Matrix + Reflex Loop + Learning Impact)</li>
+<li>✅ Progress dashboard & analytics</li>
+<li>✅ Carry forward unused sessions to next week</li>
+</ul>
+
+<h2 style="color: #9ac026;">Ready to Go Unlimited?</h2>
+
+<p>Upgrade to <strong>Pro Exclusive for CAT 2025</strong> and unlock:</p>
+<ul>
+<li>🚀 <strong>Unlimited sessions till Dec 31, 2025</strong></li>
+<li>📊 Full Adaptivity with comprehensive insights</li>
+<li>💬 Ask Twelvr: Real-time AI doubt resolution</li>
+<li>📈 Advanced analytics and performance reports</li>
+</ul>
+
+<div style="text-align: center; margin: 30px 0;">
+<a href="https://twelvr.com/pricing" style="background-color: #9ac026; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">Upgrade to Pro Exclusive</a>
+</div>
+
+<h2 style="color: #9ac026;">We Value Your Feedback</h2>
+
+<p>Your experience matters to us! Please take 2 minutes to share your thoughts:</p>
+
+<div style="text-align: center; margin: 20px 0;">
+<a href="https://forms.gle/VMoD5F47oT8QwDE5A" style="color: #9ac026; text-decoration: none; font-weight: bold;">📝 Share Your Feedback</a>
+</div>
+
+<p>Keep Twelvring! 💪</p>
+
+<p style="margin-top: 30px;">
+Best regards,<br>
+<strong>Team Twelvr</strong><br>
+Your Adaptive Learning Partner
+</p>
+
+<hr style="margin: 30px 0; border: none; border-top: 1px solid #e0e0e0;">
+
+<p style="font-size: 12px; color: #666;">
+Need help? Reply to this email or visit <a href="https://twelvr.com/contact" style="color: #9ac026;">twelvr.com/contact</a>
+</p>
+"""
+            
+            success = self.send_generic_email(to_email, subject, body)
+            
+            if success:
+                logger.info(f"✅ Free tier transition email sent to {to_email}")
+            else:
+                logger.error(f"❌ Failed to send free tier transition email to {to_email}")
+            
+            return success
+            
+        except Exception as e:
+            logger.error(f"Error sending free tier transition email: {e}")
+            return False
 
 # Global instance
 gmail_service = GmailService()
