@@ -122,7 +122,7 @@ const Pricing = () => {
                 <span className="text-5xl font-bold" style={{ color: '#545454' }}>₹0</span>
               </div>
               <p className="text-gray-600" style={{ fontFamily: 'Lato, sans-serif' }}>
-                10 sessions total
+                5 sessions to start
               </p>
             </div>
 
