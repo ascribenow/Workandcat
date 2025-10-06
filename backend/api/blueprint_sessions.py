@@ -787,6 +787,39 @@ async def complete_session(
         
         logger.info(f"Blueprint session {session_id[:8]} completed with {correct_answers}/{total_questions} correct ({accuracy:.1f}%)")
         
+        # CHECK IF THIS IS THE 5TH SESSION COMPLETION - Send transition email
+        try:
+            # Only for free tier users
+            if user.subscription_type == 'free':
+                # Count total completed sessions
+                completed_sessions_count = db.execute(text("""
+                    SELECT COUNT(*) FROM sessions 
+                    WHERE user_id = :user_id AND status = 'completed'
+                """), {"user_id": auth_user_id}).scalar()
+                
+                # If this is exactly the 5th session, send transition email
+                if completed_sessions_count == 5:
+                    logger.info(f"🎉 User {auth_user_id[:8]} completed 5th session - sending transition email")
+                    
+                    from gmail_service import gmail_service
+                    
+                    # Send email asynchronously (don't block session completion)
+                    try:
+                        email_sent = gmail_service.send_free_tier_transition_email(
+                            to_email=user.email,
+                            user_name=user.name if hasattr(user, 'name') else None
+                        )
+                        if email_sent:
+                            logger.info(f"✅ Transition email sent to {user.email}")
+                        else:
+                            logger.warning(f"⚠️ Failed to send transition email to {user.email}")
+                    except Exception as email_error:
+                        logger.error(f"Error sending transition email: {email_error}")
+                        # Don't fail session completion due to email error
+        except Exception as e:
+            logger.error(f"Error checking for 5th session email: {e}")
+            # Don't fail session completion due to email check error
+        
         # BACKGROUND ADAPTIVE INTELLIGENCE: Two-job pipeline (SUMMARIZE → PLAN)
         # IDEMPOTENT: Only enqueue if session was just completed (not already completed)
         bg_jobs_enqueued = False
