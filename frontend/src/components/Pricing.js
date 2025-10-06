@@ -297,7 +297,7 @@ const Pricing = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
                 <span className="text-left" style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
-                  Unlimited sessions till Dec 31, 2025
+                  Early Beta access — limited to the first 100 users as we test and enhance our load capacities
                 </span>
               </div>
               <div className="flex items-center">
