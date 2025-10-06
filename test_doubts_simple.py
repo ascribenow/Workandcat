@@ -6,7 +6,7 @@ import uuid
 import sys
 
 def test_doubts_system():
-    base_url = "https://adapt-resume.preview.emergentagent.com/api"
+    base_url = "https://twelvr-adaptive-2.preview.emergentagent.com/api"
     
     print("🤔 ASK TWELVR DOUBTS SYSTEM VALIDATION")
     print("=" * 80)

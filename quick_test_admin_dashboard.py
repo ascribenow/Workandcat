@@ -7,7 +7,7 @@ import requests
 import json
 
 # Test configuration
-BASE_URL = "https://adapt-resume.preview.emergentagent.com/api"
+BASE_URL = "https://twelvr-adaptive-2.preview.emergentagent.com/api"
 
 def test_admin_dashboard():
     print("🎯 QUICK PHASE 4 ADMIN DASHBOARD TEST")

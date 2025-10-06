@@ -9,7 +9,7 @@ import uuid
 import asyncio
 
 class CATBackendTester:
-    def __init__(self, base_url="https://adapt-resume.preview.emergentagent.com/api"):
+    def __init__(self, base_url="https://twelvr-adaptive-2.preview.emergentagent.com/api"):
         self.base_url = base_url
         self.student_user = None
         self.admin_user = None
@@ -88,7 +88,7 @@ class CATBackendTester:
         print("🎯 CRITICAL BLUEPRINT SESSION RESUMPTION BUG FIX VALIDATION")
         print("=" * 100)
         print("OBJECTIVE: Test critical bug fix for users with adaptive_enabled=false")
-        print("BACKEND URL: https://adapt-resume.preview.emergentagent.com")
+        print("BACKEND URL: https://twelvr-adaptive-2.preview.emergentagent.com")
         print("PRIMARY TEST USER: twelvrhelp@gmail.com / student123 (adaptive_enabled=false)")
         print("SECONDARY TEST USER: sp@theskinmantra.com / student123 (adaptive_enabled=true)")
         print("FOCUS: Backend session management, current_position tracking, session resumption")
@@ -574,7 +574,7 @@ class CATBackendTester:
         3. Core System Functionality
         4. Production Readiness Metrics
         
-        BACKEND URL: https://adapt-resume.preview.emergentagent.com
+        BACKEND URL: https://twelvr-adaptive-2.preview.emergentagent.com
         TEST CREDENTIALS: sp@theskinmantra.com / student123
         
         CRITICAL AREAS TO VALIDATE:
@@ -598,7 +598,7 @@ class CATBackendTester:
         print("🎯 DEPLOYMENT READINESS CHECK FOR TWELVR ADAPTIVE LEARNING APPLICATION")
         print("=" * 100)
         print("OBJECTIVE: Comprehensive deployment readiness validation")
-        print("BACKEND URL: https://adapt-resume.preview.emergentagent.com")
+        print("BACKEND URL: https://twelvr-adaptive-2.preview.emergentagent.com")
         print("TEST CREDENTIALS: sp@theskinmantra.com / student123")
         print("FOCUS: Health monitoring, job pipeline, core functionality, production readiness")
         print("=" * 100)
@@ -1761,7 +1761,7 @@ class CATBackendTester:
         print("🎯 INSIGHT GENERATION SYSTEM MINIMUM ATTEMPT THRESHOLD TESTING")
         print("=" * 100)
         print("OBJECTIVE: Test fixed insight generation system for minimum attempt threshold")
-        print("BACKEND URL: https://adapt-resume.preview.emergentagent.com")
+        print("BACKEND URL: https://twelvr-adaptive-2.preview.emergentagent.com")
         print("TEST USER: twelvrhelp@gmail.com (reported the issue)")
         print("FOCUS: Attempt counts, mastery claims, softer language for low-data concepts")
         print("=" * 100)
@@ -2198,7 +2198,7 @@ class CATBackendTester:
         OBJECTIVE: Perform thorough audit of all adaptive system components after user sp@theskinmantra.com 
         completed session #17 to verify background jobs, database updates, and data pipeline integrity.
         
-        BACKEND URL: https://adapt-resume.preview.emergentagent.com
+        BACKEND URL: https://twelvr-adaptive-2.preview.emergentagent.com
         USER TO AUDIT: sp@theskinmantra.com / student123
         SESSION: #17 (most recent completed session)
         
@@ -2247,7 +2247,7 @@ class CATBackendTester:
         print("🎯 COMPREHENSIVE ADAPTIVE SYSTEM AUDIT - SESSION #17 COMPLETION")
         print("=" * 100)
         print("OBJECTIVE: Thorough audit of adaptive system components after session #17 completion")
-        print("BACKEND URL: https://adapt-resume.preview.emergentagent.com")
+        print("BACKEND URL: https://twelvr-adaptive-2.preview.emergentagent.com")
         print("USER TO AUDIT: sp@theskinmantra.com (Session #17)")
         print("FOCUS: Background jobs, database updates, data pipeline integrity")
         print("=" * 100)
@@ -2793,7 +2793,7 @@ class CATBackendTester:
         
         OBJECTIVE: Test the Ask Twelvr doubts system to verify that user messages are correctly stored and retrieved without modification.
         
-        BACKEND URL: https://adapt-resume.preview.emergentagent.com
+        BACKEND URL: https://twelvr-adaptive-2.preview.emergentagent.com
         TEST CREDENTIALS: sp@theskinmantra.com / student123
         
         TEST SCENARIO:
@@ -2823,7 +2823,7 @@ class CATBackendTester:
         print("🎯 ASK TWELVR CONVERSATION FLOW TO VERIFY MESSAGE HANDLING")
         print("=" * 90)
         print("OBJECTIVE: Test Ask Twelvr doubts system to verify user messages are stored without modification")
-        print("BACKEND URL: https://adapt-resume.preview.emergentagent.com")
+        print("BACKEND URL: https://twelvr-adaptive-2.preview.emergentagent.com")
         print("TEST CREDENTIALS: sp@theskinmantra.com / student123")
         print("FOCUS: Message storage integrity, conversation flow, chronological order")
         print("=" * 90)
@@ -41665,7 +41665,7 @@ def main():
         6. **Response Times**: Check for timeout issues in authentication flow
         
         AUTHENTICATION CREDENTIALS: sp@theskinmantra.com/student123
-        BACKEND URL: https://adapt-resume.preview.emergentagent.com/api
+        BACKEND URL: https://twelvr-adaptive-2.preview.emergentagent.com/api
         """
         print("🚨 CRITICAL AUTHENTICATION INVESTIGATION")
         print("=" * 80)
@@ -41942,7 +41942,7 @@ def main():
             options_response = requests.options(
                 f"{self.base_url}/auth/login",
                 headers={
-                    'Origin': 'https://adapt-resume.preview.emergentagent.com',
+                    'Origin': 'https://twelvr-adaptive-2.preview.emergentagent.com',
                     'Access-Control-Request-Method': 'POST',
                     'Access-Control-Request-Headers': 'Content-Type,Authorization'
                 },
@@ -41965,7 +41965,7 @@ def main():
                 else:
                     print(f"     {header}: Not present")
             
-            if cors_headers['Access-Control-Allow-Origin'] in ['*', 'https://adapt-resume.preview.emergentagent.com']:
+            if cors_headers['Access-Control-Allow-Origin'] in ['*', 'https://twelvr-adaptive-2.preview.emergentagent.com']:
                 print(f"   ✅ CORS configured for frontend domain")
             else:
                 print(f"   ⚠️ CORS may not be configured for frontend domain")
@@ -43526,7 +43526,7 @@ def main():
         - Headers (CORS, Content-Type, etc.)
         
         AUTHENTICATION CREDENTIALS: sp@theskinmantra.com/student123
-        API BASE: Test both https://adapt-resume.preview.emergentagent.com and https://adaptive-quant.emergent.host
+        API BASE: Test both https://twelvr-adaptive-2.preview.emergentagent.com and https://adaptive-quant.emergent.host
         
         EXPECTED RESPONSES:
         - plan-next: { status:"ok", reused: false|true, pack:[…12…] }

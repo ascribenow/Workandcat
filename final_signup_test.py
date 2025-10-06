@@ -14,7 +14,7 @@ import os
 warnings.filterwarnings('ignore', message='Unverified HTTPS request')
 
 def test_complete_signup_with_gmail_auth():
-    base_url = "https://adapt-resume.preview.emergentagent.com/api"
+    base_url = "https://twelvr-adaptive-2.preview.emergentagent.com/api"
     test_email = "test.final.signup@example.com"
     test_name = "Test Final User"
     test_password = "testpass123"

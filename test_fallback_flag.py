@@ -9,7 +9,7 @@ warnings.filterwarnings("ignore", message="Unverified HTTPS request")
 def test_fallback_flag():
     """Test the INSIGHTS_FORCE_FALLBACK feature flag"""
     
-    base_url = "https://adapt-resume.preview.emergentagent.com/api"
+    base_url = "https://twelvr-adaptive-2.preview.emergentagent.com/api"
     
     # Authenticate first
     auth_data = {
