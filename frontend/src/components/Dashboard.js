@@ -12,6 +12,8 @@ import SubscriptionManagement from './SubscriptionManagement';
 import { planSessionWithPolling } from '../utils/smartPolling';
 import SessionStatus from './SessionStatus';
 import DashboardErrorBoundary from './DashboardErrorBoundary';
+import AdaptiveCooldownModal from './AdaptiveCooldownModal';
+import AdaptiveFailureModal from './AdaptiveFailureModal';
 
 export const Dashboard = () => {
   const { user, logout, isAdmin, token } = useAuth();
