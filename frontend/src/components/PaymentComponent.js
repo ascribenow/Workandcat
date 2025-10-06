@@ -332,11 +332,11 @@ const PaymentComponent = ({ planType, amount, planName, description, onSuccess, 
       >
         {!localStorage.getItem('cat_prep_token') || !isAuthenticated() ? (
           <>
-            {planType === 'pro_regular' ? 'Login to Subscribe' : 'Login to Purchase'}
+            {planType === 'pro_regular' ? 'Login to Subscribe' : 'Join Beta Access'}
           </>
         ) : (
           <>
-            {planType === 'pro_regular' ? 'Subscribe to Pro Regular' : 'Subscribe to Pro Exclusive'}
+            {planType === 'pro_regular' ? 'Subscribe to Pro Regular' : 'Join Beta Access'}
           </>
         )}
       </button>
