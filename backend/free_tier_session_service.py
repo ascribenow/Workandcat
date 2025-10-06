@@ -25,7 +25,7 @@ class FreeTierSessionService:
     
     def __init__(self):
         self.initial_sessions = 10
-        self.weekly_allocation = 2
+        self.weekly_allocation = 4  # Updated from 2 to 4 sessions per week
         self.cycle_days = 7
     
     def get_user_session_status(self, user_id: str, user_email: str, db: Session) -> Dict[str, Any]:
