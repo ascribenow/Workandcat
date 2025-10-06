@@ -1400,7 +1400,7 @@ hello@twelvr.com
             plain_text = f"""
 {preheader}
 
-{display_name},
+Hello,
 
 Thank you for completing your first 5 adaptive sessions with Twelvr!
 
