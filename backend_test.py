@@ -1357,25 +1357,51 @@ class CATBackendTester:
             print("   ❌ Authentication failed - cannot proceed with free tier testing")
             return False
         
-        # PHASE 2: PRIVILEGED USER VERIFICATION
-        print("\n👑 PHASE 2: PRIVILEGED USER VERIFICATION")
+        # PHASE 2: FREE TIER SESSION SERVICE VERIFICATION
+        print("\n📊 PHASE 2: FREE TIER SESSION SERVICE VERIFICATION")
         print("-" * 60)
-        print("Testing privileged user identification and admin dashboard access")
+        print("Testing free_tier_session_service.py configuration and functionality")
         
-        if auth_headers and user_id:
-            # Test admin privileged users endpoint
-            print("   📋 Testing /api/admin/privileged-users endpoint...")
+        # First, verify the service configuration by checking the actual values
+        print("   🔍 Verifying FreeTierSessionService configuration...")
+        
+        # Import and check the service directly
+        try:
+            import sys
+            sys.path.append('/app/backend')
+            from free_tier_session_service import free_tier_service
             
-            success, privileged_response = self.run_test(
-                "Admin Privileged Users Endpoint", 
-                "GET", 
-                "admin/privileged-users", 
-                [200, 403, 500], 
-                None, 
-                auth_headers
-            )
+            test_results["free_tier_service_exists"] = True
+            print(f"   ✅ FreeTierSessionService imported successfully")
             
-            if success and privileged_response.get('privileged_users'):
+            # Check weekly_allocation value
+            weekly_allocation = free_tier_service.weekly_allocation
+            if weekly_allocation == 2:
+                test_results["weekly_allocation_is_2"] = True
+                print(f"   ✅ weekly_allocation confirmed: {weekly_allocation} (expected: 2)")
+            else:
+                print(f"   ❌ weekly_allocation incorrect: {weekly_allocation} (expected: 2)")
+            
+            # Check initial_sessions value
+            initial_sessions = free_tier_service.initial_sessions
+            if initial_sessions == 5:
+                test_results["initial_sessions_is_5"] = True
+                print(f"   ✅ initial_sessions confirmed: {initial_sessions} (expected: 5)")
+            else:
+                print(f"   ❌ initial_sessions incorrect: {initial_sessions} (expected: 5)")
+            
+            # Check cycle_days
+            cycle_days = free_tier_service.cycle_days
+            print(f"   📊 cycle_days: {cycle_days} days")
+            
+            if test_results["weekly_allocation_is_2"] and test_results["initial_sessions_is_5"]:
+                test_results["service_calculates_correctly"] = True
+                print(f"   ✅ Service configuration matches expected values")
+            
+        except Exception as e:
+            print(f"   ❌ Error importing FreeTierSessionService: {e}")
+        
+        if auth_headers and user_id:get('privileged_users'):
                 test_results["admin_privileged_users_endpoint_working"] = True
                 print(f"   ✅ Admin privileged users endpoint working")
                 
