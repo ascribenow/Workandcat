@@ -944,6 +944,134 @@ async def list_user_sessions(
         logger.error(f"Failed to list sessions for user {auth_user_id[:8]}: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to list sessions: {str(e)}")
 
+# NEW ENDPOINTS: Cooldown & Pre-Pack Availability Check
+@router.get("/check-availability")
+async def check_session_availability(
+    auth_user_id: str = Depends(get_current_user)
+):
+    """
+    Check if an adaptive pre-packed session is available for the user.
+    Returns availability status without creating a session.
+    Used by frontend cooldown system to verify pre-pack readiness.
+    """
+    try:
+        auth_user_id = validate_canonical_uuid(auth_user_id, "authenticated_user_id")
+        planner = await get_blueprint_planner()
+        
+        # Check if pre-pack exists
+        db = planner.get_db_session()
+        try:
+            user_uuid = uuid.UUID(auth_user_id)
+            
+            pack_check = db.execute(text("""
+                SELECT sp.session_id, sp.created_at, COUNT(spq.position) as question_count
+                FROM session_packs sp
+                LEFT JOIN session_pack_questions spq ON sp.session_id = spq.session_id
+                LEFT JOIN sessions s ON sp.session_id::varchar = s.session_id
+                WHERE sp.user_id = :user_id
+                  AND (s.status != 'completed' OR s.status IS NULL)
+                GROUP BY sp.session_id, sp.created_at
+                HAVING COUNT(spq.position) = 12
+                ORDER BY sp.created_at DESC
+                LIMIT 1
+            """), {"user_id": str(user_uuid)})
+            
+            existing_pack = pack_check.fetchone()
+            
+            if existing_pack:
+                logger.info(f"✅ Pre-pack available for user {auth_user_id[:8]}: {existing_pack[0]}")
+                return JSONResponse({
+                    "available": True,
+                    "session_id": existing_pack[0],
+                    "created_at": existing_pack[1].isoformat() if existing_pack[1] else None,
+                    "message": "Adaptive session ready"
+                })
+            else:
+                logger.warning(f"⚠️ No pre-pack available for user {auth_user_id[:8]} - background jobs may still be running")
+                return JSONResponse({
+                    "available": False,
+                    "message": "Adaptive session preparation incomplete"
+                })
+                
+        finally:
+            db.close()
+            
+    except Exception as e:
+        logger.error(f"Failed to check session availability: {e}")
+        raise HTTPException(status_code=500, detail="Failed to check session availability")
+
+@router.post("/report-failure")
+async def report_session_failure(
+    request: Request,
+    auth_user_id: str = Depends(get_current_user)
+):
+    """
+    Report adaptive session failure and notify support team via email.
+    Called when pre-pack is not available after cooldown period.
+    """
+    try:
+        body = await request.json()
+        user_email = body.get('user_email', 'unknown@user.com')
+        
+        # Log critical failure
+        logger.error(
+            f"🚨 ADAPTIVE SESSION FAILURE REPORTED: "
+            f"User {auth_user_id[:8]} ({user_email}) - No pre-pack available after cooldown period"
+        )
+        
+        # Send email notification using existing gmail_service
+        try:
+            from gmail_service import gmail_service
+            
+            email_subject = f"🚨 URGENT: Adaptive Session Failure - User {user_email}"
+            email_body = f"""ADAPTIVE SESSION PREPARATION FAILURE
+
+Time: {now_ist().isoformat()}
+User ID: {auth_user_id}
+User Email: {user_email}
+
+Issue: No adaptive pre-packed session available after 2-minute cooldown period.
+
+Possible Causes:
+- Background jobs (SUMMARIZE_SESSION, PLAN_NEXT_SESSION) failed
+- Database issues preventing session pack creation
+- Job queue processing delays
+
+ACTION REQUIRED:
+1. Check background job logs: tail -f /var/log/supervisor/bg_worker*.log
+2. Verify user's session history in database
+3. Check pipeline health: GET /api/admin/pipeline-health
+4. Manually trigger session planning if needed
+
+User is waiting for resolution. Please investigate immediately.
+"""
+            
+            # Send email from hello@twelvr.com to hello@twelvr.com
+            email_sent = gmail_service.send_generic_email(
+                to_email="hello@twelvr.com",
+                subject=email_subject,
+                body=email_body
+            )
+            
+            if email_sent:
+                logger.info(f"✅ Failure notification email sent for user {user_email}")
+            else:
+                logger.warning(f"⚠️ Failed to send email notification for user {user_email}")
+                
+        except Exception as email_error:
+            logger.error(f"Error sending failure notification email: {email_error}")
+            # Don't raise - email failure shouldn't break the API response
+        
+        return JSONResponse({
+            "success": True,
+            "message": "Support team notified",
+            "timestamp": now_ist().isoformat()
+        })
+        
+    except Exception as e:
+        logger.error(f"Failed to report session failure: {e}")
+        raise HTTPException(status_code=500, detail="Failed to send notification")
+
 # Health check for blueprint system
 @router.get("/health")
 async def blueprint_health():
