@@ -365,7 +365,7 @@ const Pricing = () => {
                 How does the Free Trial work?
               </h3>
               <p style={{ color: '#545454', fontFamily: 'Lato, sans-serif' }}>
-                Get 5 complete adaptive sessions to start experiencing our adaptive system, followed by 4 adaptive sessions every week. No credit card required, no time limits, just high-quality adaptive prep sessions to see how Twelvr works for you.
+                Get 5 complete adaptive sessions to start experiencing our adaptive system, followed by 2 adaptive sessions every week. No credit card required, no time limits, just high-quality adaptive prep sessions to see how Twelvr works for you.
               </p>
             </div>
 
