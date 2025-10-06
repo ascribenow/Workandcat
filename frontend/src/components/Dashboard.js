@@ -184,6 +184,55 @@ export const Dashboard = () => {
       console.log('Dashboard: User adaptive enabled:', user?.adaptive_enabled);
       console.log('Dashboard: Current sessionLimitStatus:', sessionLimitStatus);
       
+      // COOLDOWN SYSTEM: Check if user just completed a session
+      const lastCompletedAt = localStorage.getItem('lastSessionCompletedAt');
+      
+      if (lastCompletedAt) {
+        const elapsedMs = Date.now() - parseInt(lastCompletedAt);
+        const elapsedSeconds = Math.floor(elapsedMs / 1000);
+        const COOLDOWN_SECONDS = 120; // 2 minutes cooldown
+        
+        if (elapsedSeconds < COOLDOWN_SECONDS) {
+          // Still in cooldown period - show cooldown modal
+          const remainingSeconds = COOLDOWN_SECONDS - elapsedSeconds;
+          console.log(`Dashboard: Cooldown active - ${remainingSeconds}s remaining`);
+          
+          setCooldownTimeRemaining(remainingSeconds);
+          setShowCooldownModal(true);
+          
+          // Start polling every 10 seconds to check if pre-pack is ready
+          startPrePackPolling();
+          
+          return false; // Don't proceed with session start
+        } else {
+          // Cooldown period over - check if pre-pack is available
+          console.log('Dashboard: Cooldown period complete, checking pre-pack availability...');
+          
+          try {
+            const availabilityResponse = await axios.get(`${API}/session/check-availability`, {
+              headers: {
+                'Authorization': `Bearer ${localStorage.getItem('cat_prep_token')}`
+              }
+            });
+            
+            if (availabilityResponse.data.available) {
+              // Pre-pack ready! Clear cooldown and proceed
+              console.log('Dashboard: Pre-pack available, clearing cooldown');
+              localStorage.removeItem('lastSessionCompletedAt');
+            } else {
+              // Pre-pack not ready even after cooldown - show failure modal
+              console.error('Dashboard: Pre-pack not available after cooldown period');
+              setShowFailureModal(true);
+              return false;
+            }
+          } catch (error) {
+            console.error('Dashboard: Error checking pre-pack availability:', error);
+            // On error, proceed anyway (fail gracefully)
+            localStorage.removeItem('lastSessionCompletedAt');
+          }
+        }
+      }
+      
       // First check session limit status
       if (!sessionLimitStatus) {
         console.log('Dashboard: Session limit status not loaded, fetching...');
