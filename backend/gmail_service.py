@@ -1564,7 +1564,26 @@ You, compounded.
 </html>
 """
             
-            success = self.send_generic_email(to_email, subject, body)
+            # Send email using the same pattern as signup email
+            msg = MIMEMultipart('alternative')
+            msg['to'] = to_email
+            msg['from'] = f'{self.sender_name} <{self.sender_email}>'
+            msg['subject'] = subject
+            
+            # Create text and HTML parts
+            text_part = MIMEText(plain_text, 'plain')
+            html_part = MIMEText(html_content, 'html')
+            
+            msg.attach(text_part)
+            msg.attach(html_part)
+            
+            # Send email
+            raw = base64.urlsafe_b64encode(msg.as_bytes()).decode()
+            message = {'raw': raw}
+            
+            self.service.users().messages().send(userId='me', body=message).execute()
+            
+            success = True
             
             if success:
                 logger.info(f"✅ Free tier transition email sent to {to_email}")
