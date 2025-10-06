@@ -1466,3 +1466,14 @@ Need help? Reply to this email or visit <a href="https://twelvr.com/contact" sty
 
 # Global instance
 gmail_service = GmailService()
+
+# Initialize service on import
+try:
+    credentials = gmail_service._load_credentials()
+    if credentials:
+        gmail_service.service = build('gmail', 'v1', credentials=credentials)
+        logger.info("✅ Gmail service initialized successfully")
+    else:
+        logger.warning("⚠️ Gmail service not authenticated - emails will not be sent")
+except Exception as e:
+    logger.error(f"❌ Failed to initialize Gmail service: {e}")
