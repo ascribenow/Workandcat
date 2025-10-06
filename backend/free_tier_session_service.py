@@ -2,7 +2,7 @@
 Free Tier Session Management Service
 Handles the complex session allocation logic for free tier users:
 - 10 initial sessions upon signup
-- 2 sessions per 7-day cycle after initial 10
+- 4 sessions per 7-day cycle after initial 10
 - Carry forward unused sessions to next cycle
 """
 
