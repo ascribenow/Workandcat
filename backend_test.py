@@ -1276,40 +1276,41 @@ class CATBackendTester:
             "authentication_working": False,
             "user_adaptive_enabled": False,
             "jwt_token_valid": False,
-            "privileged_user_login": False,
+            "test_user_login": False,
             
-            # Privileged User Verification
-            "privileged_user_identified": False,
-            "admin_privileged_users_endpoint_working": False,
-            "privileged_users_in_dashboard": False,
-            "privileged_user_unlimited_access": False,
-            "privileged_session_limit_status_correct": False,
+            # Free Tier Session Service Verification
+            "free_tier_service_exists": False,
+            "weekly_allocation_is_2": False,
+            "initial_sessions_is_5": False,
+            "service_calculates_correctly": False,
+            "session_status_endpoint_working": False,
             
-            # Free Tier Session Logic
-            "free_tier_session_logic_working": False,
-            "initial_10_sessions_logic": False,
-            "weekly_2_sessions_logic": False,
+            # API Endpoints Testing
+            "session_limit_status_endpoint_working": False,
+            "session_allocation_logic_correct": False,
+            "api_returns_correct_numbers": False,
+            "weekly_allocation_handled_properly": False,
+            "can_start_session_endpoint_working": False,
+            
+            # Database Query Verification
+            "database_queries_working": False,
+            "session_count_queries_correct": False,
+            "cycle_calculations_working": False,
             "carry_forward_logic_working": False,
-            "free_tier_service_functional": False,
+            "database_integration_functional": False,
             
-            # Timezone Conversion Verification
-            "ist_timezone_working": False,
-            "database_entries_use_ist": False,
-            "session_creation_ist_timestamps": False,
-            "timezone_conversion_functional": False,
-            
-            # Pro Tier Feature Verification
-            "free_tier_has_ask_twelvr": False,
-            "pro_regular_has_ask_twelvr": False,
-            "pro_exclusive_has_ask_twelvr": False,
-            "no_pro_lite_references": False,
-            "subscription_access_service_updated": False,
+            # Expected Behavior Validation
+            "initial_sessions_5_confirmed": False,
+            "weekly_sessions_2_confirmed": False,
+            "carry_forward_with_new_numbers": False,
+            "session_availability_calculation_correct": False,
+            "cycle_management_working": False,
             
             # Overall Assessment
-            "privileged_system_working": False,
-            "session_limits_working": False,
-            "timezone_system_working": False,
-            "tier_features_correct": False,
+            "free_tier_service_working": False,
+            "api_endpoints_working": False,
+            "database_operations_working": False,
+            "allocation_changes_validated": False,
             "production_ready": False
         }
         
