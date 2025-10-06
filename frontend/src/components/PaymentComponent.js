@@ -323,11 +323,7 @@ const PaymentComponent = ({ planType, amount, planName, description, onSuccess, 
       <button
         onClick={handleButtonClick}
         disabled={loading}
-        className={`w-full py-3 px-6 rounded-lg font-semibold transition-colors ${
-          planType === 'pro_exclusive' 
-            ? 'bg-[#9ac026] text-white hover:bg-[#8bb024] disabled:bg-gray-400' 
-            : 'border-2 border-[#9ac026] text-[#9ac026] hover:bg-[#9ac026] hover:text-white disabled:border-gray-400 disabled:text-gray-400'
-        }`}
+        className="w-full py-3 px-6 border-2 border-[#9ac026] text-[#9ac026] rounded-lg font-semibold hover:bg-[#9ac026] hover:text-white transition-colors disabled:border-gray-400 disabled:text-gray-400"
         style={{ fontFamily: 'Lato, sans-serif' }}
       >
         {!localStorage.getItem('cat_prep_token') || !isAuthenticated() ? (
