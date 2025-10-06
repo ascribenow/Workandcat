@@ -1233,34 +1233,34 @@ class CATBackendTester:
             print(f"❌ {test_name}: Exception - {str(e)}")
             return False, {"error": str(e)}
 
-    def test_privileged_user_and_session_limits(self):
+    def test_free_tier_session_allocation_changes(self):
         """
-        🎯 PRIVILEGED USER VERIFICATION & SESSION LIMITS TESTING
+        🎯 FREE TIER SESSION ALLOCATION CHANGES TESTING
         
-        OBJECTIVE: Test the updated system with privileged user verification, free tier session logic, 
-        timezone conversion, and pro tier feature verification
+        OBJECTIVE: Test the updated free tier session allocation system with:
+        - Weekly allocation changed from 4 to 2 sessions per week
+        - Initial sessions changed from 10 to 5
+        - Verify all API endpoints and database queries work correctly
         
         TESTING REQUIREMENTS FROM REVIEW REQUEST:
-        1. PRIVILEGED USER VERIFICATION: 
-           - Login with sp@theskinmantra.com/student123 (should be privileged user)
-           - Test /api/admin/privileged-users endpoint to see privileged users in admin dashboard
-           - Verify that privileged users get unlimited session access
-           - Test session-limit-status for privileged user
+        1. FREE TIER SESSION SERVICE VERIFICATION:
+           - Verify that weekly_allocation is set to 2 in free_tier_session_service.py
+           - Check that the service correctly calculates sessions available for free tier users
+           - Ensure the initial sessions count is 5 (not 10)
         
-        2. FREE TIER SESSION LOGIC:
-           - Test /api/user/session-limit-status with a non-privileged, non-premium user
-           - Verify the free tier logic with 10 initial sessions + 2/week carry forward
-           - Check if the new FreeTierSessionService is working correctly
+        2. API ENDPOINTS TESTING:
+           - Test any API endpoints that use the free tier session service
+           - Verify session allocation logic returns correct numbers
+           - Check if the service properly handles the 2 sessions per week allocation
         
-        3. TIMEZONE CONVERSION VERIFICATION:
-           - Check that timestamps are now in IST format
-           - Verify that new database entries use IST timezone
-           - Test a sample session creation to ensure IST timestamps
+        3. DATABASE QUERY VERIFICATION:
+           - Verify that the service correctly queries session counts from the database
+           - Check that cycle calculations work correctly with the new allocation
         
-        4. PRO TIER FEATURE VERIFICATION:
-           - Verify that all three tiers (Free, Pro Regular, Pro Exclusive) have Ask Twelvr feature
-           - Check subscription access service updates
-           - Ensure no "Pro Lite" references remain
+        4. EXPECTED BEHAVIOR:
+           - Initial sessions: 5 (not 10)
+           - Weekly sessions: 2 (not 4)
+           - Carry forward logic should work with these new numbers
         
         AUTHENTICATION: sp@theskinmantra.com/student123
         """
