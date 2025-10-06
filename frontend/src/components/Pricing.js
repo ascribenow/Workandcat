@@ -328,7 +328,7 @@ const Pricing = () => {
 
             <PaymentComponent
               planType="pro_exclusive"
-              amount={149900}
+              amount={149500}
               planName="Pro Exclusive"
               description="Pro Exclusive - Unlimited sessions till Dec 31, 2025"
               onSuccess={handlePaymentSuccess}
