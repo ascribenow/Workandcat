@@ -266,8 +266,8 @@ const Pricing = () => {
           </div>
 
           {/* Pro Exclusive - Ideal for CAT 2025 */}
-          <div className={`bg-white border-2 rounded-2xl p-8 text-center relative shadow-lg transform scale-105 ${
-            highlightedPlan === PLAN_TYPES.PRO_EXCLUSIVE ? 'border-[#9ac026] ring-2 ring-[#9ac026] ring-opacity-20' : 'border-[#9ac026]'
+          <div className={`bg-white border-2 rounded-2xl p-8 text-center relative ${
+            highlightedPlan === PLAN_TYPES.PRO_EXCLUSIVE ? 'border-[#9ac026] ring-2 ring-[#9ac026] ring-opacity-20' : 'border-gray-200'
           }`}>
             <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
               <span className="bg-[#9ac026] text-white px-4 py-1 rounded-full text-sm font-semibold" style={{ fontFamily: 'Lato, sans-serif' }}>
