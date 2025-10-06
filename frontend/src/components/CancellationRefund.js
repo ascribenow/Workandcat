@@ -73,10 +73,13 @@ const CancellationRefund = () => {
 
             <section>
               <h2 className="text-2xl font-bold mb-4" style={{ color: '#545454' }}>2. Refunds</h2>
-              <ul className="space-y-2 text-gray-700" style={{ fontFamily: 'Lato, sans-serif' }}>
-                <li><strong>Strict No-Refund Policy:</strong> Once a payment is processed, it is non-refundable.</li>
-                <li>Partial usage of subscription or dissatisfaction with performance outcomes does not qualify for a refund.</li>
-              </ul>
+              <p className="text-gray-700 mb-4" style={{ fontFamily: 'Lato, sans-serif' }}>
+                We generally follow a no-refund policy once a payment has been processed. 
+                Partial use of a subscription or dissatisfaction with performance outcomes does not qualify for a refund.
+              </p>
+              <p className="text-gray-700" style={{ fontFamily: 'Lato, sans-serif' }}>
+                However, in the rare event of a genuine technical issue that prevents continued use of a paid subscription — and if the issue remains unresolved for more than 36 hours, after evaluation by our support team — we will issue a refund for the affected period or order, as applicable.
+              </p>
             </section>
 
             <section>
