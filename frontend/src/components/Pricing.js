@@ -284,10 +284,10 @@ const Pricing = () => {
             
             <div className="mb-8">
               <div className="flex items-baseline justify-center mb-2">
-                <span className="text-5xl font-bold" style={{ color: '#545454' }}>₹1,495</span>
+                <span className="text-5xl font-bold" style={{ color: '#545454' }}>₹1,195</span>
               </div>
               <p className="text-gray-600" style={{ fontFamily: 'Lato, sans-serif' }}>
-                Till Dec 31, 2025, unlimited sessions
+                Unlimited sessions | Access till Dec 31, 2025
               </p>
             </div>
 
