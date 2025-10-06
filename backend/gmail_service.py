@@ -1393,62 +1393,97 @@ hello@twelvr.com
         try:
             display_name = user_name if user_name else to_email.split('@')[0].title()
             
-            subject = "🎉 Welcome to Weekly Free Sessions at Twelvr!"
+            subject = "Start your weekly free sessions on Twelvr"
             
             body = f"""
-Hi {display_name},
-
-Thank you for completing your first 5 adaptive sessions with Twelvr! 🚀
-
-We hope you're experiencing the power of our adaptive learning system. Your journey with personalized CAT preparation has just begun.
-
-<h2 style="color: #9ac026;">What's Next?</h2>
-
-<p><strong>Your Weekly Free Sessions Have Started!</strong></p>
-
-As a free tier user, you now have access to:
-<ul>
-<li>✅ <strong>4 adaptive sessions per week</strong></li>
-<li>✅ Full Adaptivity (Trend Matrix + Reflex Loop + Learning Impact)</li>
-<li>✅ Progress dashboard & analytics</li>
-<li>✅ Carry forward unused sessions to next week</li>
-</ul>
-
-<h2 style="color: #9ac026;">Ready to Go Unlimited?</h2>
-
-<p>Upgrade to <strong>Pro Exclusive for CAT 2025</strong> and unlock:</p>
-<ul>
-<li>🚀 <strong>Unlimited sessions till Dec 31, 2025</strong></li>
-<li>📊 Full Adaptivity with comprehensive insights</li>
-<li>💬 Ask Twelvr: Real-time AI doubt resolution</li>
-<li>📈 Advanced analytics and performance reports</li>
-</ul>
-
-<div style="text-align: center; margin: 30px 0;">
-<a href="https://twelvr.com/pricing" style="background-color: #9ac026; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">Upgrade to Pro Exclusive</a>
-</div>
-
-<h2 style="color: #9ac026;">We Value Your Feedback</h2>
-
-<p>Your experience matters to us! Please take 2 minutes to share your thoughts:</p>
-
-<div style="text-align: center; margin: 20px 0;">
-<a href="https://forms.gle/VMoD5F47oT8QwDE5A" style="color: #9ac026; text-decoration: none; font-weight: bold;">📝 Share Your Feedback</a>
-</div>
-
-<p>Keep Twelvring! 💪</p>
-
-<p style="margin-top: 30px;">
-Best regards,<br>
-<strong>Team Twelvr</strong><br>
-Your Adaptive Learning Partner
-</p>
-
-<hr style="margin: 30px 0; border: none; border-top: 1px solid #e0e0e0;">
-
-<p style="font-size: 12px; color: #666;">
-Need help? Reply to this email or visit <a href="https://twelvr.com/contact" style="color: #9ac026;">twelvr.com/contact</a>
-</p>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="font-family: 'Lato', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #f5f5f5;">
+    <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 40px 30px;">
+        
+        <!-- Logo and Tagline -->
+        <div style="text-align: center; margin-bottom: 40px;">
+            <div style="font-size: 48px; font-weight: bold; color: #9ac026; letter-spacing: -1px;">
+                Twelvr
+            </div>
+            <div style="font-size: 18px; color: #545454; margin-top: 10px; font-weight: 500;">
+                CAT Preparation Platform
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div style="color: #545454; line-height: 1.6;">
+            <p style="font-size: 16px;">Hi {display_name},</p>
+            
+            <p style="font-size: 16px;">Thank you for completing your first 5 adaptive sessions with Twelvr! 🚀</p>
+            
+            <p style="font-size: 16px;">We hope you're experiencing the power of our adaptive learning system. Your journey with personalized CAT preparation has just begun.</p>
+            
+            <h2 style="color: #9ac026; font-size: 22px; margin-top: 30px; margin-bottom: 20px;">Your Weekly Free Sessions Have Started!</h2>
+            
+            <p style="font-size: 16px;">As a free tier user, you now have access to <strong>4 adaptive sessions per week</strong> with carry forward to the next week.</p>
+            
+            <h2 style="color: #9ac026; font-size: 22px; margin-top: 30px; margin-bottom: 20px;">Ready to Go Unlimited?</h2>
+            
+            <p style="font-size: 16px; margin-bottom: 20px;">Upgrade to <strong>Pro Exclusive for CAT 2025</strong> and unlock:</p>
+            
+            <ul style="list-style: none; padding: 0; margin: 20px 0;">
+                <li style="padding: 8px 0; font-size: 15px;">
+                    <span style="color: #9ac026; margin-right: 8px;">✓</span>
+                    Unlimited sessions till Dec 31, 2025
+                </li>
+                <li style="padding: 8px 0; font-size: 15px;">
+                    <span style="color: #9ac026; margin-right: 8px;">✓</span>
+                    Full Adaptivity (Trend Matrix + Reflex Loop + Learning Impact)
+                </li>
+                <li style="padding: 8px 0; font-size: 15px;">
+                    <span style="color: #9ac026; margin-right: 8px;">✓</span>
+                    Progress dashboard & analytics
+                </li>
+                <li style="padding: 8px 0; font-size: 15px;">
+                    <span style="color: #9ac026; margin-right: 8px;">✓</span>
+                    <em>Ask Twelvr</em>: Chat real time with our AI doubt resolution engine
+                </li>
+            </ul>
+            
+            <div style="text-align: center; margin: 40px 0;">
+                <a href="https://twelvr.com/pricing" style="background-color: #9ac026; color: white; padding: 15px 40px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 16px; display: inline-block;">
+                    Upgrade to Pro Exclusive
+                </a>
+            </div>
+            
+            <h2 style="color: #9ac026; font-size: 22px; margin-top: 40px; margin-bottom: 20px;">We Value Your Feedback</h2>
+            
+            <p style="font-size: 16px;">Your experience matters to us! Please take 2 minutes to share your thoughts:</p>
+            
+            <div style="text-align: center; margin: 30px 0;">
+                <a href="https://forms.gle/VMoD5F47oT8QwDE5A" style="color: #9ac026; text-decoration: none; font-weight: bold; font-size: 16px;">
+                    📝 Share Your Feedback
+                </a>
+            </div>
+            
+            <p style="font-size: 16px; margin-top: 40px;">Keep Twelvring! 💪</p>
+            
+            <p style="margin-top: 40px; font-size: 15px;">
+                Best regards,<br>
+                <strong>Team Twelvr</strong><br>
+                <span style="color: #888;">Your Adaptive Learning Partner</span>
+            </p>
+        </div>
+        
+        <!-- Footer -->
+        <hr style="margin: 40px 0; border: none; border-top: 1px solid #e0e0e0;">
+        
+        <p style="font-size: 12px; color: #888; text-align: center; margin: 20px 0;">
+            Need help? Reply to this email or visit <a href="https://twelvr.com/contact" style="color: #9ac026; text-decoration: none;">twelvr.com/contact</a>
+        </p>
+    </div>
+</body>
+</html>
 """
             
             success = self.send_generic_email(to_email, subject, body)
