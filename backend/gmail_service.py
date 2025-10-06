@@ -1510,7 +1510,7 @@ You, compounded.
 <body>
     <div class="container">
         <div class="content">
-            <p style="font-size: 16px; margin-bottom: 20px;">{display_name},</p>
+            <p style="font-size: 16px; margin-bottom: 20px;">Hello,</p>
             
             <p style="font-size: 15px; margin-bottom: 25px;">Thank you for completing your first 5 adaptive sessions with Twelvr! 🚀</p>
             
