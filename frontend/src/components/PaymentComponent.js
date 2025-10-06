@@ -336,7 +336,7 @@ const PaymentComponent = ({ planType, amount, planName, description, onSuccess, 
           </>
         ) : (
           <>
-            {planType === 'pro_regular' ? 'Subscribe to Pro Regular' : 'Choose Pro Exclusive'}
+            {planType === 'pro_regular' ? 'Subscribe to Pro Regular' : 'Subscribe to Pro Exclusive'}
           </>
         )}
       </button>
