@@ -1264,11 +1264,11 @@ class CATBackendTester:
         
         AUTHENTICATION: sp@theskinmantra.com/student123
         """
-        print("🎯 PRIVILEGED USER VERIFICATION & SESSION LIMITS TESTING")
+        print("🎯 FREE TIER SESSION ALLOCATION CHANGES TESTING")
         print("=" * 80)
-        print("OBJECTIVE: Test privileged users, free tier logic, IST timezone, and pro tier features")
-        print("FOCUS: Privileged access, session limits, timezone conversion, feature access")
-        print("EXPECTED: Unlimited access for privileged users, proper free tier logic, IST timestamps")
+        print("OBJECTIVE: Test updated free tier session allocation (2 sessions/week, 5 initial)")
+        print("FOCUS: Session service verification, API endpoints, database queries, allocation logic")
+        print("EXPECTED: weekly_allocation=2, initial_sessions=5, proper cycle calculations")
         print("=" * 80)
         
         test_results = {
