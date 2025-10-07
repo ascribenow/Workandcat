@@ -590,34 +590,37 @@ async def submit_answer(
             })
             
             # REAL-TIME SESSION PROGRESS UPDATE: Update sessions table with current progress
-            # Get current session stats from session_answers
+            # Get current session stats from session_answers (including skipped count)
             session_stats = db.execute(text("""
                 SELECT 
-                    COUNT(*) as total_answered,
+                    COUNT(*) FILTER (WHERE user_answer != '') as total_answered,
                     COUNT(*) FILTER (WHERE is_correct = true) as total_correct,
+                    COUNT(*) FILTER (WHERE user_answer = '') as total_skipped,
                     MAX(position) as current_position
                 FROM session_answers 
                 WHERE session_id = :session_id
             """), {"session_id": session_id}).fetchone()
             
             if session_stats:
-                total_answered, total_correct, current_pos = session_stats
+                total_answered, total_correct, total_skipped, current_pos = session_stats
                 
-                # Update sessions table with real-time progress
+                # Update sessions table with real-time progress including skipped count
                 db.execute(text("""
                     UPDATE sessions 
                     SET questions_answered = :questions_answered,
                         questions_correct = :questions_correct,
+                        questions_skipped = :questions_skipped,
                         current_position = :current_position
                     WHERE session_id = :session_id
                 """), {
                     "questions_answered": total_answered,
                     "questions_correct": total_correct,
+                    "questions_skipped": total_skipped,
                     "current_position": current_pos,
                     "session_id": session_id
                 })
                 
-                logger.info(f"Real-time session update: {total_correct}/{total_answered} correct, position {current_pos}")
+                logger.info(f"📊 Real-time update: {total_answered} answered, {total_skipped} skipped, {total_correct} correct, position {current_pos}")
             
             db.commit()
         finally:
