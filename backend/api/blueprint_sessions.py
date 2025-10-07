@@ -898,10 +898,16 @@ async def complete_session(
             if not answers_data:
                 raise HTTPException(status_code=404, detail="No answers found for this session")
             
-            # Calculate session statistics
+            # Calculate session statistics from session_answers
             total_questions = len(answers_data)
+            
+            # Calculate answered vs skipped from user_answer field (empty = skipped)
+            answered_questions = sum(1 for answer in answers_data if answer[3] and answer[3].strip())  # user_answer at index 3
+            skipped_questions = total_questions - answered_questions
             correct_answers = sum(1 for answer in answers_data if answer[1])  # is_correct is at index 1
             accuracy = (correct_answers / total_questions) * 100 if total_questions > 0 else 0
+            
+            logger.info(f"📊 Session completion stats: {answered_questions} answered, {skipped_questions} skipped, {correct_answers} correct")
             
             # FINAL RECONCILIATION: Update session with complete stats and completion status
             # IDEMPOTENT: Check if session is already completed
@@ -934,15 +940,15 @@ async def complete_session(
                     WHERE session_id = :session_id
                 """), {
                     "completed_at": completed_at,
-                    "questions_answered": total_questions,
+                    "questions_answered": answered_questions,  # Only count non-empty answers
                     "questions_correct": correct_answers,
-                    "questions_skipped": 0,  # Blueprint sessions don't allow skipping
+                    "questions_skipped": skipped_questions,  # Calculate from data
                     "current_position": total_questions,  # Completed = at final position
                     "correlation_id": correlation_id,
                     "session_id": session_id
                 })
                 
-                logger.info(f"Final reconciliation: Session {session_id[:8]} completed with {correct_answers}/{total_questions} correct")
+                logger.info(f"✅ Final reconciliation: Session {session_id[:8]} completed - {answered_questions} answered, {skipped_questions} skipped, {correct_answers} correct")
             
             db.commit()
             
