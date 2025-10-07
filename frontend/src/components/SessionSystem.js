@@ -1320,15 +1320,32 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
     setLoading(true);
     
     try {
-      // Log the skip action
-      await logQuestionAction('skip', {});
+      // Call the backend skip endpoint to record the skip in database
+      const position = currentQuestionIndex + 1; // 1-based position
       
-      // Move to next question (adaptive or legacy)
+      console.log(`⏭️ Skipping question at position ${position}`);
+      
+      const response = await axios.post(
+        `${API}/session/skip`,
+        {
+          session_id: sessionId,
+          position: position
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+          }
+        }
+      );
+      
+      console.log('✅ Skip recorded:', response.data);
+      
+      // Move to next question
       handleNextQuestion();
       
     } catch (err) {
       setError('Failed to skip question');
-      console.error('Error skipping question:', err);
+      console.error('❌ Error skipping question:', err);
     } finally {
       setLoading(false);
     }
