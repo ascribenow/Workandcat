@@ -38,6 +38,10 @@ class AnswerSubmitRequest(BaseModel):
     position: int  # 1-based position
     answer: str
 
+class SkipQuestionRequest(BaseModel):
+    session_id: str
+    position: int  # 1-based position
+
 class SessionCompleteRequest(BaseModel):
     session_id: str
 
