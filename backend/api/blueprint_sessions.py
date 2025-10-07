@@ -707,6 +707,166 @@ async def submit_answer(
         logger.error(f"Failed to submit answer for session {session_id[:8] if 'session_id' in locals() else 'UNKNOWN'}, position {request.position}: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to submit answer: {str(e)}")
 
+
+@router.post("/skip")
+async def skip_question(
+    request: SkipQuestionRequest,
+    auth_user_id: str = Depends(get_current_user)
+):
+    """
+    Skip a question in blueprint session - records the skip in database
+    """
+    
+    # Validate UUID format at API boundary
+    session_id = validate_canonical_uuid(request.session_id, "session_id")
+    auth_user_id = validate_canonical_uuid(auth_user_id, "authenticated_user_id")
+    
+    # CRITICAL: Enforce Blueprint V2 constraint - exactly 12 questions
+    if not (1 <= request.position <= 12):
+        raise HTTPException(status_code=400, detail="Position must be between 1 and 12 (Blueprint V2)")
+    
+    try:
+        planner = await get_blueprint_planner()
+        
+        # Convert validated UUID string to UUID object for planner
+        session_uuid = uuid.UUID(session_id)
+        
+        # Get session questions to validate position
+        questions = await planner._get_session_questions(session_uuid)
+        
+        if not questions:
+            raise HTTPException(status_code=404, detail="Session not found")
+        
+        # Check if position is valid for this session
+        available_positions = [q.get('position', 0) for q in questions]
+        if request.position not in available_positions:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Invalid position {request.position}. Available positions: {sorted(available_positions)}"
+            )
+        
+        # Get question at this position
+        question_at_position = None
+        for q in questions:
+            if q.get('position') == request.position:
+                question_at_position = q
+                break
+        
+        if not question_at_position:
+            raise HTTPException(status_code=404, detail=f"Question at position {request.position} not found")
+        
+        question_id = question_at_position.get('id', 'NO_ID')
+        logger.info(f"🔄 SKIP: Session {session_id[:8]}, Position {request.position}, Question {question_id[:8]}")
+        
+        # Store skip in database - both tables
+        db = planner.get_db_session()
+        try:
+            # 1. Insert into session_answers with empty answer and 'SKIPPED' explanation
+            db.execute(text("""
+                INSERT INTO session_answers (session_id, position, question_id, user_answer, is_correct, explanation, timestamp)
+                VALUES (:session_id, :position, :question_id, :user_answer, :is_correct, :explanation, :timestamp)
+                ON CONFLICT (session_id, position) DO UPDATE SET
+                    user_answer = EXCLUDED.user_answer,
+                    is_correct = EXCLUDED.is_correct,
+                    explanation = EXCLUDED.explanation,
+                    timestamp = EXCLUDED.timestamp
+            """), {
+                "session_id": session_id,
+                "position": request.position,
+                "question_id": question_at_position['id'],
+                "user_answer": "",  # Empty answer for skip
+                "is_correct": False,  # Skipped = incorrect
+                "explanation": "SKIPPED",  # Mark as skipped
+                "timestamp": now_ist()
+            })
+            
+            # 2. Insert into attempt_events with skipped=TRUE
+            db.execute(text("""
+                INSERT INTO attempt_events (
+                    id, user_id, session_id, question_id, was_correct, skipped,
+                    response_time_ms, created_at, difficulty_band, subcategory,
+                    type_of_question, core_concepts, pyq_frequency_score, sess_seq_at_serve
+                ) VALUES (
+                    :id, :user_id, :session_id, :question_id, :was_correct, :skipped,
+                    :response_time_ms, :created_at, :difficulty_band, :subcategory,
+                    :type_of_question, :core_concepts, :pyq_frequency_score, :sess_seq_at_serve
+                )
+                ON CONFLICT (user_id, session_id, sess_seq_at_serve) DO UPDATE SET
+                    skipped = EXCLUDED.skipped,
+                    created_at = EXCLUDED.created_at
+            """), {
+                "id": str(uuid.uuid4()),
+                "user_id": auth_user_id,
+                "session_id": session_id,
+                "question_id": question_at_position['id'],
+                "was_correct": False,
+                "skipped": True,  # ← Mark as skipped
+                "response_time_ms": 0,  # No time spent on skip
+                "created_at": now_ist(),
+                "difficulty_band": question_at_position.get('difficulty_band', 'Medium'),
+                "subcategory": question_at_position.get('subcategory', 'General'),
+                "type_of_question": question_at_position.get('type_of_question', 'MCQ'),
+                "core_concepts": json.dumps(question_at_position.get('core_concepts', [])),
+                "pyq_frequency_score": question_at_position.get('pyq_frequency_score', 0),
+                "sess_seq_at_serve": request.position
+            })
+            
+            # 3. Update sessions table with real-time progress including skipped count
+            session_stats = db.execute(text("""
+                SELECT 
+                    COUNT(*) as total_attempts,
+                    COUNT(*) FILTER (WHERE user_answer != '' AND is_correct = true) as total_correct,
+                    COUNT(*) FILTER (WHERE user_answer != '') as total_answered,
+                    COUNT(*) FILTER (WHERE user_answer = '') as total_skipped,
+                    MAX(position) as current_position
+                FROM session_answers 
+                WHERE session_id = :session_id
+            """), {"session_id": session_id}).fetchone()
+            
+            if session_stats:
+                total_attempts, total_correct, total_answered, total_skipped, current_pos = session_stats
+                
+                # Update sessions table with all progress metrics
+                db.execute(text("""
+                    UPDATE sessions 
+                    SET questions_answered = :questions_answered,
+                        questions_correct = :questions_correct,
+                        questions_skipped = :questions_skipped,
+                        current_position = :current_position
+                    WHERE session_id = :session_id
+                """), {
+                    "questions_answered": total_answered,
+                    "questions_correct": total_correct,
+                    "questions_skipped": total_skipped,
+                    "current_position": current_pos,
+                    "session_id": session_id
+                })
+                
+                logger.info(f"📊 Session progress: {total_answered} answered, {total_skipped} skipped, {total_correct} correct, position {current_pos}")
+            
+            db.commit()
+        finally:
+            db.close()
+        
+        logger.info(f"✅ Question skipped: session {session_id[:8]}, position {request.position}")
+        
+        # Return response similar to answer submission
+        return JSONResponse({
+            "message": "Question skipped successfully",
+            "session_id": session_id,
+            "position": request.position,
+            "skipped": True,
+            "next_position": request.position + 1 if request.position < 12 else None,
+            "is_complete": request.position == 12
+        }, status_code=200)
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to skip question for session {session_id[:8] if 'session_id' in locals() else 'UNKNOWN'}, position {request.position}: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to skip question: {str(e)}")
+
+
 @router.post("/complete")
 async def complete_session(
     request: SessionCompleteRequest,
