@@ -5839,26 +5839,29 @@ def main():
 
 def main():
     """Main execution function"""
-    print("🚀 Starting Free Tier Session Allocation Changes Testing")
+    print("🚀 Starting Manual Background Job Trigger for Session #8 Testing")
     print("=" * 80)
     
     tester = CATBackendTester()
     
     try:
-        # Run the free tier session allocation changes test
-        success = tester.test_free_tier_session_allocation_changes()
+        # Run the manual background job trigger test
+        success = tester.test_manual_background_job_trigger_for_session_8()
         
         if success:
-            print("\n🎉 FREE TIER SESSION ALLOCATION CHANGES TESTING COMPLETED SUCCESSFULLY!")
-            print("✅ All critical changes validated and working correctly")
+            print("\n🎉 MANUAL BACKGROUND JOB TRIGGER TESTING COMPLETED SUCCESSFULLY!")
+            print("✅ Background job pipeline working correctly")
+            print("✅ Session completion endpoint functional")
+            print("✅ Job monitoring and execution validated")
             return 0
         else:
-            print("\n⚠️ FREE TIER SESSION ALLOCATION CHANGES TESTING COMPLETED WITH ISSUES")
-            print("❌ Some critical issues need attention before production")
+            print("\n⚠️ MANUAL BACKGROUND JOB TRIGGER TESTING COMPLETED WITH ISSUES")
+            print("❌ Some critical issues need attention")
+            print("🔧 Check job pipeline and session completion functionality")
             return 1
             
     except Exception as e:
-        print(f"\n❌ FREE TIER SESSION ALLOCATION CHANGES TESTING FAILED: {e}")
+        print(f"\n❌ MANUAL BACKGROUND JOB TRIGGER TESTING FAILED: {e}")
         print("🔧 Please check system connectivity and try again")
         return 1
 
