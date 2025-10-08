@@ -1325,18 +1325,10 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
       
       console.log(`⏭️ Skipping question at position ${position}`);
       
-      const response = await axios.post(
-        `${API}/session/skip`,
-        {
-          session_id: sessionId,
-          position: position
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('cat_prep_token')}`
-          }
-        }
-      );
+      const response = await axios.post(`${API}/session/skip`, {
+        session_id: sessionId,
+        position: position
+      });
       
       console.log('✅ Skip recorded:', response.data);
       
