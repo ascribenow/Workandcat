@@ -795,7 +795,6 @@ async def persist_session_pack(user_id: str, session_pack: Dict[str, Any]) -> st
         
         # Insert into session_packs (using existing Blueprint schema)
         # Note: session_packs uses session_id as primary key, not id
-        # CRITICAL FIX: Ensure proper UUID format validation
         constraint_report_json = json.dumps({
             "pack_type": session_pack["pack_type"],
             "difficulty_distribution": session_pack["difficulty_distribution"],
@@ -817,8 +816,50 @@ async def persist_session_pack(user_id: str, session_pack: Dict[str, Any]) -> st
             "created_at": now_ist()
         })
         
+        # Insert questions into session_pack_questions
+        questions = session_pack.get("questions", [])
+        
+        if not questions:
+            raise ValueError(f"Session pack has no questions - cannot persist empty pack")
+        
+        if len(questions) != 12:
+            logger.warning(f"⚠️  Session pack has {len(questions)} questions instead of 12")
+        
+        for question in questions:
+            question_data_json = json.dumps({
+                "id": question["id"],
+                "stem": question["stem"],
+                "answer": question["answer"],
+                "explanation": question.get("explanation", ""),
+                "option_a": question.get("option_a", ""),
+                "option_b": question.get("option_b", ""),
+                "option_c": question.get("option_c", ""),
+                "option_d": question.get("option_d", ""),
+                "difficulty_band": question["difficulty_band"],
+                "subcategory": question["subcategory"],
+                "type_of_question": question["type_of_question"],
+                "core_concepts": question.get("core_concepts", []),
+                "pyq_frequency_score": question.get("pyq_frequency_score", 0),
+                "snap_read": question.get("snap_read", ""),
+                "solution_approach": question.get("solution_approach", ""),
+                "detailed_solution": question.get("detailed_solution", ""),
+                "principle_to_remember": question.get("principle_to_remember", "")
+            })
+            
+            db.execute(text("""
+                INSERT INTO session_pack_questions (
+                    session_id, position, question_data
+                ) VALUES (
+                    CAST(:session_id AS uuid), :position, CAST(:question_data AS jsonb)
+                )
+            """), {
+                "session_id": pack_id,
+                "position": question["position"],
+                "question_data": question_data_json
+            })
+        
         db.commit()
-        logger.info(f"✅ Persisted session pack {pack_id[:8]} for user {user_id[:8]}")
+        logger.info(f"✅ Persisted session pack {pack_id[:8]} with {len(questions)} questions for user {user_id[:8]}")
         
         return pack_id
         
