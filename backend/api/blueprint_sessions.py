@@ -966,42 +966,40 @@ async def complete_session(
             db_check = planner.get_db_session()
             try:
                 user_result = db_check.execute(text("""
-                    SELECT email, subscription_type, name FROM users 
+                    SELECT email, name FROM users 
                     WHERE user_id = :user_id
                 """), {"user_id": auth_user_id})
                 
                 user_data = user_result.fetchone()
                 
                 if user_data:
-                    user_email, subscription_type, user_name = user_data
+                    user_email, user_name = user_data
                     
-                    # Only for free tier users
-                    if subscription_type == 'free':
-                        # Count total completed sessions
-                        completed_sessions_count = db_check.execute(text("""
-                            SELECT COUNT(*) FROM sessions 
-                            WHERE user_id = :user_id AND status = 'completed'
-                        """), {"user_id": auth_user_id}).scalar()
+                    # Count total completed sessions (assume all users are free tier for now)
+                    completed_sessions_count = db_check.execute(text("""
+                        SELECT COUNT(*) FROM sessions 
+                        WHERE user_id = :user_id AND status = 'completed'
+                    """), {"user_id": auth_user_id}).scalar()
+                    
+                    # If this is exactly the 5th session, send transition email
+                    if completed_sessions_count == 5:
+                        logger.info(f"🎉 User {auth_user_id[:8]} completed 5th session - sending transition email")
                         
-                        # If this is exactly the 5th session, send transition email
-                        if completed_sessions_count == 5:
-                            logger.info(f"🎉 User {auth_user_id[:8]} completed 5th session - sending transition email")
-                            
-                            from gmail_service import gmail_service
-                            
-                            # Send email asynchronously (don't block session completion)
-                            try:
-                                email_sent = gmail_service.send_free_tier_transition_email(
-                                    to_email=user_email,
-                                    user_name=user_name
-                                )
-                                if email_sent:
-                                    logger.info(f"✅ Transition email sent to {user_email}")
-                                else:
-                                    logger.warning(f"⚠️ Failed to send transition email to {user_email}")
-                            except Exception as email_error:
-                                logger.error(f"Error sending transition email: {email_error}")
-                                # Don't fail session completion due to email error
+                        from gmail_service import gmail_service
+                        
+                        # Send email asynchronously (don't block session completion)
+                        try:
+                            email_sent = gmail_service.send_free_tier_transition_email(
+                                to_email=user_email,
+                                user_name=user_name
+                            )
+                            if email_sent:
+                                logger.info(f"✅ Transition email sent to {user_email}")
+                            else:
+                                logger.warning(f"⚠️ Failed to send transition email to {user_email}")
+                        except Exception as email_error:
+                            logger.error(f"Error sending transition email: {email_error}")
+                            # Don't fail session completion due to email error
             finally:
                 db_check.close()
         except Exception as e:
