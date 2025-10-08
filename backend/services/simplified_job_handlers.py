@@ -795,14 +795,14 @@ async def generate_personalized_session_pack(user_id: str, learning_data: Dict[s
                 })
         
         # Apply ordering: E-E-M-M-H-M-E-M-H-M-M-H (spread difficulty)
-        difficulty_order = ["Easy", "Easy", "Medium", "Medium", "Hard", "Medium", 
-                           "Easy", "Medium", "Hard", "Medium", "Medium", "Hard"]
+        difficulty_order = ["easy", "easy", "medium", "medium", "hard", "medium", 
+                           "easy", "medium", "hard", "medium", "medium", "hard"]
         
         ordered_questions = []
         difficulty_pools = {
-            "Easy": [q for q in selected_questions if q["difficulty_band"] == "Easy"],
-            "Medium": [q for q in selected_questions if q["difficulty_band"] == "Medium"],
-            "Hard": [q for q in selected_questions if q["difficulty_band"] == "Hard"]
+            "easy": [q for q in selected_questions if q["difficulty_band"] == "easy"],
+            "medium": [q for q in selected_questions if q["difficulty_band"] == "medium"],
+            "hard": [q for q in selected_questions if q["difficulty_band"] == "hard"]
         }
         
         for position, difficulty in enumerate(difficulty_order, 1):
