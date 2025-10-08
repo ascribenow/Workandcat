@@ -649,7 +649,8 @@ async def generate_personalized_session_pack(user_id: str, learning_data: Dict[s
             LIMIT 36
         """), {"user_id": user_id}).fetchall()
         
-        recent_question_ids = [str(row.question_id) for row in recent_questions]
+        # Deduplicate question IDs (in case same question was attempted multiple times)
+        recent_question_ids = list(set([str(row.question_id) for row in recent_questions]))
         
         # Build question pools for each difficulty
         selected_questions = []
