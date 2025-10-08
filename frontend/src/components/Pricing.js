@@ -279,7 +279,7 @@ const Pricing = () => {
                 <span className="text-5xl font-bold" style={{ color: '#545454' }}>₹1,195</span>
               </div>
               <p className="text-gray-600" style={{ fontFamily: 'Lato, sans-serif' }}>
-                Introductory Beta access — limited to first 1000 users
+                Introductory Beta access — limited to first 100 users
               </p>
             </div>
 
