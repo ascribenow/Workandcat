@@ -2,6 +2,13 @@
 
 import sys
 import os
+import warnings
+import urllib3
+
+# Suppress SSL warnings for testing
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+warnings.filterwarnings('ignore', message='Unverified HTTPS request')
+
 sys.path.append('/app')
 
 from backend_test import CATBackendTester
