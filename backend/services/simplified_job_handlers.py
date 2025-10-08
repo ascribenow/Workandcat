@@ -919,7 +919,7 @@ async def persist_session_pack(user_id: str, session_pack: Dict[str, Any]) -> st
                 raise  # Re-raise to trigger rollback
         
         db.commit()
-        logger.info(f"✅ Persisted session pack {pack_id[:8]} with {len(questions)} questions for user {user_id[:8]}")
+        logger.info(f"✅ Persisted session pack {pack_id[:8]} with {questions_inserted}/{len(questions)} questions for user {user_id[:8]}")
         
         return pack_id
         
