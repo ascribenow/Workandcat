@@ -49243,60 +49243,22 @@ def main():
         return final_results["100_percent_success_achieved"]
 
 if __name__ == "__main__":
-    print("🎯 HEALTH CHECK FOR USER twelvrhelp@gmail.com AFTER SESSION #8 COMPLETION")
-    print("=" * 80)
-    print("OBJECTIVE: Verify complete background job pipeline after session #8 completion")
-    print("FOCUS: Background jobs, data pipeline, next session pre-packing")
-    print("EXPECTED: All systems healthy and user ready for session #9")
-    print("=" * 80)
-    
     tester = CATBackendTester()
     
-    try:
-        # Run the user session health check test
-        print("\n🚀 RUNNING USER SESSION HEALTH CHECK")
-        health_check_passed = tester.test_user_session_health_check()
-        
-        # FINAL SUMMARY
-        print("\n" + "=" * 80)
-        print("🏁 USER SESSION HEALTH CHECK - FINAL RESULTS")
-        print("=" * 80)
-        print(f"Total Tests Run: {tester.tests_run}")
-        print(f"Total Tests Passed: {tester.tests_passed}")
-        print(f"Overall Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%" if tester.tests_run > 0 else "0%")
-        
-        print("\n📊 HEALTH CHECK TEST RESULTS:")
-        print(f"User Session Health Check: {'✅ PASS' if health_check_passed else '❌ FAIL'}")
-        
-        if health_check_passed:
-            print("\n🎉 USER SESSION HEALTH CHECK: COMPLETED SUCCESSFULLY")
-            print("   ✅ User twelvrhelp@gmail.com found and authenticated")
-            print("   ✅ Session #8 completed successfully")
-            print("   ✅ Background job pipeline healthy")
-            print("   ✅ Data pipeline working correctly")
-            print("   ✅ Next session (session #9) pre-packed and ready")
-            print("   ✅ All services executed successfully")
-            print("   ✅ User ready for session #9")
-        else:
-            print("\n⚠️ USER SESSION HEALTH CHECK: CRITICAL ISSUES FOUND")
-            print("   ❌ User authentication may be failing")
-            print("   ❌ Session #8 may not be completed")
-            print("   ❌ Background job pipeline may have issues")
-            print("   ❌ Data pipeline may not be working")
-            print("   ❌ Next session may not be pre-packed")
-            print("   ❌ Services may not have executed properly")
-            print("   ❌ User may not be ready for session #9")
-        
-        print("\n📋 DETAILED FINDINGS:")
-        print("   • Phase 1: User & Session Verification")
-        print("   • Phase 2: Background Jobs Health Check")
-        print("   • Phase 3: Data Pipeline Verification")
-        print("   • Phase 4: Next Session Pre-Packing")
-        print("   • Phase 5: Service Execution Verification")
-        print("   • Success: Complete pipeline health verification")
-        print("   • Success: User ready for next session")
-        
-    except Exception as e:
-        print(f"\n❌ Error during user session health check: {e}")
-        import traceback
-        traceback.print_exc()
+    # Run the final health check verification for user twelvrhelp@gmail.com
+    print("Starting Final Health Check Verification for User twelvrhelp@gmail.com...")
+    success = tester.test_final_health_check_verification_twelvrhelp()
+    
+    if success:
+        print("\n🎉 FINAL HEALTH CHECK VERIFICATION COMPLETED SUCCESSFULLY!")
+        print("✅ All critical pipeline components verified and working correctly")
+        print("✅ User twelvrhelp@gmail.com can proceed to session #9")
+        print("✅ System ready for production use")
+    else:
+        print("\n⚠️ FINAL HEALTH CHECK VERIFICATION IDENTIFIED ISSUES")
+        print("❌ Some critical components need attention")
+        print("❌ Review the detailed results above for specific issues")
+    
+    print(f"\nTotal tests run: {tester.tests_run}")
+    print(f"Total tests passed: {tester.tests_passed}")
+    print(f"Success rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%")
