@@ -6401,33 +6401,33 @@ class CATBackendTester:
         return success_rate >= 85 and complete_signup_working and ist_timezone_validated
 
 def main():
-    """Main function to run deployment readiness check"""
-    print("🚀 Starting Twelvr Deployment Readiness Check...")
+    """Main function to run background jobs status check for user twelvrhelp@gmail.com"""
+    print("🚀 Starting Background Jobs Status Check for User twelvrhelp@gmail.com...")
     print("=" * 100)
     
     tester = CATBackendTester()
     
     try:
-        # Run the deployment readiness check
-        deployment_ready = tester.test_deployment_readiness_check()
+        # Run the background jobs status check
+        system_ready = tester.test_background_jobs_status_for_user_twelvrhelp()
         
         print("\n" + "=" * 100)
-        print("🎯 DEPLOYMENT READINESS CHECK SUMMARY")
+        print("🎯 BACKGROUND JOBS STATUS CHECK SUMMARY")
         print("=" * 100)
         
-        if deployment_ready:
-            print("✅ RESULT: SYSTEM IS READY FOR PRODUCTION DEPLOYMENT")
-            print("🎉 All critical systems are operational and healthy")
-            print("📊 System meets all deployment readiness criteria")
+        if system_ready:
+            print("✅ RESULT: SYSTEM IS READY FOR USER twelvrhelp@gmail.com")
+            print("🎉 All background jobs are working correctly")
+            print("📊 Data pipeline is complete and next session is pre-packed")
             return 0
         else:
-            print("❌ RESULT: SYSTEM NEEDS ATTENTION BEFORE DEPLOYMENT")
-            print("⚠️ Critical issues detected that require resolution")
-            print("🔧 Please address the identified issues before proceeding")
+            print("❌ RESULT: SYSTEM NEEDS ATTENTION FOR USER twelvrhelp@gmail.com")
+            print("⚠️ Background jobs or data pipeline issues detected")
+            print("🔧 Please address the identified issues before user can proceed")
             return 1
             
     except Exception as e:
-        print(f"\n❌ DEPLOYMENT READINESS CHECK FAILED: {e}")
+        print(f"\n❌ BACKGROUND JOBS STATUS CHECK FAILED: {e}")
         print("🔧 Please check system connectivity and try again")
         return 1
 
