@@ -10,8 +10,10 @@ from sqlalchemy import create_engine, text, inspect
 def run_enhanced_checker_fields_migration():
     """Add missing fields for Enhanced Enrichment Checker System"""
     
-    # Database connection
-    database_url = 'postgresql://postgres.itgusggwslnsbgonyicv:%24Sumedh_123@aws-1-ap-south-1.pooler.supabase.com:6543/postgres'
+    # Database connection - use environment variable
+    database_url = os.environ.get('DATABASE_URL')
+    if not database_url:
+        raise ValueError("DATABASE_URL environment variable is not set")
     engine = create_engine(database_url)
     inspector = inspect(engine)
     
