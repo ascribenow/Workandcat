@@ -641,7 +641,7 @@ async def generate_personalized_session_pack(user_id: str, learning_data: Dict[s
         
         # Get recently used questions (last 3 sessions) to avoid repetition
         recent_questions = db.execute(text("""
-            SELECT DISTINCT sa.question_id
+            SELECT sa.question_id
             FROM session_answers sa
             JOIN sessions s ON CAST(sa.session_id AS varchar) = CAST(s.session_id AS varchar)
             WHERE CAST(s.user_id AS varchar) = :user_id
