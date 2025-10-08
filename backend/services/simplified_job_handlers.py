@@ -787,7 +787,7 @@ async def generate_personalized_session_pack(user_id: str, learning_data: Dict[s
                     "subcategory": question_row.subcategory,
                     "type_of_question": question_row.type_of_question,
                     "core_concepts": question_row.core_concepts,
-                    "pyq_frequency_score": question_row.pyq_frequency_score,
+                    "pyq_frequency_score": int(question_row.pyq_frequency_score) if question_row.pyq_frequency_score is not None else 0,  # Convert Decimal to int
                     "snap_read": question_row.snap_read or "",
                     "solution_approach": question_row.solution_approach or "",
                     "detailed_solution": question_row.detailed_solution or "",
