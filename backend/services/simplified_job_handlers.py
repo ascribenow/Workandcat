@@ -636,7 +636,7 @@ async def generate_personalized_session_pack(user_id: str, learning_data: Dict[s
     db = SessionLocal()
     try:
         # Extract weak concepts and high debt pairs from learning data
-        weak_concepts = [nb["concept"] for nb in learning_data.get("learner_notebook", []) if nb["readiness"] == "Weak"]
+        weak_concepts = [nb["concept_norm"] for nb in learning_data.get("learner_notebook", []) if nb["readiness"] == "Weak"]
         high_debt_pairs = [cd["pair"] for cd in learning_data.get("coverage_debt", []) if cd["debt_score"] > 0.7]
         
         # Get recently used questions (last 3 sessions) to avoid repetition
