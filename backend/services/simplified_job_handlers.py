@@ -770,24 +770,27 @@ async def generate_personalized_session_pack(user_id: str, learning_data: Dict[s
             
             # Add to selected questions with proper structure
             for question_row in selected_for_difficulty[:target_count]:
+                # Parse MCQ options (stored as JSONB)
+                mcq_opts = question_row.mcq_options if isinstance(question_row.mcq_options, dict) else {}
+                
                 selected_questions.append({
                     "id": str(question_row.id),
                     "stem": question_row.stem,
                     "answer": question_row.answer,
-                    "explanation": question_row.explanation,
-                    "option_a": question_row.option_a,
-                    "option_b": question_row.option_b,
-                    "option_c": question_row.option_c,
-                    "option_d": question_row.option_d,
+                    "explanation": question_row.detailed_solution or "",  # Use detailed_solution as explanation
+                    "option_a": mcq_opts.get("A", ""),
+                    "option_b": mcq_opts.get("B", ""),
+                    "option_c": mcq_opts.get("C", ""),
+                    "option_d": mcq_opts.get("D", ""),
                     "difficulty_band": question_row.difficulty_band,
                     "subcategory": question_row.subcategory,
                     "type_of_question": question_row.type_of_question,
                     "core_concepts": question_row.core_concepts,
                     "pyq_frequency_score": question_row.pyq_frequency_score,
-                    "snap_read": question_row.snap_read,
-                    "solution_approach": question_row.solution_approach,
-                    "detailed_solution": question_row.detailed_solution,
-                    "principle_to_remember": question_row.principle_to_remember
+                    "snap_read": question_row.snap_read or "",
+                    "solution_approach": question_row.solution_approach or "",
+                    "detailed_solution": question_row.detailed_solution or "",
+                    "principle_to_remember": question_row.principle_to_remember or ""
                 })
         
         # Apply ordering: E-E-M-M-H-M-E-M-H-M-M-H (spread difficulty)
