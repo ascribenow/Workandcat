@@ -656,10 +656,11 @@ async def generate_personalized_session_pack(user_id: str, learning_data: Dict[s
         selected_questions = []
         
         # Target distribution: 3 Easy, 6 Medium, 3 Hard
+        # Note: Database uses lowercase difficulty names
         difficulty_targets = {
-            "Easy": 3,
-            "Medium": 6,
-            "Hard": 3
+            "easy": 3,
+            "medium": 6,
+            "hard": 3
         }
         
         for difficulty, target_count in difficulty_targets.items():
