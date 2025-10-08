@@ -962,33 +962,48 @@ async def complete_session(
         
         # CHECK IF THIS IS THE 5TH SESSION COMPLETION - Send transition email
         try:
-            # Only for free tier users
-            if user.subscription_type == 'free':
-                # Count total completed sessions
-                completed_sessions_count = db.execute(text("""
-                    SELECT COUNT(*) FROM sessions 
-                    WHERE user_id = :user_id AND status = 'completed'
-                """), {"user_id": auth_user_id}).scalar()
+            # Get user data first
+            db_check = planner.get_db_session()
+            try:
+                user_result = db_check.execute(text("""
+                    SELECT email, subscription_type, name FROM users 
+                    WHERE user_id = :user_id
+                """), {"user_id": auth_user_id})
                 
-                # If this is exactly the 5th session, send transition email
-                if completed_sessions_count == 5:
-                    logger.info(f"🎉 User {auth_user_id[:8]} completed 5th session - sending transition email")
+                user_data = user_result.fetchone()
+                
+                if user_data:
+                    user_email, subscription_type, user_name = user_data
                     
-                    from gmail_service import gmail_service
-                    
-                    # Send email asynchronously (don't block session completion)
-                    try:
-                        email_sent = gmail_service.send_free_tier_transition_email(
-                            to_email=user.email,
-                            user_name=user.name if hasattr(user, 'name') else None
-                        )
-                        if email_sent:
-                            logger.info(f"✅ Transition email sent to {user.email}")
-                        else:
-                            logger.warning(f"⚠️ Failed to send transition email to {user.email}")
-                    except Exception as email_error:
-                        logger.error(f"Error sending transition email: {email_error}")
-                        # Don't fail session completion due to email error
+                    # Only for free tier users
+                    if subscription_type == 'free':
+                        # Count total completed sessions
+                        completed_sessions_count = db_check.execute(text("""
+                            SELECT COUNT(*) FROM sessions 
+                            WHERE user_id = :user_id AND status = 'completed'
+                        """), {"user_id": auth_user_id}).scalar()
+                        
+                        # If this is exactly the 5th session, send transition email
+                        if completed_sessions_count == 5:
+                            logger.info(f"🎉 User {auth_user_id[:8]} completed 5th session - sending transition email")
+                            
+                            from gmail_service import gmail_service
+                            
+                            # Send email asynchronously (don't block session completion)
+                            try:
+                                email_sent = gmail_service.send_free_tier_transition_email(
+                                    to_email=user_email,
+                                    user_name=user_name
+                                )
+                                if email_sent:
+                                    logger.info(f"✅ Transition email sent to {user_email}")
+                                else:
+                                    logger.warning(f"⚠️ Failed to send transition email to {user_email}")
+                            except Exception as email_error:
+                                logger.error(f"Error sending transition email: {email_error}")
+                                # Don't fail session completion due to email error
+            finally:
+                db_check.close()
         except Exception as e:
             logger.error(f"Error checking for 5th session email: {e}")
             # Don't fail session completion due to email check error
