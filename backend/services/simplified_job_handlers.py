@@ -672,7 +672,8 @@ async def generate_personalized_session_pack(user_id: str, learning_data: Dict[s
             # Priority 1: Questions matching weak concepts
             weak_concept_clause = ""
             if weak_concepts:
-                concept_patterns = ','.join([f"'%{c}%'" for c in weak_concepts[:10]])
+                # Escape % for SQLAlchemy text() - double them to %%
+                concept_patterns = ','.join([f"'%%{c}%%'" for c in weak_concepts[:10]])
                 weak_concept_clause = f"OR q.core_concepts::text ILIKE ANY(ARRAY[{concept_patterns}])"
             
             # Priority 2: Questions from high debt pairs
