@@ -870,6 +870,13 @@ async def persist_session_pack(user_id: str, session_pack: Dict[str, Any]) -> st
             logger.warning(f"⚠️  Session pack has {len(questions)} questions instead of 12")
         
         for question in questions:
+            # Ensure core_concepts is a proper list (convert from JSONB if needed)
+            core_concepts = question.get("core_concepts", [])
+            if isinstance(core_concepts, str):
+                core_concepts = json.loads(core_concepts)
+            elif not isinstance(core_concepts, list):
+                core_concepts = list(core_concepts) if core_concepts else []
+            
             question_data_json = json.dumps({
                 "id": question["id"],
                 "stem": question["stem"],
@@ -882,7 +889,7 @@ async def persist_session_pack(user_id: str, session_pack: Dict[str, Any]) -> st
                 "difficulty_band": question["difficulty_band"],
                 "subcategory": question["subcategory"],
                 "type_of_question": question["type_of_question"],
-                "core_concepts": question.get("core_concepts", []),
+                "core_concepts": core_concepts,
                 "pyq_frequency_score": question.get("pyq_frequency_score", 0),
                 "snap_read": question.get("snap_read", ""),
                 "solution_approach": question.get("solution_approach", ""),
