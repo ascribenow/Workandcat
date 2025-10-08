@@ -47,10 +47,11 @@ class GmailService:
     def exchange_code_for_tokens(self, authorization_code: str) -> bool:
         """Exchange authorization code for access tokens"""
         try:
+            redirect_uri = os.environ.get('GMAIL_REDIRECT_URI', 'https://www.twelvr.com')
             flow = Flow.from_client_secrets_file(
                 self.credentials_file,
                 scopes=self.scopes,
-                redirect_uri='https://www.twelvr.com'
+                redirect_uri=redirect_uri
             )
             
             flow.fetch_token(code=authorization_code)
