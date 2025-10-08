@@ -1330,6 +1330,11 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
         {
           session_id: sessionId,
           position: position
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('cat_prep_token')}`
+          }
         }
       );
       
