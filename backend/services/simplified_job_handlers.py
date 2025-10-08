@@ -665,12 +665,14 @@ async def generate_personalized_session_pack(user_id: str, learning_data: Dict[s
             # Build query conditions
             exclusion_clause = ""
             if recent_question_ids:
-                exclusion_clause = f"AND q.id NOT IN ({','.join([f\"'{qid}'\" for qid in recent_question_ids])})"
+                quoted_ids = ','.join([f"'{qid}'" for qid in recent_question_ids])
+                exclusion_clause = f"AND q.id NOT IN ({quoted_ids})"
             
             # Priority 1: Questions matching weak concepts
             weak_concept_clause = ""
             if weak_concepts:
-                weak_concept_clause = f"OR q.core_concepts::text ILIKE ANY(ARRAY[{','.join([f\"'%{c}%'\" for c in weak_concepts[:10]])}])"
+                concept_patterns = ','.join([f"'%{c}%'" for c in weak_concepts[:10]])
+                weak_concept_clause = f"OR q.core_concepts::text ILIKE ANY(ARRAY[{concept_patterns}])"
             
             # Priority 2: Questions from high debt pairs
             debt_clause = ""
