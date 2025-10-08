@@ -690,6 +690,7 @@ async def generate_personalized_session_pack(user_id: str, learning_data: Dict[s
             # Build CASE statement for weak concepts
             weak_case = ""
             if weak_concepts:
+                # Use single % for LIKE pattern, will be properly escaped by psycopg2
                 concept_patterns = ','.join([f"'%{c}%'" for c in weak_concepts[:10]])
                 weak_case = f"WHEN q.core_concepts::text ILIKE ANY(ARRAY[{concept_patterns}]) THEN 2"
             
