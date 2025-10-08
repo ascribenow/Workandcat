@@ -1040,21 +1040,21 @@ async def complete_session(
         
         # Generate session summary (enhanced with adaptive processing indicator)
         session_summary = {
-            "session_id": session_id,
+            "session_id": str(session_id),  # Convert UUID to string
             "total_questions": total_questions,
             "correct_answers": correct_answers,
             "accuracy": round(accuracy, 1),
             "completed_at": now_ist().isoformat(),
             "session_type": "blueprint",
             "adaptive_processing": "queued" if bg_jobs_enqueued else "enqueue_failed",
-            "correlation_id": correlation_id,
+            "correlation_id": str(correlation_id),  # Convert UUID to string
             "trace_url": f"/api/admin/pipeline-health/trace/{correlation_id}"
         }
         
         return JSONResponse({
             "success": True,
             "session_completed": True,
-            "correlation_id": correlation_id,
+            "correlation_id": str(correlation_id),  # Convert UUID to string
             "background_jobs_enqueued": bg_jobs_enqueued,
             "summary": session_summary
         }, status_code=200)
