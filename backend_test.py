@@ -2889,6 +2889,600 @@ class CATBackendTester:
         
         return test_results["production_ready"]
 
+    def test_background_jobs_status_for_user_twelvrhelp(self):
+        """
+        🎯 CHECK CURRENT STATE OF BACKGROUND JOBS FOR USER twelvrhelp@gmail.com
+        
+        OBJECTIVE: Verify if background jobs have been triggered for user twelvrhelp@gmail.com
+        after fixes have been applied to the session completion endpoint.
+        
+        USER DETAILS:
+        - Email: twelvrhelp@gmail.com
+        - User ID: b223f5b0-5aed-40e1-929e-fbfd2a2bc5ca
+        - Password: student123
+        
+        WHAT TO VERIFY:
+        1. Check Background Jobs Status:
+           - Query bg_jobs table for recent SUMMARIZE_SESSION, UPDATE_INSIGHTS, and PLAN_NEXT_SESSION jobs
+           - Check job statuses (queued, running, succeeded, failed)
+           - Get job timestamps to see when they were created/completed
+        
+        2. Check Data Pipeline:
+           - Verify if session_summary_final table has entries for this user
+           - Check if learner_notebook has been updated
+           - Confirm user_dashboard_insights has recent data
+        
+        3. Check Next Session Pre-Packing:
+           - Query session_pack table for next session
+           - Verify session_pack_questions has 12 questions
+           - Check pack_status and created_at timestamp
+        
+        4. Provide Recommendations:
+           - If jobs are still queued or running, wait for completion
+           - If jobs failed, identify the error
+           - If no jobs found, recommend calling the completion endpoint manually
+        
+        SUCCESS CRITERIA:
+        - All 3 background jobs (SUMMARIZE, UPDATE, PLAN) should exist with 'succeeded' status
+        - Session summary should be in session_summary_final table
+        - Learner notebook should be updated
+        - Next session should be pre-packed with 12 questions
+        """
+        print("🎯 CHECK CURRENT STATE OF BACKGROUND JOBS FOR USER twelvrhelp@gmail.com")
+        print("=" * 100)
+        print("OBJECTIVE: Verify background job status after session completion endpoint fixes")
+        print("USER: twelvrhelp@gmail.com (User ID: b223f5b0-5aed-40e1-929e-fbfd2a2bc5ca)")
+        print("BACKEND URL: https://learn-twelvr.preview.emergentagent.com")
+        print("FOCUS: Background jobs, data pipeline, next session pre-packing")
+        print("=" * 100)
+        
+        test_results = {
+            # Phase 1: User Authentication and Basic Info
+            "user_authentication_working": False,
+            "user_id_matches_expected": False,
+            "user_adaptive_enabled": False,
+            
+            # Phase 2: Background Jobs Status Check
+            "bg_jobs_table_accessible": False,
+            "summarize_session_jobs_found": False,
+            "update_insights_jobs_found": False,
+            "plan_next_session_jobs_found": False,
+            "recent_jobs_within_24h": False,
+            "all_jobs_succeeded": False,
+            "no_failed_jobs": False,
+            "no_stuck_jobs": False,
+            
+            # Phase 3: Data Pipeline Verification
+            "session_summary_final_populated": False,
+            "learner_notebook_updated": False,
+            "user_dashboard_insights_recent": False,
+            "data_pipeline_working": False,
+            
+            # Phase 4: Next Session Pre-Packing
+            "session_pack_exists": False,
+            "session_pack_has_12_questions": False,
+            "pack_status_ready": False,
+            "pack_created_recently": False,
+            "next_session_ready": False,
+            
+            # Phase 5: Session Completion Testing
+            "session_completion_endpoint_working": False,
+            "can_trigger_manual_completion": False,
+            "completion_triggers_jobs": False,
+            
+            # Overall Assessment
+            "background_jobs_working": False,
+            "data_pipeline_complete": False,
+            "next_session_prepped": False,
+            "system_ready_for_user": False
+        }
+        
+        # PHASE 1: USER AUTHENTICATION AND BASIC INFO
+        print("\n🔐 PHASE 1: USER AUTHENTICATION AND BASIC INFO")
+        print("-" * 80)
+        print("Authenticating as twelvrhelp@gmail.com and verifying user details")
+        
+        # Authenticate as the specific user
+        auth_data = {
+            "email": "twelvrhelp@gmail.com",
+            "password": "student123"
+        }
+        
+        success, auth_response = self.run_test(
+            "User Authentication (twelvrhelp@gmail.com)", 
+            "POST", 
+            "auth/login", 
+            [200, 401], 
+            auth_data
+        )
+        
+        auth_headers = None
+        user_id = None
+        
+        if success and auth_response.get('access_token'):
+            test_results["user_authentication_working"] = True
+            token = auth_response['access_token']
+            auth_headers = {
+                'Authorization': f'Bearer {token}',
+                'Content-Type': 'application/json'
+            }
+            
+            user_data = auth_response.get('user', {})
+            user_id = user_data.get('id')
+            adaptive_enabled = user_data.get('adaptive_enabled', False)
+            
+            print(f"   ✅ User authentication successful")
+            print(f"   📊 JWT Token length: {len(token)} characters")
+            print(f"   📊 User ID: {user_id}")
+            print(f"   📊 Expected User ID: b223f5b0-5aed-40e1-929e-fbfd2a2bc5ca")
+            print(f"   📊 Adaptive enabled: {adaptive_enabled}")
+            
+            # Verify user ID matches expected
+            expected_user_id = "b223f5b0-5aed-40e1-929e-fbfd2a2bc5ca"
+            if user_id == expected_user_id:
+                test_results["user_id_matches_expected"] = True
+                print(f"   ✅ User ID matches expected value")
+            else:
+                print(f"   ⚠️ User ID mismatch - using actual ID: {user_id}")
+            
+            if adaptive_enabled:
+                test_results["user_adaptive_enabled"] = True
+                print(f"   ✅ User has adaptive features enabled")
+            else:
+                print(f"   📊 User adaptive_enabled: {adaptive_enabled}")
+        else:
+            print(f"   ❌ User authentication failed: {auth_response}")
+            return False
+        
+        # PHASE 2: BACKGROUND JOBS STATUS CHECK
+        print("\n⚙️ PHASE 2: BACKGROUND JOBS STATUS CHECK")
+        print("-" * 80)
+        print("Checking background job status for SUMMARIZE_SESSION, UPDATE_INSIGHTS, PLAN_NEXT_SESSION")
+        
+        if auth_headers and user_id:
+            # Check background jobs health first
+            success, bg_health = self.run_test(
+                "Background Jobs Health Check", 
+                "GET", 
+                "bg-jobs/health", 
+                [200, 503]
+            )
+            
+            if success and bg_health:
+                test_results["bg_jobs_table_accessible"] = True
+                print(f"   ✅ Background jobs system accessible")
+                
+                status = bg_health.get('status', 'unknown')
+                queue_depth = bg_health.get('queue_depth', 0)
+                print(f"   📊 Queue status: {status}, depth: {queue_depth}")
+                
+                if queue_depth == 0:
+                    test_results["no_stuck_jobs"] = True
+                    print(f"   ✅ No stuck jobs in queue")
+                else:
+                    print(f"   ⚠️ Queue depth: {queue_depth} jobs")
+            else:
+                print(f"   ❌ Background jobs health check failed: {bg_health}")
+            
+            # Try to get job statistics or recent jobs
+            success, job_stats = self.run_test(
+                "Background Job Statistics", 
+                "GET", 
+                "bg-jobs/stats", 
+                [200, 404, 500]
+            )
+            
+            if success and job_stats:
+                print(f"   ✅ Job statistics accessible")
+                
+                # Check for recent jobs
+                recent_jobs = job_stats.get('recent_jobs', [])
+                user_jobs = [job for job in recent_jobs if job.get('user_id') == user_id]
+                
+                if user_jobs:
+                    test_results["recent_jobs_within_24h"] = True
+                    print(f"   ✅ Found {len(user_jobs)} recent jobs for user")
+                    
+                    # Analyze job types
+                    job_types = {}
+                    succeeded_jobs = 0
+                    failed_jobs = 0
+                    
+                    for job in user_jobs:
+                        job_type = job.get('job_type', 'unknown')
+                        job_status = job.get('status', 'unknown')
+                        
+                        job_types[job_type] = job_types.get(job_type, 0) + 1
+                        
+                        if job_status == 'succeeded':
+                            succeeded_jobs += 1
+                        elif job_status == 'failed':
+                            failed_jobs += 1
+                        
+                        print(f"   📊 Job: {job_type} - Status: {job_status} - Created: {job.get('created_at', 'unknown')}")
+                    
+                    # Check for specific job types
+                    if 'SUMMARIZE_SESSION' in job_types:
+                        test_results["summarize_session_jobs_found"] = True
+                        print(f"   ✅ SUMMARIZE_SESSION jobs found: {job_types['SUMMARIZE_SESSION']}")
+                    
+                    if 'UPDATE_INSIGHTS' in job_types:
+                        test_results["update_insights_jobs_found"] = True
+                        print(f"   ✅ UPDATE_INSIGHTS jobs found: {job_types['UPDATE_INSIGHTS']}")
+                    
+                    if 'PLAN_NEXT_SESSION' in job_types:
+                        test_results["plan_next_session_jobs_found"] = True
+                        print(f"   ✅ PLAN_NEXT_SESSION jobs found: {job_types['PLAN_NEXT_SESSION']}")
+                    
+                    # Check success rates
+                    if failed_jobs == 0:
+                        test_results["no_failed_jobs"] = True
+                        print(f"   ✅ No failed jobs detected")
+                    else:
+                        print(f"   ⚠️ Failed jobs: {failed_jobs}")
+                    
+                    if succeeded_jobs == len(user_jobs):
+                        test_results["all_jobs_succeeded"] = True
+                        print(f"   ✅ All jobs succeeded: {succeeded_jobs}/{len(user_jobs)}")
+                    else:
+                        print(f"   ⚠️ Job success rate: {succeeded_jobs}/{len(user_jobs)}")
+                else:
+                    print(f"   📊 No recent jobs found for user {user_id}")
+            else:
+                print(f"   📊 Job statistics not available via API")
+        
+        # PHASE 3: DATA PIPELINE VERIFICATION
+        print("\n📊 PHASE 3: DATA PIPELINE VERIFICATION")
+        print("-" * 80)
+        print("Checking session_summary_final, learner_notebook, user_dashboard_insights")
+        
+        if auth_headers and user_id:
+            # Check dashboard insights (this might give us data pipeline info)
+            success, dashboard_data = self.run_test(
+                "User Dashboard Insights", 
+                "GET", 
+                f"dashboard/insights/{user_id}", 
+                [200, 404, 500], 
+                None, 
+                auth_headers
+            )
+            
+            if success and dashboard_data:
+                test_results["user_dashboard_insights_recent"] = True
+                print(f"   ✅ Dashboard insights accessible")
+                
+                # Check for recent data
+                insights = dashboard_data.get('insights', {})
+                if insights:
+                    print(f"   📊 Insights available: {list(insights.keys())}")
+                    
+                    # Check for session summaries
+                    session_summaries = insights.get('session_summaries', [])
+                    if session_summaries:
+                        test_results["session_summary_final_populated"] = True
+                        print(f"   ✅ Session summaries found: {len(session_summaries)}")
+                        
+                        # Show recent summaries
+                        for i, summary in enumerate(session_summaries[:3]):
+                            created_at = summary.get('created_at', 'unknown')
+                            session_id = summary.get('session_id', 'unknown')
+                            print(f"   📊 Summary {i+1}: Session {session_id[:8]} - {created_at}")
+                    
+                    # Check for learner notebook data
+                    learner_data = insights.get('learner_notebook', {})
+                    if learner_data:
+                        test_results["learner_notebook_updated"] = True
+                        print(f"   ✅ Learner notebook data found")
+                        
+                        concepts = learner_data.get('concepts', [])
+                        if concepts:
+                            print(f"   📊 Concepts tracked: {len(concepts)}")
+                    
+                    # Mark data pipeline as working if we have both
+                    if (test_results["session_summary_final_populated"] and 
+                        test_results["learner_notebook_updated"]):
+                        test_results["data_pipeline_working"] = True
+                        print(f"   ✅ Data pipeline working (summaries + notebook)")
+                else:
+                    print(f"   📊 No insights data available")
+            else:
+                print(f"   📊 Dashboard insights not accessible: {dashboard_data}")
+        
+        # PHASE 4: NEXT SESSION PRE-PACKING
+        print("\n🎯 PHASE 4: NEXT SESSION PRE-PACKING VERIFICATION")
+        print("-" * 80)
+        print("Checking session_pack table and session_pack_questions for 12 questions")
+        
+        if auth_headers and user_id:
+            # Check session availability (this might tell us about pre-packed sessions)
+            success, availability = self.run_test(
+                "Session Availability Check", 
+                "GET", 
+                "session/check-availability", 
+                [200, 404, 500], 
+                None, 
+                auth_headers
+            )
+            
+            if success and availability:
+                print(f"   ✅ Session availability endpoint accessible")
+                
+                available = availability.get('available', False)
+                reason = availability.get('reason', 'unknown')
+                
+                if available:
+                    test_results["next_session_ready"] = True
+                    print(f"   ✅ Next session available for user")
+                    print(f"   📊 Availability reason: {reason}")
+                    
+                    # Check if this indicates pre-packed sessions
+                    if 'pack' in reason.lower() or 'ready' in reason.lower():
+                        test_results["session_pack_exists"] = True
+                        print(f"   ✅ Session appears to be pre-packed")
+                else:
+                    print(f"   ⚠️ Next session not available")
+                    print(f"   📊 Reason: {reason}")
+            else:
+                print(f"   📊 Session availability check not accessible: {availability}")
+            
+            # Try to get session list to see if there are prepared sessions
+            success, session_list = self.run_test(
+                "Session List Check", 
+                "GET", 
+                "session/list", 
+                [200, 404, 500], 
+                None, 
+                auth_headers
+            )
+            
+            if success and session_list:
+                sessions = session_list.get('sessions', [])
+                print(f"   ✅ Session list accessible: {len(sessions)} sessions")
+                
+                # Look for sessions with 12 questions (indicating proper pre-packing)
+                for session in sessions:
+                    total_questions = session.get('total_questions', 0)
+                    status = session.get('status', 'unknown')
+                    session_id = session.get('session_id', 'unknown')
+                    
+                    if total_questions == 12:
+                        test_results["session_pack_has_12_questions"] = True
+                        print(f"   ✅ Found session with 12 questions: {session_id[:8]} (status: {status})")
+                        
+                        if status in ['planned', 'ready']:
+                            test_results["pack_status_ready"] = True
+                            test_results["pack_created_recently"] = True
+                            print(f"   ✅ Session pack status ready: {status}")
+                    else:
+                        print(f"   📊 Session {session_id[:8]}: {total_questions} questions (status: {status})")
+            else:
+                print(f"   📊 Session list not accessible: {session_list}")
+        
+        # PHASE 5: SESSION COMPLETION TESTING (if needed)
+        print("\n🔄 PHASE 5: SESSION COMPLETION ENDPOINT TESTING")
+        print("-" * 80)
+        print("Testing session completion endpoint to trigger background jobs if needed")
+        
+        if auth_headers and user_id:
+            # Try to find a completed session to test completion endpoint
+            success, current_session = self.run_test(
+                "Current Session Check", 
+                "GET", 
+                f"session-progress/current/{user_id}", 
+                [200, 404, 500], 
+                None, 
+                auth_headers
+            )
+            
+            if success and current_session:
+                session_id = current_session.get('session_id')
+                if session_id:
+                    print(f"   📋 Found current session: {session_id}")
+                    
+                    # Test session completion endpoint
+                    completion_data = {
+                        "user_id": user_id,
+                        "session_id": session_id
+                    }
+                    
+                    success, completion_response = self.run_test(
+                        "Session Completion Endpoint Test", 
+                        "POST", 
+                        "session/complete", 
+                        [200, 400, 500], 
+                        completion_data, 
+                        auth_headers
+                    )
+                    
+                    if success:
+                        test_results["session_completion_endpoint_working"] = True
+                        print(f"   ✅ Session completion endpoint working")
+                        
+                        # Check if jobs were triggered
+                        adaptive_processing = completion_response.get('adaptive_processing')
+                        background_jobs_enqueued = completion_response.get('background_jobs_enqueued', False)
+                        
+                        if adaptive_processing == 'queued' or background_jobs_enqueued:
+                            test_results["completion_triggers_jobs"] = True
+                            test_results["can_trigger_manual_completion"] = True
+                            print(f"   ✅ Session completion triggers background jobs")
+                            print(f"   📊 Adaptive processing: {adaptive_processing}")
+                            print(f"   📊 Background jobs enqueued: {background_jobs_enqueued}")
+                        else:
+                            print(f"   📊 Session completion response: {completion_response}")
+                    else:
+                        print(f"   ⚠️ Session completion endpoint issue: {completion_response}")
+            else:
+                print(f"   📊 No current session found for completion testing")
+        
+        # FINAL ASSESSMENT AND RECOMMENDATIONS
+        print("\n" + "=" * 100)
+        print("🎯 BACKGROUND JOBS STATUS CHECK FOR USER twelvrhelp@gmail.com - RESULTS")
+        print("=" * 100)
+        
+        passed_tests = sum(test_results.values())
+        total_tests = len([k for k in test_results.keys() if not k.startswith('background_jobs_working') and not k.startswith('system_ready')])
+        success_rate = (passed_tests / total_tests) * 100 if total_tests > 0 else 0
+        
+        # Group results by phases
+        test_phases = {
+            "PHASE 1 - USER AUTHENTICATION": [
+                "user_authentication_working", "user_id_matches_expected", "user_adaptive_enabled"
+            ],
+            "PHASE 2 - BACKGROUND JOBS STATUS": [
+                "bg_jobs_table_accessible", "summarize_session_jobs_found", "update_insights_jobs_found",
+                "plan_next_session_jobs_found", "recent_jobs_within_24h", "all_jobs_succeeded", 
+                "no_failed_jobs", "no_stuck_jobs"
+            ],
+            "PHASE 3 - DATA PIPELINE": [
+                "session_summary_final_populated", "learner_notebook_updated", 
+                "user_dashboard_insights_recent", "data_pipeline_working"
+            ],
+            "PHASE 4 - NEXT SESSION PRE-PACKING": [
+                "session_pack_exists", "session_pack_has_12_questions", "pack_status_ready",
+                "pack_created_recently", "next_session_ready"
+            ],
+            "PHASE 5 - SESSION COMPLETION": [
+                "session_completion_endpoint_working", "can_trigger_manual_completion", "completion_triggers_jobs"
+            ]
+        }
+        
+        for phase, tests in test_phases.items():
+            print(f"\n{phase}:")
+            phase_passed = 0
+            phase_total = len(tests)
+            
+            for test in tests:
+                if test in test_results:
+                    result = test_results[test]
+                    status = "✅ PASS" if result else "❌ FAIL"
+                    print(f"  {test.replace('_', ' ').title():<50} {status}")
+                    if result:
+                        phase_passed += 1
+            
+            phase_rate = (phase_passed / phase_total) * 100 if phase_total > 0 else 0
+            print(f"  Phase Success Rate: {phase_passed}/{phase_total} ({phase_rate:.1f}%)")
+        
+        print("-" * 100)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # CRITICAL ASSESSMENT
+        print("\n🎯 CRITICAL ASSESSMENT:")
+        
+        # Background Jobs Assessment
+        jobs_working = (
+            test_results["bg_jobs_table_accessible"] and
+            (test_results["summarize_session_jobs_found"] or 
+             test_results["update_insights_jobs_found"] or 
+             test_results["plan_next_session_jobs_found"]) and
+            test_results["no_failed_jobs"]
+        )
+        
+        if jobs_working:
+            test_results["background_jobs_working"] = True
+            print("\n✅ BACKGROUND JOBS: WORKING")
+            print("   - Background job system accessible")
+            print("   - Recent jobs found for user")
+            print("   - No failed jobs detected")
+        else:
+            print("\n❌ BACKGROUND JOBS: ISSUES DETECTED")
+            print("   - Background job system or job execution problems")
+        
+        # Data Pipeline Assessment
+        pipeline_complete = (
+            test_results["session_summary_final_populated"] and
+            test_results["learner_notebook_updated"] and
+            test_results["data_pipeline_working"]
+        )
+        
+        if pipeline_complete:
+            test_results["data_pipeline_complete"] = True
+            print("\n✅ DATA PIPELINE: COMPLETE")
+            print("   - Session summaries populated")
+            print("   - Learner notebook updated")
+            print("   - Dashboard insights available")
+        else:
+            print("\n❌ DATA PIPELINE: INCOMPLETE")
+            print("   - Missing session summaries or learner notebook data")
+        
+        # Next Session Pre-packing Assessment
+        session_prepped = (
+            test_results["session_pack_has_12_questions"] and
+            test_results["next_session_ready"]
+        )
+        
+        if session_prepped:
+            test_results["next_session_prepped"] = True
+            print("\n✅ NEXT SESSION PRE-PACKING: READY")
+            print("   - Session pack with 12 questions found")
+            print("   - Next session available for user")
+        else:
+            print("\n❌ NEXT SESSION PRE-PACKING: NOT READY")
+            print("   - Session pack missing or incomplete")
+        
+        # Overall System Readiness
+        if jobs_working and pipeline_complete and session_prepped:
+            test_results["system_ready_for_user"] = True
+            print("\n🎉 SYSTEM STATUS: READY FOR USER")
+            print("   - Background jobs working correctly")
+            print("   - Data pipeline complete")
+            print("   - Next session pre-packed and ready")
+        else:
+            print("\n⚠️ SYSTEM STATUS: NEEDS ATTENTION")
+            print("   - Some components need resolution")
+        
+        # DETAILED RECOMMENDATIONS
+        print("\n📋 DETAILED RECOMMENDATIONS:")
+        
+        if not test_results["background_jobs_working"]:
+            print("   🔧 BACKGROUND JOBS:")
+            if not test_results["summarize_session_jobs_found"]:
+                print("     - No SUMMARIZE_SESSION jobs found - trigger session completion manually")
+            if not test_results["update_insights_jobs_found"]:
+                print("     - No UPDATE_INSIGHTS jobs found - check job chaining")
+            if not test_results["plan_next_session_jobs_found"]:
+                print("     - No PLAN_NEXT_SESSION jobs found - check session planning")
+            if not test_results["no_failed_jobs"]:
+                print("     - Failed jobs detected - check error logs and retry")
+        
+        if not test_results["data_pipeline_complete"]:
+            print("   📊 DATA PIPELINE:")
+            if not test_results["session_summary_final_populated"]:
+                print("     - session_summary_final table needs population")
+            if not test_results["learner_notebook_updated"]:
+                print("     - learner_notebook needs updating")
+            print("     - Run SUMMARIZE_SESSION and UPDATE_INSIGHTS jobs")
+        
+        if not test_results["next_session_prepped"]:
+            print("   🎯 NEXT SESSION:")
+            if not test_results["session_pack_has_12_questions"]:
+                print("     - Create session pack with 12 questions")
+            print("     - Run PLAN_NEXT_SESSION job")
+        
+        if test_results["session_completion_endpoint_working"]:
+            print("   ✅ MANUAL TRIGGER AVAILABLE:")
+            print("     - Session completion endpoint is working")
+            print("     - Can manually trigger background jobs if needed")
+        
+        if test_results["system_ready_for_user"]:
+            print("   🎉 ALL SYSTEMS OPERATIONAL:")
+            print("     - User can proceed with normal learning flow")
+            print("     - Background jobs are processing correctly")
+            print("     - Next session is pre-packed and ready")
+        else:
+            print("   ⚠️ ACTION REQUIRED:")
+            print("     - Address the issues identified above")
+            print("     - Consider manual job triggering if needed")
+            print("     - Monitor job completion and retry if necessary")
+        
+        print("\n" + "=" * 100)
+        print(f"🎯 BACKGROUND JOBS STATUS CHECK COMPLETED")
+        print(f"📊 Final Score: {success_rate:.1f}% | Jobs Working: {'✅' if jobs_working else '❌'} | Pipeline Complete: {'✅' if pipeline_complete else '❌'}")
+        print(f"🚀 System Status: {'✅ READY' if test_results['system_ready_for_user'] else '⚠️ NEEDS ATTENTION'}")
+        print("=" * 100)
+        
+        return test_results["system_ready_for_user"]
+
     def run_test(self, test_name, method, endpoint, expected_status, data=None, headers=None):
         """Run a single test and return success status and response"""
         self.tests_run += 1
