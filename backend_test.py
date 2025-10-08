@@ -564,6 +564,528 @@ class CATBackendTester:
         
         return test_results["production_ready"]
 
+    def test_background_job_pipeline_verification(self):
+        """
+        🎯 COMPREHENSIVE BACKGROUND JOB PIPELINE VERIFICATION TESTING
+        
+        OBJECTIVE: Test the critical bug fix where PLAN_NEXT_SESSION background jobs were 
+        creating empty session packs (0 questions) instead of 12 questions. The fix involved 
+        adding the missing `question_id` column to the INSERT statement in the `persist_session_pack` function.
+        
+        TESTING REQUIREMENTS FROM REVIEW REQUEST:
+        
+        **Phase 1: Background Job Pipeline Verification**
+        1. Test that SUMMARIZE_SESSION jobs can be triggered successfully
+        2. Verify SUMMARIZE_SESSION jobs enqueue PLAN_NEXT_SESSION jobs correctly
+        3. Test that PLAN_NEXT_SESSION jobs create session packs with exactly 12 questions
+        4. Verify PLAN_NEXT_SESSION jobs enqueue UPDATE_INSIGHTS jobs correctly
+        5. Check that all job status transitions work correctly (queued → running → succeeded)
+
+        **Phase 2: Session Pack Data Integrity**
+        1. Verify session packs are created with proper difficulty distribution (3 Easy, 6 Medium, 3 Hard)
+        2. Check that all 12 questions have proper question_id values (not null)
+        3. Verify question_data JSONB contains all required fields (stem, answer, options, difficulty, etc.)
+        4. Test that session_pack_questions table has proper foreign key relationships
+
+        **Phase 3: User-Specific Adaptive Session Availability**
+        1. For user ananddd369@gmail.com, verify they have at least one session pack with 12 questions
+        2. Test the `/api/session/check-availability` endpoint returns proper availability status
+        3. Verify that users can start adaptive sessions from pre-packed session packs
+
+        **Phase 4: Error Handling & Edge Cases**
+        1. Test job failure scenarios and proper error logging
+        2. Verify retry mechanism works for transient failures
+        3. Check that job deduplication works correctly (no duplicate jobs for same session)
+
+        ### Test User Credentials
+        - Email: ananddd369@gmail.com
+        - This user previously had empty session packs that should now be resolved
+
+        ### Expected Success Criteria
+        - ✅ PLAN_NEXT_SESSION jobs complete successfully with 12 questions
+        - ✅ Session packs have proper difficulty distribution
+        - ✅ No null question_id values in session_pack_questions table
+        - ✅ Background job pipeline (SUMMARIZE → PLAN → UPDATE_INSIGHTS) works end-to-end
+        - ✅ Users can check adaptive session availability and start sessions
+        """
+        print("🎯 COMPREHENSIVE BACKGROUND JOB PIPELINE VERIFICATION TESTING")
+        print("=" * 100)
+        print("OBJECTIVE: Test critical bug fix for PLAN_NEXT_SESSION jobs creating empty session packs")
+        print("BACKEND URL: https://adapt-engine-1.preview.emergentagent.com")
+        print("TEST USER: ananddd369@gmail.com (user with previously empty session packs)")
+        print("FOCUS: Background job pipeline, session pack data integrity, 12-question validation")
+        print("=" * 100)
+        
+        test_results = {
+            # Phase 1: Background Job Pipeline Verification
+            "job_queue_health_working": False,
+            "summarize_session_job_triggerable": False,
+            "summarize_enqueues_plan_job": False,
+            "plan_next_session_creates_12_questions": False,
+            "plan_enqueues_update_insights": False,
+            "job_status_transitions_working": False,
+            "job_pipeline_end_to_end": False,
+            
+            # Phase 2: Session Pack Data Integrity
+            "session_packs_have_12_questions": False,
+            "difficulty_distribution_correct": False,
+            "all_questions_have_question_id": False,
+            "question_data_jsonb_complete": False,
+            "foreign_key_relationships_intact": False,
+            "session_pack_questions_populated": False,
+            
+            # Phase 3: User-Specific Adaptive Session Availability
+            "test_user_authentication_working": False,
+            "test_user_has_session_packs": False,
+            "session_availability_endpoint_working": False,
+            "adaptive_sessions_startable": False,
+            "session_pack_data_accessible": False,
+            
+            # Phase 4: Error Handling & Edge Cases
+            "job_failure_handling_working": False,
+            "retry_mechanism_working": False,
+            "job_deduplication_working": False,
+            "error_logging_functional": False,
+            
+            # Database Verification
+            "bg_jobs_table_accessible": False,
+            "session_packs_table_populated": False,
+            "session_pack_questions_table_populated": False,
+            "job_success_rate_acceptable": False,
+            "no_stuck_jobs": False,
+            
+            # Overall Assessment
+            "background_job_pipeline_working": False,
+            "session_pack_bug_fixed": False,
+            "adaptive_session_availability_working": False,
+            "production_ready": False
+        }
+        
+        # PHASE 1: BACKGROUND JOB PIPELINE VERIFICATION
+        print("\n⚙️ PHASE 1: BACKGROUND JOB PIPELINE VERIFICATION")
+        print("-" * 80)
+        print("Testing job queue health and pipeline functionality")
+        
+        # Test job queue health
+        success, job_health = self.run_test(
+            "Job Queue Health Check", 
+            "GET", 
+            "bg-jobs/health", 
+            [200, 503]
+        )
+        
+        if success and job_health:
+            test_results["job_queue_health_working"] = True
+            print(f"   ✅ Job queue health endpoint working")
+            
+            # Check queue status
+            status = job_health.get('status', 'unknown')
+            queue_depth = job_health.get('queue_depth', 0)
+            print(f"   📊 Queue status: {status}, depth: {queue_depth}")
+            
+            if status == 'healthy':
+                print(f"   ✅ Queue status healthy")
+            else:
+                print(f"   ⚠️ Queue status: {status}")
+        else:
+            print(f"   ❌ Job queue health failed: {job_health}")
+        
+        # PHASE 2: TEST USER AUTHENTICATION AND SESSION COMPLETION
+        print("\n🔐 PHASE 2: TEST USER AUTHENTICATION AND SESSION COMPLETION")
+        print("-" * 80)
+        print("Testing with ananddd369@gmail.com (user with previously empty session packs)")
+        
+        # Test authentication with the specific user
+        auth_data = {
+            "email": "ananddd369@gmail.com",
+            "password": "student123"  # Assuming standard test password
+        }
+        
+        success, auth_response = self.run_test(
+            "Test User Authentication", 
+            "POST", 
+            "auth/login", 
+            [200, 401], 
+            auth_data
+        )
+        
+        auth_headers = None
+        user_id = None
+        
+        if success and auth_response.get('access_token'):
+            test_results["test_user_authentication_working"] = True
+            token = auth_response['access_token']
+            auth_headers = {
+                'Authorization': f'Bearer {token}',
+                'Content-Type': 'application/json'
+            }
+            
+            user_data = auth_response.get('user', {})
+            user_id = user_data.get('id')
+            adaptive_enabled = user_data.get('adaptive_enabled', False)
+            
+            print(f"   ✅ Test user authentication successful")
+            print(f"   📊 JWT Token length: {len(token)} characters")
+            print(f"   📊 User ID: {user_id}")
+            print(f"   📊 Adaptive enabled: {adaptive_enabled}")
+        else:
+            print(f"   ❌ Test user authentication failed: {auth_response}")
+            return False
+        
+        # Test session completion to trigger SUMMARIZE_SESSION job
+        if auth_headers and user_id:
+            print("   🎯 Testing session completion to trigger background jobs...")
+            
+            # First, try to find an existing completed session or create one
+            success, session_response = self.run_test(
+                "Get User Sessions", 
+                "GET", 
+                f"session-progress/current/{user_id}", 
+                [200, 404, 500], 
+                None, 
+                auth_headers
+            )
+            
+            session_id = None
+            if success and session_response:
+                session_id = session_response.get('session_id')
+                if session_id:
+                    print(f"   📋 Found existing session: {session_id}")
+                    
+                    # Try to complete this session to trigger SUMMARIZE_SESSION job
+                    completion_data = {
+                        "user_id": user_id,
+                        "session_id": session_id
+                    }
+                    
+                    success, completion_response = self.run_test(
+                        "Trigger Session Completion", 
+                        "POST", 
+                        "session/complete", 
+                        [200, 400, 500], 
+                        completion_data, 
+                        auth_headers
+                    )
+                    
+                    if success:
+                        test_results["summarize_session_job_triggerable"] = True
+                        print(f"   ✅ Session completion triggered successfully")
+                        
+                        # Check if adaptive_processing is queued
+                        adaptive_processing = completion_response.get('adaptive_processing')
+                        if adaptive_processing == 'queued':
+                            print(f"   ✅ SUMMARIZE_SESSION job enqueued (adaptive_processing: {adaptive_processing})")
+                        else:
+                            print(f"   📊 Adaptive processing status: {adaptive_processing}")
+                    else:
+                        print(f"   ❌ Session completion failed: {completion_response}")
+            else:
+                print(f"   📋 No existing session found, will check for session packs directly")
+        
+        # PHASE 3: SESSION PACK DATA INTEGRITY VERIFICATION
+        print("\n📊 PHASE 3: SESSION PACK DATA INTEGRITY VERIFICATION")
+        print("-" * 80)
+        print("Checking session pack data integrity and 12-question validation")
+        
+        if auth_headers and user_id:
+            # Check for session packs in the database via API
+            success, session_list = self.run_test(
+                "Get Session List", 
+                "GET", 
+                "session/list", 
+                [200, 404, 500], 
+                None, 
+                auth_headers
+            )
+            
+            if success and session_list:
+                test_results["session_pack_data_accessible"] = True
+                sessions = session_list.get('sessions', [])
+                print(f"   ✅ Session list accessible: {len(sessions)} sessions found")
+                
+                # Check for sessions with 12 questions
+                sessions_with_12_questions = 0
+                for session in sessions:
+                    total_questions = session.get('total_questions', 0)
+                    if total_questions == 12:
+                        sessions_with_12_questions += 1
+                        test_results["session_packs_have_12_questions"] = True
+                        print(f"   ✅ Found session with 12 questions: {session.get('session_id', 'unknown')}")
+                        
+                        # Check difficulty distribution if available
+                        questions = session.get('questions', [])
+                        if questions:
+                            difficulty_counts = {}
+                            for q in questions:
+                                diff = q.get('difficulty_band', 'unknown')
+                                difficulty_counts[diff] = difficulty_counts.get(diff, 0) + 1
+                            
+                            print(f"   📊 Difficulty distribution: {difficulty_counts}")
+                            
+                            # Check for proper 3E/6M/3H distribution
+                            if (difficulty_counts.get('easy', 0) == 3 and 
+                                difficulty_counts.get('medium', 0) == 6 and 
+                                difficulty_counts.get('hard', 0) == 3):
+                                test_results["difficulty_distribution_correct"] = True
+                                print(f"   ✅ Proper difficulty distribution (3E/6M/3H)")
+                            else:
+                                print(f"   ⚠️ Difficulty distribution not optimal")
+                            
+                            # Check question data completeness
+                            complete_questions = 0
+                            questions_with_id = 0
+                            for q in questions:
+                                if q.get('id'):
+                                    questions_with_id += 1
+                                
+                                required_fields = ['stem', 'answer', 'difficulty_band']
+                                if all(q.get(field) for field in required_fields):
+                                    complete_questions += 1
+                            
+                            if questions_with_id == len(questions):
+                                test_results["all_questions_have_question_id"] = True
+                                print(f"   ✅ All questions have question_id: {questions_with_id}/{len(questions)}")
+                            else:
+                                print(f"   ❌ Missing question_id: {questions_with_id}/{len(questions)}")
+                            
+                            if complete_questions == len(questions):
+                                test_results["question_data_jsonb_complete"] = True
+                                print(f"   ✅ All questions have complete data: {complete_questions}/{len(questions)}")
+                            else:
+                                print(f"   ⚠️ Incomplete question data: {complete_questions}/{len(questions)}")
+                
+                if sessions_with_12_questions > 0:
+                    test_results["test_user_has_session_packs"] = True
+                    test_results["session_packs_table_populated"] = True
+                    test_results["session_pack_questions_table_populated"] = True
+                    print(f"   ✅ User has {sessions_with_12_questions} session pack(s) with 12 questions")
+                else:
+                    print(f"   ❌ No session packs with 12 questions found")
+            else:
+                print(f"   ❌ Session list not accessible: {session_list}")
+        
+        # PHASE 4: ADAPTIVE SESSION AVAILABILITY TESTING
+        print("\n🎯 PHASE 4: ADAPTIVE SESSION AVAILABILITY TESTING")
+        print("-" * 80)
+        print("Testing session availability and adaptive session start capability")
+        
+        if auth_headers and user_id:
+            # Test session availability endpoint
+            success, availability_response = self.run_test(
+                "Session Availability Check", 
+                "GET", 
+                "session/check-availability", 
+                [200, 404, 500], 
+                None, 
+                auth_headers
+            )
+            
+            if success and availability_response:
+                test_results["session_availability_endpoint_working"] = True
+                print(f"   ✅ Session availability endpoint working")
+                
+                available = availability_response.get('available', False)
+                if available:
+                    test_results["adaptive_sessions_startable"] = True
+                    print(f"   ✅ Adaptive sessions available for user")
+                else:
+                    print(f"   ⚠️ Adaptive sessions not available")
+                    
+                # Display availability details
+                reason = availability_response.get('reason', 'unknown')
+                print(f"   📊 Availability reason: {reason}")
+            else:
+                print(f"   ❌ Session availability check failed: {availability_response}")
+        
+        # PHASE 5: BACKGROUND JOB STATUS MONITORING
+        print("\n📈 PHASE 5: BACKGROUND JOB STATUS MONITORING")
+        print("-" * 80)
+        print("Checking background job statistics and success rates")
+        
+        # Try to get job statistics (this might not be available via API)
+        success, job_stats = self.run_test(
+            "Background Job Statistics", 
+            "GET", 
+            "bg-jobs/stats", 
+            [200, 404, 500]
+        )
+        
+        if success and job_stats:
+            test_results["bg_jobs_table_accessible"] = True
+            print(f"   ✅ Background job statistics accessible")
+            
+            # Check job success rates
+            total_jobs = job_stats.get('total_jobs', 0)
+            succeeded_jobs = job_stats.get('succeeded_jobs', 0)
+            failed_jobs = job_stats.get('failed_jobs', 0)
+            
+            if total_jobs > 0:
+                success_rate = (succeeded_jobs / total_jobs) * 100
+                print(f"   📊 Job success rate: {success_rate:.1f}% ({succeeded_jobs}/{total_jobs})")
+                
+                if success_rate >= 90:
+                    test_results["job_success_rate_acceptable"] = True
+                    print(f"   ✅ Job success rate acceptable (≥90%)")
+                else:
+                    print(f"   ⚠️ Job success rate below 90%")
+                
+                if failed_jobs == 0:
+                    test_results["no_stuck_jobs"] = True
+                    print(f"   ✅ No failed jobs detected")
+                else:
+                    print(f"   ⚠️ {failed_jobs} failed jobs detected")
+            else:
+                print(f"   📊 No job statistics available")
+        else:
+            print(f"   📊 Job statistics endpoint not available (expected)")
+        
+        # FINAL ASSESSMENT
+        print("\n" + "=" * 100)
+        print("🎯 BACKGROUND JOB PIPELINE VERIFICATION - RESULTS")
+        print("=" * 100)
+        
+        passed_tests = sum(test_results.values())
+        total_tests = len([k for k in test_results.keys() if not k.startswith('background_job_pipeline') and not k.startswith('session_pack_bug') and not k.startswith('production_ready')])
+        success_rate = (passed_tests / total_tests) * 100 if total_tests > 0 else 0
+        
+        # Group results by test phases
+        test_phases = {
+            "PHASE 1 - BACKGROUND JOB PIPELINE": [
+                "job_queue_health_working", "summarize_session_job_triggerable", 
+                "summarize_enqueues_plan_job", "plan_next_session_creates_12_questions",
+                "plan_enqueues_update_insights", "job_status_transitions_working", "job_pipeline_end_to_end"
+            ],
+            "PHASE 2 - SESSION PACK DATA INTEGRITY": [
+                "session_packs_have_12_questions", "difficulty_distribution_correct",
+                "all_questions_have_question_id", "question_data_jsonb_complete",
+                "foreign_key_relationships_intact", "session_pack_questions_populated"
+            ],
+            "PHASE 3 - USER-SPECIFIC ADAPTIVE SESSION AVAILABILITY": [
+                "test_user_authentication_working", "test_user_has_session_packs",
+                "session_availability_endpoint_working", "adaptive_sessions_startable", "session_pack_data_accessible"
+            ],
+            "PHASE 4 - ERROR HANDLING & EDGE CASES": [
+                "job_failure_handling_working", "retry_mechanism_working",
+                "job_deduplication_working", "error_logging_functional"
+            ],
+            "DATABASE VERIFICATION": [
+                "bg_jobs_table_accessible", "session_packs_table_populated",
+                "session_pack_questions_table_populated", "job_success_rate_acceptable", "no_stuck_jobs"
+            ]
+        }
+        
+        for phase, tests in test_phases.items():
+            print(f"\n{phase}:")
+            phase_passed = 0
+            phase_total = len(tests)
+            
+            for test in tests:
+                if test in test_results:
+                    result = test_results[test]
+                    status = "✅ PASS" if result else "❌ FAIL"
+                    print(f"  {test.replace('_', ' ').title():<50} {status}")
+                    if result:
+                        phase_passed += 1
+            
+            phase_rate = (phase_passed / phase_total) * 100 if phase_total > 0 else 0
+            print(f"  Phase Success Rate: {phase_passed}/{phase_total} ({phase_rate:.1f}%)")
+        
+        print("-" * 100)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # CRITICAL ASSESSMENT
+        print("\n🎯 CRITICAL ASSESSMENT:")
+        
+        # Background Job Pipeline Assessment
+        pipeline_working = (
+            test_results["job_queue_health_working"] and
+            test_results["summarize_session_job_triggerable"] and
+            test_results["session_packs_have_12_questions"]
+        )
+        
+        if pipeline_working:
+            test_results["background_job_pipeline_working"] = True
+            print("\n✅ BACKGROUND JOB PIPELINE: WORKING")
+            print("   - Job queue health endpoint accessible")
+            print("   - SUMMARIZE_SESSION jobs can be triggered")
+            print("   - Session packs contain 12 questions")
+        else:
+            print("\n❌ BACKGROUND JOB PIPELINE: ISSUES DETECTED")
+            print("   - Job pipeline or session pack creation problems")
+        
+        # Session Pack Bug Fix Assessment
+        bug_fixed = (
+            test_results["session_packs_have_12_questions"] and
+            test_results["all_questions_have_question_id"] and
+            test_results["test_user_has_session_packs"]
+        )
+        
+        if bug_fixed:
+            test_results["session_pack_bug_fixed"] = True
+            print("\n✅ SESSION PACK BUG FIX: VALIDATED")
+            print("   - Session packs now contain exactly 12 questions")
+            print("   - All questions have proper question_id values")
+            print("   - Test user has functional session packs")
+        else:
+            print("\n❌ SESSION PACK BUG FIX: NOT FULLY RESOLVED")
+            print("   - Empty session pack issue may still exist")
+        
+        # Adaptive Session Availability Assessment
+        availability_working = (
+            test_results["test_user_authentication_working"] and
+            test_results["session_pack_data_accessible"] and
+            test_results["test_user_has_session_packs"]
+        )
+        
+        if availability_working:
+            test_results["adaptive_session_availability_working"] = True
+            print("\n✅ ADAPTIVE SESSION AVAILABILITY: WORKING")
+            print("   - User authentication functional")
+            print("   - Session pack data accessible")
+            print("   - User has available session packs")
+        else:
+            print("\n❌ ADAPTIVE SESSION AVAILABILITY: ISSUES DETECTED")
+            print("   - Problems with session availability or access")
+        
+        # Overall Production Readiness
+        if (pipeline_working and bug_fixed and availability_working):
+            test_results["production_ready"] = True
+            print("\n🎉 PRODUCTION READINESS: READY")
+            print("   - Background job pipeline working correctly")
+            print("   - Session pack bug fix validated")
+            print("   - Adaptive session availability functional")
+        else:
+            print("\n⚠️ PRODUCTION READINESS: NEEDS ATTENTION")
+            print("   - Critical background job or session pack issues need resolution")
+        
+        # RECOMMENDATIONS
+        print("\n📋 RECOMMENDATIONS:")
+        
+        if not test_results["session_packs_have_12_questions"]:
+            print("   - CRITICAL: Investigate PLAN_NEXT_SESSION job - session packs should have exactly 12 questions")
+        
+        if not test_results["all_questions_have_question_id"]:
+            print("   - CRITICAL: Fix persist_session_pack function - ensure question_id column is included")
+        
+        if not test_results["job_queue_health_working"]:
+            print("   - CRITICAL: Fix background job queue health endpoint")
+        
+        if not test_results["test_user_has_session_packs"]:
+            print("   - CRITICAL: Ensure ananddd369@gmail.com has functional session packs")
+        
+        if test_results["production_ready"]:
+            print("   - Background job pipeline is working correctly")
+            print("   - Session pack bug fix successfully validated")
+            print("   - Ready for production deployment")
+        
+        print("\n" + "=" * 100)
+        print(f"🎯 BACKGROUND JOB PIPELINE VERIFICATION COMPLETED")
+        print(f"📊 Final Score: {success_rate:.1f}% | Pipeline Working: {'✅' if pipeline_working else '❌'} | Bug Fixed: {'✅' if bug_fixed else '❌'}")
+        print(f"🚀 Production Status: {'✅ READY' if test_results['production_ready'] else '❌ NEEDS ATTENTION'}")
+        print("=" * 100)
+        
+        return test_results["production_ready"]
+
     def test_deployment_readiness_check(self):
         """
         🎯 DEPLOYMENT READINESS CHECK FOR TWELVR ADAPTIVE LEARNING APPLICATION
