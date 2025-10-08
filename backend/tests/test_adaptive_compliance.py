@@ -13,7 +13,10 @@ class TestAdaptiveSystemCompliance:
     
     def setup_method(self):
         """Setup test environment"""
-        self.base_url = "http://localhost:8001/api"
+        import os
+        # Use environment variable with fallback to localhost for local testing
+        base_url = os.environ.get('TEST_API_URL', 'http://localhost:8001')
+        self.base_url = f"{base_url}/api"
         self.test_user = "test_user_adaptive"
         self.auth_headers = {
             "Authorization": "Bearer test_jwt_token",  # Replace with actual token
