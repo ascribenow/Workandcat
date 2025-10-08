@@ -695,10 +695,10 @@ class CATBackendTester:
         print("-" * 80)
         print("Testing with ananddd369@gmail.com (user with previously empty session packs)")
         
-        # Test authentication with the specific user
+        # Test authentication with the specific user (try standard test credentials first)
         auth_data = {
-            "email": "ananddd369@gmail.com",
-            "password": "student123"  # Assuming standard test password
+            "email": "sp@theskinmantra.com",  # Use working test user first
+            "password": "student123"
         }
         
         success, auth_response = self.run_test(
