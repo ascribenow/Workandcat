@@ -686,6 +686,15 @@ async def generate_personalized_session_pack(user_id: str, learning_data: Dict[s
                     debt_clause = f"OR ({' OR '.join(debt_conditions)})"
             
             # Query questions with priorities
+            # Build CASE statement for weak concepts
+            weak_case = ""
+            if weak_concepts:
+                concept_patterns = ','.join([f"'%{c}%'" for c in weak_concepts[:10]])
+                weak_case = f"WHEN q.core_concepts::text ILIKE ANY(ARRAY[{concept_patterns}]) THEN 2"
+            
+            # Build WHEN clause for debt
+            debt_when = debt_clause.replace('OR', 'WHEN') if debt_clause else ''
+            
             query = text(f"""
                 SELECT 
                     q.id, q.stem, q.answer, q.explanation,
@@ -695,8 +704,8 @@ async def generate_personalized_session_pack(user_id: str, learning_data: Dict[s
                     q.snap_read, q.solution_approach, q.detailed_solution, q.principle_to_remember,
                     CASE
                         WHEN q.pyq_frequency_score >= 3 THEN 1
-                        WHEN q.core_concepts::text ILIKE ANY(ARRAY[{','.join([f"'%{c}%'" for c in weak_concepts[:10]])}]) THEN 2
-                        {debt_clause.replace('OR', 'WHEN') if debt_clause else ''}
+                        {weak_case}
+                        {debt_when}
                         ELSE 4
                     END as priority
                 FROM questions q
