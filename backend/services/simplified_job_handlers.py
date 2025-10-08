@@ -633,23 +633,157 @@ async def gather_user_learning_data(user_id: str) -> Dict[str, Any]:
 async def generate_personalized_session_pack(user_id: str, learning_data: Dict[str, Any]) -> Dict[str, Any]:
     """Generate personalized 3E/6M/3H session pack using learning data"""
     
-    # For now, create a simplified session pack structure
-    # In full implementation, this would use the existing planner service
-    # with readiness-based question selection and PYQ constraints
-    
-    session_pack = {
-        "user_id": user_id,
-        "pack_type": "personalized",
-        "difficulty_distribution": {"easy": 3, "medium": 6, "hard": 3},
-        "questions": [],  # Would be populated by planner
-        "planning_strategy": "adaptive",
-        "weak_concepts_targeted": len([nb for nb in learning_data.get("learner_notebook", []) if nb["readiness"] == "Weak"]),
-        "high_debt_pairs_addressed": len([cd for cd in learning_data.get("coverage_debt", []) if cd["debt_score"] > 0.7])
-    }
-    
-    logger.info(f"📋 Generated session pack: {session_pack['weak_concepts_targeted']} weak concepts, {session_pack['high_debt_pairs_addressed']} high debt pairs")
-    
-    return session_pack
+    db = SessionLocal()
+    try:
+        # Extract weak concepts and high debt pairs from learning data
+        weak_concepts = [nb["concept"] for nb in learning_data.get("learner_notebook", []) if nb["readiness"] == "Weak"]
+        high_debt_pairs = [cd["pair"] for cd in learning_data.get("coverage_debt", []) if cd["debt_score"] > 0.7]
+        
+        # Get recently used questions (last 3 sessions) to avoid repetition
+        recent_questions = db.execute(text("""
+            SELECT DISTINCT sa.question_id
+            FROM session_answers sa
+            JOIN sessions s ON sa.session_id = s.session_id
+            WHERE s.user_id = :user_id
+            ORDER BY s.created_at DESC
+            LIMIT 36
+        """), {"user_id": user_id}).fetchall()
+        
+        recent_question_ids = [str(row.question_id) for row in recent_questions]
+        
+        # Build question pools for each difficulty
+        selected_questions = []
+        
+        # Target distribution: 3 Easy, 6 Medium, 3 Hard
+        difficulty_targets = {
+            "Easy": 3,
+            "Medium": 6,
+            "Hard": 3
+        }
+        
+        for difficulty, target_count in difficulty_targets.items():
+            # Build query conditions
+            exclusion_clause = ""
+            if recent_question_ids:
+                exclusion_clause = f"AND q.id NOT IN ({','.join([f\"'{qid}'\" for qid in recent_question_ids])})"
+            
+            # Priority 1: Questions matching weak concepts
+            weak_concept_clause = ""
+            if weak_concepts:
+                weak_concept_clause = f"OR q.core_concepts::text ILIKE ANY(ARRAY[{','.join([f\"'%{c}%'\" for c in weak_concepts[:10]])}])"
+            
+            # Priority 2: Questions from high debt pairs
+            debt_clause = ""
+            if high_debt_pairs:
+                debt_conditions = []
+                for pair in high_debt_pairs[:10]:
+                    parts = pair.split(":")
+                    if len(parts) == 2:
+                        debt_conditions.append(f"(q.subcategory = '{parts[0]}' AND q.type_of_question = '{parts[1]}')")
+                if debt_conditions:
+                    debt_clause = f"OR ({' OR '.join(debt_conditions)})"
+            
+            # Query questions with priorities
+            query = text(f"""
+                SELECT 
+                    q.id, q.stem, q.answer, q.explanation,
+                    q.option_a, q.option_b, q.option_c, q.option_d,
+                    q.difficulty_band, q.subcategory, q.type_of_question,
+                    q.core_concepts, q.pyq_frequency_score,
+                    q.snap_read, q.solution_approach, q.detailed_solution, q.principle_to_remember,
+                    CASE
+                        WHEN q.pyq_frequency_score >= 3 THEN 1
+                        WHEN q.core_concepts::text ILIKE ANY(ARRAY[{','.join([f"'%{c}%'" for c in weak_concepts[:10]])}]) THEN 2
+                        {debt_clause.replace('OR', 'WHEN') if debt_clause else ''}
+                        ELSE 4
+                    END as priority
+                FROM questions q
+                WHERE q.difficulty_band = :difficulty
+                  {exclusion_clause}
+                ORDER BY priority ASC, RANDOM()
+                LIMIT :limit
+            """)
+            
+            result = db.execute(query, {
+                "difficulty": difficulty,
+                "limit": target_count * 3  # Get extras for selection
+            })
+            
+            candidates = result.fetchall()
+            
+            # Ensure PYQ minimum (at least 1 PYQ per difficulty if possible)
+            pyq_questions = [q for q in candidates if q.pyq_frequency_score >= 3]
+            non_pyq_questions = [q for q in candidates if q.pyq_frequency_score < 3]
+            
+            # Select questions ensuring PYQ representation
+            if difficulty == "Medium":
+                # For Medium: at least 2 PYQs out of 6
+                selected_for_difficulty = pyq_questions[:2] + non_pyq_questions[:4]
+            else:
+                # For Easy/Hard: at least 1 PYQ out of 3
+                selected_for_difficulty = pyq_questions[:1] + non_pyq_questions[:2]
+            
+            # If not enough questions, fill from remaining candidates
+            if len(selected_for_difficulty) < target_count:
+                remaining = [q for q in candidates if q not in selected_for_difficulty]
+                selected_for_difficulty.extend(remaining[:target_count - len(selected_for_difficulty)])
+            
+            # Add to selected questions with proper structure
+            for question_row in selected_for_difficulty[:target_count]:
+                selected_questions.append({
+                    "id": str(question_row.id),
+                    "stem": question_row.stem,
+                    "answer": question_row.answer,
+                    "explanation": question_row.explanation,
+                    "option_a": question_row.option_a,
+                    "option_b": question_row.option_b,
+                    "option_c": question_row.option_c,
+                    "option_d": question_row.option_d,
+                    "difficulty_band": question_row.difficulty_band,
+                    "subcategory": question_row.subcategory,
+                    "type_of_question": question_row.type_of_question,
+                    "core_concepts": question_row.core_concepts,
+                    "pyq_frequency_score": question_row.pyq_frequency_score,
+                    "snap_read": question_row.snap_read,
+                    "solution_approach": question_row.solution_approach,
+                    "detailed_solution": question_row.detailed_solution,
+                    "principle_to_remember": question_row.principle_to_remember
+                })
+        
+        # Apply ordering: E-E-M-M-H-M-E-M-H-M-M-H (spread difficulty)
+        difficulty_order = ["Easy", "Easy", "Medium", "Medium", "Hard", "Medium", 
+                           "Easy", "Medium", "Hard", "Medium", "Medium", "Hard"]
+        
+        ordered_questions = []
+        difficulty_pools = {
+            "Easy": [q for q in selected_questions if q["difficulty_band"] == "Easy"],
+            "Medium": [q for q in selected_questions if q["difficulty_band"] == "Medium"],
+            "Hard": [q for q in selected_questions if q["difficulty_band"] == "Hard"]
+        }
+        
+        for position, difficulty in enumerate(difficulty_order, 1):
+            if difficulty_pools[difficulty]:
+                question = difficulty_pools[difficulty].pop(0)
+                question["position"] = position
+                ordered_questions.append(question)
+        
+        logger.info(f"📋 Generated session pack: {len(weak_concepts)} weak concepts targeted, {len(high_debt_pairs)} high debt pairs, {len(ordered_questions)} questions selected")
+        
+        return {
+            "user_id": user_id,
+            "pack_type": "personalized",
+            "difficulty_distribution": {"easy": 3, "medium": 6, "hard": 3},
+            "questions": ordered_questions,
+            "planning_strategy": "adaptive",
+            "weak_concepts_targeted": len(weak_concepts),
+            "high_debt_pairs_addressed": len(high_debt_pairs)
+        }
+        
+    except Exception as e:
+        logger.error(f"❌ Failed to generate session pack for user {user_id[:8]}: {e}")
+        raise
+    finally:
+        db.close()
 
 async def persist_session_pack(user_id: str, session_pack: Dict[str, Any]) -> str:
     """Persist session pack to session_packs table for Blueprint consumption"""
