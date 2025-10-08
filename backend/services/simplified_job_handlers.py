@@ -902,13 +902,14 @@ async def persist_session_pack(user_id: str, session_pack: Dict[str, Any]) -> st
                 
                 db.execute(text("""
                     INSERT INTO session_pack_questions (
-                        session_id, position, question_data
+                        session_id, position, question_id, question_data
                     ) VALUES (
-                        CAST(:session_id AS uuid), :position, CAST(:question_data AS jsonb)
+                        CAST(:session_id AS uuid), :position, CAST(:question_id AS uuid), CAST(:question_data AS jsonb)
                     )
                 """), {
                     "session_id": pack_id,
                     "position": question["position"],
+                    "question_id": question["id"],
                     "question_data": question_data_json
                 })
                 
