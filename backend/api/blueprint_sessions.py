@@ -966,14 +966,15 @@ async def complete_session(
             db_check = planner.get_db_session()
             try:
                 user_result = db_check.execute(text("""
-                    SELECT email, name FROM users 
+                    SELECT email FROM users 
                     WHERE user_id = :user_id
                 """), {"user_id": auth_user_id})
                 
                 user_data = user_result.fetchone()
                 
                 if user_data:
-                    user_email, user_name = user_data
+                    user_email = user_data[0]
+                    user_name = None  # Name not available in current schema
                     
                     # Count total completed sessions (assume all users are free tier for now)
                     completed_sessions_count = db_check.execute(text("""
