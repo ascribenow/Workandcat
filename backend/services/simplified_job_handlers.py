@@ -663,60 +663,73 @@ async def generate_personalized_session_pack(user_id: str, learning_data: Dict[s
         }
         
         for difficulty, target_count in difficulty_targets.items():
-            # Build query conditions
-            exclusion_clause = ""
+            # Build parameterized query - no f-strings for values, only structure
+            
+            # Build exclusion condition
+            exclusion_condition = ""
             if recent_question_ids:
-                quoted_ids = ','.join([f"'{qid}'" for qid in recent_question_ids])
-                exclusion_clause = f"AND q.id NOT IN ({quoted_ids})"
+                # Create placeholders for parameterized query
+                placeholders = ','.join([f":excl_{i}" for i in range(len(recent_question_ids))])
+                exclusion_condition = f"AND q.id NOT IN ({placeholders})"
             
-            # Priority 1: Questions matching weak concepts
-            weak_concept_clause = ""
+            # Build weak concept matching with proper ILIKE patterns
+            weak_concept_condition = ""
+            weak_concept_params = {}
             if weak_concepts:
-                # Escape % for SQLAlchemy text() - double them to %%
-                concept_patterns = ','.join([f"'%%{c}%%'" for c in weak_concepts[:10]])
-                weak_concept_clause = f"OR q.core_concepts::text ILIKE ANY(ARRAY[{concept_patterns}])"
+                # Build ILIKE conditions with parameters
+                weak_conditions = []
+                for i, concept in enumerate(weak_concepts[:10]):
+                    param_name = f"concept_{i}"
+                    weak_conditions.append(f"q.core_concepts::text ILIKE :{param_name}")
+                    weak_concept_params[param_name] = f"%{concept}%"
+                
+                weak_concept_condition = f"({' OR '.join(weak_conditions)})"
             
-            # Priority 2: Questions from high debt pairs
-            debt_clause = ""
+            # Build debt pair conditions with parameters
+            debt_pair_condition = ""
+            debt_params = {}
             if high_debt_pairs:
                 debt_conditions = []
-                for pair in high_debt_pairs[:10]:
+                for i, pair in enumerate(high_debt_pairs[:10]):
                     parts = pair.split(":")
                     if len(parts) == 2:
-                        debt_conditions.append(f"(q.subcategory = '{parts[0]}' AND q.type_of_question = '{parts[1]}')")
+                        subcat_param = f"debt_sub_{i}"
+                        type_param = f"debt_type_{i}"
+                        debt_conditions.append(f"(q.subcategory = :{subcat_param} AND q.type_of_question = :{type_param})")
+                        debt_params[subcat_param] = parts[0]
+                        debt_params[type_param] = parts[1]
+                
                 if debt_conditions:
-                    debt_clause = f"OR ({' OR '.join(debt_conditions)})"
+                    debt_pair_condition = f"({' OR '.join(debt_conditions)})"
             
-            # Query questions with priorities
-            # Build CASE statement for weak concepts
-            weak_case = ""
-            if weak_concepts:
-                # Escape % for SQLAlchemy text() - double them to %%
-                concept_patterns = ','.join([f"'%%{c}%%'" for c in weak_concepts[:10]])
-                weak_case = f"WHEN q.core_concepts::text ILIKE ANY(ARRAY[{concept_patterns}]) THEN 2"
+            # Build CASE statement for priority
+            priority_case = "CASE WHEN q.pyq_frequency_score >= 3 THEN 1"
             
-            # Build WHEN clause for debt
-            debt_when = debt_clause.replace('OR', 'WHEN') if debt_clause else ''
+            if weak_concept_condition:
+                priority_case += f" WHEN {weak_concept_condition} THEN 2"
             
-            query = text(f"""
+            if debt_pair_condition:
+                priority_case += f" WHEN {debt_pair_condition} THEN 3"
+            
+            priority_case += " ELSE 4 END"
+            
+            # Construct final query with structural f-strings only
+            query_sql = f"""
                 SELECT 
                     q.id, q.stem, q.answer, q.explanation,
                     q.option_a, q.option_b, q.option_c, q.option_d,
                     q.difficulty_band, q.subcategory, q.type_of_question,
                     q.core_concepts, q.pyq_frequency_score,
                     q.snap_read, q.solution_approach, q.detailed_solution, q.principle_to_remember,
-                    CASE
-                        WHEN q.pyq_frequency_score >= 3 THEN 1
-                        {weak_case}
-                        {debt_when}
-                        ELSE 4
-                    END as priority
+                    {priority_case} as priority
                 FROM questions q
                 WHERE q.difficulty_band = :difficulty
-                  {exclusion_clause}
+                  {exclusion_condition}
                 ORDER BY priority ASC, RANDOM()
                 LIMIT :limit
-            """)
+            """
+            
+            query = text(query_sql)
             
             result = db.execute(query, {
                 "difficulty": difficulty,
