@@ -7,7 +7,7 @@ from datetime import datetime
 
 def test_review_request_scenarios():
     """Test the exact scenarios mentioned in the review request"""
-    base_url = "https://twelvr-adaptive-2.preview.emergentagent.com/api"
+    base_url = "https://adapt-engine-1.preview.emergentagent.com/api"
     
     # Authenticate
     auth_data = {

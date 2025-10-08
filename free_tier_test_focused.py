@@ -13,7 +13,7 @@ import os
 import uuid
 
 class FreeTierSessionTester:
-    def __init__(self, base_url="https://twelvr-adaptive-2.preview.emergentagent.com/api"):
+    def __init__(self, base_url="https://adapt-engine-1.preview.emergentagent.com/api"):
         self.base_url = base_url
         self.auth_headers = None
         self.user_id = None
