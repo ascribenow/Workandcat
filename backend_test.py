@@ -798,6 +798,40 @@ class CATBackendTester:
                 auth_headers
             )
             
+            # Also try to get current session details for more information
+            if success and session_list:
+                sessions = session_list.get('sessions', [])
+                if sessions:
+                    # Get detailed info for the first session
+                    first_session_id = sessions[0].get('session_id')
+                    if first_session_id:
+                        success_detail, session_detail = self.run_test(
+                            "Get Session Detail", 
+                            "GET", 
+                            f"session-progress/current/{user_id}", 
+                            [200, 404, 500], 
+                            None, 
+                            auth_headers
+                        )
+                        
+                        if success_detail and session_detail:
+                            print(f"   📋 Detailed session info available")
+                            detailed_questions = session_detail.get('questions', [])
+                            if detailed_questions:
+                                print(f"   📊 Detailed questions count: {len(detailed_questions)}")
+                                
+                                # Sample first question for structure analysis
+                                if detailed_questions:
+                                    sample_q = detailed_questions[0]
+                                    print(f"   📊 Sample question fields: {list(sample_q.keys())}")
+                                    
+                                    # Check if this has better question data
+                                    if sample_q.get('id') and sample_q.get('stem') and sample_q.get('difficulty_band'):
+                                        print(f"   ✅ Detailed session has complete question data")
+                                        
+                                        # Override session list with detailed session for analysis
+                                        sessions = [session_detail]
+            
             if success and session_list:
                 test_results["session_pack_data_accessible"] = True
                 sessions = session_list.get('sessions', [])
