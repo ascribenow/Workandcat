@@ -643,8 +643,8 @@ async def generate_personalized_session_pack(user_id: str, learning_data: Dict[s
         recent_questions = db.execute(text("""
             SELECT DISTINCT sa.question_id
             FROM session_answers sa
-            JOIN sessions s ON sa.session_id = s.session_id
-            WHERE s.user_id = :user_id
+            JOIN sessions s ON CAST(sa.session_id AS varchar) = CAST(s.session_id AS varchar)
+            WHERE CAST(s.user_id AS varchar) = :user_id
             ORDER BY s.created_at DESC
             LIMIT 36
         """), {"user_id": user_id}).fetchall()
