@@ -731,10 +731,24 @@ async def generate_personalized_session_pack(user_id: str, learning_data: Dict[s
             
             query = text(query_sql)
             
-            result = db.execute(query, {
+            # Build complete parameter dictionary
+            query_params = {
                 "difficulty": difficulty,
                 "limit": target_count * 3  # Get extras for selection
-            })
+            }
+            
+            # Add exclusion parameters
+            if recent_question_ids:
+                for i, qid in enumerate(recent_question_ids):
+                    query_params[f"excl_{i}"] = qid
+            
+            # Add weak concept parameters
+            query_params.update(weak_concept_params)
+            
+            # Add debt pair parameters
+            query_params.update(debt_params)
+            
+            result = db.execute(query, query_params)
             
             candidates = result.fetchall()
             
