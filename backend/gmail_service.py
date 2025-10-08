@@ -29,10 +29,11 @@ class GmailService:
     
     def get_authorization_url(self) -> str:
         """Get OAuth2 authorization URL for user to authorize Gmail access"""
+        redirect_uri = os.environ.get('GMAIL_REDIRECT_URI', 'https://www.twelvr.com')
         flow = Flow.from_client_secrets_file(
             self.credentials_file,
             scopes=self.scopes,
-            redirect_uri='https://www.twelvr.com'
+            redirect_uri=redirect_uri
         )
         
         auth_url, _ = flow.authorization_url(
