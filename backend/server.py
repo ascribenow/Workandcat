@@ -1057,6 +1057,45 @@ async def export_referral_data(admin_user: User = Depends(get_current_admin_user
         db.close()
 
 # PYQ Admin endpoints
+@app.get("/api/admin/pyq/uploaded-files")
+async def admin_get_pyq_uploaded_files(admin_user: User = Depends(get_current_admin_user)):
+    """Get list of uploaded PYQ files for admin dashboard"""
+    db = SessionLocal()
+    try:
+        # Get distinct years and counts from pyq_questions table
+        result = db.execute(text("""
+            SELECT 
+                year,
+                COUNT(*) as question_count,
+                MIN(created_at) as first_upload,
+                MAX(created_at) as last_upload
+            FROM pyq_questions
+            GROUP BY year
+            ORDER BY year DESC
+        """))
+        
+        files = result.fetchall()
+        
+        return {
+            "files": [
+                {
+                    "year": f.year,
+                    "question_count": f.question_count,
+                    "first_upload": utc_to_ist(f.first_upload).isoformat() if f.first_upload else None,
+                    "last_upload": utc_to_ist(f.last_upload).isoformat() if f.last_upload else None,
+                    "file_name": f"PYQ_{f.year}.csv"
+                }
+                for f in files
+            ],
+            "total_files": len(files),
+            "total_questions": sum(f.question_count for f in files)
+        }
+    except Exception as e:
+        logger.error(f"Error fetching PYQ uploaded files: {e}")
+        return {"files": [], "total_files": 0, "total_questions": 0}
+    finally:
+        db.close()
+
 @app.get("/api/admin/pyq/questions")
 async def admin_get_pyq_questions(
     year: Optional[int] = None,
