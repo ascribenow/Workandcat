@@ -83,7 +83,7 @@ async def get_users_monitoring(admin_user_id: str = Depends(check_admin_access))
             SELECT 
                 u.id as user_id,
                 u.email,
-                u.name,
+                u.full_name,
                 COALESCE(us.sessions_completed, 0) as sessions_completed,
                 us.last_session_created,
                 us.current_session_id,
