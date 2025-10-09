@@ -36,6 +36,82 @@ class SimplifiedJobQueue:
         self.worker_id = f"worker-{uuid.uuid4().hex[:8]}"
         self.is_running = False
         self.poll_interval = 1.0  # 1 second polling
+    
+    async def cleanup_exhausted_jobs(
+        self,
+        job_type: str,
+        user_id: str,
+        session_id: Optional[str] = None
+    ) -> int:
+        """
+        Clean up exhausted jobs that could block dedupe key
+        
+        Removes jobs that have exhausted all retry attempts and are blocking
+        new job creation due to dedupe key constraints.
+        
+        Args:
+            job_type: Type of job to clean
+            user_id: User ID
+            session_id: Session ID (optional, for session-specific jobs)
+            
+        Returns:
+            Number of jobs deleted
+        """
+        db = SessionLocal()
+        try:
+            # Build cleanup query based on dedupe key format
+            if session_id:
+                # For session-specific jobs (SUMMARIZE_SESSION)
+                cleanup_query = text("""
+                    DELETE FROM bg_jobs
+                    WHERE user_id = :user_id
+                    AND session_id = :session_id
+                    AND job_type = :job_type
+                    AND attempts >= max_attempts
+                    AND status IN ('queued', 'failed')
+                    RETURNING id, attempts, status, created_at
+                """)
+                params = {
+                    "user_id": user_id,
+                    "session_id": session_id,
+                    "job_type": job_type
+                }
+            else:
+                # For user-level jobs (PLAN_NEXT_SESSION, UPDATE_INSIGHTS)
+                # Only clean jobs older than 3 days to avoid interfering with recent failures
+                cleanup_query = text("""
+                    DELETE FROM bg_jobs
+                    WHERE user_id = :user_id
+                    AND job_type = :job_type
+                    AND attempts >= max_attempts
+                    AND status IN ('queued', 'failed')
+                    AND created_at < NOW() - INTERVAL '3 days'
+                    RETURNING id, attempts, status, created_at
+                """)
+                params = {
+                    "user_id": user_id,
+                    "job_type": job_type
+                }
+            
+            result = db.execute(cleanup_query, params)
+            deleted_jobs = result.fetchall()
+            
+            if deleted_jobs:
+                db.commit()
+                logger.warning(f"🧹 Cleaned up {len(deleted_jobs)} exhausted {job_type} job(s) for user {user_id[:8]}")
+                for job in deleted_jobs:
+                    logger.warning(f"   - Job {str(job[0])[:8]}: {job[1]} attempts, status={job[2]}, created={job[3]}")
+                return len(deleted_jobs)
+            else:
+                logger.debug(f"✅ No exhausted {job_type} jobs to clean for user {user_id[:8]}")
+                return 0
+                
+        except Exception as e:
+            logger.error(f"⚠️ Failed to cleanup exhausted jobs (non-fatal): {e}")
+            db.rollback()
+            return 0
+        finally:
+            db.close()
         
     async def enqueue_job(
         self, 
