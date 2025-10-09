@@ -1202,7 +1202,7 @@ async def check_session_availability(
                 logger.info(f"✅ Pre-pack available for user {auth_user_id[:8]}: {existing_pack[0]}")
                 return JSONResponse({
                     "available": True,
-                    "session_id": existing_pack[0],
+                    "session_id": str(existing_pack[0]),  # Convert UUID to string
                     "created_at": existing_pack[1].isoformat() if existing_pack[1] else None,
                     "message": "Adaptive session ready"
                 })
