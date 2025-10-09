@@ -800,6 +800,7 @@ async def admin_get_privileged_users(admin_user: User = Depends(get_current_admi
         db.close()
 
 @app.post("/api/admin/privileged-users")
+@app.post("/api/admin/privileges")  # Frontend alias
 async def admin_add_privileged_user(
     request: dict,
     admin_user: User = Depends(get_current_admin_user)
