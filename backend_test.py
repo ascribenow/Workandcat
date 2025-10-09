@@ -51094,14 +51094,14 @@ def main():
 if __name__ == "__main__":
     tester = CATBackendTester()
     
-    # Run the comprehensive adaptive session completion audit
-    print("🚀 Starting Comprehensive Adaptive Session Completion Audit")
+    # Run the recent session activity investigation
+    print("🔍 Starting Recent Session Activity Investigation")
     print("=" * 100)
     
-    success = tester.test_comprehensive_adaptive_session_completion_audit()
+    success = tester.test_recent_session_activity_investigation()
     
     print("\n" + "=" * 100)
-    print(f"🎯 AUDIT COMPLETED")
+    print(f"🎯 INVESTIGATION COMPLETED")
     print(f"📊 Tests Run: {tester.tests_run}")
     print(f"✅ Tests Passed: {tester.tests_passed}")
     print(f"📈 Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%")
