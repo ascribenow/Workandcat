@@ -766,6 +766,7 @@ async def admin_get_questions(
         } for q in questions]
 
 @app.get("/api/admin/privileged-users")
+@app.get("/api/admin/privileges")  # Frontend alias
 async def admin_get_privileged_users(admin_user: User = Depends(get_current_admin_user)):
     """Get all privileged users for admin dashboard"""
     db = SessionLocal()
