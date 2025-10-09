@@ -50595,23 +50595,16 @@ def main():
 if __name__ == "__main__":
     tester = CATBackendTester()
     
-    # Run the health check for user 149d5f09-aeb2-4613-8aad-fbced398bd93 after session completion
-    print("Starting Health Check for User 149d5f09-aeb2-4613-8aad-fbced398bd93 After Session Completion...")
-    success = tester.test_user_health_check_after_session_completion()
+    # Run the comprehensive adaptive session completion audit
+    print("🚀 Starting Comprehensive Adaptive Session Completion Audit")
+    print("=" * 100)
     
-    if success:
-        print("\n🎉 USER HEALTH CHECK COMPLETED SUCCESSFULLY!")
-        print("✅ All 3 background jobs exist and succeeded")
-        print("✅ Next session pre-packed with 12/12 questions")
-        print("✅ Session available for user")
-        print("✅ No blocking issues detected")
-        print("✅ User 149d5f09-aeb2-4613-8aad-fbced398bd93 is ready for next session")
-    else:
-        print("\n⚠️ USER HEALTH CHECK FAILED")
-        print("❌ One or more success criteria not met")
-        print("❌ Review the detailed results above for specific issues")
-        print("❌ User 149d5f09-aeb2-4613-8aad-fbced398bd93 may need attention")
+    success = tester.test_comprehensive_adaptive_session_completion_audit()
     
-    print(f"\nTotal tests run: {tester.tests_run}")
-    print(f"Total tests passed: {tester.tests_passed}")
-    print(f"Success rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%")
+    print("\n" + "=" * 100)
+    print(f"🎯 AUDIT COMPLETED")
+    print(f"📊 Tests Run: {tester.tests_run}")
+    print(f"✅ Tests Passed: {tester.tests_passed}")
+    print(f"📈 Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%")
+    print(f"🚀 Overall Result: {'✅ SUCCESS' if success else '❌ NEEDS ATTENTION'}")
+    print("=" * 100)
