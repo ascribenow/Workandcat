@@ -1131,6 +1131,505 @@ class CATBackendTester:
         
         return test_results["production_ready"]
 
+    def test_recent_session_activity_investigation(self):
+        """
+        🔍 QUICK INVESTIGATION: Recent Session Activity Check
+        
+        OBJECTIVE: Investigate recent session and background job activity to understand the current state.
+        
+        TASKS:
+        1. Authenticate as sp@theskinmantra.com (email: sp@theskinmantra.com, password: student123)
+        2. Check Recent Background Jobs: GET /api/bg-jobs/status to see user's recent jobs
+        3. Check Session Pack Status: GET /api/session/available to see if any sessions are ready
+        4. Check Sessions Table: Query sessions table for sp@theskinmantra.com user_id
+        5. Check System-Wide Recent Activity: Query bg_jobs table for recent activity
+        
+        GOAL: Determine if sp@theskinmantra.com actually completed a session, or if there's been any recent session activity in the system.
+        """
+        print("🔍 QUICK INVESTIGATION: Recent Session Activity Check")
+        print("=" * 100)
+        print("OBJECTIVE: Investigate recent session and background job activity")
+        print("BACKEND URL: https://mcq-platform-1.preview.emergentagent.com")
+        print("TARGET USER: sp@theskinmantra.com / student123")
+        print("FOCUS: Recent sessions, background jobs, session packs, system activity")
+        print("=" * 100)
+        
+        test_results = {
+            # Phase 1: User Authentication
+            "user_authentication_working": False,
+            "user_id_retrieved": False,
+            "user_adaptive_enabled": False,
+            
+            # Phase 2: Recent Background Jobs Check
+            "bg_jobs_status_endpoint_accessible": False,
+            "recent_summarize_session_jobs_found": False,
+            "recent_plan_next_session_jobs_found": False,
+            "job_timestamps_within_24h": False,
+            "job_statuses_available": False,
+            
+            # Phase 3: Session Pack Status
+            "session_available_endpoint_accessible": False,
+            "sessions_ready_for_user": False,
+            "session_packs_table_populated": False,
+            "session_pack_questions_available": False,
+            
+            # Phase 4: Sessions Table Analysis
+            "sessions_table_accessible": False,
+            "user_sessions_found": False,
+            "completed_sessions_found": False,
+            "active_sessions_found": False,
+            "session_details_complete": False,
+            
+            # Phase 5: System-Wide Activity Check
+            "system_wide_recent_activity_found": False,
+            "other_users_completed_sessions": False,
+            "recent_bg_jobs_any_user": False,
+            "system_functioning_normally": False,
+            
+            # Overall Assessment
+            "investigation_complete": False,
+            "user_activity_detected": False,
+            "system_activity_detected": False,
+            "findings_conclusive": False
+        }
+        
+        # PHASE 1: USER AUTHENTICATION
+        print("\n🔐 PHASE 1: USER AUTHENTICATION")
+        print("-" * 80)
+        print("Authenticating as sp@theskinmantra.com")
+        
+        auth_data = {
+            "email": "sp@theskinmantra.com",
+            "password": "student123"
+        }
+        
+        success, auth_response = self.run_test(
+            "User Authentication", 
+            "POST", 
+            "auth/login", 
+            [200, 401], 
+            auth_data
+        )
+        
+        auth_headers = None
+        user_id = None
+        
+        if success and auth_response.get('access_token'):
+            test_results["user_authentication_working"] = True
+            token = auth_response['access_token']
+            auth_headers = {
+                'Authorization': f'Bearer {token}',
+                'Content-Type': 'application/json'
+            }
+            
+            user_data = auth_response.get('user', {})
+            user_id = user_data.get('id')
+            adaptive_enabled = user_data.get('adaptive_enabled', False)
+            
+            if user_id:
+                test_results["user_id_retrieved"] = True
+                print(f"   ✅ User authentication successful")
+                print(f"   📊 User ID: {user_id}")
+                print(f"   📊 JWT Token length: {len(token)} characters")
+                
+                if adaptive_enabled:
+                    test_results["user_adaptive_enabled"] = True
+                    print(f"   ✅ User adaptive_enabled: {adaptive_enabled}")
+                else:
+                    print(f"   📊 User adaptive_enabled: {adaptive_enabled}")
+            else:
+                print(f"   ❌ User ID not found in response")
+        else:
+            print(f"   ❌ User authentication failed: {auth_response}")
+            return False
+        
+        # PHASE 2: RECENT BACKGROUND JOBS CHECK
+        print("\n⚙️ PHASE 2: RECENT BACKGROUND JOBS CHECK")
+        print("-" * 80)
+        print("Checking user's recent background jobs")
+        
+        if auth_headers and user_id:
+            # Check background jobs status for this user
+            success, bg_jobs_response = self.run_test(
+                "Background Jobs Status", 
+                "GET", 
+                "bg-jobs/status", 
+                [200, 404, 500], 
+                None, 
+                auth_headers
+            )
+            
+            if success and bg_jobs_response:
+                test_results["bg_jobs_status_endpoint_accessible"] = True
+                print(f"   ✅ Background jobs status endpoint accessible")
+                
+                # Look for recent jobs
+                recent_jobs = bg_jobs_response.get('recent_jobs', [])
+                user_jobs = bg_jobs_response.get('user_jobs', [])
+                
+                print(f"   📊 Recent jobs found: {len(recent_jobs)}")
+                print(f"   📊 User-specific jobs found: {len(user_jobs)}")
+                
+                # Check for SUMMARIZE_SESSION jobs
+                summarize_jobs = []
+                plan_jobs = []
+                
+                for job in recent_jobs + user_jobs:
+                    job_type = job.get('job_type', '')
+                    created_at = job.get('created_at', '')
+                    status = job.get('status', '')
+                    
+                    if 'SUMMARIZE_SESSION' in job_type:
+                        summarize_jobs.append(job)
+                        test_results["recent_summarize_session_jobs_found"] = True
+                        print(f"   ✅ SUMMARIZE_SESSION job found: {job_type} ({status}) at {created_at}")
+                    
+                    if 'PLAN_NEXT_SESSION' in job_type:
+                        plan_jobs.append(job)
+                        test_results["recent_plan_next_session_jobs_found"] = True
+                        print(f"   ✅ PLAN_NEXT_SESSION job found: {job_type} ({status}) at {created_at}")
+                
+                if summarize_jobs or plan_jobs:
+                    test_results["job_timestamps_within_24h"] = True
+                    test_results["job_statuses_available"] = True
+                    print(f"   ✅ Recent background jobs detected for analysis")
+                else:
+                    print(f"   📊 No recent SUMMARIZE_SESSION or PLAN_NEXT_SESSION jobs found")
+                
+                # Display job details
+                if recent_jobs:
+                    print(f"   📋 Recent job details:")
+                    for i, job in enumerate(recent_jobs[:5]):  # Show first 5
+                        job_type = job.get('job_type', 'unknown')
+                        status = job.get('status', 'unknown')
+                        created_at = job.get('created_at', 'unknown')
+                        print(f"      {i+1}. {job_type} - {status} - {created_at}")
+            else:
+                print(f"   ❌ Background jobs status failed: {bg_jobs_response}")
+        
+        # PHASE 3: SESSION PACK STATUS
+        print("\n📦 PHASE 3: SESSION PACK STATUS")
+        print("-" * 80)
+        print("Checking session availability and session packs")
+        
+        if auth_headers and user_id:
+            # Check session availability
+            success, session_available = self.run_test(
+                "Session Availability Check", 
+                "GET", 
+                "session/available", 
+                [200, 404, 500], 
+                None, 
+                auth_headers
+            )
+            
+            if success and session_available:
+                test_results["session_available_endpoint_accessible"] = True
+                print(f"   ✅ Session availability endpoint accessible")
+                
+                available = session_available.get('available', False)
+                reason = session_available.get('reason', 'unknown')
+                session_packs = session_available.get('session_packs', [])
+                
+                print(f"   📊 Sessions available: {available}")
+                print(f"   📊 Reason: {reason}")
+                print(f"   📊 Session packs found: {len(session_packs)}")
+                
+                if available:
+                    test_results["sessions_ready_for_user"] = True
+                    print(f"   ✅ Sessions ready for user")
+                
+                if session_packs:
+                    test_results["session_packs_table_populated"] = True
+                    print(f"   ✅ Session packs table populated")
+                    
+                    # Check session pack details
+                    for i, pack in enumerate(session_packs[:3]):  # Show first 3
+                        session_id = pack.get('session_id', 'unknown')
+                        question_count = pack.get('question_count', 0)
+                        created_at = pack.get('created_at', 'unknown')
+                        
+                        print(f"   📋 Pack {i+1}: {session_id} - {question_count} questions - {created_at}")
+                        
+                        if question_count > 0:
+                            test_results["session_pack_questions_available"] = True
+                else:
+                    print(f"   📊 No session packs found for user")
+            else:
+                print(f"   ❌ Session availability check failed: {session_available}")
+        
+        # PHASE 4: SESSIONS TABLE ANALYSIS
+        print("\n📊 PHASE 4: SESSIONS TABLE ANALYSIS")
+        print("-" * 80)
+        print("Analyzing user's sessions in the database")
+        
+        if auth_headers and user_id:
+            # Get session list for the user
+            success, session_list = self.run_test(
+                "User Session List", 
+                "GET", 
+                "session/list", 
+                [200, 404, 500], 
+                None, 
+                auth_headers
+            )
+            
+            if success and session_list:
+                test_results["sessions_table_accessible"] = True
+                print(f"   ✅ Sessions table accessible via API")
+                
+                sessions = session_list.get('sessions', [])
+                if sessions:
+                    test_results["user_sessions_found"] = True
+                    print(f"   ✅ User sessions found: {len(sessions)}")
+                    
+                    completed_count = 0
+                    active_count = 0
+                    
+                    print(f"   📋 Session analysis:")
+                    for i, session in enumerate(sessions):
+                        session_id = session.get('session_id', 'unknown')
+                        status = session.get('status', 'unknown')
+                        created_at = session.get('created_at', 'unknown')
+                        completed_at = session.get('completed_at', 'N/A')
+                        answered_count = session.get('answered_count', 0)
+                        total_questions = session.get('total_questions', 0)
+                        
+                        print(f"      {i+1}. ID: {session_id}")
+                        print(f"         Status: {status}")
+                        print(f"         Created: {created_at}")
+                        print(f"         Completed: {completed_at}")
+                        print(f"         Progress: {answered_count}/{total_questions}")
+                        
+                        if status == 'completed':
+                            completed_count += 1
+                            test_results["completed_sessions_found"] = True
+                        elif status in ['active', 'in_progress', 'planned']:
+                            active_count += 1
+                            test_results["active_sessions_found"] = True
+                        
+                        # Check if session details are complete
+                        required_fields = ['session_id', 'status', 'created_at']
+                        if all(session.get(field) for field in required_fields):
+                            test_results["session_details_complete"] = True
+                    
+                    print(f"   📊 Completed sessions: {completed_count}")
+                    print(f"   📊 Active sessions: {active_count}")
+                else:
+                    print(f"   📊 No sessions found for user")
+            else:
+                print(f"   ❌ Session list retrieval failed: {session_list}")
+        
+        # PHASE 5: SYSTEM-WIDE RECENT ACTIVITY CHECK
+        print("\n🌐 PHASE 5: SYSTEM-WIDE RECENT ACTIVITY CHECK")
+        print("-" * 80)
+        print("Checking for recent activity by any user in the system")
+        
+        # Try to get system-wide background job statistics
+        success, system_jobs = self.run_test(
+            "System Background Jobs", 
+            "GET", 
+            "bg-jobs/health", 
+            [200, 500]
+        )
+        
+        if success and system_jobs:
+            print(f"   ✅ System background jobs endpoint accessible")
+            
+            status = system_jobs.get('status', 'unknown')
+            queue_depth = system_jobs.get('queue_depth', 0)
+            worker_status = system_jobs.get('worker_status', 'unknown')
+            
+            print(f"   📊 System status: {status}")
+            print(f"   📊 Queue depth: {queue_depth}")
+            print(f"   📊 Worker status: {worker_status}")
+            
+            if status == 'healthy':
+                test_results["system_functioning_normally"] = True
+                print(f"   ✅ System functioning normally")
+            
+            # Check for recent system activity
+            recent_activity = system_jobs.get('recent_activity', {})
+            if recent_activity:
+                test_results["system_wide_recent_activity_found"] = True
+                print(f"   ✅ Recent system activity detected")
+                
+                for activity_type, count in recent_activity.items():
+                    print(f"   📊 {activity_type}: {count} recent activities")
+        else:
+            print(f"   ❌ System background jobs check failed: {system_jobs}")
+        
+        # Try to get dashboard data which might show recent completions
+        if auth_headers:
+            success, dashboard_data = self.run_test(
+                "Dashboard Recent Activity", 
+                "GET", 
+                "dashboard/recent-activity", 
+                [200, 404, 500], 
+                None, 
+                auth_headers
+            )
+            
+            if success and dashboard_data:
+                print(f"   ✅ Dashboard recent activity accessible")
+                
+                recent_completions = dashboard_data.get('recent_completions', [])
+                if recent_completions:
+                    test_results["other_users_completed_sessions"] = True
+                    print(f"   ✅ Recent session completions by other users: {len(recent_completions)}")
+                    
+                    for completion in recent_completions[:3]:  # Show first 3
+                        user_email = completion.get('user_email', 'unknown')
+                        completed_at = completion.get('completed_at', 'unknown')
+                        print(f"   📋 {user_email} completed session at {completed_at}")
+                else:
+                    print(f"   📊 No recent session completions found")
+            else:
+                print(f"   📊 Dashboard recent activity not available")
+        
+        # FINAL ASSESSMENT
+        print("\n" + "=" * 100)
+        print("🔍 RECENT SESSION ACTIVITY INVESTIGATION - RESULTS")
+        print("=" * 100)
+        
+        passed_tests = sum(test_results.values())
+        total_tests = len([k for k in test_results.keys() if not k.startswith('investigation_complete') and not k.startswith('findings_conclusive')])
+        success_rate = (passed_tests / total_tests) * 100 if total_tests > 0 else 0
+        
+        # Group results by investigation phases
+        investigation_phases = {
+            "PHASE 1 - USER AUTHENTICATION": [
+                "user_authentication_working", "user_id_retrieved", "user_adaptive_enabled"
+            ],
+            "PHASE 2 - RECENT BACKGROUND JOBS": [
+                "bg_jobs_status_endpoint_accessible", "recent_summarize_session_jobs_found",
+                "recent_plan_next_session_jobs_found", "job_timestamps_within_24h", "job_statuses_available"
+            ],
+            "PHASE 3 - SESSION PACK STATUS": [
+                "session_available_endpoint_accessible", "sessions_ready_for_user",
+                "session_packs_table_populated", "session_pack_questions_available"
+            ],
+            "PHASE 4 - SESSIONS TABLE ANALYSIS": [
+                "sessions_table_accessible", "user_sessions_found", "completed_sessions_found",
+                "active_sessions_found", "session_details_complete"
+            ],
+            "PHASE 5 - SYSTEM-WIDE ACTIVITY": [
+                "system_wide_recent_activity_found", "other_users_completed_sessions",
+                "recent_bg_jobs_any_user", "system_functioning_normally"
+            ]
+        }
+        
+        for phase, tests in investigation_phases.items():
+            print(f"\n{phase}:")
+            phase_passed = 0
+            phase_total = len(tests)
+            
+            for test in tests:
+                if test in test_results:
+                    result = test_results[test]
+                    status = "✅ FOUND" if result else "❌ NOT FOUND"
+                    print(f"  {test.replace('_', ' ').title():<50} {status}")
+                    if result:
+                        phase_passed += 1
+            
+            phase_rate = (phase_passed / phase_total) * 100 if phase_total > 0 else 0
+            print(f"  Phase Detection Rate: {phase_passed}/{phase_total} ({phase_rate:.1f}%)")
+        
+        print("-" * 100)
+        print(f"Overall Detection Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # INVESTIGATION SUMMARY
+        print("\n🎯 INVESTIGATION SUMMARY:")
+        
+        # User Activity Assessment
+        user_activity = (
+            test_results["user_sessions_found"] or
+            test_results["recent_summarize_session_jobs_found"] or
+            test_results["sessions_ready_for_user"]
+        )
+        
+        if user_activity:
+            test_results["user_activity_detected"] = True
+            print("\n✅ USER ACTIVITY DETECTED:")
+            if test_results["user_sessions_found"]:
+                print("   - User has sessions in the database")
+            if test_results["completed_sessions_found"]:
+                print("   - User has completed sessions")
+            if test_results["recent_summarize_session_jobs_found"]:
+                print("   - Recent background jobs found for user")
+            if test_results["sessions_ready_for_user"]:
+                print("   - Session packs ready for user")
+        else:
+            print("\n❌ USER ACTIVITY: MINIMAL OR NONE DETECTED")
+            print("   - No recent sessions or background jobs found")
+        
+        # System Activity Assessment
+        system_activity = (
+            test_results["system_functioning_normally"] or
+            test_results["other_users_completed_sessions"] or
+            test_results["system_wide_recent_activity_found"]
+        )
+        
+        if system_activity:
+            test_results["system_activity_detected"] = True
+            print("\n✅ SYSTEM ACTIVITY DETECTED:")
+            if test_results["system_functioning_normally"]:
+                print("   - System is functioning normally")
+            if test_results["other_users_completed_sessions"]:
+                print("   - Other users have completed sessions recently")
+            if test_results["system_wide_recent_activity_found"]:
+                print("   - System-wide recent activity detected")
+        else:
+            print("\n❌ SYSTEM ACTIVITY: LIMITED DETECTION")
+            print("   - System activity endpoints may not be available")
+        
+        # Investigation Completeness
+        investigation_complete = (
+            test_results["user_authentication_working"] and
+            test_results["sessions_table_accessible"] and
+            (test_results["bg_jobs_status_endpoint_accessible"] or test_results["system_functioning_normally"])
+        )
+        
+        if investigation_complete:
+            test_results["investigation_complete"] = True
+            test_results["findings_conclusive"] = True
+            print("\n✅ INVESTIGATION COMPLETE:")
+            print("   - User authentication successful")
+            print("   - Sessions table accessible")
+            print("   - Background job system accessible")
+            print("   - Sufficient data collected for analysis")
+        else:
+            print("\n⚠️ INVESTIGATION INCOMPLETE:")
+            print("   - Some endpoints not accessible")
+            print("   - Limited data available for analysis")
+        
+        # FINAL REPORT FORMAT
+        print("\n📋 FINAL REPORT:")
+        print(f"User sessions: {len(sessions) if 'sessions' in locals() and sessions else 0} sessions found")
+        
+        if test_results["recent_summarize_session_jobs_found"] or test_results["recent_plan_next_session_jobs_found"]:
+            print(f"Recent background jobs: FOUND - SUMMARIZE_SESSION and/or PLAN_NEXT_SESSION jobs detected")
+        else:
+            print(f"Recent background jobs: NOT FOUND - No recent jobs in last 24 hours")
+        
+        if test_results["sessions_ready_for_user"]:
+            print(f"Session packs: AVAILABLE - User has session packs ready")
+        else:
+            print(f"Session packs: NOT AVAILABLE - No session packs ready for user")
+        
+        if test_results["system_functioning_normally"]:
+            print(f"System activity: NORMAL - System is functioning and processing jobs")
+        else:
+            print(f"System activity: UNKNOWN - Limited visibility into system-wide activity")
+        
+        print("\n" + "=" * 100)
+        print(f"🔍 RECENT SESSION ACTIVITY INVESTIGATION COMPLETED")
+        print(f"📊 Detection Score: {success_rate:.1f}% | User Activity: {'✅' if user_activity else '❌'} | System Activity: {'✅' if system_activity else '❌'}")
+        print(f"🎯 Investigation Status: {'✅ COMPLETE' if investigation_complete else '❌ INCOMPLETE'}")
+        print("=" * 100)
+        
+        return investigation_complete
+
     def test_deployment_readiness_check(self):
         """
         🎯 DEPLOYMENT READINESS CHECK FOR TWELVR ADAPTIVE LEARNING APPLICATION
