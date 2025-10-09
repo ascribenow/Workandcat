@@ -794,6 +794,7 @@ async def admin_get_privileged_users(admin_user: User = Depends(get_current_admi
         
         return {
             "privileged_users": privileged_data,
+            "privileged_emails": privileged_data,  # Frontend expects this key
             "total_count": len(privileged_data)
         }
     finally:
