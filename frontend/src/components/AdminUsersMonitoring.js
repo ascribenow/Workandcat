@@ -19,7 +19,7 @@ const AdminUsersMonitoring = () => {
   // Fetch users data
   const fetchUsersData = useCallback(async () => {
     try {
-      const token = localStorage.getItem('access_token');
+      const token = localStorage.getItem('cat_prep_token');
       if (!token) {
         setError('Not authenticated. Please log in.');
         return;
