@@ -771,8 +771,22 @@ async def generate_personalized_session_pack(user_id: str, learning_data: Dict[s
             
             # Add to selected questions with proper structure
             for question_row in selected_for_difficulty[:target_count]:
-                # Parse MCQ options (stored as JSONB)
-                mcq_opts = question_row.mcq_options if isinstance(question_row.mcq_options, dict) else {}
+                # Parse MCQ options (stored as JSONB list or dict)
+                mcq_options_raw = question_row.mcq_options
+                
+                # Convert to dict format if it's a list
+                if isinstance(mcq_options_raw, list) and len(mcq_options_raw) >= 4:
+                    mcq_opts = {
+                        "A": mcq_options_raw[0] if len(mcq_options_raw) > 0 else "",
+                        "B": mcq_options_raw[1] if len(mcq_options_raw) > 1 else "",
+                        "C": mcq_options_raw[2] if len(mcq_options_raw) > 2 else "",
+                        "D": mcq_options_raw[3] if len(mcq_options_raw) > 3 else ""
+                    }
+                elif isinstance(mcq_options_raw, dict):
+                    mcq_opts = mcq_options_raw
+                else:
+                    mcq_opts = {"A": "", "B": "", "C": "", "D": ""}
+                    logger.warning(f"Question {question_row.id[:8]} has invalid mcq_options format: {type(mcq_options_raw)}")
                 
                 selected_questions.append({
                     "id": str(question_row.id),
