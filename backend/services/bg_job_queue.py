@@ -134,6 +134,20 @@ class SimplifiedJobQueue:
         Returns:
             Job ID (UUID) for tracking
         """
+        # PHASE 1 FIX: Cleanup exhausted jobs before enqueue to prevent dedupe key blocking
+        try:
+            deleted_count = await self.cleanup_exhausted_jobs(
+                job_type=job_type,
+                user_id=user_id,
+                session_id=session_id
+            )
+            
+            if deleted_count > 0:
+                logger.info(f"🧹 Removed {deleted_count} blocking job(s) before enqueueing {job_type} for user {user_id[:8]}")
+        except Exception as cleanup_error:
+            # Cleanup is non-fatal - log error but continue with enqueue
+            logger.warning(f"⚠️ Cleanup failed but continuing with enqueue: {cleanup_error}")
+        
         # Generate correlation_id if not provided
         if not correlation_id:
             correlation_id = str(uuid.uuid4())
