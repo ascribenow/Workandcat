@@ -1559,6 +1559,12 @@ ${response.data.errors > 0 ? '⚠️ Check the logs for error details.' : ''}`);
                 )}
               </div>
             )}
+
+            {activeTab === 'users-monitoring' && (
+              <div>
+                <AdminUsersMonitoring />
+              </div>
+            )}
           </div>
         </div>
       </div>
