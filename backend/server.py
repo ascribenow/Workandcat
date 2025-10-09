@@ -1034,19 +1034,23 @@ async def export_referral_data(admin_user: User = Depends(get_current_admin_user
             ORDER BY ru.created_at DESC
         """)).fetchall()
         
+        formatted_data = [
+            {
+                "date": utc_to_ist(data.created_at).isoformat() if data.created_at else None,
+                "referral_code": data.referral_code,
+                "referrer_name": data.referrer_name or "",
+                "referrer_email": data.referrer_email or "",
+                "used_by_email": data.used_by_email,
+                "usage_id": data.used_by_email,  # Frontend expects this
+                "subscription_type": data.subscription_type,
+                "cashback_due": "₹500.00"  # Fixed cashback amount
+            }
+            for data in referral_data
+        ]
+        
         return {
-            "export_data": [
-                {
-                    "referral_code": data.referral_code,
-                    "referrer_name": data.referrer_name,
-                    "referrer_email": data.referrer_email,
-                    "used_by_email": data.used_by_email,
-                    "subscription_type": data.subscription_type,
-                    "discount_amount": data.discount_amount,
-                    "created_at": utc_to_ist(data.created_at).isoformat() if data.created_at else None
-                }
-                for data in referral_data
-            ],
+            "export_data": formatted_data,
+            "referral_data": formatted_data,  # Frontend expects this key
             "total_records": len(referral_data),
             "export_timestamp": utc_to_ist(now_ist()).isoformat()
         }
