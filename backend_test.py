@@ -50031,20 +50031,22 @@ def main():
 if __name__ == "__main__":
     tester = CATBackendTester()
     
-    # Run the session availability verification for user twelvrhelp@gmail.com
-    print("Starting Session #9 Availability Verification for User twelvrhelp@gmail.com...")
-    success = tester.test_session_availability_verification()
+    # Run the health check for user 149d5f09-aeb2-4613-8aad-fbced398bd93 after session completion
+    print("Starting Health Check for User 149d5f09-aeb2-4613-8aad-fbced398bd93 After Session Completion...")
+    success = tester.test_user_health_check_after_session_completion()
     
     if success:
-        print("\n🎉 SESSION #9 AVAILABILITY VERIFICATION COMPLETED SUCCESSFULLY!")
-        print("✅ Session #9 is available for user twelvrhelp@gmail.com")
-        print("✅ User can authenticate and check availability")
-        print("✅ Session ID is provided for session start")
-        print("✅ System ready for user access")
+        print("\n🎉 USER HEALTH CHECK COMPLETED SUCCESSFULLY!")
+        print("✅ All 3 background jobs exist and succeeded")
+        print("✅ Next session pre-packed with 12/12 questions")
+        print("✅ Session available for user")
+        print("✅ No blocking issues detected")
+        print("✅ User 149d5f09-aeb2-4613-8aad-fbced398bd93 is ready for next session")
     else:
-        print("\n⚠️ SESSION #9 AVAILABILITY VERIFICATION FAILED")
-        print("❌ Session #9 availability could not be confirmed")
+        print("\n⚠️ USER HEALTH CHECK FAILED")
+        print("❌ One or more success criteria not met")
         print("❌ Review the detailed results above for specific issues")
+        print("❌ User 149d5f09-aeb2-4613-8aad-fbced398bd93 may need attention")
     
     print(f"\nTotal tests run: {tester.tests_run}")
     print(f"Total tests passed: {tester.tests_passed}")
