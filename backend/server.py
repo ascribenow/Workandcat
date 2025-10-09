@@ -93,6 +93,7 @@ from api.health import router as health_router
 from api.adaptive_health import router as adaptive_health_router
 from api.dashboard import router as dashboard_router
 from api.test_email import router as test_email_router  # Test email endpoint
+from api.admin_monitoring import router as admin_monitoring_router  # Admin user monitoring
 
 # Mount active routers
 app.include_router(session_lifecycle_router, prefix="/api/sessions")
@@ -104,6 +105,7 @@ app.include_router(admin_tasks_router)  # Admin tasks API (backfill, validation)
 app.include_router(health_router)  # Enhanced health and observability API
 app.include_router(adaptive_health_router, prefix="/api/adaptive")  # Adaptive engine health monitoring
 app.include_router(dashboard_router, prefix="/api/dashboard")  # Dashboard insights API
+app.include_router(admin_monitoring_router)  # Admin user & job monitoring
 app.include_router(test_email_router, prefix="/api/test")  # TEST ONLY - Remove in production
 
 # In-memory logging store (for MVP - replace with database in production)
