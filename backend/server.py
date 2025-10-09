@@ -845,6 +845,7 @@ async def admin_add_privileged_user(
         db.close()
 
 @app.delete("/api/admin/privileged-users/{privileged_id}")
+@app.delete("/api/admin/privileges/{privileged_id}")  # Frontend alias
 async def admin_remove_privileged_user(
     privileged_id: str,
     admin_user: User = Depends(get_current_admin_user)
