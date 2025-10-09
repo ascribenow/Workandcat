@@ -960,6 +960,58 @@ async def get_admin_referral_dashboard(admin_user: User = Depends(get_current_ad
     finally:
         db.close()
 
+@app.get("/api/admin/referral-stats/{search_code}")
+async def get_referral_stats(search_code: str, admin_user: User = Depends(get_current_admin_user)):
+    """Get stats for a specific referral code"""
+    db = SessionLocal()
+    try:
+        # Get owner of the referral code
+        owner = db.execute(text("""
+            SELECT id, email, full_name, referral_code
+            FROM users
+            WHERE referral_code = :code
+        """), {"code": search_code}).fetchone()
+        
+        # Get all usage of this referral code
+        usage = db.execute(text("""
+            SELECT 
+                used_by_email,
+                subscription_type,
+                discount_amount,
+                created_at,
+                id as user_id
+            FROM referral_usage
+            WHERE referral_code = :code
+            ORDER BY created_at DESC
+        """), {"code": search_code}).fetchall()
+        
+        return {
+            "owner": {
+                "id": str(owner.id) if owner else None,
+                "email": owner.email if owner else None,
+                "full_name": owner.full_name if owner else None,
+                "referral_code": owner.referral_code if owner else None
+            } if owner else None,
+            "recent_usage": [
+                {
+                    "email": u.used_by_email,
+                    "subscription_type": u.subscription_type,
+                    "discount_amount": u.discount_amount,
+                    "created_at": utc_to_ist(u.created_at).isoformat() if u.created_at else None,
+                    "user_id": str(u.user_id) if u.user_id else None
+                }
+                for u in usage
+            ],
+            "total_uses": len(usage),
+            "total_discount": sum(u.discount_amount for u in usage) if usage else 0,
+            "cashback_due": len(usage) * 500  # ₹500 per referral
+        }
+    except Exception as e:
+        logger.error(f"Error getting referral stats: {e}")
+        raise HTTPException(status_code=500, detail="Error retrieving referral stats")
+    finally:
+        db.close()
+
 @app.get("/api/admin/export-referral-data")
 @app.get("/api/admin/referral-export")  # Frontend alias
 async def export_referral_data(admin_user: User = Depends(get_current_admin_user)):
