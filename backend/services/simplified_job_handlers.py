@@ -717,7 +717,7 @@ async def generate_personalized_session_pack(user_id: str, learning_data: Dict[s
             # Construct final query with structural f-strings only
             query_sql = f"""
                 SELECT 
-                    q.id, q.stem, q.right_answer as answer, q.mcq_options,
+                    q.id, q.stem, q.answer, q.mcq_options,
                     q.difficulty_band, q.subcategory, q.type_of_question,
                     q.core_concepts, q.pyq_frequency_score,
                     q.snap_read, q.solution_approach, q.detailed_solution, q.principle_to_remember,
