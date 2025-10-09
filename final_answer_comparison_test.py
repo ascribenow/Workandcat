@@ -24,7 +24,7 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 class FinalAnswerComparisonValidator:
     def __init__(self):
-        self.base_url = "https://learn-twelvr.preview.emergentagent.com/api"
+        self.base_url = "https://mcq-platform-1.preview.emergentagent.com/api"
         self.auth_headers = None
         self.user_id = None
         

@@ -7,7 +7,7 @@ import requests
 import json
 
 def test_existing_sessions():
-    base_url = "https://learn-twelvr.preview.emergentagent.com/api"
+    base_url = "https://mcq-platform-1.preview.emergentagent.com/api"
     
     # Step 1: Authenticate
     print("🔐 Step 1: Authentication")

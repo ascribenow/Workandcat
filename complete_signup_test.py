@@ -14,7 +14,7 @@ import os
 warnings.filterwarnings('ignore', message='Unverified HTTPS request')
 
 def test_complete_corrected_signup():
-    base_url = "https://learn-twelvr.preview.emergentagent.com/api"
+    base_url = "https://mcq-platform-1.preview.emergentagent.com/api"
     test_email = "test.complete.signup@example.com"
     test_name = "Test Complete User"
     test_password = "testpass123"

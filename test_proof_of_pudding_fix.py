@@ -17,7 +17,7 @@ import warnings
 warnings.filterwarnings('ignore', message='Unverified HTTPS request')
 
 class ProofOfPuddingTester:
-    def __init__(self, base_url="https://learn-twelvr.preview.emergentagent.com/api"):
+    def __init__(self, base_url="https://mcq-platform-1.preview.emergentagent.com/api"):
         self.base_url = base_url
         self.auth_headers = None
         self.user_id = None
