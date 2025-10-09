@@ -771,24 +771,29 @@ async def generate_personalized_session_pack(user_id: str, learning_data: Dict[s
             
             # Add to selected questions with proper structure
             for question_row in selected_for_difficulty[:target_count]:
-                # Parse MCQ options (stored as JSONB list or dict)
+                # Parse MCQ options (stored as JSONB - may come as string, list, or dict)
                 mcq_options_raw = question_row.mcq_options
                 
-                # FIX: Convert list to dict format (mcq_options stored as list in DB)
+                # Parse if string (SQLAlchemy sometimes returns JSONB as string)
+                if isinstance(mcq_options_raw, str):
+                    try:
+                        mcq_options_raw = json.loads(mcq_options_raw)
+                    except:
+                        mcq_options_raw = None
+                
+                # Convert list to dict format
                 if isinstance(mcq_options_raw, list) and len(mcq_options_raw) >= 4:
                     mcq_opts = {
-                        "A": mcq_options_raw[0] if len(mcq_options_raw) > 0 else "",
-                        "B": mcq_options_raw[1] if len(mcq_options_raw) > 1 else "",
-                        "C": mcq_options_raw[2] if len(mcq_options_raw) > 2 else "",
-                        "D": mcq_options_raw[3] if len(mcq_options_raw) > 3 else ""
+                        "A": mcq_options_raw[0],
+                        "B": mcq_options_raw[1],
+                        "C": mcq_options_raw[2],
+                        "D": mcq_options_raw[3]
                     }
-                    logger.info(f"🔧 FIX APPLIED: Converted list to dict for question {str(question_row.id)[:8]}, opt_a={mcq_opts['A'][:20]}")
                 elif isinstance(mcq_options_raw, dict):
                     mcq_opts = mcq_options_raw
-                    logger.info(f"📋 Using dict format for question {str(question_row.id)[:8]}")
                 else:
                     mcq_opts = {"A": "", "B": "", "C": "", "D": ""}
-                    logger.warning(f"⚠️  Question {str(question_row.id)[:8]} has invalid mcq_options format: {type(mcq_options_raw)}")
+                    logger.warning(f"Question {str(question_row.id)[:8]} has invalid/missing mcq_options")
                 
                 selected_questions.append({
                     "id": str(question_row.id),
