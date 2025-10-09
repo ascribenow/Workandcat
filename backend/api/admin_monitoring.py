@@ -75,7 +75,7 @@ async def get_users_monitoring(admin_user_id: str = Depends(check_admin_access))
                     COUNT(*) FILTER (WHERE status IN ('queued', 'running')) as jobs_enqueued,
                     COUNT(*) FILTER (WHERE status IN ('queued', 'failed') AND attempts >= max_attempts) as exhausted_jobs,
                     STRING_AGG(
-                        DISTINCT job_type, ', '
+                        DISTINCT CAST(job_type AS TEXT), ', '
                     ) FILTER (WHERE status IN ('queued', 'failed') AND attempts >= max_attempts) as failed_job_types
                 FROM bg_jobs
                 GROUP BY user_id
