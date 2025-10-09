@@ -164,11 +164,7 @@ You, compounded.
 </html>
     """
     
-    # Send using generic email method
-    success = gmail_service.send_generic_email(to_email, subject, plain_text)
-    
-    # Note: send_generic_email doesn't support custom HTML, so we'll use direct send
-    # Let's use the pattern from other email methods
+    # Send email with custom HTML using MIME
     try:
         from email.mime.text import MIMEText
         from email.mime.multipart import MIMEMultipart
