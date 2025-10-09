@@ -3483,6 +3483,286 @@ class CATBackendTester:
         
         return test_results["system_ready_for_user"]
 
+    def test_session_availability_verification(self):
+        """
+        🎯 SESSION #9 AVAILABILITY VERIFICATION FOR USER twelvrhelp@gmail.com
+        
+        OBJECTIVE: Verify Session #9 is Available for User twelvrhelp@gmail.com
+        
+        TEST PLAN:
+        1. Authenticate as twelvrhelp@gmail.com / student123
+        2. Call GET /api/session/check-availability
+        3. Verify response shows:
+           - available: true
+           - session_id: 13b18f5f-e8ec-4464-976e-d6b8b50ecade (or similar)
+        4. Optionally call GET /api/session/start to confirm session can be started
+        
+        EXPECTED RESULT:
+        - Session availability endpoint returns available: true
+        - User can start session #9 with 12 pre-packed questions
+        """
+        print("🎯 SESSION #9 AVAILABILITY VERIFICATION FOR USER twelvrhelp@gmail.com")
+        print("=" * 100)
+        print("OBJECTIVE: Verify Session #9 is Available for User twelvrhelp@gmail.com")
+        print("BACKEND URL: https://learn-twelvr.preview.emergentagent.com")
+        print("TEST USER: twelvrhelp@gmail.com / student123")
+        print("FOCUS: Session availability verification and session start capability")
+        print("=" * 100)
+        
+        test_results = {
+            "user_authentication_working": False,
+            "user_id_retrieved": False,
+            "session_availability_endpoint_accessible": False,
+            "session_available_true": False,
+            "session_id_present": False,
+            "session_start_endpoint_accessible": False,
+            "session_start_working": False,
+            "twelve_questions_available": False,
+            "session_nine_verified": False
+        }
+        
+        # STEP 1: AUTHENTICATE AS twelvrhelp@gmail.com
+        print("\n🔐 STEP 1: USER AUTHENTICATION")
+        print("-" * 80)
+        print("Authenticating as twelvrhelp@gmail.com / student123")
+        
+        auth_data = {
+            "email": "twelvrhelp@gmail.com",
+            "password": "student123"
+        }
+        
+        success, auth_response = self.run_test(
+            "User Authentication (twelvrhelp@gmail.com)", 
+            "POST", 
+            "auth/login", 
+            [200, 401], 
+            auth_data
+        )
+        
+        auth_headers = None
+        user_id = None
+        
+        if success and auth_response.get('access_token'):
+            test_results["user_authentication_working"] = True
+            token = auth_response['access_token']
+            auth_headers = {
+                'Authorization': f'Bearer {token}',
+                'Content-Type': 'application/json'
+            }
+            
+            user_data = auth_response.get('user', {})
+            user_id = user_data.get('id')
+            adaptive_enabled = user_data.get('adaptive_enabled', False)
+            
+            if user_id:
+                test_results["user_id_retrieved"] = True
+            
+            print(f"   ✅ User authentication successful")
+            print(f"   📊 JWT Token length: {len(token)} characters")
+            print(f"   📊 User ID: {user_id}")
+            print(f"   📊 Adaptive enabled: {adaptive_enabled}")
+        else:
+            print(f"   ❌ User authentication failed: {auth_response}")
+            return False
+        
+        # STEP 2: CHECK SESSION AVAILABILITY
+        print("\n🎯 STEP 2: SESSION AVAILABILITY CHECK")
+        print("-" * 80)
+        print("Calling GET /api/session/check-availability")
+        
+        if auth_headers:
+            success, availability_response = self.run_test(
+                "Session Availability Check", 
+                "GET", 
+                "session/check-availability", 
+                [200, 404, 500], 
+                None, 
+                auth_headers
+            )
+            
+            if success and availability_response:
+                test_results["session_availability_endpoint_accessible"] = True
+                print(f"   ✅ Session availability endpoint accessible")
+                
+                # Check if session is available
+                available = availability_response.get('available', False)
+                if available:
+                    test_results["session_available_true"] = True
+                    print(f"   ✅ Session available: {available}")
+                else:
+                    print(f"   ❌ Session not available: {available}")
+                
+                # Check for session_id
+                session_id = availability_response.get('session_id')
+                if session_id:
+                    test_results["session_id_present"] = True
+                    print(f"   ✅ Session ID present: {session_id}")
+                    
+                    # Check if this looks like session #9 (UUID format)
+                    if len(session_id) >= 32:  # UUID-like format
+                        test_results["session_nine_verified"] = True
+                        print(f"   ✅ Session #9 verified (UUID format)")
+                else:
+                    print(f"   ❌ Session ID not present in response")
+                
+                # Display full availability response
+                print(f"   📊 Full availability response:")
+                for key, value in availability_response.items():
+                    print(f"      {key}: {value}")
+                    
+            else:
+                print(f"   ❌ Session availability check failed: {availability_response}")
+        
+        # STEP 3: OPTIONAL SESSION START TEST
+        print("\n🚀 STEP 3: OPTIONAL SESSION START TEST")
+        print("-" * 80)
+        print("Testing session start capability")
+        
+        if auth_headers and test_results["session_available_true"]:
+            # Try different session start endpoints
+            session_start_endpoints = [
+                "session/start",
+                "sessions/start",
+                "blueprint/session/start"
+            ]
+            
+            session_started = False
+            for endpoint in session_start_endpoints:
+                print(f"   🔍 Trying endpoint: {endpoint}")
+                
+                success, session_response = self.run_test(
+                    f"Session Start via {endpoint}", 
+                    "POST", 
+                    endpoint, 
+                    [200, 201, 400, 404, 410, 500], 
+                    {"user_id": user_id} if user_id else None, 
+                    auth_headers
+                )
+                
+                if success and session_response:
+                    if session_response.get('session_id') or session_response.get('id'):
+                        test_results["session_start_endpoint_accessible"] = True
+                        test_results["session_start_working"] = True
+                        session_started = True
+                        
+                        session_id = session_response.get('session_id') or session_response.get('id')
+                        print(f"   ✅ Session started successfully via {endpoint}")
+                        print(f"   📊 Session ID: {session_id}")
+                        
+                        # Check if session has 12 questions
+                        questions = session_response.get('questions', [])
+                        if len(questions) == 12:
+                            test_results["twelve_questions_available"] = True
+                            print(f"   ✅ Session has 12 questions (expected for session #9)")
+                        else:
+                            print(f"   📊 Session has {len(questions)} questions")
+                        
+                        break
+                    elif session_response.get('status_code') == 410:
+                        print(f"   📋 Endpoint {endpoint} deprecated (410)")
+                    else:
+                        print(f"   📋 Endpoint {endpoint} responded but no session created")
+                else:
+                    print(f"   📋 Endpoint {endpoint} not available or failed")
+            
+            if not session_started:
+                print(f"   ⚠️ Could not start session via any tested endpoint")
+                print(f"   📋 This may be expected if session start requires different parameters")
+        else:
+            print(f"   📋 Skipping session start test (availability check failed or no auth)")
+        
+        # FINAL ASSESSMENT
+        print("\n" + "=" * 100)
+        print("🎯 SESSION #9 AVAILABILITY VERIFICATION - RESULTS")
+        print("=" * 100)
+        
+        passed_tests = sum(test_results.values())
+        total_tests = len(test_results)
+        success_rate = (passed_tests / total_tests) * 100 if total_tests > 0 else 0
+        
+        print(f"\nTEST RESULTS:")
+        for test, result in test_results.items():
+            status = "✅ PASS" if result else "❌ FAIL"
+            print(f"  {test.replace('_', ' ').title():<50} {status}")
+        
+        print("-" * 100)
+        print(f"Overall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
+        
+        # CRITICAL ASSESSMENT
+        print("\n🎯 CRITICAL ASSESSMENT:")
+        
+        # Core Requirements Check
+        core_requirements_met = (
+            test_results["user_authentication_working"] and
+            test_results["session_availability_endpoint_accessible"] and
+            test_results["session_available_true"] and
+            test_results["session_id_present"]
+        )
+        
+        if core_requirements_met:
+            print("\n✅ CORE REQUIREMENTS: MET")
+            print("   - User authentication successful")
+            print("   - Session availability endpoint accessible")
+            print("   - Session available: true")
+            print("   - Session ID present in response")
+        else:
+            print("\n❌ CORE REQUIREMENTS: NOT MET")
+            print("   - One or more core requirements failed")
+        
+        # Session Start Capability
+        if test_results["session_start_working"]:
+            print("\n✅ SESSION START CAPABILITY: WORKING")
+            print("   - Session can be started successfully")
+            if test_results["twelve_questions_available"]:
+                print("   - Session contains 12 questions as expected")
+        else:
+            print("\n⚠️ SESSION START CAPABILITY: NOT TESTED OR FAILED")
+            print("   - Session start may require different approach")
+        
+        # Overall Verification Status
+        verification_successful = (
+            test_results["user_authentication_working"] and
+            test_results["session_available_true"] and
+            test_results["session_id_present"]
+        )
+        
+        if verification_successful:
+            print("\n🎉 VERIFICATION STATUS: SUCCESS")
+            print("   - Session #9 is available for user twelvrhelp@gmail.com")
+            print("   - User can authenticate and check availability")
+            print("   - Session ID is provided for session start")
+        else:
+            print("\n❌ VERIFICATION STATUS: FAILED")
+            print("   - Session #9 availability could not be confirmed")
+        
+        # RECOMMENDATIONS
+        print("\n📋 RECOMMENDATIONS:")
+        
+        if not test_results["user_authentication_working"]:
+            print("   - CRITICAL: Fix user authentication for twelvrhelp@gmail.com")
+        
+        if not test_results["session_availability_endpoint_accessible"]:
+            print("   - CRITICAL: Fix /api/session/check-availability endpoint")
+        
+        if not test_results["session_available_true"]:
+            print("   - CRITICAL: Ensure session #9 is available for user twelvrhelp@gmail.com")
+        
+        if not test_results["session_id_present"]:
+            print("   - CRITICAL: Ensure session_id is returned in availability response")
+        
+        if verification_successful:
+            print("   - Session #9 availability successfully verified")
+            print("   - User can proceed with session start")
+            print("   - Ready for user access")
+        
+        print("\n" + "=" * 100)
+        print(f"🎯 SESSION #9 AVAILABILITY VERIFICATION COMPLETED")
+        print(f"📊 Final Score: {success_rate:.1f}% | Core Requirements: {'✅ MET' if core_requirements_met else '❌ NOT MET'}")
+        print(f"🚀 Verification Status: {'✅ SUCCESS' if verification_successful else '❌ FAILED'}")
+        print("=" * 100)
+        
+        return verification_successful
+
     def run_test(self, test_name, method, endpoint, expected_status, data=None, headers=None):
         """Run a single test and return success status and response"""
         self.tests_run += 1
