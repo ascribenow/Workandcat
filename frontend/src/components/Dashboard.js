@@ -1163,6 +1163,17 @@ ${response.data.errors > 0 ? '⚠️ Check the logs for error details.' : ''}`);
               >
                 🎯 Referral Tracker
               </button>
+              <button
+                onClick={() => handleTabChange('users-monitoring')}
+                className={`py-4 text-lg font-medium transition-colors ${
+                  activeTab === 'users-monitoring' 
+                    ? 'text-[#9ac026] border-b-2 border-[#9ac026]' 
+                    : 'text-[#545454] hover:text-[#9ac026]'
+                }`}
+                style={{ fontFamily: 'Lato, sans-serif' }}
+              >
+                👥 Users Monitoring
+              </button>
             </nav>
           </div>
 
