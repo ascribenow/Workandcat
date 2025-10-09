@@ -120,7 +120,7 @@ const AdminUsersMonitoring = () => {
     setActionLoading({ ...actionLoading, [userId]: true });
 
     try {
-      const token = localStorage.getItem('access_token');
+      const token = localStorage.getItem('cat_prep_token');
       const response = await axios.post(
         `${backendUrl}/api/admin/fix-user-jobs`,
         { user_id: userId },
