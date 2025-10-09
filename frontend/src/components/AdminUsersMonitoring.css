@@ -1,0 +1,354 @@
+.admin-monitoring-container {
+  padding: 20px;
+  max-width: 100%;
+  margin: 0 auto;
+  background-color: #f5f7fa;
+  min-height: 100vh;
+}
+
+.monitoring-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 30px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.monitoring-header h1 {
+  margin: 0 0 10px 0;
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.monitoring-header .subtitle {
+  margin: 0;
+  font-size: 16px;
+  opacity: 0.9;
+}
+
+.controls-panel {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 15px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.filter-section {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 300px;
+}
+
+.filter-section label {
+  font-weight: 500;
+  color: #374151;
+}
+
+.uuid-filter-input {
+  flex: 1;
+  padding: 10px 15px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: 'Courier New', monospace;
+  transition: border-color 0.2s;
+}
+
+.uuid-filter-input:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.clear-filter-btn {
+  padding: 10px 20px;
+  background-color: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.clear-filter-btn:hover {
+  background-color: #dc2626;
+}
+
+.refresh-section {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.auto-refresh-toggle label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #374151;
+  cursor: pointer;
+}
+
+.auto-refresh-toggle input[type="checkbox"] {
+  cursor: pointer;
+  width: 18px;
+  height: 18px;
+}
+
+.refresh-btn,
+.csv-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 14px;
+}
+
+.refresh-btn {
+  background-color: #667eea;
+  color: white;
+}
+
+.refresh-btn:hover {
+  background-color: #5568d3;
+}
+
+.csv-btn {
+  background-color: #10b981;
+  color: white;
+}
+
+.csv-btn:hover {
+  background-color: #059669;
+}
+
+.last-updated {
+  text-align: right;
+  color: #6b7280;
+  font-size: 13px;
+  margin-bottom: 10px;
+  font-style: italic;
+}
+
+.users-count {
+  background: white;
+  padding: 12px 20px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  font-weight: 500;
+  color: #374151;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.table-container {
+  background: white;
+  border-radius: 12px;
+  overflow-x: auto;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.monitoring-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 1800px;
+}
+
+.monitoring-table thead {
+  background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.monitoring-table th {
+  padding: 15px 12px;
+  text-align: left;
+  font-weight: 600;
+  color: #374151;
+  border-bottom: 2px solid #d1d5db;
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+  transition: background-color 0.2s;
+}
+
+.monitoring-table th:hover {
+  background-color: #e5e7eb;
+}
+
+.monitoring-table td {
+  padding: 12px;
+  border-bottom: 1px solid #f3f4f6;
+  color: #1f2937;
+  font-size: 14px;
+}
+
+.monitoring-table tbody tr {
+  transition: background-color 0.2s;
+}
+
+.monitoring-table tbody tr:hover {
+  background-color: #f9fafb;
+}
+
+.monitoring-table tbody tr.critical-row {
+  background-color: #fff5f5;
+  border-left: 4px solid #ef4444;
+}
+
+.monitoring-table tbody tr.critical-row:hover {
+  background-color: #fee2e2;
+}
+
+.uuid-cell {
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  color: #6b7280;
+  max-width: 300px;
+  word-break: break-all;
+  white-space: normal;
+}
+
+.centered {
+  text-align: center;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-badge.success {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.status-badge.error {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.status-badge.critical {
+  background-color: #fecaca;
+  color: #7f1d1d;
+  animation: pulse 2s infinite;
+}
+
+.status-badge.ok {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.badge-warning {
+  display: inline-block;
+  padding: 4px 10px;
+  background-color: #fef3c7;
+  color: #92400e;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.fix-btn {
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 13px;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.fix-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(245, 158, 11, 0.3);
+}
+
+.fix-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.loading-spinner {
+  text-align: center;
+  padding: 100px 20px;
+  font-size: 18px;
+  color: #6b7280;
+}
+
+.error-message {
+  background-color: #fee2e2;
+  color: #991b1b;
+  padding: 20px;
+  border-radius: 12px;
+  text-align: center;
+  font-weight: 500;
+  margin: 50px auto;
+  max-width: 600px;
+  border: 2px solid #fecaca;
+}
+
+.no-results {
+  text-align: center;
+  padding: 50px 20px;
+  color: #6b7280;
+  font-size: 16px;
+  font-style: italic;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+  .controls-panel {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filter-section {
+    min-width: 100%;
+  }
+
+  .refresh-section {
+    justify-content: space-between;
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-monitoring-container {
+    padding: 10px;
+  }
+
+  .monitoring-header {
+    padding: 20px;
+  }
+
+  .monitoring-header h1 {
+    font-size: 22px;
+  }
+}
