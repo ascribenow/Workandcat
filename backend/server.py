@@ -961,6 +961,7 @@ async def get_admin_referral_dashboard(admin_user: User = Depends(get_current_ad
         db.close()
 
 @app.get("/api/admin/export-referral-data")
+@app.get("/api/admin/referral-export")  # Frontend alias
 async def export_referral_data(admin_user: User = Depends(get_current_admin_user)):
     """Export referral data for admin analysis"""
     db = SessionLocal()
