@@ -14,6 +14,7 @@ import SessionStatus from './SessionStatus';
 import DashboardErrorBoundary from './DashboardErrorBoundary';
 import AdaptiveCooldownModal from './AdaptiveCooldownModal';
 import AdaptiveFailureModal from './AdaptiveFailureModal';
+import AdminUsersMonitoring from './AdminUsersMonitoring';
 
 export const Dashboard = () => {
   const { user, logout, isAdmin, token } = useAuth();
