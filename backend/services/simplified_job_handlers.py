@@ -874,16 +874,51 @@ async def generate_personalized_session_pack(user_id: str, learning_data: Dict[s
         db.close()
 
 async def persist_session_pack(user_id: str, session_pack: Dict[str, Any]) -> str:
-    """Persist session pack to session_packs table for Blueprint consumption"""
+    """
+    Persist session pack to database tables (Blueprint schema) with ATOMIC transaction
+    
+    CRITICAL FIX: Ensures session_packs and session_pack_questions are created atomically
+    to prevent orphaned questions without metadata.
+    """
+    
     db = SessionLocal()
+    
+    # IDEMPOTENCY CHECK: Prevent duplicate packs on retry
     try:
-        # Generate pack ID
+        existing = db.execute(text("""
+            SELECT sp.session_id, COUNT(spq.position) as q_count
+            FROM session_packs sp
+            LEFT JOIN session_pack_questions spq ON sp.session_id::text = spq.session_id::text
+            LEFT JOIN sessions s ON sp.session_id::text = s.session_id::text
+            WHERE sp.user_id::text = :user_id
+            AND (s.status IS NULL OR s.status IN ('planned', 'active'))
+            GROUP BY sp.session_id
+            HAVING COUNT(spq.position) = 12
+            ORDER BY sp.created_at DESC
+            LIMIT 1
+        """), {"user_id": user_id}).fetchone()
+        
+        if existing:
+            logger.info(f"⚠️  Pack already exists for user {user_id[:8]} (retry detected): {existing[0]}")
+            return str(existing[0])
+    except Exception as check_error:
+        logger.warning(f"Idempotency check failed (continuing): {check_error}")
+    
+    # EXPLICIT TRANSACTION CONTROL
+    trans = db.begin()
+    
+    try:
+        # Generate session_id (UUID) for this pack
         import uuid
         pack_id = str(uuid.uuid4())
         
+        # Extract questions and metadata
+        questions = session_pack.get("questions", [])
+        
+        logger.info(f"📦 Persisting session pack: {pack_id[:8]} with {len(questions)} questions")
+        
         # Insert into session_packs (using existing Blueprint schema)
-        # Note: session_packs uses session_id as primary key, not id
-        constraint_report_json = json.dumps({
+        constraint_report = json.dumps({
             "pack_type": session_pack["pack_type"],
             "difficulty_distribution": session_pack["difficulty_distribution"],
             "planning_strategy": session_pack["planning_strategy"],
@@ -897,10 +932,11 @@ async def persist_session_pack(user_id: str, session_pack: Dict[str, Any]) -> st
             ) VALUES (
                 CAST(:session_id AS uuid), CAST(:user_id AS uuid), CAST(:constraint_report AS jsonb), :created_at
             )
+            ON CONFLICT (session_id) DO NOTHING
         """), {
             "session_id": pack_id,
             "user_id": user_id,
-            "constraint_report": constraint_report_json,
+            "constraint_report": constraint_report,
             "created_at": now_ist()
         })
         
