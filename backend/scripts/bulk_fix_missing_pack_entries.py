@@ -108,8 +108,6 @@ for session_id, email in sessions_to_fix:
             })
             
             # Insert session_packs entry
-            trans = conn.begin()
-            
             try:
                 conn.execute(text("""
                     INSERT INTO session_packs (
