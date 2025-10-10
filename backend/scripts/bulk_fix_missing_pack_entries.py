@@ -59,8 +59,8 @@ print(f"\nProcessing {len(sessions_to_fix)} sessions...")
 fixed_count = 0
 error_count = 0
 
-for session_id, email in sessions_to_fix:
-    with engine.connect() as conn:
+with engine.connect() as conn:
+    for session_id, email in sessions_to_fix:
         try:
             # Get session details
             result = conn.execute(text("""
