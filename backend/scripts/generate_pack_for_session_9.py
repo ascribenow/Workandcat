@@ -132,11 +132,11 @@ async def persist_session_pack_with_session_id(user_id: str, session_pack: dict,
                 user_id, session_id, pack, status, planning_strategy,
                 created_at, served_at
             ) VALUES (
-                :user_id, CAST(:session_id AS uuid), :pack, 'ready', 'adaptive',
+                :user_id, CAST(:session_id AS uuid), :pack, 'planned', 'adaptive',
                 NOW(), NULL
             )
             ON CONFLICT (session_id) DO UPDATE
-            SET pack = :pack, status = 'ready', created_at = NOW()
+            SET pack = :pack, status = 'planned', created_at = NOW()
         """), {
             "user_id": user_id,
             "session_id": session_id,
