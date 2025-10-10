@@ -6,9 +6,13 @@ import os
 import sys
 import json
 from sqlalchemy import create_engine, text
-from utils.timezone_utils import now_ist
+from datetime import datetime, timezone
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+def now_ist():
+    """Get current time in IST"""
+    return datetime.now(timezone.utc)
 
 db_url = os.environ.get('DATABASE_URL')
 engine = create_engine(db_url, pool_pre_ping=True)
