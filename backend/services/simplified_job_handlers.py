@@ -940,16 +940,14 @@ async def persist_session_pack(user_id: str, session_pack: Dict[str, Any]) -> st
             "created_at": now_ist()
         })
         
-        # Insert questions into session_pack_questions
-        questions = session_pack.get("questions", [])
-        
+        # Validate questions before proceeding
         if not questions:
             raise ValueError(f"Session pack has no questions - cannot persist empty pack")
         
         if len(questions) != 12:
             logger.warning(f"⚠️  Session pack has {len(questions)} questions instead of 12")
         
-        # Insert all questions in a single transaction
+        # Insert all questions atomically within the same transaction
         questions_inserted = 0
         for idx, question in enumerate(questions, 1):
             try:
@@ -986,6 +984,7 @@ async def persist_session_pack(user_id: str, session_pack: Dict[str, Any]) -> st
                     ) VALUES (
                         CAST(:session_id AS uuid), :position, CAST(:question_id AS uuid), CAST(:question_data AS jsonb)
                     )
+                    ON CONFLICT (session_id, position) DO NOTHING
                 """), {
                     "session_id": pack_id,
                     "position": question["position"],
@@ -997,17 +996,23 @@ async def persist_session_pack(user_id: str, session_pack: Dict[str, Any]) -> st
                 
             except Exception as insert_error:
                 logger.error(f"❌ Failed to insert question {idx}/{len(questions)}: {insert_error}")
-                raise  # Re-raise to trigger rollback
+                trans.rollback()  # Explicit rollback on question insert failure
+                raise  # Re-raise to trigger outer exception handling
         
-        db.commit()
-        logger.info(f"✅ Persisted session pack {pack_id[:8]} with {questions_inserted}/{len(questions)} questions for user {user_id[:8]}")
+        # ATOMIC COMMIT: Both session_packs and session_pack_questions succeed together
+        trans.commit()
+        logger.info(f"✅ ATOMIC SUCCESS: Persisted session pack {pack_id[:8]} with {questions_inserted}/{len(questions)} questions for user {user_id[:8]}")
         
         return pack_id
         
     except Exception as e:
-        db.rollback()
-        logger.error(f"❌ Failed to persist session pack for user {user_id[:8]}: {e}")
-        raise
+        # Ensure transaction is rolled back on any failure
+        try:
+            trans.rollback()
+        except:
+            pass  # Transaction may already be rolled back
+        logger.error(f"❌ ATOMIC FAILURE: Failed to persist session pack for user {user_id[:8]}: {e}")
+        raise Exception(f"Session pack persistence failed atomically: {str(e)}")
     finally:
         db.close()
 
