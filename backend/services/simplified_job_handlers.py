@@ -404,6 +404,29 @@ async def handle_plan_next_session(job: Dict[str, Any]) -> Dict[str, Any]:
     logger.info(f"📋 PLAN_NEXT_SESSION: user {user_id[:8]}")
     
     try:
+        # Step 0: Check if pack already exists (prevent duplicates on retry)
+        from database import SessionLocal
+        db = SessionLocal()
+        existing_pack = db.execute(text("""
+            SELECT sp.session_id
+            FROM session_packs sp
+            LEFT JOIN sessions s ON CAST(sp.session_id AS varchar) = CAST(s.session_id AS varchar)
+            WHERE sp.user_id = :user_id
+            AND (s.session_id IS NULL OR s.status IN ('planned', 'active'))
+            LIMIT 1
+        """), {"user_id": user_id}).fetchone()
+        db.close()
+        
+        if existing_pack:
+            logger.info(f"⚠️  PLAN_NEXT_SESSION: Pack already exists for user {user_id[:8]}, skipping")
+            return {
+                "status": "success",
+                "session_pack_created": False,
+                "pack_id": str(existing_pack[0]),
+                "message": "Pack already exists (retry detected)",
+                "questions_selected": 12
+            }
+        
         # Step 1: Gather user learning data for planning
         learning_data = await gather_user_learning_data(user_id)
         
