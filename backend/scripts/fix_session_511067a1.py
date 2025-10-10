@@ -65,12 +65,7 @@ async def fix_session():
             user_id=USER_ID,
             session_id=SESSION_ID,  # Include session_id so it generates for this specific session
             correlation_id=None,
-            max_attempts=6,
-            metadata={
-                "sess_seq": session[2],
-                "fix_script": True,
-                "reason": "Manual fix for stuck session 511067a1"
-            }
+            max_attempts=6
         )
         
         print(f"✓ Job enqueued: {job_id}")
