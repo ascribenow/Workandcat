@@ -78,7 +78,7 @@ for session_id, email in sessions_to_fix:
             # Analyze questions to create constraint_report
             result = conn.execute(text("""
                 SELECT question_data FROM session_pack_questions
-                WHERE session_id = CAST(:sid AS uuid)
+                WHERE CAST(session_id AS varchar) = :sid
                 ORDER BY position
             """), {"sid": session_id})
             
