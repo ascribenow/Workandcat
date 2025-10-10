@@ -9,7 +9,7 @@ import json
 from datetime import datetime
 
 class DatabaseVerificationTester:
-    def __init__(self, base_url="https://mcq-platform-1.preview.emergentagent.com/api"):
+    def __init__(self, base_url="https://study-optimizer-1.preview.emergentagent.com/api"):
         self.base_url = base_url
         self.admin_token = None
         self.admin_headers = None

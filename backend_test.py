@@ -9,7 +9,7 @@ import uuid
 import asyncio
 
 class CATBackendTester:
-    def __init__(self, base_url="https://mcq-platform-1.preview.emergentagent.com/api"):
+    def __init__(self, base_url="https://study-optimizer-1.preview.emergentagent.com/api"):
         self.base_url = base_url
         self.student_user = None
         self.admin_user = None
@@ -88,7 +88,7 @@ class CATBackendTester:
         print("🎯 CRITICAL BLUEPRINT SESSION RESUMPTION BUG FIX VALIDATION")
         print("=" * 100)
         print("OBJECTIVE: Test critical bug fix for users with adaptive_enabled=false")
-        print("BACKEND URL: https://mcq-platform-1.preview.emergentagent.com")
+        print("BACKEND URL: https://study-optimizer-1.preview.emergentagent.com")
         print("PRIMARY TEST USER: twelvrhelp@gmail.com / student123 (adaptive_enabled=false)")
         print("SECONDARY TEST USER: sp@theskinmantra.com / student123 (adaptive_enabled=true)")
         print("FOCUS: Backend session management, current_position tracking, session resumption")
@@ -611,7 +611,7 @@ class CATBackendTester:
         print("🎯 COMPREHENSIVE BACKGROUND JOB PIPELINE VERIFICATION TESTING")
         print("=" * 100)
         print("OBJECTIVE: Test critical bug fix for PLAN_NEXT_SESSION jobs creating empty session packs")
-        print("BACKEND URL: https://mcq-platform-1.preview.emergentagent.com")
+        print("BACKEND URL: https://study-optimizer-1.preview.emergentagent.com")
         print("TEST USER: ananddd369@gmail.com (user with previously empty session packs)")
         print("FOCUS: Background job pipeline, session pack data integrity, 12-question validation")
         print("=" * 100)
@@ -1149,7 +1149,7 @@ class CATBackendTester:
         print("🔍 QUICK INVESTIGATION: Recent Session Activity Check")
         print("=" * 100)
         print("OBJECTIVE: Investigate recent session and background job activity")
-        print("BACKEND URL: https://mcq-platform-1.preview.emergentagent.com")
+        print("BACKEND URL: https://study-optimizer-1.preview.emergentagent.com")
         print("TARGET USER: sp@theskinmantra.com / student123")
         print("FOCUS: Recent sessions, background jobs, session packs, system activity")
         print("=" * 100)
@@ -1640,7 +1640,7 @@ class CATBackendTester:
         3. Core System Functionality
         4. Production Readiness Metrics
         
-        BACKEND URL: https://mcq-platform-1.preview.emergentagent.com
+        BACKEND URL: https://study-optimizer-1.preview.emergentagent.com
         TEST CREDENTIALS: sp@theskinmantra.com / student123
         
         CRITICAL AREAS TO VALIDATE:
@@ -1664,7 +1664,7 @@ class CATBackendTester:
         print("🎯 DEPLOYMENT READINESS CHECK FOR TWELVR ADAPTIVE LEARNING APPLICATION")
         print("=" * 100)
         print("OBJECTIVE: Comprehensive deployment readiness validation")
-        print("BACKEND URL: https://mcq-platform-1.preview.emergentagent.com")
+        print("BACKEND URL: https://study-optimizer-1.preview.emergentagent.com")
         print("TEST CREDENTIALS: sp@theskinmantra.com / student123")
         print("FOCUS: Health monitoring, job pipeline, core functionality, production readiness")
         print("=" * 100)
@@ -2293,7 +2293,7 @@ class CATBackendTester:
         print("🎯 HEALTH CHECK FOR USER twelvrhelp@gmail.com AFTER SESSION #8 COMPLETION")
         print("=" * 100)
         print("OBJECTIVE: Verify complete background job pipeline after session #8 completion")
-        print("BACKEND URL: https://mcq-platform-1.preview.emergentagent.com")
+        print("BACKEND URL: https://study-optimizer-1.preview.emergentagent.com")
         print("TARGET USER: twelvrhelp@gmail.com")
         print("TARGET SESSION: Session #8")
         print("FOCUS: Background jobs, data pipeline, next session pre-packing")
@@ -2883,7 +2883,7 @@ class CATBackendTester:
         print("🎯 MANUAL BACKGROUND JOB TRIGGER FOR USER twelvrhelp@gmail.com SESSION #8")
         print("=" * 100)
         print("OBJECTIVE: Manually trigger background job pipeline for session #8 (ea7950b8)")
-        print("BACKEND URL: https://mcq-platform-1.preview.emergentagent.com")
+        print("BACKEND URL: https://study-optimizer-1.preview.emergentagent.com")
         print("TARGET USER: twelvrhelp@gmail.com")
         print("TARGET SESSION: #8 (ea7950b8)")
         print("PIPELINE: SUMMARIZE_SESSION → UPDATE_INSIGHTS → PLAN_NEXT_SESSION")
@@ -3431,7 +3431,7 @@ class CATBackendTester:
         print("=" * 100)
         print("OBJECTIVE: Verify background job status after session completion endpoint fixes")
         print("USER: twelvrhelp@gmail.com (User ID: b223f5b0-5aed-40e1-929e-fbfd2a2bc5ca)")
-        print("BACKEND URL: https://mcq-platform-1.preview.emergentagent.com")
+        print("BACKEND URL: https://study-optimizer-1.preview.emergentagent.com")
         print("FOCUS: Background jobs, data pipeline, next session pre-packing")
         print("=" * 100)
         
@@ -4003,7 +4003,7 @@ class CATBackendTester:
         print("🎯 SESSION #9 AVAILABILITY VERIFICATION FOR USER twelvrhelp@gmail.com")
         print("=" * 100)
         print("OBJECTIVE: Verify Session #9 is Available for User twelvrhelp@gmail.com")
-        print("BACKEND URL: https://mcq-platform-1.preview.emergentagent.com")
+        print("BACKEND URL: https://study-optimizer-1.preview.emergentagent.com")
         print("TEST USER: twelvrhelp@gmail.com / student123")
         print("FOCUS: Session availability verification and session start capability")
         print("=" * 100)
@@ -4310,7 +4310,7 @@ class CATBackendTester:
         print("=" * 100)
         print("OBJECTIVE: Verify background job pipeline executed and next session is pre-packed")
         print("TARGET USER ID: 149d5f09-aeb2-4613-8aad-fbced398bd93")
-        print("BACKEND URL: https://mcq-platform-1.preview.emergentagent.com")
+        print("BACKEND URL: https://study-optimizer-1.preview.emergentagent.com")
         print("FOCUS: Background jobs, session packs, session availability")
         print("=" * 100)
         
@@ -5521,7 +5521,7 @@ class CATBackendTester:
         print("🎯 INSIGHT GENERATION SYSTEM MINIMUM ATTEMPT THRESHOLD TESTING")
         print("=" * 100)
         print("OBJECTIVE: Test fixed insight generation system for minimum attempt threshold")
-        print("BACKEND URL: https://mcq-platform-1.preview.emergentagent.com")
+        print("BACKEND URL: https://study-optimizer-1.preview.emergentagent.com")
         print("TEST USER: twelvrhelp@gmail.com (reported the issue)")
         print("FOCUS: Attempt counts, mastery claims, softer language for low-data concepts")
         print("=" * 100)
@@ -5958,7 +5958,7 @@ class CATBackendTester:
         OBJECTIVE: Perform thorough audit of all adaptive system components after user sp@theskinmantra.com 
         completed session #17 to verify background jobs, database updates, and data pipeline integrity.
         
-        BACKEND URL: https://mcq-platform-1.preview.emergentagent.com
+        BACKEND URL: https://study-optimizer-1.preview.emergentagent.com
         USER TO AUDIT: sp@theskinmantra.com / student123
         SESSION: #17 (most recent completed session)
         
@@ -6007,7 +6007,7 @@ class CATBackendTester:
         print("🎯 COMPREHENSIVE ADAPTIVE SYSTEM AUDIT - SESSION #17 COMPLETION")
         print("=" * 100)
         print("OBJECTIVE: Thorough audit of adaptive system components after session #17 completion")
-        print("BACKEND URL: https://mcq-platform-1.preview.emergentagent.com")
+        print("BACKEND URL: https://study-optimizer-1.preview.emergentagent.com")
         print("USER TO AUDIT: sp@theskinmantra.com (Session #17)")
         print("FOCUS: Background jobs, database updates, data pipeline integrity")
         print("=" * 100)
@@ -6553,7 +6553,7 @@ class CATBackendTester:
         
         OBJECTIVE: Test the Ask Twelvr doubts system to verify that user messages are correctly stored and retrieved without modification.
         
-        BACKEND URL: https://mcq-platform-1.preview.emergentagent.com
+        BACKEND URL: https://study-optimizer-1.preview.emergentagent.com
         TEST CREDENTIALS: sp@theskinmantra.com / student123
         
         TEST SCENARIO:
@@ -6583,7 +6583,7 @@ class CATBackendTester:
         print("🎯 ASK TWELVR CONVERSATION FLOW TO VERIFY MESSAGE HANDLING")
         print("=" * 90)
         print("OBJECTIVE: Test Ask Twelvr doubts system to verify user messages are stored without modification")
-        print("BACKEND URL: https://mcq-platform-1.preview.emergentagent.com")
+        print("BACKEND URL: https://study-optimizer-1.preview.emergentagent.com")
         print("TEST CREDENTIALS: sp@theskinmantra.com / student123")
         print("FOCUS: Message storage integrity, conversation flow, chronological order")
         print("=" * 90)
@@ -36528,7 +36528,7 @@ def main():
         print("🎯 FINAL HEALTH CHECK VERIFICATION FOR USER twelvrhelp@gmail.com")
         print("=" * 100)
         print("OBJECTIVE: Verify complete pipeline execution and next session availability")
-        print("BACKEND URL: https://mcq-platform-1.preview.emergentagent.com")
+        print("BACKEND URL: https://study-optimizer-1.preview.emergentagent.com")
         print("TARGET USER: twelvrhelp@gmail.com / student123")
         print("FOCUS: Background job completion, data pipeline, next session availability")
         print("=" * 100)
@@ -46032,7 +46032,7 @@ def main():
         6. **Response Times**: Check for timeout issues in authentication flow
         
         AUTHENTICATION CREDENTIALS: sp@theskinmantra.com/student123
-        BACKEND URL: https://mcq-platform-1.preview.emergentagent.com/api
+        BACKEND URL: https://study-optimizer-1.preview.emergentagent.com/api
         """
         print("🚨 CRITICAL AUTHENTICATION INVESTIGATION")
         print("=" * 80)
@@ -46309,7 +46309,7 @@ def main():
             options_response = requests.options(
                 f"{self.base_url}/auth/login",
                 headers={
-                    'Origin': 'https://mcq-platform-1.preview.emergentagent.com',
+                    'Origin': 'https://study-optimizer-1.preview.emergentagent.com',
                     'Access-Control-Request-Method': 'POST',
                     'Access-Control-Request-Headers': 'Content-Type,Authorization'
                 },
@@ -46332,7 +46332,7 @@ def main():
                 else:
                     print(f"     {header}: Not present")
             
-            if cors_headers['Access-Control-Allow-Origin'] in ['*', 'https://mcq-platform-1.preview.emergentagent.com']:
+            if cors_headers['Access-Control-Allow-Origin'] in ['*', 'https://study-optimizer-1.preview.emergentagent.com']:
                 print(f"   ✅ CORS configured for frontend domain")
             else:
                 print(f"   ⚠️ CORS may not be configured for frontend domain")
@@ -47893,7 +47893,7 @@ def main():
         - Headers (CORS, Content-Type, etc.)
         
         AUTHENTICATION CREDENTIALS: sp@theskinmantra.com/student123
-        API BASE: Test both https://mcq-platform-1.preview.emergentagent.com and https://adaptive-quant.emergent.host
+        API BASE: Test both https://study-optimizer-1.preview.emergentagent.com and https://adaptive-quant.emergent.host
         
         EXPECTED RESPONSES:
         - plan-next: { status:"ok", reused: false|true, pack:[…12…] }
@@ -50572,7 +50572,7 @@ def main():
         print("📋 COMPREHENSIVE ADAPTIVE SESSION COMPLETION AUDIT FOR sp@theskinmantra.com")
         print("=" * 100)
         print("OBJECTIVE: Detailed audit of complete adaptive session completion pipeline")
-        print("BACKEND URL: https://mcq-platform-1.preview.emergentagent.com")
+        print("BACKEND URL: https://study-optimizer-1.preview.emergentagent.com")
         print("TEST USER: sp@theskinmantra.com / student123")
         print("FOCUS: Session completion pipeline, background jobs, data validation, timing analysis")
         print("=" * 100)

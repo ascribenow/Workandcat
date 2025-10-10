@@ -217,7 +217,7 @@ def main():
     
     # Test both API bases
     api_bases = [
-        ("https://mcq-platform-1.preview.emergentagent.com/api", "PRIMARY API BASE"),
+        ("https://study-optimizer-1.preview.emergentagent.com/api", "PRIMARY API BASE"),
         ("https://adaptive-quant.emergent.host/api", "SECONDARY API BASE")
     ]
     

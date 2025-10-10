@@ -8,7 +8,7 @@ import time
 import os
 
 class SessionCompletionAuditor:
-    def __init__(self, base_url="https://mcq-platform-1.preview.emergentagent.com/api"):
+    def __init__(self, base_url="https://study-optimizer-1.preview.emergentagent.com/api"):
         self.base_url = base_url
         self.tests_run = 0
         self.tests_passed = 0
@@ -78,7 +78,7 @@ class SessionCompletionAuditor:
         print("📋 COMPREHENSIVE ADAPTIVE SESSION COMPLETION AUDIT FOR sp@theskinmantra.com")
         print("=" * 100)
         print("OBJECTIVE: Detailed audit of complete adaptive session completion pipeline")
-        print("BACKEND URL: https://mcq-platform-1.preview.emergentagent.com")
+        print("BACKEND URL: https://study-optimizer-1.preview.emergentagent.com")
         print("TEST USER: sp@theskinmantra.com / student123")
         print("FOCUS: Session completion pipeline, background jobs, data validation, timing analysis")
         print("=" * 100)

@@ -8,7 +8,7 @@ import time
 
 class FinalHealthCheckTester:
     def __init__(self):
-        self.base_url = "https://mcq-platform-1.preview.emergentagent.com/api"
+        self.base_url = "https://study-optimizer-1.preview.emergentagent.com/api"
         self.tests_run = 0
         self.tests_passed = 0
 

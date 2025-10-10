@@ -7,7 +7,7 @@ import json
 import time
 
 def test_re_enrichment():
-    base_url = "https://mcq-platform-1.preview.emergentagent.com/api"
+    base_url = "https://study-optimizer-1.preview.emergentagent.com/api"
     
     print("🚨 CRITICAL RE-ENRICHMENT TEST")
     print("=" * 50)
