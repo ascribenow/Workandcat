@@ -136,6 +136,10 @@ with engine.connect() as conn:
         except Exception as e:
             print(f"\n✗ {email}: Error - {str(e)[:100]}")
             error_count += 1
+    
+    # Commit all changes at the end
+    conn.commit()
+    print("\n✅ All changes committed to database")
 
 print("\n" + "=" * 80)
 print("BULK FIX COMPLETE")
