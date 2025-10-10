@@ -51678,16 +51678,27 @@ def main():
 if __name__ == "__main__":
     tester = CATBackendTester()
     
-    # Run the recent session activity investigation
-    print("🔍 Starting Recent Session Activity Investigation")
+    # Run the database constraint cleanup verification test
+    print("🚀 STARTING DATABASE CONSTRAINT CLEANUP VERIFICATION TESTING")
     print("=" * 100)
     
-    success = tester.test_recent_session_activity_investigation()
+    success = tester.test_database_constraint_cleanup_verification()
     
     print("\n" + "=" * 100)
-    print(f"🎯 INVESTIGATION COMPLETED")
+    print("🎯 TESTING COMPLETED")
+    print("=" * 100)
+    
+    if success:
+        print("✅ DATABASE CONSTRAINT CLEANUP VERIFICATION: SUCCESS")
+        print("🎉 All critical database operations working after constraint cleanup")
+        print("🚀 Application is production-ready")
+        exit_code = 0
+    else:
+        print("❌ DATABASE CONSTRAINT CLEANUP VERIFICATION: ISSUES DETECTED")
+        print("⚠️ Critical issues need attention before production use")
+        exit_code = 1
+    
     print(f"📊 Tests Run: {tester.tests_run}")
     print(f"✅ Tests Passed: {tester.tests_passed}")
-    print(f"📈 Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%")
-    print(f"🚀 Overall Result: {'✅ SUCCESS' if success else '❌ NEEDS ATTENTION'}")
+    print(f"📈 Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%" if tester.tests_run > 0 else "📈 Success Rate: 0%")
     print("=" * 100)
