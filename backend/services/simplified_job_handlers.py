@@ -152,7 +152,7 @@ async def run_simplified_summarizer(user_id: str, session_id: str) -> Dict[str, 
                 print(f"🔧 PRINT DEBUG: concept_map_data has {len(concept_map_data)} entries")
                 if concept_map_data:
                     logger.info(f"📊 Upserting concept alias map ({len(concept_map_data)} concepts)...")
-                    print(f"📊 PRINT DEBUG: Starting concept upsert loop...")
+                    print("📊 PRINT DEBUG: Starting concept upsert loop...")
                     try:
                         # Insert each concept as a separate row with correct structure
                         for concept_entry in concept_map_data:
@@ -226,7 +226,7 @@ async def run_simplified_summarizer(user_id: str, session_id: str) -> Dict[str, 
                     
                     print(f"✅ POST-CONDITION: Verified {verify_concepts} concepts written")
                 
-                print(f"✅ POST-CONDITION: All required data verified in database")
+                print("✅ POST-CONDITION: All required data verified in database")
                 print("✅ PRINT DEBUG: Function completing normally")
                 
                 return session_data
@@ -942,7 +942,7 @@ async def persist_session_pack(user_id: str, session_pack: Dict[str, Any]) -> st
         
         # Validate questions before proceeding
         if not questions:
-            raise ValueError(f"Session pack has no questions - cannot persist empty pack")
+            raise ValueError("Session pack has no questions - cannot persist empty pack")
         
         if len(questions) != 12:
             logger.warning(f"⚠️  Session pack has {len(questions)} questions instead of 12")
