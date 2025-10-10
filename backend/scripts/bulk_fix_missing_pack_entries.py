@@ -59,12 +59,12 @@ print(f"\nProcessing {len(sessions_to_fix)} sessions...")
 fixed_count = 0
 error_count = 0
 
-with engine.connect() as conn:
-    for session_id, email in sessions_to_fix:
+for session_id, email in sessions_to_fix:
+    with engine.connect() as conn:
         try:
             # Get session details
             result = conn.execute(text("""
-                SELECT user_id FROM sessions WHERE session_id = CAST(:sid AS uuid)
+                SELECT user_id FROM sessions WHERE CAST(session_id AS varchar) = :sid
             """), {"sid": session_id})
             
             session_data = result.fetchone()
