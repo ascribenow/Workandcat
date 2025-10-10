@@ -138,7 +138,7 @@ for session_id, email in sessions_to_fix:
                 error_count += 1
                 
         except Exception as e:
-            print(f"\n✗ {email}: Error - {e}")
+            print(f"\n✗ {email}: Error - {str(e)[:100]}")
             error_count += 1
 
 print("\n" + "=" * 80)
