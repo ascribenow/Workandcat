@@ -801,7 +801,7 @@ async def generate_personalized_session_pack(user_id: str, learning_data: Dict[s
                 if isinstance(mcq_options_raw, str):
                     try:
                         mcq_options_raw = json.loads(mcq_options_raw)
-                    except:
+                    except (json.JSONDecodeError, TypeError):
                         mcq_options_raw = None
                 
                 # Convert list to dict format
