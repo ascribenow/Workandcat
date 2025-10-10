@@ -126,13 +126,11 @@ for session_id, email in sessions_to_fix:
                     "created_at": now_ist()
                 })
                 
-                trans.commit()
                 print(f"\n✓ {email}: Added session_packs entry ({len(questions)} questions)")
                 fixed_count += 1
                 
             except Exception as e:
-                trans.rollback()
-                print(f"\n✗ {email}: Error - {e}")
+                print(f"\n✗ {email}: Insert error - {str(e)[:100]}")
                 error_count += 1
                 
         except Exception as e:
