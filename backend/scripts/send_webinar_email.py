@@ -116,32 +116,30 @@ def send_webinar_email(to_email: str) -> bool:
     
     # Plain text version
     plain_text = """
-🎯 WEBINAR: Master Quant in 50 Days with AI
+Founders' Session — Using AI to cover quant syllabus
 
-Hey there! 👋
+Hi,
 
-With just 50 days left until CAT 2025, every moment counts. Join our special Founders' Session this Sunday to learn game-changing hacks for mastering Quant using AI.
+With 50 days to CAT, I'm conducting a webinar this Sunday to share hacks and tools to use AI for quick coverage of quants. I'll also walk you through an AI tool that I've built for this purpose — it's free.
 
-📚 WHAT YOU'LL LEARN:
-• Leverage AI to cover the entire Quant syllabus in 50 days
-• Twelvr Hacks: How to make the adaptive engine learn YOU faster
-• Inside the Engine: What Twelvr's adaptive algorithm really does
-• Free AI Tool: Get access to the AI-powered prep tool I've built
+Twelvr Hacks — What we'll cover:
+• Leverage AI for quants syllabus coverage in 50 days
+• How to hack Twelvr so the engine learns you quickly
+• What the adaptive engine really does
 
-📅 WHEN: This Sunday
-💰 FREE • Online • Interactive
+When: This Sunday
+Where: Online (link will be shared upon RSVP)
+Cost: Free
 
-🎯 RSVP NOW: https://rsvp.link/founderscircle
+RSVP Here: https://rsvp.link/founderscircle
 
-WHY THIS MATTERS:
-Traditional prep methods take months. With AI and smart strategies, you can cover the same ground in weeks. This isn't about shortcuts – it's about working smarter with technology that adapts to YOUR learning pace.
+This is specifically for those looking to leverage AI and smart strategies to maximize their prep in the final stretch. Looking forward to sharing what we've learned building Twelvr's adaptive system.
 
-Don't let these 50 days go to waste. Join us this Sunday!
+Warm regards,
+Twelvr Support
+hello@twelvr.com
 
-See you there! 🚀
-
-– Twelvr Team
-www.twelvr.com
+You, compounded.
     """
     
     # Send email using the internal method
