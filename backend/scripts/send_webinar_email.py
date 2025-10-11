@@ -91,10 +91,6 @@ You, compounded.
         .content {{
             padding: 15px 30px 35px 30px;
         }}
-        .logo-section {{
-            text-align: center;
-            margin: 25px 0;
-        }}
         .info-box {{
             background-color: #e8f5e8;
             border: 2px solid #9ac026;
