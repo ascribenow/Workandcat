@@ -128,7 +128,23 @@ const AdminUsersMonitoring = () => {
       );
 
       if (response.data.success) {
-        alert(`✅ ${response.data.message}\nDeleted: ${response.data.deleted_jobs_count} job(s)\nNew Job ID: ${response.data.new_job_id}`);
+        // Build detailed success message
+        let message = `✅ ${response.data.message}\n\n`;
+        message += `📊 Actions Taken:\n`;
+        if (response.data.actions_taken && response.data.actions_taken.length > 0) {
+          response.data.actions_taken.forEach(action => {
+            message += `  • ${action}\n`;
+          });
+        }
+        message += `\n📈 Summary:\n`;
+        message += `  • Exhausted Jobs Deleted: ${response.data.deleted_jobs_count || 0}\n`;
+        message += `  • Stuck Jobs Cancelled: ${response.data.stuck_jobs_cancelled || 0}\n`;
+        message += `  • Empty Sessions Fixed: ${response.data.empty_sessions_fixed || 0}\n`;
+        if (response.data.new_job_id) {
+          message += `  • New Job Enqueued: ${response.data.new_job_id.substring(0, 8)}...\n`;
+        }
+        
+        alert(message);
         fetchUsersData(); // Refresh data
       }
     } catch (err) {
