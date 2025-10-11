@@ -24,14 +24,14 @@ def send_webinar_email(to_email: str) -> bool:
     plain_text = """
 Hi,
 
-With 50 days to CAT, I'm conducting a webinar this Sunday to share hacks and tools to use AI for quick coverage of quants. I'll also walk you through an AI tool that I've built for this purpose — it's free.
+With 50 days to CAT, I'm conducting a webinar this Sunday to share hacks and tools to use AI for quick coverage of quants. I'll also walk you through Twelvr.
 
 Twelvr Hacks — What we'll cover:
 • Leverage AI for quants syllabus coverage in 50 days
 • How to hack Twelvr so the engine learns you quickly
 • What the adaptive engine really does
 
-When: This Sunday
+When: Sunday, 12th October, 11 AM IST
 Where: Online (link will be shared upon RSVP)
 Cost: Free
 
