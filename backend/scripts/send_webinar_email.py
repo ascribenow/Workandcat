@@ -24,7 +24,7 @@ def send_webinar_email(to_email: str) -> bool:
     plain_text = """
 Hi,
 
-With 50 days to CAT, I'm conducting a webinar this Sunday to share hacks and tools to use AI for quick coverage of quants. I'll also walk you through Twelvr.
+With 50 days to CAT, I'm conducting a webinar this Sunday to share hacks and tools to use AI for quick coverage of quants. I'll also walk you through Twelvr and share tips on how to use it to customise the Quants prep for you basis where you stand today.
 
 Twelvr Hacks — What we'll cover:
 • Leverage AI for quants syllabus coverage in 50 days
@@ -33,15 +33,14 @@ Twelvr Hacks — What we'll cover:
 
 When: Sunday, 12th October, 11 AM IST
 Where: Online (link will be shared upon RSVP)
-Cost: Free
 
 RSVP Here: https://rsvp.link/founderscircle
 
 This is specifically for those looking to leverage AI and smart strategies to maximize their prep in the final stretch. Looking forward to sharing what we've learned building Twelvr's adaptive system.
 
-Warm regards,
-Twelvr Support
-hello@twelvr.com
+Warmly,
+Sumedh
+sumedh@twelvr.com
 
 You, compounded.
     """.strip()
