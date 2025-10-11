@@ -156,7 +156,7 @@ if __name__ == "__main__":
     print("SENDING WEBINAR EMAIL CAMPAIGN")
     print("=" * 80)
     print(f"\nRecipient: {recipient}")
-    print("Subject: 🎯 Webinar: Master Quant in 50 Days with AI | Twelvr Hacks")
+    print("Subject: Founders' Session — 50 days to CAT")
     print("\nSending...")
     
     success = send_webinar_email(recipient)
