@@ -160,7 +160,7 @@ You, compounded.
         <div class="content">
             <p style="font-size: 15px; margin-bottom: 20px;">Hi,</p>
             
-            <p style="font-size: 15px; margin-bottom: 20px;">With 50 days to CAT, I'm conducting a webinar this Sunday to share hacks and tools to use AI for quick coverage of quants. I'll also walk you through Twelvr.</p>
+            <p style="font-size: 15px; margin-bottom: 20px;">With 50 days to CAT, I'm conducting a webinar this Sunday to share hacks and tools to use AI for quick coverage of quants. I'll also walk you through Twelvr and share tips on how to use it to customise the Quants prep for you basis where you stand today.</p>
             
             <div class="info-box">
                 <strong style="font-size: 16px;">Twelvr Hacks — What we'll cover:</strong>
