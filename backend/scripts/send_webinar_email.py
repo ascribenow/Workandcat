@@ -207,8 +207,11 @@ You, compounded.
         msg = MIMEMultipart('alternative')
         msg['to'] = to_email
         msg['from'] = f'{gmail.sender_name} <{gmail.sender_email}>'
-        msg['Reply-To'] = 'Sumedh <sumedh@twelvr.com>'
         msg['subject'] = subject
+        
+        # Headers to help land in Primary inbox instead of Promotions
+        msg['X-Priority'] = '1'
+        msg['Importance'] = 'high'
         
         # Create text and HTML parts
         text_part = MIMEText(plain_text, 'plain')
