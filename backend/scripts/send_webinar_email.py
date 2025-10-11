@@ -221,7 +221,8 @@ You, compounded.
         return False
 
 if __name__ == "__main__":
-    recipient = "twelvrhelp@gmail.com"
+    import sys
+    recipient = sys.argv[1] if len(sys.argv) > 1 else "sp@theskinmantra.com"
     
     print("=" * 80)
     print("SENDING WEBINAR EMAIL CAMPAIGN")
