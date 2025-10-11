@@ -236,9 +236,15 @@ async def fix_user_jobs(request: FixUserJobsRequest, admin_user_id: str = Depend
                 sess_seq = session[1]
                 
                 try:
+                    # Close existing db connection before async operations
+                    db.close()
+                    
                     # Generate pack for this specific session
                     learning_data = await gather_user_learning_data(user_id)
                     session_pack = await generate_personalized_session_pack(user_id, learning_data)
+                    
+                    # Reopen db connection for inserts
+                    db = SessionLocal()
                     
                     # Insert into session_packs
                     constraint_report = json.dumps({
