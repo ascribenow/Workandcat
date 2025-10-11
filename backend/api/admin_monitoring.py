@@ -342,7 +342,7 @@ async def fix_user_jobs(request: FixUserJobsRequest, admin_user_id: str = Depend
                 max_attempts=6
             )
             
-            actions_taken.append(f"Enqueued new PLAN_NEXT_SESSION job")
+            actions_taken.append("Enqueued new PLAN_NEXT_SESSION job")
             logger.info(f"Enqueued new PLAN_NEXT_SESSION job {job_id[:8]} for user {user_email}")
         else:
             actions_taken.append("Valid pack already exists, no new job needed")
