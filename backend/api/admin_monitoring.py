@@ -134,14 +134,15 @@ async def get_users_monitoring(admin_user_id: str = Depends(check_admin_access))
 
 
 @router.post("/fix-user-jobs")
-async def fix_user_jobs(
-    request: FixUserJobsRequest,
-    admin_user_id: str = Depends(check_admin_access)
-):
+async def fix_user_jobs(request: FixUserJobsRequest, admin_user_id: str = Depends(check_admin_access)):
     """
-    Fix exhausted jobs for a specific user:
-    1. Delete all exhausted jobs (attempts >= max_attempts)
-    2. Enqueue new PLAN_NEXT_SESSION job
+    Comprehensive fix for stuck jobs and empty packs
+    
+    Actions performed:
+    1. Delete exhausted jobs (attempts >= max_attempts)
+    2. Check for sessions with empty packs and regenerate them
+    3. Cancel stuck jobs in 'running' state for > 10 minutes
+    4. Enqueue new PLAN_NEXT_SESSION if no valid pack exists
     """
     try:
         user_id = request.user_id
@@ -165,6 +166,7 @@ async def fix_user_jobs(
             raise HTTPException(status_code=404, detail="User not found")
         
         user_email = user[0]
+        actions_taken = []
         
         # Step 1: Find and delete exhausted jobs
         exhausted_result = db.execute(text("""
@@ -177,28 +179,183 @@ async def fix_user_jobs(
         deleted_jobs = exhausted_result.fetchall()
         db.commit()
         
-        logger.info(f"Deleted {len(deleted_jobs)} exhausted jobs for user {user_email}")
+        if deleted_jobs:
+            actions_taken.append(f"Deleted {len(deleted_jobs)} exhausted jobs")
+            logger.info(f"Deleted {len(deleted_jobs)} exhausted jobs for user {user_email}")
         
-        # Step 2: Enqueue new PLAN_NEXT_SESSION job
-        from services.bg_job_queue import job_queue
-        import asyncio
+        # Step 2: Cancel stuck jobs (running for > 10 minutes)
+        from datetime import datetime, timezone, timedelta
+        ten_min_ago = datetime.now(timezone.utc) - timedelta(minutes=10)
         
-        job_id = await job_queue.enqueue_job(
-            job_type="PLAN_NEXT_SESSION",
-            user_id=user_id,
-            session_id=None,
-            correlation_id=None,
-            max_attempts=6
-        )
+        stuck_result = db.execute(text("""
+            UPDATE bg_jobs
+            SET status = 'failed',
+                error_message = 'Auto-cancelled: stuck in running state for > 10 minutes'
+            WHERE user_id = :user_id
+            AND status = 'running'
+            AND started_at < :ten_min_ago
+            RETURNING id, job_type
+        """), {"user_id": user_id, "ten_min_ago": ten_min_ago})
+        
+        stuck_jobs = stuck_result.fetchall()
+        db.commit()
+        
+        if stuck_jobs:
+            actions_taken.append(f"Cancelled {len(stuck_jobs)} stuck jobs")
+            logger.info(f"Cancelled {len(stuck_jobs)} stuck jobs for user {user_email}")
+        
+        # Step 3: Check for sessions with empty packs and fix them
+        empty_sessions_result = db.execute(text("""
+            SELECT s.session_id, s.sess_seq
+            FROM sessions s
+            WHERE s.user_id = :user_id
+            AND s.status IN ('planned', 'active')
+            AND NOT EXISTS (
+                SELECT 1 FROM session_pack_questions spq
+                WHERE spq.session_id::text = s.session_id::text
+            )
+            ORDER BY s.sess_seq DESC
+            LIMIT 5
+        """), {"user_id": user_id})
+        
+        empty_sessions = empty_sessions_result.fetchall()
+        
+        if empty_sessions:
+            actions_taken.append(f"Found {len(empty_sessions)} sessions with empty packs")
+            logger.info(f"Found {len(empty_sessions)} sessions with empty packs for user {user_email}")
+            
+            # Import the fix script function
+            import sys
+            sys.path.insert(0, '/app/backend')
+            from services.simplified_job_handlers import gather_user_learning_data, generate_personalized_session_pack
+            import json
+            from utils.timezone_utils import now_ist
+            
+            for session in empty_sessions:
+                session_id = str(session[0])
+                sess_seq = session[1]
+                
+                try:
+                    # Generate pack for this specific session
+                    learning_data = await gather_user_learning_data(user_id)
+                    session_pack = await generate_personalized_session_pack(user_id, learning_data)
+                    
+                    # Insert into session_packs
+                    constraint_report = json.dumps({
+                        "pack_type": session_pack["pack_type"],
+                        "difficulty_distribution": session_pack["difficulty_distribution"],
+                        "planning_strategy": session_pack["planning_strategy"],
+                        "weak_concepts_targeted": session_pack["weak_concepts_targeted"],
+                        "high_debt_pairs_addressed": session_pack["high_debt_pairs_addressed"]
+                    })
+                    
+                    db.execute(text("""
+                        INSERT INTO session_packs (
+                            session_id, user_id, constraint_report, created_at
+                        ) VALUES (
+                            CAST(:session_id AS uuid), CAST(:user_id AS uuid), CAST(:constraint_report AS jsonb), :created_at
+                        )
+                        ON CONFLICT (session_id) DO UPDATE 
+                        SET constraint_report = CAST(:constraint_report AS jsonb), created_at = :created_at
+                    """), {
+                        "session_id": session_id,
+                        "user_id": user_id,
+                        "constraint_report": constraint_report,
+                        "created_at": now_ist()
+                    })
+                    
+                    # Insert questions
+                    questions = session_pack.get("questions", [])
+                    for question in questions:
+                        core_concepts = question.get("core_concepts", [])
+                        if isinstance(core_concepts, str):
+                            core_concepts = json.loads(core_concepts)
+                        elif not isinstance(core_concepts, list):
+                            core_concepts = list(core_concepts) if core_concepts else []
+                        
+                        question_data_json = json.dumps({
+                            "id": question["id"],
+                            "stem": question["stem"],
+                            "answer": question["answer"],
+                            "explanation": question.get("explanation", ""),
+                            "option_a": question.get("option_a", ""),
+                            "option_b": question.get("option_b", ""),
+                            "option_c": question.get("option_c", ""),
+                            "option_d": question.get("option_d", ""),
+                            "difficulty_band": question["difficulty_band"],
+                            "subcategory": question["subcategory"],
+                            "type_of_question": question["type_of_question"],
+                            "core_concepts": core_concepts,
+                            "pyq_frequency_score": question.get("pyq_frequency_score", 0),
+                            "snap_read": question.get("snap_read", ""),
+                            "solution_approach": question.get("solution_approach", ""),
+                            "detailed_solution": question.get("detailed_solution", ""),
+                            "principle_to_remember": question.get("principle_to_remember", "")
+                        })
+                        
+                        db.execute(text("""
+                            INSERT INTO session_pack_questions (
+                                session_id, position, question_id, question_data
+                            ) VALUES (
+                                CAST(:session_id AS uuid), :position, CAST(:question_id AS uuid), CAST(:question_data AS jsonb)
+                            )
+                            ON CONFLICT (session_id, position) DO UPDATE
+                            SET question_data = CAST(:question_data AS jsonb)
+                        """), {
+                            "session_id": session_id,
+                            "position": question["position"],
+                            "question_id": question["id"],
+                            "question_data": question_data_json
+                        })
+                    
+                    db.commit()
+                    actions_taken.append(f"Regenerated pack for Session #{sess_seq} ({len(questions)} questions)")
+                    logger.info(f"Regenerated pack for session {session_id[:8]} (Session #{sess_seq})")
+                    
+                except Exception as pack_error:
+                    logger.error(f"Failed to regenerate pack for session {session_id[:8]}: {pack_error}")
+                    actions_taken.append(f"Failed to regenerate pack for Session #{sess_seq}: {str(pack_error)[:50]}")
+        
+        # Step 4: Check if user needs a new pack (no planned/active sessions with valid packs)
+        has_valid_pack = db.execute(text("""
+            SELECT EXISTS (
+                SELECT 1 
+                FROM sessions s
+                JOIN session_pack_questions spq ON s.session_id::text = spq.session_id::text
+                WHERE s.user_id = :user_id
+                AND s.status IN ('planned', 'active')
+                GROUP BY s.session_id
+                HAVING COUNT(spq.position) >= 12
+            )
+        """), {"user_id": user_id}).scalar()
+        
+        job_id = None
+        if not has_valid_pack:
+            # Enqueue new PLAN_NEXT_SESSION job
+            from services.bg_job_queue import job_queue
+            
+            job_id = await job_queue.enqueue_job(
+                job_type="PLAN_NEXT_SESSION",
+                user_id=user_id,
+                session_id=None,
+                correlation_id=None,
+                max_attempts=6
+            )
+            
+            actions_taken.append(f"Enqueued new PLAN_NEXT_SESSION job")
+            logger.info(f"Enqueued new PLAN_NEXT_SESSION job {job_id[:8]} for user {user_email}")
+        else:
+            actions_taken.append("Valid pack already exists, no new job needed")
         
         db.close()
         
-        logger.info(f"Enqueued new PLAN_NEXT_SESSION job {job_id[:8]} for user {user_email}")
-        
         return JSONResponse({
             "success": True,
-            "message": f"Fixed jobs and triggered pack regeneration for {user_email}",
+            "message": f"Fixed user {user_email}",
+            "actions_taken": actions_taken,
             "deleted_jobs_count": len(deleted_jobs),
+            "stuck_jobs_cancelled": len(stuck_jobs) if stuck_jobs else 0,
+            "empty_sessions_fixed": len(empty_sessions) if empty_sessions else 0,
             "new_job_id": job_id,
             "user_email": user_email
         })
@@ -207,6 +364,8 @@ async def fix_user_jobs(
         raise
     except Exception as e:
         logger.error(f"Error fixing user jobs: {e}")
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Failed to fix user jobs: {str(e)}")
 
 
