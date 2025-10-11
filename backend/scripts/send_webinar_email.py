@@ -18,7 +18,7 @@ def send_webinar_email(to_email: str) -> bool:
         print("❌ Failed to authenticate Gmail service")
         return False
     
-    subject = "🎯 Webinar: Master Quant in 50 Days with AI | Twelvr Hacks"
+    subject = "Founders' Session — 50 days to CAT"
     
     # HTML email with Twelvr branding - Clean & Classy
     html_content = """
