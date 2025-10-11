@@ -994,19 +994,19 @@ async def persist_session_pack(user_id: str, session_pack: Dict[str, Any]) -> st
                 
             except Exception as insert_error:
                 logger.error(f"❌ Failed to insert question {idx}/{len(questions)}: {insert_error}")
-                trans.rollback()  # Explicit rollback on question insert failure
+                db.rollback()  # Explicit rollback on question insert failure
                 raise  # Re-raise to trigger outer exception handling
         
-        # ATOMIC COMMIT: Both session_packs and session_pack_questions succeed together
-        trans.commit()
-        logger.info(f"✅ ATOMIC SUCCESS: Persisted session pack {pack_id[:8]} with {questions_inserted}/{len(questions)} questions for user {user_id[:8]}")
+        # Commit changes
+        db.commit()
+        logger.info(f"✅ Session pack {pack_id[:8]} persisted successfully ({len(questions)} questions)")
         
         return pack_id
         
     except Exception as e:
         # Ensure transaction is rolled back on any failure
         try:
-            trans.rollback()
+            db.rollback()
         except Exception:
             pass  # Transaction may already be rolled back
         logger.error(f"❌ ATOMIC FAILURE: Failed to persist session pack for user {user_id[:8]}: {e}")
