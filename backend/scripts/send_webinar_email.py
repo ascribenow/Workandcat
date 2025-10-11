@@ -20,142 +20,95 @@ def send_webinar_email(to_email: str) -> bool:
     
     subject = "🎯 Webinar: Master Quant in 50 Days with AI | Twelvr Hacks"
     
-    # HTML email with Twelvr branding
+    # HTML email with Twelvr branding - Clean & Classy
     html_content = """
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Webinar: 50 Days to CAT - Master Quant with AI</title>
+    <title>Founders' Session — 50 Days to CAT</title>
 </head>
-<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f5f5f5;">
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; background-color: #ffffff;">
     <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px; margin: 0 auto; background-color: #ffffff;">
-        <!-- Header -->
-        <tr>
-            <td style="background: linear-gradient(135deg, #9ac026 0%, #7da01e 100%); padding: 40px 30px; text-align: center;">
-                <h1 style="color: #ffffff; margin: 0; font-size: 36px; font-weight: 300; letter-spacing: 2px;">Twelvr</h1>
-                <p style="color: #ffffff; margin: 5px 0 0 0; font-size: 14px; opacity: 0.9;">CAT Preparation Platform</p>
-            </td>
-        </tr>
-        
-        <!-- Urgent Banner -->
-        <tr>
-            <td style="background-color: #fef3c7; padding: 15px 30px; border-left: 4px solid #f59e0b;">
-                <p style="margin: 0; color: #92400e; font-size: 16px; font-weight: 600;">
-                    ⏰ Only 50 Days to CAT 2025
-                </p>
-            </td>
-        </tr>
         
         <!-- Main Content -->
         <tr>
-            <td style="padding: 40px 30px;">
-                <h2 style="color: #1f2937; margin: 0 0 20px 0; font-size: 24px; font-weight: 600;">
-                    🚀 Crack Quant Using AI – Free Webinar
-                </h2>
+            <td style="padding: 60px 40px 40px 40px;">
                 
-                <p style="color: #4b5563; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
-                    Hey there! 👋
+                <!-- Title -->
+                <h1 style="color: #333333; margin: 0 0 30px 0; font-size: 28px; font-weight: 400; line-height: 1.3;">
+                    Founders' Session — <span style="color: #9ac026;">Using AI to cover quant syllabus</span>
+                </h1>
+                
+                <!-- Intro -->
+                <p style="color: #555555; font-size: 16px; line-height: 1.7; margin: 0 0 25px 0;">
+                    Hi,
                 </p>
                 
-                <p style="color: #4b5563; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
-                    With just <strong>50 days left</strong> until CAT 2025, every moment counts. That's why we're hosting a special <strong>Founders' Session</strong> this Sunday to share game-changing hacks that will help you master the Quant syllabus using AI.
+                <p style="color: #555555; font-size: 16px; line-height: 1.7; margin: 0 0 25px 0;">
+                    With 50 days to CAT, I'm conducting a webinar this Sunday to share hacks and tools to use AI for quick coverage of quants. 
+                    I'll also walk you through an AI tool that I've built for this purpose — <em>it's free</em>.
                 </p>
                 
-                <!-- What You'll Learn -->
-                <div style="background-color: #f9fafb; border-left: 4px solid #9ac026; padding: 20px; margin: 25px 0; border-radius: 4px;">
-                    <h3 style="color: #1f2937; margin: 0 0 15px 0; font-size: 18px; font-weight: 600;">
-                        📚 What You'll Learn
-                    </h3>
-                    <ul style="color: #4b5563; font-size: 15px; line-height: 1.8; margin: 0; padding-left: 20px;">
-                        <li style="margin-bottom: 10px;">
-                            <strong>Leverage AI</strong> to cover the entire Quant syllabus in 50 days
-                        </li>
-                        <li style="margin-bottom: 10px;">
-                            <strong>Twelvr Hacks</strong>: How to make the adaptive engine learn YOU faster
-                        </li>
-                        <li style="margin-bottom: 10px;">
-                            <strong>Inside the Engine</strong>: What Twelvr's adaptive algorithm really does behind the scenes
-                        </li>
-                        <li>
-                            <strong>Free AI Tool</strong>: Get access to the AI-powered prep tool I've built (completely free!)
-                        </li>
+                <!-- Highlighted Box -->
+                <div style="background-color: #f8faf5; border-left: 3px solid #9ac026; padding: 25px; margin: 30px 0;">
+                    <p style="color: #333333; font-size: 16px; line-height: 1.7; margin: 0 0 15px 0; font-weight: 600;">
+                        Twelvr Hacks — What we'll cover:
+                    </p>
+                    <ul style="color: #555555; font-size: 15px; line-height: 1.8; margin: 0; padding-left: 25px;">
+                        <li style="margin-bottom: 10px;">Leverage AI for quants syllabus coverage in 50 days</li>
+                        <li style="margin-bottom: 10px;">How to hack Twelvr so the engine learns you quickly</li>
+                        <li>What the adaptive engine really does</li>
                     </ul>
                 </div>
                 
                 <!-- Webinar Details -->
-                <div style="background-color: #eff6ff; border: 2px solid #9ac026; padding: 20px; margin: 25px 0; border-radius: 8px; text-align: center;">
-                    <p style="color: #1f2937; font-size: 18px; font-weight: 600; margin: 0 0 10px 0;">
-                        📅 This Sunday
-                    </p>
-                    <p style="color: #4b5563; font-size: 15px; margin: 0 0 5px 0;">
-                        Limited seats available
-                    </p>
-                    <p style="color: #6b7280; font-size: 14px; margin: 0;">
-                        Free • Online • Interactive
-                    </p>
-                </div>
-                
-                <!-- CTA Button -->
-                <div style="text-align: center; margin: 30px 0;">
-                    <a href="https://rsvp.link/founderscircle" 
-                       style="display: inline-block; background: linear-gradient(135deg, #9ac026 0%, #7da01e 100%); 
-                              color: #ffffff; text-decoration: none; padding: 16px 40px; 
-                              border-radius: 8px; font-size: 18px; font-weight: 600; 
-                              box-shadow: 0 4px 6px rgba(154, 192, 38, 0.3);">
-                        🎯 Reserve Your Spot Now
-                    </a>
-                </div>
-                
-                <!-- Why Attend -->
-                <div style="margin: 30px 0;">
-                    <h3 style="color: #1f2937; margin: 0 0 15px 0; font-size: 18px; font-weight: 600;">
-                        💡 Why This Matters
-                    </h3>
-                    <p style="color: #4b5563; font-size: 15px; line-height: 1.6; margin: 0;">
-                        Traditional prep methods take months. With AI and smart strategies, you can cover the same ground in weeks. 
-                        This isn't about shortcuts – it's about <strong>working smarter</strong> with technology that adapts to YOUR learning pace.
-                    </p>
-                </div>
-                
-                <!-- Personal Note -->
-                <div style="background-color: #fef3c7; padding: 20px; border-radius: 8px; margin: 25px 0;">
-                    <p style="color: #92400e; font-size: 15px; line-height: 1.6; margin: 0; font-style: italic;">
-                        "I've spent months building Twelvr's adaptive engine. In this session, I'll pull back the curtain and show you exactly 
-                        how to make it work for YOU – helping you identify weak areas faster and practice smarter, not harder."
-                    </p>
-                    <p style="color: #78350f; font-size: 14px; margin: 10px 0 0 0; font-weight: 600;">
-                        – Twelvr Team
-                    </p>
-                </div>
-                
-                <!-- Final CTA -->
-                <p style="color: #4b5563; font-size: 16px; line-height: 1.6; margin: 25px 0;">
-                    Don't let these 50 days go to waste. Join us this Sunday and learn how to use AI to your advantage.
+                <p style="color: #555555; font-size: 16px; line-height: 1.7; margin: 25px 0;">
+                    <strong>When:</strong> This Sunday<br>
+                    <strong>Where:</strong> Online (link will be shared upon RSVP)<br>
+                    <strong>Cost:</strong> Free
                 </p>
                 
-                <div style="text-align: center; margin: 20px 0;">
+                <!-- CTA Button -->
+                <div style="text-align: center; margin: 40px 0;">
                     <a href="https://rsvp.link/founderscircle" 
-                       style="color: #9ac026; text-decoration: none; font-size: 16px; font-weight: 600;">
-                        👉 RSVP Here: https://rsvp.link/founderscircle
+                       style="display: inline-block; background-color: #9ac026; color: #ffffff; 
+                              text-decoration: none; padding: 14px 40px; border-radius: 4px; 
+                              font-size: 16px; font-weight: 500;">
+                        RSVP Here
                     </a>
                 </div>
+                
+                <!-- Closing -->
+                <p style="color: #555555; font-size: 16px; line-height: 1.7; margin: 25px 0 40px 0;">
+                    This is specifically for those looking to leverage AI and smart strategies to maximize their prep in the final stretch. 
+                    Looking forward to sharing what we've learned building Twelvr's adaptive system.
+                </p>
+                
+                <!-- Signature -->
+                <p style="color: #555555; font-size: 16px; line-height: 1.7; margin: 0 0 5px 0;">
+                    Warm regards,
+                </p>
+                <p style="color: #555555; font-size: 16px; line-height: 1.7; margin: 0 0 5px 0;">
+                    Twelvr Support
+                </p>
+                <p style="color: #9ac026; font-size: 16px; line-height: 1.7; margin: 0;">
+                    <a href="mailto:hello@twelvr.com" style="color: #9ac026; text-decoration: none;">hello@twelvr.com</a>
+                </p>
+                
             </td>
         </tr>
         
         <!-- Footer -->
         <tr>
-            <td style="background-color: #f9fafb; padding: 30px; text-align: center; border-top: 1px solid #e5e7eb;">
-                <p style="color: #6b7280; font-size: 14px; line-height: 1.6; margin: 0 0 10px 0;">
-                    See you on Sunday! 🚀
-                </p>
-                <p style="color: #9ca3af; font-size: 13px; margin: 0;">
-                    Twelvr – Your AI-Powered CAT Prep Partner<br>
-                    <a href="https://www.twelvr.com" style="color: #9ac026; text-decoration: none;">www.twelvr.com</a>
+            <td style="padding: 30px 40px; text-align: center; border-top: 1px solid #e8e8e8;">
+                <p style="color: #9ac026; font-size: 14px; font-style: italic; margin: 0;">
+                    You, compounded.
                 </p>
             </td>
         </tr>
+        
     </table>
 </body>
 </html>
