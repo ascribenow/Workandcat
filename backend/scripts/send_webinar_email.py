@@ -123,17 +123,12 @@ You, compounded.
             display: inline-block;
             background-color: #9ac026;
             color: #ffffff !important;
-            padding: 12px 32px;
+            padding: 12px 28px;
             text-decoration: none;
-            border-radius: 25px;
-            font-weight: 600;
-            font-size: 16px;
-            margin: 25px 0 15px 0;
-            transition: background-color 0.3s;
-            box-shadow: 0 4px 12px rgba(154, 192, 38, 0.25);
-        }}
-        .cta-button:hover {{
-            background-color: #8bb024;
+            border-radius: 4px;
+            font-weight: 500;
+            font-size: 15px;
+            margin: 20px 0 15px 0;
         }}
         .footer {{
             background-color: #f8f9fa;
