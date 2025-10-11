@@ -904,9 +904,7 @@ async def persist_session_pack(user_id: str, session_pack: Dict[str, Any]) -> st
     except Exception as check_error:
         logger.warning(f"Idempotency check failed (continuing): {check_error}")
     
-    # EXPLICIT TRANSACTION CONTROL
-    trans = db.begin()
-    
+    # Use existing transaction (don't start new one)
     try:
         # Generate session_id (UUID) for this pack
         import uuid
