@@ -18,11 +18,12 @@ def get_all_user_emails():
     db = SessionLocal()
     try:
         result = db.execute(text("""
-            SELECT DISTINCT email 
+            SELECT email 
             FROM users 
             WHERE email IS NOT NULL 
             AND email != ''
-            ORDER BY created_at DESC
+            GROUP BY email
+            ORDER BY MIN(created_at) DESC
         """))
         emails = [row[0] for row in result.fetchall()]
         return emails
