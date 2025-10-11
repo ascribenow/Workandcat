@@ -188,9 +188,9 @@ You, compounded.
         </div>
         
         <div class="footer">
-            <p><strong>Warm regards,</strong><br>
-            <strong>Twelvr Support</strong><br>
-            hello@twelvr.com</p>
+            <p><strong>Warmly,</strong><br>
+            <strong>Sumedh</strong><br>
+            sumedh@twelvr.com</p>
             <p class="tagline">You, compounded.</p>
         </div>
     </div>
