@@ -11,7 +11,7 @@ import time
 from datetime import datetime
 
 class BlueprintSolutionFeedbackTester:
-    def __init__(self, base_url="https://study-optimizer-1.preview.emergentagent.com/api"):
+    def __init__(self, base_url="https://session-pack-repair.preview.emergentagent.com/api"):
         self.base_url = base_url
         self.auth_headers = None
         self.user_id = None

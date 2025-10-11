@@ -7,7 +7,7 @@ import requests
 import json
 
 def test_pack_fetch_direct():
-    base_url = "https://study-optimizer-1.preview.emergentagent.com/api"
+    base_url = "https://session-pack-repair.preview.emergentagent.com/api"
     
     # Step 1: Authenticate (with longer timeout)
     print("🔐 Step 1: Authentication")

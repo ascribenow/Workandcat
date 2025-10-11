@@ -11,7 +11,7 @@ import sys
 def final_validation_test():
     """Final validation of all review request requirements"""
     
-    base_url = "https://study-optimizer-1.preview.emergentagent.com/api"
+    base_url = "https://session-pack-repair.preview.emergentagent.com/api"
     
     print("🎯 FINAL VALIDATION: SESSION SEQUENCE CORRECTED LOGIC")
     print("=" * 80)

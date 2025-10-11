@@ -14,7 +14,7 @@ def quick_test():
     print("=" * 60)
     
     # Test with the primary API base
-    base_url = "https://study-optimizer-1.preview.emergentagent.com/api"
+    base_url = "https://session-pack-repair.preview.emergentagent.com/api"
     
     # 1. Authentication
     print("\n1. 🔐 AUTHENTICATION TEST")
