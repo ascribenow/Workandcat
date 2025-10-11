@@ -244,11 +244,8 @@ async def fix_user_jobs(request: FixUserJobsRequest, admin_user_id: str = Depend
                     learning_data = await gather_user_learning_data(user_id)
                     session_pack = await generate_personalized_session_pack(user_id, learning_data)
                     
-                    # Create a fresh db session with explicit transaction control
+                    # Create a fresh db session (implicit transaction will start on first operation)
                     db = SessionLocal()
-                    
-                    # Start explicit transaction for atomic pack insertion
-                    db.begin()
                     
                     # Insert into session_packs
                     constraint_report = json.dumps({
