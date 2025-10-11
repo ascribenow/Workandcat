@@ -9,7 +9,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from gmail_service import GmailService
 
 def send_webinar_email(to_email: str) -> bool:
-    """Send webinar announcement email"""
+    """Send webinar announcement email in Twelvr brand style"""
     
     gmail = GmailService()
     
@@ -19,105 +19,9 @@ def send_webinar_email(to_email: str) -> bool:
         return False
     
     subject = "Founders' Session — 50 days to CAT"
+    preheader = "Leverage AI for quants syllabus coverage. Free webinar this Sunday."
     
-    # HTML email with Twelvr branding - Clean & Classy
-    html_content = """
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Founders' Session — 50 Days to CAT</title>
-</head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; background-color: #ffffff;">
-    <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px; margin: 0 auto; background-color: #ffffff;">
-        
-        <!-- Main Content -->
-        <tr>
-            <td style="padding: 60px 40px 40px 40px;">
-                
-                <!-- Title -->
-                <h1 style="color: #333333; margin: 0 0 30px 0; font-size: 28px; font-weight: 400; line-height: 1.3;">
-                    Founders' Session — <span style="color: #9ac026;">Using AI to cover quant syllabus</span>
-                </h1>
-                
-                <!-- Intro -->
-                <p style="color: #555555; font-size: 16px; line-height: 1.7; margin: 0 0 25px 0;">
-                    Hi,
-                </p>
-                
-                <p style="color: #555555; font-size: 16px; line-height: 1.7; margin: 0 0 25px 0;">
-                    With 50 days to CAT, I'm conducting a webinar this Sunday to share hacks and tools to use AI for quick coverage of quants. 
-                    I'll also walk you through an AI tool that I've built for this purpose — <em>it's free</em>.
-                </p>
-                
-                <!-- Highlighted Box -->
-                <div style="background-color: #f8faf5; border-left: 3px solid #9ac026; padding: 25px; margin: 30px 0;">
-                    <p style="color: #333333; font-size: 16px; line-height: 1.7; margin: 0 0 15px 0; font-weight: 600;">
-                        Twelvr Hacks — What we'll cover:
-                    </p>
-                    <ul style="color: #555555; font-size: 15px; line-height: 1.8; margin: 0; padding-left: 25px;">
-                        <li style="margin-bottom: 10px;">Leverage AI for quants syllabus coverage in 50 days</li>
-                        <li style="margin-bottom: 10px;">How to hack Twelvr so the engine learns you quickly</li>
-                        <li>What the adaptive engine really does</li>
-                    </ul>
-                </div>
-                
-                <!-- Webinar Details -->
-                <p style="color: #555555; font-size: 16px; line-height: 1.7; margin: 25px 0;">
-                    <strong>When:</strong> This Sunday<br>
-                    <strong>Where:</strong> Online (link will be shared upon RSVP)<br>
-                    <strong>Cost:</strong> Free
-                </p>
-                
-                <!-- CTA Button -->
-                <div style="text-align: center; margin: 40px 0;">
-                    <a href="https://rsvp.link/founderscircle" 
-                       style="display: inline-block; background-color: #9ac026; color: #ffffff; 
-                              text-decoration: none; padding: 14px 40px; border-radius: 4px; 
-                              font-size: 16px; font-weight: 500;">
-                        RSVP Here
-                    </a>
-                </div>
-                
-                <!-- Closing -->
-                <p style="color: #555555; font-size: 16px; line-height: 1.7; margin: 25px 0 40px 0;">
-                    This is specifically for those looking to leverage AI and smart strategies to maximize their prep in the final stretch. 
-                    Looking forward to sharing what we've learned building Twelvr's adaptive system.
-                </p>
-                
-                <!-- Signature -->
-                <p style="color: #555555; font-size: 16px; line-height: 1.7; margin: 0 0 5px 0;">
-                    Warm regards,
-                </p>
-                <p style="color: #555555; font-size: 16px; line-height: 1.7; margin: 0 0 5px 0;">
-                    Twelvr Support
-                </p>
-                <p style="color: #9ac026; font-size: 16px; line-height: 1.7; margin: 0;">
-                    <a href="mailto:hello@twelvr.com" style="color: #9ac026; text-decoration: none;">hello@twelvr.com</a>
-                </p>
-                
-            </td>
-        </tr>
-        
-        <!-- Footer -->
-        <tr>
-            <td style="padding: 30px 40px; text-align: center; border-top: 1px solid #e8e8e8;">
-                <p style="color: #9ac026; font-size: 14px; font-style: italic; margin: 0;">
-                    You, compounded.
-                </p>
-            </td>
-        </tr>
-        
-    </table>
-</body>
-</html>
-    """
-    
-    # Plain text version
     plain_text = """
-Founders' Session — Using AI to cover quant syllabus
-
 Hi,
 
 With 50 days to CAT, I'm conducting a webinar this Sunday to share hacks and tools to use AI for quick coverage of quants. I'll also walk you through an AI tool that I've built for this purpose — it's free.
@@ -140,14 +44,192 @@ Twelvr Support
 hello@twelvr.com
 
 You, compounded.
+    """.strip()
+    
+    html_content = f"""
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{subject}</title>
+    <!-- Preheader text for better deliverability -->
+    <div style="display: none; font-size: 1px; color: #fefefe; line-height: 1px; font-family: Lato, sans-serif; max-height: 0px; max-width: 0px; opacity: 0; overflow: hidden;">
+        {preheader}
+    </div>
+    <style>
+        body {{
+            font-family: 'Lato', sans-serif;
+            line-height: 1.6;
+            color: #545454;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 0;
+            background-color: #ffffff;
+        }}
+        .container {{
+            background-color: #ffffff;
+            border-radius: 0;
+            overflow: hidden;
+        }}
+        .header {{
+            background-color: #ffffff;
+            color: #545454;
+            padding: 40px 30px 20px 30px;
+            text-align: center;
+        }}
+        .header h1 {{
+            margin: 0 0 15px 0;
+            font-size: 26px;
+            font-weight: 600;
+            color: #545454;
+            line-height: 1.3;
+        }}
+        .highlight {{
+            color: #9ac026;
+            font-weight: 600;
+        }}
+        .content {{
+            padding: 15px 30px 35px 30px;
+        }}
+        .logo-section {{
+            text-align: center;
+            margin: 25px 0;
+        }}
+        .info-box {{
+            background-color: #e8f5e8;
+            border: 2px solid #9ac026;
+            color: #545454;
+            padding: 20px 25px;
+            border-radius: 12px;
+            margin: 25px 0;
+            font-size: 15px;
+        }}
+        .info-box ul {{
+            margin: 10px 0 0 0;
+            padding-left: 20px;
+        }}
+        .info-box li {{
+            margin-bottom: 8px;
+        }}
+        .details-box {{
+            background-color: #f8f9fa;
+            padding: 20px 25px;
+            border-radius: 8px;
+            margin: 25px 0;
+            font-size: 15px;
+            line-height: 1.8;
+        }}
+        .cta-button {{
+            display: inline-block;
+            background-color: #9ac026;
+            color: #ffffff !important;
+            padding: 12px 32px;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 16px;
+            margin: 25px 0 15px 0;
+            transition: background-color 0.3s;
+            box-shadow: 0 4px 12px rgba(154, 192, 38, 0.25);
+        }}
+        .cta-button:hover {{
+            background-color: #8bb024;
+        }}
+        .footer {{
+            background-color: #f8f9fa;
+            padding: 25px 30px;
+            text-align: center;
+            color: #545454;
+            font-size: 14px;
+            border-top: 1px solid #e9ecef;
+        }}
+        .tagline {{
+            font-size: 14px;
+            font-weight: 600;
+            color: #9ac026;
+            margin-top: 8px;
+        }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Founders' Session — <span class="highlight">50 days to CAT</span></h1>
+        </div>
+        
+        <div class="content">
+            <p style="font-size: 15px; margin-bottom: 20px;">Hi,</p>
+            
+            <p style="font-size: 15px; margin-bottom: 20px;">With 50 days to CAT, I'm conducting a webinar this Sunday to share hacks and tools to use AI for quick coverage of quants. I'll also walk you through an AI tool that I've built for this purpose — <em>it's free</em>.</p>
+            
+            <div class="info-box">
+                <strong style="font-size: 16px;">Twelvr Hacks — What we'll cover:</strong>
+                <ul>
+                    <li>Leverage AI for quants syllabus coverage in 50 days</li>
+                    <li>How to hack Twelvr so the engine learns you quickly</li>
+                    <li>What the adaptive engine really does</li>
+                </ul>
+            </div>
+            
+            <div class="logo-section">
+                <img src="https://twelvr.com/favicon.png" alt="Twelvr" style="width: 50px; height: 50px; opacity: 0.8;">
+            </div>
+            
+            <div class="details-box">
+                <strong>When:</strong> This Sunday<br>
+                <strong>Where:</strong> Online (link will be shared upon RSVP)<br>
+                <strong>Cost:</strong> Free
+            </div>
+            
+            <div style="text-align: center;">
+                <a href="https://rsvp.link/founderscircle" class="cta-button">RSVP Here</a>
+            </div>
+            
+            <p style="font-size: 14px; margin-top: 30px; color: #666; line-height: 1.7;">This is specifically for those looking to leverage AI and smart strategies to maximize their prep in the final stretch. Looking forward to sharing what we've learned building Twelvr's adaptive system.</p>
+        </div>
+        
+        <div class="footer">
+            <p><strong>Warm regards,</strong><br>
+            <strong>Twelvr Support</strong><br>
+            hello@twelvr.com</p>
+            <p class="tagline">You, compounded.</p>
+        </div>
+    </div>
+</body>
+</html>
     """
     
-    # Send email using the internal method
+    # Send email with custom HTML using MIME (same as glitch fix email)
     try:
-        return gmail._send_html_email(to_email, subject, html_content, plain_text)
-    except AttributeError:
-        # If _send_html_email doesn't exist, use send_generic_email
-        return gmail.send_generic_email(to_email, subject, plain_text)
+        from email.mime.text import MIMEText
+        from email.mime.multipart import MIMEMultipart
+        import base64
+        
+        msg = MIMEMultipart('alternative')
+        msg['to'] = to_email
+        msg['from'] = f'{gmail.sender_name} <{gmail.sender_email}>'
+        msg['subject'] = subject
+        
+        # Create text and HTML parts
+        text_part = MIMEText(plain_text, 'plain')
+        html_part = MIMEText(html_content, 'html')
+        
+        msg.attach(text_part)
+        msg.attach(html_part)
+        
+        # Send email
+        raw = base64.urlsafe_b64encode(msg.as_bytes()).decode()
+        message = {'raw': raw}
+        
+        gmail.service.users().messages().send(userId='me', body=message).execute()
+        
+        print(f"✅ Webinar email sent successfully to {to_email}")
+        return True
+        
+    except Exception as e:
+        print(f"❌ Error sending webinar email to {to_email}: {e}")
+        return False
 
 if __name__ == "__main__":
     recipient = "twelvrhelp@gmail.com"
