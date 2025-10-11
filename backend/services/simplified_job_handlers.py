@@ -1009,8 +1009,8 @@ async def persist_session_pack(user_id: str, session_pack: Dict[str, Any]) -> st
             db.rollback()
         except Exception:
             pass  # Transaction may already be rolled back
-        logger.error(f"❌ ATOMIC FAILURE: Failed to persist session pack for user {user_id[:8]}: {e}")
-        raise Exception(f"Session pack persistence failed atomically: {str(e)}")
+        logger.error(f"❌ Pack persistence failed: {str(e)}")
+        raise Exception(f"Failed to persist session pack: {str(e)}")
     finally:
         db.close()
 
