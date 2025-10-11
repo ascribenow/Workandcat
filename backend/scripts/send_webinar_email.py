@@ -166,10 +166,6 @@ You, compounded.
                 </ul>
             </div>
             
-            <div class="logo-section">
-                <img src="https://twelvr.com/favicon.png" alt="Twelvr" style="width: 50px; height: 50px; opacity: 0.8;">
-            </div>
-            
             <div class="details-box">
                 <strong>When:</strong> Sunday, 12th October, 11 AM IST<br>
                 <strong>Where:</strong> Online (link will be shared upon RSVP)
