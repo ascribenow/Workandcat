@@ -321,8 +321,19 @@ async def fix_user_jobs(request: FixUserJobsRequest, admin_user_id: str = Depend
                     logger.info(f"Regenerated pack for session {session_id[:8]} (Session #{sess_seq})")
                     
                 except Exception as pack_error:
+                    try:
+                        db.rollback()
+                    except:
+                        pass
                     logger.error(f"Failed to regenerate pack for session {session_id[:8]}: {pack_error}")
                     actions_taken.append(f"Failed to regenerate pack for Session #{sess_seq}: {str(pack_error)[:50]}")
+            
+            # Ensure we have a valid db session for next operations
+            try:
+                db.close()
+            except:
+                pass
+            db = SessionLocal()
         
         # Step 4: Check if user needs a new pack (no planned/active sessions with valid packs)
         has_valid_pack = db.execute(text("""
