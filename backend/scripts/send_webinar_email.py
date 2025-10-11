@@ -177,8 +177,7 @@ You, compounded.
             
             <div class="details-box">
                 <strong>When:</strong> Sunday, 12th October, 11 AM IST<br>
-                <strong>Where:</strong> Online (link will be shared upon RSVP)<br>
-                <strong>Cost:</strong> Free
+                <strong>Where:</strong> Online (link will be shared upon RSVP)
             </div>
             
             <div style="text-align: center;">
