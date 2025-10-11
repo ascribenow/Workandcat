@@ -206,7 +206,8 @@ You, compounded.
         
         msg = MIMEMultipart('alternative')
         msg['to'] = to_email
-        msg['from'] = 'Sumedh <sumedh@twelvr.com>'
+        msg['from'] = f'{gmail.sender_name} <{gmail.sender_email}>'
+        msg['Reply-To'] = 'Sumedh <sumedh@twelvr.com>'
         msg['subject'] = subject
         
         # Create text and HTML parts
