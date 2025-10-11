@@ -236,15 +236,19 @@ async def fix_user_jobs(request: FixUserJobsRequest, admin_user_id: str = Depend
                 sess_seq = session[1]
                 
                 try:
-                    # Close existing db connection before async operations
+                    # Close existing db connection to avoid transaction conflicts
                     db.close()
                     
                     # Generate pack for this specific session
+                    # These functions create and close their own sessions
                     learning_data = await gather_user_learning_data(user_id)
                     session_pack = await generate_personalized_session_pack(user_id, learning_data)
                     
-                    # Reopen db connection for inserts
+                    # Create a fresh db session with explicit transaction control
                     db = SessionLocal()
+                    
+                    # Start explicit transaction for atomic pack insertion
+                    db.begin()
                     
                     # Insert into session_packs
                     constraint_report = json.dumps({
@@ -270,7 +274,7 @@ async def fix_user_jobs(request: FixUserJobsRequest, admin_user_id: str = Depend
                         "created_at": now_ist()
                     })
                     
-                    # Insert questions
+                    # Insert questions in the same transaction
                     questions = session_pack.get("questions", [])
                     for question in questions:
                         core_concepts = question.get("core_concepts", [])
@@ -314,6 +318,7 @@ async def fix_user_jobs(request: FixUserJobsRequest, admin_user_id: str = Depend
                             "question_data": question_data_json
                         })
                     
+                    # Commit the transaction
                     db.commit()
                     actions_taken.append(f"Regenerated pack for Session #{sess_seq} ({len(questions)} questions)")
                     logger.info(f"Regenerated pack for session {session_id[:8]} (Session #{sess_seq})")
