@@ -363,8 +363,9 @@ const AdminUsersMonitoring = () => {
                       onClick={() => handleFixUserJobs(user.user_id, user.email)}
                       disabled={actionLoading[user.user_id]}
                       className="fix-btn"
+                      title="Clean exhausted jobs, fix empty packs, and regenerate session pack"
                     >
-                      {actionLoading[user.user_id] ? '⏳' : '🔧'} Fix
+                      {actionLoading[user.user_id] ? '⏳ Processing...' : '🔧 Fix & Regenerate'}
                     </button>
                   )}
                 </td>
