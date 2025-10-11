@@ -353,7 +353,10 @@ async def fix_user_jobs(request: FixUserJobsRequest, admin_user_id: str = Depend
         else:
             actions_taken.append("Valid pack already exists, no new job needed")
         
-        db.close()
+        try:
+            db.close()
+        except:
+            pass  # db might already be closed
         
         return JSONResponse({
             "success": True,
