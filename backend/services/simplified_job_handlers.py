@@ -982,175 +982,81 @@ async def generate_personalized_session_pack(user_id: str, learning_data: Dict[s
         
         # PROCESS EACH DIFFICULTY BAND INDEPENDENTLY
         for difficulty, config in DIFFICULTY_BANDS.items():
-            # Build parameterized query - no f-strings for values, only structure
+            band_questions = []
             
-            # Build exclusion condition
-            exclusion_condition = ""
-            if recent_question_ids:
-                # Create placeholders for parameterized query
-                placeholders = ','.join([f":excl_{i}" for i in range(len(recent_question_ids))])
-                exclusion_condition = f"AND q.id NOT IN ({placeholders})"
+            # STEP 1: Fill coverage quota for this band
+            coverage_needed = config["coverage_quota"]
+            if coverage_needed > 0 and high_debt_pairs:
+                coverage_qs = await select_questions_for_band(
+                    db=db,
+                    user_id=user_id,
+                    difficulty=difficulty,
+                    count=coverage_needed,
+                    exclude=recent_question_ids + [q["id"] for q in selected_questions],
+                    selection_type="coverage",
+                    target_pairs=high_debt_pairs
+                )
+                band_questions.extend(coverage_qs)
+                coverage_stats[difficulty] = len(coverage_qs)
+                logger.info(f"  📊 {difficulty.upper()}: {len(coverage_qs)}/{coverage_needed} coverage slots filled")
             
-            # Build weak concept matching with proper ILIKE patterns
-            weak_concept_condition = ""
-            weak_concept_params = {}
-            if weak_concepts:
-                # Build ILIKE conditions with parameters
-                weak_conditions = []
-                for i, concept in enumerate(weak_concepts[:10]):
-                    param_name = f"concept_{i}"
-                    weak_conditions.append(f"q.core_concepts::text ILIKE :{param_name}")
-                    weak_concept_params[param_name] = f"%{concept}%"
+            # STEP 2: Fill weak concept quota for this band
+            weak_needed = config["weak_quota"]
+            current_count = len(band_questions)
+            
+            if current_count < config["total"] and weak_needed > 0 and weak_concepts:
+                # Adjust weak quota if coverage didn't fill its slots
+                actual_weak_quota = min(weak_needed, config["total"] - current_count)
                 
-                weak_concept_condition = f"({' OR '.join(weak_conditions)})"
+                weak_qs = await select_questions_for_band(
+                    db=db,
+                    user_id=user_id,
+                    difficulty=difficulty,
+                    count=actual_weak_quota,
+                    exclude=recent_question_ids + [q["id"] for q in selected_questions] + [q["id"] for q in band_questions],
+                    selection_type="weak",
+                    target_concepts=weak_concepts
+                )
+                band_questions.extend(weak_qs)
+                weak_stats[difficulty] = len(weak_qs)
+                logger.info(f"  🎯 {difficulty.upper()}: {len(weak_qs)}/{actual_weak_quota} weak slots filled")
             
-            # Build debt pair conditions with parameters
-            debt_pair_condition = ""
-            debt_params = {}
-            if high_debt_pairs:
-                debt_conditions = []
-                for i, pair in enumerate(high_debt_pairs[:10]):
-                    parts = pair.split(":")
-                    if len(parts) == 2:
-                        subcat_param = f"debt_sub_{i}"
-                        type_param = f"debt_type_{i}"
-                        debt_conditions.append(f"(q.subcategory = :{subcat_param} AND q.type_of_question = :{type_param})")
-                        debt_params[subcat_param] = parts[0]
-                        debt_params[type_param] = parts[1]
-                
-                if debt_conditions:
-                    debt_pair_condition = f"({' OR '.join(debt_conditions)})"
+            # STEP 3: Fill remaining with balanced (PYQ priority + moderate debt + random)
+            current_count = len(band_questions)
+            balanced_needed = config["total"] - current_count
             
-            # Build CASE statement for priority
-            priority_case = "CASE WHEN q.pyq_frequency_score >= 3 THEN 1"
+            if balanced_needed > 0:
+                balanced_qs = await select_questions_for_band(
+                    db=db,
+                    user_id=user_id,
+                    difficulty=difficulty,
+                    count=balanced_needed,
+                    exclude=recent_question_ids + [q["id"] for q in selected_questions] + [q["id"] for q in band_questions],
+                    selection_type="balanced",
+                    target_pairs=moderate_debt_pairs
+                )
+                band_questions.extend(balanced_qs)
+                logger.info(f"  ⚖️  {difficulty.upper()}: {len(balanced_qs)}/{balanced_needed} balanced slots filled")
             
-            if weak_concept_condition:
-                priority_case += f" WHEN {weak_concept_condition} THEN 2"
+            # Add this band's questions to final selection
+            selected_questions.extend(band_questions)
             
-            if debt_pair_condition:
-                priority_case += f" WHEN {debt_pair_condition} THEN 3"
-            
-            priority_case += " ELSE 4 END"
-            
-            # Construct final query with structural f-strings only
-            query_sql = f"""
-                SELECT 
-                    q.id, q.stem, q.answer, q.mcq_options,
-                    q.difficulty_band, q.subcategory, q.type_of_question,
-                    q.core_concepts, q.pyq_frequency_score,
-                    q.snap_read, q.solution_approach, q.detailed_solution, q.principle_to_remember,
-                    {priority_case} as priority
-                FROM questions q
-                WHERE q.difficulty_band = :difficulty
-                  {exclusion_condition}
-                ORDER BY priority ASC, RANDOM()
-                LIMIT :limit
-            """
-            
-            query = text(query_sql)
-            
-            # Build complete parameter dictionary
-            query_params = {
-                "difficulty": difficulty,
-                "limit": target_count * 3  # Get extras for selection
-            }
-            
-            # Add exclusion parameters
-            if recent_question_ids:
-                for i, qid in enumerate(recent_question_ids):
-                    query_params[f"excl_{i}"] = qid
-            
-            # Add weak concept parameters
-            query_params.update(weak_concept_params)
-            
-            # Add debt pair parameters
-            query_params.update(debt_params)
-            
-            result = db.execute(query, query_params)
-            
-            candidates = result.fetchall()
-            
-            # Ensure PYQ minimum (at least 1 PYQ per difficulty if possible)
-            pyq_questions = [q for q in candidates if q.pyq_frequency_score >= 3]
-            non_pyq_questions = [q for q in candidates if q.pyq_frequency_score < 3]
-            
-            # Select questions ensuring PYQ representation
-            if difficulty == "Medium":
-                # For Medium: at least 2 PYQs out of 6
-                selected_for_difficulty = pyq_questions[:2] + non_pyq_questions[:4]
-            else:
-                # For Easy/Hard: at least 1 PYQ out of 3
-                selected_for_difficulty = pyq_questions[:1] + non_pyq_questions[:2]
-            
-            # If not enough questions, fill from remaining candidates
-            if len(selected_for_difficulty) < target_count:
-                remaining = [q for q in candidates if q not in selected_for_difficulty]
-                selected_for_difficulty.extend(remaining[:target_count - len(selected_for_difficulty)])
-            
-            # Add to selected questions with proper structure
-            for question_row in selected_for_difficulty[:target_count]:
-                # Parse MCQ options (stored as JSONB - may come as string, list, or dict)
-                mcq_options_raw = question_row.mcq_options
-                
-                # Parse if string (SQLAlchemy sometimes returns JSONB as string)
-                if isinstance(mcq_options_raw, str):
-                    try:
-                        mcq_options_raw = json.loads(mcq_options_raw)
-                    except (json.JSONDecodeError, TypeError):
-                        mcq_options_raw = None
-                
-                # Convert list to dict format
-                if isinstance(mcq_options_raw, list) and len(mcq_options_raw) >= 4:
-                    mcq_opts = {
-                        "A": mcq_options_raw[0],
-                        "B": mcq_options_raw[1],
-                        "C": mcq_options_raw[2],
-                        "D": mcq_options_raw[3]
-                    }
-                elif isinstance(mcq_options_raw, dict):
-                    mcq_opts = mcq_options_raw
-                else:
-                    mcq_opts = {"A": "", "B": "", "C": "", "D": ""}
-                    logger.warning(f"Question {str(question_row.id)[:8]} has invalid/missing mcq_options")
-                
-                selected_questions.append({
-                    "id": str(question_row.id),
-                    "stem": question_row.stem,
-                    "answer": question_row.answer,
-                    "explanation": question_row.detailed_solution or "",  # Use detailed_solution as explanation
-                    "option_a": mcq_opts.get("A", ""),
-                    "option_b": mcq_opts.get("B", ""),
-                    "option_c": mcq_opts.get("C", ""),
-                    "option_d": mcq_opts.get("D", ""),
-                    "difficulty_band": question_row.difficulty_band,
-                    "subcategory": question_row.subcategory,
-                    "type_of_question": question_row.type_of_question,
-                    "core_concepts": question_row.core_concepts,
-                    "pyq_frequency_score": int(question_row.pyq_frequency_score) if question_row.pyq_frequency_score is not None else 0,  # Convert Decimal to int
-                    "snap_read": question_row.snap_read or "",
-                    "solution_approach": question_row.solution_approach or "",
-                    "detailed_solution": question_row.detailed_solution or "",
-                    "principle_to_remember": question_row.principle_to_remember or ""
-                })
+            # Validate we got exactly the right count for this band
+            if len(band_questions) != config["total"]:
+                logger.warning(f"⚠️  {difficulty.upper()} band: Expected {config['total']}, got {len(band_questions)}")
         
-        # Apply ordering: E-E-M-M-H-M-E-M-H-M-M-H (spread difficulty)
-        difficulty_order = ["easy", "easy", "medium", "medium", "hard", "medium", 
-                           "easy", "medium", "hard", "medium", "medium", "hard"]
+        # Validate total count
+        if len(selected_questions) != 12:
+            logger.error(f"❌ Total questions: {len(selected_questions)}/12 - CRITICAL ERROR")
+            raise ValueError(f"Session pack has {len(selected_questions)} questions instead of 12")
         
-        ordered_questions = []
-        difficulty_pools = {
-            "easy": [q for q in selected_questions if q["difficulty_band"] == "easy"],
-            "medium": [q for q in selected_questions if q["difficulty_band"] == "medium"],
-            "hard": [q for q in selected_questions if q["difficulty_band"] == "hard"]
-        }
+        # Apply difficulty ordering: E-E-M-M-H-M-E-M-H-M-M-H
+        ordered_questions = apply_difficulty_ordering(selected_questions)
         
-        for position, difficulty in enumerate(difficulty_order, 1):
-            if difficulty_pools[difficulty]:
-                question = difficulty_pools[difficulty].pop(0)
-                question["position"] = position
-                ordered_questions.append(question)
-        
-        logger.info(f"📋 Generated session pack: {len(weak_concepts)} weak concepts targeted, {len(high_debt_pairs)} high debt pairs, {len(ordered_questions)} questions selected")
+        logger.info(f"\n✅ Session pack composition:")
+        logger.info(f"   Easy (3):   Coverage={coverage_stats['easy']}, Weak={weak_stats['easy']}, Balanced={3-coverage_stats['easy']-weak_stats['easy']}")
+        logger.info(f"   Medium (6): Coverage={coverage_stats['medium']}, Weak={weak_stats['medium']}, Balanced={6-coverage_stats['medium']-weak_stats['medium']}")
+        logger.info(f"   Hard (3):   Coverage={coverage_stats['hard']}, Weak={weak_stats['hard']}, Balanced={3-coverage_stats['hard']-weak_stats['hard']}")
         
         return {
             "user_id": user_id,
