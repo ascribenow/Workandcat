@@ -967,19 +967,10 @@ async def generate_personalized_session_pack(user_id: str, learning_data: Dict[s
         debt_categories = categorize_debt_pairs(learning_data)
         weak_concepts = [nb["concept_norm"] for nb in learning_data.get("learner_notebook", []) if nb["readiness"] == "Weak"]
         high_debt_pairs = debt_categories["critical"] + debt_categories["high"]  # Combined critical + high
+        moderate_debt_pairs = debt_categories["moderate"]
         
-        # Get recently used questions (last 3 sessions) to avoid repetition
-        recent_questions = db.execute(text("""
-            SELECT sa.question_id
-            FROM session_answers sa
-            JOIN sessions s ON CAST(sa.session_id AS varchar) = CAST(s.session_id AS varchar)
-            WHERE CAST(s.user_id AS varchar) = :user_id
-            ORDER BY s.created_at DESC
-            LIMIT 36
-        """), {"user_id": user_id}).fetchall()
-        
-        # Deduplicate question IDs (in case same question was attempted multiple times)
-        recent_question_ids = list(set([str(row.question_id) for row in recent_questions]))
+        # Get recently used questions to avoid repetition
+        recent_question_ids = get_recent_questions(db, user_id)
         
         # Build question pools for each difficulty
         selected_questions = []
