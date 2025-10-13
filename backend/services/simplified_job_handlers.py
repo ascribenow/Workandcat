@@ -1060,10 +1060,12 @@ async def generate_personalized_session_pack(user_id: str, learning_data: Dict[s
         
         return {
             "user_id": user_id,
-            "pack_type": "personalized",
+            "pack_type": "coverage_aware_banded",
             "difficulty_distribution": {"easy": 3, "medium": 6, "hard": 3},
             "questions": ordered_questions,
-            "planning_strategy": "adaptive",
+            "coverage_stats": coverage_stats,
+            "weak_stats": weak_stats,
+            "planning_strategy": "per_band_quota",
             "weak_concepts_targeted": len(weak_concepts),
             "high_debt_pairs_addressed": len(high_debt_pairs)
         }
