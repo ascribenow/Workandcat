@@ -972,18 +972,16 @@ async def generate_personalized_session_pack(user_id: str, learning_data: Dict[s
         # Get recently used questions to avoid repetition
         recent_question_ids = get_recent_questions(db, user_id)
         
-        # Build question pools for each difficulty
         selected_questions = []
+        coverage_stats = {"easy": 0, "medium": 0, "hard": 0}
+        weak_stats = {"easy": 0, "medium": 0, "hard": 0}
         
-        # Target distribution: 3 Easy, 6 Medium, 3 Hard
-        # Note: Database uses lowercase difficulty names
-        difficulty_targets = {
-            "easy": 3,
-            "medium": 6,
-            "hard": 3
-        }
+        logger.info(f"📋 Generating session pack for user {user_id[:8]}")
+        logger.info(f"   High-debt topics: {len(high_debt_pairs)}")
+        logger.info(f"   Weak concepts: {len(weak_concepts)}")
         
-        for difficulty, target_count in difficulty_targets.items():
+        # PROCESS EACH DIFFICULTY BAND INDEPENDENTLY
+        for difficulty, config in DIFFICULTY_BANDS.items():
             # Build parameterized query - no f-strings for values, only structure
             
             # Build exclusion condition
