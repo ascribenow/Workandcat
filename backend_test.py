@@ -9427,29 +9427,29 @@ def main():
 
 def main():
     """Main execution function"""
-    print("🚀 Starting Manual Background Job Trigger for Session #8 Testing")
+    print("🚀 Starting Coverage System Enhancement (Sprint 1 & 2) Testing")
     print("=" * 80)
     
     tester = CATBackendTester()
     
     try:
-        # Run the manual background job trigger test
-        success = tester.test_manual_background_job_trigger_for_session_8()
+        # Run the coverage system enhancement test
+        success = tester.test_coverage_system_enhancement_per_band_quota()
         
         if success:
-            print("\n🎉 MANUAL BACKGROUND JOB TRIGGER TESTING COMPLETED SUCCESSFULLY!")
-            print("✅ Background job pipeline working correctly")
-            print("✅ Session completion endpoint functional")
-            print("✅ Job monitoring and execution validated")
+            print("\n🎉 COVERAGE SYSTEM ENHANCEMENT TESTING COMPLETED SUCCESSFULLY!")
+            print("✅ Per-band quota system working correctly")
+            print("✅ 3E/6M/3H difficulty distribution maintained")
+            print("✅ Coverage-aware session pack generation validated")
             return 0
         else:
-            print("\n⚠️ MANUAL BACKGROUND JOB TRIGGER TESTING COMPLETED WITH ISSUES")
-            print("❌ Some critical issues need attention")
-            print("🔧 Check job pipeline and session completion functionality")
+            print("\n⚠️ COVERAGE SYSTEM ENHANCEMENT TESTING COMPLETED WITH ISSUES")
+            print("❌ Some critical coverage system issues need attention")
+            print("🔧 Check per-band quota implementation and session pack generation")
             return 1
             
     except Exception as e:
-        print(f"\n❌ MANUAL BACKGROUND JOB TRIGGER TESTING FAILED: {e}")
+        print(f"\n❌ COVERAGE SYSTEM ENHANCEMENT TESTING FAILED: {e}")
         print("🔧 Please check system connectivity and try again")
         return 1
 
