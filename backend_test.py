@@ -1342,8 +1342,26 @@ class CATBackendTester:
                             # Look for a newer session that might have coverage metadata
                             for session in new_sessions:
                                 if session.get('session_id') != session_id:  # Different from the one we completed
-                                    session_pack_data = session
-                                    print(f"   📋 Found new session pack: {session.get('session_id')}")
+                                    new_session_id = session.get('session_id')
+                                    print(f"   📋 Found new session pack: {new_session_id}")
+                                    
+                                    # Get the questions for this session
+                                    success, questions_response = self.run_test(
+                                        "Get Session Questions", 
+                                        "GET", 
+                                        f"session/questions/{new_session_id}", 
+                                        [200, 404, 500], 
+                                        None, 
+                                        auth_headers
+                                    )
+                                    
+                                    if success and questions_response:
+                                        session['questions'] = questions_response.get('questions', [])
+                                        session_pack_data = session
+                                        print(f"   ✅ Loaded {len(session['questions'])} questions for session")
+                                    else:
+                                        session_pack_data = session
+                                        print(f"   ⚠️ Could not load questions for session")
                                     break
             
             if not session_created:
