@@ -16,6 +16,38 @@ from utils.timezone_utils import now_ist
 
 logger = logging.getLogger(__name__)
 
+# Coverage System Configuration - Per-Difficulty Band Quotas
+DIFFICULTY_BANDS = {
+    "easy": {
+        "total": 3,
+        "coverage_quota": 1,   # Up to 1 coverage question
+        "weak_quota": 1,        # Up to 1 weak concept question
+        "balanced_quota": 1     # Remainder (PYQ + balanced)
+    },
+    "medium": {
+        "total": 6,
+        "coverage_quota": 2,   # Up to 2 coverage questions
+        "weak_quota": 2,        # Up to 2 weak concept questions
+        "balanced_quota": 2     # Remainder (PYQ + balanced)
+    },
+    "hard": {
+        "total": 3,
+        "coverage_quota": 1,   # Up to 1 coverage question
+        "weak_quota": 1,        # Up to 1 weak concept question
+        "balanced_quota": 1     # Remainder (PYQ + balanced)
+    }
+}
+
+def categorize_debt_pairs(learning_data: Dict[str, Any]) -> Dict[str, list]:
+    """Categorize topics by debt level"""
+    coverage_debt = learning_data.get("coverage_debt", [])
+    
+    return {
+        "critical": [cd["pair"] for cd in coverage_debt if cd["debt_score"] > 0.7],
+        "high": [cd["pair"] for cd in coverage_debt if 0.5 <= cd["debt_score"] <= 0.7],
+        "moderate": [cd["pair"] for cd in coverage_debt if 0.3 <= cd["debt_score"] < 0.5]
+    }
+
 async def run_simplified_summarizer(user_id: str, session_id: str) -> Dict[str, Any]:
     """Simplified summarizer for adaptive insights background jobs - WITH session_summary_llm persistence"""
     print(f"🚀 FUNCTION ENTRY: run_simplified_summarizer called for user {user_id[:8]}... session {session_id[:8]}...")
