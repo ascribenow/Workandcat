@@ -1452,14 +1452,16 @@ class CATBackendTester:
                 
                 print(f"   📊 Difficulty distribution: {difficulty_counts}")
                 
-                # Verify 3E/6M/3H distribution
-                if (difficulty_counts.get('easy', 0) == 3 and 
-                    difficulty_counts.get('medium', 0) == 6 and 
-                    difficulty_counts.get('hard', 0) == 3):
+                # Verify 3E/6M/3H distribution (handle case variations)
+                easy_count = (difficulty_counts.get('easy', 0) + difficulty_counts.get('Easy', 0))
+                medium_count = (difficulty_counts.get('medium', 0) + difficulty_counts.get('Medium', 0))
+                hard_count = (difficulty_counts.get('hard', 0) + difficulty_counts.get('Hard', 0))
+                
+                if (easy_count == 3 and medium_count == 6 and hard_count == 3):
                     test_results["difficulty_distribution_3e_6m_3h"] = True
                     print(f"   ✅ Perfect 3E/6M/3H difficulty distribution")
                 else:
-                    print(f"   ❌ Incorrect difficulty distribution: {difficulty_counts}")
+                    print(f"   ❌ Incorrect difficulty distribution: E={easy_count}, M={medium_count}, H={hard_count} (expected 3/6/3)")
             
             # Check pack metadata (Note: Coverage metadata is only available in background job system)
             pack_type = session_pack_data.get('pack_type')
