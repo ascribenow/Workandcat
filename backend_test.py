@@ -53594,3 +53594,37 @@ if __name__ == "__main__":
     print(f"✅ Tests Passed: {tester.tests_passed}")
     print(f"📈 Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%" if tester.tests_run > 0 else "📈 Success Rate: 0%")
     print("=" * 100)
+
+def main():
+    """Main test execution"""
+    print("🚀 STARTING CRITICAL SESSION COMPLETION LIFECYCLE TESTING")
+    print("=" * 100)
+    
+    tester = CATBackendTester()
+    
+    try:
+        # Run the critical session completion lifecycle test
+        success = tester.test_session_completion_lifecycle_critical_bug()
+        
+        print("
+" + "=" * 100)
+        print("🎯 TESTING COMPLETED")
+        print("=" * 100)
+        print(f"Tests Run: {tester.tests_run}")
+        print(f"Tests Passed: {tester.tests_passed}")
+        print(f"Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%" if tester.tests_run > 0 else "0%")
+        print(f"Overall Result: {\"✅ SUCCESS\" if success else \"❌ CRITICAL ISSUES FOUND\"}")
+        print("=" * 100)
+        
+        return 0 if success else 1
+        
+    except Exception as e:
+        print(f"
+❌ CRITICAL ERROR: {e}")
+        import traceback
+        traceback.print_exc()
+        return 1
+
+if __name__ == "__main__":
+    exit(main())
+
