@@ -1274,81 +1274,125 @@ class CATBackendTester:
             print(f"   ❌ User authentication failed: {auth_response}")
             return False
         
-        # Create a new session to trigger PLAN_NEXT_SESSION job
+        # Test session completion to trigger PLAN_NEXT_SESSION job (which uses coverage system)
         if auth_headers and user_id:
-            print("   🎯 Creating new session to trigger PLAN_NEXT_SESSION job...")
+            print("   🎯 Testing session completion to trigger PLAN_NEXT_SESSION job with coverage system...")
             
-            # Try different session creation endpoints
-            session_endpoints = [
-                ("adapt/plan-next", "POST", None),
-                ("session/start", "POST", {"user_id": user_id}),
-                ("sessions/start", "POST", {"user_id": user_id})
-            ]
+            # First, try to get an existing session to complete
+            success, session_list = self.run_test(
+                "Get Existing Sessions", 
+                "GET", 
+                "session/list", 
+                [200, 404, 500], 
+                None, 
+                auth_headers
+            )
             
             session_created = False
             session_pack_data = None
             
-            for endpoint, method, data in session_endpoints:
-                print(f"   🔍 Trying endpoint: {method} {endpoint}")
-                
-                success, session_response = self.run_test(
-                    f"Session Creation via {endpoint}", 
-                    method, 
-                    endpoint, 
-                    [200, 201, 400, 404, 410, 500], 
-                    data, 
-                    auth_headers
-                )
-                
-                if success and session_response:
-                    if (session_response.get('session_id') or 
-                        session_response.get('id') or 
-                        session_response.get('questions')):
-                        
-                        test_results["session_creation_successful"] = True
-                        session_created = True
-                        session_pack_data = session_response
-                        
-                        session_id = (session_response.get('session_id') or 
-                                    session_response.get('id'))
-                        
-                        print(f"   ✅ Session created successfully via {endpoint}")
-                        if session_id:
-                            print(f"   📊 Session ID: {session_id}")
-                        
-                        # Check if PLAN_NEXT_SESSION job was triggered
-                        if session_response.get('background_jobs_enqueued'):
+            if success and session_list and session_list.get('sessions'):
+                sessions = session_list.get('sessions', [])
+                if sessions:
+                    # Use the first session for testing
+                    first_session = sessions[0]
+                    session_pack_data = first_session
+                    test_results["session_creation_successful"] = True
+                    session_created = True
+                    
+                    session_id = first_session.get('session_id')
+                    print(f"   ✅ Found existing session for testing: {session_id}")
+                    
+                    # Try to complete this session to trigger background jobs
+                    completion_data = {
+                        "session_id": session_id
+                    }
+                    
+                    success, completion_response = self.run_test(
+                        "Trigger Session Completion", 
+                        "POST", 
+                        "session/complete", 
+                        [200, 400, 500], 
+                        completion_data, 
+                        auth_headers
+                    )
+                    
+                    if success and completion_response:
+                        if completion_response.get('background_jobs_enqueued'):
                             test_results["plan_next_session_job_triggered"] = True
-                            print(f"   ✅ PLAN_NEXT_SESSION job triggered")
+                            print(f"   ✅ PLAN_NEXT_SESSION job triggered via session completion")
                         
-                        break
-                    elif session_response.get('status_code') == 410:
-                        print(f"   📋 Endpoint {endpoint} deprecated (410)")
-                    else:
-                        print(f"   📋 Endpoint {endpoint} responded but no session created")
-                else:
-                    print(f"   📋 Endpoint {endpoint} not available or failed")
+                        # Wait a moment for background jobs to process
+                        print(f"   ⏳ Waiting for background jobs to process...")
+                        import time
+                        time.sleep(5)
+                        
+                        # Now check if a new session pack was created with coverage metadata
+                        success, new_session_list = self.run_test(
+                            "Check for New Session Pack", 
+                            "GET", 
+                            "session/list", 
+                            [200, 404, 500], 
+                            None, 
+                            auth_headers
+                        )
+                        
+                        if success and new_session_list and new_session_list.get('sessions'):
+                            new_sessions = new_session_list.get('sessions', [])
+                            # Look for a newer session that might have coverage metadata
+                            for session in new_sessions:
+                                if session.get('session_id') != session_id:  # Different from the one we completed
+                                    session_pack_data = session
+                                    print(f"   📋 Found new session pack: {session.get('session_id')}")
+                                    break
             
             if not session_created:
-                print(f"   ⚠️ Could not create new session via any tested endpoint")
-                # Try to get existing session data instead
-                success, session_list = self.run_test(
-                    "Get Existing Sessions", 
-                    "GET", 
-                    "session/list", 
-                    [200, 404, 500], 
-                    None, 
-                    auth_headers
-                )
+                print(f"   ⚠️ No existing sessions found, trying to create new session...")
+                # Try different session creation endpoints
+                session_endpoints = [
+                    ("session/start", "POST", {"user_id": user_id}),
+                    ("adapt/plan-next", "POST", None),
+                    ("sessions/start", "POST", {"user_id": user_id})
+                ]
                 
-                if success and session_list and session_list.get('sessions'):
-                    sessions = session_list.get('sessions', [])
-                    if sessions:
-                        # Use the first session for testing
-                        first_session = sessions[0]
-                        session_pack_data = first_session
-                        test_results["session_creation_successful"] = True
-                        print(f"   📋 Using existing session for testing: {first_session.get('session_id', 'unknown')}")
+                for endpoint, method, data in session_endpoints:
+                    print(f"   🔍 Trying endpoint: {method} {endpoint}")
+                    
+                    success, session_response = self.run_test(
+                        f"Session Creation via {endpoint}", 
+                        method, 
+                        endpoint, 
+                        [200, 201, 400, 404, 410, 500], 
+                        data, 
+                        auth_headers
+                    )
+                    
+                    if success and session_response:
+                        if (session_response.get('session_id') or 
+                            session_response.get('id') or 
+                            session_response.get('questions')):
+                            
+                            test_results["session_creation_successful"] = True
+                            session_created = True
+                            session_pack_data = session_response
+                            
+                            session_id = (session_response.get('session_id') or 
+                                        session_response.get('id'))
+                            
+                            print(f"   ✅ Session created successfully via {endpoint}")
+                            if session_id:
+                                print(f"   📊 Session ID: {session_id}")
+                            
+                            break
+                        elif session_response.get('status_code') == 410:
+                            print(f"   📋 Endpoint {endpoint} deprecated (410)")
+                        else:
+                            print(f"   📋 Endpoint {endpoint} responded but no session created")
+                    else:
+                        print(f"   📋 Endpoint {endpoint} not available or failed")
+                
+                if not session_created:
+                    print(f"   ⚠️ Could not create new session via any tested endpoint")
         
         # PHASE 2: SESSION PACK VALIDATION
         print("\n📊 PHASE 2: SESSION PACK VALIDATION")
