@@ -119,6 +119,56 @@ class BlueprintSessionPlanner:
                     logger.error(f"Error getting questions for session {session_id_str}: {q_error}")
                     questions = []
                 
+                # CRITICAL FIX: Ensure sessions table record exists for this pre-pack
+                # Check if sessions record exists
+                session_check = db.execute(text("""
+                    SELECT session_id FROM sessions WHERE session_id = :session_id
+                """), {"session_id": session_id_str})
+                
+                if not session_check.fetchone():
+                    # No sessions record exists - create one now
+                    # Get next session sequence
+                    seq_result = db.execute(text("""
+                        SELECT COUNT(*) + 1 as next_seq
+                        FROM sessions 
+                        WHERE user_id = :user_id AND status = 'completed'
+                    """), {"user_id": str(user_id)})
+                    
+                    next_seq = seq_result.scalar() or 1
+                    
+                    # Create sessions table record
+                    try:
+                        db.execute(text("""
+                            INSERT INTO sessions (session_id, user_id, sess_seq, status, created_at)
+                            VALUES (:session_id, :user_id, :sess_seq, 'active', :created_at)
+                        """), {
+                            "session_id": session_id_str,
+                            "user_id": str(user_id),
+                            "sess_seq": next_seq,
+                            "created_at": now_ist()
+                        })
+                        db.commit()
+                        logger.info(f"✅ Created sessions table record for pre-pack {session_id_str[:8]} as session #{next_seq}")
+                    except Exception as insert_error:
+                        # Handle duplicate sess_seq race condition
+                        if "sessions_user_id_sess_seq_key" in str(insert_error):
+                            db.rollback()
+                            next_seq = next_seq + 1
+                            db.execute(text("""
+                                INSERT INTO sessions (session_id, user_id, sess_seq, status, created_at)
+                                VALUES (:session_id, :user_id, :sess_seq, 'active', :created_at)
+                            """), {
+                                "session_id": session_id_str,
+                                "user_id": str(user_id),
+                                "sess_seq": next_seq,
+                                "created_at": now_ist()
+                            })
+                            db.commit()
+                            logger.info(f"✅ Created sessions table record for pre-pack {session_id_str[:8]} as session #{next_seq} (retry)")
+                        else:
+                            logger.error(f"Failed to create sessions record for pre-pack {session_id_str[:8]}: {insert_error}")
+                            raise
+                
                 return {
                     "session_id": session_id_str,
                     "status": "ready",
