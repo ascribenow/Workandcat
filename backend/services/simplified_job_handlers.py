@@ -576,10 +576,57 @@ async def update_learner_notebook_from_session(user_id: str, session_id: str, su
     finally:
         db.close()
 
+async def initialize_coverage_debt(user_id: str, db):
+    """Initialize coverage debt with all available topic pairs on first session"""
+    try:
+        # Get all unique topic pairs from questions table
+        result = db.execute(text("""
+            SELECT DISTINCT subcategory, type_of_question
+            FROM questions
+            WHERE is_active = true
+            ORDER BY subcategory, type_of_question
+        """))
+        
+        topic_pairs = result.fetchall()
+        
+        # Insert with initial debt of 0.3 (moderate starting point)
+        for pair in topic_pairs:
+            db.execute(text("""
+                INSERT INTO coverage_debt (
+                    user_id, subcategory, type_of_question, debt_score, updated_at
+                ) VALUES (
+                    :user_id, :subcategory, :type_of_question, 0.3, :updated_at
+                )
+                ON CONFLICT (user_id, subcategory, type_of_question) DO NOTHING
+            """), {
+                "user_id": user_id,
+                "subcategory": pair.subcategory,
+                "type_of_question": pair.type_of_question,
+                "updated_at": now_ist()
+            })
+        
+        db.commit()
+        logger.info(f"✅ Initialized coverage debt with {len(topic_pairs)} topic pairs for user {user_id[:8]}")
+        
+    except Exception as e:
+        logger.error(f"❌ Failed to initialize coverage debt: {e}")
+        db.rollback()
+
+
 async def update_coverage_debt_from_session(user_id: str, session_id: str):
-    """Update coverage_debt - decrease for served pairs, small decay for others"""
+    """Update coverage_debt - decrease for served pairs, decay for others (SPRINT 2: tuned parameters)"""
     db = SessionLocal()
     try:
+        # Check if this is user's first session completion (for initialization)
+        session_count = db.execute(text("""
+            SELECT COUNT(*) FROM sessions 
+            WHERE user_id = :user_id AND status = 'completed'
+        """), {"user_id": user_id}).scalar()
+        
+        # Initialize coverage if first session
+        if session_count <= 1:
+            await initialize_coverage_debt(user_id, db)
+        
         # Get served pairs from this session
         served_result = db.execute(text("""
             SELECT DISTINCT subcategory, type_of_question
@@ -590,7 +637,7 @@ async def update_coverage_debt_from_session(user_id: str, session_id: str):
         served_pairs = [f"{row.subcategory}:{row.type_of_question}" for row in served_result.fetchall()]
         
         if served_pairs:
-            # Decrease debt for served pairs (they got practice)
+            # Decrease debt for served pairs (more gradual: -0.15 instead of -0.2)
             for pair in served_pairs:
                 subcategory, type_of_question = pair.split(":", 1)
                 db.execute(text("""
@@ -600,7 +647,7 @@ async def update_coverage_debt_from_session(user_id: str, session_id: str):
                         :user_id, :subcategory, :type_of_question, 0.1, :updated_at
                     )
                     ON CONFLICT (user_id, subcategory, type_of_question) DO UPDATE SET
-                        debt_score = GREATEST(0.0, coverage_debt.debt_score - 0.2),
+                        debt_score = GREATEST(0.0, coverage_debt.debt_score - 0.15),
                         updated_at = EXCLUDED.updated_at
                 """), {
                     "user_id": user_id,
@@ -609,10 +656,10 @@ async def update_coverage_debt_from_session(user_id: str, session_id: str):
                     "updated_at": now_ist()
                 })
         
-        # Small decay for all other pairs (time passing increases debt)
+        # Faster decay for unpracticed pairs (0.08 instead of 0.05)
         db.execute(text("""
             UPDATE coverage_debt 
-            SET debt_score = LEAST(1.0, debt_score + 0.05),
+            SET debt_score = LEAST(1.0, debt_score + 0.08),
                 updated_at = :updated_at
             WHERE user_id = :user_id 
             AND CONCAT(subcategory, ':', type_of_question) != ALL(:served_pairs)
@@ -623,7 +670,7 @@ async def update_coverage_debt_from_session(user_id: str, session_id: str):
         })
         
         db.commit()
-        logger.info(f"✅ Updated coverage debt: decreased for {len(served_pairs)} served pairs")
+        logger.info(f"✅ Updated coverage debt: decreased for {len(served_pairs)} served pairs (tuned: -0.15/+0.08)")
         
     except Exception as e:
         db.rollback()
