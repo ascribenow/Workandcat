@@ -732,14 +732,241 @@ async def gather_user_learning_data(user_id: str) -> Dict[str, Any]:
     finally:
         db.close()
 
+def get_recent_questions(db, user_id: str, session_count: int = 3) -> list:
+    """Get question IDs from recent N sessions to avoid repetition"""
+    result = db.execute(text("""
+        SELECT sa.question_id
+        FROM session_answers sa
+        JOIN sessions s ON CAST(sa.session_id AS varchar) = CAST(s.session_id AS varchar)
+        WHERE CAST(s.user_id AS varchar) = :user_id
+        ORDER BY s.created_at DESC
+        LIMIT :limit
+    """), {"user_id": user_id, "limit": session_count * 12})
+    
+    return list(set([str(row.question_id) for row in result.fetchall()]))
+
+
+def format_questions_from_rows(rows) -> list:
+    """Convert SQLAlchemy rows to question dictionaries"""
+    questions = []
+    
+    for row in rows:
+        # Parse MCQ options
+        mcq_options_raw = row.mcq_options
+        
+        if isinstance(mcq_options_raw, str):
+            try:
+                mcq_options_raw = json.loads(mcq_options_raw)
+            except (json.JSONDecodeError, TypeError):
+                mcq_options_raw = None
+        
+        # Convert to dict format
+        if isinstance(mcq_options_raw, list) and len(mcq_options_raw) >= 4:
+            mcq_opts = {
+                "A": mcq_options_raw[0],
+                "B": mcq_options_raw[1],
+                "C": mcq_options_raw[2],
+                "D": mcq_options_raw[3]
+            }
+        elif isinstance(mcq_options_raw, dict):
+            mcq_opts = mcq_options_raw
+        else:
+            mcq_opts = {"A": "", "B": "", "C": "", "D": ""}
+            logger.warning(f"Question {str(row.id)[:8]} has invalid mcq_options")
+        
+        questions.append({
+            "id": str(row.id),
+            "stem": row.stem,
+            "answer": row.answer,
+            "explanation": row.detailed_solution or "",
+            "option_a": mcq_opts.get("A", ""),
+            "option_b": mcq_opts.get("B", ""),
+            "option_c": mcq_opts.get("C", ""),
+            "option_d": mcq_opts.get("D", ""),
+            "difficulty_band": row.difficulty_band,
+            "subcategory": row.subcategory,
+            "type_of_question": row.type_of_question,
+            "core_concepts": row.core_concepts,
+            "pyq_frequency_score": int(row.pyq_frequency_score) if row.pyq_frequency_score is not None else 0,
+            "snap_read": row.snap_read or "",
+            "solution_approach": row.solution_approach or "",
+            "detailed_solution": row.detailed_solution or "",
+            "principle_to_remember": row.principle_to_remember or ""
+        })
+    
+    return questions
+
+
+def apply_difficulty_ordering(questions: list) -> list:
+    """
+    Apply standard ordering: E-E-M-M-H-M-E-M-H-M-M-H
+    Preserves 3E/6M/3H distribution
+    """
+    # Separate by difficulty
+    easy = [q for q in questions if q["difficulty_band"] == "easy"]
+    medium = [q for q in questions if q["difficulty_band"] == "medium"]
+    hard = [q for q in questions if q["difficulty_band"] == "hard"]
+    
+    # Validate counts
+    if len(easy) != 3 or len(medium) != 6 or len(hard) != 3:
+        logger.error(f"❌ Difficulty distribution broken: E{len(easy)}/M{len(medium)}/H{len(hard)}")
+        raise ValueError(f"Difficulty distribution violated: E{len(easy)}/M{len(medium)}/H{len(hard)}")
+    
+    # Apply ordering pattern
+    difficulty_order = ["easy", "easy", "medium", "medium", "hard", "medium", 
+                       "easy", "medium", "hard", "medium", "medium", "hard"]
+    
+    ordered = []
+    pools = {"easy": easy.copy(), "medium": medium.copy(), "hard": hard.copy()}
+    
+    for position, difficulty in enumerate(difficulty_order, 1):
+        if pools[difficulty]:
+            question = pools[difficulty].pop(0)
+            question["position"] = position
+            ordered.append(question)
+    
+    return ordered
+
+
+async def select_questions_for_band(
+    db, 
+    user_id: str,
+    difficulty: str,
+    count: int,
+    exclude: list,
+    selection_type: str,  # "coverage", "weak", or "balanced"
+    target_pairs: list = None,  # For coverage/balanced
+    target_concepts: list = None  # For weak
+) -> list:
+    """
+    Select questions for a specific difficulty band
+    
+    Selection type determines priority:
+    - coverage: Target high-debt topic pairs
+    - weak: Target weak concepts from learner notebook
+    - balanced: PYQ priority + moderate debt + random
+    """
+    
+    if count <= 0:
+        return []
+    
+    # Build base query parameters
+    query_params = {
+        "difficulty": difficulty,
+        "limit": count * 3  # Get extras for selection
+    }
+    
+    # Build exclusion condition
+    exclusion_condition = ""
+    if exclude:
+        placeholders = ','.join([f":excl_{i}" for i in range(len(exclude))])
+        exclusion_condition = f"AND q.id NOT IN ({placeholders})"
+        for i, qid in enumerate(exclude):
+            query_params[f"excl_{i}"] = qid
+    
+    # Build type-specific conditions
+    if selection_type == "coverage":
+        # Target specific topic pairs (high debt)
+        if not target_pairs:
+            return []
+        
+        pair_conditions = []
+        for i, pair in enumerate(target_pairs[:20]):  # Limit to top 20
+            parts = pair.split(":")
+            if len(parts) == 2:
+                pair_conditions.append(f"(q.subcategory = :sub_{i} AND q.type_of_question = :type_{i})")
+                query_params[f"sub_{i}"] = parts[0]
+                query_params[f"type_{i}"] = parts[1]
+        
+        if not pair_conditions:
+            return []
+        
+        target_condition = f"AND ({' OR '.join(pair_conditions)})"
+        priority_order = "q.pyq_frequency_score DESC, RANDOM()"  # PYQ still preferred within coverage
+        
+    elif selection_type == "weak":
+        # Target weak concepts
+        if not target_concepts:
+            return []
+        
+        concept_conditions = []
+        for i, concept in enumerate(target_concepts[:15]):
+            concept_conditions.append(f"q.core_concepts::text ILIKE :concept_{i}")
+            query_params[f"concept_{i}"] = f"%{concept}%"
+        
+        target_condition = f"AND ({' OR '.join(concept_conditions)})"
+        priority_order = "q.pyq_frequency_score DESC, RANDOM()"
+        
+    else:  # balanced
+        # PYQ priority + moderate debt + random
+        target_condition = ""
+        if target_pairs:
+            pair_conditions = []
+            for i, pair in enumerate(target_pairs[:15]):
+                parts = pair.split(":")
+                if len(parts) == 2:
+                    pair_conditions.append(f"(q.subcategory = :sub_{i} AND q.type_of_question = :type_{i})")
+                    query_params[f"sub_{i}"] = parts[0]
+                    query_params[f"type_{i}"] = parts[1]
+            
+            if pair_conditions:
+                # Use CASE for priority: PYQ > moderate debt > random
+                priority_order = f"""
+                    CASE 
+                        WHEN q.pyq_frequency_score >= 3 THEN 1
+                        WHEN ({' OR '.join(pair_conditions)}) THEN 2
+                        ELSE 3
+                    END, RANDOM()
+                """
+            else:
+                priority_order = "q.pyq_frequency_score DESC, RANDOM()"
+        else:
+            priority_order = "q.pyq_frequency_score DESC, RANDOM()"
+    
+    # Execute query
+    query = text(f"""
+        SELECT 
+            q.id, q.stem, q.answer, q.mcq_options,
+            q.difficulty_band, q.subcategory, q.type_of_question,
+            q.core_concepts, q.pyq_frequency_score,
+            q.snap_read, q.solution_approach, q.detailed_solution, q.principle_to_remember
+        FROM questions q
+        WHERE q.difficulty_band = :difficulty
+          AND q.is_active = true
+          {exclusion_condition}
+          {target_condition}
+        ORDER BY {priority_order}
+        LIMIT :limit
+    """)
+    
+    result = db.execute(query, query_params)
+    candidates = result.fetchall()
+    
+    # Format and return exactly 'count' questions
+    formatted = format_questions_from_rows(candidates)
+    
+    if len(formatted) < count:
+        logger.warning(f"⚠️  {selection_type} selection for {difficulty}: Only {len(formatted)}/{count} questions found")
+    
+    return formatted[:count]
+
+
 async def generate_personalized_session_pack(user_id: str, learning_data: Dict[str, Any]) -> Dict[str, Any]:
-    """Generate personalized 3E/6M/3H session pack using learning data"""
+    """
+    SPRINT 1: Generate 3E/6M/3H session pack with per-difficulty coverage guarantees
+    
+    Selection happens WITHIN each difficulty band:
+    Priority 1: Coverage quota (if high-debt topics exist)
+    Priority 2: Weak concept quota (if weak areas exist)
+    Priority 3: Balanced (PYQ priority + random)
+    """
     
     db = SessionLocal()
     try:
-        # Extract weak concepts and high debt pairs from learning data
+        # Extract learning data (SPRINT 2: lowered threshold from 0.7 to 0.5)
+        debt_categories = categorize_debt_pairs(learning_data)
         weak_concepts = [nb["concept_norm"] for nb in learning_data.get("learner_notebook", []) if nb["readiness"] == "Weak"]
-        high_debt_pairs = [cd["pair"] for cd in learning_data.get("coverage_debt", []) if cd["debt_score"] > 0.7]
+        high_debt_pairs = debt_categories["critical"] + debt_categories["high"]  # Combined critical + high
         
         # Get recently used questions (last 3 sessions) to avoid repetition
         recent_questions = db.execute(text("""
