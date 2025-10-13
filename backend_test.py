@@ -1296,12 +1296,29 @@ class CATBackendTester:
                 if sessions:
                     # Use the first session for testing
                     first_session = sessions[0]
+                    session_id = first_session.get('session_id')
+                    print(f"   ✅ Found existing session for testing: {session_id}")
+                    
+                    # Get the questions for this session
+                    success, questions_response = self.run_test(
+                        "Get Session Questions", 
+                        "GET", 
+                        f"session/questions/{session_id}", 
+                        [200, 404, 500], 
+                        None, 
+                        auth_headers
+                    )
+                    
+                    if success and questions_response:
+                        first_session['questions'] = questions_response.get('questions', [])
+                        print(f"   ✅ Loaded {len(first_session['questions'])} questions for session")
+                    else:
+                        first_session['questions'] = []
+                        print(f"   ⚠️ Could not load questions for session")
+                    
                     session_pack_data = first_session
                     test_results["session_creation_successful"] = True
                     session_created = True
-                    
-                    session_id = first_session.get('session_id')
-                    print(f"   ✅ Found existing session for testing: {session_id}")
                     
                     # Try to complete this session to trigger background jobs
                     completion_data = {
