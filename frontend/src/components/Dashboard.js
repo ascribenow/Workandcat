@@ -551,21 +551,39 @@ export const Dashboard = () => {
                 </button>
                 <button
                   onClick={async () => {
+                    // Prevent multiple clicks - ignore if already clicked
+                    if (isSessionButtonClicked) {
+                      console.log('Dashboard: Button already clicked, ignoring subsequent click');
+                      return;
+                    }
+                    
                     // Check session limit before starting session
                     if (sessionLimitStatus?.limit_reached) {
                       setShowUpgradeModal(true);
                     } else {
-                      // ROUTING FIX: Let startOrResumeSession handle view switching internally
-                      await startOrResumeSession();
-                      // Don't call setCurrentView here - it's handled in startOrResumeSession
+                      // Immediately disable button and show loading modal
+                      console.log('Dashboard: First click on Today\'s Session button');
+                      setIsSessionButtonClicked(true);
+                      setShowSessionLoadingModal(true);
+                      
+                      try {
+                        // ROUTING FIX: Let startOrResumeSession handle view switching internally
+                        await startOrResumeSession();
+                        // Don't call setCurrentView here - it's handled in startOrResumeSession
+                      } catch (error) {
+                        console.error('Dashboard: Error starting session:', error);
+                        // On error, reset button state so user can try again
+                        setIsSessionButtonClicked(false);
+                        setShowSessionLoadingModal(false);
+                      }
                     }
                   }}
-                  disabled={loading}
+                  disabled={loading || isSessionButtonClicked}
                   className={`inline-flex items-center px-1 pt-1 text-sm font-medium border-b-2 transition-colors ${
                     currentView === 'session'
                       ? 'border-[#9ac026] text-[#545454]'
                       : 'text-[#545454] border-transparent hover:text-[#ff6d4d] hover:border-[#ff6d4d]'
-                  } ${loading ? 'opacity-50 cursor-not-allowed' : ''} ${sessionLimitStatus?.limit_reached ? 'opacity-50' : ''}`}
+                  } ${loading || isSessionButtonClicked ? 'opacity-50 cursor-not-allowed' : ''} ${sessionLimitStatus?.limit_reached ? 'opacity-50' : ''}`}
                   style={{ fontFamily: 'Lato, sans-serif' }}
                   title={sessionLimitStatus?.limit_reached ? 'Session limit reached - upgrade to continue' : ''}
                 >
