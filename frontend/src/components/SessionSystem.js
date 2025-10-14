@@ -1384,8 +1384,8 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
     }
     
     if (nextIndex >= livePack.length) {
-      console.log(`[CRITICAL_DEBUG] ${requestId}: Reached end of pack (${nextIndex} >= ${livePack.length}) - completing session`);
-      handleAdaptiveSessionCompletion();
+      console.log(`[CRITICAL_DEBUG] ${requestId}: Reached end of pack (${nextIndex} >= ${livePack.length}) - showing congratulations modal`);
+      setShowCongratulationsModal(true);
       return;
     }
     
