@@ -76,13 +76,8 @@ www.twelvr.com
             padding: 0;
             border-radius: 0;
         }}
-        .header {{
-            background-color: #ffffff;
-            padding: 40px 30px 20px 30px;
-            text-align: left;
-        }}
         .content {{
-            padding: 0 30px 40px 30px;
+            padding: 40px 30px 40px 30px;
         }}
         .content p {{
             font-size: 16px;
