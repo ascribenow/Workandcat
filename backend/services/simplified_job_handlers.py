@@ -1124,7 +1124,9 @@ async def persist_session_pack(user_id: str, session_pack: Dict[str, Any]) -> st
             "difficulty_distribution": session_pack["difficulty_distribution"],
             "planning_strategy": session_pack["planning_strategy"],
             "weak_concepts_targeted": session_pack["weak_concepts_targeted"],
-            "high_debt_pairs_addressed": session_pack["high_debt_pairs_addressed"]
+            "high_debt_pairs_addressed": session_pack["high_debt_pairs_addressed"],
+            "coverage_stats": session_pack.get("coverage_stats", {}),  # Sprint 1 & 2
+            "weak_stats": session_pack.get("weak_stats", {})  # Sprint 1 & 2
         })
         
         db.execute(text("""
