@@ -131,9 +131,7 @@ www.twelvr.com
         <div class="content">
             <p>Hi,</p>
             
-            <p>It's been just a week since we launched Twelvr, and the response has been overwhelming — thank you for being part of it 🙏</p>
-            
-            <p>Many of you have already reached your 10-session free limit, so as a small gesture of gratitude, we're <strong>giving free CAT 2025 access to our first 50 users</strong> who cross that mark.</p>
+            <p>It's been amazing watching so many of you already complete 10 sessions. To thank our earliest learners, we're <strong>opening up free full access for the first 50 who reach that milestone</strong> — our little way of giving back.</p>
             
             <p>We built Twelvr to help CAT 2025 aspirants learn smarter and move faster — especially if you've started a little late or find Quant tough. The AI engine behind Twelvr learns from every answer you give, so each session becomes more tuned to your pace and pattern — helping you cover Quant quickly and effectively.</p>
             
