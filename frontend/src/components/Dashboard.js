@@ -708,6 +708,33 @@ export const Dashboard = () => {
           }}
         />
       )}
+
+      {/* Session Loading Modal */}
+      {showSessionLoadingModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-8">
+            <div className="text-center">
+              {/* Loading spinner */}
+              <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-[#9ac026] mx-auto mb-4"></div>
+              
+              {/* Loading message */}
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                Preparing Your Session
+              </h3>
+              <p className="text-gray-600 text-sm">
+                Please wait while we load your personalized session...
+              </p>
+              
+              {/* Additional info */}
+              <div className="mt-6 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <p className="text-blue-800 text-xs">
+                  This may take a few moments as we prepare your adaptive questions
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       </div>
     </DashboardErrorBoundary>
   );
