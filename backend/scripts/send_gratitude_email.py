@@ -160,7 +160,6 @@ www.twelvr.com
         </div>
         
         <div class="footer">
-            <p style="margin: 0; color: #999; font-size: 13px;">You received this email because you're a valued member of the Twelvr community.</p>
         </div>
     </div>
 </body>
