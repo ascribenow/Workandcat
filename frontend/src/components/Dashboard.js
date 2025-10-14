@@ -116,6 +116,21 @@ export const Dashboard = () => {
     };
   }, []); // FIXED: Remove currentView dependency to prevent infinite loop
 
+  // Reset "Today's Session" button state when view changes or session loading completes
+  useEffect(() => {
+    if (currentView === 'session') {
+      // Session has loaded successfully, close loading modal and reset button state
+      console.log('Dashboard: Session view active, resetting button state');
+      setShowSessionLoadingModal(false);
+      setIsSessionButtonClicked(false);
+    } else if (currentView === 'dashboard') {
+      // User navigated back to dashboard, reset button state
+      console.log('Dashboard: Dashboard view active, resetting button state');
+      setIsSessionButtonClicked(false);
+      setShowSessionLoadingModal(false);
+    }
+  }, [currentView]);
+
   const getCategoryColor = (category) => {
     const colors = {
       'A': 'bg-[#f7fdf0] text-[#9ac026]',
