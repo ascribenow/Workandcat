@@ -1147,17 +1147,19 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
   };
   
   // Handler for congratulations modal close - completes session and redirects to dashboard
-  const handleCongratulationsModalClose = async () => {
-    console.log('[CONGRATULATIONS] User closed congratulations modal, completing session and redirecting...');
+  const handleCongratulationsModalClose = () => {
+    console.log('[CONGRATULATIONS] User closed congratulations modal, redirecting immediately...');
     setShowCongratulationsModal(false);
     
-    // Complete the session
-    await handleAdaptiveSessionCompletion();
-    
-    // Redirect to dashboard
+    // Redirect to dashboard immediately
     if (onSessionEnd) {
       onSessionEnd({ completed: true });
     }
+    
+    // Complete the session in background (don't wait for it)
+    handleAdaptiveSessionCompletion().catch(error => {
+      console.error('[CONGRATULATIONS] Background session completion error:', error);
+    });
   };
 
   // REMOVED: handleLegacyQuestionFlow - System is now adaptive-only
