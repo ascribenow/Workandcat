@@ -1145,6 +1145,20 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
       totalQuestions: livePack?.length || 12
     });
   };
+  
+  // Handler for congratulations modal close - completes session and redirects to dashboard
+  const handleCongratulationsModalClose = async () => {
+    console.log('[CONGRATULATIONS] User closed congratulations modal, completing session and redirecting...');
+    setShowCongratulationsModal(false);
+    
+    // Complete the session
+    await handleAdaptiveSessionCompletion();
+    
+    // Redirect to dashboard
+    if (onSessionEnd) {
+      onSessionEnd({ completed: true });
+    }
+  };
 
   // REMOVED: handleLegacyQuestionFlow - System is now adaptive-only
 
