@@ -233,21 +233,18 @@ def send_test_email():
     return success
 
 
-def get_all_users_with_10_plus_sessions():
-    """Get all users who have completed 10 or more sessions"""
+def get_all_users():
+    """Get all users in the system"""
     db = SessionLocal()
     try:
         query = text("""
-            SELECT u.email, u.full_name, COUNT(s.session_id) as session_count
+            SELECT u.email, u.full_name
             FROM users u
-            LEFT JOIN sessions s ON u.id = s.user_id AND s.status = 'completed'
-            GROUP BY u.id, u.email, u.full_name
-            HAVING COUNT(s.session_id) >= 10
-            ORDER BY session_count DESC
+            ORDER BY u.created_at DESC
         """)
         
         result = db.execute(query).fetchall()
-        users = [{"email": row[0], "name": row[1], "session_count": row[2]} for row in result]
+        users = [{"email": row[0], "name": row[1]} for row in result]
         
         return users
         
