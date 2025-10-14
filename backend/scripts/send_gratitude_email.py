@@ -31,7 +31,7 @@ Hi,
 
 It's been just a week since we launched Twelvr, and the response has been overwhelming — thank you for being part of it 🙏
 
-Many of you have already reached your 10-session free limit, so as a small gesture of gratitude, we're giving free extended access to our first 50 users who cross that mark.
+Many of you have already reached your 10-session free limit, so as a small gesture of gratitude, we're giving free CAT 2025 access to our first 50 users who cross that mark.
 
 We built Twelvr to help CAT 2025 aspirants learn smarter and move faster — especially if you've started a little late or find Quant tough. The AI engine behind Twelvr learns from every answer you give, so each session becomes more tuned to your pace and pattern — helping you cover Quant quickly and effectively.
 
