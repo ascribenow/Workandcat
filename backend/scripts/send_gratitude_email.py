@@ -253,33 +253,25 @@ def get_all_users():
 
 
 def send_to_all_users():
-    """Send email to all users with 10+ sessions (after approval)"""
+    """Send email to all users in the system"""
     print("\n" + "="*60)
     print("SENDING TO ALL USERS")
     print("="*60)
     
-    # Get all eligible users
-    print("\n📊 Fetching users with 10+ sessions...")
-    users = get_all_users_with_10_plus_sessions()
+    # Get all users
+    print("\n📊 Fetching all users...")
+    users = get_all_users()
     
     if not users:
-        print("❌ No users found with 10+ sessions")
+        print("❌ No users found")
         return
     
-    print(f"\n✅ Found {len(users)} users eligible for the email:")
-    for i, user in enumerate(users[:5], 1):
-        print(f"   {i}. {user['email']} - {user['name']} ({user['session_count']} sessions)")
+    print(f"\n✅ Found {len(users)} users:")
+    for i, user in enumerate(users[:10], 1):
+        print(f"   {i}. {user['email']} - {user['name']}")
     
-    if len(users) > 5:
-        print(f"   ... and {len(users) - 5} more users")
-    
-    # Confirm before sending
-    print("\n⚠️  WARNING: This will send emails to ALL eligible users!")
-    confirm = input("\nType 'YES' to confirm and send emails: ")
-    
-    if confirm != "YES":
-        print("\n❌ Email sending cancelled")
-        return
+    if len(users) > 10:
+        print(f"   ... and {len(users) - 10} more users")
     
     # Send emails
     subject, plain_text, html_content, preheader = create_email_content()
