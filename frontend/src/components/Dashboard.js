@@ -43,6 +43,10 @@ export const Dashboard = () => {
   const [showCooldownModal, setShowCooldownModal] = useState(false);
   const [cooldownTimeRemaining, setCooldownTimeRemaining] = useState(0);
   const [showFailureModal, setShowFailureModal] = useState(false);
+  
+  // Today's Session button click prevention states
+  const [isSessionButtonClicked, setIsSessionButtonClicked] = useState(false);
+  const [showSessionLoadingModal, setShowSessionLoadingModal] = useState(false);
 
   useEffect(() => {
     const loadDashboard = async () => {
