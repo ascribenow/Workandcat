@@ -7,7 +7,7 @@ import requests
 import json
 
 def check_pyq_enrichment():
-    base_url = "https://session-pack-repair.preview.emergentagent.com/api"
+    base_url = "https://cat-prep-debugger.preview.emergentagent.com/api"
     
     # Login as admin
     login_data = {

@@ -19,7 +19,7 @@ def main():
     print("=" * 80)
     
     # Test the working API base
-    base_url = 'https://session-pack-repair.preview.emergentagent.com/api'
+    base_url = 'https://cat-prep-debugger.preview.emergentagent.com/api'
     
     print(f"\n🌐 TESTING API BASE: {base_url}")
     print("-" * 60)

@@ -11,7 +11,7 @@ from datetime import datetime
 
 class DetailedBatchChecker:
     def __init__(self):
-        self.base_url = "https://session-pack-repair.preview.emergentagent.com/api"
+        self.base_url = "https://cat-prep-debugger.preview.emergentagent.com/api"
         self.admin_token = None
         
     def authenticate_admin(self):

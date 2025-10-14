@@ -8,7 +8,7 @@ import json
 import uuid
 
 # Test configuration
-BASE_URL = "https://session-pack-repair.preview.emergentagent.com/api"
+BASE_URL = "https://cat-prep-debugger.preview.emergentagent.com/api"
 
 def test_start_first_endpoint():
     print("🎯 QUICK PHASE 4 START-FIRST ENDPOINT TEST")

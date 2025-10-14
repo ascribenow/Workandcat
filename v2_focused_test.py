@@ -12,7 +12,7 @@ import json
 def test_v2_core_objectives():
     """Test the core V2 objectives that are working"""
     
-    base_url = "https://session-pack-repair.preview.emergentagent.com/api"
+    base_url = "https://cat-prep-debugger.preview.emergentagent.com/api"
     
     print("🚀 V2 CORE OBJECTIVES VALIDATION")
     print("=" * 60)

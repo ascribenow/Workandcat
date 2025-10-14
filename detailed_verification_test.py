@@ -9,7 +9,7 @@ import json
 import time
 
 def test_verification_flow():
-    base_url = "https://session-pack-repair.preview.emergentagent.com/api"
+    base_url = "https://cat-prep-debugger.preview.emergentagent.com/api"
     
     print("🔍 DETAILED VERIFICATION SYSTEM ANALYSIS")
     print("=" * 80)
