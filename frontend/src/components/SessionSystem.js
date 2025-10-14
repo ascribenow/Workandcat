@@ -52,6 +52,9 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
   // Pre-session insight states
   const [preSessionInsight, setPreSessionInsight] = useState(null);
   const [showPreSessionModal, setShowPreSessionModal] = useState(false);
+  
+  // Session completion congratulations modal state
+  const [showCongratulationsModal, setShowCongratulationsModal] = useState(false);
 
   // Function to fetch pre-session insights
   const fetchPreSessionInsight = async () => {
