@@ -551,6 +551,12 @@ export const Dashboard = () => {
                 </button>
                 <button
                   onClick={async () => {
+                    // Don't allow clicking if already in a session
+                    if (currentView === 'session') {
+                      console.log('Dashboard: Already in session, ignoring click');
+                      return;
+                    }
+                    
                     // Prevent multiple clicks - ignore if already clicked
                     if (isSessionButtonClicked) {
                       console.log('Dashboard: Button already clicked, ignoring subsequent click');
@@ -578,14 +584,20 @@ export const Dashboard = () => {
                       }
                     }
                   }}
-                  disabled={loading || isSessionButtonClicked}
+                  disabled={loading || isSessionButtonClicked || currentView === 'session'}
                   className={`inline-flex items-center px-1 pt-1 text-sm font-medium border-b-2 transition-colors ${
                     currentView === 'session'
                       ? 'border-[#9ac026] text-[#545454]'
                       : 'text-[#545454] border-transparent hover:text-[#ff6d4d] hover:border-[#ff6d4d]'
-                  } ${loading || isSessionButtonClicked ? 'opacity-50 cursor-not-allowed' : ''} ${sessionLimitStatus?.limit_reached ? 'opacity-50' : ''}`}
+                  } ${loading || isSessionButtonClicked || currentView === 'session' ? 'opacity-50 cursor-not-allowed' : ''} ${sessionLimitStatus?.limit_reached ? 'opacity-50' : ''}`}
                   style={{ fontFamily: 'Lato, sans-serif' }}
-                  title={sessionLimitStatus?.limit_reached ? 'Session limit reached - upgrade to continue' : ''}
+                  title={
+                    currentView === 'session' 
+                      ? 'Already in session' 
+                      : sessionLimitStatus?.limit_reached 
+                      ? 'Session limit reached - upgrade to continue' 
+                      : ''
+                  }
                 >
                   <span className="mr-2">🎯</span>
                   {loading ? 'Loading...' : "Today's Session"}
