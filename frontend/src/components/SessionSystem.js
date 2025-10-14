@@ -2398,6 +2398,72 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
         </div>
       )}
 
+      {/* Session Completion Congratulations Modal */}
+      {showCongratulationsModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-lg w-full mx-4 p-6 relative">
+            {/* Close button */}
+            <button
+              onClick={handleCongratulationsModalClose}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+              aria-label="Close"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+
+            {/* Congratulations content */}
+            <div className="text-center mb-6">
+              <div className="text-6xl mb-4">🎉</div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                Congratulations on completing your session!
+              </h2>
+            </div>
+            
+            {/* Explanation about engine processing */}
+            <div className="space-y-4 mb-6">
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="flex items-start space-x-3">
+                  <div className="text-2xl">🤖</div>
+                  <div>
+                    <p className="text-blue-900 font-medium mb-1">Engine at Work</p>
+                    <p className="text-blue-800 text-sm">
+                      Our adaptive engine is now analyzing your performance and creating your next session 
+                      based on your strengths and areas for improvement.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Ask Twelvr AI suggestion */}
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                <div className="flex items-start space-x-3">
+                  <div className="text-2xl">💬</div>
+                  <div>
+                    <p className="text-green-900 font-medium mb-1">Got Questions?</p>
+                    <p className="text-green-800 text-sm">
+                      While we prepare your next session, feel free to use the <strong>"Ask Twelvr AI"</strong> chat 
+                      to clarify any doubts from this session.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Action button */}
+            <div className="text-center">
+              <button
+                onClick={handleCongratulationsModalClose}
+                className="px-6 py-3 bg-[#9ac026] text-white rounded-lg hover:bg-[#8bb024] transition-colors font-medium"
+              >
+                Return to Dashboard
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Doubt Conversation Modal - ChatGPT Style */}
       {showDoubtModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
