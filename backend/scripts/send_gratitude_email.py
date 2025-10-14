@@ -238,10 +238,10 @@ def get_all_users_with_10_plus_sessions():
     db = SessionLocal()
     try:
         query = text("""
-            SELECT u.email, u.name, COUNT(s.id) as session_count
+            SELECT u.email, u.full_name, COUNT(s.id) as session_count
             FROM users u
             LEFT JOIN sessions s ON u.id = s.user_id AND s.status = 'completed'
-            GROUP BY u.id, u.email, u.name
+            GROUP BY u.id, u.email, u.full_name
             HAVING COUNT(s.id) >= 10
             ORDER BY session_count DESC
         """)
