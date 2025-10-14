@@ -135,10 +135,6 @@ www.twelvr.com
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <img src="https://customer-assets.emergentagent.com/job_adaptive-cat/artifacts/vv2teh18_Twelver%20edited.png" alt="Twelvr" style="height: 40px; width: auto; margin-bottom: 10px;">
-        </div>
-        
         <div class="content">
             <p>Hi,</p>
             
