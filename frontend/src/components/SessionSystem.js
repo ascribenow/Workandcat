@@ -2406,7 +2406,7 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
 
       {/* Session Completion Congratulations Modal */}
       {showCongratulationsModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-white flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-xl max-w-lg w-full mx-4 p-6 relative">
             {/* Close button */}
             <button
