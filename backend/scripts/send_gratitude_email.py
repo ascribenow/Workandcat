@@ -273,13 +273,18 @@ def send_to_all_users():
     if len(users) > 10:
         print(f"   ... and {len(users) - 10} more users")
     
-    # Send emails
+    # Send emails in batches of 5 with 60-second cooldown
+    import time
+    
     subject, plain_text, html_content, preheader = create_email_content()
     
     success_count = 0
     failed_count = 0
+    batch_size = 5
+    cooldown_seconds = 60
     
-    print(f"\n📧 Sending emails to {len(users)} users...")
+    print(f"\n📧 Sending emails to {len(users)} users in batches of {batch_size}")
+    print(f"⏱️  60-second cooldown between batches to avoid spam/promotions folder")
     print("="*60)
     
     for i, user in enumerate(users, 1):
@@ -293,6 +298,13 @@ def send_to_all_users():
         else:
             failed_count += 1
             print(f"   ❌ Failed to send")
+        
+        # Add cooldown after every batch of 5 emails (except after the last email)
+        if i % batch_size == 0 and i < len(users):
+            print(f"\n⏸️  Batch of {batch_size} sent. Waiting {cooldown_seconds} seconds before next batch...")
+            print(f"   Progress: {i}/{len(users)} emails sent ({success_count} successful, {failed_count} failed)")
+            time.sleep(cooldown_seconds)
+            print(f"   ✅ Cooldown complete. Resuming...\n")
     
     # Summary
     print("\n" + "="*60)
