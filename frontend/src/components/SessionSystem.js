@@ -2441,10 +2441,10 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
                 <div className="flex items-start space-x-3">
                   <div className="text-2xl">💬</div>
                   <div>
-                    <p className="text-green-900 font-medium mb-1">Got Questions?</p>
+                    <p className="text-green-900 font-medium mb-1">Pro Tip!</p>
                     <p className="text-green-800 text-sm">
-                      While we prepare your next session, feel free to use the <strong>"Ask Twelvr AI"</strong> chat 
-                      to clarify any doubts from this session.
+                      Remember, you can use <strong>"Ask Twelvr AI"</strong>, the intelligent AI chat, 
+                      for any of your quant doubts when you're on a question during a session.
                     </p>
                   </div>
                 </div>
