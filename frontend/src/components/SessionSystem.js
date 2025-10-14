@@ -1399,6 +1399,10 @@ export const SessionSystem = ({ sessionId: propSessionId, sessionMetadata, onSes
     
     if (nextIndex >= livePack.length) {
       console.log(`[CRITICAL_DEBUG] ${requestId}: Reached end of pack (${nextIndex} >= ${livePack.length}) - showing congratulations modal`);
+      // Clear the current question so only modal is visible
+      setCurrentQuestion(null);
+      setShowResult(false);
+      setResult(null);
       setShowCongratulationsModal(true);
       return;
     }
