@@ -190,7 +190,7 @@ async def test_periodic_cleanup_interval():
     
     # Create a job that's been running for only 1 minute
     print_section("Creating job stuck for 1 minute (should NOT be cleaned)")
-    job_id = await create_stuck_running_job(attempts=2, max_attempts=6, minutes_old=1)
+    job_id = await create_stuck_running_job(attempts=2, max_attempts=6, minutes_old=1, test_case_id=4)
     
     # Run cleanup with 2 minute threshold
     print_section("RUNNING CLEANUP (2 min threshold)")
