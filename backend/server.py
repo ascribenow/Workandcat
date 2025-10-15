@@ -2365,6 +2365,12 @@ async def shutdown_event():
         from services.adaptive_job_supervisor import adaptive_supervisor
         await adaptive_supervisor.stop_monitoring()
         logger.info("⏹️ Adaptive Job Supervisor: Monitoring stopped")
+        
+        # Stop periodic job cleanup
+        from services.periodic_job_cleanup import periodic_cleanup_service
+        await periodic_cleanup_service.stop()
+        logger.info("⏹️ Periodic Job Cleanup: Service stopped")
+        
     except Exception as e:
         logger.error(f"❌ Shutdown cleanup failed: {e}")
 
