@@ -215,16 +215,28 @@ class SimplifiedJobQueue:
         Returns:
             Job ID (UUID) for tracking
         """
-        # PHASE 1 FIX: Cleanup exhausted jobs before enqueue to prevent dedupe key blocking
+        # PHASE 1 FIX: Cleanup stuck and exhausted jobs before enqueue to prevent dedupe key blocking
         try:
-            deleted_count = await self.cleanup_exhausted_jobs(
+            # First, cleanup jobs stuck in queue (> 2 minutes)
+            stuck_count = await self.cleanup_stuck_jobs(
+                job_type=job_type,
+                user_id=user_id,
+                session_id=session_id,
+                queue_timeout_minutes=2
+            )
+            
+            if stuck_count > 0:
+                logger.warning(f"🧹 Removed {stuck_count} stuck job(s) (queue timeout) before enqueueing {job_type} for user {user_id[:8]}")
+            
+            # Then, cleanup exhausted jobs (failed all retry attempts)
+            exhausted_count = await self.cleanup_exhausted_jobs(
                 job_type=job_type,
                 user_id=user_id,
                 session_id=session_id
             )
             
-            if deleted_count > 0:
-                logger.info(f"🧹 Removed {deleted_count} blocking job(s) before enqueueing {job_type} for user {user_id[:8]}")
+            if exhausted_count > 0:
+                logger.info(f"🧹 Removed {exhausted_count} exhausted job(s) before enqueueing {job_type} for user {user_id[:8]}")
         except Exception as cleanup_error:
             # Cleanup is non-fatal - log error but continue with enqueue
             logger.warning(f"⚠️ Cleanup failed but continuing with enqueue: {cleanup_error}")
