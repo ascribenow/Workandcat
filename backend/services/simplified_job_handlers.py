@@ -1258,6 +1258,39 @@ async def handle_update_insights(job: Dict[str, Any]) -> Dict[str, Any]:
     logger.info(f"🔄 UPDATE_INSIGHTS (Pure LLM): user {user_id[:8]}")
     
     try:
+        # STALENESS CHECK: Skip if insights were recently updated (< 5 minutes ago)
+        from database import SessionLocal
+        db = SessionLocal()
+        try:
+            existing_insights = db.execute(text("""
+                SELECT user_id, last_updated_at
+                FROM user_dashboard_insights
+                WHERE user_id = :user_id
+                LIMIT 1
+            """), {"user_id": user_id}).fetchone()
+            
+            if existing_insights and existing_insights[1]:
+                from datetime import timedelta
+                time_since_update = now_ist() - existing_insights[1]
+                minutes_since_update = time_since_update.total_seconds() / 60
+                
+                if minutes_since_update < 5:
+                    logger.info(f"⚠️  UPDATE_INSIGHTS: Insights updated {minutes_since_update:.1f} min ago, skipping (too recent)")
+                    db.close()
+                    return {
+                        "status": "success",
+                        "insights_generated": False,
+                        "message": f"Insights too recent (updated {minutes_since_update:.1f} min ago)",
+                        "approach": "staleness_skip",
+                        "minutes_since_update": round(minutes_since_update, 1)
+                    }
+        except Exception as check_error:
+            logger.warning(f"⚠️  Staleness check failed (non-fatal): {check_error}")
+            # Continue with insight generation if check fails
+        finally:
+            db.close()
+        
+    try:
         # Step 1: Extract comprehensive user data
         from services.comprehensive_data_extractor import comprehensive_data_extractor
         comprehensive_data = comprehensive_data_extractor.extract_complete_user_data(user_id, session_id)
