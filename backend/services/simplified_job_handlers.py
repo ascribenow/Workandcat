@@ -56,8 +56,34 @@ async def run_simplified_summarizer(user_id: str, session_id: str) -> Dict[str, 
     logger = logging.getLogger(__name__)
     logger.info(f"🚀 FUNCTION ENTRY LOG: run_simplified_summarizer called for user {user_id[:8]}... session {session_id[:8]}...")
     try:
-        # Get session data for concept analysis
+        # IDEMPOTENCY CHECK: Skip if summary already exists for this session
         db = SessionLocal()
+        try:
+            existing_summary = db.execute(text("""
+                SELECT user_id, session_id, created_at
+                FROM session_summary_llm
+                WHERE user_id = :user_id AND session_id = :session_id
+                LIMIT 1
+            """), {"user_id": user_id, "session_id": session_id}).fetchone()
+            
+            if existing_summary:
+                logger.info(f"⚠️  SUMMARIZE_SESSION: Summary already exists for session {session_id[:8]}, skipping (retry detected)")
+                db.close()
+                return {
+                    "status": "success",
+                    "summary_created": False,
+                    "message": "Summary already exists (retry detected)",
+                    "created_at": existing_summary[2].isoformat() if existing_summary[2] else None,
+                    "telemetry": {
+                        "summarizer_used": "idempotency_skip",
+                        "processing_time_ms": 0
+                    }
+                }
+        except Exception as check_error:
+            logger.warning(f"⚠️  Idempotency check failed (non-fatal): {check_error}")
+            # Continue with summarization if check fails
+        
+        # Get session data for concept analysis
         try:
             session_result = db.execute(text("""
                 SELECT s.status, COUNT(ae.id) as total_attempts,
