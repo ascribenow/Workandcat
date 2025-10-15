@@ -37,6 +37,112 @@ class SimplifiedJobQueue:
         self.is_running = False
         self.poll_interval = 1.0  # 1 second polling
     
+    async def cleanup_stuck_running_jobs(
+        self,
+        timeout_minutes: int = 2
+    ) -> Dict[str, int]:
+        """
+        Clean up jobs stuck in 'running' status for too long
+        
+        Jobs can get stuck in 'running' status if:
+        - Worker crashes mid-processing
+        - Worker is forcefully killed
+        - Database connection is lost
+        - Process hangs indefinitely
+        
+        This method:
+        1. Finds jobs in 'running' status for > timeout_minutes
+        2. If attempts < max_attempts: Reset to 'queued' for retry
+        3. If attempts >= max_attempts: Mark as 'failed' (exhausted)
+        
+        Args:
+            timeout_minutes: Minutes before considering a running job as stuck (default: 2)
+            
+        Returns:
+            Dict with counts: {reset: int, failed: int}
+        """
+        db = SessionLocal()
+        try:
+            # Find stuck running jobs
+            stuck_jobs_query = text(f"""
+                SELECT id, job_type, user_id, session_id, attempts, max_attempts, started_at
+                FROM bg_jobs
+                WHERE status = 'running'
+                AND started_at < NOW() - INTERVAL '{timeout_minutes} minutes'
+            """)
+            
+            stuck_jobs = db.execute(stuck_jobs_query).fetchall()
+            
+            if not stuck_jobs:
+                return {"reset": 0, "failed": 0}
+            
+            reset_count = 0
+            failed_count = 0
+            
+            logger.warning(f"🚨 Found {len(stuck_jobs)} stuck running jobs (>{timeout_minutes} min)")
+            
+            for job in stuck_jobs:
+                job_id, job_type, user_id, session_id, attempts, max_attempts, started_at = job
+                
+                if attempts >= max_attempts:
+                    # Job has exhausted all attempts - mark as failed
+                    db.execute(text("""
+                        UPDATE bg_jobs
+                        SET status = 'failed',
+                            completed_at = :completed_at,
+                            error_message = :error_message
+                        WHERE id = :job_id
+                    """), {
+                        "job_id": job_id,
+                        "completed_at": now_ist(),
+                        "error_message": f"Job stuck in running status for >{timeout_minutes} min and exhausted all {max_attempts} attempts"
+                    })
+                    
+                    failed_count += 1
+                    logger.warning(
+                        f"   ❌ Marked as FAILED: {job_type} (user: {user_id[:8]}, "
+                        f"attempts: {attempts}/{max_attempts}, stuck since: {started_at})"
+                    )
+                else:
+                    # Job still has attempts left - reset to queued for retry
+                    backoff_minutes = min(2 ** attempts, 30)  # Exponential backoff, max 30 min
+                    next_attempt = now_ist() + timedelta(minutes=backoff_minutes)
+                    
+                    db.execute(text("""
+                        UPDATE bg_jobs
+                        SET status = 'queued',
+                            started_at = NULL,
+                            next_attempt_at = :next_attempt_at,
+                            error_message = :error_message
+                        WHERE id = :job_id
+                    """), {
+                        "job_id": job_id,
+                        "next_attempt_at": next_attempt,
+                        "error_message": f"Reset from stuck running status (was stuck for >{timeout_minutes} min)"
+                    })
+                    
+                    reset_count += 1
+                    logger.warning(
+                        f"   🔄 Reset to QUEUED: {job_type} (user: {user_id[:8]}, "
+                        f"attempts: {attempts}/{max_attempts}, retry in {backoff_minutes} min)"
+                    )
+            
+            db.commit()
+            
+            logger.info(
+                f"🧹 Stuck running jobs cleanup complete: "
+                f"{reset_count} reset to queued, {failed_count} marked as failed"
+            )
+            
+            return {"reset": reset_count, "failed": failed_count}
+            
+        except Exception as e:
+            db.rollback()
+            logger.error(f"❌ Failed to cleanup stuck running jobs: {e}")
+            return {"reset": 0, "failed": 0}
+        finally:
+            db.close()
+    
     async def cleanup_stuck_jobs(
         self,
         job_type: str,
