@@ -37,6 +37,87 @@ class SimplifiedJobQueue:
         self.is_running = False
         self.poll_interval = 1.0  # 1 second polling
     
+    async def cleanup_stuck_jobs(
+        self,
+        job_type: str,
+        user_id: str,
+        session_id: Optional[str] = None,
+        queue_timeout_minutes: int = 2
+    ) -> int:
+        """
+        Clean up jobs that are stuck in queue for too long
+        
+        Removes jobs that have been sitting in 'queued' status without being
+        picked up by a worker for more than the specified timeout period.
+        This prevents jobs from blocking new job creation when workers are down.
+        
+        Args:
+            job_type: Type of job to clean
+            user_id: User ID
+            session_id: Session ID (optional, for session-specific jobs)
+            queue_timeout_minutes: Minutes before considering a queued job as stuck (default: 2)
+            
+        Returns:
+            Number of jobs deleted
+        """
+        db = SessionLocal()
+        try:
+            # Build cleanup query for stuck queued jobs
+            if session_id:
+                # For session-specific jobs (SUMMARIZE_SESSION)
+                cleanup_query = text("""
+                    DELETE FROM bg_jobs
+                    WHERE user_id = :user_id
+                    AND session_id = :session_id
+                    AND job_type = :job_type
+                    AND status = 'queued'
+                    AND created_at < NOW() - INTERVAL ':timeout_minutes minutes'
+                    RETURNING id, attempts, status, created_at
+                """)
+                params = {
+                    "user_id": user_id,
+                    "session_id": session_id,
+                    "job_type": job_type,
+                    "timeout_minutes": queue_timeout_minutes
+                }
+            else:
+                # For user-level jobs (PLAN_NEXT_SESSION, UPDATE_INSIGHTS)
+                cleanup_query = text("""
+                    DELETE FROM bg_jobs
+                    WHERE user_id = :user_id
+                    AND job_type = :job_type
+                    AND status = 'queued'
+                    AND created_at < NOW() - INTERVAL ':timeout_minutes minutes'
+                    RETURNING id, attempts, status, created_at
+                """)
+                params = {
+                    "user_id": user_id,
+                    "job_type": job_type,
+                    "timeout_minutes": queue_timeout_minutes
+                }
+            
+            result = db.execute(cleanup_query, params)
+            deleted_jobs = result.fetchall()
+            
+            if deleted_jobs:
+                db.commit()
+                logger.warning(
+                    f"🧹 Cleaned up {len(deleted_jobs)} stuck jobs for user {user_id[:8]}... "
+                    f"job_type={job_type} (stuck in queue > {queue_timeout_minutes} min)"
+                )
+                for job in deleted_jobs:
+                    logger.warning(f"   Deleted stuck job: {job[0]} (created: {job[3]})")
+                return len(deleted_jobs)
+            
+            return 0
+            
+        except Exception as e:
+            db.rollback()
+            logger.error(f"❌ Failed to cleanup stuck jobs: {e}")
+            return 0
+        finally:
+            db.close()
+    
     async def cleanup_exhausted_jobs(
         self,
         job_type: str,
