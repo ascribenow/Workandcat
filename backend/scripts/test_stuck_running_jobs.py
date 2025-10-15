@@ -53,14 +53,16 @@ async def cleanup_test_jobs():
     finally:
         db.close()
 
-async def create_stuck_running_job(attempts, max_attempts=6, minutes_old=3):
+async def create_stuck_running_job(attempts, max_attempts=6, minutes_old=3, test_case_id=None):
     """Create a job stuck in 'running' status"""
     db = SessionLocal()
     try:
         job_id = str(uuid.uuid4())
         old_timestamp = datetime.utcnow() - timedelta(minutes=minutes_old)
         
-        dedupe_key = f"u:{TEST_USER_ID}|s:{TEST_SESSION_ID}|SUMMARIZE_SESSION"
+        # Use unique dedupe_key for each test case
+        session_suffix = f"-test{test_case_id}" if test_case_id else ""
+        dedupe_key = f"u:{TEST_USER_ID}|s:{TEST_SESSION_ID}{session_suffix}|SUMMARIZE_SESSION"
         
         db.execute(text("""
             INSERT INTO bg_jobs (
