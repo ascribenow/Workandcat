@@ -2348,6 +2348,13 @@ async def startup_event():
         asyncio.create_task(adaptive_supervisor.start_monitoring())
         logger.info("🔍 Adaptive Job Supervisor: Monitoring started")
         
+        # Initialize periodic job cleanup service
+        from services.periodic_job_cleanup import periodic_cleanup_service
+        
+        # Start periodic cleanup (runs every 5 minutes)
+        await periodic_cleanup_service.start()
+        logger.info("🧹 Periodic Job Cleanup: Service started")
+        
     except Exception as e:
         logger.error(f"❌ Startup initialization failed: {e}")
 
