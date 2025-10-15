@@ -132,15 +132,15 @@ async def test_stuck_running_jobs_cleanup():
     
     # Test Case 1: Job with attempts remaining (should reset to queued)
     print_section("TEST CASE 1: Job with remaining attempts (2/6)")
-    job1_id = await create_stuck_running_job(attempts=2, max_attempts=6, minutes_old=3)
+    job1_id = await create_stuck_running_job(attempts=2, max_attempts=6, minutes_old=3, test_case_id=1)
     
     # Test Case 2: Job with exhausted attempts (should mark as failed)
     print_section("TEST CASE 2: Job with exhausted attempts (6/6)")
-    job2_id = await create_stuck_running_job(attempts=6, max_attempts=6, minutes_old=3)
+    job2_id = await create_stuck_running_job(attempts=6, max_attempts=6, minutes_old=3, test_case_id=2)
     
     # Test Case 3: Job just at the limit (5/6) - should reset
     print_section("TEST CASE 3: Job just below limit (5/6)")
-    job3_id = await create_stuck_running_job(attempts=5, max_attempts=6, minutes_old=3)
+    job3_id = await create_stuck_running_job(attempts=5, max_attempts=6, minutes_old=3, test_case_id=3)
     
     # Run cleanup
     print_section("RUNNING CLEANUP")
