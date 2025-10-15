@@ -63,37 +63,36 @@ class SimplifiedJobQueue:
         db = SessionLocal()
         try:
             # Build cleanup query for stuck queued jobs
+            # Use string formatting for INTERVAL since it can't be parameterized
             if session_id:
                 # For session-specific jobs (SUMMARIZE_SESSION)
-                cleanup_query = text("""
+                cleanup_query = text(f"""
                     DELETE FROM bg_jobs
                     WHERE user_id = :user_id
                     AND session_id = :session_id
                     AND job_type = :job_type
                     AND status = 'queued'
-                    AND created_at < NOW() - INTERVAL ':timeout_minutes minutes'
+                    AND created_at < NOW() - INTERVAL '{queue_timeout_minutes} minutes'
                     RETURNING id, attempts, status, created_at
                 """)
                 params = {
                     "user_id": user_id,
                     "session_id": session_id,
-                    "job_type": job_type,
-                    "timeout_minutes": queue_timeout_minutes
+                    "job_type": job_type
                 }
             else:
                 # For user-level jobs (PLAN_NEXT_SESSION, UPDATE_INSIGHTS)
-                cleanup_query = text("""
+                cleanup_query = text(f"""
                     DELETE FROM bg_jobs
                     WHERE user_id = :user_id
                     AND job_type = :job_type
                     AND status = 'queued'
-                    AND created_at < NOW() - INTERVAL ':timeout_minutes minutes'
+                    AND created_at < NOW() - INTERVAL '{queue_timeout_minutes} minutes'
                     RETURNING id, attempts, status, created_at
                 """)
                 params = {
                     "user_id": user_id,
-                    "job_type": job_type,
-                    "timeout_minutes": queue_timeout_minutes
+                    "job_type": job_type
                 }
             
             result = db.execute(cleanup_query, params)
