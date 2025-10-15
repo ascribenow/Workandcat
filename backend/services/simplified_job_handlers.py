@@ -1290,7 +1290,6 @@ async def handle_update_insights(job: Dict[str, Any]) -> Dict[str, Any]:
         finally:
             db.close()
         
-    try:
         # Step 1: Extract comprehensive user data
         from services.comprehensive_data_extractor import comprehensive_data_extractor
         comprehensive_data = comprehensive_data_extractor.extract_complete_user_data(user_id, session_id)
