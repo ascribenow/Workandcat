@@ -136,12 +136,11 @@ www.twelvr.com
             
             <p>{session_message}</p>
             
-            <p>There are just <strong>45 days to CAT</strong>, and every session counts now.<br>
-            Twelvr's adaptive AI helps you cover Quant faster by focusing on your strengths and weaknesses.<br>
-            Each 12-question session gets smarter — and brings you closer to full coverage.</p>
+            <p>Just <strong>45 days to CAT</strong>, and every session counts now.<br>
+            Twelvr's adaptive AI helps you cover Quant syllabus like magic. Maximise your strengths and just the right things to sharpen your weak areas.</p>
             
             <div class="highlight-box">
-                <p style="font-size: 17px; font-weight: 600; margin-bottom: 12px; color: #333;">💬 Feel stuck or unsure?</p>
+                <p style="font-size: 17px; font-weight: 600; margin-bottom: 12px; color: #333;">💬 Need help using Twelvr?</p>
                 <p style="font-size: 15px;">If you're unsure how to start or feel stuck, book a quick one-on-one with me.<br>
                 No pressure — just a chat to help you use Twelvr right.</p>
             </div>
