@@ -180,7 +180,7 @@ def send_email_from_sumedh(to_email, subject, plain_text, html_content):
     try:
         # Create multipart message
         msg = MIMEMultipart('alternative')
-        msg['From'] = 'Sumedh from Twelvr <sumedh@twelvr.com>'
+        msg['From'] = 'Twelvr <hello@twelvr.com>'
         msg['To'] = to_email
         msg['Subject'] = subject
         
