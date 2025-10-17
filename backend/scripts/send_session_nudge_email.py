@@ -26,10 +26,8 @@ def create_email_content(user_email, session_count):
     # Personalized session message
     if session_count == 0:
         session_message = "You've taken the first step by signing up — and that already puts you ahead."
-    elif session_count == 1:
-        session_message = f"You've completed your first session — great start! That already puts you ahead."
     else:
-        session_message = f"You've completed {session_count} sessions — you're making progress! That puts you ahead."
+        session_message = f"You've completed {session_count} sessions — now is the time for a sprint!"
     
     # Plain text version
     plain_text = f"""
