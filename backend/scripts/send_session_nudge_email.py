@@ -239,7 +239,7 @@ def get_all_users_with_session_counts():
         query = text("""
             SELECT u.id, u.email, u.full_name, COUNT(s.session_id) as session_count
             FROM users u
-            LEFT JOIN sessions s ON u.id::text = s.user_id AND s.status = 'completed'
+            LEFT JOIN sessions s ON CAST(u.id AS TEXT) = s.user_id AND s.status = 'completed'
             GROUP BY u.id, u.email, u.full_name
             ORDER BY u.created_at DESC
         """)
