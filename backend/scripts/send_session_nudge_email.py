@@ -281,7 +281,7 @@ def send_test_email():
     print(f"\n📧 Sending test email to: {test_email}")
     print(f"   User: {user_data['name']}")
     print(f"   Session count: {session_count}")
-    print(f"👤 From: Sumedh from Twelvr <sumedh@twelvr.com>")
+    print(f"👤 From: Twelvr <hello@twelvr.com>")
     
     subject, plain_text, html_content, preheader = create_email_content(test_email, session_count)
     
