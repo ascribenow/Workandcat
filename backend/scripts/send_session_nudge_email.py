@@ -35,9 +35,8 @@ Hi,
 
 {session_message}
 
-There are just 45 days to CAT, and every session counts now.
-Twelvr's adaptive AI helps you cover Quant faster by focusing on your strengths and weaknesses.
-Each 12-question session gets smarter — and brings you closer to full coverage.
+Just 45 days to CAT, and every session counts now.
+Twelvr's adaptive AI helps you cover Quant syllabus like magic. Maximise your strengths and just the right things to sharpen your weak areas.
 
 If you're unsure how to start or feel stuck, book a quick one-on-one with me.
 No pressure — just a chat to help you use Twelvr right.
