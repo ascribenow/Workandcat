@@ -924,30 +924,9 @@ async def select_questions_for_band(
         priority_order = "q.pyq_frequency_score DESC, RANDOM()"
         
     else:  # balanced
-        # PYQ priority + moderate debt + random
-        target_condition = ""
-        if target_pairs:
-            pair_conditions = []
-            for i, pair in enumerate(target_pairs[:15]):
-                parts = pair.split(":")
-                if len(parts) == 2:
-                    pair_conditions.append(f"(q.subcategory = :sub_{i} AND q.type_of_question = :type_{i})")
-                    query_params[f"sub_{i}"] = parts[0]
-                    query_params[f"type_{i}"] = parts[1]
-            
-            if pair_conditions:
-                # Use CASE for priority: PYQ > moderate debt > random
-                priority_order = f"""
-                    CASE 
-                        WHEN q.pyq_frequency_score >= 3 THEN 1
-                        WHEN ({' OR '.join(pair_conditions)}) THEN 2
-                        ELSE 3
-                    END, RANDOM()
-                """
-            else:
-                priority_order = "q.pyq_frequency_score DESC, RANDOM()"
-        else:
-            priority_order = "q.pyq_frequency_score DESC, RANDOM()"
+        # PYQ priority + random (simplified to always work, even for new users)
+        target_condition = ""  # No filtering - select from all questions in this difficulty
+        priority_order = "q.pyq_frequency_score DESC, RANDOM()"  # Always use PYQ priority
     
     # Execute query
     query = text(f"""
